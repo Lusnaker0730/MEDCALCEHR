@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CGMH EHRCALC on FHIR</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
+  <script>
+    FHIR.oauth2.authorize({
+      // The client_id below is a sample public client for a SMART sandbox.
+      // You can create your own client at https://smarthealthit.org/
+      "client_id": "my-app",
+      "scope": "openid fhirUser launch/patient patient/Patient.read patient/Observation.read online_access",
+      "redirect_uri": "./index.html"
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,444 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 200%;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 960px; /* Increased from 800px */
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input, select, button {
+    font-size: inherit;
+}
+
+h1, h2, h3 {
+    color: #005a9c;
+}
+
+#patient-info p {
+    margin: 5px 0;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 20px 0;
+}
+
+#calculators div {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#bmi-result {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* New styles for calculator cards */
+.calculator-card {
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.calculator-card h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.input-group {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.input-group label {
+    flex: 0 0 140px;
+    font-weight: bold;
+    padding-right: 10px;
+}
+
+.input-group input, .input-group select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.result {
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #005a9c;
+    background-color: #e7f3fe;
+    border-left: 4px solid #007bff;
+    padding: 10px;
+}
+
+/* New styles for checklist calculators */
+.checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+}
+
+.check-item input[type="checkbox"] {
+    margin-right: 10px;
+    height: 18px;
+    width: 18px;
+}
+
+.check-item label {
+    font-weight: normal;
+}
+
+/* New styles for menu and calculator pages */
+.calculator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calculator-link {
+    display: block;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #005a9c;
+    font-weight: bold;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.calculator-link:hover {
+    background-color: #e7f3fe;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* New styles for combined calculators */
+.calculator-section {
+    margin-bottom: 15px;
+}
+
+.calculator-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 15px 0;
+}
+
+/* New styles for search bar */
+.search-container {
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+#search-bar {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#search-bar:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+
+.no-results {
+    color: #666;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Calculator List Styling */
+#calculator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s;
+}
+
+.list-item:hover {
+    background-color: #f1f1f1;
+}
+
+.list-item-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.list-item-title {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.list-item-description {
+    color: #555;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.list-item-star {
+    font-size: 1.5em;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.list-item-star:hover {
+    color: #f3d11a;
+}
+
+/* SOFA Score specific styles */
+.sofa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sofa-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.sofa-item label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.sofa-item select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+/* GAD-7 specific styles */
+.gad7-question {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.gad7-question p {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.gad7-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.gad7-options label {
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.gad7-options input[type="radio"] {
+    margin-right: 5px;
+}
+
+/* MME Calculator specific styles */
+.mme-opioid-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mme-opioid-item .opioid-select {
+    flex: 2;
+}
+
+.mme-opioid-item .opioid-dose {
+    flex: 1;
+}
+
+#add-opioid-btn {
+    margin-right: 10px;
+}
+
+.warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: .75rem 1.25rem;
+    margin-top: 10px;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+
+/* CIWA-Ar specific styles */
+.ciwa-ar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.ciwa-ar-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.ciwa-ar-item label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.ciwa-ar-item input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: auto;
+}
+
+/* New CIWA-Ar Styles */
+.ciwa-ar-category {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.ciwa-ar-left {
+    flex: 1;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #ddd;
+}
+
+.ciwa-ar-left h4 {
+    margin-top: 0;
+}
+
+.ciwa-ar-left p {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.ciwa-ar-right {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.ciwa-ar-option {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.ciwa-ar-option:last-child {
+    border-bottom: none;
+}
+
+.ciwa-ar-option:hover {
+    background-color: #f1f1f1;
+}
+
+.ciwa-ar-option.selected {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.ciwa-ar-score {
+    font-weight: bold;
+}

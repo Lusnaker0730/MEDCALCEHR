@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGMH EHRCALC on FHIR - Select a Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>CGMH EHRCALC on FHIR</h1>
+        <div id="patient-info">Loading patient data...</div>
+        <hr>
+        <h2>Available Calculators</h2>
+        <div class="search-container">
+            <input type="search" id="search-bar" placeholder="Search for a calculator...">
+        </div>
+        <div id="calculator-list" class="calculator-list">
+            <!-- Calculator links will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
