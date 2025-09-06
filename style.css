@@ -442,3 +442,368 @@ button:hover {
 .ciwa-ar-score {
     font-weight: bold;
 }
+
+input[type="radio"], input[type="checkbox"] {
+    margin-right: 5px;
+    transform: scale(1.8);
+    margin: 8px;
+}
+
+/* Styles for radio button groups */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-group label {
+    display: block;
+    background-color: #f7f7f7;
+    padding: 12px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    text-align: left;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    font-weight: normal; /* Override general label styles */
+    margin-bottom: 0; /* Override general label styles */
+}
+
+.radio-group label:hover {
+    background-color: #e7e7e7;
+    border-color: #ccc;
+}
+
+.radio-group input[type="radio"] {
+    display: none; /* Hide the radio button */
+}
+
+.radio-group label.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+    font-weight: bold;
+}
+
+.result-box {
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: left;
+    color: white;
+}
+
+.result-box .result-score {
+    font-size: 2.5em;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+.result-box .result-interpretation {
+    font-size: 1.2em;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.result-box.low-prob {
+    background-color: #28a745; /* Green */
+}
+
+.result-box.intermediate-prob {
+    background-color: #ffc107; /* Yellow */
+    color: #333;
+}
+
+.result-box.high-prob {
+    background-color: #dc3545; /* Red */
+}
+
+/* Modern Form Styles */
+.form-container.modern .input-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.form-container.modern .input-row:last-of-type {
+    border-bottom: none;
+}
+
+.form-container.modern .input-row label {
+    flex-basis: 40%;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 0;
+}
+
+.segmented-control {
+    display: flex;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.segmented-control label {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #fff;
+    color: #007bff;
+    transition: background-color 0.2s, color 0.2s;
+    text-align: center;
+    font-weight: bold !important;
+}
+
+.segmented-control label.selected {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.segmented-control input[type="radio"] {
+    display: none;
+}
+
+.input-with-unit {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.input-with-unit input {
+    border: none;
+    padding: 8px;
+    width: 100px;
+    text-align: right;
+}
+
+.input-with-unit input:focus {
+    outline: none;
+}
+
+.input-with-unit span {
+    padding: 8px 12px;
+    background-color: #f7f7f7;
+    color: #555;
+    border-left: 1px solid #ccc;
+}
+
+/* Result Grid for 6MWD */
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background-color: #005a9c;
+    color: white;
+    padding: 1px;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.result-grid .result-item {
+    background-color: #007bff;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.result-grid .result-item .value {
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.result-grid .result-item .unit {
+    font-size: 0.5em;
+    font-weight: normal;
+}
+
+.result-grid .result-item .label {
+    margin-top: 8px;
+    font-size: 0.9em;
+}
+
+/* ARISCAT Form Styles */
+.ariscat-form .input-row {
+    align-items: flex-start;
+}
+
+.ariscat-form .input-label {
+    flex-basis: 40%;
+    font-weight: bold;
+    color: #555;
+}
+
+.ariscat-form .input-label span {
+    display: block;
+    font-weight: normal;
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 4px;
+}
+
+.ariscat-form .segmented-control,
+.ariscat-form .radio-group {
+    flex-basis: 60%;
+}
+
+.segmented-control.multi label {
+    flex: 1;
+}
+
+.ariscat-form .input-row.vertical {
+    align-items: flex-start;
+}
+
+.radio-group.vertical-group {
+    width: 100%;
+    max-width: 300px;
+}
+
+.radio-group.vertical-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-bottom: none;
+}
+
+.radio-group.vertical-group label:first-of-type {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.radio-group.vertical-group label:last-of-type {
+    border-bottom: 1px solid #ddd;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.radio-group.vertical-group label.selected {
+    background-color: #28a745;
+    color: white;
+    border-color: #1e7e34;
+}
+
+/* ARISCAT Result Box */
+.ariscat-result-box {
+    display: flex;
+    background-color: #28a745;
+    color: white;
+    border-radius: 8px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.ariscat-result-box .score-section {
+    flex-basis: 30%;
+    padding: 20px;
+    text-align: center;
+    border-right: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.ariscat-result-box .score-value {
+    font-size: 4em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.ariscat-result-box .score-label {
+    font-size: 1.2em;
+    margin-top: -5px;
+    margin-bottom: 5px;
+}
+
+.ariscat-result-box .score-title {
+    font-weight: bold;
+}
+
+.ariscat-result-box .interpretation-section {
+    flex-basis: 70%;
+    padding: 20px;
+}
+
+.ariscat-result-box .interp-title {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.ariscat-result-box .interp-details {
+    margin-top: 10px;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.ariscat-result-box .interpretation-section .interp-title {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+/* Instructions Box */
+.instructions-box {
+    background-color: #e7f3fe;
+    border: 1px solid #bce8f1;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.instructions-box p {
+    margin: 5px 0 0 0;
+    font-size: 0.9em;
+}
+
+.instructions-box.important {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.instructions-box.dark-blue {
+    background-color: #d6eaf8;
+    border-color: #aed6f1;
+    color: #1b4f72;
+}
+
+/* TTKG Result Box */
+.ttkg-result {
+    background-color: #6c757d; /* Grey for "fill out fields" */
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.ttkg-result.calculated {
+    background-color: #1e8449; /* Green for calculated result */
+}
+
+.ttkg-result.error {
+    background-color: #dc3545; /* Red for error */
+}
+
+.ttkg-result .result-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.ttkg-result .result-value {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.ttkg-result .result-value small {
+    display: block;
+    font-size: 0.8em;
+    margin-top: 10px;
+    line-height: 1.4;
+    font-weight: normal;
+}

@@ -62,6 +62,20 @@ import { ethanolConcentration } from './ethanol-concentration.js';
 import { abl } from './abl.js';
 import { ett } from './ett.js';
 import { tpaDosing } from './tpa-dosing.js';
+import { ttkg } from './ttkg.js';
+import { actionIcu } from './action-icu.js';
+import { score2Diabetes } from './score2-diabetes.js';
+import { gwtgHf } from './gwtg-hf.js';
+import { maggic } from './maggic.js';
+import { kawasaki } from './kawasaki.js';
+import { abgAnalyzer } from './abg-analyzer.js';
+import { intraopFluid } from './intraop-fluid.js';
+import { apgarScore } from './apgar.js';
+import { bwps } from './bwps.js';
+import { apacheIi } from './apache-ii.js';
+import { isthDic } from './isth-dic.js';
+import { hscore } from './hscore.js';
+import { charlson } from './charlson.js';
 
 
 // An array that aggregates all calculator modules
@@ -128,5 +142,19 @@ export const calculatorModules = [
     ethanolConcentration,
     abl,
     ett,
-    tpaDosing
+    tpaDosing,
+    ttkg,
+    actionIcu,
+    score2Diabetes,
+    gwtgHf,
+    maggic,
+    kawasaki,
+    abgAnalyzer,
+    intraopFluid,
+    apgarScore,
+    bwps,
+    apacheIi,
+    isthDic,
+    hscore,
+    charlson
 ].sort((a, b) => a.title.localeCompare(b.title));

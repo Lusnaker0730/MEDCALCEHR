@@ -1,103 +1,154 @@
+import { getMostRecentObservation } from '../utils.js';
+
 export const childPugh = {
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
+    description: 'Estimates cirrhosis severity.',
     generateHTML: function() {
         return `
             <h3>${this.title}</h3>
-            <p>Estimates cirrhosis severity.</p>
-            <div class="form-container">
-                <div class="form-group">
-                    <label for="cp-bilirubin">Total Bilirubin (mg/dL)</label>
-                    <input type="number" id="cp-bilirubin" step="0.1" placeholder="e.g., 1.5">
+            <p class="description">${this.description}</p>
+            <div class="form-container modern ariscat-form">
+                <div class="input-row vertical">
+                    <div class="input-label">Bilirubin (Total)</div>
+                    <div class="radio-group vertical-group">
+                        <label><input type="radio" name="bilirubin" value="1"> &lt;2 mg/dL (&lt;34.2 μmol/L)</label>
+                        <label><input type="radio" name="bilirubin" value="2"> 2-3 mg/dL (34.2-51.3 μmol/L)</label>
+                        <label><input type="radio" name="bilirubin" value="3"> >3 mg/dL (>51.3 μmol/L)</label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="cp-albumin">Serum Albumin (g/dL)</label>
-                    <input type="number" id="cp-albumin" step="0.1" placeholder="e.g., 3.2">
+                <div class="input-row vertical">
+                    <div class="input-label">Albumin</div>
+                    <div class="radio-group vertical-group">
+                        <label><input type="radio" name="albumin" value="1"> >3.5 g/dL (>35 g/L)</label>
+                        <label><input type="radio" name="albumin" value="2"> 2.8-3.5 g/dL (28-35 g/L)</label>
+                        <label><input type="radio" name="albumin" value="3"> &lt;2.8 g/dL (&lt;28 g/L)</label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="cp-inr">INR</label>
-                    <input type="number" id="cp-inr" step="0.1" placeholder="e.g., 1.5">
+                 <div class="input-row vertical">
+                    <div class="input-label">INR</div>
+                    <div class="radio-group vertical-group">
+                        <label><input type="radio" name="inr" value="1"> &lt;1.7</label>
+                        <label><input type="radio" name="inr" value="2"> 1.7-2.3</label>
+                        <label><input type="radio" name="inr" value="3"> >2.3</label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="cp-ascites">Ascites</label>
-                    <select id="cp-ascites">
-                        <option value="1">None</option>
-                        <option value="2">Slight/Mild (diuretic responsive)</option>
-                        <option value="3">Moderate/Severe (diuretic refractory)</option>
-                    </select>
+                <div class="input-row vertical">
+                    <div class="input-label">Ascites</div>
+                    <div class="radio-group vertical-group">
+                        <label><input type="radio" name="ascites" value="1"> Absent</label>
+                        <label><input type="radio" name="ascites" value="2"> Slight</label>
+                        <label><input type="radio" name="ascites" value="3"> Moderate</label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="cp-encephalopathy">Hepatic Encephalopathy</label>
-                    <select id="cp-encephalopathy">
-                        <option value="1">None</option>
-                        <option value="2">Grade 1-2 (or controlled)</option>
-                        <option value="3">Grade 3-4 (or refractory)</option>
-                    </select>
+                 <div class="input-row vertical">
+                    <div class="input-label">Encephalopathy</div>
+                    <div class="radio-group vertical-group">
+                        <label><input type="radio" name="encephalopathy" value="1"> No Encephalopathy</label>
+                        <label><input type="radio" name="encephalopathy" value="2"> Grade 1-2</label>
+                        <label><input type="radio" name="encephalopathy" value="3"> Grade 3-4</label>
+                    </div>
                 </div>
             </div>
-            <button id="calculate-child-pugh">Calculate Score</button>
-            <div id="child-pugh-result" class="result" style="display:none;"></div>
+            <div id="child-pugh-result" class="ariscat-result-box" style="display:none;"></div>
         `;
     },
-    initialize: function() {
-        document.getElementById('calculate-child-pugh').addEventListener('click', () => {
-            const bilirubin = parseFloat(document.getElementById('cp-bilirubin').value);
-            const albumin = parseFloat(document.getElementById('cp-albumin').value);
-            const inr = parseFloat(document.getElementById('cp-inr').value);
-            const ascites = parseInt(document.getElementById('cp-ascites').value);
-            const encephalopathy = parseInt(document.getElementById('cp-encephalopathy').value);
+    initialize: function(client, patient, container) {
+        const resultEl = container.querySelector('#child-pugh-result');
+        const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
-            if (isNaN(bilirubin) || isNaN(albumin) || isNaN(inr)) {
-                alert('Please enter all lab values.');
+        const calculate = () => {
+            let score = 0;
+            const allAnswered = groups.every(group => container.querySelector(`input[name="${group}"]:checked`));
+
+            if (!allAnswered) {
+                resultEl.style.display = 'none';
                 return;
             }
 
-            let score = 0;
-
-            // Bilirubin points
-            if (bilirubin < 2) score += 1;
-            else if (bilirubin <= 3) score += 2;
-            else score += 3;
-
-            // Albumin points
-            if (albumin > 3.5) score += 1;
-            else if (albumin >= 2.8) score += 2;
-            else score += 3;
+            groups.forEach(group => {
+                score += parseInt(container.querySelector(`input[name="${group}"]:checked`).value);
+            });
             
-            // INR points
-            if (inr < 1.7) score += 1;
-            else if (inr <= 2.3) score += 2;
-            else score += 3;
-
-            score += ascites;
-            score += encephalopathy;
-
             let classification = '';
-            let survival1yr = '';
-            let survival2yr = '';
+            let lifeExpectancy = '';
+            let mortality = '';
 
             if (score <= 6) {
-                classification = 'Class A';
-                survival1yr = '100%';
-                survival2yr = '85%';
+                classification = 'Child Class A';
+                lifeExpectancy = '15-20 years';
+                mortality = '10%';
             } else if (score <= 9) {
-                classification = 'Class B';
-                survival1yr = '81%';
-                survival2yr = '57%';
+                classification = 'Child Class B';
+                lifeExpectancy = '4-14 years';
+                mortality = '30%';
             } else {
-                classification = 'Class C';
-                survival1yr = '45%';
-                survival2yr = '35%';
+                classification = 'Child Class C';
+                lifeExpectancy = '1-3 years';
+                mortality = '82%';
             }
 
-            const resultEl = document.getElementById('child-pugh-result');
             resultEl.innerHTML = `
-                <p>Child-Pugh Score: ${score}</p>
-                <p>Classification: ${classification}</p>
-                <p>1-Year Survival: ${survival1yr}</p>
-                <p>2-Year Survival: ${survival2yr}</p>
+                <div class="score-section" style="justify-content: center;">
+                    <div class="score-value">${score}</div>
+                    <div class="score-label">points</div>
+                </div>
+                <div class="interpretation-section">
+                    <div class="interp-title">${classification}</div>
+                    <div class="interp-details">
+                        Life Expectancy: ${lifeExpectancy}<br>
+                        Abdominal surgery peri-operative mortality: ${mortality}
+                    </div>
+                </div>
             `;
-            resultEl.style.display = 'block';
+            resultEl.style.display = 'flex';
+        };
+
+        const setRadioFromValue = (groupName, value, ranges) => {
+            if (value === null) return;
+            const radioToSelect = ranges.find(range => range.condition(value));
+            if (radioToSelect) {
+                const radio = container.querySelector(`input[name="${groupName}"][value="${radioToSelect.value}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    radio.parentElement.classList.add('selected');
+                }
+            }
+        };
+
+        // Fetch and set lab values
+        getMostRecentObservation(client, '1975-2').then(obs => { // Bilirubin mg/dL
+            if (obs && obs.valueQuantity) setRadioFromValue('bilirubin', obs.valueQuantity.value, [
+                { condition: v => v < 2, value: '1' },
+                { condition: v => v >= 2 && v <= 3, value: '2' },
+                { condition: v => v > 3, value: '3' },
+            ]);
+            calculate();
+        });
+        getMostRecentObservation(client, '1751-7').then(obs => { // Albumin g/L
+            if (obs && obs.valueQuantity) setRadioFromValue('albumin', obs.valueQuantity.value / 10, [ // Convert g/L to g/dL
+                { condition: v => v > 3.5, value: '1' },
+                { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
+                { condition: v => v < 2.8, value: '3' },
+            ]);
+            calculate();
+        });
+        getMostRecentObservation(client, '34714-6').then(obs => { // INR
+            if (obs && obs.valueQuantity) setRadioFromValue('inr', obs.valueQuantity.value, [
+                { condition: v => v < 1.7, value: '1' },
+                { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
+                { condition: v => v > 2.3, value: '3' },
+            ]);
+            calculate();
+        });
+
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                const group = event.target.closest('.radio-group');
+                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                event.target.parentElement.classList.add('selected');
+                calculate();
+            });
         });
     }
 };

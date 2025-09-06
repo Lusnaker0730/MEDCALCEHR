@@ -59,3 +59,20 @@ export function displayPatientInfo(client, patientInfoDiv) {
     );
 }
 
+/**
+ * Gets patient's conditions for a given set of SNOMED codes.
+ * @param {Object} client The FHIR client instance.
+ * @param {Array<string>} codes Array of SNOMED codes for the conditions.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
+ */
+export function getPatientConditions(client, codes) {
+    const codeString = codes.join(',');
+    return client.patient.request(`Condition?clinical-status=active&code=${codeString}`)
+        .then(response => {
+            if (response.entry) {
+                return response.entry.map(e => e.resource);
+            }
+            return [];
+        });
+}
+
