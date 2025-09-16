@@ -88,15 +88,22 @@ button:hover {
 }
 
 .input-group {
-    margin-bottom: 12px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
 }
 
 .input-group label {
-    flex: 0 0 140px;
-    font-weight: bold;
-    padding-right: 10px;
+    flex: 1 1 auto;
+    margin-right: 20px;
+    color: #343a40;
+    font-size: 1em;
+    line-height: 1.5;
 }
 
 .input-group input, .input-group select {
@@ -490,7 +497,8 @@ input[type="radio"], input[type="checkbox"] {
     padding: 20px;
     margin-top: 20px;
     text-align: left;
-    color: white;
+    background-color: #f0f0f0; /* Default background */
+    color: #333; /* Default dark text color */
 }
 
 .result-box .result-score {
@@ -505,8 +513,16 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: bold;
 }
 
+/* Specific style for the meningitis score result */
+.result-box.bms-result {
+    background-color: #d4edda; /* A light green background */
+    color: #155724; /* A dark green text color */
+    border: 1px solid #c3e6cb;
+}
+
 .result-box.low-prob {
     background-color: #28a745; /* Green */
+    color: white; /* White text for dark backgrounds */
 }
 
 .result-box.intermediate-prob {
@@ -516,6 +532,37 @@ input[type="radio"], input[type="checkbox"] {
 
 .result-box.high-prob {
     background-color: #dc3545; /* Red */
+    color: white; /* White text for dark backgrounds */
+}
+
+.result-box h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    color: #0056b3;
+}
+
+.result-box.has-bled-result {
+    background-color: #008080; /* Teal/dark green color from image */
+    color: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.result-box.has-bled-result h3 {
+    color: white;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+.result-box.has-bled-result p {
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+.result-box.calculated {
+    background-color: #e7f3ff;
+    border-left: 5px solid #007bff;
 }
 
 /* Modern Form Styles */
@@ -543,25 +590,184 @@ input[type="radio"], input[type="checkbox"] {
     border: 1px solid #007bff;
     border-radius: 5px;
     overflow: hidden;
+    width: fit-content;
+    flex-shrink: 0; /* Prevent shrinking in flex containers */
 }
 
-.segmented-control label {
-    padding: 8px 16px;
+.segmented-control button {
+    padding: 8px 15px;
+    border: none;
+    background-color: #f8f9fa; /* Off-white for inactive state */
     cursor: pointer;
-    background-color: #fff;
-    color: #007bff;
-    transition: background-color 0.2s, color 0.2s;
-    text-align: center;
-    font-weight: bold !important;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 0.9em;
+    color: #212529; /* Black text for inactive button */
+    border-left: 1px solid #007bff;
+    white-space: nowrap;
 }
 
-.segmented-control label.selected {
+.segmented-control button:first-child {
+    border-left: none;
+}
+
+.segmented-control button.active {
     background-color: #007bff;
-    color: #fff;
+    color: white;
 }
 
-.segmented-control input[type="radio"] {
-    display: none;
+.input-group.vertical {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.input-group.vertical label.title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.input-group.vertical small {
+    margin-bottom: 10px;
+    color: #6c757d;
+}
+
+.vertical-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.vertical-radio-group button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    color: #212529; /* Ensure text is visible on inactive buttons */
+}
+
+.vertical-radio-group button.active {
+    background-color: #28a745; /* Green color from image */
+    color: white;
+    border-color: #28a745;
+}
+
+.vertical-radio-group button span:last-child {
+    font-weight: bold;
+}
+
+.result-box.four-as-result {
+    background-color: #28a745; /* Green color from image */
+    color: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.result-box.four-as-result h3 {
+    color: white;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+.result-box.four-as-result p {
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+.instructions-box {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+}
+
+.instructions-box.dark-blue {
+    background-color: #343a40; /* Dark color from image */
+    color: white;
+    border-color: #343a40;
+}
+
+.instructions-box p {
+    margin: 5px 0 0;
+}
+
+.result-box.four-c-result {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #28a745; /* Green color from image */
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.result-box.four-c-result .result-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.result-box.four-c-result .result-item span {
+    display: block;
+}
+
+.result-box.four-c-result .result-item .score,
+.result-box.four-c-result .result-item .risk,
+.result-box.four-c-result .result-item .mortality {
+    font-size: 2.5em;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.result-box.four-c-result .result-item .risk {
+    font-size: 2em;
+}
+
+.result-box.four-peps-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #008080; /* Teal color from image */
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.result-box.four-peps-result .result-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+}
+
+.result-box.four-peps-result .result-item:nth-child(2) {
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 0 15px;
+    padding: 0 15px;
+}
+
+.result-box.four-peps-result .result-item.recommendation {
+    align-items: flex-start;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.result-box.four-peps-result .result-item .score,
+.result-box.four-peps-result .result-item .probability {
+    font-size: 2.5em;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.result-box.four-peps-result .result-item small {
+    margin-top: 5px;
 }
 
 .input-with-unit {
@@ -773,12 +979,11 @@ input[type="radio"], input[type="checkbox"] {
 
 /* TTKG Result Box */
 .ttkg-result {
-    background-color: #6c757d; /* Grey for "fill out fields" */
-    color: white;
-    padding: 20px;
+    margin-top: 15px;
+    padding: 15px;
     border-radius: 8px;
-    margin-top: 20px;
-    transition: background-color 0.3s;
+    background-color: #f0f4f8; /* Light blue-grey background */
+    display: none; /* Initially hidden */
 }
 
 .ttkg-result.calculated {
@@ -806,4 +1011,300 @@ input[type="radio"], input[type="checkbox"] {
     margin-top: 10px;
     line-height: 1.4;
     font-weight: normal;
+}
+
+.low-risk { background-color: #28a745; } /* Green */
+.intermediate-risk { background-color: #ffc107; } /* Yellow */
+.high-risk { background-color: #dc3545; } /* Red */
+
+.input-group-4ts {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.input-group-4ts h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #343a40;
+}
+
+.radio-group-4ts {
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+.radio-group-4ts button {
+    background-color: #fff;
+    border: none;
+    border-top: 1px solid #dee2e6;
+    padding: 12px 15px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background-color 0.3s;
+    color: #212529;
+}
+
+.radio-group-4ts button:first-child {
+    border-top: none;
+}
+
+.radio-group-4ts button.active {
+    background-color: #e7f3ff; /* Light blue for active state */
+    color: #0056b3;
+    font-weight: bold;
+}
+
+.result-box.four-ts-result {
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.result-box.four-ts-result.low-risk { background-color: #28a745; }
+.result-box.four-ts-result.intermediate-risk { background-color: #ffc107; color: #212529; }
+.result-box.four-ts-result.high-risk { background-color: #dc3545; }
+
+.result-box.four-ts-result h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.8em;
+}
+
+.result-box.four-ts-result p {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+/* Styles for calculator with image */
+.calculator-header {
+    margin-bottom: 20px;
+}
+
+.calculator-image-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Styles for Image Modal */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    padding-top: 60px; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.9); 
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+
+#modal-image {
+    width: 100%;
+    height: auto;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Styles for Citation */
+.citation {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    font-size: 0.8em;
+    color: #555;
+}
+
+.citation h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.citation p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* New Styles for 4C Score Layout */
+.input-row-new {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.input-label-new {
+    flex-basis: 45%;
+    font-weight: bold;
+    color: #333;
+}
+
+.input-label-new small {
+    display: block;
+    font-weight: normal;
+    color: #666;
+    font-size: 0.85em;
+    margin-top: 4px;
+}
+
+.input-control-new {
+    flex-basis: 55%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* HEP Score (4Ts-HIT) New Layout */
+.hep-score-new .input-row-new {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.hep-score-new .input-row-new:last-of-type {
+    border-bottom: none;
+}
+
+.hep-score-new .input-label-new {
+    flex: 1;
+    padding-right: 15px;
+    font-weight: 500;
+    color: #343a40;
+}
+
+.hep-score-new .input-control-new {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.hep-score-new .segmented-control {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
+}
+
+.hep-score-new .segmented-control button {
+    flex-grow: 1; /* Allow buttons to grow and fill the space */
+    margin-bottom: 5px; /* Add some space between rows when wrapped */
+    padding: 8px 12px;
+    border: 1px solid #007bff;
+    background-color: #fff;
+    color: #007bff;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 500;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.hep-score-new .segmented-control button:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-right: none;
+}
+
+.hep-score-new .segmented-control button:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-left: 1px solid #007bff;
+}
+
+.hep-score-new .segmented-control button:not(:first-child):not(:last-child) {
+    border-radius: 0;
+    border-left: none;
+}
+
+
+.hep-score-new .segmented-control button.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.hep-score-new .hep-onset-row {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border-bottom: none;
+}
+
+.hep-score-new .hep-onset-row .input-control-new {
+    flex: 0 0 auto; /* Don't grow, just take content width */
+    width: 180px;
+}
+
+/* Allow segmented controls to wrap */
+.segmented-control {
+    flex-wrap: wrap;
+}
+.segmented-control button {
+    margin-bottom: 5px; /* Add space for wrapped buttons */
+}
+
+.references img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 15px;
+}
+
+.calculator-notes {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fafafa;
+    border-top: 1px solid #eee;
+}
+
+.calculator-notes h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.calculator-notes img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.calculated {
+    display: block !important;
 }

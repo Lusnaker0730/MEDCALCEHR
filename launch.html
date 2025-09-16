@@ -11,6 +11,8 @@
       // The client_id below is a sample public client for a SMART sandbox.
       // You can create your own client at https://smarthealthit.org/
       "client_id": "my-app",
+      // Provide a default issuer for standalone testing
+      "iss": "https://launch.smarthealthit.org/v/r4/fhir",
       "scope": "openid fhirUser launch/patient patient/Patient.read patient/Observation.read online_access",
       "redirect_uri": "./index.html"
     });
