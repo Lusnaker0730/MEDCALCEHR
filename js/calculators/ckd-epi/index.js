@@ -8,42 +8,60 @@ export const ckdEpi = {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
-                <label for="epi-creatinine">Serum Creatinine (mg/dL):</label>
-                <input type="number" id="epi-creatinine" placeholder="loading...">
+                <label for="ckd-epi-creatinine">Serum Creatinine (mg/dL):</label>
+                <input type="number" id="ckd-epi-creatinine" placeholder="loading...">
             </div>
             <div class="input-group">
-                <label for="epi-age">Age:</label>
-                <input type="number" id="epi-age" placeholder="loading...">
+                <label for="ckd-epi-age">Age:</label>
+                <input type="number" id="ckd-epi-age" placeholder="loading...">
             </div>
             <div class="input-group">
-                <label for="epi-gender">Gender:</label>
-                <select id="epi-gender">
+                <label for="ckd-epi-gender">Gender:</label>
+                <select id="ckd-epi-gender">
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                 </select>
             </div>
-            <button id="calculate-epi">Calculate</button>
-            <div id="epi-result" class="result" style="display:none;"></div>
+            <div id="ckd-epi-result" class="result" style="display:block;">
+                <div class="result-item">
+                    <span class="value">-- <span class="unit">mL/min/1.73m²</span></span>
+                    <span class="label">eGFR (CKD-EPI 2021)</span>
+                </div>
+            </div>
+            <div class="formula-section">
+                <h4>CKD-EPI 2021 Formula</h4>
+                <div class="formula-item">
+                    <strong>For Females:</strong>
+                    <div class="formula">eGFR = 142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012</div>
+                </div>
+                <div class="formula-item">
+                    <strong>For Males:</strong>
+                    <div class="formula">eGFR = 142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup></div>
+                </div>
+                <div class="formula-item">
+                    <strong>Where:</strong>
+                    <div class="formula">
+                        Scr = serum creatinine (mg/dL)<br>
+                        κ = 0.7 (females) or 0.9 (males)<br>
+                        α = -0.241 (females) or -0.302 (males)<br>
+                        min = minimum of Scr/κ or 1<br>
+                        max = maximum of Scr/κ or 1
+                    </div>
+                </div>
+            </div>
         `;
     },
-    initialize: function(client, patient) {
-        const creatinineInput = document.getElementById('epi-creatinine');
-        const ageInput = document.getElementById('epi-age');
-        const genderSelect = document.getElementById('epi-gender');
+    initialize: function(client, patient, container) {
+        const creatinineInput = container.querySelector('#ckd-epi-creatinine');
+        const ageInput = container.querySelector('#ckd-epi-age');
+        const genderSelect = container.querySelector('#ckd-epi-gender');
+        const resultEl = container.querySelector('#ckd-epi-result');
 
-        ageInput.value = calculateAge(patient.birthDate);
-        genderSelect.value = patient.gender;
-
-        getMostRecentObservation(client, '2160-0').then(obs => {
-            if (obs) creatinineInput.value = obs.valueQuantity.value.toFixed(2);
-            else creatinineInput.placeholder = "e.g., 1.2";
-        });
-
-        document.getElementById('calculate-epi').addEventListener('click', () => {
+        // Function to calculate and update results
+        const calculateAndUpdate = () => {
             const creatinine = parseFloat(creatinineInput.value);
             const age = parseFloat(ageInput.value);
             const gender = genderSelect.value;
-            const resultEl = document.getElementById('epi-result');
 
             if (creatinine > 0 && age > 0) {
                 const kappa = gender === 'female' ? 0.7 : 0.9;
@@ -56,13 +74,46 @@ export const ckdEpi = {
                           Math.pow(0.9938, age) *
                           gender_coefficient;
                 
-                resultEl.innerHTML = `<p>eGFR: ${gfr.toFixed(0)} mL/min/1.73m²</p>`;
-                resultEl.style.display = 'block';
+                // Update result display
+                const valueEl = resultEl.querySelector('.result-item .value');
+                valueEl.innerHTML = `${gfr.toFixed(0)} <span class="unit">mL/min/1.73m²</span>`;
+                
+                resultEl.className = 'result calculated';
             } else {
-                resultEl.innerText = 'Please enter valid creatinine and age.';
-                resultEl.style.display = 'block';
+                // Reset to default values if inputs are invalid
+                const valueEl = resultEl.querySelector('.result-item .value');
+                valueEl.innerHTML = `-- <span class="unit">mL/min/1.73m²</span>`;
+                
+                resultEl.className = 'result';
             }
+        };
+
+        // Auto-populate patient data
+        if (patient && patient.birthDate) {
+            ageInput.value = calculateAge(patient.birthDate);
+        }
+        if (patient && patient.gender) {
+            genderSelect.value = patient.gender;
+        }
+
+        // Auto-populate from FHIR data
+        getMostRecentObservation(client, '2160-0').then(obs => {
+            if (obs && obs.valueQuantity) {
+                creatinineInput.value = obs.valueQuantity.value.toFixed(2);
+            } else {
+                creatinineInput.placeholder = "e.g., 1.2";
+            }
+            // Calculate initial results if data was populated
+            calculateAndUpdate();
         });
+
+        // Add event listeners for automatic calculation
+        creatinineInput.addEventListener('input', calculateAndUpdate);
+        ageInput.addEventListener('input', calculateAndUpdate);
+        genderSelect.addEventListener('change', calculateAndUpdate);
+
+        // Initial calculation
+        calculateAndUpdate();
     }
 };
 

@@ -63,139 +63,180 @@ const getPoints = {
 
 export const apacheIi = {
     id: 'apache-ii',
-    title: 'APACHE II Score',
-    description: 'Estimates ICU mortality.',
+    title: 'APACHE II',
+    description: 'Calculates APACHE II score for ICU mortality.',
     generateHTML: function() {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
             <div class="form-container modern">
                 <div class="input-row ariscat-form">
-                    <div class="input-label">History of severe organ failure or immunocompromise<span>Heart Failure Class IV, cirrhosis, chronic lung disease, or dialysis-dependent</span></div>
+                    <div class="input-label">History of severe organ insufficiency or immunocompromised</div>
                     <div class="segmented-control"><label><input type="radio" name="chronic" value="5"> Yes</label><label><input type="radio" name="chronic" value="0"> No</label></div>
                 </div>
-                <div class="input-row"><label>Age</label><div class="input-with-unit"><input type="number" id="apache-age"><span>years</span></div></div>
-                <div class="input-row"><label>Temperature</label><div class="input-with-unit"><input type="number" id="apache-temp" placeholder="Norm: 36.1 - 37.8"><span>°C</span></div></div>
-                <div class="input-row"><label>Mean arterial pressure</label><div class="input-with-unit"><input type="number" id="apache-map" placeholder="Norm: 70 - 100"><span>mm Hg</span></div></div>
-                <div class="input-row"><label>pH</label><input type="number" id="apache-ph" step="0.01" placeholder="Norm: 7.38 - 7.44"></div>
-                <div class="input-row"><label>Heart rate/pulse</label><div class="input-with-unit"><input type="number" id="apache-hr" placeholder="Norm: 60 - 100"><span>beats/min</span></div></div>
-                <div class="input-row"><label>Respiratory rate</label><div class="input-with-unit"><input type="number" id="apache-rr" placeholder="Norm: 12 - 20"><span>breaths/min</span></div></div>
-                <div class="input-row"><label>Sodium</label><div class="input-with-unit"><input type="number" id="apache-sodium" placeholder="Norm: 136 - 145"><span>mmol/L</span></div></div>
-                <div class="input-row"><label>Potassium</label><div class="input-with-unit"><input type="number" id="apache-potassium" placeholder="Norm: 3.5 - 5.2"><span>mmol/L</span></div></div>
-                <div class="input-row"><label>Creatinine</label><div class="input-with-unit"><input type="number" id="apache-creatinine" placeholder="Norm: 62 - 115"><span>μmol/L</span></div></div>
+                <div class="input-row"><label>Age</label><div class="input-with-unit"><input type="number" id="apache-ii-age"><span>years</span></div></div>
+                <div class="input-row"><label>Temperature</label><div class="input-with-unit"><input type="number" id="apache-ii-temp" placeholder="Norm: 36.1 - 37.8"><span>°C</span></div></div>
+                <div class="input-row"><label>Mean arterial pressure</label><div class="input-with-unit"><input type="number" id="apache-ii-map" placeholder="Norm: 70 - 100"><span>mm Hg</span></div></div>
+                <div class="input-row"><label>pH</label><input type="number" id="apache-ii-ph" step="0.01" placeholder="Norm: 7.38 - 7.44"></div>
+                <div class="input-row"><label>Heart rate/pulse</label><div class="input-with-unit"><input type="number" id="apache-ii-hr" placeholder="Norm: 60 - 100"><span>beats/min</span></div></div>
+                <div class="input-row"><label>Respiratory rate</label><div class="input-with-unit"><input type="number" id="apache-ii-rr" placeholder="Norm: 12 - 20"><span>breaths/min</span></div></div>
+                <div class="input-row"><label>Sodium</label><div class="input-with-unit"><input type="number" id="apache-ii-sodium" placeholder="Norm: 136 - 145"><span>mmol/L</span></div></div>
+                <div class="input-row"><label>Potassium</label><div class="input-with-unit"><input type="number" id="apache-ii-potassium" placeholder="Norm: 3.5 - 5.2"><span>mmol/L</span></div></div>
+                <div class="input-row"><label>Creatinine</label><div class="input-with-unit"><input type="number" id="apache-ii-creatinine" placeholder="Norm: 62 - 115"><span>μmol/L</span></div></div>
                 <div class="input-row ariscat-form">
                     <div class="input-label">Acute renal failure<span>Note: "acute renal failure" was not defined in the original study. Use clinical judgment to determine whether patient has acute kidney injury.</span></div>
                     <div class="segmented-control"><label><input type="radio" name="arf" value="1"> Yes</label><label><input type="radio" name="arf" value="0"> No</label></div>
                 </div>
-                <div class="input-row"><label>Hematocrit</label><div class="input-with-unit"><input type="number" id="apache-hct" placeholder="Norm: 36 - 51"><span>%</span></div></div>
-                <div class="input-row"><label>White blood cell count</label><div class="input-with-unit"><input type="number" id="apache-wbc" placeholder="Norm: 3.7 - 10.7"><span>x 10⁹ cells/L</span></div></div>
-                <div class="input-row"><label>Glasgow Coma Scale</label><div class="input-with-unit"><input type="number" id="apache-gcs" placeholder="Norm: 3 - 15"><span>points</span></div></div>
+                <div class="input-row"><label>Hematocrit</label><div class="input-with-unit"><input type="number" id="apache-ii-hct" placeholder="Norm: 36 - 51"><span>%</span></div></div>
+                <div class="input-row"><label>White blood cell count</label><div class="input-with-unit"><input type="number" id="apache-ii-wbc" placeholder="Norm: 3.7 - 10.7"><span>x 10⁹ cells/L</span></div></div>
+                <div class="input-row"><label>Glasgow Coma Scale</label><div class="input-with-unit"><input type="number" id="apache-ii-gcs" placeholder="Norm: 3 - 15"><span>points</span></div></div>
                 <div class="input-row vertical ariscat-form">
                     <div class="input-label">Oxygenation (choose one method)</div>
-                    <div class="radio-group vertical-group" id="apache-oxygen-method">
+                    <div class="radio-group vertical-group" id="apache-ii-oxygen-method">
                         <label><input type="radio" name="oxy_method" value="fio2_pao2" checked> FiO₂ and PaO₂</label>
                         <label><input type="radio" name="oxy_method" value="pao2_only"> PaO₂ only (if FiO₂ < 0.5)</label>
                     </div>
                 </div>
-                 <div class="input-row" id="fio2_pao2_inputs">
-                    <label for="apache-fio2">FiO₂</label><input type="number" id="apache-fio2" step="0.1" placeholder="e.g. 0.5">
-                    <label for="apache-pao2">PaO₂</label><input type="number" id="apache-pao2" placeholder="mmHg">
-                    <label for="apache-paco2">PaCO₂</label><input type="number" id="apache-paco2" placeholder="mmHg">
+                <div class="input-row" id="fio2_pao2_inputs">
+                    <label for="apache-ii-fio2">FiO₂</label><input type="number" id="apache-ii-fio2" step="0.1" placeholder="e.g. 0.5">
+                    <label for="apache-ii-pao2">PaO₂</label><input type="number" id="apache-ii-pao2" placeholder="mmHg">
+                    <label for="apache-ii-paco2">PaCO₂</label><input type="number" id="apache-ii-paco2" placeholder="mmHg">
                 </div>
                 <div class="input-row" id="pao2_only_inputs" style="display:none;">
-                     <label for="apache-pao2-only">PaO₂</label><input type="number" id="apache-pao2-only" placeholder="mmHg">
+                    <label for="apache-ii-pao2-only">PaO₂</label><input type="number" id="apache-ii-pao2-only" placeholder="mmHg">
                 </div>
+                <button id="calculate-apache-ii" class="calculate-btn">Calculate APACHE II</button>
             </div>
-            <div id="apache-result" class="result-box ttkg-result" style="display:block;">
+            <div id="apache-ii-result" class="result-box ttkg-result" style="display:block;">
                 <div class="result-title">Result:</div>
                 <div class="result-value">Please fill out required fields.</div>
             </div>
-            <div class="calculator-notes">
-                <h4>APACHE II Score Components</h4>
-                <img src="/js/calculators/apache-ii/APACHE2.png" alt="APACHE II Score Table">
-                <h4>Original Publication</h4>
-                <p><strong>APACHE II: a severity of disease classification system.</strong><br>
-                Knaus WA, Draper EA, Wagner DP, Zimmerman JE.<br>
-                Crit Care Med. 1985 Oct;13(10):818-29.</p>
+            <div class="references">
+                <h4>Reference</h4>
+                <p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>
+                <img src="js/calculators/apache-ii/APACHE2.png" alt="APACHE II Reference Image" />
             </div>
         `;
     },
     initialize: function(client, patient, container) {
-        const fields = ['age', 'temp', 'map', 'ph', 'hr', 'rr', 'sodium', 'potassium', 'creatinine', 'hct', 'wbc', 'gcs', 'fio2', 'pao2', 'paco2', 'pao2-only'];
-        const elements = {};
-        fields.forEach(f => elements[f] = container.querySelector(`#apache-${f}`));
-        const resultValueEl = container.querySelector('#apache-result .result-value');
+        const ageInput = container.querySelector('#apache-ii-age');
+        if (patient && patient.birthDate) {
+            ageInput.value = calculateAge(patient.birthDate);
+        }
 
-        const calculate = () => {
-            let score = 0;
-            const vals = {};
-            fields.forEach(f => vals[f] = parseFloat(elements[f].value));
-            
+        // Auto-populate from FHIR
+        getMostRecentObservation(client, '8310-5').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-temp').value = obs.valueQuantity.value.toFixed(1); 
+        });
+        getMostRecentObservation(client, '8480-6').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-map').value = obs.valueQuantity.value.toFixed(0); 
+        });
+        getMostRecentObservation(client, '8867-4').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-hr').value = obs.valueQuantity.value.toFixed(0); 
+        });
+        getMostRecentObservation(client, '9279-1').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-rr').value = obs.valueQuantity.value.toFixed(0); 
+        });
+        getMostRecentObservation(client, '2703-7').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-ph').value = obs.valueQuantity.value.toFixed(2); 
+        });
+        getMostRecentObservation(client, '2951-2').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-sodium').value = obs.valueQuantity.value.toFixed(0); 
+        });
+        getMostRecentObservation(client, '2823-3').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-potassium').value = obs.valueQuantity.value.toFixed(1); 
+        });
+        getMostRecentObservation(client, '2160-0').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-creatinine').value = obs.valueQuantity.value.toFixed(2); 
+        });
+        getMostRecentObservation(client, '4544-3').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-hct').value = obs.valueQuantity.value.toFixed(1); 
+        });
+        getMostRecentObservation(client, '6764-2').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-wbc').value = obs.valueQuantity.value.toFixed(1); 
+        });
+        getMostRecentObservation(client, '8478-0').then(obs => { 
+            if(obs && obs.valueQuantity) container.querySelector('#apache-ii-gcs').value = obs.valueQuantity.value.toFixed(0); 
+        });
+
+        // Handle oxygen method switching
+        const oxyMethodInputs = container.querySelectorAll('input[name="oxy_method"]');
+        const fio2Inputs = container.querySelector('#fio2_pao2_inputs');
+        const pao2OnlyInputs = container.querySelector('#pao2_only_inputs');
+        
+        oxyMethodInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                if (input.value === 'fio2_pao2') {
+                    fio2Inputs.style.display = 'block';
+                    pao2OnlyInputs.style.display = 'none';
+                } else {
+                    fio2Inputs.style.display = 'none';
+                    pao2OnlyInputs.style.display = 'block';
+                }
+            });
+        });
+
+        container.querySelector('#calculate-apache-ii').addEventListener('click', () => {
             const arf = container.querySelector('input[name="arf"]:checked')?.value === '1';
             const chronic = container.querySelector('input[name="chronic"]:checked')?.value === '5';
+            const oxyMethod = container.querySelector('input[name="oxy_method"]:checked')?.value;
+            
+            const values = {
+                temp: parseFloat(container.querySelector('#apache-ii-temp').value),
+                map: parseFloat(container.querySelector('#apache-ii-map').value),
+                hr: parseFloat(container.querySelector('#apache-ii-hr').value),
+                rr: parseFloat(container.querySelector('#apache-ii-rr').value),
+                ph: parseFloat(container.querySelector('#apache-ii-ph').value),
+                sodium: parseFloat(container.querySelector('#apache-ii-sodium').value),
+                potassium: parseFloat(container.querySelector('#apache-ii-potassium').value),
+                creatinine: parseFloat(container.querySelector('#apache-ii-creatinine').value),
+                hct: parseFloat(container.querySelector('#apache-ii-hct').value),
+                wbc: parseFloat(container.querySelector('#apache-ii-wbc').value),
+                gcs: parseInt(container.querySelector('#apache-ii-gcs').value),
+                age: parseInt(ageInput.value),
+                fio2: parseFloat(container.querySelector('#apache-ii-fio2').value),
+                pao2: parseFloat(container.querySelector('#apache-ii-pao2').value),
+                paco2: parseFloat(container.querySelector('#apache-ii-paco2').value),
+                pao2_only: parseFloat(container.querySelector('#apache-ii-pao2-only').value)
+            };
+
+            const resultEl = container.querySelector('#apache-ii-result .result-value');
 
             try {
                 let aps = 0;
-                aps += getPoints.temp(vals.temp);
-                aps += getPoints.map(vals.map);
-                aps += getPoints.ph(vals.ph);
-                aps += getPoints.hr(vals.hr);
-                aps += getPoints.rr(vals.rr);
-                aps += getPoints.sodium(vals.sodium);
-                aps += getPoints.potassium(vals.potassium);
-                aps += getPoints.creatinine(vals.creatinine, arf);
-                aps += getPoints.hct(vals.hct);
-                aps += getPoints.wbc(vals.wbc);
-                aps += getPoints.gcs(vals.gcs);
+                aps += getPoints.temp(values.temp);
+                aps += getPoints.map(values.map);
+                aps += getPoints.ph(values.ph);
+                aps += getPoints.hr(values.hr);
+                aps += getPoints.rr(values.rr);
+                aps += getPoints.sodium(values.sodium);
+                aps += getPoints.potassium(values.potassium);
+                aps += getPoints.creatinine(values.creatinine, arf);
+                aps += getPoints.hct(values.hct);
+                aps += getPoints.wbc(values.wbc);
+                aps += getPoints.gcs(values.gcs);
                 
-                const oxyMethod = container.querySelector('input[name="oxy_method"]:checked').value;
-                if (oxyMethod === 'fio2_pao2' && vals.fio2 >= 0.5) {
-                    aps += getPoints.oxygenation(vals.fio2, vals.pao2, vals.paco2);
+                if (oxyMethod === 'fio2_pao2' && values.fio2 >= 0.5) {
+                    aps += getPoints.oxygenation(values.fio2, values.pao2, values.paco2);
                 } else {
-                    aps += getPoints.oxygenation(0.21, vals.pao2_only || vals.pao2, null);
+                    aps += getPoints.oxygenation(0.21, values.pao2_only || values.pao2, null);
                 }
                 
-                let agePoints = getPoints.age(vals.age);
+                let agePoints = getPoints.age(values.age);
                 let chronicPoints = chronic ? 5 : 0;
                 
-                score = aps + agePoints + chronicPoints;
+                const score = aps + agePoints + chronicPoints;
                 const mortality = (Math.exp(-3.517 + (0.146 * score)) / (1 + Math.exp(-3.517 + (0.146 * score)))) * 100;
 
-                resultValueEl.innerHTML = `
+                resultEl.innerHTML = `
                     <div style="font-size: 1.5em; font-weight: bold;">APACHE II Score: ${score}</div>
                     Predicted ICU Mortality: ${mortality.toFixed(1)}%
                 `;
-                 container.querySelector('#apache-result').className = 'result-box ttkg-result calculated';
+                container.querySelector('#apache-ii-result').className = 'result-box ttkg-result calculated';
             } catch (e) {
-                 resultValueEl.textContent = 'Please fill out all required fields.';
-                 container.querySelector('#apache-result').className = 'result-box ttkg-result';
+                resultEl.textContent = 'Please fill out all required fields.';
+                container.querySelector('#apache-ii-result').className = 'result-box ttkg-result';
             }
-        };
-        
-        // Event Listeners
-        container.querySelectorAll('input').forEach(input => input.addEventListener('input', calculate));
-        container.querySelectorAll('input[name="oxy_method"]').forEach(radio => radio.addEventListener('change', () => {
-            const useFio2 = container.querySelector('input[name="oxy_method"]:checked').value === 'fio2_pao2';
-            container.querySelector('#fio2_pao2_inputs').style.display = useFio2 ? 'flex' : 'none';
-            container.querySelector('#pao2_only_inputs').style.display = useFio2 ? 'none' : 'flex';
-        }));
-
-        // Auto-populate
-        elements.age.value = calculateAge(patient.birthDate);
-        getMostRecentObservation(client, '8310-5').then(obs => { if(obs) elements.temp.value = obs.valueQuantity.value.toFixed(1); calculate(); });
-        getMostRecentObservation(client, '8478-0').then(obs => { if(obs) elements.map.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-        getMostRecentObservation(client, '11558-4').then(obs => { if(obs) elements.ph.value = obs.valueQuantity.value.toFixed(2); calculate(); });
-        getMostRecentObservation(client, '8867-4').then(obs => { if(obs) elements.hr.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-        getMostRecentObservation(client, '9279-1').then(obs => { if(obs) elements.rr.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-        getMostRecentObservation(client, '2951-2').then(obs => { if(obs) elements.sodium.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-        getMostRecentObservation(client, '2823-3').then(obs => { if(obs) elements.potassium.value = obs.valueQuantity.value.toFixed(1); calculate(); });
-        getMostRecentObservation(client, '2160-0').then(obs => { if(obs) elements.creatinine.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-        getMostRecentObservation(client, '4544-3').then(obs => { if(obs) elements.hct.value = obs.valueQuantity.value.toFixed(1); calculate(); });
-        getMostRecentObservation(client, '6690-2').then(obs => { if(obs) elements.wbc.value = obs.valueQuantity.value.toFixed(1); calculate(); });
-        getMostRecentObservation(client, '9269-2').then(obs => { if(obs) elements.gcs.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-        getMostRecentObservation(client, '11556-8').then(obs => { if(obs) { elements.pao2.value = obs.valueQuantity.value.toFixed(0); elements.pao2_only.value = obs.valueQuantity.value.toFixed(0); } calculate(); });
-        getMostRecentObservation(client, '11557-6').then(obs => { if(obs) elements.paco2.value = obs.valueQuantity.value.toFixed(0); calculate(); });
-
-        calculate();
+        });
     }
 };

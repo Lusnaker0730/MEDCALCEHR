@@ -17,6 +17,46 @@ export const calciumCorrection = {
             </div>
             <button id="calculate-ca">Calculate</button>
             <div id="ca-result" class="result" style="display:none;"></div>
+            
+            <div class="formula-section">
+                <h4>📐 Formula</h4>
+                <div class="formula-box">
+                    <div class="formula-title">Corrected Calcium (mg/dL) =</div>
+                    <div class="formula-equation">
+                        <span class="formula-main">Total Calcium + 0.8 × (4.0 - Albumin)</span>
+                    </div>
+                </div>
+                
+                <div class="formula-explanation">
+                    <h5>📋 Explanation</h5>
+                    <ul>
+                        <li><strong>Normal albumin reference:</strong> 4.0 g/dL</li>
+                        <li><strong>Correction factor:</strong> 0.8 mg/dL per 1 g/dL decrease in albumin</li>
+                        <li><strong>Purpose:</strong> Adjusts total calcium for low albumin levels</li>
+                        <li><strong>Clinical significance:</strong> Helps identify true hypocalcemia vs. low total calcium due to hypoalbuminemia</li>
+                    </ul>
+                </div>
+                
+                <div class="normal-values">
+                    <h5>📊 Normal Values</h5>
+                    <div class="values-grid">
+                        <div class="value-item">
+                            <strong>Total Calcium:</strong> 8.5-10.5 mg/dL
+                        </div>
+                        <div class="value-item">
+                            <strong>Albumin:</strong> 3.5-5.0 g/dL
+                        </div>
+                        <div class="value-item">
+                            <strong>Corrected Calcium:</strong> 8.5-10.5 mg/dL
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clinical-note">
+                    <h5>⚠️ Clinical Note</h5>
+                    <p>This correction is most accurate when albumin is between 2.0-4.0 g/dL. For critically ill patients or those with severe hypoalbuminemia, consider measuring ionized calcium directly.</p>
+                </div>
+            </div>
         `;
     },
     initialize: function(client) {

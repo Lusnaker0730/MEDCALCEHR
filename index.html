@@ -17,15 +17,32 @@
 </head>
 <body>
     <div class="container">
-        <h1>CGMH EHRCALC on FHIR</h1>
-        <div id="patient-info">Loading patient data...</div>
-        <hr>
-        <h2>Available Calculators</h2>
-        <div class="search-container">
-            <input type="search" id="search-bar" placeholder="Search for a calculator...">
+        <div class="sticky-header">
+            <h1>CGMH EHRCALC on FHIR</h1>
+            <div id="patient-info">Loading patient data...</div>
+            <hr>
+            <div class="calculators-header">
+                <h2>Available Calculators</h2>
+                <div class="controls-row">
+                    <div class="search-container">
+                        <input type="search" id="search-bar" placeholder="Search for a calculator...">
+                    </div>
+                    <div class="sort-container">
+                        <label for="sort-select">Sort:</label>
+                        <select id="sort-select">
+                            <option value="a-z">A → Z</option>
+                            <option value="z-a">Z → A</option>
+                            <option value="recently-added">Recently Added</option>
+                            <option value="most-used">Most Used</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="calculator-list" class="calculator-list">
-            <!-- Calculator links will be dynamically inserted here -->
+        <div class="content-area">
+            <div id="calculator-list" class="calculator-list">
+                <!-- Calculator links will be dynamically inserted here -->
+            </div>
         </div>
     </div>
 

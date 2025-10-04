@@ -81,6 +81,13 @@ export const bwps = {
                  <div class="result-title">Result:</div>
                 <div class="result-value">Please fill out required fields.</div>
             </div>
+            <div class="references">
+                <h4>Reference</h4>
+                <p>Burch, H. B., & Wartofsky, L. (1993). Life-threatening thyrotoxicosis. Thyroid storm. <em>Endocrinology and metabolism clinics of North America</em>, 22(2), 263-277.</p>
+                <p><strong>PMID:</strong> 8325286</p>
+                <p><strong>Abstract:</strong> Although important strides in recognition and therapy have significantly reduced the mortality in this disorder from the nearly 100% fatality rate noted by Lahey, survival is by no means guaranteed. More recent series have yielded fatality rates between 20% and 50%. Thyroid storm is a dreaded, fortunately rare complication of a very common disorder. Most cases of thyroid storm occur following a precipitating event or intercurrent illness. Effective management is predicated on a prompt recognition of impending thyroid storm which is, in turn, dependent on a thorough knowledge of both the typical and atypical presentations of this disorder.</p>
+                <img src="js/calculators/bwps/CR02708022_t2_0.jfif" alt="BWPS Scoring Table" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+            </div>
         `;
     },
     initialize: function(client, patient, container) {

@@ -2,6 +2,25 @@
 import { displayPatientInfo } from '/js/utils.js';
 import { calculatorModules } from '/js/calculators/index.js';
 
+function sortCalculators(calculators, sortType) {
+    const sorted = [...calculators]; // Create a copy to avoid mutating original
+    
+    switch (sortType) {
+        case 'a-z':
+            return sorted.sort((a, b) => a.title.localeCompare(b.title));
+        case 'z-a':
+            return sorted.sort((a, b) => b.title.localeCompare(a.title));
+        case 'recently-added':
+            // For now, reverse the default order (assuming newer ones are at the end)
+            return sorted.reverse();
+        case 'most-used':
+            // For now, use the default order (could be enhanced with usage tracking)
+            return sorted;
+        default:
+            return sorted;
+    }
+}
+
 function renderCalculatorList(calculators, container) {
     container.innerHTML = ''; // Clear the list first
 
@@ -48,6 +67,21 @@ window.onload = () => {
     const patientInfoDiv = document.getElementById('patient-info');
     const calculatorListDiv = document.getElementById('calculator-list');
     const searchBar = document.getElementById('search-bar');
+    const sortSelect = document.getElementById('sort-select');
+
+    let currentCalculators = calculatorModules;
+    let currentSortType = 'a-z';
+
+    // Function to update the display based on current filters and sort
+    function updateDisplay() {
+        const searchTerm = searchBar.value.toLowerCase();
+        let filteredCalculators = currentCalculators.filter(calc => 
+            calc.title.toLowerCase().includes(searchTerm)
+        );
+        
+        const sortedCalculators = sortCalculators(filteredCalculators, currentSortType);
+        renderCalculatorList(sortedCalculators, calculatorListDiv);
+    }
 
     // Immediately try to render patient info from cache, without waiting for the FHIR client.
     displayPatientInfo(null, patientInfoDiv);
@@ -60,14 +94,14 @@ window.onload = () => {
     });
 
     // Initial render of the full list
-    renderCalculatorList(calculatorModules, calculatorListDiv);
+    updateDisplay();
 
     // Add search functionality
-    searchBar.addEventListener('input', () => {
-        const searchTerm = searchBar.value.toLowerCase();
-        const filteredCalculators = calculatorModules.filter(calc => 
-            calc.title.toLowerCase().includes(searchTerm)
-        );
-        renderCalculatorList(filteredCalculators, calculatorListDiv);
+    searchBar.addEventListener('input', updateDisplay);
+
+    // Add sort functionality
+    sortSelect.addEventListener('change', (e) => {
+        currentSortType = e.target.value;
+        updateDisplay();
     });
 };

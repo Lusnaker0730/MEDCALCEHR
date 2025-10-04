@@ -43,6 +43,7 @@ export const calculatorModules = [
     { id: 'garfield-af', title: 'GARFIELD-AF Risk Score' },
     { id: 'gcs', title: 'Glasgow Coma Scale (GCS)' },
     { id: 'geneva-score', title: 'Geneva Score (Revised) for Pulmonary Embolism' },
+    { id: 'growth-chart', title: 'Pediatric Growth Chart' },
     { id: 'grace-acs', title: 'GRACE ACS Risk Score' },
     { id: 'gupta-mica', title: 'Gupta Perioperative Cardiac Risk (MICA)' },
     { id: 'gwtg-hf', title: 'GWTG-HF Risk Score' },

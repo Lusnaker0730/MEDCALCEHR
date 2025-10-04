@@ -157,7 +157,7 @@ export const charlson = {
         };
 
         for (const [key, { codes, value }] of Object.entries(conditionMap)) {
-            getPatientConditions(client, codes.join(',')).then(conditions => {
+            getPatientConditions(client, codes).then(conditions => {
                 if (conditions.length > 0) {
                     const radio = container.querySelector(`input[name="${key}"][value="${value}"]`);
                     if (radio) {
@@ -172,12 +172,12 @@ export const charlson = {
         }
         
         // Special handling for multi-level conditions
-        getPatientConditions(client, ['K70.3', 'K74', 'I85'].join(',')).then(conditions => { // Moderate/Severe Liver
+        getPatientConditions(client, ['K70.3', 'K74', 'I85']).then(conditions => { // Moderate/Severe Liver
              if (conditions.length > 0) {
                  const radio = container.querySelector(`input[name="liver"][value="3"]`);
                  if(radio) radio.checked = true;
              } else {
-                 getPatientConditions(client, ['K73', 'B18'].join(',')).then(conditions => { // Mild Liver
+                 getPatientConditions(client, ['K73', 'B18']).then(conditions => { // Mild Liver
                      if (conditions.length > 0) {
                          const radio = container.querySelector(`input[name="liver"][value="1"]`);
                          if(radio) radio.checked = true;
@@ -186,12 +186,12 @@ export const charlson = {
              }
         });
         
-        getPatientConditions(client, ['E10.2', 'E10.3', 'E10.4', 'E10.5', 'E11.2', 'E11.3', 'E11.4', 'E11.5'].join(',')).then(conditions => { // Diabetes w/ end-organ damage
+        getPatientConditions(client, ['E10.2', 'E10.3', 'E10.4', 'E10.5', 'E11.2', 'E11.3', 'E11.4', 'E11.5']).then(conditions => { // Diabetes w/ end-organ damage
              if (conditions.length > 0) {
                  const radio = container.querySelector(`input[name="diabetes"][value="2"]`);
                  if(radio) radio.checked = true;
              } else {
-                 getPatientConditions(client, ['E10', 'E11'].join(',')).then(conditions => { // Uncomplicated Diabetes
+                 getPatientConditions(client, ['E10', 'E11']).then(conditions => { // Uncomplicated Diabetes
                      if (conditions.length > 0) {
                          const radio = container.querySelector(`input[name="diabetes"][value="1"]`);
                          if(radio) radio.checked = true;
@@ -200,7 +200,7 @@ export const charlson = {
              }
         });
         
-        getPatientConditions(client, ['C00-C75', 'C76-C80'].join(',')).then(conditions => { // Solid tumor
+        getPatientConditions(client, ['C00-C75', 'C76-C80']).then(conditions => { // Solid tumor
              if (conditions.length > 0) {
                 const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
                 const isMetastatic = conditions.some(c => metastaticCodes.includes(c.code.coding[0].code.substring(0,3)));
@@ -211,7 +211,7 @@ export const charlson = {
         });
 
         // Check for CKD via labs or conditions
-        getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2'].join(',')).then(conditions => {
+        getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(conditions => {
             if (conditions.length > 0) {
                  const radio = container.querySelector(`input[name="ckd"][value="2"]`);
                  if(radio) radio.checked = true;
