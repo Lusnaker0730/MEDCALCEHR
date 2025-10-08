@@ -14,7 +14,7 @@ export const ascvd = {
             </div>
             <hr>
             <div id="ascvd-risk-inputs">
-                <div class="input-group"><label for="ascvd-age">Age:</label><input type="number" id="ascvd-age" placeholder="e.g., 55" min="40" max="79"></div>
+                <div class="input-group"><label for="ascvd-age">Age (40-79 years):</label><input type="number" id="ascvd-age" placeholder="e.g., 55" min="40" max="79"></div>
                 <div class="input-group"><label for="ascvd-gender">Gender:</label><select id="ascvd-gender"><option value="male">Male</option><option value="female">Female</option></select></div>
                 <div class="input-group"><label for="ascvd-race">Race:</label><select id="ascvd-race"><option value="white">White</option><option value="aa">African American</option><option value="other">Other</option></select></div>
                 <div class="input-group"><label for="ascvd-tc">Total Cholesterol (mg/dL):</label><input type="number" id="ascvd-tc" placeholder="e.g., 200" min="100" max="400"></div>
@@ -177,6 +177,39 @@ export const ascvd = {
             const hdl = parseFloat(hdlInput.value) || 0;
             const sbp = parseFloat(sbpInput.value) || 0;
             const isMale = container.querySelector('#ascvd-gender').value === 'male';
+
+            // Validate age range
+            if (age < 40 || age > 79) {
+                resultEl.innerHTML = `
+                    <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <p><strong>⚠️ Age Limitation:</strong> The Pooled Cohort Equations are validated for ages 40-79 years.</p>
+                        <p><strong>Current Age:</strong> ${age} years</p>
+                        <p><strong>Recommendation:</strong> ${age < 40 ? 
+                            'For patients under 40, focus on lifestyle modifications and traditional risk factor management. Consider family history and other risk enhancers.' : 
+                            'For patients over 79, clinical judgment should guide treatment decisions as the equations may not accurately predict risk.'}</p>
+                    </div>
+                `;
+                resultEl.style.display = 'block';
+                therapySection.style.display = 'none';
+                return;
+            }
+
+            // Validate other inputs
+            if (tc <= 0 || hdl <= 0 || sbp <= 0) {
+                resultEl.innerHTML = `
+                    <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <p><strong>❌ Input Error:</strong> Please enter valid values for all required fields.</p>
+                        <ul>
+                            ${tc <= 0 ? '<li>Total Cholesterol must be greater than 0</li>' : ''}
+                            ${hdl <= 0 ? '<li>HDL Cholesterol must be greater than 0</li>' : ''}
+                            ${sbp <= 0 ? '<li>Systolic Blood Pressure must be greater than 0</li>' : ''}
+                        </ul>
+                    </div>
+                `;
+                resultEl.style.display = 'block';
+                therapySection.style.display = 'none';
+                return;
+            }
             const onHtnTx = container.querySelector('#ascvd-htn').value === 'yes';
             const isDiabetic = container.querySelector('#ascvd-dm').value === 'yes';
             const isSmoker = container.querySelector('#ascvd-smoker').value === 'yes';

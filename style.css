@@ -423,18 +423,26 @@ label {
 
 #search-bar {
     width: 100%;
-    padding: 15px;
-    font-size: 18px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    padding: 22px 25px;
+    font-size: 50px;
+    border-radius: 12px;
+    border: 3px solid #d1d5db;
     box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+#search-bar::placeholder {
+    font-size: 45px;
+    color: #9ca3af;
+    font-weight: 500;
 }
 
 #search-bar:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 12px rgba(0, 123, 255, 0.3);
 }
 
 .no-results {
@@ -2576,5 +2584,5143 @@ html {
     
     .value-item {
         padding: 10px 12px;
+    }
+}
+
+/* Additional styles for anion gap calculator */
+.normal-range {
+    border-left: 4px solid #22c55e !important;
+    background: rgba(34, 197, 94, 0.1) !important;
+}
+
+.high-range {
+    border-left: 4px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.low-range {
+    border-left: 4px solid #f59e0b !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.clinical-causes {
+    margin-top: 20px;
+}
+
+.causes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.cause-category {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.cause-category h6 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.cause-category ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.cause-category li {
+    margin-bottom: 6px;
+    color: #2d3748;
+}
+
+.clinical-note ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.clinical-note li {
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+}
+
+/* Mobile responsiveness for causes grid */
+@media (max-width: 768px) {
+    .causes-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .cause-category {
+        padding: 12px;
+    }
+}
+
+/* Additional styles for phenytoin calculator */
+.therapeutic-range {
+    border-left: 4px solid #22c55e !important;
+    background: rgba(34, 197, 94, 0.1) !important;
+}
+
+.toxic-range {
+    border-left: 4px solid #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.subtherapeutic-range {
+    border-left: 4px solid #f59e0b !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.clinical-scenarios, .correction-rationale {
+    margin-top: 20px;
+}
+
+.scenarios-grid, .rationale-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.scenario-category, .rationale-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.scenario-category h6, .rationale-item h6 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.scenario-category ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.scenario-category li {
+    margin-bottom: 6px;
+    color: #2d3748;
+}
+
+.rationale-item p {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.5;
+}
+
+/* Nested list styling for formula components */
+.formula-explanation ul ul {
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+.formula-explanation ul ul li {
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Mobile responsiveness for new grids */
+@media (max-width: 768px) {
+    .scenarios-grid, .rationale-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .scenario-category, .rationale-item {
+        padding: 12px;
+    }
+    
+    .formula-explanation ul ul {
+        padding-left: 15px;
+    }
+}
+
+/* Additional styles for TTKG calculator */
+.reference-k {
+    border-left: 4px solid #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+.reference-osmo {
+    border-left: 4px solid #8b5cf6 !important;
+    background: rgba(139, 92, 246, 0.1) !important;
+}
+
+.clinical-interpretation, .physiological-basis {
+    margin-top: 20px;
+}
+
+.interpretation-grid, .physiology-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.interpretation-category, .physiology-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.interpretation-category h6, .physiology-item h6 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.interpretation-item {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid rgba(102, 126, 234, 0.3);
+}
+
+.interpretation-item:last-child {
+    margin-bottom: 0;
+}
+
+.interpretation-item strong {
+    color: #2d3748;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.interpretation-item p {
+    margin: 0;
+    color: #4a5568;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.physiology-item p {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.5;
+}
+
+/* Mobile responsiveness for TTKG grids */
+@media (max-width: 768px) {
+    .interpretation-grid, .physiology-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .interpretation-category, .physiology-item {
+        padding: 12px;
+    }
+    
+    .interpretation-item {
+        padding: 8px;
+    }
+}
+
+/* Additional styles for serum osmolality calculator */
+.reference-na {
+    border-left: 4px solid #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+.reference-glucose {
+    border-left: 4px solid #10b981 !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.reference-bun {
+    border-left: 4px solid #f59e0b !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.osmolar-gap, .alternative-formulas {
+    margin-top: 20px;
+}
+
+.gap-explanation {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    margin-top: 10px;
+}
+
+.gap-formula {
+    text-align: center;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    color: #2d3748;
+}
+
+.gap-interpretation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.gap-item {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.normal-gap {
+    background: rgba(34, 197, 94, 0.1);
+    border-left: 4px solid #22c55e;
+}
+
+.elevated-gap {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+}
+
+.gap-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #2d3748;
+}
+
+.gap-item p {
+    margin: 0;
+    color: #4a5568;
+    font-size: 0.9em;
+}
+
+.alt-formulas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.alt-formula-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.alt-formula-item h6 {
+    margin: 0 0 10px 0;
+    color: #4a5568;
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.alt-equation {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.alt-formula-item p {
+    margin: 0;
+    color: #4a5568;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* Mobile responsiveness for osmolality calculator */
+@media (max-width: 768px) {
+    .gap-interpretation {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .alt-formulas-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .gap-explanation {
+        padding: 12px;
+    }
+    
+    .alt-formula-item {
+        padding: 12px;
+    }
+    
+    .alt-equation {
+        font-size: 1em;
+        padding: 8px;
+    }
+}
+
+/* Additional styles for sodium correction calculator */
+.normal-glucose {
+    border-left: 4px solid #10b981 !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.correction-factor {
+    border-left: 4px solid #8b5cf6 !important;
+    background: rgba(139, 92, 246, 0.1) !important;
+}
+
+.correction-scenarios {
+    margin-top: 20px;
+}
+
+.correction-scenarios .scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.correction-scenarios .scenario-category {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.correction-scenarios .scenario-category h6 {
+    margin: 0 0 12px 0;
+    color: #4a5568;
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.correction-scenarios .scenario-category ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.correction-scenarios .scenario-category li {
+    margin-bottom: 6px;
+    color: #2d3748;
+}
+
+/* Mobile responsiveness for sodium correction calculator */
+@media (max-width: 768px) {
+    .correction-scenarios .scenarios-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .correction-scenarios .scenario-category {
+        padding: 12px;
+    }
+}
+
+/* Styles for tPA dosing stroke calculator */
+.dosing-protocol {
+    margin-top: 20px;
+}
+
+.protocol-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.protocol-step {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+}
+
+.protocol-step h6 {
+    margin: 0 0 10px 0;
+    color: #1e40af;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.protocol-step p {
+    margin: 5px 0;
+    color: #374151;
+}
+
+.eligibility-criteria, .contraindications {
+    margin-top: 25px;
+}
+
+.criteria-grid, .contraindications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.criteria-category, .contraindication-category {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.criteria-category h6, .contraindication-category h6 {
+    margin: 0 0 10px 0;
+    color: #4a5568;
+    font-size: 1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.contraindication-category {
+    border-left: 4px solid #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.contraindication-category h6 {
+    color: #dc2626;
+    border-bottom-color: rgba(239, 68, 68, 0.3);
+}
+
+.criteria-category {
+    border-left: 4px solid #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.criteria-category h6 {
+    color: #059669;
+    border-bottom-color: rgba(16, 185, 129, 0.3);
+}
+
+.monitoring-guidelines {
+    margin-top: 25px;
+}
+
+.monitoring-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.monitoring-item {
+    background: rgba(245, 158, 11, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #f59e0b;
+}
+
+.monitoring-item h6 {
+    margin: 0 0 10px 0;
+    color: #d97706;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.monitoring-item ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.monitoring-item li {
+    margin-bottom: 4px;
+    color: #374151;
+}
+
+/* tPA dosing results styles */
+.tpa-dosing-results {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.dosing-summary {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3b82f6;
+}
+
+.dosing-summary h4 {
+    margin: 0 0 10px 0;
+    color: #1e40af;
+}
+
+.dose-calculation p {
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+.administration-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dose-step {
+    background: rgba(16, 185, 129, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.dose-step h5 {
+    margin: 0 0 10px 0;
+    color: #059669;
+    font-size: 1.1em;
+}
+
+.dose-step p {
+    margin: 5px 0;
+    color: #374151;
+}
+
+.eligibility-status {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.eligibility-status.eligible {
+    background: rgba(16, 185, 129, 0.2);
+    color: #059669;
+    border: 2px solid #10b981;
+}
+
+.eligibility-status.not-eligible {
+    background: rgba(239, 68, 68, 0.2);
+    color: #dc2626;
+    border: 2px solid #ef4444;
+}
+
+.eligibility-status.warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #d97706;
+    border: 2px solid #f59e0b;
+}
+
+.important-reminders {
+    background: rgba(239, 68, 68, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ef4444;
+}
+
+.important-reminders h5 {
+    margin: 0 0 10px 0;
+    color: #dc2626;
+}
+
+.important-reminders ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.important-reminders li {
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+/* Mobile responsiveness for tPA calculator */
+@media (max-width: 768px) {
+    .protocol-steps, .criteria-grid, .contraindications-grid, .monitoring-grid, .administration-details {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .protocol-step, .criteria-category, .contraindication-category, .monitoring-item, .dose-step {
+        padding: 12px;
+    }
+    
+    .tpa-dosing-results {
+        padding: 15px;
+    }
+}
+
+/* Styles for TIMI Risk Score calculator */
+.timi-form-container {
+    margin: 20px 0;
+}
+
+.timi-criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.timi-criterion-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.timi-criterion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.criterion-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.criterion-icon {
+    font-size: 1.5em;
+    margin-right: 12px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 50%;
+}
+
+.criterion-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2d3748;
+    flex: 1;
+}
+
+.criterion-subtitle {
+    font-size: 0.9em;
+    color: #718096;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.timi-segmented-control {
+    display: flex;
+    background: rgba(247, 250, 252, 0.8);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.segment-option {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+}
+
+.segment-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.segment-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.segment-option input[type="radio"]:checked + .segment-label {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transform: translateY(-1px);
+}
+
+.option-text {
+    font-size: 0.95em;
+    margin-bottom: 2px;
+}
+
+.option-points {
+    font-size: 0.85em;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.segment-option input[type="radio"]:checked + .segment-label .option-points {
+    opacity: 1;
+}
+
+/* TIMI Results Container */
+.timi-result-container {
+    margin-top: 30px;
+}
+
+.timi-score-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.score-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.risk-assessment {
+    flex: 1;
+}
+
+.risk-percentage {
+    font-size: 3em;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.risk-description {
+    font-size: 1.1em;
+    line-height: 1.4;
+    opacity: 0.95;
+}
+
+/* Risk Stratification */
+.risk-stratification {
+    margin-bottom: 30px;
+}
+
+.risk-stratification h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.risk-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.risk-level {
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.risk-level.low-risk {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.risk-level.moderate-risk {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.risk-level.high-risk {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.risk-level.active {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.risk-level.low-risk.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.risk-level.moderate-risk.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.risk-level.high-risk.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.risk-range {
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.risk-category {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.risk-value {
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+/* Clinical Recommendations */
+.clinical-recommendations h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.recommendation-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.recommendation-item.low-risk-rec {
+    border-left: 4px solid #10b981;
+}
+
+.recommendation-item.moderate-risk-rec {
+    border-left: 4px solid #f59e0b;
+}
+
+.recommendation-item.high-risk-rec {
+    border-left: 4px solid #ef4444;
+}
+
+.recommendation-item.active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-item.low-risk-rec.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.recommendation-item.moderate-risk-rec.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.recommendation-item.high-risk-rec.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.recommendation-item h5 {
+    margin: 0 0 15px 0;
+    color: #2d3748;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.recommendation-item ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.recommendation-item li {
+    margin-bottom: 8px;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Mobile responsiveness for TIMI calculator */
+@media (max-width: 768px) {
+    .timi-criteria-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .timi-criterion-card {
+        padding: 15px;
+    }
+    
+    .timi-score-display {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 25px;
+    }
+    
+    .score-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .score-number {
+        font-size: 2em;
+    }
+    
+    .risk-percentage {
+        font-size: 2.5em;
+    }
+    
+    .risk-levels, .recommendations-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .risk-level, .recommendation-item {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .timi-segmented-control {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .segment-label {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 12px 16px;
+    }
+    
+    .criterion-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .criterion-icon {
+        align-self: center;
+    }
+}
+
+/* References section for TIMI calculator */
+.references-section {
+    margin-top: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 30px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.references-section h4 {
+    margin: 0 0 25px 0;
+    color: #2d3748;
+    font-size: 1.4em;
+    font-weight: 600;
+    border-bottom: 3px solid rgba(102, 126, 234, 0.2);
+    padding-bottom: 10px;
+}
+
+.reference-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.reference-citation {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+}
+
+.reference-citation h5 {
+    margin: 0 0 15px 0;
+    color: #1e40af;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.reference-citation p {
+    margin: 8px 0;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.reference-citation a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.reference-citation a:hover {
+    text-decoration: underline;
+    color: #1e40af;
+}
+
+.study-details, .study-results {
+    background: rgba(16, 185, 129, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #10b981;
+}
+
+.study-details h5, .study-results h5 {
+    margin: 0 0 15px 0;
+    color: #059669;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.study-grid, .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.study-item, .finding-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.study-item h6, .finding-item h6 {
+    margin: 0 0 8px 0;
+    color: #047857;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.study-item p, .finding-item ul {
+    margin: 0;
+    color: #374151;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.finding-item ul {
+    padding-left: 18px;
+}
+
+.finding-item li {
+    margin-bottom: 4px;
+}
+
+.reference-image {
+    background: rgba(245, 158, 11, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #f59e0b;
+    text-align: center;
+}
+
+.reference-image h5 {
+    margin: 0 0 15px 0;
+    color: #d97706;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.reference-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+.image-caption {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9em;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.clinical-validation {
+    background: rgba(139, 92, 246, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #8b5cf6;
+}
+
+.clinical-validation h5 {
+    margin: 0 0 15px 0;
+    color: #7c3aed;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.validation-points {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.validation-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.validation-item h6 {
+    margin: 0 0 8px 0;
+    color: #6d28d9;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.validation-item p {
+    margin: 0;
+    color: #374151;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+/* Mobile responsiveness for references section */
+@media (max-width: 768px) {
+    .references-section {
+        padding: 20px;
+        margin-top: 30px;
+    }
+    
+    .study-grid, .findings-grid, .validation-points {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .study-item, .finding-item, .validation-item {
+        padding: 12px;
+    }
+    
+    .reference-citation, .study-details, .study-results, .reference-image, .clinical-validation {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .references-section h4 {
+        font-size: 1.2em;
+    }
+    
+    .reference-citation h5, .study-details h5, .study-results h5, .reference-image h5, .clinical-validation h5 {
+        font-size: 1em;
+    }
+}
+
+/* Styles for STOP-BANG calculator */
+.stop-bang-container {
+    margin: 20px 0;
+}
+
+.patient-demographics {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #3b82f6;
+}
+
+.patient-demographics h4 {
+    margin: 0 0 15px 0;
+    color: #1e40af;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.demographics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.demo-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.demo-item label {
+    font-weight: 600;
+    color: #374151;
+    margin-right: 10px;
+}
+
+.demo-item span {
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.stop-bang-criteria h4 {
+    margin: 0 0 20px 0;
+    color: #2d3748;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.criterion-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.criterion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.criterion-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.criterion-letter {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-right: 12px;
+}
+
+.criterion-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2d3748;
+    flex: 1;
+}
+
+.criterion-question {
+    font-size: 1em;
+    color: #374151;
+    margin-bottom: 8px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.criterion-detail {
+    font-size: 0.85em;
+    color: #6b7280;
+    margin-bottom: 15px;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.stop-bang-toggle {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.stop-bang-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(247, 250, 252, 0.8);
+    border-radius: 25px;
+    padding: 8px 15px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.toggle-slider {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.toggle-text {
+    font-weight: 600;
+    color: #4a5568;
+    transition: all 0.3s ease;
+}
+
+.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: #10b981;
+    color: white;
+}
+
+.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider::after {
+    background: white;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label .toggle-text {
+    color: white;
+}
+
+/* STOP-BANG Results Container */
+.stop-bang-result-container {
+    margin-top: 30px;
+}
+
+.score-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.score-circle.low-risk {
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.score-circle.intermediate-risk {
+    background: rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+.score-circle.high-risk {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.score-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 1em;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.risk-assessment {
+    flex: 1;
+}
+
+.risk-level {
+    font-size: 2.2em;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.risk-description {
+    font-size: 1.1em;
+    line-height: 1.4;
+    opacity: 0.95;
+}
+
+/* Risk Interpretation */
+.risk-interpretation {
+    margin-bottom: 30px;
+}
+
+.risk-interpretation h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.risk-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.risk-item {
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.risk-item.low-risk {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.risk-item.intermediate-risk {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.risk-item.high-risk {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.risk-item.active {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.risk-item.low-risk.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.risk-item.intermediate-risk.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.risk-item.high-risk.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.risk-score {
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.risk-category {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.risk-probability {
+    font-size: 0.95em;
+    line-height: 1.3;
+}
+
+/* Clinical Recommendations */
+.clinical-recommendations h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.recommendation-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.recommendation-item.low-risk-rec {
+    border-left: 4px solid #10b981;
+}
+
+.recommendation-item.intermediate-risk-rec {
+    border-left: 4px solid #f59e0b;
+}
+
+.recommendation-item.high-risk-rec {
+    border-left: 4px solid #ef4444;
+}
+
+.recommendation-item.active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-item.low-risk-rec.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.recommendation-item.intermediate-risk-rec.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.recommendation-item.high-risk-rec.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.recommendation-item h5 {
+    margin: 0 0 15px 0;
+    color: #2d3748;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.recommendation-item ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.recommendation-item li {
+    margin-bottom: 8px;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Mobile responsiveness for STOP-BANG calculator */
+@media (max-width: 768px) {
+    .criteria-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .criterion-card {
+        padding: 15px;
+    }
+    
+    .score-display {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 25px;
+    }
+    
+    .score-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .score-number {
+        font-size: 2em;
+    }
+    
+    .risk-level {
+        font-size: 1.8em;
+    }
+    
+    .risk-levels, .recommendations-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .risk-item, .recommendation-item {
+        padding: 15px;
+    }
+    
+    .demographics-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .criterion-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .criterion-letter {
+        align-self: center;
+    }
+    
+    .stop-bang-toggle {
+        justify-content: center;
+        margin-top: 10px;
+    }
+    
+    .patient-demographics, .criterion-card {
+        padding: 12px;
+    }
+}
+
+/* Styles for Serum Osmolality calculator */
+.osmolality-calculation {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    border-left: 4px solid #007bff;
+}
+
+.osmolality-calculation h4 {
+    color: #007bff;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.result-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.result-value {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.result-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.result-unit {
+    font-size: 1.2em;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.result-interpretation {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.normal-result {
+    background: #d4edda;
+    color: #155724;
+}
+
+.low-result {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.high-result {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.calculation-breakdown {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.calculation-breakdown h5 {
+    color: #495057;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+}
+
+.breakdown-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.step {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.step.total-step {
+    background: #e3f2fd;
+    border: 2px solid #007bff;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.step-label {
+    color: #495057;
+    font-weight: 500;
+}
+
+.step-value {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.osmolar-gap-info {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.osmolar-gap-info h5 {
+    color: #856404;
+    margin-bottom: 10px;
+}
+
+.osmolar-gap-info p {
+    color: #856404;
+    margin-bottom: 12px;
+}
+
+.gap-formula-display {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+    text-align: center;
+    border-left: 4px solid #ffc107;
+}
+
+.gap-interpretation-guide {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.gap-normal {
+    color: #155724;
+    font-weight: 500;
+}
+
+.gap-elevated {
+    color: #721c24;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .result-main {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .result-number {
+        font-size: 2em;
+    }
+}
+
+/* Styles for SCORE2-Diabetes calculator */
+.score2-diabetes-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.calculator-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.header-icon {
+    font-size: 3em;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.calculator-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+}
+
+.calculator-description {
+    font-size: 1.1em;
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.score2-diabetes-container .patient-demographics {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #3b82f6;
+}
+
+.score2-diabetes-container .patient-demographics h4 {
+    color: #1e40af;
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.score2-diabetes-container .demographics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.score2-diabetes-container .demo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.score2-diabetes-container .demo-item label {
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.score2-diabetes-container .demo-item span {
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.instructions-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.notice-icon {
+    font-size: 1.5em;
+    flex-shrink: 0;
+}
+
+.notice-content h5 {
+    color: #856404;
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.notice-content p {
+    color: #856404;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.input-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.input-section {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #1f2937;
+    font-size: 1.3em;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.section-icon {
+    font-size: 1.2em;
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.input-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.input-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.input-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+}
+
+.input-wrapper:focus-within {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modern-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    background: transparent;
+}
+
+.modern-input::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.modern-input[placeholder="Not available"]::placeholder {
+    color: #ef4444;
+    font-weight: 500;
+}
+
+.input-unit {
+    padding: 12px 16px;
+    background: #f8fafc;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.9em;
+    border-left: 1px solid #e5e7eb;
+}
+
+.input-note {
+    font-size: 0.8em;
+    color: #6b7280;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+.score2-toggle-group {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.score2-toggle-group .toggle-option {
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.score2-toggle-group .toggle-option input[type="radio"] {
+    display: none;
+}
+
+.toggle-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #64748b;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.score2-toggle-group .toggle-option.active .toggle-text,
+.score2-toggle-group .toggle-option:has(input[type="radio"]:checked) .toggle-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.gender-icon, .smoking-icon {
+    font-size: 1.1em;
+}
+
+.region-selector {
+    margin-top: 15px;
+}
+
+.region-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.region-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.region-option input[type="radio"] {
+    display: none;
+}
+
+.region-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.region-option:hover .region-content {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.region-option.active .region-content,
+.region-option:has(input[type="radio"]:checked) .region-content {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.region-icon {
+    font-size: 1.5em;
+    flex-shrink: 0;
+}
+
+.region-title {
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 6px;
+    font-size: 1.1em;
+}
+
+.region-description {
+    color: #6b7280;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.results-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.results-header h4 {
+    color: #1f2937;
+    font-size: 1.4em;
+    font-weight: 700;
+    margin: 0 0 25px 0;
+    text-align: center;
+}
+
+.result-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    border: 1px solid #e2e8f0;
+}
+
+.result-value-container {
+    text-align: center;
+}
+
+.result-percentage {
+    font-size: 4em;
+    font-weight: 900;
+    color: #374151;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.result-percentage.low-risk { color: #059669; }
+.result-percentage.moderate-risk { color: #d97706; }
+.result-percentage.high-risk { color: #dc2626; }
+.result-percentage.very-high-risk { color: #991b1b; }
+
+.result-label {
+    font-size: 1.1em;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9em;
+    margin-bottom: 12px;
+}
+
+.risk-badge.low-risk {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.risk-badge.moderate-risk {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.risk-badge.high-risk {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.risk-badge.very-high-risk {
+    background: #fecaca;
+    color: #7f1d1d;
+}
+
+.interpretation-text {
+    color: #374151;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.age-warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 15px;
+    color: #92400e;
+    font-weight: 500;
+}
+
+.missing-fields-warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 15px;
+    color: #92400e;
+    text-align: center;
+}
+
+.missing-fields-warning ul {
+    display: inline-block;
+    text-align: left;
+}
+
+.risk-stratification {
+    margin-top: 25px;
+}
+
+.risk-stratification h5 {
+    color: #1f2937;
+    font-size: 1.2em;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+}
+
+.risk-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.risk-category {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.risk-category.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.category-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.category-color.low { background: #059669; }
+.category-color.moderate { background: #d97706; }
+.category-color.high { background: #dc2626; }
+.category-color.very-high { background: #991b1b; }
+
+.category-title {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 1em;
+}
+
+.category-management {
+    color: #6b7280;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.clinical-notes {
+    margin-top: 30px;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 25px;
+    border-left: 4px solid #667eea;
+}
+
+.clinical-notes h5 {
+    color: #1f2937;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.clinical-notes ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #374151;
+}
+
+.clinical-notes li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.clinical-notes strong {
+    color: #1f2937;
+}
+
+@media (max-width: 768px) {
+    .score2-diabetes-container {
+        padding: 15px;
+    }
+    
+    .calculator-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 25px 20px;
+    }
+    
+    .calculator-title {
+        font-size: 1.5em;
+    }
+    
+    .input-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .region-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-main {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .result-percentage {
+        font-size: 3em;
+    }
+    
+    .risk-categories {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Styles for RegiSCAR Score calculator */
+.regiscar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.criteria-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.criteria-section {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.criterion-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.criterion-card:last-child {
+    margin-bottom: 0;
+}
+
+.criterion-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.criterion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.criterion-title {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 1.05em;
+}
+
+.criterion-subtitle {
+    font-size: 0.85em;
+    color: #6b7280;
+    font-style: italic;
+    flex-basis: 100%;
+}
+
+.criterion-points {
+    font-weight: 700;
+    font-size: 0.9em;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.regiscar-toggle-group {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.regiscar-toggle-group.triple {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.regiscar-toggle-group .toggle-option {
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.regiscar-toggle-group .toggle-option input[type="radio"] {
+    display: none;
+}
+
+.regiscar-toggle-group .toggle-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: #64748b;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.regiscar-toggle-group .toggle-option.active .toggle-text,
+.regiscar-toggle-group .toggle-option:has(input[type="radio"]:checked) .toggle-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.regiscar-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.radio-option input[type="radio"] {
+    display: none;
+}
+
+.radio-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.radio-option:hover .radio-content {
+    border-color: #667eea;
+}
+
+.radio-option.active .radio-content,
+.radio-option:has(input[type="radio"]:checked) .radio-content {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.radio-label {
+    font-weight: 500;
+    color: #374151;
+}
+
+.radio-score {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 0.9em;
+}
+
+.result-score-display {
+    font-size: 5em;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+.result-main.no-case .result-score-display {
+    color: #059669;
+}
+
+.result-main.possible .result-score-display {
+    color: #d97706;
+}
+
+.result-main.probable .result-score-display {
+    color: #dc2626;
+}
+
+.result-main.definite .result-score-display {
+    color: #991b1b;
+}
+
+.result-interpretation-container {
+    flex: 1;
+}
+
+.result-likelihood {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.result-description {
+    font-size: 1em;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.score-interpretation-guide {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.score-interpretation-guide h5 {
+    color: #1f2937;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.interpretation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.interpretation-item {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.interpretation-item.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.interpretation-score {
+    font-size: 1.5em;
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.interpretation-item.no-case .interpretation-score {
+    color: #059669;
+}
+
+.interpretation-item.possible .interpretation-score {
+    color: #d97706;
+}
+
+.interpretation-item.probable .interpretation-score {
+    color: #dc2626;
+}
+
+.interpretation-item.definite .interpretation-score {
+    color: #991b1b;
+}
+
+.interpretation-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9em;
+}
+
+.clinical-management {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 12px;
+}
+
+.clinical-management h5 {
+    color: #166534;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+}
+
+.management-content ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #166534;
+}
+
+.management-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.reference-images {
+    margin-top: 25px;
+}
+
+.reference-images h5 {
+    color: #1f2937;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.reference-image-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.reference-image-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.reference-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.image-caption {
+    font-size: 0.9em;
+    color: #6b7280;
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+}
+
+.reference-citation {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #667eea;
+}
+
+.reference-citation h5 {
+    color: #1f2937;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+}
+
+.citation-text {
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.citation-details {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.citation-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.citation-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.citation-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .regiscar-container {
+        padding: 15px;
+    }
+    
+    .criterion-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .regiscar-toggle-group.triple {
+        flex-direction: column;
+    }
+    
+    .interpretation-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .image-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-score-display {
+        font-size: 3.5em;
+    }
+}
+
+/* Styles for FENa calculator */
+.formula-equation-large {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #1f2937;
+    padding: 15px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+}
+
+.formula-equation-fraction {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.fraction-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.fraction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 200px;
+}
+
+.numerator,
+.denominator {
+    padding: 8px 15px;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #374151;
+}
+
+.fraction-line {
+    width: 100%;
+    height: 2px;
+    background: #1f2937;
+    margin: 5px 0;
+}
+
+.multiply {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.interpretation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.interpretation-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.interpretation-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.interpretation-item.prerenal {
+    border-left: 4px solid #10b981;
+}
+
+.interpretation-item.indeterminate {
+    border-left: 4px solid #f59e0b;
+}
+
+.interpretation-item.intrinsic {
+    border-left: 4px solid #ef4444;
+}
+
+.interpretation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.interpretation-value {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.prerenal .interpretation-value {
+    color: #10b981;
+}
+
+.indeterminate .interpretation-value {
+    color: #f59e0b;
+}
+
+.intrinsic .interpretation-value {
+    color: #ef4444;
+}
+
+.interpretation-label {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.interpretation-details p {
+    margin: 10px 0;
+    color: #374151;
+    font-weight: 500;
+}
+
+.interpretation-details ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    color: #6b7280;
+}
+
+.interpretation-details li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.alternative-indices {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.alternative-indices h5 {
+    color: #1f2937;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.alternative-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.alternative-item {
+    background: white;
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+}
+
+.alternative-item h6 {
+    color: #667eea;
+    font-size: 1em;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+}
+
+.alternative-item .formula-equation {
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #374151;
+    padding: 10px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+}
+
+.alternative-item p {
+    margin: 8px 0;
+    color: #6b7280;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.alternative-item p strong {
+    color: #374151;
+}
+
+@media (max-width: 768px) {
+    .interpretation-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .alternative-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .formula-equation-large {
+        font-size: 1.1em;
+        padding: 12px;
+    }
+    
+    .fraction {
+        min-width: 150px;
+    }
+    
+    .numerator,
+    .denominator {
+        font-size: 1em;
+        padding: 6px 10px;
+    }
+}
+
+/* Styles for Child-Pugh Score calculator */
+.child-pugh-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.child-pugh-container .calculator-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.child-pugh-container .calculator-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+    color: white !important;
+}
+
+.child-pugh-container .calculator-description {
+    font-size: 1.1em;
+    margin: 0;
+    opacity: 0.95;
+    line-height: 1.4;
+    color: white !important;
+}
+
+.child-pugh-container .header-icon {
+    font-size: 3em;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.child-pugh-container .header-content {
+    flex: 1;
+}
+
+.child-pugh-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.child-pugh-radio-group .radio-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.child-pugh-radio-group .radio-option input[type="radio"] {
+    display: none;
+}
+
+.child-pugh-radio-group .radio-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.child-pugh-radio-group .radio-option:hover .radio-content {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.child-pugh-radio-group .radio-option.active .radio-content,
+.child-pugh-radio-group .radio-option:has(input[type="radio"]:checked) .radio-content {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.result-classification {
+    font-size: 2em;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.result-prognosis {
+    font-size: 1.1em;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.result-main.class-a .result-score-display {
+    color: #059669;
+}
+
+.result-main.class-a .result-classification {
+    color: #059669;
+}
+
+.result-main.class-b .result-score-display {
+    color: #d97706;
+}
+
+.result-main.class-b .result-classification {
+    color: #d97706;
+}
+
+.result-main.class-c .result-score-display {
+    color: #dc2626;
+}
+
+.result-main.class-c .result-classification {
+    color: #dc2626;
+}
+
+.class-interpretation-guide {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.class-interpretation-guide h5 {
+    color: #1f2937;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.class-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.class-item {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.class-item.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+    transform: scale(1.02);
+}
+
+.class-item.class-a {
+    border-left: 4px solid #059669;
+}
+
+.class-item.class-b {
+    border-left: 4px solid #d97706;
+}
+
+.class-item.class-c {
+    border-left: 4px solid #dc2626;
+}
+
+.class-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.class-name {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.class-a .class-name {
+    color: #059669;
+}
+
+.class-b .class-name {
+    color: #d97706;
+}
+
+.class-c .class-name {
+    color: #dc2626;
+}
+
+.class-score {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.class-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 0.9em;
+}
+
+.detail-value {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 0.95em;
+}
+
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.management-item {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #e5e7eb;
+}
+
+.management-item h6 {
+    color: #1f2937;
+    font-size: 1em;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+}
+
+.management-item ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #374151;
+}
+
+.management-item li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .child-pugh-container {
+        padding: 15px;
+    }
+    
+    .class-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .management-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Styles for SOFA Score calculator */
+.sofa-container {
+    margin: 20px 0;
+}
+
+.lab-values-summary {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #3b82f6;
+}
+
+.lab-values-summary h4 {
+    margin: 0 0 15px 0;
+    color: #1e40af;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.lab-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.lab-item label {
+    font-weight: 600;
+    color: #374151;
+    margin-right: 10px;
+}
+
+.lab-item span {
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.sofa-organs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.organ-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.organ-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.organ-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    justify-content: space-between;
+}
+
+.organ-icon {
+    font-size: 1.8em;
+    margin-right: 12px;
+}
+
+.organ-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #2d3748;
+    flex: 1;
+}
+
+.organ-score {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.organ-parameter {
+    font-size: 1em;
+    color: #4a5568;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.sofa-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    background: rgba(247, 250, 252, 0.8);
+    font-size: 0.95em;
+    color: #374151;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.sofa-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.organ-detail {
+    font-size: 0.85em;
+    color: #6b7280;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+/* Organ-specific colors */
+.organ-card.respiration .organ-icon {
+    color: #ef4444;
+}
+
+.organ-card.coagulation .organ-icon {
+    color: #dc2626;
+}
+
+.organ-card.liver .organ-icon {
+    color: #f59e0b;
+}
+
+.organ-card.cardiovascular .organ-icon {
+    color: #ec4899;
+}
+
+.organ-card.cns .organ-icon {
+    color: #8b5cf6;
+}
+
+.organ-card.renal .organ-icon {
+    color: #10b981;
+}
+
+/* SOFA Results Container */
+.sofa-result-container {
+    margin-top: 30px;
+}
+
+.total-score-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.score-circle.low-mortality {
+    background: rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.score-circle.moderate-mortality {
+    background: rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+.score-circle.high-mortality {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.score-circle.very-high-mortality {
+    background: rgba(153, 27, 27, 0.3);
+    border-color: rgba(153, 27, 27, 0.5);
+}
+
+.score-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.mortality-assessment {
+    flex: 1;
+}
+
+.mortality-risk {
+    font-size: 2.2em;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.mortality-percentage {
+    font-size: 1.8em;
+    font-weight: 600;
+    margin-bottom: 8px;
+    opacity: 0.95;
+}
+
+.mortality-description {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+/* Score Interpretation */
+.score-interpretation {
+    margin-bottom: 30px;
+}
+
+.score-interpretation h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.interpretation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.interpretation-item {
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.interpretation-item.low-mortality {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.interpretation-item.moderate-mortality {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.interpretation-item.high-mortality {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.interpretation-item.very-high-mortality {
+    background: rgba(153, 27, 27, 0.1);
+    color: #991b1b;
+}
+
+.interpretation-item.active {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.interpretation-item.low-mortality.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.interpretation-item.moderate-mortality.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.interpretation-item.high-mortality.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.interpretation-item.very-high-mortality.active {
+    border-color: #991b1b;
+    background: rgba(153, 27, 27, 0.2);
+}
+
+.score-range {
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.mortality-category {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.mortality-rate {
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+/* Delta SOFA and Clinical Applications */
+.delta-sofa-info, .clinical-applications {
+    margin-bottom: 30px;
+}
+
+.delta-sofa-info h4, .clinical-applications h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.delta-grid, .applications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.delta-item, .application-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.delta-item:hover, .application-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.delta-item h5, .application-item h5 {
+    margin: 0 0 12px 0;
+    color: #4c51bf;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.delta-item p {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.application-item ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.application-item li {
+    margin-bottom: 8px;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Mobile responsiveness for SOFA calculator */
+@media (max-width: 768px) {
+    .sofa-organs-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .organ-card {
+        padding: 15px;
+    }
+    
+    .total-score-display {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 25px;
+    }
+    
+    .score-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .score-number {
+        font-size: 2em;
+    }
+    
+    .mortality-risk {
+        font-size: 1.8em;
+    }
+    
+    .mortality-percentage {
+        font-size: 1.5em;
+    }
+    
+    .interpretation-grid, .delta-grid, .applications-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .interpretation-item, .delta-item, .application-item {
+        padding: 15px;
+    }
+    
+    .lab-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .organ-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .organ-score {
+        align-self: center;
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
+    }
+    
+    .lab-values-summary, .organ-card {
+        padding: 12px;
+    }
+}
+
+/* Styles for SIRS calculator */
+.sirs-container {
+    margin: 20px 0;
+}
+
+.current-vitals {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #3b82f6;
+}
+
+.current-vitals h4 {
+    margin: 0 0 15px 0;
+    color: #1e40af;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.vital-item {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.vital-item label {
+    font-weight: 600;
+    color: #374151;
+    margin-right: 10px;
+}
+
+.vital-item span {
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.sirs-criteria-section {
+    margin-bottom: 30px;
+}
+
+.sirs-criteria-section h4 {
+    margin: 0 0 10px 0;
+    color: #2d3748;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.criteria-requirement {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-left: 4px solid #f59e0b;
+}
+
+.sirs-criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.criterion-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.criterion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.criterion-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    justify-content: space-between;
+}
+
+.criterion-icon {
+    font-size: 1.8em;
+    margin-right: 12px;
+}
+
+.criterion-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #2d3748;
+    flex: 1;
+}
+
+.criterion-status {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.criterion-details {
+    margin-bottom: 15px;
+}
+
+.criterion-range {
+    font-size: 1em;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.criterion-explanation {
+    font-size: 0.85em;
+    color: #6b7280;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.sirs-toggle {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sirs-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(247, 250, 252, 0.8);
+    border-radius: 25px;
+    padding: 8px 15px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.toggle-slider {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.toggle-text {
+    font-weight: 600;
+    color: #4a5568;
+    transition: all 0.3s ease;
+}
+
+.sirs-toggle input[type="checkbox"]:checked + .toggle-label {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-color: #ef4444;
+    color: white;
+}
+
+.sirs-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.sirs-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider::after {
+    background: white;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+.sirs-toggle input[type="checkbox"]:checked + .toggle-label .toggle-text {
+    color: white;
+}
+
+.sirs-score-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.score-counter {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.score-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-denominator {
+    font-size: 1.5em;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.score-label {
+    font-size: 1.1em;
+    font-weight: 600;
+    opacity: 0.95;
+}
+
+.progression-criteria {
+    margin-bottom: 30px;
+}
+
+.progression-criteria h4 {
+    margin: 0 0 20px 0;
+    color: #2d3748;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.progression-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.progression-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.progression-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.progression-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.progression-icon {
+    font-size: 1.8em;
+    margin-right: 12px;
+}
+
+.progression-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.progression-details {
+    margin-bottom: 15px;
+}
+
+.progression-question {
+    font-size: 1em;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.progression-explanation {
+    font-size: 0.85em;
+    color: #6b7280;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+/* SIRS Results Container */
+.sirs-result-container {
+    margin-top: 30px;
+}
+
+.diagnosis-display {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.diagnosis-display.normal {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.diagnosis-display.sirs {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.diagnosis-display.sepsis {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.diagnosis-display.shock {
+    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+}
+
+.diagnosis-icon {
+    font-size: 3em;
+    opacity: 0.9;
+}
+
+.diagnosis-content {
+    flex: 1;
+}
+
+.diagnosis-title {
+    font-size: 2.2em;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.diagnosis-description {
+    font-size: 1.1em;
+    line-height: 1.4;
+    opacity: 0.95;
+}
+
+.severity-progression {
+    margin-bottom: 30px;
+}
+
+.severity-progression h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.progression-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.progression-step {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-width: 120px;
+}
+
+.progression-step.active {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.progression-step.normal.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.progression-step.sirs.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.progression-step.sepsis.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.progression-step.shock.active {
+    border-color: #991b1b;
+    background: rgba(153, 27, 27, 0.2);
+}
+
+.step-icon {
+    font-size: 1.5em;
+    margin-bottom: 8px;
+}
+
+.step-title {
+    font-size: 1em;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #2d3748;
+}
+
+.step-criteria {
+    font-size: 0.8em;
+    color: #6b7280;
+    line-height: 1.2;
+}
+
+.progression-arrow {
+    font-size: 1.5em;
+    color: #6b7280;
+    font-weight: bold;
+}
+
+.clinical-management h4 {
+    margin-bottom: 20px;
+    color: #2d3748;
+    font-size: 1.3em;
+}
+
+.management-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.management-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.management-item.normal-management {
+    border-left: 4px solid #10b981;
+}
+
+.management-item.sirs-management {
+    border-left: 4px solid #f59e0b;
+}
+
+.management-item.sepsis-management {
+    border-left: 4px solid #ef4444;
+}
+
+.management-item.shock-management {
+    border-left: 4px solid #991b1b;
+}
+
+.management-item.active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.management-item.normal-management.active {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.management-item.sirs-management.active {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.management-item.sepsis-management.active {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.management-item.shock-management.active {
+    border-color: #991b1b;
+    background: rgba(153, 27, 27, 0.05);
+}
+
+.management-item h5 {
+    margin: 0 0 15px 0;
+    color: #2d3748;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.management-item ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.management-item li {
+    margin-bottom: 8px;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Mobile responsiveness for SIRS calculator */
+@media (max-width: 768px) {
+    .sirs-criteria-grid, .progression-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .criterion-card, .progression-card {
+        padding: 15px;
+    }
+    
+    .diagnosis-display {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+        padding: 25px;
+    }
+    
+    .diagnosis-icon {
+        font-size: 2.5em;
+    }
+    
+    .diagnosis-title {
+        font-size: 1.8em;
+    }
+    
+    .progression-flow {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .progression-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .management-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .management-item {
+        padding: 15px;
+    }
+    
+    .vitals-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .criterion-header, .progression-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .criterion-status {
+        align-self: center;
+        width: 30px;
+        height: 30px;
+        font-size: 1em;
+    }
+    
+    .sirs-toggle {
+        justify-content: center;
+        margin-top: 10px;
+    }
+    
+    .current-vitals, .criterion-card, .progression-card {
+        padding: 12px;
+    }
+    
+    .score-number {
+        font-size: 2em;
+    }
+    
+    .score-denominator {
+        font-size: 1.2em;
+    }
+}
+
+/* SEX-SHOCK Risk Score Styles */
+.sex-shock-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.sex-shock-container .patient-demographics {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.sex-shock-container .patient-demographics h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: white;
+}
+
+.sex-shock-container .demographics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.sex-shock-container .demo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    color: white;
+}
+
+.sex-shock-container .demo-item label {
+    font-weight: 500;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sex-shock-container .demo-item span {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: white;
+}
+
+.validation-notice {
+    display: flex;
+    align-items: flex-start;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 25px;
+}
+
+.notice-icon {
+    font-size: 1.5em;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.notice-content h5 {
+    margin: 0 0 8px 0;
+    color: #856404;
+    font-size: 1.1em;
+}
+
+.notice-content p {
+    margin: 0;
+    color: #856404;
+    line-height: 1.5;
+}
+
+.sex-shock-criteria h4 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.criterion-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.criterion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #007bff;
+}
+
+.criterion-card.age { border-left: 4px solid #6f42c1; }
+.criterion-card.sex { border-left: 4px solid #e83e8c; }
+.criterion-card.pci { border-left: 4px solid #20c997; }
+.criterion-card.timi { border-left: 4px solid #fd7e14; }
+.criterion-card.left-main { border-left: 4px solid #dc3545; }
+.criterion-card.glycemia { border-left: 4px solid #ffc107; }
+.criterion-card.bp { border-left: 4px solid #17a2b8; }
+.criterion-card.hr { border-left: 4px solid #28a745; }
+.criterion-card.killip { border-left: 4px solid #6c757d; }
+.criterion-card.arrest { border-left: 4px solid #343a40; }
+.criterion-card.lvef { border-left: 4px solid #007bff; }
+.criterion-card.st-elevation { border-left: 4px solid #fd7e14; }
+
+.criterion-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.criterion-icon {
+    font-size: 1.8em;
+    margin-right: 12px;
+    width: 40px;
+    text-align: center;
+}
+
+.criterion-title {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.criterion-detail {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.sex-shock-toggle {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 25px;
+    padding: 4px;
+    position: relative;
+}
+
+.sex-shock-toggle input[type="radio"] {
+    display: none;
+}
+
+.toggle-option {
+    flex: 1;
+    text-align: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.9em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-option span {
+    pointer-events: none;
+}
+
+.sex-shock-toggle input[type="radio"]:checked + span {
+    color: white;
+}
+
+.sex-shock-toggle .toggle-option:has(input[type="radio"]:checked) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Fallback for browsers that don't support :has() */
+.sex-shock-toggle .toggle-option.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.lvef-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.lvef-toggle .toggle-option {
+    font-size: 0.85em;
+    padding: 6px 12px;
+}
+
+.lab-values-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.lab-values-section h5 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.lab-inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.lab-input-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+}
+
+.lab-input-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.lab-icon {
+    font-size: 1.5em;
+    margin-right: 12px;
+    margin-top: 4px;
+}
+
+.lab-content {
+    flex: 1;
+}
+
+.lab-content label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.input-with-unit {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.input-with-unit:focus-within {
+    border-color: #007bff;
+}
+
+.input-with-unit input {
+    border: none;
+    padding: 10px 12px;
+    flex: 1;
+    font-size: 1em;
+    outline: none;
+}
+
+.input-with-unit .unit {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    font-weight: 500;
+    color: #6c757d;
+    border-left: 1px solid #e9ecef;
+}
+
+.normal-range {
+    font-size: 0.8em;
+    color: #28a745;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.sex-shock-result-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.risk-score-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 30px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.score-circle.low-risk {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.score-circle.moderate-risk {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: white;
+}
+
+.score-circle.high-risk {
+    background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%);
+    color: white;
+}
+
+.score-circle.very-high-risk {
+    background: linear-gradient(135deg, #dc3545 0%, #6f42c1 100%);
+    color: white;
+}
+
+.score-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-unit {
+    font-size: 1.2em;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.risk-interpretation {
+    flex: 1;
+}
+
+.risk-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.risk-description {
+    font-size: 1.1em;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+.risk-stratification h4,
+.clinical-recommendations h4,
+.shock-management-guide h4 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.risk-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.risk-level {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.risk-level.active {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.risk-level.low-risk.active { border-color: #28a745; background: #d4edda; }
+.risk-level.moderate-risk.active { border-color: #ffc107; background: #fff3cd; }
+.risk-level.high-risk.active { border-color: #fd7e14; background: #ffeaa7; }
+.risk-level.very-high-risk.active { border-color: #dc3545; background: #f8d7da; }
+
+.risk-range {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.risk-category {
+    font-size: 1em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.risk-level.low-risk .risk-category { color: #28a745; }
+.risk-level.moderate-risk .risk-category { color: #ffc107; }
+.risk-level.high-risk .risk-category { color: #fd7e14; }
+.risk-level.very-high-risk .risk-category { color: #dc3545; }
+
+.risk-level .risk-description {
+    font-size: 0.9em;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.recommendation-item {
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.recommendation-item.active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-item.low-risk-rec.active { 
+    border-color: #28a745; 
+    background: #d4edda; 
+}
+.recommendation-item.moderate-risk-rec.active { 
+    border-color: #ffc107; 
+    background: #fff3cd; 
+}
+.recommendation-item.high-risk-rec.active { 
+    border-color: #fd7e14; 
+    background: #ffeaa7; 
+}
+.recommendation-item.very-high-risk-rec.active { 
+    border-color: #dc3545; 
+    background: #f8d7da; 
+}
+
+.recommendation-item h5 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.recommendation-item ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.recommendation-item li {
+    margin-bottom: 6px;
+    color: #495057;
+    line-height: 1.4;
+}
+
+.management-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.management-step {
+    display: flex;
+    align-items: flex-start;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #007bff;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2em;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.step-content h6 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.step-content p {
+    margin: 0;
+    color: #6c757d;
+    line-height: 1.4;
+    font-size: 0.95em;
+}
+
+.references-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.references-section h4 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.reference-citation {
+    background: white;
+    border-left: 4px solid #007bff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.reference-citation h5 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.reference-citation p {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.reference-citation a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.reference-citation a:hover {
+    text-decoration: underline;
+}
+
+.study-details,
+.study-results,
+.clinical-validation {
+    margin-bottom: 25px;
+}
+
+.study-details h5,
+.study-results h5,
+.clinical-validation h5 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.study-grid,
+.findings-grid,
+.validation-points {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.study-item,
+.finding-item,
+.validation-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.study-item h6,
+.finding-item h6,
+.validation-item h6 {
+    margin: 0 0 8px 0;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.study-item p,
+.finding-item p,
+.validation-item p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.finding-item ul,
+.validation-item ul {
+    margin: 8px 0 0 0;
+    padding-left: 16px;
+}
+
+.finding-item li,
+.validation-item li {
+    margin-bottom: 4px;
+    color: #6c757d;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+
+/* SEX-SHOCK Responsive Design */
+@media (max-width: 768px) {
+    .sex-shock-container {
+        padding: 15px;
+    }
+    
+    .demographics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .criteria-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .lab-inputs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .risk-score-display {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .score-circle {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .risk-levels {
+        grid-template-columns: 1fr;
+    }
+    
+    .recommendations-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .management-steps {
+        grid-template-columns: 1fr;
+    }
+    
+    .study-grid,
+    .findings-grid,
+    .validation-points {
+        grid-template-columns: 1fr;
     }
 }

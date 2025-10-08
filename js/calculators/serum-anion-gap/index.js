@@ -22,6 +22,80 @@ export const serumAnionGap = {
             </div>
             <button id="calculate-sag">Calculate Anion Gap</button>
             <div id="sag-result" class="result" style="display:none;"></div>
+            
+            <div class="formula-section">
+                <h4>📐 Formula</h4>
+                <div class="formula-box">
+                    <div class="formula-title">Serum Anion Gap (mEq/L) =</div>
+                    <div class="formula-equation">
+                        <span class="formula-main">Na⁺ - (Cl⁻ + HCO₃⁻)</span>
+                    </div>
+                </div>
+                
+                <div class="formula-explanation">
+                    <h5>📋 Explanation</h5>
+                    <ul>
+                        <li><strong>Na⁺ (Sodium):</strong> Major extracellular cation</li>
+                        <li><strong>Cl⁻ (Chloride):</strong> Major extracellular anion</li>
+                        <li><strong>HCO₃⁻ (Bicarbonate):</strong> Major buffer in blood</li>
+                        <li><strong>Purpose:</strong> Evaluates acid-base status and identifies unmeasured anions</li>
+                        <li><strong>Clinical significance:</strong> Helps differentiate causes of metabolic acidosis</li>
+                    </ul>
+                </div>
+                
+                <div class="normal-values">
+                    <h5>📊 Normal Values & Interpretation</h5>
+                    <div class="values-grid">
+                        <div class="value-item normal-range">
+                            <strong>Normal Range:</strong><br>6-12 mEq/L
+                        </div>
+                        <div class="value-item high-range">
+                            <strong>High (>12 mEq/L):</strong><br>High Anion Gap Metabolic Acidosis
+                        </div>
+                        <div class="value-item low-range">
+                            <strong>Low (<6 mEq/L):</strong><br>Uncommon, possible lab error
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clinical-causes">
+                    <h5>🔍 Common Causes</h5>
+                    <div class="causes-grid">
+                        <div class="cause-category">
+                            <h6>High Anion Gap (MUDPILES)</h6>
+                            <ul>
+                                <li><strong>M</strong>ethanol</li>
+                                <li><strong>U</strong>remia</li>
+                                <li><strong>D</strong>iabetic ketoacidosis</li>
+                                <li><strong>P</strong>ropylene glycol</li>
+                                <li><strong>I</strong>soniazid</li>
+                                <li><strong>L</strong>actic acidosis</li>
+                                <li><strong>E</strong>thylene glycol</li>
+                                <li><strong>S</strong>alicylates</li>
+                            </ul>
+                        </div>
+                        <div class="cause-category">
+                            <h6>Normal Anion Gap</h6>
+                            <ul>
+                                <li>Diarrhea</li>
+                                <li>Renal tubular acidosis</li>
+                                <li>Carbonic anhydrase inhibitors</li>
+                                <li>Post-hypocapnia</li>
+                                <li>Saline administration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clinical-note">
+                    <h5>⚠️ Clinical Notes</h5>
+                    <ul>
+                        <li><strong>Albumin correction:</strong> For every 1 g/dL decrease in albumin below 4 g/dL, add 2.5 mEq/L to the anion gap</li>
+                        <li><strong>Laboratory variation:</strong> Normal ranges may vary between laboratories</li>
+                        <li><strong>Potassium:</strong> Some laboratories include K⁺ in the formula: (Na⁺ + K⁺) - (Cl⁻ + HCO₃⁻)</li>
+                    </ul>
+                </div>
+            </div>
         `;
     },
     initialize: function(client) {

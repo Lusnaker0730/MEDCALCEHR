@@ -12,7 +12,7 @@ export const calculatorModules = [
     { id: 'abl', title: 'ABL90 FLEX Analyzer Calculator' },
     { id: 'abg-analyzer', title: 'ABG Analyzer' },
     { id: 'action-icu', title: 'ACTION-ICU Risk Score for Intensive Care in NSTEMI' },
-    { id: 'af-risk', title: 'Atrial Fibrillation (AF) Risk Score (AHEAD)' },
+    { id: 'af-risk', title: 'Atrial Fibrillation (AF) Risk Score (CHADVAS&HASBLED)' },
     { id: 'apache-ii', title: 'APACHE II Score' },
     { id: 'apgar', title: 'APGAR Score' },
     { id: 'ariscat', title: 'ARISCAT Score for Postoperative Pulmonary Complications' },

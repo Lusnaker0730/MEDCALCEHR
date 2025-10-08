@@ -25,6 +25,99 @@ export const phenytoinCorrection = {
             </div>
             <button id="calculate-phenytoin">Calculate Corrected Level</button>
             <div id="phenytoin-result" class="result" style="display:none;"></div>
+            
+            <div class="formula-section">
+                <h4>📐 Formula</h4>
+                <div class="formula-box">
+                    <div class="formula-title">Corrected Phenytoin Level (mcg/mL) =</div>
+                    <div class="formula-equation">
+                        <span class="formula-main">Total Phenytoin / [((1-K) × Albumin/4.4) + K]</span>
+                    </div>
+                </div>
+                
+                <div class="formula-explanation">
+                    <h5>📋 Formula Components</h5>
+                    <ul>
+                        <li><strong>Total Phenytoin:</strong> Measured serum phenytoin level (mcg/mL)</li>
+                        <li><strong>Albumin:</strong> Serum albumin level (g/dL)</li>
+                        <li><strong>K (Correction Factor):</strong>
+                            <ul style="margin-top: 8px; padding-left: 20px;">
+                                <li>K = 0.1 (Normal renal function)</li>
+                                <li>K = 0.2 (Renal failure, CrCl < 10 mL/min)</li>
+                            </ul>
+                        </li>
+                        <li><strong>4.4:</strong> Normal albumin reference value (g/dL)</li>
+                    </ul>
+                </div>
+                
+                <div class="normal-values">
+                    <h5>📊 Therapeutic Ranges</h5>
+                    <div class="values-grid">
+                        <div class="value-item therapeutic-range">
+                            <strong>Therapeutic Range:</strong><br>10-20 mcg/mL
+                        </div>
+                        <div class="value-item toxic-range">
+                            <strong>Toxic Level:</strong><br>>20 mcg/mL
+                        </div>
+                        <div class="value-item subtherapeutic-range">
+                            <strong>Subtherapeutic:</strong><br><10 mcg/mL
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clinical-scenarios">
+                    <h5>🔍 Clinical Scenarios</h5>
+                    <div class="scenarios-grid">
+                        <div class="scenario-category">
+                            <h6>Normal Renal Function (K = 0.1)</h6>
+                            <ul>
+                                <li>CrCl ≥ 10 mL/min</li>
+                                <li>Normal kidney function</li>
+                                <li>Standard protein binding</li>
+                                <li>Use K = 0.1 in formula</li>
+                            </ul>
+                        </div>
+                        <div class="scenario-category">
+                            <h6>Renal Failure (K = 0.2)</h6>
+                            <ul>
+                                <li>CrCl < 10 mL/min</li>
+                                <li>End-stage renal disease</li>
+                                <li>Dialysis patients</li>
+                                <li>Reduced protein binding</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="correction-rationale">
+                    <h5>🧬 Why Correction is Needed</h5>
+                    <div class="rationale-grid">
+                        <div class="rationale-item">
+                            <h6>Protein Binding</h6>
+                            <p>Phenytoin is ~90% protein-bound to albumin. Only the free (unbound) fraction is pharmacologically active.</p>
+                        </div>
+                        <div class="rationale-item">
+                            <h6>Hypoalbuminemia</h6>
+                            <p>Low albumin increases free phenytoin fraction, making total levels misleading. Correction estimates the equivalent level at normal albumin.</p>
+                        </div>
+                        <div class="rationale-item">
+                            <h6>Renal Failure</h6>
+                            <p>Uremic toxins compete for protein binding sites, further increasing free phenytoin fraction.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clinical-note">
+                    <h5>⚠️ Clinical Notes</h5>
+                    <ul>
+                        <li><strong>Free phenytoin levels:</strong> Direct measurement of free phenytoin (therapeutic range: 1-2 mcg/mL) is preferred when available</li>
+                        <li><strong>Pregnancy:</strong> Protein binding changes during pregnancy; consider free levels</li>
+                        <li><strong>Critical illness:</strong> Hypoalbuminemia is common; correction is especially important</li>
+                        <li><strong>Drug interactions:</strong> Some drugs can displace phenytoin from protein binding sites</li>
+                        <li><strong>Limitations:</strong> Formula is an approximation; clinical correlation is essential</li>
+                    </ul>
+                </div>
+            </div>
         `;
     },
     initialize: function(client, patient, container) {
