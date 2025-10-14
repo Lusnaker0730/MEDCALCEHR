@@ -18,19 +18,40 @@ export const gad7 = {
         let html = `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
-            <p>Over the last 2 weeks, how often have you been bothered by the following problems?</p>
+            <div class="gad7-instructions">
+                <p><strong>Over the last 2 weeks, how often have you been bothered by the following problems?</strong></p>
+            </div>
             <div class="gad7-questions">
         `;
 
         questions.forEach((q, index) => {
             html += `
                 <div class="gad7-question">
-                    <p>${index + 1}. ${q}</p>
+                    <div class="question-header">
+                        <span class="question-number">${index + 1}</span>
+                        <p class="question-text"><strong>${q}</strong></p>
+                    </div>
                     <div class="gad7-options">
-                        <label><input type="radio" name="gad7-q${index}" value="0" checked> Not at all (0)</label>
-                        <label><input type="radio" name="gad7-q${index}" value="1"> Several days (1)</label>
-                        <label><input type="radio" name="gad7-q${index}" value="2"> More than half the days (2)</label>
-                        <label><input type="radio" name="gad7-q${index}" value="3"> Nearly every day (3)</label>
+                        <label class="radio-label">
+                            <input type="radio" name="gad7-q${index}" value="0" checked>
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">Not at all <span class="score-badge">(0)</span></span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gad7-q${index}" value="1">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">Several days <span class="score-badge">(1)</span></span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gad7-q${index}" value="2">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">More than half the days <span class="score-badge">(2)</span></span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gad7-q${index}" value="3">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">Nearly every day <span class="score-badge">(3)</span></span>
+                        </label>
                     </div>
                 </div>
             `;
@@ -40,6 +61,27 @@ export const gad7 = {
             </div>
             <button id="calculate-gad7">Calculate GAD-7 Score</button>
             <div id="gad7-result" class="result" style="display:none;"></div>
+            <div class="gad7-scoring-guide">
+                <h4>Score Interpretation:</h4>
+                <div class="scoring-grid">
+                    <div class="scoring-item minimal">
+                        <span class="score-range">0-4</span>
+                        <span class="severity-label">Minimal</span>
+                    </div>
+                    <div class="scoring-item mild">
+                        <span class="score-range">5-9</span>
+                        <span class="severity-label">Mild</span>
+                    </div>
+                    <div class="scoring-item moderate">
+                        <span class="score-range">10-14</span>
+                        <span class="severity-label">Moderate</span>
+                    </div>
+                    <div class="scoring-item severe">
+                        <span class="score-range">15-21</span>
+                        <span class="severity-label">Severe</span>
+                    </div>
+                </div>
+            </div>
         `;
         return html;
     },
@@ -51,29 +93,52 @@ export const gad7 = {
             }
 
             let severity = '';
+            let severityClass = '';
             let recommendation = '';
             if (score <= 4) {
                 severity = 'Minimal anxiety';
+                severityClass = 'minimal';
                 recommendation = 'Monitor; may not require treatment.';
             } else if (score <= 9) {
                 severity = 'Mild anxiety';
+                severityClass = 'mild';
                 recommendation = 'Watchful waiting; consider psychoeducation.';
             } else if (score <= 14) {
                 severity = 'Moderate anxiety';
+                severityClass = 'moderate';
                 recommendation = 'Consider therapy or pharmacotherapy.';
             } else { // score >= 15
                 severity = 'Severe anxiety';
+                severityClass = 'severe';
                 recommendation = 'Active treatment with therapy and/or pharmacotherapy is indicated.';
             }
 
             const resultEl = document.getElementById('gad7-result');
             resultEl.innerHTML = `
-                <p><strong>GAD-7 Score:</strong> ${score}</p>
-                <p><strong>Anxiety Severity:</strong> ${severity}</p>
-                <hr>
-                <p><strong>Recommendation:</strong> ${recommendation}</p>
+                <div class="gad7-result-card ${severityClass}">
+                    <div class="result-score">
+                        <span class="score-label">GAD-7 Score:</span>
+                        <span class="score-value">${score}</span>
+                    </div>
+                    <div class="result-severity ${severityClass}">
+                        <span class="severity-icon">●</span>
+                        <span class="severity-text">Anxiety Severity: ${severity}</span>
+                    </div>
+                    <div class="result-recommendation">
+                        <div class="recommendation-header">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" fill="currentColor"/>
+                            </svg>
+                            <span>Recommendation</span>
+                        </div>
+                        <p>${recommendation}</p>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
+            
+            // Smooth scroll to result
+            resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
     }
 };

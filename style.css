@@ -526,33 +526,369 @@ label {
     border: 1px solid #ccc;
 }
 
-/* GAD-7 specific styles */
-.gad7-question {
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+/* GAD-7 Calculator Styles */
+.gad7-instructions {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border-left: 4px solid #667eea;
 }
 
-.gad7-question p {
+.gad7-instructions p {
+    margin: 0;
+    color: #2d3748;
+    font-size: 0.9em;
+}
+
+.gad7-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.gad7-question {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+}
+
+.gad7-question:hover {
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.question-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    margin-bottom: 8px;
+    font-size: 0.85em;
+    flex-shrink: 0;
+}
+
+.question-text {
+    margin: 0;
+    flex: 1;
+    padding-top: 4px;
+    font-size: 0.9em;
+    color: #2d3748;
 }
 
 .gad7-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
 }
 
-.gad7-options label {
-    font-weight: normal;
+.radio-label {
     display: flex;
     align-items: center;
+    padding: 12px 15px;
+    background: rgba(248, 249, 250, 0.8);
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    font-size: 0.85em;
+}
+
+.radio-label:hover {
+    background: rgba(102, 126, 234, 0.05);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.radio-label input[type="radio"] {
+    position: absolute;
+    opacity: 0;
     cursor: pointer;
 }
 
-.gad7-options input[type="radio"] {
-    margin-right: 5px;
+.radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e0;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.radio-label input[type="radio"]:checked ~ .radio-custom {
+    border-color: #667eea;
+    background: #667eea;
+}
+
+.radio-label input[type="radio"]:checked ~ .radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+
+.radio-label input[type="radio"]:checked ~ .radio-text {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.radio-text {
+    flex: 1;
+    color: #4a5568;
+    transition: all 0.2s ease;
+}
+
+.score-badge {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #667eea;
+    margin-left: 5px;
+}
+
+.radio-label input[type="radio"]:checked ~ .radio-text .score-badge {
+    background: #667eea;
+    color: white;
+}
+
+/* GAD-7 Result Card */
+.gad7-result-card {
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 16px;
+    border: 2px solid;
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.gad7-result-card.minimal {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+}
+
+.gad7-result-card.mild {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-color: #ffc107;
+}
+
+.gad7-result-card.moderate {
+    background: linear-gradient(135deg, #ffe5d0 0%, #ffd8b8 100%);
+    border-color: #fd7e14;
+}
+
+.gad7-result-card.severe {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+    border-color: #dc3545;
+}
+
+.result-score {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.score-label {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.score-value {
+    font-size: 2em;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.result-severity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    font-size: 0.9em;
+}
+
+.severity-icon {
+    font-size: 1.5em;
+}
+
+.result-severity.minimal .severity-icon {
+    color: #28a745;
+}
+
+.result-severity.mild .severity-icon {
+    color: #ffc107;
+}
+
+.result-severity.moderate .severity-icon {
+    color: #fd7e14;
+}
+
+.result-severity.severe .severity-icon {
+    color: #dc3545;
+}
+
+.severity-text {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.result-recommendation {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.recommendation-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.recommendation-header svg {
+    color: #667eea;
+}
+
+.result-recommendation p {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.6;
+    font-size: 0.9em;
+}
+
+/* GAD-7 Scoring Guide */
+.gad7-scoring-guide {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(241, 245, 249, 0.9) 100%);
+    border-radius: 16px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.gad7-scoring-guide h4 {
+    margin: 0 0 20px 0;
+    font-size: 1.1em;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.scoring-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.scoring-item {
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.scoring-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.scoring-item.minimal {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+}
+
+.scoring-item.mild {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-color: #ffc107;
+}
+
+.scoring-item.moderate {
+    background: linear-gradient(135deg, #ffe5d0 0%, #ffd8b8 100%);
+    border-color: #fd7e14;
+}
+
+.scoring-item.severe {
+    background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+    border-color: #dc3545;
+}
+
+.score-range {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.severity-label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments for GAD-7 */
+@media (max-width: 768px) {
+    .gad7-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .scoring-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .result-score {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
 }
 
 /* MME Calculator specific styles */
@@ -1680,6 +2016,132 @@ input[type="radio"], input[type="checkbox"] {
 .references img:hover {
     transform: scale(1.02);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.references ol {
+    margin: 0;
+    padding-left: 25px;
+    counter-reset: reference-counter;
+}
+
+.references li {
+    margin-bottom: 15px;
+    line-height: 1.7;
+    color: #4a5568;
+    font-size: 0.95em;
+}
+
+.references li strong {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.references li em {
+    color: #718096;
+}
+
+.references li a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.references li a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* Reference Images Container */
+.reference-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin: 25px 0;
+}
+
+.reference-image-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reference-image-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.reference-image-container h5 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+}
+
+.reference-image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.image-caption {
+    margin: 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: #4a5568;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.reference-citation {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-top: 25px;
+}
+
+.reference-citation h5 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.reference-citation p {
+    margin: 0;
+    line-height: 1.7;
+    color: #4a5568;
+}
+
+.reference-citation strong {
+    color: #2d3748;
+}
+
+.reference-citation em {
+    color: #718096;
+}
+
+.reference-citation a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.reference-citation a:hover {
+    color: #764ba2;
+    text-decoration: underline;
 }
 
 /* Loading animation */
@@ -7722,5 +8184,1619 @@ html {
     .findings-grid,
     .validation-points {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Bacterial Meningitis Score - Enhanced Styles
+   ============================================ */
+
+/* Instructions Box */
+.bms-instructions {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    margin-bottom: 25px;
+}
+
+.bms-instructions .instruction-header {
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    margin-bottom: 12px;
+}
+
+.bms-instructions p {
+    margin: 5px 0;
+    line-height: 1.6;
+    font-size: 0.95em;
+}
+
+/* Criteria Section */
+.bms-criteria-section {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.bms-input-row {
+    padding: 18px;
+    margin-bottom: 12px;
+    background: linear-gradient(to right, #f8f9ff 0%, #ffffff 100%);
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.bms-input-row:hover {
+    background: linear-gradient(to right, #f0f3ff 0%, #ffffff 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateX(5px);
+}
+
+.bms-input-row:last-child {
+    margin-bottom: 0;
+}
+
+.bms-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+}
+
+.label-icon {
+    font-size: 1.8em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.label-main {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.05em;
+    margin-bottom: 4px;
+}
+
+.label-sub {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    font-weight: normal;
+}
+
+/* Segmented Control for BMS */
+.bms-control {
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.bms-control label {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bms-control label:hover {
+    background-color: #f0f3ff;
+}
+
+.bms-control input[type="radio"]:checked + span {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+}
+
+.bms-control span {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+}
+
+.bms-control strong {
+    font-size: 1.1em;
+}
+
+/* Result Box */
+.bms-result {
+    margin-top: 25px;
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s ease;
+    border: none;
+}
+
+.bms-result-content {
+    display: flex;
+    align-items: stretch;
+    min-height: 150px;
+}
+
+.result-score-section {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.result-label {
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.bms-score {
+    font-size: 4.5em !important;
+    font-weight: 800;
+    line-height: 1;
+    margin: 0;
+}
+
+.result-points {
+    font-size: 1em;
+    font-weight: 600;
+    margin-top: 5px;
+    opacity: 0.9;
+}
+
+.result-divider {
+    width: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 20px 0;
+}
+
+.result-interpretation-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+}
+
+.result-risk-icon {
+    font-size: 3.5em;
+    margin-bottom: 15px;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.bms-interpretation {
+    font-size: 1.3em !important;
+    font-weight: 700;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Color Variants */
+.bms-very-low-risk {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.bms-not-low-risk {
+    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .bms-result-content {
+        flex-direction: column;
+    }
+    
+    .result-score-section {
+        flex: 1;
+        padding: 25px;
+    }
+    
+    .result-divider {
+        width: 100%;
+        height: 2px;
+        margin: 0;
+    }
+    
+    .result-interpretation-section {
+        padding: 25px;
+    }
+    
+    .bms-input-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .bms-control {
+        width: 100%;
+    }
+    
+    .label-icon {
+        font-size: 1.5em;
+    }
+}
+
+/* ============================================
+   CPIS Score - Enhanced Styles
+   ============================================ */
+
+/* Instructions Box */
+.cpis-instructions {
+    background: linear-gradient(135deg, #06beb6 0%, #48b1bf 100%);
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(6, 190, 182, 0.3);
+    margin-bottom: 25px;
+}
+
+.cpis-instructions .instruction-header {
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    margin-bottom: 12px;
+}
+
+.cpis-instructions p {
+    margin: 5px 0;
+    line-height: 1.6;
+    font-size: 0.95em;
+}
+
+/* Criteria Section */
+.cpis-criteria-section {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cpis-input-row {
+    padding: 18px;
+    margin-bottom: 12px;
+    background: linear-gradient(to right, #f0fffe 0%, #ffffff 100%);
+    border-radius: 10px;
+    border-left: 4px solid #06beb6;
+    transition: all 0.3s ease;
+}
+
+.cpis-input-row:hover {
+    background: linear-gradient(to right, #e0fffe 0%, #ffffff 100%);
+    box-shadow: 0 4px 12px rgba(6, 190, 182, 0.15);
+    transform: translateX(5px);
+}
+
+.cpis-input-row:last-child {
+    margin-bottom: 0;
+}
+
+.cpis-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+}
+
+/* Segmented Control for CPIS */
+.cpis-control {
+    border: 2px solid #06beb6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cpis-control label {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cpis-control label:hover {
+    background-color: #e0fffe;
+}
+
+.cpis-control input[type="radio"]:checked + span {
+    background: linear-gradient(135deg, #06beb6 0%, #48b1bf 100%);
+    color: white;
+    font-weight: 600;
+}
+
+.cpis-control span {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+}
+
+.cpis-control.multi label {
+    flex: 1;
+}
+
+.cpis-control strong {
+    font-size: 1.1em;
+}
+
+/* Result Box */
+.cpis-result {
+    margin-top: 25px;
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s ease;
+    border: none;
+}
+
+.cpis-result-content {
+    display: flex;
+    align-items: stretch;
+    min-height: 150px;
+}
+
+.cpis-score {
+    font-size: 4.5em !important;
+    font-weight: 800;
+    line-height: 1;
+    margin: 0;
+}
+
+.cpis-interpretation {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.interpretation-text {
+    font-size: 1.4em;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.interpretation-detail {
+    font-size: 1em;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+/* Color Variants */
+.cpis-low-risk {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.cpis-high-risk {
+    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+    color: white;
+}
+
+/* Additional Clinical Note */
+.cpis-additional-note {
+    margin-top: 20px;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+    border-radius: 10px;
+    border-left: 5px solid #ffc107;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+    color: #856404;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+.cpis-additional-note strong {
+    color: #856404;
+    font-weight: 700;
+}
+
+/* Management Box */
+.cpis-management-box {
+    margin-top: 25px;
+    padding: 25px;
+    background: linear-gradient(to right, #f8f9ff 0%, #ffffff 100%);
+    border-radius: 12px;
+    border-left: 5px solid #06beb6;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cpis-management-box h4 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cpis-management-box ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.cpis-management-box li {
+    margin: 12px 0;
+    padding-left: 25px;
+    position: relative;
+    line-height: 1.6;
+    color: #34495e;
+}
+
+.cpis-management-box li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #06beb6;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.cpis-management-box li strong {
+    color: #06beb6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .cpis-result-content {
+        flex-direction: column;
+    }
+    
+    .cpis-input-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .cpis-control {
+        width: 100%;
+    }
+    
+    .cpis-control.multi {
+        flex-direction: column;
+    }
+    
+    .cpis-control.multi label {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   Steroid Conversion Table Styles
+   ============================================ */
+
+.steroid-conversion-table-container {
+    margin-top: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.steroid-conversion-table-container h4 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.6em;
+    font-weight: 700;
+    text-align: center;
+}
+
+.table-description {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table-note {
+    background: #fff3cd;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.steroid-equivalence-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.95em;
+}
+
+.steroid-equivalence-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.steroid-equivalence-table th {
+    padding: 15px 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.steroid-equivalence-table th.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    text-align: left;
+    padding-left: 20px;
+    min-width: 200px;
+}
+
+.steroid-equivalence-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.2s ease;
+}
+
+.steroid-equivalence-table td.steroid-name {
+    position: sticky;
+    left: 0;
+    background: white;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: left;
+    padding-left: 20px;
+    border-right: 2px solid #e2e8f0;
+    z-index: 1;
+}
+
+.steroid-equivalence-table tbody tr:hover {
+    background-color: #f7fafc;
+}
+
+.steroid-equivalence-table tbody tr:hover td.steroid-name {
+    background-color: #edf2f7;
+}
+
+/* Potency Information */
+.potency-info {
+    margin-top: 30px;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.potency-info h5 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.potency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.potency-item {
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.potency-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.potency-item strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.potency-item p {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 0.95em;
+}
+
+.high-potency {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.medium-potency {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.standard-potency {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.low-potency {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+/* Clinical Pearls */
+.clinical-pearls {
+    margin-top: 25px;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    border-left: 5px solid #3498db;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.clinical-pearls h5 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.clinical-pearls ul {
+    margin: 0;
+    padding-left: 25px;
+}
+
+.clinical-pearls li {
+    margin: 12px 0;
+    line-height: 1.7;
+    color: #4a5568;
+}
+
+.clinical-pearls li strong {
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .steroid-conversion-table-container {
+        padding: 20px 15px;
+    }
+    
+    .steroid-equivalence-table {
+        font-size: 0.85em;
+    }
+    
+    .steroid-equivalence-table th,
+    .steroid-equivalence-table td {
+        padding: 10px 8px;
+    }
+    
+    .steroid-equivalence-table th.sticky-col,
+    .steroid-equivalence-table td.steroid-name {
+        min-width: 150px;
+        padding-left: 15px;
+    }
+    
+    .potency-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Ethanol Concentration Formula Styles
+   ============================================ */
+
+.formula-section {
+    margin-top: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.formula-section h4 {
+    margin: 0 0 25px 0;
+    color: #2c3e50;
+    font-size: 1.6em;
+    font-weight: 700;
+    text-align: center;
+}
+
+.formula-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.formula-step {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formula-step:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.formula-step h5 {
+    margin: 0 0 15px 0;
+    color: #667eea;
+    font-size: 1.2em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.formula-step h5:before {
+    content: "➜";
+    font-size: 1.3em;
+}
+
+.formula-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    line-height: 1.8;
+    text-align: center;
+}
+
+.formula-box strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+}
+
+.formula-box.highlight {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+}
+
+.fraction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 0.95em;
+}
+
+.numerator {
+    padding: 8px 15px;
+    border-bottom: 2px solid white;
+    margin-bottom: 5px;
+}
+
+.denominator {
+    padding: 8px 15px;
+}
+
+.formula-note {
+    margin: 0;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #4a5568;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.formula-step.combined {
+    border: 3px solid #f093fb;
+    background: linear-gradient(to right, #fff5f7 0%, #ffffff 100%);
+}
+
+/* Clinical Notes */
+.clinical-notes {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid #ff6b6b;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+}
+
+.clinical-notes h5 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.clinical-notes ul {
+    margin: 0;
+    padding-left: 25px;
+    list-style: none;
+}
+
+.clinical-notes li {
+    margin: 10px 0;
+    padding-left: 25px;
+    position: relative;
+    line-height: 1.7;
+    color: #4a5568;
+}
+
+.clinical-notes li:before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: #ff6b6b;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.clinical-notes li strong {
+    color: #ff6b6b;
+}
+
+/* Common Drinks Section */
+.common-drinks {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.common-drinks h5 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.drinks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.drink-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+.drink-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.drink-card strong {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.drink-card p {
+    margin: 0;
+    font-size: 0.95em;
+    opacity: 0.95;
+}
+
+.drinks-note {
+    margin: 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+    color: #4a5568;
+    font-size: 0.95em;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .formula-section {
+        padding: 20px 15px;
+    }
+    
+    .formula-box {
+        font-size: 0.9em;
+        padding: 15px;
+    }
+    
+    .fraction {
+        font-size: 0.85em;
+    }
+    
+    .drinks-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .drink-card {
+        padding: 15px;
+    }
+}
+
+/* ============================================
+   FIB-4 Calculator Styles
+   ============================================ */
+
+.fib4-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.fib4-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.fib4-header h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    font-size: 2em;
+}
+
+.fib4-subtitle {
+    color: #718096;
+    font-size: 1.1em;
+    margin: 0;
+}
+
+/* Input Section */
+.fib4-input-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .fib4-input-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fib4-input-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-height: 120px;
+}
+
+.fib4-input-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+    border-color: #667eea;
+}
+
+.fib4-input-card .input-icon {
+    font-size: 2em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.fib4-input-card .input-content {
+    flex: 1;
+    position: relative;
+}
+
+.fib4-input-card label {
+    display: block;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.fib4-input-card input {
+    width: 100%;
+    padding: 12px 45px 12px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.fib4-input-card input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.fib4-input-card .input-unit {
+    position: absolute;
+    right: 12px;
+    top: 42px;
+    color: #a0aec0;
+    font-weight: 500;
+    font-size: 0.9em;
+    pointer-events: none;
+}
+
+/* Calculate Button */
+.fib4-calculate-btn {
+    width: 100%;
+    padding: 18px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.fib4-calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.fib4-calculate-btn .btn-icon {
+    font-size: 1.3em;
+    transition: transform 0.3s ease;
+}
+
+.fib4-calculate-btn:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+/* Result Box */
+.fib4-result {
+    margin-bottom: 30px;
+}
+
+.fib4-result-content {
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s ease;
+}
+
+.fib4-result-content.low-risk {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.fib4-result-content.intermediate-risk {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.fib4-result-content.high-risk {
+    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+    color: white;
+}
+
+.fib4-result-content.error {
+    background: #fff3cd;
+    color: #856404;
+    text-align: center;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.result-icon {
+    font-size: 4em;
+    line-height: 1;
+    animation: iconPulse 2s ease-in-out infinite;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.result-main {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 15px 25px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.result-score-label {
+    font-size: 1em;
+    opacity: 1;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.result-score-value {
+    font-size: 4.5em;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 8px;
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    letter-spacing: -2px;
+}
+
+.result-divider {
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 20px 0;
+}
+
+.result-details {
+    line-height: 1.7;
+}
+
+.risk-classification {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.result-details .interpretation {
+    font-size: 1.2em;
+    margin: 10px 0 15px 0;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
+}
+
+.recommendation {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+.recommendation strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.15em;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.recommendation p {
+    margin: 0;
+    opacity: 1;
+    font-weight: 500;
+    line-height: 1.6;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Formula Section */
+.fib4-formula-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.fib4-formula-section h4 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.fib4-formula {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Interpretation Guide */
+.fib4-interpretation-guide {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.fib4-interpretation-guide h4 {
+    margin: 0 0 25px 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.interpretation-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.interp-card {
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interp-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.interp-card.low-risk {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.interp-card.intermediate-risk {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.interp-card.high-risk {
+    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+    color: white;
+}
+
+.risk-range {
+    font-size: 2em;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.risk-label {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.interp-card p {
+    margin: 0 0 15px 0;
+    font-size: 1em;
+    line-height: 1.6;
+}
+
+.interp-card ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.interp-card li {
+    margin: 8px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.interp-card li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* Clinical Notes */
+.fib4-clinical-notes {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid #667eea;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.fib4-clinical-notes h4 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+}
+
+.fib4-clinical-notes ul {
+    margin: 0;
+    padding-left: 25px;
+    list-style: none;
+}
+
+.fib4-clinical-notes li {
+    margin: 12px 0;
+    padding-left: 25px;
+    position: relative;
+    line-height: 1.7;
+    color: #4a5568;
+}
+
+.fib4-clinical-notes li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.fib4-clinical-notes li strong {
+    color: #667eea;
+}
+
+/* Additional Responsive Design */
+@media (max-width: 768px) {
+    .interpretation-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-header {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    
+    .result-main {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .result-score-value {
+        font-size: 3em;
+    }
+    
+    .fib4-input-card {
+        min-height: auto;
+    }
+}
+
+/* ============================================
+   Free Water Deficit - Enhanced Styles
+   ============================================ */
+
+.fwd-correction-guide {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin: 30px 0;
+}
+
+.fwd-correction-guide h4 {
+    margin: 0 0 25px 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.correction-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.correction-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.correction-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.correction-card.rate {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.correction-card.fluid {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.correction-card.monitoring {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.correction-card .card-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    text-align: center;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.correction-card h5 {
+    margin: 0 0 15px 0;
+    font-size: 1.3em;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 10px;
+}
+
+.correction-card p {
+    margin: 8px 0;
+    line-height: 1.6;
+    font-size: 0.95em;
+}
+
+.correction-card ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.correction-card li {
+    margin: 8px 0;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.correction-card li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* Example Calculation */
+.example-calculation {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-top: 30px;
+}
+
+.example-calculation h4 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.example-box {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+}
+
+.example-data {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.example-data strong {
+    display: block;
+    margin-bottom: 12px;
+    color: #667eea;
+    font-size: 1.1em;
+}
+
+.example-data ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.example-data li {
+    margin: 8px 0;
+    padding-left: 25px;
+    position: relative;
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.example-data li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.example-steps {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.example-steps strong {
+    display: block;
+    margin-bottom: 12px;
+    color: #667eea;
+    font-size: 1.1em;
+}
+
+.example-steps ol {
+    margin: 10px 0;
+    padding-left: 25px;
+    color: #4a5568;
+}
+
+.example-steps li {
+    margin: 10px 0;
+    line-height: 1.7;
+    font-family: 'Courier New', monospace;
+}
+
+.example-result {
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    line-height: 1.7;
+}
+
+.example-result strong {
+    font-size: 1.1em;
+}
+
+/* Responsive Design for FWD */
+@media (max-width: 768px) {
+    .correction-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .example-box {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 }

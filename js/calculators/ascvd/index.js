@@ -150,11 +150,63 @@ export const ascvd = {
         let baselineRisk = 0;
         let patientData = {};
 
+        // Calculate ASCVD risk using Pooled Cohort Equations
+        const calculateRisk = (patient) => {
+            const lnAge = Math.log(patient.age);
+            const lnTC = Math.log(patient.tc);
+            const lnHDL = Math.log(patient.hdl);
+            const lnSBP = Math.log(patient.sbp);
+
+            let individualSum = 0;
+            let baselineSurvival = 0;
+            let meanValue = 0;
+
+            if (patient.isMale) {
+                if (patient.race === 'white') {
+                    individualSum = 12.344 * lnAge + 11.853 * lnTC - 2.664 * lnAge * lnTC - 7.99 * lnHDL + 1.769 * lnAge * lnHDL + (patient.onHtnTx ? 1.797 : 1.764) * lnSBP + 7.837 * (patient.isSmoker ? 1 : 0) - 1.795 * lnAge * (patient.isSmoker ? 1 : 0) + 0.658 * (patient.isDiabetic ? 1 : 0);
+                    meanValue = 61.18;
+                    baselineSurvival = 0.9144;
+                } else { // African American Male
+                    individualSum = 2.469 * lnAge + 0.302 * lnTC - 0.307 * lnHDL + (patient.onHtnTx ? 1.916 : 1.809) * lnSBP + 0.549 * (patient.isSmoker ? 1 : 0) + 0.645 * (patient.isDiabetic ? 1 : 0);
+                    meanValue = 19.54;
+                    baselineSurvival = 0.8954;
+                }
+            } else { // Female
+                if (patient.race === 'white') {
+                    // Recalibrated coefficients for White Females to align with MDCalc
+                    individualSum = -29.799 * lnAge + 4.609 * lnAge * lnAge + 13.54 * lnTC - 3.114 * lnAge * lnTC - 13.578 * lnHDL + 3.149 * lnAge * lnHDL + (patient.onHtnTx ? 2.019 * lnSBP : 1.957 * lnSBP) + 7.574 * (patient.isSmoker ? 1 : 0) - 1.665 * lnAge * (patient.isSmoker ? 1 : 0) + 0.661 * (patient.isDiabetic ? 1 : 0);
+                    meanValue = -29.18;
+                    baselineSurvival = 0.9665;
+                } else { // African American Female
+                    individualSum = 17.114 * lnAge + 0.94 * lnTC - 18.92 * lnHDL + 4.475 * lnAge * lnHDL + (patient.onHtnTx ? 29.291 : 27.82) * lnSBP - 6.432 * lnAge * lnSBP + 0.691 * (patient.isSmoker ? 1 : 0) + 0.874 * (patient.isDiabetic ? 1 : 0);
+                    meanValue = 86.61;
+                    baselineSurvival = 0.9533;
+                }
+            }
+            const risk = (1 - Math.pow(baselineSurvival, Math.exp(individualSum - meanValue))) * 100;
+            return Math.max(0, Math.min(100, risk));
+        };
+
         container.querySelector('#calculate-ascvd').addEventListener('click', () => {
             const resultEl = container.querySelector('#ascvd-result');
             const therapySection = container.querySelector('#therapy-impact-section');
 
             if (knownAscvdCheckbox.checked) {
+                // Even for known ASCVD, we can still calculate therapy impact if data is available
+                const age = parseFloat(ageInput.value) || 60; // Default values if not entered
+                const tc = parseFloat(tcInput.value) || 200;
+                const hdl = parseFloat(hdlInput.value) || 50;
+                const sbp = parseFloat(sbpInput.value) || 130;
+                const isMale = container.querySelector('#ascvd-gender').value === 'male';
+                const race = container.querySelector('#ascvd-race').value;
+                const onHtnTx = container.querySelector('#ascvd-htn').value === 'yes';
+                const isDiabetic = container.querySelector('#ascvd-dm').value === 'yes';
+                const isSmoker = container.querySelector('#ascvd-smoker').value === 'yes';
+                
+                // Store patient data for therapy calculations
+                patientData = {age, tc, hdl, sbp, isMale, race: race === 'other' ? 'white' : race, onHtnTx, isDiabetic, isSmoker};
+                baselineRisk = 50; // Assume high risk for known ASCVD (or could calculate actual risk)
+                
                 resultEl.innerHTML = `
                     <p><strong>Risk Category:</strong> High Risk (Known Clinical ASCVD)</p>
                     <hr class="section-divider">
@@ -162,7 +214,6 @@ export const ascvd = {
                 `;
                 resultEl.style.display = 'block';
                 therapySection.style.display = 'block';
-                baselineRisk = 50; // Assume high risk for known ASCVD
                 return;
             }
 
@@ -214,45 +265,12 @@ export const ascvd = {
             const isDiabetic = container.querySelector('#ascvd-dm').value === 'yes';
             const isSmoker = container.querySelector('#ascvd-smoker').value === 'yes';
 
-            // This implementation is recalibrated to better match modern clinical tools like MDCalc,
-            // addressing known underestimation issues in the original 2013 PCE for certain demographics.
-            const calculateRisk = (patient) => {
-                const lnAge = Math.log(patient.age);
-                const lnTC = Math.log(patient.tc);
-                const lnHDL = Math.log(patient.hdl);
-                const lnSBP = Math.log(patient.sbp);
-
-                let individualSum = 0;
-                let baselineSurvival = 0;
-                let meanValue = 0;
-
-                if (patient.isMale) {
-                    if (patient.race === 'white') {
-                        individualSum = 12.344 * lnAge + 11.853 * lnTC - 2.664 * lnAge * lnTC - 7.99 * lnHDL + 1.769 * lnAge * lnHDL + (patient.onHtnTx ? 1.797 : 1.764) * lnSBP + 7.837 * (patient.isSmoker ? 1 : 0) - 1.795 * lnAge * (patient.isSmoker ? 1 : 0) + 0.658 * (patient.isDiabetic ? 1 : 0);
-                        meanValue = 61.18;
-                        baselineSurvival = 0.9144;
-                    } else { // African American Male
-                        individualSum = 2.469 * lnAge + 0.302 * lnTC - 0.307 * lnHDL + (patient.onHtnTx ? 1.916 : 1.809) * lnSBP + 0.549 * (patient.isSmoker ? 1 : 0) + 0.645 * (patient.isDiabetic ? 1 : 0);
-                        meanValue = 19.54;
-                        baselineSurvival = 0.8954;
-                    }
-                } else { // Female
-                    if (patient.race === 'white') {
-                        // Recalibrated coefficients for White Females to align with MDCalc
-                        individualSum = -29.799 * lnAge + 4.609 * lnAge * lnAge + 13.54 * lnTC - 3.114 * lnAge * lnTC - 13.578 * lnHDL + 3.149 * lnAge * lnHDL + (patient.onHtnTx ? 2.019 * lnSBP : 1.957 * lnSBP) + 7.574 * (patient.isSmoker ? 1 : 0) - 1.665 * lnAge * (patient.isSmoker ? 1 : 0) + 0.661 * (patient.isDiabetic ? 1 : 0);
-                        meanValue = -29.18;
-                        baselineSurvival = 0.9665;
-                    } else { // African American Female
-                        individualSum = 17.114 * lnAge + 0.94 * lnTC - 18.92 * lnHDL + 4.475 * lnAge * lnHDL + (patient.onHtnTx ? 29.291 : 27.82) * lnSBP - 6.432 * lnAge * lnSBP + 0.691 * (patient.isSmoker ? 1 : 0) + 0.874 * (patient.isDiabetic ? 1 : 0);
-                        meanValue = 86.61;
-                        baselineSurvival = 0.9533;
-                    }
-                }
-                const risk = (1 - Math.pow(baselineSurvival, Math.exp(individualSum - meanValue))) * 100;
-                return Math.max(0, Math.min(100, risk));
-            };
+            // Store patient data for therapy impact calculations
+            patientData = {age, tc, hdl, sbp, isMale, race, onHtnTx, isDiabetic, isSmoker};
+            const riskPercent = calculateRisk(patientData);
             
-            const riskPercent = calculateRisk({age, tc, hdl, sbp, isMale, race, onHtnTx, isDiabetic, isSmoker});
+            // Store baseline risk for therapy calculations
+            baselineRisk = riskPercent;
 
             // --- Risk Stratification and Recommendation ---
             let riskCategory = '';

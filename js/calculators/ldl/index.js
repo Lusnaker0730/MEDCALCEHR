@@ -23,6 +23,13 @@ export const ldl = {
             </div>
             <button id="calculate-ldl">Calculate LDL</button>
             <div id="ldl-result" class="result" style="display:none;"></div>
+            <div class="formula-section">
+                <h4>Formula (Friedewald Equation):</h4>
+                <div class="formula">
+                    LDL = Total Cholesterol - HDL - (Triglycerides / 5)
+                </div>
+                <p><strong>Note:</strong> This formula is not accurate when triglycerides ≥ 400 mg/dL.</p>
+            </div>
         `;
     },
     initialize: function(client) {
@@ -44,6 +51,11 @@ export const ldl = {
 
             if (trig) trigInput.value = trig.valueQuantity.value.toFixed(0);
             else trigInput.placeholder = "e.g., 150";
+
+            // Auto-calculate if all values are present
+            if (totalChol && hdl && trig) {
+                document.getElementById('calculate-ldl').click();
+            }
         });
 
         document.getElementById('calculate-ldl').addEventListener('click', () => {

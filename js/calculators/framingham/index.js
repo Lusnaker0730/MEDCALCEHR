@@ -1,5 +1,5 @@
 // js/calculators/framingham.js
-import { calculateAge } from '../../utils.js';
+import { calculateAge, getMostRecentObservation } from '../../utils.js';
 
 export const framingham = {
     id: 'framingham',

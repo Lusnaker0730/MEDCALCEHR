@@ -8,48 +8,105 @@ export const bacterialMeningitisScore = {
 
     generateHTML: () => `
         <div class="form-container">
-            <div class="instructions-box dark-blue">
-                <strong>INSTRUCTIONS:</strong> Use in patients aged 29 days to 19 years with CSF WBC ≥10 cells/μL. Do not use if patient is critically ill, recently received antibiotics, has a VP shunt or recent neurosurgery, is immunosuppressed, or has other bacterial infection requiring antibiotics (including Lyme disease).
-            </div>
-            <div class="input-row">
-                <div class="input-label">CSF Gram stain positive</div>
-                <div class="segmented-control" data-name="gram_stain">
-                    <label><input type="radio" name="gram_stain" value="0" checked><span>No <strong>0</strong></span></label>
-                    <label><input type="radio" name="gram_stain" value="2"><span>Yes <strong>+2</strong></span></label>
+            <div class="instructions-box bms-instructions">
+                <div class="instruction-header">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 10px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <strong>INSTRUCTIONS</strong>
                 </div>
+                <p>Use in patients aged <strong>29 days to 19 years</strong> with CSF WBC ≥10 cells/μL.</p>
+                <p style="margin-top: 8px;"><strong>Do not use if:</strong> Patient is critically ill, recently received antibiotics, has a VP shunt or recent neurosurgery, is immunosuppressed, or has other bacterial infection requiring antibiotics (including Lyme disease).</p>
             </div>
-            <div class="input-row">
-                <div class="input-label">CSF ANC ≥1,000 cells/μL</div>
-                <div class="segmented-control" data-name="csf_anc">
-                    <label><input type="radio" name="csf_anc" value="0" checked><span>No <strong>0</strong></span></label>
-                    <label><input type="radio" name="csf_anc" value="1"><span>Yes <strong>+1</strong></span></label>
+            
+            <div class="bms-criteria-section">
+                <div class="input-row bms-input-row">
+                    <div class="input-label bms-label">
+                        <span class="label-icon">🔬</span>
+                        <div>
+                            <div class="label-main">CSF Gram stain positive</div>
+                            <div class="label-sub">Cerebrospinal fluid microscopy</div>
+                        </div>
+                    </div>
+                    <div class="segmented-control bms-control" data-name="gram_stain">
+                        <label><input type="radio" name="gram_stain" value="0" checked><span>No <strong>0</strong></span></label>
+                        <label><input type="radio" name="gram_stain" value="2"><span>Yes <strong>+2</strong></span></label>
+                    </div>
                 </div>
-            </div>
-            <div class="input-row">
-                <div class="input-label">CSF protein ≥80 mg/dL (800 mg/L)</div>
-                <div class="segmented-control" data-name="csf_protein">
-                    <label><input type="radio" name="csf_protein" value="0" checked><span>No <strong>0</strong></span></label>
-                    <label><input type="radio" name="csf_protein" value="1"><span>Yes <strong>+1</strong></span></label>
+                
+                <div class="input-row bms-input-row">
+                    <div class="input-label bms-label">
+                        <span class="label-icon">🧪</span>
+                        <div>
+                            <div class="label-main">CSF ANC ≥1,000 cells/μL</div>
+                            <div class="label-sub">Absolute neutrophil count in CSF</div>
+                        </div>
+                    </div>
+                    <div class="segmented-control bms-control" data-name="csf_anc">
+                        <label><input type="radio" name="csf_anc" value="0" checked><span>No <strong>0</strong></span></label>
+                        <label><input type="radio" name="csf_anc" value="1"><span>Yes <strong>+1</strong></span></label>
+                    </div>
                 </div>
-            </div>
-            <div class="input-row">
-                <div class="input-label">Peripheral blood ANC ≥10,000 cells/μL</div>
-                <div class="segmented-control" data-name="blood_anc">
-                    <label><input type="radio" name="blood_anc" value="0" checked><span>No <strong>0</strong></span></label>
-                    <label><input type="radio" name="blood_anc" value="1"><span>Yes <strong>+1</strong></span></label>
+                
+                <div class="input-row bms-input-row">
+                    <div class="input-label bms-label">
+                        <span class="label-icon">📊</span>
+                        <div>
+                            <div class="label-main">CSF protein ≥80 mg/dL (800 mg/L)</div>
+                            <div class="label-sub">Protein concentration in CSF</div>
+                        </div>
+                    </div>
+                    <div class="segmented-control bms-control" data-name="csf_protein">
+                        <label><input type="radio" name="csf_protein" value="0" checked><span>No <strong>0</strong></span></label>
+                        <label><input type="radio" name="csf_protein" value="1"><span>Yes <strong>+1</strong></span></label>
+                    </div>
                 </div>
-            </div>
-            <div class="input-row">
-                <div class="input-label">Seizure at (or prior to) initial presentation</div>
-                <div class="segmented-control" data-name="seizure">
-                    <label><input type="radio" name="seizure" value="0" checked><span>No <strong>0</strong></span></label>
-                    <label><input type="radio" name="seizure" value="1"><span>Yes <strong>+1</strong></span></label>
+                
+                <div class="input-row bms-input-row">
+                    <div class="input-label bms-label">
+                        <span class="label-icon">💉</span>
+                        <div>
+                            <div class="label-main">Peripheral blood ANC ≥10,000 cells/μL</div>
+                            <div class="label-sub">Absolute neutrophil count in blood</div>
+                        </div>
+                    </div>
+                    <div class="segmented-control bms-control" data-name="blood_anc">
+                        <label><input type="radio" name="blood_anc" value="0" checked><span>No <strong>0</strong></span></label>
+                        <label><input type="radio" name="blood_anc" value="1"><span>Yes <strong>+1</strong></span></label>
+                    </div>
+                </div>
+                
+                <div class="input-row bms-input-row">
+                    <div class="input-label bms-label">
+                        <span class="label-icon">⚡</span>
+                        <div>
+                            <div class="label-main">Seizure at (or prior to) initial presentation</div>
+                            <div class="label-sub">Any seizure activity documented</div>
+                        </div>
+                    </div>
+                    <div class="segmented-control bms-control" data-name="seizure">
+                        <label><input type="radio" name="seizure" value="0" checked><span>No <strong>0</strong></span></label>
+                        <label><input type="radio" name="seizure" value="1"><span>Yes <strong>+1</strong></span></label>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="result-box bms-result">
-             <div class="result-score" id="result-score">0 points</div>
-             <div class="result-interpretation" id="result-interpretation">Very low risk for bacterial meningitis.</div>
+        
+        <div class="result-box bms-result" id="bms-result-box">
+            <div class="bms-result-content">
+                <div class="result-score-section">
+                    <div class="result-label">Total Score</div>
+                    <div class="result-score bms-score" id="result-score">0</div>
+                    <div class="result-points">points</div>
+                </div>
+                <div class="result-divider"></div>
+                <div class="result-interpretation-section">
+                    <div class="result-risk-icon" id="risk-icon">✓</div>
+                    <div class="result-interpretation bms-interpretation" id="result-interpretation">Very low risk for bacterial meningitis.</div>
+                </div>
+            </div>
         </div>
     `,
 
@@ -61,13 +118,19 @@ export const bacterialMeningitisScore = {
 
             const resultScore = document.getElementById('result-score');
             const resultInterpretation = document.getElementById('result-interpretation');
+            const resultBox = document.getElementById('bms-result-box');
+            const riskIcon = document.getElementById('risk-icon');
 
-            resultScore.textContent = `${score} points`;
+            resultScore.textContent = score;
 
             if (score === 0) {
                 resultInterpretation.textContent = 'Very low risk for bacterial meningitis.';
+                resultBox.className = 'result-box bms-result bms-very-low-risk';
+                riskIcon.textContent = '✓';
             } else {
                 resultInterpretation.textContent = 'NOT very low risk for bacterial meningitis.';
+                resultBox.className = 'result-box bms-result bms-not-low-risk';
+                riskIcon.textContent = '⚠';
             }
         };
 

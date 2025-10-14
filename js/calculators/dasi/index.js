@@ -33,6 +33,36 @@ export const dasi = {
             </div>
             <button id="calculate-dasi">Calculate DASI Score</button>
             <div id="dasi-result" class="result" style="display:none;"></div>
+
+            <div class="references">
+                <h4>📚 Reference Information</h4>
+                <div class="reference-images">
+                    <div class="reference-image-container">
+                        <h5>DASI Scoring Table</h5>
+                        <img src="/js/calculators/dasi/cohn_cvperiopupdate_t1.jpg" alt="The Duke Activity Status Index - Scoring Table" />
+                        <p class="image-caption">DASI weights for each activity question. Maximum score: 58.20</p>
+                    </div>
+                    
+                    <div class="reference-image-container">
+                        <h5>METs Calculation Formula</h5>
+                        <img src="/js/calculators/dasi/Duke-Activity-Status-Index-DASI-DASI-SUM-values-for-all-12-questions-Maximum-value_W640.jpg" alt="DASI to METs conversion formula" />
+                        <p class="image-caption">
+                            Formula: VO₂peak = (0.43 × DASI) + 9.6 mL/kg/min<br>
+                            METs = VO₂peak / 3.5
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="reference-citation">
+                    <h5>📖 Citation</h5>
+                    <p>
+                        Hlatky MA, Boineau RE, Higginbotham MB, et al. 
+                        <strong>A brief self-administered questionnaire to determine functional capacity (The Duke Activity Status Index).</strong> 
+                        <em>Am J Cardiol.</em> 1989;64(10):651-654. 
+                        <a href="https://doi.org/10.1016/0002-9149(89)90496-7" target="_blank">doi:10.1016/0002-9149(89)90496-7</a>
+                    </p>
+                </div>
+            </div>
         `;
         return html;
     },
@@ -44,12 +74,25 @@ export const dasi = {
             });
 
             // Formula to estimate METs from DASI score
-            const mets = (0.43 * score) + 9.6 / 3.5;
+            // VO2peak (mL/kg/min) = (0.43 × DASI) + 9.6
+            // METs = VO2peak / 3.5
+            const vo2peak = (0.43 * score) + 9.6;
+            const mets = vo2peak / 3.5;
+
+            let interpretation = '';
+            if (mets < 4) {
+                interpretation = '<span style="color: #dc3545; font-weight: 600;">Poor functional capacity</span>';
+            } else if (mets < 7) {
+                interpretation = '<span style="color: #ffc107; font-weight: 600;">Moderate functional capacity</span>';
+            } else {
+                interpretation = '<span style="color: #28a745; font-weight: 600;">Good functional capacity</span>';
+            }
 
             const resultEl = document.getElementById('dasi-result');
             resultEl.innerHTML = `
                 <p><strong>DASI Score:</strong> ${score.toFixed(2)}</p>
                 <p><strong>Estimated Peak METs:</strong> ${mets.toFixed(1)}</p>
+                <p>${interpretation}</p>
                 <small><em>Functional capacity is often considered poor if METs < 4, moderate if 4-7, and good if >7.</em></small>
             `;
             resultEl.style.display = 'block';
