@@ -1,3 +1,4 @@
+import { getMostRecentObservation, calculateAge } from '../../utils.js';
 
 export const graceAcs = {
     id: 'grace-acs',
@@ -112,92 +113,54 @@ export const graceAcs = {
             <div id="grace-result" class="result-container" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient) {
-        // Helper function to mark field as auto-populated
-        const markAutoFilled = (element) => {
-            if (element) {
-                element.style.background = '#e6f7ff';
-                element.style.borderColor = '#91d5ff';
-                element.title = '✓ Auto-populated from patient data';
-            }
-        };
-
-        // Auto-populate age from patient data
-        if (patient && patient.birthDate) {
-            const birthDate = new Date(patient.birthDate);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            
-            const ageInput = document.getElementById('grace-age');
-            if (ageInput && age > 0) {
-                ageInput.value = age;
-                markAutoFilled(ageInput);
-            }
+    initialize: function(client, patient, container) {
+        // Use container or document
+        const root = container || document;
+        
+        // Auto-populate age
+        const ageInput = root.querySelector('#grace-age');
+        if (ageInput) {
+            ageInput.value = calculateAge(patient.birthDate);
         }
 
-        // Try to auto-populate vital signs from FHIR observations
-        if (client) {
-            // Heart Rate (8867-4 is LOINC for heart rate)
-            client.patient.request('Observation?code=8867-4&_sort=-date&_count=1')
-                .then(response => {
-                    if (response.entry && response.entry.length > 0) {
-                        const obs = response.entry[0].resource;
-                        const hrInput = document.getElementById('grace-hr');
-                        if (obs.valueQuantity && hrInput && !hrInput.value) {
-                            hrInput.value = Math.round(obs.valueQuantity.value);
-                            markAutoFilled(hrInput);
-                        }
-                    }
-                })
-                .catch(err => console.log('Heart rate not available'));
+        // Auto-populate heart rate
+        getMostRecentObservation(client, '8867-4').then(obs => {
+            const hrInput = root.querySelector('#grace-hr');
+            if (obs && obs.valueQuantity && hrInput) {
+                hrInput.value = Math.round(obs.valueQuantity.value);
+            }
+        });
 
-            // Systolic Blood Pressure (8480-6 is LOINC for systolic BP)
-            client.patient.request('Observation?code=8480-6&_sort=-date&_count=1')
-                .then(response => {
-                    if (response.entry && response.entry.length > 0) {
-                        const obs = response.entry[0].resource;
-                        const sbpInput = document.getElementById('grace-sbp');
-                        if (obs.valueQuantity && sbpInput && !sbpInput.value) {
-                            sbpInput.value = Math.round(obs.valueQuantity.value);
-                            markAutoFilled(sbpInput);
-                        }
-                    }
-                })
-                .catch(err => console.log('Blood pressure not available'));
+        // Auto-populate systolic blood pressure
+        getMostRecentObservation(client, '8480-6').then(obs => {
+            const sbpInput = root.querySelector('#grace-sbp');
+            if (obs && obs.valueQuantity && sbpInput) {
+                sbpInput.value = Math.round(obs.valueQuantity.value);
+            }
+        });
 
-            // Creatinine (2160-0 is LOINC for serum creatinine)
-            client.patient.request('Observation?code=2160-0&_sort=-date&_count=1')
-                .then(response => {
-                    if (response.entry && response.entry.length > 0) {
-                        const obs = response.entry[0].resource;
-                        const crInput = document.getElementById('grace-creatinine');
-                        if (obs.valueQuantity && crInput && !crInput.value) {
-                            let crValue = obs.valueQuantity.value;
-                            // Convert if needed (µmol/L to mg/dL: divide by 88.4)
-                            if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
-                                crValue = crValue / 88.4;
-                            }
-                            crInput.value = crValue.toFixed(2);
-                            markAutoFilled(crInput);
-                        }
-                    }
-                })
-                .catch(err => console.log('Creatinine not available'));
-        }
+        // Auto-populate creatinine
+        getMostRecentObservation(client, '2160-0').then(obs => {
+            const crInput = root.querySelector('#grace-creatinine');
+            if (obs && obs.valueQuantity && crInput) {
+                let crValue = obs.valueQuantity.value;
+                // Convert if needed (µmol/L to mg/dL: divide by 88.4)
+                if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
+                    crValue = crValue / 88.4;
+                }
+                crInput.value = crValue.toFixed(2);
+            }
+        });
 
-        document.getElementById('calculate-grace').addEventListener('click', () => {
-            const age = parseInt(document.getElementById('grace-age').value);
-            const hr = parseInt(document.getElementById('grace-hr').value);
-            const sbp = parseInt(document.getElementById('grace-sbp').value);
-            const creatinine = parseFloat(document.getElementById('grace-creatinine').value);
-            const killip = parseInt(document.getElementById('grace-killip').value);
-            const arrest = parseInt(document.getElementById('grace-cardiac-arrest').value);
-            const st = parseInt(document.getElementById('grace-st-deviation').value);
-            const enzymes = parseInt(document.getElementById('grace-cardiac-enzymes').value);
+        root.querySelector('#calculate-grace').addEventListener('click', () => {
+            const age = parseInt(root.querySelector('#grace-age').value);
+            const hr = parseInt(root.querySelector('#grace-hr').value);
+            const sbp = parseInt(root.querySelector('#grace-sbp').value);
+            const creatinine = parseFloat(root.querySelector('#grace-creatinine').value);
+            const killip = parseInt(root.querySelector('#grace-killip').value);
+            const arrest = parseInt(root.querySelector('#grace-cardiac-arrest').value);
+            const st = parseInt(root.querySelector('#grace-st-deviation').value);
+            const enzymes = parseInt(root.querySelector('#grace-cardiac-enzymes').value);
 
             if (isNaN(age) || isNaN(hr) || isNaN(sbp) || isNaN(creatinine)) {
                 alert('⚠️ Please fill out all fields.');
@@ -260,7 +223,7 @@ export const graceAcs = {
                 riskDescription = "Intermediate risk of in-hospital mortality - Close monitoring recommended";
             }
 
-            document.getElementById('grace-result').innerHTML = `
+            root.querySelector('#grace-result').innerHTML = `
                 <div class="grace-result-card" style="border-left-color: ${riskColor}">
                     <div class="result-header">
                         <span class="result-icon" style="color: ${riskColor}">${riskIcon}</span>
@@ -327,8 +290,8 @@ export const graceAcs = {
                     </div>
                 </div>
             `;
-            document.getElementById('grace-result').style.display = 'block';
-            document.getElementById('grace-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            root.querySelector('#grace-result').style.display = 'block';
+            root.querySelector('#grace-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
     }
 };

@@ -1,3 +1,4 @@
+import { getMostRecentObservation, calculateAge } from '../../utils.js';
 
 // js/calculators/ranson.js
 export const ransonScore = {
@@ -64,6 +65,76 @@ export const ransonScore = {
             console.error('Calculate button not found');
             return;
         }
+        
+        // Auto-populate age
+        const age = calculateAge(patient.birthDate);
+        const ageCheckbox = root.querySelector('#ranson-age');
+        if (age > 55 && ageCheckbox) {
+            ageCheckbox.checked = true;
+        }
+        
+        // Auto-populate WBC
+        getMostRecentObservation(client, '6690-2').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const wbc = obs.valueQuantity.value * 1000; // Convert from K/uL to /mm³
+                const wbcCheckbox = root.querySelector('#ranson-wbc');
+                if (wbc > 16000 && wbcCheckbox) {
+                    wbcCheckbox.checked = true;
+                }
+            }
+        });
+        
+        // Auto-populate glucose
+        getMostRecentObservation(client, '2345-7').then(obs => {
+            if (obs && obs.valueQuantity) {
+                let glucose = obs.valueQuantity.value;
+                // Convert if needed (mmol/L to mg/dL: multiply by 18.0182)
+                if (obs.valueQuantity.unit === 'mmol/L') {
+                    glucose = glucose * 18.0182;
+                }
+                const glucoseCheckbox = root.querySelector('#ranson-glucose');
+                if (glucose > 200 && glucoseCheckbox) {
+                    glucoseCheckbox.checked = true;
+                }
+            }
+        });
+        
+        // Auto-populate AST
+        getMostRecentObservation(client, '1920-8').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const ast = obs.valueQuantity.value;
+                const astCheckbox = root.querySelector('#ranson-ast');
+                if (ast > 250 && astCheckbox) {
+                    astCheckbox.checked = true;
+                }
+            }
+        });
+        
+        // Auto-populate LDH
+        getMostRecentObservation(client, '2532-0').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const ldh = obs.valueQuantity.value;
+                const ldhCheckbox = root.querySelector('#ranson-ldh');
+                if (ldh > 350 && ldhCheckbox) {
+                    ldhCheckbox.checked = true;
+                }
+            }
+        });
+        
+        // Auto-populate calcium
+        getMostRecentObservation(client, '17861-6').then(obs => {
+            if (obs && obs.valueQuantity) {
+                let calcium = obs.valueQuantity.value;
+                // Convert if needed (mmol/L to mg/dL: multiply by 4.008)
+                if (obs.valueQuantity.unit === 'mmol/L') {
+                    calcium = calcium * 4.008;
+                }
+                const calciumCheckbox = root.querySelector('#ranson-calcium');
+                if (calcium < 8.0 && calciumCheckbox) {
+                    calciumCheckbox.checked = true;
+                }
+            }
+        });
         
         calculateBtn.addEventListener('click', () => {
             const inputs = root.querySelectorAll('#ranson-form input[type="checkbox"]:checked');

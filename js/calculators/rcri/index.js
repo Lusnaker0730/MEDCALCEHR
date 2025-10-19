@@ -1,3 +1,5 @@
+import { getMostRecentObservation } from '../../utils.js';
+
 export const rcri = {
     id: 'rcri',
     title: 'Revised Cardiac Risk Index for Pre-Operative Risk',
@@ -44,6 +46,21 @@ export const rcri = {
         `;
     },
     initialize: function(client, patient, container) {
+        // Auto-populate creatinine
+        getMostRecentObservation(client, '2160-0').then(obs => {
+            if (obs && obs.valueQuantity) {
+                let crValue = obs.valueQuantity.value;
+                // Convert if needed (µmol/L to mg/dL: divide by 88.4)
+                if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
+                    crValue = crValue / 88.4;
+                }
+                const crCheckbox = container.querySelector('#rcri-creatinine');
+                if (crValue > 2.0 && crCheckbox) {
+                    crCheckbox.checked = true;
+                }
+            }
+        });
+        
         container.querySelector('#calculate-rcri').addEventListener('click', () => {
             const checkboxes = container.querySelectorAll('.check-item input[type="checkbox"]');
             let score = 0;

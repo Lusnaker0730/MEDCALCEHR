@@ -1,3 +1,4 @@
+import { getMostRecentObservation, calculateAge } from '../../utils.js';
 
 // js/calculators/geneva-score.js
 export const genevaScore = {
@@ -52,6 +53,23 @@ export const genevaScore = {
         if (!calculateBtn) {
             console.error('Calculate button not found');
             return;
+        }
+        
+        // Auto-populate age
+        const age = calculateAge(patient.birthDate);
+        const ageCheckbox = root.querySelector('#geneva-age');
+        if (age > 65 && ageCheckbox) {
+            ageCheckbox.checked = true;
+        }
+        
+        // Auto-populate heart rate
+        const hrInput = root.querySelector('#geneva-hr');
+        if (hrInput) {
+            getMostRecentObservation(client, '8867-4').then(obs => {
+                if (obs && obs.valueQuantity) {
+                    hrInput.value = Math.round(obs.valueQuantity.value);
+                }
+            });
         }
         
         calculateBtn.addEventListener('click', () => {

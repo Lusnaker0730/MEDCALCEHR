@@ -13,10 +13,10 @@ const getPoints = {
     },
     creatinine: (v) => {
         const creatinine_mg_dl = v / 88.4; // Convert umol/L to mg/dL
-        if (creatinine_mg_dl <= 0.9) return 0;
-        if (creatinine_mg_dl <= 1.3) return 1;
-        if (creatinine_mg_dl <= 2.2) return 3;
-        if (creatinine_mg_dl > 2.2) return 5;
+        if (creatinine_mg_dl <= 0.90) return 0;
+        if (creatinine_mg_dl > 0.90 && creatinine_mg_dl <= 1.30) return 1;
+        if (creatinine_mg_dl > 1.30 && creatinine_mg_dl <= 2.20) return 3;
+        if (creatinine_mg_dl > 2.20) return 5;
         return 0;
     }
 };
@@ -127,6 +127,64 @@ export const maggic = {
              <div id="maggic-result" class="result-box ttkg-result" style="display:block;">
                 <div class="result-title">Result:</div>
                 <div class="result-value">Please fill out required fields.</div>
+            </div>
+            <div class="formula-section" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <h4 style="margin-top: 0; color: #1976D2;">MAGGIC 風險評分計算方法 (Scoring Method)</h4>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">1. 連續變量評分 (Continuous Variables)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li><strong>年齡 (Age):</strong> <code>年齡 × 0.08 分</code></li>
+                        <li><strong>射血分數 (Ejection Fraction):</strong> <code>EF% × (-0.05) 分</code></li>
+                        <li><strong>收縮壓 (Systolic BP):</strong> <code>SBP × (-0.02) 分</code></li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">2. BMI 評分</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li>BMI &lt; 20 kg/m²: <strong>+2 分</strong></li>
+                        <li>BMI 20-25 kg/m²: <strong>+1 分</strong></li>
+                        <li>BMI 25-30 kg/m²: <strong>0 分</strong></li>
+                        <li>BMI ≥ 30 kg/m²: <strong>-1 分</strong></li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">3. 肌酐評分 (Creatinine, mg/dL)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li>Cr ≤ 0.9 mg/dL (≤79.6 μmol/L): <strong>0 分</strong></li>
+                        <li>Cr 0.9-1.3 mg/dL (79.6-115 μmol/L): <strong>+1 分</strong></li>
+                        <li>Cr 1.3-2.2 mg/dL (115-194.5 μmol/L): <strong>+3 分</strong></li>
+                        <li>Cr &gt; 2.2 mg/dL (&gt;194.5 μmol/L): <strong>+5 分</strong></li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">4. 分類變量評分 (Categorical Variables)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li><strong>NYHA 分級:</strong> I=0分, II=2分, III=6分, IV=8分</li>
+                        <li><strong>性別:</strong> 女性=0分, 男性=1分</li>
+                        <li><strong>吸菸:</strong> 否=0分, 是=1分</li>
+                        <li><strong>糖尿病:</strong> 否=0分, 是=3分</li>
+                        <li><strong>COPD:</strong> 否=0分, 是=2分</li>
+                        <li><strong>心衰診斷≥18個月:</strong> 否=0分, 是=2分</li>
+                        <li><strong>使用β阻滯劑:</strong> 否=3分, 是=0分</li>
+                        <li><strong>使用 ACEi/ARB:</strong> 否=1分, 是=0分</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <strong style="color: #424242;">5. 死亡率計算公式 (Mortality Calculation)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li><strong>線性預測器:</strong> <code>LP = 0.047 × (總分 - 21.6)</code></li>
+                        <li><strong>1年死亡率:</strong> <code>1 - 0.92<sup>exp(LP)</sup></code></li>
+                        <li><strong>3年死亡率:</strong> <code>1 - 0.79<sup>exp(LP)</sup></code></li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666; font-style: italic;">
+                        註: 評分範圍通常在 0-40 分之間，分數越高表示死亡風險越高
+                    </p>
+                </div>
             </div>
         `;
     },

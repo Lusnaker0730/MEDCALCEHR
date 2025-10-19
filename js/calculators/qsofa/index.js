@@ -1,3 +1,4 @@
+import { getMostRecentObservation } from '../../utils.js';
 
 // js/calculators/qsofa.js
 export const qsofaScore = {
@@ -40,6 +41,28 @@ export const qsofaScore = {
             console.error('Calculate button not found');
             return;
         }
+        
+        // Auto-populate respiratory rate
+        getMostRecentObservation(client, '9279-1').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const rr = obs.valueQuantity.value;
+                const rrCheckbox = root.querySelector('#qsofa-rr');
+                if (rr >= 22 && rrCheckbox) {
+                    rrCheckbox.checked = true;
+                }
+            }
+        });
+        
+        // Auto-populate systolic blood pressure
+        getMostRecentObservation(client, '8480-6').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const sbp = obs.valueQuantity.value;
+                const sbpCheckbox = root.querySelector('#qsofa-sbp');
+                if (sbp <= 100 && sbpCheckbox) {
+                    sbpCheckbox.checked = true;
+                }
+            }
+        });
         
         calculateBtn.addEventListener('click', () => {
             const inputs = root.querySelectorAll('#qsofa-form input[type="checkbox"]:checked');

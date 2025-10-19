@@ -37,6 +37,48 @@ export const intraopFluid = {
                 </div>
             </div>
             <div id="ifd-result" class="result-grid" style="display:none;"></div>
+            <div class="formula-section" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <h4 style="margin-top: 0; color: #1976D2;">計算公式 (Formulas)</h4>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">1. 每小時維持液體量 (Hourly Maintenance Fluid)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li>體重 > 20 kg: <code>維持量 = 體重 + 40 mL/hr</code></li>
+                        <li>體重 10-20 kg: <code>維持量 = 40 + (體重 - 10) × 2 mL/hr</code></li>
+                        <li>體重 ≤ 10 kg: <code>維持量 = 體重 × 4 mL/hr</code></li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">2. NPO 液體缺失 (NPO Fluid Deficit)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li><code>NPO 缺失 = 維持量 × NPO 時數</code></li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #424242;">3. 創傷液體丟失率 (Trauma-Related Fluid Loss)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li>輕微創傷: <code>4 mL/kg/hr</code></li>
+                        <li>中度創傷: <code>6 mL/kg/hr</code></li>
+                        <li>嚴重創傷: <code>8 mL/kg/hr</code></li>
+                        <li><code>創傷丟失量 = 創傷率 × 體重</code></li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 0;">
+                    <strong style="color: #424242;">4. 逐時輸液量 (Hour-by-Hour Fluid Requirements)</strong>
+                    <ul style="margin: 10px 0; line-height: 1.8;">
+                        <li><strong>第1小時:</strong> <code>(NPO 缺失 ÷ 2) + 維持量 + 創傷丟失量</code></li>
+                        <li><strong>第2小時:</strong> <code>(NPO 缺失 ÷ 4) + 維持量 + 創傷丟失量</code></li>
+                        <li><strong>第3小時:</strong> <code>(NPO 缺失 ÷ 4) + 維持量 + 創傷丟失量</code></li>
+                        <li><strong>第4小時及以後:</strong> <code>維持量 + 創傷丟失量</code></li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666; font-style: italic;">
+                        註: NPO 缺失在前3小時內補充完成（第1小時補充一半，第2、3小時各補充四分之一）
+                    </p>
+                </div>
+            </div>
         `;
     },
     initialize: function(client, patient, container) {
