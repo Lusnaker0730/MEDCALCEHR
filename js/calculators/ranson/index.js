@@ -50,25 +50,72 @@ export const ransonScore = {
             <div id="ranson-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(container) {
-        container.querySelector('#calculate-ranson').addEventListener('click', () => {
-            const inputs = container.querySelectorAll('#ranson-form input[type="checkbox"]:checked');
+    initialize: function(client, patient, container) {
+        // If only one parameter is passed (old style), use it as container
+        if (!container && typeof client === 'object' && client.nodeType === 1) {
+            container = client;
+        }
+        
+        // Use document if container is not a DOM element
+        const root = container || document;
+        
+        const calculateBtn = root.querySelector('#calculate-ranson');
+        if (!calculateBtn) {
+            console.error('Calculate button not found');
+            return;
+        }
+        
+        calculateBtn.addEventListener('click', () => {
+            const inputs = root.querySelectorAll('#ranson-form input[type="checkbox"]:checked');
             const score = inputs.length;
             
             let mortality = '';
+            let riskLevel = '';
+            let bgColor = '';
+            
             if (score <= 2) {
                 mortality = '~0-3%';
+                riskLevel = 'Low Risk';
+                bgColor = '#28a745';
             } else if (score <= 4) {
                 mortality = '~15-20%';
+                riskLevel = 'Moderate Risk';
+                bgColor = '#ffc107';
             } else if (score <= 6) {
                 mortality = '~40%';
+                riskLevel = 'High Risk';
+                bgColor = '#fd7e14';
             } else {
                 mortality = '>50% to 100%';
+                riskLevel = 'Very High Risk';
+                bgColor = '#dc3545';
             }
 
-            const resultEl = container.querySelector('#ranson-result');
-            resultEl.innerHTML = `<p>Ranson Score: ${score}</p><p>Estimated Mortality: ${mortality}</p>`;
+            const resultEl = root.querySelector('#ranson-result');
+            resultEl.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3 style="margin: 0 0 10px 0; color: #333;">Ranson's Criteria Score</h3>
+                    <div style="font-size: 3em; font-weight: bold; color: ${bgColor}; margin: 15px 0;">
+                        ${score}
+                    </div>
+                    <div style="display: inline-block; padding: 8px 16px; background: ${bgColor}; color: white; border-radius: 20px; font-weight: 600; margin: 10px 0;">
+                        ${riskLevel}
+                    </div>
+                    <p style="font-size: 1.2em; margin: 15px 0 0 0; color: #495057;">
+                        <strong>Estimated Mortality:</strong> ${mortality}
+                    </p>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #666;">
+                    <strong>Mortality by Score:</strong><br>
+                    0-2: 0-3% mortality<br>
+                    3-4: 15-20% mortality<br>
+                    5-6: ~40% mortality<br>
+                    ≥7: >50% mortality
+                </div>
+            `;
             resultEl.style.display = 'block';
+            resultEl.style.backgroundColor = score <= 2 ? '#d4edda' : (score <= 4 ? '#fff3cd' : (score <= 6 ? '#fff3cd' : '#f8d7da'));
+            resultEl.style.borderColor = score <= 2 ? '#c3e6cb' : (score <= 4 ? '#ffc107' : (score <= 6 ? '#fd7e14' : '#f5c6cb'));
         });
     }
 };

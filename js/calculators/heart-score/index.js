@@ -64,6 +64,82 @@ export const heartScore = {
                 </div>
             </div>
             <div id="heart-score-result" class="ariscat-result-box" style="display:none;"></div>
+            
+            <div class="formula-section">
+                <h4 class="formula-title">
+                    <span class="formula-icon">📋</span>
+                    FORMULA
+                </h4>
+                <p class="formula-subtitle">Addition of the selected points:</p>
+                
+                <div class="formula-table-container">
+                    <table class="formula-table">
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>0 points</th>
+                                <th>1 point</th>
+                                <th>2 points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="variable-name">
+                                    <strong>History</strong>
+                                    <sup class="footnote-ref">1</sup>
+                                </td>
+                                <td>Slightly suspicious</td>
+                                <td>Moderately suspicious</td>
+                                <td>Highly suspicious</td>
+                            </tr>
+                            <tr>
+                                <td class="variable-name">
+                                    <strong>EKG</strong>
+                                </td>
+                                <td>Normal</td>
+                                <td>Non-specific repolarization disturbance<sup class="footnote-ref">2</sup></td>
+                                <td>Significant ST deviation<sup class="footnote-ref">3</sup></td>
+                            </tr>
+                            <tr>
+                                <td class="variable-name">
+                                    <strong>Age (years)</strong>
+                                </td>
+                                <td>&lt;45</td>
+                                <td>45–64</td>
+                                <td>≥65</td>
+                            </tr>
+                            <tr>
+                                <td class="variable-name">
+                                    <strong>Risk factors</strong>
+                                    <sup class="footnote-ref">4</sup>
+                                </td>
+                                <td>No known risk factors</td>
+                                <td>1–2 risk factors</td>
+                                <td>≥3 risk factors or history of atherosclerotic disease</td>
+                            </tr>
+                            <tr>
+                                <td class="variable-name">
+                                    <strong>Initial troponin</strong>
+                                    <sup class="footnote-ref">5</sup>
+                                </td>
+                                <td>≤normal limit</td>
+                                <td>1–3× normal limit</td>
+                                <td>>3× normal limit</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="formula-footnotes">
+                    <ol>
+                        <li>e.g. Retrosternal pain, pressure, radiation to jaw/left shoulder/arms, duration 5–15 min, initiated by exercise/cold/emotion, perspiration, nausea/vomiting, reaction on nitrates within mins, patient recognizes symptoms. Low risk features of chest pain include: well localized, sharp, non-exertional, no diaphoresis, no nausea or vomiting, and reproducible with palpation.</li>
+                        <li>LBBB, typical changes of LVH, repolarization disorders suggesting digoxin, unchanged known repolarization disorders.</li>
+                        <li>Significant ST-segment deviation without LBBB, LVH, or digoxin.</li>
+                        <li>HTN, hypercholesterolemia, DM, obesity (BMI >30 kg/m²), smoking (current, or smoking cessation ≤3 mo), positive family history (parent or sibling with CVD before age 65).</li>
+                        <li>Use local, regular sensitivity troponin assays and corresponding cutoffs.</li>
+                    </ol>
+                </div>
+            </div>
         `;
     },
     initialize: function(client, patient, container) {

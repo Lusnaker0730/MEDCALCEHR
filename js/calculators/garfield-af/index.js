@@ -202,21 +202,77 @@ export const garfieldAf = {
             const bleedingRisk = calculateRisk('bleeding');
 
             const formatResult = (mortality, stroke, bleeding) => `
-                <p>All-cause mortality: <strong>${mortality.toFixed(1)}%</strong></p>
-                <p>Ischemic stroke/SE: <strong>${stroke.toFixed(1)}%</strong></p>
-                <p>Major bleeding: <strong>${bleeding.toFixed(1)}%</strong></p>`;
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #dc3545;">
+                        <span style="font-weight: 500; color: #495057;">All-cause mortality:</span>
+                        <strong style="font-size: 1.2em; color: #dc3545;">${mortality.toFixed(1)}%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #fd7e14;">
+                        <span style="font-weight: 500; color: #495057;">Ischemic stroke/SE:</span>
+                        <strong style="font-size: 1.2em; color: #fd7e14;">${stroke.toFixed(1)}%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #ffc107;">
+                        <span style="font-weight: 500; color: #495057;">Major bleeding:</span>
+                        <strong style="font-size: 1.2em; color: #ffc107;">${bleeding.toFixed(1)}%</strong>
+                    </div>
+                </div>`;
 
             document.getElementById('result_6m').innerHTML = formatResult(mortalityRisk.t6m, strokeRisk.t6m, bleedingRisk.t6m);
             document.getElementById('result_1y').innerHTML = formatResult(mortalityRisk.t1y, strokeRisk.t1y, bleedingRisk.t1y);
             document.getElementById('result_2y').innerHTML = formatResult(mortalityRisk.t2y, strokeRisk.t2y, bleedingRisk.t2y);
         };
 
-        document.querySelectorAll('.form-container input').forEach(input => input.addEventListener('input', calculate));
+        // Add visual feedback for radio button selections
+        const updateRadioStyles = () => {
+            // Handle segmented controls (horizontal radio groups)
+            document.querySelectorAll('.segmented-control').forEach(control => {
+                const labels = control.querySelectorAll('label');
+                labels.forEach(label => {
+                    const input = label.querySelector('input[type="radio"]');
+                    if (input && input.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+            });
+
+            // Handle vertical radio groups
+            document.querySelectorAll('.radio-group.vertical-group').forEach(group => {
+                const labels = group.querySelectorAll('label');
+                labels.forEach(label => {
+                    const input = label.querySelector('input[type="radio"]');
+                    if (input && input.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+            });
+        };
+
+        // Update styles on input change
+        document.querySelectorAll('.form-container input').forEach(input => {
+            input.addEventListener('input', () => {
+                calculate();
+                updateRadioStyles();
+            });
+            input.addEventListener('change', () => {
+                calculate();
+                updateRadioStyles();
+            });
+        });
+
+        // Initial style update
+        updateRadioStyles();
 
         // --- FHIR Integration ---
         const setRadio = (name, value) => {
             const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
-            if (radio) radio.checked = true;
+            if (radio) {
+                radio.checked = true;
+                updateRadioStyles();
+            }
         };
         const setInput = (id, value, precision) => {
             document.getElementById(id).value = value.toFixed(precision);

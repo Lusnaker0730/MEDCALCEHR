@@ -10,12 +10,25 @@ export const freeWaterDeficit = {
             <h3>${this.title}</h3>
             <p>${this.description}</p>
             <div class="input-group">
-                <label for="fwd-weight">Weight (kg):</label>
-                <input type="number" id="fwd-weight" placeholder="loading...">
+                <label for="fwd-weight">Weight:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="fwd-weight" placeholder="loading..." style="flex: 1;">
+                    <select id="fwd-weight-unit" style="width: 80px;">
+                        <option value="kg">kg</option>
+                        <option value="lbs">lbs</option>
+                    </select>
+                </div>
+                <small id="fwd-weight-converted" style="color: #666; margin-top: 4px; display: none;"></small>
             </div>
             <div class="input-group">
-                <label for="fwd-sodium">Serum Sodium (mEq/L):</label>
-                <input type="number" id="fwd-sodium" placeholder="loading...">
+                <label for="fwd-sodium">Serum Sodium:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="fwd-sodium" placeholder="loading..." style="flex: 1;">
+                    <select id="fwd-sodium-unit" style="width: 100px;">
+                        <option value="mEq/L">mEq/L</option>
+                        <option value="mmol/L">mmol/L</option>
+                    </select>
+                </div>
             </div>
              <div class="input-group">
                 <label for="fwd-gender">Gender:</label>
@@ -24,7 +37,6 @@ export const freeWaterDeficit = {
                     <option value="female">Female</option>
                 </select>
             </div>
-            <button id="calculate-fwd">Calculate Deficit</button>
             <div id="fwd-result" class="result" style="display:none;"></div>
 
             <div class="formula-section">
@@ -149,39 +161,112 @@ export const freeWaterDeficit = {
         `;
     },
     initialize: function(client, patient) {
-        document.getElementById('fwd-weight').value = patient.weight || '';
-        document.getElementById('fwd-gender').value = patient.gender || 'male';
+        const weightInput = document.getElementById('fwd-weight');
+        const weightUnit = document.getElementById('fwd-weight-unit');
+        const weightConverted = document.getElementById('fwd-weight-converted');
+        const sodiumInput = document.getElementById('fwd-sodium');
+        const sodiumUnit = document.getElementById('fwd-sodium-unit');
+        const genderSelect = document.getElementById('fwd-gender');
+        const resultEl = document.getElementById('fwd-result');
 
+        // Set initial values
+        weightInput.value = patient.weight || '';
+        genderSelect.value = patient.gender || 'male';
+
+        // Load observations from FHIR
         getMostRecentObservation(client, '29463-7').then(obs => { 
-            if(obs) document.getElementById('fwd-weight').value = obs.valueQuantity.value.toFixed(1);
+            if(obs) weightInput.value = obs.valueQuantity.value.toFixed(1);
+            autoCalculate();
         });
         getMostRecentObservation(client, '2951-2').then(obs => {
-            if(obs) document.getElementById('fwd-sodium').value = obs.valueQuantity.value.toFixed(0);
+            if(obs) sodiumInput.value = obs.valueQuantity.value.toFixed(0);
+            autoCalculate();
         });
 
-        document.getElementById('calculate-fwd').addEventListener('click', () => {
-            const weight = parseFloat(document.getElementById('fwd-weight').value);
-            const sodium = parseFloat(document.getElementById('fwd-sodium').value);
-            const isMale = document.getElementById('fwd-gender').value === 'male';
-            const resultEl = document.getElementById('fwd-result');
+        // Function to convert weight to kg
+        function getWeightInKg() {
+            const weight = parseFloat(weightInput.value);
+            if (!weight || weight <= 0) return null;
+            const unit = weightUnit.value;
+            return unit === 'lbs' ? weight / 2.20462 : weight;
+        }
 
-            if (weight > 0 && sodium > 140) {
-                const tbwFactor = isMale ? 0.6 : 0.5;
-                const totalBodyWater = weight * tbwFactor;
-                const deficit = totalBodyWater * ((sodium / 140) - 1);
-                
-                resultEl.innerHTML = `
-                    <p>Free Water Deficit: ${deficit.toFixed(1)} L</p>
-                    <small><em>This should be corrected slowly (e.g., over 48-72 hours) to avoid cerebral edema. Maximum rate of sodium correction is typically 0.5 mEq/L/hr.</em></small>
-                `;
-                resultEl.style.display = 'block';
-            } else if (sodium <= 140) {
-                 resultEl.innerText = 'This calculation is intended for patients with hypernatremia (Sodium > 140 mEq/L).';
-                 resultEl.style.display = 'block';
+        // Function to get sodium in mEq/L
+        function getSodiumInMeqL() {
+            const sodium = parseFloat(sodiumInput.value);
+            if (!sodium || sodium <= 0) return null;
+            // mEq/L and mmol/L are equivalent for sodium
+            return sodium;
+        }
+
+        // Function to update weight conversion display
+        function updateWeightConversion() {
+            const weight = parseFloat(weightInput.value);
+            if (weight && weight > 0) {
+                const unit = weightUnit.value;
+                if (unit === 'kg') {
+                    const lbs = (weight * 2.20462).toFixed(1);
+                    weightConverted.textContent = `≈ ${lbs} lbs`;
+                    weightConverted.style.display = 'block';
+                } else {
+                    const kg = (weight / 2.20462).toFixed(1);
+                    weightConverted.textContent = `≈ ${kg} kg`;
+                    weightConverted.style.display = 'block';
+                }
             } else {
-                resultEl.innerText = 'Please enter a valid weight and sodium level.';
-                resultEl.style.display = 'block';
+                weightConverted.style.display = 'none';
             }
-        });
+        }
+
+        // Auto-calculate function
+        function autoCalculate() {
+            const weightKg = getWeightInKg();
+            const sodium = getSodiumInMeqL();
+            const isMale = genderSelect.value === 'male';
+
+            if (weightKg && sodium) {
+                if (sodium > 140) {
+                    const tbwFactor = isMale ? 0.6 : 0.5;
+                    const totalBodyWater = weightKg * tbwFactor;
+                    const deficit = totalBodyWater * ((sodium / 140) - 1);
+                    
+                    resultEl.innerHTML = `
+                        <p><strong>Free Water Deficit: ${deficit.toFixed(1)} L</strong></p>
+                        <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                            <small><strong>⚠️ Important:</strong> This should be corrected slowly (e.g., over 48-72 hours) to avoid cerebral edema. Maximum rate of sodium correction is typically 0.5 mEq/L/hr.</small>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            <em>Calculation: TBW = ${weightKg.toFixed(1)} kg × ${tbwFactor} = ${totalBodyWater.toFixed(1)} L<br>
+                            Deficit = ${totalBodyWater.toFixed(1)} × [(${sodium}/140) - 1] = ${deficit.toFixed(1)} L</em>
+                        </div>
+                    `;
+                    resultEl.style.display = 'block';
+                    resultEl.style.backgroundColor = '#d4edda';
+                    resultEl.style.borderColor = '#c3e6cb';
+                } else if (sodium <= 140) {
+                    resultEl.innerHTML = `
+                        <p style="color: #856404;">ℹ️ This calculation is intended for patients with hypernatremia (Sodium > 140 mEq/L).</p>
+                        <p style="font-size: 0.9em;">Current sodium: ${sodium} mEq/L</p>
+                    `;
+                    resultEl.style.display = 'block';
+                    resultEl.style.backgroundColor = '#fff3cd';
+                    resultEl.style.borderColor = '#ffc107';
+                }
+            } else {
+                resultEl.style.display = 'none';
+            }
+            
+            updateWeightConversion();
+        }
+
+        // Add event listeners for auto-calculation
+        weightInput.addEventListener('input', autoCalculate);
+        weightUnit.addEventListener('change', autoCalculate);
+        sodiumInput.addEventListener('input', autoCalculate);
+        sodiumUnit.addEventListener('change', autoCalculate);
+        genderSelect.addEventListener('change', autoCalculate);
+
+        // Initial calculation if values exist
+        autoCalculate();
     }
 };

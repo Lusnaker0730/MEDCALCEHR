@@ -19,6 +19,62 @@ export const homaIr = {
             </div>
             <button id="calculate-homa-ir">Calculate HOMA-IR</button>
             <div id="homa-ir-result" class="result" style="display:none;"></div>
+            
+            <div class="formula-section">
+                <h4 class="formula-title">
+                    <span class="formula-icon">📐</span>
+                    FORMULA
+                </h4>
+                
+                <div class="formula-box">
+                    <div class="formula-content">
+                        <div class="formula-equation">
+                            HOMA-IR = <span class="formula-fraction">
+                                <span class="formula-numerator">Fasting Glucose (mg/dL) × Fasting Insulin (μU/mL)</span>
+                                <span class="formula-denominator">405</span>
+                            </span>
+                        </div>
+                        
+                        <div class="formula-notes">
+                            <h5>Interpretation:</h5>
+                            <ul>
+                                <li><strong>&lt;1.9:</strong> Optimal insulin sensitivity</li>
+                                <li><strong>1.9–2.9:</strong> Early insulin resistance is likely</li>
+                                <li><strong>&gt;2.9:</strong> High likelihood of insulin resistance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="formula-title" style="margin-top: 30px;">
+                    <span class="formula-icon">📚</span>
+                    REFERENCE
+                </h4>
+                
+                <div class="reference-box">
+                    <div class="reference-content">
+                        <p class="reference-citation">
+                            Matthews DR, Hosker JP, Rudenski AS, Naylor BA, Treacher DF, Turner RC. 
+                            <strong>Homeostasis model assessment: insulin resistance and beta-cell function from fasting plasma glucose and insulin concentrations in man.</strong>
+                            <em>Diabetologia.</em> 1985 Jul;28(7):412-9.
+                        </p>
+                        <div class="reference-links">
+                            <a href="https://doi.org/10.1007/BF00280883" target="_blank" rel="noopener noreferrer" class="reference-link">
+                                <span class="link-icon">🔗</span>
+                                DOI: 10.1007/BF00280883
+                            </a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/3899825/" target="_blank" rel="noopener noreferrer" class="reference-link">
+                                <span class="link-icon">📖</span>
+                                PubMed: 3899825
+                            </a>
+                        </div>
+                        <div class="reference-abstract">
+                            <h5>Abstract Summary:</h5>
+                            <p>The steady-state basal plasma glucose and insulin concentrations are determined by their interaction in a feedback loop. The homeostasis model assessment (HOMA) allows quantitative assessment of insulin resistance and beta-cell function from fasting glucose and insulin values. The estimate of insulin resistance obtained by HOMA correlated with estimates from euglycaemic clamp (Rs = 0.88, p &lt; 0.0001) and other gold standard measures.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     },
     initialize: function(client) {

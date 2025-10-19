@@ -37,7 +37,6 @@ export const calculatorModules = [
     { id: 'ett', title: 'ETT Depth and Tidal Volume Calculator' },
     { id: 'fena', title: 'Fractional Excretion of Sodium (FENa)' },
     { id: 'fib-4', title: 'FIB-4 Score for Liver Fibrosis' },
-    { id: 'framingham', title: 'Framingham Risk Score for Coronary Heart Disease' },
     { id: 'free-water-deficit', title: 'Free Water Deficit in Hypernatremia' },
     { id: 'gad-7', title: 'GAD-7 for Anxiety' },
     { id: 'garfield-af', title: 'GARFIELD-AF Risk Score' },
