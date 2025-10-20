@@ -1,4 +1,4 @@
-import { getMostRecentObservation } from '../../utils.js';
+import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const serumOsmolality = {
     id: 'serum-osmolality',
@@ -13,14 +13,13 @@ export const serumOsmolality = {
                 <input type="number" id="osmo-na">
             </div>
             <div class="input-group">
-                <label for="osmo-glucose">Glucose (mg/dL)</label>
-                <input type="number" id="osmo-glucose">
+                <label for="osmo-glucose">Glucose:</label>
+                ${createUnitSelector('osmo-glucose', 'glucose', ['mg/dL', 'mmol/L'], 'mg/dL')}
             </div>
             <div class="input-group">
-                <label for="osmo-bun">BUN (mg/dL)</label>
-                <input type="number" id="osmo-bun">
+                <label for="osmo-bun">BUN:</label>
+                ${createUnitSelector('osmo-bun', 'bun', ['mg/dL', 'mmol/L'], 'mg/dL')}
             </div>
-            <button id="calculate-osmolality">Calculate</button>
             <div id="osmolality-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -148,16 +147,100 @@ export const serumOsmolality = {
             </div>
         `;
     },
-    initialize: function(client) {
-        let dataLoaded = { na: false, glucose: false, bun: false };
+    initialize: function(client, patient, container) {
+        const naInput = container.querySelector('#osmo-na');
+        const resultEl = container.querySelector('#osmolality-result');
+        
+        const calculateAndUpdate = () => {
+            const na = parseFloat(naInput.value);
+            const glucoseMgDl = getValueInStandardUnit(container, 'osmo-glucose', 'mg/dL');
+            const bunMgDl = getValueInStandardUnit(container, 'osmo-bun', 'mg/dL');
+
+            if (isNaN(na) || !glucoseMgDl || !bunMgDl) {
+                resultEl.style.display = 'none';
+                return;
+            }
+
+            const calculatedOsmolality = (2 * na) + (glucoseMgDl / 18) + (bunMgDl / 2.8);
+            
+            // Determine interpretation
+            let interpretation = '';
+            let interpretationColor = '';
+            
+            if (calculatedOsmolality < 275) {
+                interpretation = 'Below normal range';
+                interpretationColor = '#2196f3';
+            } else if (calculatedOsmolality > 295) {
+                interpretation = 'Above normal range';
+                interpretationColor = '#ff5722';
+            } else {
+                interpretation = 'Within normal range';
+                interpretationColor = '#4caf50';
+            }
+            
+            const glucoseMmol = glucoseMgDl * 0.0555;
+            const bunMmol = bunMgDl * 0.357;
+
+            resultEl.innerHTML = `
+                <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="font-size: 1.1em; margin-bottom: 8px;">Calculated Serum Osmolality:</div>
+                    <div style="font-size: 2.2em; font-weight: bold;">${calculatedOsmolality.toFixed(1)} mOsm/kg</div>
+                    <div style="margin-top: 10px; padding: 8px; background: ${interpretationColor}; border-radius: 5px; font-size: 0.95em;">
+                        ${interpretation}
+                    </div>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">📊 Calculation Breakdown</h4>
+                    <div style="font-size: 0.9em; line-height: 1.8;">
+                        <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                            <span><strong>2 × Sodium:</strong></span>
+                            <span>2 × ${na} = ${(2 * na).toFixed(1)} mOsm/kg</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                            <span><strong>Glucose/18:</strong></span>
+                            <span>${glucoseMgDl.toFixed(0)}/18 = ${(glucoseMgDl / 18).toFixed(1)} mOsm/kg</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                            <span><strong>BUN/2.8:</strong></span>
+                            <span>${bunMgDl.toFixed(0)}/2.8 = ${(bunMgDl / 2.8).toFixed(1)} mOsm/kg</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #ddd; margin-top: 5px; font-weight: bold;">
+                            <span>Total:</span>
+                            <span>${calculatedOsmolality.toFixed(1)} mOsm/kg</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">🔍 Osmolar Gap Assessment</h4>
+                    <p style="font-size: 0.9em; margin-bottom: 10px;">To calculate osmolar gap, compare this calculated value with the measured serum osmolality:</p>
+                    <div style="background: white; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; margin: 10px 0;">
+                        Osmolar Gap = Measured Osmolality - ${calculatedOsmolality.toFixed(1)} mOsm/kg
+                    </div>
+                    <div style="font-size: 0.85em;">
+                        <div style="padding: 5px 0;">✓ <strong>Normal gap:</strong> &lt; 10 mOsm/kg</div>
+                        <div style="padding: 5px 0;">⚠️ <strong>Elevated gap:</strong> &gt; 10 mOsm/kg (suggests unmeasured osmoles)</div>
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.85em; color: #666; margin-top: 10px;">
+                    Normal osmolality: 275-295 mOsm/kg
+                </div>
+            `;
+            resultEl.style.display = 'block';
+        };
+
+        // Initialize unit conversions
+        initializeUnitConversion(container, 'osmo-glucose', calculateAndUpdate);
+        initializeUnitConversion(container, 'osmo-bun', calculateAndUpdate);
         
         // Auto-populate Sodium
         getMostRecentObservation(client, '2951-2').then(obs => {
             if (obs && obs.valueQuantity) {
-                document.getElementById('osmo-na').value = obs.valueQuantity.value.toFixed(0);
-                dataLoaded.na = true;
-                this.checkAndAutoCalculate(dataLoaded);
+                naInput.value = obs.valueQuantity.value.toFixed(0);
             }
+            calculateAndUpdate();
         }).catch(error => {
             console.error('Error fetching sodium:', error);
         });
@@ -165,10 +248,12 @@ export const serumOsmolality = {
         // Auto-populate Glucose
         getMostRecentObservation(client, '2345-7').then(obs => {
             if (obs && obs.valueQuantity) {
-                document.getElementById('osmo-glucose').value = obs.valueQuantity.value.toFixed(0);
-                dataLoaded.glucose = true;
-                this.checkAndAutoCalculate(dataLoaded);
+                const glucoseInput = container.querySelector('#osmo-glucose');
+                if (glucoseInput) {
+                    glucoseInput.value = obs.valueQuantity.value.toFixed(0);
+                }
             }
+            calculateAndUpdate();
         }).catch(error => {
             console.error('Error fetching glucose:', error);
         });
@@ -176,111 +261,20 @@ export const serumOsmolality = {
         // Auto-populate BUN
         getMostRecentObservation(client, '3094-0').then(obs => {
             if (obs && obs.valueQuantity) {
-                document.getElementById('osmo-bun').value = obs.valueQuantity.value.toFixed(0);
-                dataLoaded.bun = true;
-                this.checkAndAutoCalculate(dataLoaded);
+                const bunInput = container.querySelector('#osmo-bun');
+                if (bunInput) {
+                    bunInput.value = obs.valueQuantity.value.toFixed(0);
+                }
             }
+            calculateAndUpdate();
         }).catch(error => {
             console.error('Error fetching BUN:', error);
         });
 
-        // Manual calculation button
-        document.getElementById('calculate-osmolality').addEventListener('click', () => {
-            this.calculateOsmolality();
-        });
+        // Add event listener for sodium input
+        naInput.addEventListener('input', calculateAndUpdate);
         
-        // Auto-calculate on input change
-        ['osmo-na', 'osmo-glucose', 'osmo-bun'].forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
-                this.calculateOsmolality();
-            });
-        });
-    },
-    
-    checkAndAutoCalculate: function(dataLoaded) {
-        // Auto-calculate if all data is loaded
-        if (dataLoaded.na && dataLoaded.glucose && dataLoaded.bun) {
-            setTimeout(() => {
-                this.calculateOsmolality();
-            }, 100); // Small delay to ensure all DOM updates are complete
-        }
-    },
-    
-    calculateOsmolality: function() {
-        const na = parseFloat(document.getElementById('osmo-na').value);
-        const glucose = parseFloat(document.getElementById('osmo-glucose').value);
-        const bun = parseFloat(document.getElementById('osmo-bun').value);
-
-        if (isNaN(na) || isNaN(glucose) || isNaN(bun)) {
-            document.getElementById('osmolality-result').style.display = 'none';
-            return;
-        }
-
-        const calculatedOsmolality = (2 * na) + (glucose / 18) + (bun / 2.8);
-        
-        // Determine interpretation
-        let interpretation = '';
-        let interpretationClass = '';
-        
-        if (calculatedOsmolality < 275) {
-            interpretation = 'Below normal range';
-            interpretationClass = 'low-result';
-        } else if (calculatedOsmolality > 295) {
-            interpretation = 'Above normal range';
-            interpretationClass = 'high-result';
-        } else {
-            interpretation = 'Within normal range';
-            interpretationClass = 'normal-result';
-        }
-
-        document.getElementById('osmolality-result').innerHTML = `
-            <div class="osmolality-calculation">
-                <h4>🧮 Calculation Result</h4>
-                <div class="result-main">
-                    <div class="result-value">
-                        <span class="result-number">${calculatedOsmolality.toFixed(1)}</span>
-                        <span class="result-unit">mOsm/kg</span>
-                    </div>
-                    <div class="result-interpretation ${interpretationClass}">
-                        ${interpretation}
-                    </div>
-                </div>
-                
-                <div class="calculation-breakdown">
-                    <h5>📊 Calculation Breakdown</h5>
-                    <div class="breakdown-steps">
-                        <div class="step">
-                            <span class="step-label">2 × Sodium:</span>
-                            <span class="step-value">2 × ${na} = ${(2 * na).toFixed(1)} mOsm/kg</span>
-                        </div>
-                        <div class="step">
-                            <span class="step-label">Glucose/18:</span>
-                            <span class="step-value">${glucose}/18 = ${(glucose / 18).toFixed(1)} mOsm/kg</span>
-                        </div>
-                        <div class="step">
-                            <span class="step-label">BUN/2.8:</span>
-                            <span class="step-value">${bun}/2.8 = ${(bun / 2.8).toFixed(1)} mOsm/kg</span>
-                        </div>
-                        <div class="step total-step">
-                            <span class="step-label">Total:</span>
-                            <span class="step-value">${calculatedOsmolality.toFixed(1)} mOsm/kg</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="osmolar-gap-info">
-                    <h5>🔍 Osmolar Gap Assessment</h5>
-                    <p>To calculate osmolar gap, compare this calculated value (${calculatedOsmolality.toFixed(1)} mOsm/kg) with the measured serum osmolality:</p>
-                    <div class="gap-formula-display">
-                        <strong>Osmolar Gap = Measured Osmolality - ${calculatedOsmolality.toFixed(1)} mOsm/kg</strong>
-                    </div>
-                    <div class="gap-interpretation-guide">
-                        <div class="gap-normal">• Normal gap: &lt; 10 mOsm/kg</div>
-                        <div class="gap-elevated">• Elevated gap: &gt; 10 mOsm/kg (suggests unmeasured osmoles)</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.getElementById('osmolality-result').style.display = 'block';
+        // Initial calculation
+        calculateAndUpdate();
     }
 };

@@ -244,7 +244,7 @@ export const sirs = {
                             </ul>
                         </div>
                     </div>
-                </div>
+            </div>
             </div>
         `;
     },
@@ -374,7 +374,7 @@ export const sirs = {
     
     assessCriteria: function() {
         // Count SIRS criteria
-        let sirsCriteriaCount = 0;
+            let sirsCriteriaCount = 0;
         const sirsCheckboxes = ['sirs-temp', 'sirs-hr', 'sirs-rr', 'sirs-wbc'];
         
         sirsCheckboxes.forEach((id, index) => {
@@ -412,19 +412,19 @@ export const sirs = {
                     diagnosisClass = 'shock';
                     diagnosisIcon = '⚠️';
                     diagnosisDescription = 'Life-threatening condition requiring immediate intensive care';
-                } else {
-                    diagnosis = 'Sepsis';
+                    } else {
+                        diagnosis = 'Sepsis';
                     diagnosisClass = 'sepsis';
                     diagnosisIcon = '🦠';
                     diagnosisDescription = 'SIRS with confirmed or suspected infection';
-                }
-            } else {
+                    }
+                } else {
                 diagnosis = 'SIRS';
                 diagnosisClass = 'sirs';
                 diagnosisIcon = '🔥';
                 diagnosisDescription = 'Systemic Inflammatory Response Syndrome - investigate underlying cause';
-            }
-        } else {
+                }
+            } else {
             diagnosis = 'Normal';
             diagnosisClass = 'normal';
             diagnosisIcon = '✅';

@@ -85,6 +85,102 @@ export const ascvd = {
                 
                 <div id="therapy-results" class="therapy-results" style="display:none; margin-top: 20px;"></div>
             </div>
+
+            <!-- Formula Section -->
+            <div class="formula-section" style="margin-top: 30px;">
+                <h4>📐 Pooled Cohort Equations (PCE) Formulas</h4>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">The 10-year ASCVD risk is calculated using the following equation for each population group:</p>
+                
+                <div style="background: #f5f7fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h5 style="margin-top: 0; color: #333;">General Formula:</h5>
+                    <p style="font-family: monospace; background: white; padding: 15px; border-radius: 5px; overflow-x: auto;">
+                        Risk = (1 - S<sub>0</sub><sup>exp(Σ - mean)</sup>) × 100%
+                    </p>
+                    <p style="font-size: 0.85em; color: #555; margin-top: 10px;">
+                        Where: <br>
+                        • <strong>Σ</strong> = Sum of all weighted terms for the patient <br>
+                        • <strong>mean</strong> = Population mean of Σ <br>
+                        • <strong>S₀</strong> = Baseline 10-year survival probability
+                    </p>
+                </div>
+
+                <!-- White Male -->
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #2196F3;">
+                    <h5 style="margin-top: 0; color: #1976D2;">White Male</h5>
+                    <p style="font-family: monospace; background: white; padding: 12px; border-radius: 5px; font-size: 0.85em; overflow-x: auto; margin-bottom: 10px;">
+                        Σ = 12.344×ln(Age) + 11.853×ln(TC) - 2.664×ln(Age)×ln(TC)<br>
+                        &nbsp;&nbsp;&nbsp;- 7.99×ln(HDL) + 1.769×ln(Age)×ln(HDL)<br>
+                        &nbsp;&nbsp;&nbsp;+ (1.797 or 1.764)×ln(SBP) [if on HTN tx or not]<br>
+                        &nbsp;&nbsp;&nbsp;+ 7.837×Smoker - 1.795×ln(Age)×Smoker<br>
+                        &nbsp;&nbsp;&nbsp;+ 0.658×Diabetes
+                    </p>
+                    <p style="font-size: 0.85em; margin: 5px 0;"><strong>Mean:</strong> 61.18 | <strong>S₀:</strong> 0.9144</p>
+                </div>
+
+                <!-- White Female -->
+                <div style="background: #fce4ec; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #E91E63;">
+                    <h5 style="margin-top: 0; color: #C2185B;">White Female</h5>
+                    <p style="font-family: monospace; background: white; padding: 12px; border-radius: 5px; font-size: 0.85em; overflow-x: auto; margin-bottom: 10px;">
+                        Σ = -29.799×ln(Age) + 4.609×ln(Age)²<br>
+                        &nbsp;&nbsp;&nbsp;+ 13.54×ln(TC) - 3.114×ln(Age)×ln(TC)<br>
+                        &nbsp;&nbsp;&nbsp;- 13.578×ln(HDL) + 3.149×ln(Age)×ln(HDL)<br>
+                        &nbsp;&nbsp;&nbsp;+ (2.019 or 1.957)×ln(SBP) [if on HTN tx or not]<br>
+                        &nbsp;&nbsp;&nbsp;+ 7.574×Smoker - 1.665×ln(Age)×Smoker<br>
+                        &nbsp;&nbsp;&nbsp;+ 0.661×Diabetes
+                    </p>
+                    <p style="font-size: 0.85em; margin: 5px 0;"><strong>Mean:</strong> -29.18 | <strong>S₀:</strong> 0.9665</p>
+                </div>
+
+                <!-- African American Male -->
+                <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #9C27B0;">
+                    <h5 style="margin-top: 0; color: #6A1B9A;">African American Male</h5>
+                    <p style="font-family: monospace; background: white; padding: 12px; border-radius: 5px; font-size: 0.85em; overflow-x: auto; margin-bottom: 10px;">
+                        Σ = 2.469×ln(Age) + 0.302×ln(TC) - 0.307×ln(HDL)<br>
+                        &nbsp;&nbsp;&nbsp;+ (1.916 or 1.809)×ln(SBP) [if on HTN tx or not]<br>
+                        &nbsp;&nbsp;&nbsp;+ 0.549×Smoker + 0.645×Diabetes
+                    </p>
+                    <p style="font-size: 0.85em; margin: 5px 0;"><strong>Mean:</strong> 19.54 | <strong>S₀:</strong> 0.8954</p>
+                </div>
+
+                <!-- African American Female -->
+                <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #FF9800;">
+                    <h5 style="margin-top: 0; color: #E65100;">African American Female</h5>
+                    <p style="font-family: monospace; background: white; padding: 12px; border-radius: 5px; font-size: 0.85em; overflow-x: auto; margin-bottom: 10px;">
+                        Σ = 17.114×ln(Age) + 0.94×ln(TC) - 18.92×ln(HDL)<br>
+                        &nbsp;&nbsp;&nbsp;+ 4.475×ln(Age)×ln(HDL)<br>
+                        &nbsp;&nbsp;&nbsp;+ (29.291 or 27.82)×ln(SBP) - 6.432×ln(Age)×ln(SBP) [HTN tx adjustment]<br>
+                        &nbsp;&nbsp;&nbsp;+ 0.691×Smoker + 0.874×Diabetes
+                    </p>
+                    <p style="font-size: 0.85em; margin: 5px 0;"><strong>Mean:</strong> 86.61 | <strong>S₀:</strong> 0.9533</p>
+                </div>
+
+                <!-- Parameters -->
+                <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c5e1a5;">
+                    <h5 style="margin-top: 0; color: #33691e;">Parameters:</h5>
+                    <ul style="margin: 10px 0; padding-left: 20px; font-size: 0.9em;">
+                        <li><strong>Age:</strong> In years (40-79)</li>
+                        <li><strong>TC (Total Cholesterol):</strong> In mg/dL</li>
+                        <li><strong>HDL (HDL Cholesterol):</strong> In mg/dL</li>
+                        <li><strong>SBP (Systolic Blood Pressure):</strong> In mmHg</li>
+                        <li><strong>HTN Treatment:</strong> Binary variable (0 or 1)</li>
+                        <li><strong>Diabetes:</strong> Binary variable (0 or 1)</li>
+                        <li><strong>Smoker:</strong> Binary variable (0 or 1)</li>
+                    </ul>
+                </div>
+
+                <!-- Notes -->
+                <div style="background: #fef5e7; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                    <h5 style="margin-top: 0; color: #d68910;">📌 Important Notes:</h5>
+                    <ul style="margin: 10px 0; padding-left: 20px; font-size: 0.85em; color: #555;">
+                        <li>These equations calculate <strong>10-year hard ASCVD risk</strong> (MI or stroke)</li>
+                        <li>Valid for ages <strong>40-79 years</strong> only</li>
+                        <li>Developed and validated in the <strong>Pooled Cohort Study (2013)</strong></li>
+                        <li>Used by the ACC/AHA for primary prevention guideline recommendations</li>
+                        <li>Consider <strong>risk-enhancing factors</strong> when making treatment decisions</li>
+                        <li>This calculator uses recalibrated coefficients to align with modern clinical tools like MDCalc</li>
+                    </ul>
+                </div>
+            </div>
         `;
     },
     initialize: function(client, patient, container) {
@@ -95,17 +191,17 @@ export const ascvd = {
         const hdlInput = container.querySelector('#ascvd-hdl');
 
         if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate);
+        ageInput.value = calculateAge(patient.birthDate);
         }
         if (patient && patient.gender) {
-            genderSelect.value = patient.gender;
+        genderSelect.value = patient.gender;
         }
 
         // Try to load FHIR data, but don't block if it fails
         if (client) {
-            getMostRecentObservation(client, '85354-9').then(bpPanel => {
-                if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === '8480-6');
+        getMostRecentObservation(client, '85354-9').then(bpPanel => {
+            if (bpPanel && bpPanel.component) {
+                const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === '8480-6');
                     if (sbpComp && sbpComp.valueQuantity) {
                         sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
                     }

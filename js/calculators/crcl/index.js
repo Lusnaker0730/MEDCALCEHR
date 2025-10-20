@@ -1,4 +1,4 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { getMostRecentObservation, calculateAge, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const crcl = {
     id: 'crcl',
@@ -13,12 +13,12 @@ export const crcl = {
                 <input type="number" id="crcl-age" placeholder="e.g., 65">
             </div>
             <div class="input-group">
-                <label>Weight (kg)</label>
-                <input type="number" id="crcl-weight" placeholder="e.g., 70">
+                <label>Weight:</label>
+                ${createUnitSelector('crcl-weight', 'weight', ['kg', 'lbs'], 'kg')}
             </div>
             <div class="input-group">
-                <label>Serum Creatinine (mg/dL)</label>
-                <input type="number" id="crcl-scr" step="0.1" placeholder="e.g., 1.2">
+                <label>Serum Creatinine:</label>
+                ${createUnitSelector('crcl-scr', 'creatinine', ['mg/dL', 'µmol/L'], 'mg/dL')}
             </div>
             <div class="input-group">
                 <label>Gender</label>
@@ -66,27 +66,51 @@ export const crcl = {
     },
     initialize: function(client, patient, container) {
         const ageEl = container.querySelector('#crcl-age');
-        const weightEl = container.querySelector('#crcl-weight');
-        const scrEl = container.querySelector('#crcl-scr');
         const genderEl = container.querySelector('#crcl-gender');
         const resultEl = container.querySelector('#crcl-result');
 
         // Function to calculate and update results
         const calculateAndUpdate = () => {
             const age = parseInt(ageEl.value);
-            const weight = parseFloat(weightEl.value);
-            const scr = parseFloat(scrEl.value);
+            const weightKg = getValueInStandardUnit(container, 'crcl-weight', 'kg');
+            const scrMgDl = getValueInStandardUnit(container, 'crcl-scr', 'mg/dL');
             const gender = genderEl.value;
 
-            if (!isNaN(age) && !isNaN(weight) && !isNaN(scr) && age > 0 && weight > 0 && scr > 0) {
-                let crcl = ((140 - age) * weight) / (72 * scr);
+            if (!isNaN(age) && weightKg > 0 && scrMgDl > 0 && age > 0) {
+                let crcl = ((140 - age) * weightKg) / (72 * scrMgDl);
                 if (gender === 'female') {
                     crcl *= 0.85;
                 }
 
+                // Determine kidney function category
+                let category = '';
+                let categoryColor = '';
+                if (crcl >= 90) {
+                    category = 'Normal kidney function';
+                    categoryColor = '#4caf50';
+                } else if (crcl >= 60) {
+                    category = 'Mild reduction';
+                    categoryColor = '#8bc34a';
+                } else if (crcl >= 30) {
+                    category = 'Moderate reduction';
+                    categoryColor = '#ff9800';
+                } else if (crcl >= 15) {
+                    category = 'Severe reduction';
+                    categoryColor = '#ff5722';
+                } else {
+                    category = 'Kidney failure';
+                    categoryColor = '#f44336';
+                }
+
                 // Update result display
                 const valueEl = resultEl.querySelector('.result-item .value');
-                valueEl.innerHTML = `${crcl.toFixed(1)} <span class="unit">mL/min</span>`;
+                valueEl.innerHTML = `
+                    <div style="font-size: 2em; font-weight: bold;">${crcl.toFixed(1)}</div>
+                    <div style="font-size: 0.9em; margin-top: 5px;">mL/min</div>
+                    <div style="margin-top: 10px; padding: 8px; background: ${categoryColor}; color: white; border-radius: 5px; font-size: 0.9em;">
+                        ${category}
+                    </div>
+                `;
                 
                 resultEl.className = 'result calculated';
             } else {
@@ -97,6 +121,10 @@ export const crcl = {
                 resultEl.className = 'result';
             }
         };
+
+        // Initialize unit conversions
+        initializeUnitConversion(container, 'crcl-weight', calculateAndUpdate);
+        initializeUnitConversion(container, 'crcl-scr', calculateAndUpdate);
 
         // Auto-populate patient data
         if (patient && patient.birthDate) {
@@ -109,22 +137,26 @@ export const crcl = {
         // Auto-populate from FHIR data
         getMostRecentObservation(client, '29463-7').then(obs => { // Weight
             if (obs && obs.valueQuantity) {
-                weightEl.value = obs.valueQuantity.value.toFixed(1);
+                const weightInput = container.querySelector('#crcl-weight');
+                if (weightInput) {
+                    weightInput.value = obs.valueQuantity.value.toFixed(1);
+                }
             }
             calculateAndUpdate();
         });
         
         getMostRecentObservation(client, '2160-0').then(obs => { // Serum Creatinine
             if (obs && obs.valueQuantity) {
-                scrEl.value = obs.valueQuantity.value.toFixed(2);
+                const scrInput = container.querySelector('#crcl-scr');
+                if (scrInput) {
+                    scrInput.value = obs.valueQuantity.value.toFixed(2);
+                }
             }
             calculateAndUpdate();
         });
 
         // Add event listeners for automatic calculation
         ageEl.addEventListener('input', calculateAndUpdate);
-        weightEl.addEventListener('input', calculateAndUpdate);
-        scrEl.addEventListener('input', calculateAndUpdate);
         genderEl.addEventListener('change', calculateAndUpdate);
 
         // Initial calculation

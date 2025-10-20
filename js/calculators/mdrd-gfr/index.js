@@ -1,5 +1,5 @@
 // js/calculators/mdrd-gfr.js
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { getMostRecentObservation, calculateAge, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const mdrdGfr = {
     id: 'mdrd-gfr',
@@ -8,8 +8,8 @@ export const mdrdGfr = {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
-                <label for="mdrd-creatinine">Serum Creatinine (mg/dL):</label>
-                <input type="number" id="mdrd-creatinine" placeholder="e.g., 1.2">
+                <label for="mdrd-creatinine">Serum Creatinine:</label>
+                ${createUnitSelector('mdrd-creatinine', 'creatinine', ['mg/dL', 'µmol/L'], 'mg/dL')}
             </div>
             <div class="input-group">
                 <label for="mdrd-age">Age:</label>
@@ -76,7 +76,6 @@ export const mdrdGfr = {
         `;
     },
     initialize: function(client, patient, container) {
-        const creatinineInput = container.querySelector('#mdrd-creatinine');
         const ageInput = container.querySelector('#mdrd-age');
         const genderSelect = container.querySelector('#mdrd-gender');
         const raceSelect = container.querySelector('#mdrd-race');
@@ -84,19 +83,49 @@ export const mdrdGfr = {
 
         // Function to calculate and update results
         const calculateAndUpdate = () => {
-            const creatinine = parseFloat(creatinineInput.value);
+            // Get creatinine in mg/dL (standard unit)
+            const creatinineMgDl = getValueInStandardUnit(container, 'mdrd-creatinine', 'mg/dL');
             const age = parseFloat(ageInput.value);
             const isFemale = genderSelect.value === 'female';
             const isAA = raceSelect.value === 'aa';
 
-            if (creatinine > 0 && age > 0) {
-                let gfr = 175 * Math.pow(creatinine, -1.154) * Math.pow(age, -0.203);
+            if (creatinineMgDl > 0 && age > 0) {
+                let gfr = 175 * Math.pow(creatinineMgDl, -1.154) * Math.pow(age, -0.203);
                 if (isFemale) gfr *= 0.742;
                 if (isAA) gfr *= 1.212;
                 
+                // Determine CKD stage
+                let stage = '';
+                let stageColor = '';
+                if (gfr >= 90) {
+                    stage = 'Stage 1 (Normal or high)';
+                    stageColor = '#4caf50';
+                } else if (gfr >= 60) {
+                    stage = 'Stage 2 (Mild)';
+                    stageColor = '#8bc34a';
+                } else if (gfr >= 45) {
+                    stage = 'Stage 3a (Mild to moderate)';
+                    stageColor = '#ffc107';
+                } else if (gfr >= 30) {
+                    stage = 'Stage 3b (Moderate to severe)';
+                    stageColor = '#ff9800';
+                } else if (gfr >= 15) {
+                    stage = 'Stage 4 (Severe)';
+                    stageColor = '#ff5722';
+                } else {
+                    stage = 'Stage 5 (Kidney failure)';
+                    stageColor = '#f44336';
+                }
+                
                 // Update result display
                 const valueEl = resultEl.querySelector('.result-item .value');
-                valueEl.innerHTML = `${gfr.toFixed(0)} <span class="unit">mL/min/1.73m²</span>`;
+                valueEl.innerHTML = `
+                    <div style="font-size: 2em; font-weight: bold;">${gfr.toFixed(0)}</div>
+                    <div style="font-size: 0.9em; margin-top: 5px;">mL/min/1.73m²</div>
+                    <div style="margin-top: 10px; padding: 8px; background: ${stageColor}; color: white; border-radius: 5px; font-size: 0.9em;">
+                        ${stage}
+                    </div>
+                `;
                 
                 resultEl.className = 'result calculated';
             } else {
@@ -107,6 +136,9 @@ export const mdrdGfr = {
                 resultEl.className = 'result';
             }
         };
+
+        // Initialize unit conversion for creatinine
+        initializeUnitConversion(container, 'mdrd-creatinine', calculateAndUpdate);
 
         // Auto-populate patient data
         if (patient && patient.birthDate) {
@@ -119,14 +151,16 @@ export const mdrdGfr = {
         // Auto-populate from FHIR data
         getMostRecentObservation(client, '2160-0').then(obs => {
             if (obs && obs.valueQuantity) {
-                creatinineInput.value = obs.valueQuantity.value.toFixed(2);
+                const creatinineInput = container.querySelector('#mdrd-creatinine');
+                if (creatinineInput) {
+                    creatinineInput.value = obs.valueQuantity.value.toFixed(2);
+                }
             }
             // Calculate initial results if data was populated
             calculateAndUpdate();
         });
 
         // Add event listeners for automatic calculation
-        creatinineInput.addEventListener('input', calculateAndUpdate);
         ageInput.addEventListener('input', calculateAndUpdate);
         genderSelect.addEventListener('change', calculateAndUpdate);
         raceSelect.addEventListener('change', calculateAndUpdate);

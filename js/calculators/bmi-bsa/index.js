@@ -1,5 +1,5 @@
 // js/calculators/bmi-bsa.js
-import { getMostRecentObservation } from '../../utils.js';
+import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const bmiBsa = {
     id: 'bmi-bsa',
@@ -8,12 +8,12 @@ export const bmiBsa = {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
-                <label for="bmi-bsa-weight">Weight (kg):</label>
-                <input type="number" id="bmi-bsa-weight" placeholder="loading...">
+                <label for="bmi-bsa-weight">Weight:</label>
+                ${createUnitSelector('bmi-bsa-weight', 'weight', ['kg', 'lbs'], 'kg')}
             </div>
             <div class="input-group">
-                <label for="bmi-bsa-height">Height (cm):</label>
-                <input type="number" id="bmi-bsa-height" placeholder="loading...">
+                <label for="bmi-bsa-height">Height:</label>
+                ${createUnitSelector('bmi-bsa-height', 'height', ['cm', 'in'], 'cm')}
             </div>
             <div id="bmi-bsa-result" class="result" style="display:block;">
                 <div class="result-item">
@@ -39,27 +39,61 @@ export const bmiBsa = {
         `;
     },
     initialize: function(client, patient, container) {
-        const weightInput = container.querySelector('#bmi-bsa-weight');
-        const heightInput = container.querySelector('#bmi-bsa-height');
         const resultEl = container.querySelector('#bmi-bsa-result');
 
         // Function to calculate and update results
         const calculateAndUpdate = () => {
-            const weight = parseFloat(weightInput.value);
-            const height = parseFloat(heightInput.value);
+            // Get values in standard units (kg and cm)
+            const weightKg = getValueInStandardUnit(container, 'bmi-bsa-weight', 'kg');
+            const heightCm = getValueInStandardUnit(container, 'bmi-bsa-height', 'cm');
 
-            if (weight > 0 && height > 0) {
-                const heightInMeters = height / 100;
-                const bmi = weight / (heightInMeters * heightInMeters);
-                const bsa = 0.007184 * Math.pow(weight, 0.425) * Math.pow(height, 0.725); // Du Bois
+            if (weightKg > 0 && heightCm > 0) {
+                const heightInMeters = heightCm / 100;
+                const bmi = weightKg / (heightInMeters * heightInMeters);
+                const bsa = 0.007184 * Math.pow(weightKg, 0.425) * Math.pow(heightCm, 0.725); // Du Bois
+                
+                // Determine BMI category
+                let bmiCategory = '';
+                let bmiColor = '';
+                if (bmi < 18.5) {
+                    bmiCategory = 'Underweight';
+                    bmiColor = '#03a9f4';
+                } else if (bmi < 25) {
+                    bmiCategory = 'Normal weight';
+                    bmiColor = '#4caf50';
+                } else if (bmi < 30) {
+                    bmiCategory = 'Overweight';
+                    bmiColor = '#ff9800';
+                } else if (bmi < 35) {
+                    bmiCategory = 'Obese (Class I)';
+                    bmiColor = '#ff5722';
+                } else if (bmi < 40) {
+                    bmiCategory = 'Obese (Class II)';
+                    bmiColor = '#f44336';
+                } else {
+                    bmiCategory = 'Obese (Class III)';
+                    bmiColor = '#d32f2f';
+                }
                 
                 // Update BMI result
                 const bmiValueEl = resultEl.querySelector('.result-item:first-child .value');
-                bmiValueEl.innerHTML = `${bmi.toFixed(2)} <span class="unit">kg/m²</span>`;
+                bmiValueEl.innerHTML = `
+                    <div style="font-size: 1.8em; font-weight: bold;">${bmi.toFixed(1)}</div>
+                    <div style="font-size: 0.9em; margin-top: 3px;">kg/m²</div>
+                    <div style="margin-top: 8px; padding: 6px 12px; background: ${bmiColor}; color: white; border-radius: 15px; font-size: 0.85em;">
+                        ${bmiCategory}
+                    </div>
+                `;
                 
                 // Update BSA result
                 const bsaValueEl = resultEl.querySelector('.result-item:last-child .value');
-                bsaValueEl.innerHTML = `${bsa.toFixed(2)} <span class="unit">m²</span>`;
+                bsaValueEl.innerHTML = `
+                    <div style="font-size: 1.8em; font-weight: bold;">${bsa.toFixed(2)}</div>
+                    <div style="font-size: 0.9em; margin-top: 3px;">m²</div>
+                    <div style="margin-top: 8px; font-size: 0.85em; color: #666;">
+                        (Du Bois formula)
+                    </div>
+                `;
                 
                 resultEl.className = 'result calculated';
             } else {
@@ -74,25 +108,24 @@ export const bmiBsa = {
             }
         };
 
-        // Add event listeners for automatic calculation
-        weightInput.addEventListener('input', calculateAndUpdate);
-        heightInput.addEventListener('input', calculateAndUpdate);
+        // Initialize unit conversions
+        initializeUnitConversion(container, 'bmi-bsa-weight', calculateAndUpdate);
+        initializeUnitConversion(container, 'bmi-bsa-height', calculateAndUpdate);
 
         // Auto-populate from FHIR data
         const weightPromise = getMostRecentObservation(client, '29463-7');
         const heightPromise = getMostRecentObservation(client, '8302-2');
 
         Promise.all([weightPromise, heightPromise]).then(([weightObs, heightObs]) => {
-            if (weightObs && weightObs.valueQuantity) {
+            const weightInput = container.querySelector('#bmi-bsa-weight');
+            const heightInput = container.querySelector('#bmi-bsa-height');
+            
+            if (weightObs && weightObs.valueQuantity && weightInput) {
                 weightInput.value = weightObs.valueQuantity.value.toFixed(1);
-            } else {
-                weightInput.placeholder = "e.g., 70";
             }
 
-            if (heightObs && heightObs.valueQuantity) {
+            if (heightObs && heightObs.valueQuantity && heightInput) {
                 heightInput.value = heightObs.valueQuantity.value.toFixed(1);
-            } else {
-                heightInput.placeholder = "e.g., 175";
             }
             
             // Calculate initial results if data was populated

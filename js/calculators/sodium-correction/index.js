@@ -1,5 +1,5 @@
 // js/calculators/sodium-correction.js
-import { getMostRecentObservation } from '../../utils.js';
+import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const sodiumCorrection = {
     id: 'sodium-correction',
@@ -14,10 +14,9 @@ export const sodiumCorrection = {
                 <input type="number" id="measured-sodium" placeholder="loading...">
             </div>
             <div class="input-group">
-                <label for="glucose">Glucose (mg/dL):</label>
-                <input type="number" id="glucose" placeholder="loading...">
+                <label for="glucose">Glucose:</label>
+                ${createUnitSelector('glucose', 'glucose', ['mg/dL', 'mmol/L'], 'mg/dL')}
             </div>
-            <button id="calculate-sodium-correction">Calculate</button>
             <div id="sodium-correction-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -137,47 +136,98 @@ export const sodiumCorrection = {
             </div>
         `;
     },
-    initialize: function(client) {
-        const sodiumInput = document.getElementById('measured-sodium');
-        const glucoseInput = document.getElementById('glucose');
+    initialize: function(client, patient, container) {
+        const sodiumInput = container.querySelector('#measured-sodium');
+        const resultEl = container.querySelector('#sodium-correction-result');
 
+        const calculateAndUpdate = () => {
+            const measuredSodium = parseFloat(sodiumInput.value);
+            const glucoseMgDl = getValueInStandardUnit(container, 'glucose', 'mg/dL');
+
+            if (measuredSodium > 0 && glucoseMgDl > 0) {
+                // Using the Hillier formula (correction factor of 1.6)
+                let correctionFactor = 1.6;
+                let note = '';
+                let noteClass = '';
+                
+                if (glucoseMgDl > 400) {
+                    note = '⚠️ For glucose > 400 mg/dL, consider using correction factor of 2.4 mEq/L';
+                    noteClass = 'warning-note';
+                }
+
+                const correctedSodium = measuredSodium + correctionFactor * ((glucoseMgDl - 100) / 100);
+                const glucoseMmol = glucoseMgDl * 0.0555;
+                
+                // Determine sodium status
+                let status = '';
+                let statusColor = '';
+                if (correctedSodium < 136) {
+                    status = 'Low (Hyponatremia)';
+                    statusColor = '#2196f3';
+                } else if (correctedSodium > 145) {
+                    status = 'High (Hypernatremia)';
+                    statusColor = '#ff5722';
+                } else {
+                    status = 'Normal';
+                    statusColor = '#4caf50';
+                }
+                
+                resultEl.innerHTML = `
+                    <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="font-size: 1.1em; margin-bottom: 8px;">Corrected Sodium:</div>
+                        <div style="font-size: 2.2em; font-weight: bold;">${correctedSodium.toFixed(1)} mEq/L</div>
+                        <div style="margin-top: 10px; padding: 8px; background: ${statusColor}; border-radius: 5px; font-size: 0.95em;">
+                            ${status}
+                        </div>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 1em;">Calculation Details:</h4>
+                        <div style="font-size: 0.9em; line-height: 1.6;">
+                            <div><strong>Measured Sodium:</strong> ${measuredSodium} mEq/L</div>
+                            <div><strong>Glucose:</strong> ${glucoseMgDl.toFixed(0)} mg/dL (${glucoseMmol.toFixed(1)} mmol/L)</div>
+                            <div><strong>Correction Factor:</strong> ${correctionFactor} mEq/L</div>
+                            <div><strong>Correction:</strong> +${(correctionFactor * ((glucoseMgDl - 100) / 100)).toFixed(1)} mEq/L</div>
+                        </div>
+                    </div>
+                    ${note ? `<div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 4px solid #ffc107; font-size: 0.9em;">${note}</div>` : ''}
+                    <div style="margin-top: 10px; font-size: 0.85em; color: #666;">
+                        Normal sodium: 136-145 mEq/L
+                    </div>
+                `;
+                resultEl.style.display = 'block';
+            } else {
+                resultEl.style.display = 'none';
+            }
+        };
+
+        // Initialize unit conversion
+        initializeUnitConversion(container, 'glucose', calculateAndUpdate);
+
+        // Auto-populate from FHIR data
         const sodiumPromise = getMostRecentObservation(client, '2951-2');
         const glucosePromise = getMostRecentObservation(client, '2345-7');
 
         Promise.all([sodiumPromise, glucosePromise]).then(([sodiumObs, glucoseObs]) => {
-            if (sodiumObs) sodiumInput.value = sodiumObs.valueQuantity.value.toFixed(0);
-            else sodiumInput.placeholder = "e.g., 135";
+            if (sodiumObs && sodiumObs.valueQuantity) {
+                sodiumInput.value = sodiumObs.valueQuantity.value.toFixed(0);
+            } else {
+                sodiumInput.placeholder = "e.g., 135";
+            }
 
-            if (glucoseObs) glucoseInput.value = glucoseObs.valueQuantity.value.toFixed(0);
-            else glucoseInput.placeholder = "e.g., 400";
+            if (glucoseObs && glucoseObs.valueQuantity) {
+                const glucoseInput = container.querySelector('#glucose');
+                if (glucoseInput) {
+                    glucoseInput.value = glucoseObs.valueQuantity.value.toFixed(0);
+                }
+            }
+            
+            calculateAndUpdate();
         });
         
-        document.getElementById('calculate-sodium-correction').addEventListener('click', () => {
-            const measuredSodium = parseFloat(sodiumInput.value);
-            const glucose = parseFloat(glucoseInput.value);
-            const resultEl = document.getElementById('sodium-correction-result');
-
-            if (measuredSodium > 0 && glucose > 0) {
-                // Using the Hillier, et al. formula (correction factor of 1.6 for glucose up to 400)
-                let correctionFactor = 1.6;
-                let note = "A correction factor of 2.4 mEq/L may be used for glucose > 400 mg/dL.";
-                if (glucose > 400) {
-                    // For simplicity, this calculator will stick with the 1.6 factor but notify the user.
-                    // A more advanced version could allow user to select the factor.
-                }
-
-                const correctedSodium = measuredSodium + correctionFactor * ((glucose - 100) / 100);
-                
-                resultEl.innerHTML = `
-                    <p>Corrected Sodium: ${correctedSodium.toFixed(1)} mEq/L</p>
-                    <small><em>Note: ${note}</em></small>
-                `;
-                resultEl.style.display = 'block';
-
-            } else {
-                resultEl.innerText = 'Please enter valid sodium and glucose values.';
-                resultEl.style.display = 'block';
-            }
-        });
+        // Add event listener for sodium input
+        sodiumInput.addEventListener('input', calculateAndUpdate);
+        
+        // Initial calculation
+        calculateAndUpdate();
     }
 };

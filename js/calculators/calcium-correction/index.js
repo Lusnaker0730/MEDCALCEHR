@@ -1,5 +1,5 @@
 // js/calculators/calcium-correction.js
-import { getMostRecentObservation } from '../../utils.js';
+import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const calciumCorrection = {
     id: 'calcium-correction',
@@ -8,12 +8,12 @@ export const calciumCorrection = {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
-                <label for="ca-total">Total Calcium (mg/dL):</label>
-                <input type="number" id="ca-total" placeholder="loading...">
+                <label for="ca-total">Total Calcium:</label>
+                ${createUnitSelector('ca-total', 'calcium', ['mg/dL', 'mmol/L'], 'mg/dL')}
             </div>
             <div class="input-group">
-                <label for="ca-albumin">Albumin (g/dL):</label>
-                <input type="number" id="ca-albumin" placeholder="loading...">
+                <label for="ca-albumin">Albumin:</label>
+                ${createUnitSelector('ca-albumin', 'albumin', ['g/dL', 'g/L'], 'g/dL')}
             </div>
             <button id="calculate-ca">Calculate</button>
             <div id="ca-result" class="result" style="display:none;"></div>
@@ -59,28 +59,63 @@ export const calciumCorrection = {
             </div>
         `;
     },
-    initialize: function(client) {
-        getMostRecentObservation(client, '17861-6').then(obs => {
-            if (obs) document.getElementById('ca-total').value = obs.valueQuantity.value.toFixed(1);
-        });
-        getMostRecentObservation(client, '1751-7').then(obs => {
-            if (obs) document.getElementById('ca-albumin').value = obs.valueQuantity.value.toFixed(1);
-        });
+    initialize: function(client, patient, container) {
+        // Initialize unit conversion with auto-calculation
+        const calculateAndUpdate = () => {
+            const totalCalciumMgDl = getValueInStandardUnit(container, 'ca-total', 'mg/dL');
+            const albuminGdl = getValueInStandardUnit(container, 'ca-albumin', 'g/dL');
+            const resultEl = container.querySelector('#ca-result');
 
-        document.getElementById('calculate-ca').addEventListener('click', () => {
-            const totalCalcium = parseFloat(document.getElementById('ca-total').value);
-            const albumin = parseFloat(document.getElementById('ca-albumin').value);
-            const resultEl = document.getElementById('ca-result');
-
-            if (totalCalcium > 0 && albumin > 0) {
-                const correctedCalcium = totalCalcium + 0.8 * (4.0 - albumin);
-                resultEl.innerHTML = `<p>Corrected Calcium: ${correctedCalcium.toFixed(2)} mg/dL</p>`;
+            if (totalCalciumMgDl > 0 && albuminGdl > 0) {
+                const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
+                const correctedCalciumMmol = correctedCalcium * 0.2495;
+                
+                resultEl.innerHTML = `
+                    <div style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px;">
+                        <div style="font-size: 1.1em; margin-bottom: 8px;">Corrected Calcium:</div>
+                        <div style="font-size: 1.8em; font-weight: bold;">${correctedCalcium.toFixed(2)} mg/dL</div>
+                        <div style="font-size: 0.95em; opacity: 0.9; margin-top: 5px;">(${correctedCalciumMmol.toFixed(2)} mmol/L)</div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: ${correctedCalcium < 8.5 ? '#fee' : correctedCalcium > 10.5 ? '#fef3cd' : '#e8f5e9'}; border-radius: 6px;">
+                        <strong>${correctedCalcium < 8.5 ? '⚠️ Low' : correctedCalcium > 10.5 ? '⚠️ High' : '✓ Normal'}</strong>
+                        <div style="font-size: 0.9em; margin-top: 5px;">Normal range: 8.5-10.5 mg/dL (2.12-2.62 mmol/L)</div>
+                    </div>
+                `;
                 resultEl.style.display = 'block';
             } else {
-                resultEl.innerText = 'Please enter valid Total Calcium and Albumin values.';
-                resultEl.style.display = 'block';
+                resultEl.style.display = 'none';
+            }
+        };
+
+        // Initialize unit conversions with callback
+        initializeUnitConversion(container, 'ca-total', calculateAndUpdate);
+        initializeUnitConversion(container, 'ca-albumin', calculateAndUpdate);
+
+        // Auto-populate from FHIR data
+        getMostRecentObservation(client, '17861-6').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const input = container.querySelector('#ca-total');
+                if (input) input.value = obs.valueQuantity.value.toFixed(1);
+                calculateAndUpdate();
             }
         });
+        
+        getMostRecentObservation(client, '1751-7').then(obs => {
+            if (obs && obs.valueQuantity) {
+                const input = container.querySelector('#ca-albumin');
+                if (input) input.value = obs.valueQuantity.value.toFixed(1);
+                calculateAndUpdate();
+            }
+        });
+
+        // Manual calculate button (for compatibility)
+        const calculateBtn = container.querySelector('#calculate-ca');
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', calculateAndUpdate);
+        }
+        
+        // Initial calculation
+        calculateAndUpdate();
     }
 };
 
