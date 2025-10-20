@@ -141,6 +141,29 @@ initialize: function(client, patient, container) {
    - 自动选择评分选项
    - 复杂表单示例
 
+### 药物浓度和肝功能
+9. **Phenytoin Correction**: `js/calculators/phenytoin-correction/index.js`
+   - 白蛋白单位转换 (g/dL ↔ g/L)
+   - 自动计算校正苯妥英浓度
+   - 治疗范围自动判断
+   - 肾衰竭校正因子
+
+10. **FIB-4**: `js/calculators/fib-4/index.js`
+   - 血小板单位转换
+   - 肝纤维化风险分级
+   - 自动计算
+
+### 代谢和肾功能
+11. **HOMA-IR**: `js/calculators/homa-ir/index.js`
+   - 葡萄糖单位转换 (mg/dL ↔ mmol/L)
+   - 胰岛素抵抗评估
+   - 三级分类系统
+
+12. **FENa**: `js/calculators/fena/index.js`
+   - 尿肌酐和血肌酐单位转换
+   - 肾前性/肾内性AKI分类
+   - 详细临床解释
+
 ## 已完成的计算器 ✅
 
 以下计算器已成功添加单位转换功能：
@@ -150,26 +173,33 @@ initialize: function(client, patient, container) {
 2. ✅ **CKD-EPI GFR** - mg/dL ↔ µmol/L (肌酐)
 3. ✅ **BMI & BSA** - kg ↔ lbs (体重), cm ↔ in (身高)
 
-### 第二批（常用临床计算器）
+### 第二批（肾功能和代谢计算器）
 4. ✅ **MDRD GFR** - mg/dL ↔ µmol/L (肌酐) + CKD分期
 5. ✅ **Cockcroft-Gault CrCl** - mg/dL ↔ µmol/L (肌酐), kg ↔ lbs (体重)
 6. ✅ **Sodium Correction** - mg/dL ↔ mmol/L (葡萄糖)
 7. ✅ **Serum Osmolality** - mg/dL ↔ mmol/L (葡萄糖和BUN)
 8. ✅ **ISTH DIC** - 多单位（血小板、D-dimer、纤维蛋白原）
 
+### 第三批（肝功能和特殊计算器）
+9. ✅ **Phenytoin Correction** - g/dL ↔ g/L (白蛋白) + 自动计算 + 治疗范围判断
+10. ✅ **FIB-4** - ×10⁹/L ↔ K/µL (血小板) + 自动计算
+11. ✅ **HOMA-IR** - mg/dL ↔ mmol/L (葡萄糖) + 胰岛素抵抗分级
+12. ✅ **FENa** - mg/dL ↔ µmol/L (肌酐) + 肾前/肾内分类
+
 ## 可继续更新的计算器建议
 
 ### 高优先级（常用且需要转换）
-- 🔄 **Corrected Phenytoin** - 白蛋白单位转换
-- 🔄 **FENa** - 电解质单位
-- 🔄 **FIB-4** - 血小板和转氨酶
-- 🔄 **Free Water Deficit** - 体重和钠单位（已有部分）
+- 🔄 **NAFLD Fibrosis Score** - 葡萄糖、血小板等多单位
+- 🔄 **MELD-Na** - 肌酐和胆红素单位
+- 🔄 **Child-Pugh** - 白蛋白和胆红素单位
+- 🔄 **GRACE ACS** - 肌酐单位
 
 ### 中优先级（有益但不紧急）
 - 🔄 **ASCVD Risk** - 胆固醇单位
-- 🔄 **PREVENT CVD** - 胆固醇单位
-- 🔄 **HOMA-IR** - 葡萄糖单位
+- 🔄 **PREVENT CVD** - 胆固醇单位（已有部分实现）
+- 🔄 **Free Water Deficit** - 体重和钠单位（已有部分）
 - 🔄 **ABG Analyzer** - 各种血气单位
+- 🔄 **Anion Gap** - 电解质单位
 
 ## 测试清单
 

@@ -1,4 +1,4 @@
-import { getMostRecentObservation } from '../../utils.js';
+import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const phenytoinCorrection = {
     id: 'phenytoin-correction',
@@ -13,8 +13,8 @@ export const phenytoinCorrection = {
                 <input type="number" id="pheny-total" step="0.1">
             </div>
             <div class="input-group">
-                <label>Albumin (g/dL)</label>
-                <input type="number" id="pheny-albumin" step="0.1">
+                <label>Albumin:</label>
+                ${createUnitSelector('pheny-albumin', 'albumin', ['g/dL', 'g/L'], 'g/dL')}
             </div>
             <div class="input-group">
                 <label>Patient has Renal Failure (CrCl < 10 mL/min)?</label>
@@ -122,34 +122,94 @@ export const phenytoinCorrection = {
     },
     initialize: function(client, patient, container) {
         const totalEl = container.querySelector('#pheny-total');
-        const albuminEl = container.querySelector('#pheny-albumin');
         const renalEl = container.querySelector('#pheny-renal');
+        const resultEl = container.querySelector('#phenytoin-result');
 
-        getMostRecentObservation(client, '4038-8').then(obs => { // Phenytoin
-            if (obs && obs.valueQuantity) totalEl.value = obs.valueQuantity.value.toFixed(1);
-        });
-        getMostRecentObservation(client, '1751-7').then(obs => { // Albumin
-            if (obs && obs.valueQuantity) albuminEl.value = obs.valueQuantity.value.toFixed(1);
-        });
-
-        container.querySelector('#calculate-phenytoin').addEventListener('click', () => {
+        const calculateAndUpdate = () => {
             const totalPhenytoin = parseFloat(totalEl.value);
-            const albumin = parseFloat(albuminEl.value);
+            const albuminGdl = getValueInStandardUnit(container, 'pheny-albumin', 'g/dL');
             const hasRenalFailure = renalEl.value === 'yes';
 
-            if (isNaN(totalPhenytoin) || isNaN(albumin)) {
-                alert('Please enter all values.');
+            if (isNaN(totalPhenytoin) || !albuminGdl || albuminGdl <= 0) {
+                resultEl.style.display = 'none';
                 return;
             }
 
             const K = hasRenalFailure ? 0.2 : 0.1;
-            const correctedPhenytoin = totalPhenytoin / (( (1-K) * albumin / 4.4) + K);
+            const correctedPhenytoin = totalPhenytoin / (( (1-K) * albuminGdl / 4.4) + K);
+            
+            // Determine therapeutic status
+            let status = '';
+            let statusColor = '';
+            if (correctedPhenytoin < 10) {
+                status = 'Subtherapeutic';
+                statusColor = '#2196f3';
+            } else if (correctedPhenytoin > 20) {
+                status = 'Potentially Toxic';
+                statusColor = '#f44336';
+            } else {
+                status = 'Therapeutic Range';
+                statusColor = '#4caf50';
+            }
 
-            container.querySelector('#phenytoin-result').innerHTML = `
-                <p>Corrected Phenytoin Level: ${correctedPhenytoin.toFixed(1)} mcg/mL</p>
-                <p>Therapeutic range is typically 10-20 mcg/mL.</p>
+            resultEl.innerHTML = `
+                <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="font-size: 1.1em; margin-bottom: 8px;">Corrected Phenytoin Level:</div>
+                    <div style="font-size: 2.2em; font-weight: bold;">${correctedPhenytoin.toFixed(1)} mcg/mL</div>
+                    <div style="margin-top: 10px; padding: 8px; background: ${statusColor}; border-radius: 5px; font-size: 0.95em;">
+                        ${status}
+                    </div>
+                </div>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">Calculation Details:</h4>
+                    <div style="font-size: 0.9em; line-height: 1.6;">
+                        <div><strong>Total Phenytoin:</strong> ${totalPhenytoin.toFixed(1)} mcg/mL</div>
+                        <div><strong>Albumin:</strong> ${albuminGdl.toFixed(1)} g/dL</div>
+                        <div><strong>Renal Failure:</strong> ${hasRenalFailure ? 'Yes (K=0.2)' : 'No (K=0.1)'}</div>
+                        <div><strong>Correction Factor:</strong> ${(( (1-K) * albuminGdl / 4.4) + K).toFixed(3)}</div>
+                    </div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; font-size: 0.9em;">
+                    <strong>📊 Therapeutic Range:</strong> 10-20 mcg/mL
+                </div>
+                
+                ${correctedPhenytoin > 20 ? '<div style="background: #ffebee; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 0.9em;"><strong>⚠️ Note:</strong> Levels >20 mcg/mL may be associated with toxicity. Consider clinical correlation and dose adjustment.</div>' : ''}
             `;
-            container.querySelector('#phenytoin-result').style.display = 'block';
+            resultEl.style.display = 'block';
+        };
+
+        // Initialize unit conversion
+        initializeUnitConversion(container, 'pheny-albumin', calculateAndUpdate);
+
+        // Auto-populate from FHIR
+        getMostRecentObservation(client, '4038-8').then(obs => { // Phenytoin
+            if (obs && obs.valueQuantity) totalEl.value = obs.valueQuantity.value.toFixed(1);
+            calculateAndUpdate();
         });
+        
+        getMostRecentObservation(client, '1751-7').then(obs => { // Albumin
+            if (obs && obs.valueQuantity) {
+                const albuminInput = container.querySelector('#pheny-albumin');
+                if (albuminInput) {
+                    albuminInput.value = obs.valueQuantity.value.toFixed(1);
+                }
+            }
+            calculateAndUpdate();
+        });
+
+        // Event listeners
+        totalEl.addEventListener('input', calculateAndUpdate);
+        renalEl.addEventListener('change', calculateAndUpdate);
+
+        // Remove old calculate button listener if exists
+        const oldBtn = container.querySelector('#calculate-phenytoin');
+        if (oldBtn) {
+            oldBtn.style.display = 'none';
+        }
+        
+        // Initial calculation
+        calculateAndUpdate();
     }
 };

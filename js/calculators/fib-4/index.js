@@ -1,5 +1,5 @@
 // js/calculators/fib-4.js
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { getMostRecentObservation, calculateAge, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
 
 export const fib4 = {
     id: 'fib-4',
@@ -42,9 +42,8 @@ export const fib4 = {
                     <div class="fib4-input-card">
                         <div class="input-icon">🩸</div>
                         <div class="input-content">
-                            <label for="fib4-plt">Platelet Count</label>
-                            <input type="number" id="fib4-plt" placeholder="x10⁹/L">
-                            <span class="input-unit">×10⁹/L</span>
+                            <label for="fib4-plt">Platelet Count:</label>
+                            ${createUnitSelector('fib4-plt', 'platelet', ['×10⁹/L', 'K/µL'], '×10⁹/L')}
                         </div>
                     </div>
                 </div>
@@ -115,26 +114,21 @@ export const fib4 = {
             </div>
         `;
     },
-    initialize: function(client, patient) {
-        const ageInput = document.getElementById('fib4-age');
-        ageInput.value = calculateAge(patient.birthDate);
+    initialize: function(client, patient, container) {
+        const ageInput = container.querySelector('#fib4-age');
+        const astInput = container.querySelector('#fib4-ast');
+        const altInput = container.querySelector('#fib4-alt');
+        const resultEl = container.querySelector('#fib4-result');
+        
+        if (patient && patient.birthDate) {
+            ageInput.value = calculateAge(patient.birthDate);
+        }
 
-        getMostRecentObservation(client, '1920-8').then(obs => { // AST
-            if (obs) document.getElementById('fib4-ast').value = obs.valueQuantity.value.toFixed(0);
-        });
-        getMostRecentObservation(client, '1742-6').then(obs => { // ALT
-            if (obs) document.getElementById('fib4-alt').value = obs.valueQuantity.value.toFixed(0);
-        });
-        getMostRecentObservation(client, '777-3').then(obs => { // Platelets
-            if (obs) document.getElementById('fib4-plt').value = obs.valueQuantity.value.toFixed(0);
-        });
-
-        document.getElementById('calculate-fib4').addEventListener('click', () => {
+        const calculateAndUpdate = () => {
             const age = parseFloat(ageInput.value);
-            const ast = parseFloat(document.getElementById('fib4-ast').value);
-            const alt = parseFloat(document.getElementById('fib4-alt').value);
-            const plt = parseFloat(document.getElementById('fib4-plt').value);
-            const resultEl = document.getElementById('fib4-result');
+            const ast = parseFloat(astInput.value);
+            const alt = parseFloat(altInput.value);
+            const plt = getValueInStandardUnit(container, 'fib4-plt', '×10⁹/L');
 
             if (age > 0 && ast > 0 && alt > 0 && plt > 0) {
                 const fib4_score = (age * ast) / (plt * Math.sqrt(alt));
@@ -189,14 +183,51 @@ export const fib4 = {
                 `;
                 resultEl.style.display = 'block';
             } else {
-                resultEl.innerHTML = `
-                    <div class="fib4-result-content error">
-                        <p>⚠️ Please enter valid values for all fields.</p>
-                    </div>
-                `;
-                resultEl.style.display = 'block';
+                resultEl.style.display = 'none';
             }
+        };
+
+        // Initialize unit conversion
+        initializeUnitConversion(container, 'fib4-plt', calculateAndUpdate);
+
+        // Auto-populate from FHIR
+        getMostRecentObservation(client, '1920-8').then(obs => { // AST
+            if (obs && obs.valueQuantity) {
+                astInput.value = obs.valueQuantity.value.toFixed(0);
+            }
+            calculateAndUpdate();
         });
+        
+        getMostRecentObservation(client, '1742-6').then(obs => { // ALT
+            if (obs && obs.valueQuantity) {
+                altInput.value = obs.valueQuantity.value.toFixed(0);
+            }
+            calculateAndUpdate();
+        });
+        
+        getMostRecentObservation(client, '777-3').then(obs => { // Platelets
+            if (obs && obs.valueQuantity) {
+                const pltInput = container.querySelector('#fib4-plt');
+                if (pltInput) {
+                    pltInput.value = obs.valueQuantity.value.toFixed(0);
+                }
+            }
+            calculateAndUpdate();
+        });
+
+        // Event listeners
+        ageInput.addEventListener('input', calculateAndUpdate);
+        astInput.addEventListener('input', calculateAndUpdate);
+        altInput.addEventListener('input', calculateAndUpdate);
+
+        // Remove old calculate button, use auto-calculation
+        const oldBtn = container.querySelector('#calculate-fib4');
+        if (oldBtn) {
+            oldBtn.style.display = 'none';
+        }
+        
+        // Initial calculation
+        calculateAndUpdate();
     }
 };
 
