@@ -3,8 +3,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const abl = {
     id: 'abl',
     title: 'Maximum Allowable Blood Loss (ABL) Without Transfusion',
-    description: 'Calculates the allowable blood loss for a patient before a transfusion may be indicated.',
-    generateHTML: function() {
+    description:
+        'Calculates the allowable blood loss for a patient before a transfusion may be indicated.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -38,7 +39,7 @@ export const abl = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const weightEl = container.querySelector('#abl-weight');
         const hgbInitialEl = container.querySelector('#abl-hgb-initial');
         const hgbFinalEl = container.querySelector('#abl-hgb-final');
@@ -46,17 +47,24 @@ export const abl = {
         const resultEl = container.querySelector('#abl-result');
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '29463-7').then(obs => { // Weight
-            if (obs && obs.valueQuantity) weightEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '29463-7').then(obs => {
+            // Weight
+            if (obs && obs.valueQuantity) {
+                weightEl.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
-        getMostRecentObservation(client, '718-7').then(obs => { // Hemoglobin
-            if (obs && obs.valueQuantity) hgbInitialEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '718-7').then(obs => {
+            // Hemoglobin
+            if (obs && obs.valueQuantity) {
+                hgbInitialEl.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
 
         // Pre-select category based on patient data
         if (patient) {
             const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
-            if (age > 18) { // Adult
+            if (age > 18) {
+                // Adult
                 ageCategoryEl.value = patient.gender === 'male' ? '75' : '65';
             }
             // Note: More complex logic would be needed to differentiate infant, neonate, etc.
@@ -70,20 +78,21 @@ export const abl = {
             const avgBloodVolume = parseFloat(ageCategoryEl.value);
 
             if (isNaN(weight) || isNaN(hgbInitial) || isNaN(hgbFinal) || isNaN(avgBloodVolume)) {
-                resultEl.innerHTML = `<p class="error">Please enter all values.</p>`;
+                resultEl.innerHTML = '<p class="error">Please enter all values.</p>';
                 resultEl.style.display = 'block';
                 return;
             }
-            
+
             if (hgbInitial <= hgbFinal) {
-                resultEl.innerHTML = `<p class="error">Initial hemoglobin must be greater than final hemoglobin.</p>`;
+                resultEl.innerHTML =
+                    '<p class="error">Initial hemoglobin must be greater than final hemoglobin.</p>';
                 resultEl.style.display = 'block';
                 return;
             }
 
             const ebv = weight * avgBloodVolume; // Estimated Blood Volume in mL
             const hgbAvg = (hgbInitial + hgbFinal) / 2;
-            const ablValue = ebv * (hgbInitial - hgbFinal) / hgbAvg;
+            const ablValue = (ebv * (hgbInitial - hgbFinal)) / hgbAvg;
 
             resultEl.innerHTML = `
                 <div class="result-item">

@@ -1,11 +1,11 @@
-
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 
 export const preventCVD = {
     id: 'prevent-cvd',
     title: 'QRISK3-Based CVD Risk (UK)',
-    description: 'Predicts 10- and 30-year risk of cardiovascular disease in patients aged 30-79 without known CVD.',
-    generateHTML: function() {
+    description:
+        'Predicts 10- and 30-year risk of cardiovascular disease in patients aged 30-79 without known CVD.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -188,7 +188,7 @@ export const preventCVD = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const ageInput = container.querySelector('#qrisk-age');
         const genderSelect = container.querySelector('#qrisk-gender');
         const sbpInput = container.querySelector('#qrisk-sbp');
@@ -213,29 +213,41 @@ export const preventCVD = {
 
         // Load FHIR data if available
         if (client) {
-            getMostRecentObservation(client, '85354-9').then(bp => {
-                if (bp && bp.component) {
-                    const sbp = bp.component.find(c => c.code.coding[0].code === '8480-6');
-                    if (sbp && sbp.valueQuantity) sbpInput.value = sbp.valueQuantity.value.toFixed(0);
-                }
-            }).catch(err => console.log('BP data not available'));
+            getMostRecentObservation(client, '85354-9')
+                .then(bp => {
+                    if (bp && bp.component) {
+                        const sbp = bp.component.find(c => c.code.coding[0].code === '8480-6');
+                        if (sbp && sbp.valueQuantity) {
+                            sbpInput.value = sbp.valueQuantity.value.toFixed(0);
+                        }
+                    }
+                })
+                .catch(err => console.log('BP data not available'));
 
-            getMostRecentObservation(client, '2093-3').then(chol => {
-                if (chol && chol.valueQuantity) {
-                    // Convert mg/dL to mmol/L (divide by 38.67)
-                    cholInput.value = (chol.valueQuantity.value / 38.67).toFixed(1);
-                }
-            }).catch(err => console.log('Cholesterol data not available'));
+            getMostRecentObservation(client, '2093-3')
+                .then(chol => {
+                    if (chol && chol.valueQuantity) {
+                        // Convert mg/dL to mmol/L (divide by 38.67)
+                        cholInput.value = (chol.valueQuantity.value / 38.67).toFixed(1);
+                    }
+                })
+                .catch(err => console.log('Cholesterol data not available'));
 
-            getMostRecentObservation(client, '2085-9').then(hdl => {
-                if (hdl && hdl.valueQuantity) {
-                    hdlInput.value = (hdl.valueQuantity.value / 38.67).toFixed(1);
-                }
-            }).catch(err => console.log('HDL data not available'));
+            getMostRecentObservation(client, '2085-9')
+                .then(hdl => {
+                    if (hdl && hdl.valueQuantity) {
+                        hdlInput.value = (hdl.valueQuantity.value / 38.67).toFixed(1);
+                    }
+                })
+                .catch(err => console.log('HDL data not available'));
 
-            getMostRecentObservation(client, '33914-3').then(egfr => {
-                if (egfr && egfr.valueQuantity) egfrInput.value = egfr.valueQuantity.value.toFixed(0);
-            }).catch(err => console.log('eGFR data not available'));
+            getMostRecentObservation(client, '33914-3')
+                .then(egfr => {
+                    if (egfr && egfr.valueQuantity) {
+                        egfrInput.value = egfr.valueQuantity.value.toFixed(0);
+                    }
+                })
+                .catch(err => console.log('eGFR data not available'));
         }
 
         const calculateQRISK3 = () => {
@@ -264,7 +276,7 @@ export const preventCVD = {
                     age: 0.7939,
                     chol: 0.5105,
                     hdl: -0.9369,
-                    sbp: 0.01775695,  // Corrected: Should be much smaller than 2.7294
+                    sbp: 0.01775695, // Corrected: Should be much smaller than 2.7294
                     smoker: 0.5361,
                     diabetes: 0.8668,
                     egfr: -0.6046,
@@ -279,7 +291,7 @@ export const preventCVD = {
                     age: 0.7689,
                     chol: 0.0736,
                     hdl: -0.9499,
-                    sbp: 0.01110366,  // Corrected: Should be much smaller
+                    sbp: 0.01110366, // Corrected: Should be much smaller
                     smoker: 0.4387,
                     diabetes: 0.7693,
                     egfr: 0.5379,
@@ -295,36 +307,50 @@ export const preventCVD = {
             const coeff = coeffs[gender];
 
             // Calculate d
-            let d = coeff.constant +
-                    coeff.age * Math.log(age) +
-                    coeff.chol * Math.log(chol) +
-                    coeff.hdl * Math.log(hdl) +
-                    coeff.sbp * sbp +  // SBP should be linear, not log
-                    coeff.smoker * smoker +
-                    coeff.diabetes * diabetes +
-                    coeff.egfr * Math.log(egfr) +
-                    coeff.bpad * bpad +
-                    coeff.fhcvd * fhcvd +
-                    coeff.ckd * ckd +
-                    coeff.rheum * rheum;
+            const d =
+                coeff.constant +
+                coeff.age * Math.log(age) +
+                coeff.chol * Math.log(chol) +
+                coeff.hdl * Math.log(hdl) +
+                coeff.sbp * sbp + // SBP should be linear, not log
+                coeff.smoker * smoker +
+                coeff.diabetes * diabetes +
+                coeff.egfr * Math.log(egfr) +
+                coeff.bpad * bpad +
+                coeff.fhcvd * fhcvd +
+                coeff.ckd * ckd +
+                coeff.rheum * rheum;
 
             // Baseline survival (S0) - Age-specific
             let s0;
             if (gender === 'male') {
-                if (age < 50) s0 = 0.98;
-                else if (age < 60) s0 = 0.975;
-                else if (age < 70) s0 = 0.97;
-                else s0 = 0.96;
+                if (age < 50) {
+                    s0 = 0.98;
+                } else if (age < 60) {
+                    s0 = 0.975;
+                } else if (age < 70) {
+                    s0 = 0.97;
+                } else {
+                    s0 = 0.96;
+                }
             } else {
-                if (age < 50) s0 = 0.985;
-                else if (age < 60) s0 = 0.98;
-                else if (age < 70) s0 = 0.975;
-                else s0 = 0.97;
+                if (age < 50) {
+                    s0 = 0.985;
+                } else if (age < 60) {
+                    s0 = 0.98;
+                } else if (age < 70) {
+                    s0 = 0.975;
+                } else {
+                    s0 = 0.97;
+                }
             }
 
             // Calculate 10-year risk with mean centering
             const meanD = coeff.meanD;
-            const risk = Math.min(99.9, Math.max(0.1, 100 * (1 - Math.pow(s0, Math.exp(d - meanD)))));
+            const risk = Math.min(
+                99.9,
+                Math.max(0.1, 100 * (1 - Math.pow(s0, Math.exp(d - meanD))))
+            );
 
             let riskCategory = '';
             let riskColor = '';
@@ -352,10 +378,15 @@ export const preventCVD = {
                         <strong style="color: ${riskColor};">📊 Risk Category:</strong> <span style="color: ${riskColor}; font-weight: bold;">${riskCategory}</span>
                     </div>
                     <div style="font-size: 0.85em; color: ${riskColor}; margin-top: 10px;">
-                        ${risk < 5 ? 'Focus on lifestyle modifications: maintain healthy diet, exercise, avoid smoking.' :
-                          risk < 10 ? 'Consider lifestyle modifications and potentially blood pressure management.' :
-                          risk < 20 ? 'Pharmacological intervention (statins, BP control) likely needed. Consult healthcare provider.' :
-                          'High risk - requires intensive management. Specialist referral recommended.'}
+                        ${
+    risk < 5
+        ? 'Focus on lifestyle modifications: maintain healthy diet, exercise, avoid smoking.'
+        : risk < 10
+            ? 'Consider lifestyle modifications and potentially blood pressure management.'
+            : risk < 20
+                ? 'Pharmacological intervention (statins, BP control) likely needed. Consult healthcare provider.'
+                : 'High risk - requires intensive management. Specialist referral recommended.'
+}
                     </div>
                 </div>
             `;

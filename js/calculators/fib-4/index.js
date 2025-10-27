@@ -1,10 +1,16 @@
 // js/calculators/fib-4.js
-import { getMostRecentObservation, calculateAge, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    calculateAge,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const fib4 = {
     id: 'fib-4',
     title: 'Fibrosis-4 (FIB-4) Index',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <div class="fib4-container">
                 <div class="fib4-header">
@@ -114,12 +120,12 @@ export const fib4 = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const ageInput = container.querySelector('#fib4-age');
         const astInput = container.querySelector('#fib4-ast');
         const altInput = container.querySelector('#fib4-alt');
         const resultEl = container.querySelector('#fib4-result');
-        
+
         if (patient && patient.birthDate) {
             ageInput.value = calculateAge(patient.birthDate);
         }
@@ -132,33 +138,36 @@ export const fib4 = {
 
             if (age > 0 && ast > 0 && alt > 0 && plt > 0) {
                 const fib4_score = (age * ast) / (plt * Math.sqrt(alt));
-                
+
                 let riskClass = '';
                 let riskLabel = '';
                 let riskIcon = '';
                 let interpretation = '';
                 let recommendation = '';
-                
-                if (fib4_score < 1.30) {
+
+                if (fib4_score < 1.3) {
                     riskClass = 'low-risk';
                     riskLabel = 'Low Risk';
                     riskIcon = '✓';
                     interpretation = 'Low probability of advanced fibrosis (F3-F4)';
-                    recommendation = 'Continue routine monitoring and address underlying liver disease.';
+                    recommendation =
+                        'Continue routine monitoring and address underlying liver disease.';
                 } else if (fib4_score > 2.67) {
                     riskClass = 'high-risk';
                     riskLabel = 'High Risk';
                     riskIcon = '⚠';
                     interpretation = 'High probability of advanced fibrosis (F3-F4)';
-                    recommendation = 'Consider referral to hepatology for further evaluation and management. Additional testing with FibroScan or liver biopsy may be warranted.';
+                    recommendation =
+                        'Consider referral to hepatology for further evaluation and management. Additional testing with FibroScan or liver biopsy may be warranted.';
                 } else {
                     riskClass = 'intermediate-risk';
                     riskLabel = 'Indeterminate';
                     riskIcon = '?';
                     interpretation = 'Indeterminate risk - Further evaluation recommended';
-                    recommendation = 'Consider additional non-invasive testing (e.g., FibroScan, elastography) or liver biopsy for definitive assessment.';
+                    recommendation =
+                        'Consider additional non-invasive testing (e.g., FibroScan, elastography) or liver biopsy for definitive assessment.';
                 }
-                
+
                 resultEl.innerHTML = `
                     <div class="fib4-result-content ${riskClass}">
                         <div class="result-header">
@@ -191,21 +200,24 @@ export const fib4 = {
         initializeUnitConversion(container, 'fib4-plt', calculateAndUpdate);
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '1920-8').then(obs => { // AST
+        getMostRecentObservation(client, '1920-8').then(obs => {
+            // AST
             if (obs && obs.valueQuantity) {
                 astInput.value = obs.valueQuantity.value.toFixed(0);
             }
             calculateAndUpdate();
         });
-        
-        getMostRecentObservation(client, '1742-6').then(obs => { // ALT
+
+        getMostRecentObservation(client, '1742-6').then(obs => {
+            // ALT
             if (obs && obs.valueQuantity) {
                 altInput.value = obs.valueQuantity.value.toFixed(0);
             }
             calculateAndUpdate();
         });
-        
-        getMostRecentObservation(client, '777-3').then(obs => { // Platelets
+
+        getMostRecentObservation(client, '777-3').then(obs => {
+            // Platelets
             if (obs && obs.valueQuantity) {
                 const pltInput = container.querySelector('#fib4-plt');
                 if (pltInput) {
@@ -225,9 +237,8 @@ export const fib4 = {
         if (oldBtn) {
             oldBtn.style.display = 'none';
         }
-        
+
         // Initial calculation
         calculateAndUpdate();
     }
 };
-

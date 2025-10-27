@@ -4,7 +4,7 @@ export const ttkg = {
     id: 'ttkg',
     title: 'Transtubular Potassium Gradient (TTKG)',
     description: 'May help in assessment of hyperkalemia or hypokalemia.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -139,7 +139,7 @@ export const ttkg = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const urineKEl = container.querySelector('#ttkg-urine-k');
         const serumKEl = container.querySelector('#ttkg-serum-k');
         const urineOsmoEl = container.querySelector('#ttkg-urine-osmo');
@@ -160,48 +160,65 @@ export const ttkg = {
             }
 
             if (serumK === 0 || urineOsmo === 0) {
-                 resultValueEl.textContent = 'Serum potassium and Urine osmolality cannot be zero.';
-                 resultEl.className = 'result-box ttkg-result error'; // Add error class
-                 return;
+                resultValueEl.textContent = 'Serum potassium and Urine osmolality cannot be zero.';
+                resultEl.className = 'result-box ttkg-result error'; // Add error class
+                return;
             }
 
             resultEl.className = 'result-box ttkg-result calculated'; // Add calculated class for styling
 
             const ttkgValue = (urineK * serumOsmo) / (serumK * urineOsmo);
-            
+
             let interpretation = '';
-            if (serumK < 3.5) { // Hypokalemia
+            if (serumK < 3.5) {
+                // Hypokalemia
                 if (ttkgValue < 3) {
-                    interpretation = 'Suggests renal potassium loss is not the primary cause of hypokalemia (e.g., GI loss, transcellular shift).';
+                    interpretation =
+                        'Suggests renal potassium loss is not the primary cause of hypokalemia (e.g., GI loss, transcellular shift).';
                 } else {
                     interpretation = 'Suggests renal potassium wasting.';
                 }
-            } else if (serumK > 5.2) { // Hyperkalemia
-                 if (ttkgValue > 10) {
-                    interpretation = 'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
+            } else if (serumK > 5.2) {
+                // Hyperkalemia
+                if (ttkgValue > 10) {
+                    interpretation =
+                        'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
                 } else if (ttkgValue < 7) {
-                    interpretation = 'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
+                    interpretation =
+                        'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
                 }
             }
 
             resultValueEl.innerHTML = `TTKG = ${ttkgValue.toFixed(2)}${interpretation ? `<small>${interpretation}</small>` : ''}`;
         };
-        
+
         // LOINC codes for observations
-        getMostRecentObservation(client, '2829-0').then(obs => { // Urine potassium
-            if (obs && obs.valueQuantity) urineKEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '2829-0').then(obs => {
+            // Urine potassium
+            if (obs && obs.valueQuantity) {
+                urineKEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '2823-3').then(obs => { // Serum potassium
-            if (obs && obs.valueQuantity) serumKEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '2823-3').then(obs => {
+            // Serum potassium
+            if (obs && obs.valueQuantity) {
+                serumKEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '2697-2').then(obs => { // Urine osmolality
-            if (obs && obs.valueQuantity) urineOsmoEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '2697-2').then(obs => {
+            // Urine osmolality
+            if (obs && obs.valueQuantity) {
+                urineOsmoEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '2695-6').then(obs => { // Serum osmolality
-            if (obs && obs.valueQuantity) serumOsmoEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '2695-6').then(obs => {
+            // Serum osmolality
+            if (obs && obs.valueQuantity) {
+                serumOsmoEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculate();
         });
 

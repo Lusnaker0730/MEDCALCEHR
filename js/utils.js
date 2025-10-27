@@ -7,7 +7,8 @@
  * @returns {Promise<Object|null>} A promise that resolves to the Observation resource or null.
  */
 export function getMostRecentObservation(client, code) {
-    return client.patient.request(`Observation?code=${code}&_sort=-date&_count=1`)
+    return client.patient
+        .request(`Observation?code=${code}&_sort=-date&_count=1`)
         .then(response => {
             if (response.entry && response.entry.length > 0) {
                 return response.entry[0].resource;
@@ -39,9 +40,9 @@ export function calculateAge(birthDate) {
  * @returns {Promise<Object>} A promise that resolves to the patient resource.
  */
 export function displayPatientInfo(client, patientInfoDiv) {
-    const renderPatient = (patient) => {
+    const renderPatient = patient => {
         const name = patient.name[0];
-        const formattedName = `${name.given.join(" ")} ${name.family}`;
+        const formattedName = `${name.given.join(' ')} ${name.family}`;
         const age = calculateAge(patient.birthDate);
         patientInfoDiv.innerHTML = `
             <p><strong>Name:</strong> ${formattedName}</p>
@@ -58,7 +59,8 @@ export function displayPatientInfo(client, patientInfoDiv) {
 
     if (!client?.patient?.id) {
         if (!cachedPatient) {
-            patientInfoDiv.innerHTML = `<p>No patient data available. Please launch from the EHR.</p>`;
+            patientInfoDiv.innerHTML =
+                '<p>No patient data available. Please launch from the EHR.</p>';
         }
         return Promise.resolve(JSON.parse(cachedPatient));
     }
@@ -72,7 +74,7 @@ export function displayPatientInfo(client, patientInfoDiv) {
         error => {
             console.error(error);
             if (!cachedPatient) {
-                patientInfoDiv.innerText = "Error fetching patient data.";
+                patientInfoDiv.innerText = 'Error fetching patient data.';
             }
             throw error;
         }
@@ -87,7 +89,8 @@ export function displayPatientInfo(client, patientInfoDiv) {
  */
 export function getPatientConditions(client, codes) {
     const codeString = codes.join(',');
-    return client.patient.request(`Condition?clinical-status=active&code=${codeString}`)
+    return client.patient
+        .request(`Condition?clinical-status=active&code=${codeString}`)
         .then(response => {
             if (response.entry) {
                 return response.entry.map(e => e.resource);
@@ -112,7 +115,8 @@ export function getPatient(client) {
  * @returns {Promise<Object|null>} A promise that resolves to the observation resource or null.
  */
 export function getObservation(client, code) {
-    return client.patient.request(`Observation?code=${code}&_sort=-date&_count=1`)
+    return client.patient
+        .request(`Observation?code=${code}&_sort=-date&_count=1`)
         .then(response => {
             if (response.entry && response.entry.length > 0) {
                 return response.entry[0].resource;
@@ -120,7 +124,6 @@ export function getObservation(client, code) {
             return null;
         });
 }
-
 
 /**
  * Converts a lab value from mg/dL to mmol/L.
@@ -153,12 +156,14 @@ export function convertToMgDl(value, type) {
 }
 
 export async function getMedicationRequests(client, rxnormCodes) {
-    if (!client) return null;
+    if (!client) {
+        return null;
+    }
     try {
         const query = new URLSearchParams({
-            'code': `http://www.nlm.nih.gov/research/umls/rxnorm|${rxnormCodes.join(',')}`,
-            'patient': client.patient.id,
-            'status': 'active'
+            code: `http://www.nlm.nih.gov/research/umls/rxnorm|${rxnormCodes.join(',')}`,
+            patient: client.patient.id,
+            status: 'active'
         });
         const response = await client.request(`MedicationRequest?${query}`);
         return response.entry ? response.entry.map(e => e.resource) : [];
@@ -180,114 +185,114 @@ export const UNIT_CONVERSIONS = {
         'mg/dL': { 'mmol/L': 0.02586 },
         'mmol/L': { 'mg/dL': 38.67 }
     },
-    
+
     // Triglycerides
     triglycerides: {
         'mg/dL': { 'mmol/L': 0.01129 },
         'mmol/L': { 'mg/dL': 88.57 }
     },
-    
+
     // Glucose
     glucose: {
         'mg/dL': { 'mmol/L': 0.0555 },
         'mmol/L': { 'mg/dL': 18.018 }
     },
-    
+
     // Creatinine
     creatinine: {
         'mg/dL': { 'µmol/L': 88.4, 'umol/L': 88.4 },
         'µmol/L': { 'mg/dL': 0.0113 },
         'umol/L': { 'mg/dL': 0.0113 }
     },
-    
+
     // Calcium
     calcium: {
         'mg/dL': { 'mmol/L': 0.2495 },
         'mmol/L': { 'mg/dL': 4.008 }
     },
-    
+
     // Albumin
     albumin: {
         'g/dL': { 'g/L': 10 },
         'g/L': { 'g/dL': 0.1 }
     },
-    
+
     // Bilirubin
     bilirubin: {
         'mg/dL': { 'µmol/L': 17.1, 'umol/L': 17.1 },
         'µmol/L': { 'mg/dL': 0.0585 },
         'umol/L': { 'mg/dL': 0.0585 }
     },
-    
+
     // Hemoglobin
     hemoglobin: {
         'g/dL': { 'g/L': 10, 'mmol/L': 0.6206 },
         'g/L': { 'g/dL': 0.1 },
         'mmol/L': { 'g/dL': 1.611 }
     },
-    
+
     // Weight
     weight: {
-        'kg': { 'lbs': 2.20462, 'lb': 2.20462 },
-        'lbs': { 'kg': 0.453592 },
-        'lb': { 'kg': 0.453592 }
+        kg: { lbs: 2.20462, lb: 2.20462 },
+        lbs: { kg: 0.453592 },
+        lb: { kg: 0.453592 }
     },
-    
+
     // Height
     height: {
-        'cm': { 'in': 0.393701, 'inches': 0.393701 },
-        'in': { 'cm': 2.54 },
-        'inches': { 'cm': 2.54 },
-        'm': { 'cm': 100, 'in': 39.3701 },
-        'ft': { 'cm': 30.48 }
+        cm: { in: 0.393701, inches: 0.393701 },
+        in: { cm: 2.54 },
+        inches: { cm: 2.54 },
+        m: { cm: 100, in: 39.3701 },
+        ft: { cm: 30.48 }
     },
-    
+
     // Temperature
     temperature: {
-        'C': { 'F': (v) => v * 9/5 + 32 },
-        'F': { 'C': (v) => (v - 32) * 5/9 },
-        '°C': { '°F': (v) => v * 9/5 + 32 },
-        '°F': { '°C': (v) => (v - 32) * 5/9 }
+        C: { F: v => (v * 9) / 5 + 32 },
+        F: { C: v => ((v - 32) * 5) / 9 },
+        '°C': { '°F': v => (v * 9) / 5 + 32 },
+        '°F': { '°C': v => ((v - 32) * 5) / 9 }
     },
-    
+
     // Urea/BUN
     bun: {
         'mg/dL': { 'mmol/L': 0.357 },
         'mmol/L': { 'mg/dL': 2.801 }
     },
-    
+
     // Sodium, Potassium (same for both)
     electrolyte: {
         'mEq/L': { 'mmol/L': 1 },
         'mmol/L': { 'mEq/L': 1 }
     },
-    
+
     // Platelet count
     platelet: {
         '×10⁹/L': { '×10³/µL': 1, 'K/µL': 1 },
         '×10³/µL': { '×10⁹/L': 1 },
         'K/µL': { '×10⁹/L': 1 }
     },
-    
+
     // White blood cell count
     wbc: {
         '×10⁹/L': { '×10³/µL': 1, 'K/µL': 1 },
         '×10³/µL': { '×10⁹/L': 1 },
         'K/µL': { '×10⁹/L': 1 }
     },
-    
+
     // INR (no conversion, but included for completeness)
     inr: {
-        'ratio': { 'ratio': 1 }
+        ratio: { ratio: 1 }
     },
-    
+
     // D-dimer
     ddimer: {
         'mg/L': { 'µg/mL': 1, 'ng/mL': 1000 },
         'µg/mL': { 'mg/L': 1 },
         'ng/mL': { 'mg/L': 0.001 }
     },
-    
+
     // Fibrinogen
     fibrinogen: {
         'g/L': { 'mg/dL': 100 },
@@ -304,19 +309,25 @@ export const UNIT_CONVERSIONS = {
  * @returns {number|null} The converted value, or null if conversion not possible
  */
 export function convertUnit(value, fromUnit, toUnit, measurementType) {
-    if (fromUnit === toUnit) return value;
-    
+    if (fromUnit === toUnit) {
+        return value;
+    }
+
     const conversionData = UNIT_CONVERSIONS[measurementType];
-    if (!conversionData) return null;
-    
+    if (!conversionData) {
+        return null;
+    }
+
     const conversion = conversionData[fromUnit]?.[toUnit];
-    if (!conversion) return null;
-    
+    if (!conversion) {
+        return null;
+    }
+
     // Handle function-based conversions (e.g., temperature)
     if (typeof conversion === 'function') {
         return conversion(value);
     }
-    
+
     return value * conversion;
 }
 
@@ -329,10 +340,13 @@ export function convertUnit(value, fromUnit, toUnit, measurementType) {
  * @returns {string} HTML string for unit selector
  */
 export function createUnitSelector(inputId, measurementType, units, defaultUnit = units[0]) {
-    const unitOptions = units.map(unit => 
-        `<option value="${unit}"${unit === defaultUnit ? ' selected' : ''}>${unit}</option>`
-    ).join('');
-    
+    const unitOptions = units
+        .map(
+            unit =>
+                `<option value="${unit}"${unit === defaultUnit ? ' selected' : ''}>${unit}</option>`
+        )
+        .join('');
+
     return `
         <div style="display: flex; gap: 10px; align-items: center;">
             <input type="number" id="${inputId}" placeholder="Enter value" style="flex: 1;" step="0.1">
@@ -354,23 +368,27 @@ export function initializeUnitConversion(container, inputId, onChangeCallback) {
     const input = container.querySelector(`#${inputId}`);
     const unitSelect = container.querySelector(`#${inputId}-unit`);
     const convertedDisplay = container.querySelector(`#${inputId}-converted`);
-    
-    if (!input || !unitSelect) return;
-    
+
+    if (!input || !unitSelect) {
+        return;
+    }
+
     const measurementType = unitSelect.dataset.measurement;
-    
+
     const updateConversion = () => {
         const value = parseFloat(input.value);
         const currentUnit = unitSelect.value;
-        
+
         if (value && !isNaN(value) && convertedDisplay) {
             // Get all available units for this measurement type
-            const availableUnits = Object.keys(UNIT_CONVERSIONS[measurementType][currentUnit] || {});
-            
+            const availableUnits = Object.keys(
+                UNIT_CONVERSIONS[measurementType][currentUnit] || {}
+            );
+
             if (availableUnits.length > 0) {
                 const targetUnit = availableUnits[0];
                 const converted = convertUnit(value, currentUnit, targetUnit, measurementType);
-                
+
                 if (converted !== null) {
                     convertedDisplay.textContent = `≈ ${converted.toFixed(2)} ${targetUnit}`;
                     convertedDisplay.style.display = 'block';
@@ -383,15 +401,15 @@ export function initializeUnitConversion(container, inputId, onChangeCallback) {
         } else if (convertedDisplay) {
             convertedDisplay.style.display = 'none';
         }
-        
+
         if (onChangeCallback) {
             onChangeCallback();
         }
     };
-    
+
     input.addEventListener('input', updateConversion);
     unitSelect.addEventListener('change', updateConversion);
-    
+
     return updateConversion;
 }
 
@@ -405,17 +423,22 @@ export function initializeUnitConversion(container, inputId, onChangeCallback) {
 export function getValueInStandardUnit(container, inputId, standardUnit) {
     const input = container.querySelector(`#${inputId}`);
     const unitSelect = container.querySelector(`#${inputId}-unit`);
-    
-    if (!input || !unitSelect) return null;
-    
+
+    if (!input || !unitSelect) {
+        return null;
+    }
+
     const value = parseFloat(input.value);
     const currentUnit = unitSelect.value;
     const measurementType = unitSelect.dataset.measurement;
-    
-    if (isNaN(value)) return null;
-    
-    if (currentUnit === standardUnit) return value;
-    
+
+    if (isNaN(value)) {
+        return null;
+    }
+
+    if (currentUnit === standardUnit) {
+        return value;
+    }
+
     return convertUnit(value, currentUnit, standardUnit, measurementType);
 }
-

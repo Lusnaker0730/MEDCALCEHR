@@ -4,8 +4,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const sirs = {
     id: 'sirs',
     title: 'SIRS Criteria for Systemic Inflammatory Response',
-    description: 'Evaluates SIRS criteria and progression to sepsis and septic shock using clinical parameters.',
-    generateHTML: function() {
+    description:
+        'Evaluates SIRS criteria and progression to sepsis and septic shock using clinical parameters.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="calculator-description">${this.description}</p>
@@ -248,140 +249,161 @@ export const sirs = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         // Auto-populate vital signs and lab values
         this.populateVitalSigns(client);
-        
+
         // Set up event listeners
         this.setupEventListeners();
-        
+
         // Initial assessment
         this.assessCriteria();
     },
-    
-    populateVitalSigns: function(client) {
+
+    populateVitalSigns: function (client) {
         // Get temperature
-        getMostRecentObservation(client, '8310-5').then(tempObs => {
-            if(tempObs && tempObs.valueQuantity) {
-                const temp = tempObs.valueQuantity.value;
-                const unit = tempObs.valueQuantity.unit || '°C';
-                document.getElementById('current-temp').textContent = `${temp.toFixed(1)} ${unit}`;
-                
-                // Auto-check if abnormal (assuming Celsius)
-                if (temp < 36 || temp > 38) {
-                    document.getElementById('sirs-temp').checked = true;
-                    this.updateToggleText('sirs-temp', true);
+        getMostRecentObservation(client, '8310-5')
+            .then(tempObs => {
+                if (tempObs && tempObs.valueQuantity) {
+                    const temp = tempObs.valueQuantity.value;
+                    const unit = tempObs.valueQuantity.unit || '°C';
+                    document.getElementById('current-temp').textContent =
+                        `${temp.toFixed(1)} ${unit}`;
+
+                    // Auto-check if abnormal (assuming Celsius)
+                    if (temp < 36 || temp > 38) {
+                        document.getElementById('sirs-temp').checked = true;
+                        this.updateToggleText('sirs-temp', true);
+                    }
+                } else {
+                    document.getElementById('current-temp').textContent = 'Not available';
                 }
-            } else {
+            })
+            .catch(error => {
+                console.error('Error fetching temperature:', error);
                 document.getElementById('current-temp').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching temperature:', error);
-            document.getElementById('current-temp').textContent = 'Not available';
-        });
+            });
 
         // Get heart rate
-        getMostRecentObservation(client, '8867-4').then(hrObs => {
-            if(hrObs && hrObs.valueQuantity) {
-                const hr = hrObs.valueQuantity.value;
-                document.getElementById('current-hr').textContent = `${hr.toFixed(0)} bpm`;
-                
-                // Auto-check if >90
-                if (hr > 90) {
-                    document.getElementById('sirs-hr').checked = true;
-                    this.updateToggleText('sirs-hr', true);
+        getMostRecentObservation(client, '8867-4')
+            .then(hrObs => {
+                if (hrObs && hrObs.valueQuantity) {
+                    const hr = hrObs.valueQuantity.value;
+                    document.getElementById('current-hr').textContent = `${hr.toFixed(0)} bpm`;
+
+                    // Auto-check if >90
+                    if (hr > 90) {
+                        document.getElementById('sirs-hr').checked = true;
+                        this.updateToggleText('sirs-hr', true);
+                    }
+                } else {
+                    document.getElementById('current-hr').textContent = 'Not available';
                 }
-            } else {
+            })
+            .catch(error => {
+                console.error('Error fetching heart rate:', error);
                 document.getElementById('current-hr').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching heart rate:', error);
-            document.getElementById('current-hr').textContent = 'Not available';
-        });
+            });
 
         // Get respiratory rate
-        getMostRecentObservation(client, '9279-1').then(rrObs => {
-            if(rrObs && rrObs.valueQuantity) {
-                const rr = rrObs.valueQuantity.value;
-                document.getElementById('current-rr').textContent = `${rr.toFixed(0)} /min`;
-                
-                // Auto-check if >20
-                if (rr > 20) {
-                    document.getElementById('sirs-rr').checked = true;
-                    this.updateToggleText('sirs-rr', true);
+        getMostRecentObservation(client, '9279-1')
+            .then(rrObs => {
+                if (rrObs && rrObs.valueQuantity) {
+                    const rr = rrObs.valueQuantity.value;
+                    document.getElementById('current-rr').textContent = `${rr.toFixed(0)} /min`;
+
+                    // Auto-check if >20
+                    if (rr > 20) {
+                        document.getElementById('sirs-rr').checked = true;
+                        this.updateToggleText('sirs-rr', true);
+                    }
+                } else {
+                    document.getElementById('current-rr').textContent = 'Not available';
                 }
-            } else {
+            })
+            .catch(error => {
+                console.error('Error fetching respiratory rate:', error);
                 document.getElementById('current-rr').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching respiratory rate:', error);
-            document.getElementById('current-rr').textContent = 'Not available';
-        });
+            });
 
         // Get WBC count
-        getMostRecentObservation(client, '6690-2').then(wbcObs => {
-            if(wbcObs && wbcObs.valueQuantity && wbcObs.valueQuantity.value > 0) {
-                const wbc = wbcObs.valueQuantity.value;
-                const unit = wbcObs.valueQuantity.unit || 'cells/μL';
-                
-                // Handle different possible units
-                let displayValue, displayUnit;
-                if (unit.includes('10*3') || unit.includes('×10³') || unit.includes('K/uL') || wbc < 100) {
-                    // Already in thousands
-                    displayValue = wbc.toFixed(1);
-                    displayUnit = '×10³/μL';
+        getMostRecentObservation(client, '6690-2')
+            .then(wbcObs => {
+                if (wbcObs && wbcObs.valueQuantity && wbcObs.valueQuantity.value > 0) {
+                    const wbc = wbcObs.valueQuantity.value;
+                    const unit = wbcObs.valueQuantity.unit || 'cells/μL';
+
+                    // Handle different possible units
+                    let displayValue, displayUnit;
+                    if (
+                        unit.includes('10*3') ||
+                        unit.includes('×10³') ||
+                        unit.includes('K/uL') ||
+                        wbc < 100
+                    ) {
+                        // Already in thousands
+                        displayValue = wbc.toFixed(1);
+                        displayUnit = '×10³/μL';
+                    } else {
+                        // Convert from cells/μL to ×10³/μL
+                        displayValue = (wbc / 1000).toFixed(1);
+                        displayUnit = '×10³/μL';
+                    }
+
+                    document.getElementById('current-wbc').textContent =
+                        `${displayValue} ${displayUnit}`;
+
+                    // Auto-check if abnormal (convert to cells/μL for comparison)
+                    const wbcCells =
+                        unit.includes('10*3') ||
+                        unit.includes('×10³') ||
+                        unit.includes('K/uL') ||
+                        wbc < 100
+                            ? wbc * 1000
+                            : wbc;
+                    if (wbcCells < 4000 || wbcCells > 12000) {
+                        document.getElementById('sirs-wbc').checked = true;
+                        this.updateToggleText('sirs-wbc', true);
+                    }
                 } else {
-                    // Convert from cells/μL to ×10³/μL
-                    displayValue = (wbc / 1000).toFixed(1);
-                    displayUnit = '×10³/μL';
+                    document.getElementById('current-wbc').textContent = 'Not available';
                 }
-                
-                document.getElementById('current-wbc').textContent = `${displayValue} ${displayUnit}`;
-                
-                // Auto-check if abnormal (convert to cells/μL for comparison)
-                const wbcCells = unit.includes('10*3') || unit.includes('×10³') || unit.includes('K/uL') || wbc < 100 ? wbc * 1000 : wbc;
-                if (wbcCells < 4000 || wbcCells > 12000) {
-                    document.getElementById('sirs-wbc').checked = true;
-                    this.updateToggleText('sirs-wbc', true);
-                }
-            } else {
+            })
+            .catch(error => {
+                console.error('Error fetching WBC:', error);
                 document.getElementById('current-wbc').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching WBC:', error);
-            document.getElementById('current-wbc').textContent = 'Not available';
-        });
+            });
 
         // Reassess after data population
         setTimeout(() => this.assessCriteria(), 1000);
     },
-    
-    setupEventListeners: function() {
+
+    setupEventListeners: function () {
         const checkboxes = document.querySelectorAll('.sirs-container input[type="checkbox"]');
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
+            checkbox.addEventListener('change', e => {
                 this.updateToggleText(e.target.id, e.target.checked);
                 this.assessCriteria();
             });
         });
     },
-    
-    updateToggleText: function(checkboxId, isChecked) {
+
+    updateToggleText: function (checkboxId, isChecked) {
         const label = document.querySelector(`label[for="${checkboxId}"]`);
         const textSpan = label.querySelector('.toggle-text');
         textSpan.textContent = isChecked ? 'Yes' : 'No';
     },
-    
-    assessCriteria: function() {
+
+    assessCriteria: function () {
         // Count SIRS criteria
-            let sirsCriteriaCount = 0;
+        let sirsCriteriaCount = 0;
         const sirsCheckboxes = ['sirs-temp', 'sirs-hr', 'sirs-rr', 'sirs-wbc'];
-        
+
         sirsCheckboxes.forEach((id, index) => {
             const checkbox = document.getElementById(id);
             const statusElements = ['temp-status', 'hr-status', 'rr-status', 'wbc-status'];
             const statusEl = document.getElementById(statusElements[index]);
-            
+
             if (checkbox.checked) {
                 sirsCriteriaCount++;
                 statusEl.textContent = '1';
@@ -396,35 +418,37 @@ export const sirs = {
         document.getElementById('sirs-count').textContent = sirsCriteriaCount;
 
         // Check additional criteria
-            const hasInfection = document.getElementById('sepsis-infection').checked;
-            const hasHypotension = document.getElementById('shock-hypotension').checked;
-            
+        const hasInfection = document.getElementById('sepsis-infection').checked;
+        const hasHypotension = document.getElementById('shock-hypotension').checked;
+
         // Determine diagnosis
-            let diagnosis = '';
+        let diagnosis = '';
         let diagnosisClass = '';
         let diagnosisIcon = '';
         let diagnosisDescription = '';
 
-            if (sirsCriteriaCount >= 2) {
-                if (hasInfection) {
-                    if (hasHypotension) {
-                        diagnosis = 'Septic Shock';
+        if (sirsCriteriaCount >= 2) {
+            if (hasInfection) {
+                if (hasHypotension) {
+                    diagnosis = 'Septic Shock';
                     diagnosisClass = 'shock';
                     diagnosisIcon = '⚠️';
-                    diagnosisDescription = 'Life-threatening condition requiring immediate intensive care';
-                    } else {
-                        diagnosis = 'Sepsis';
+                    diagnosisDescription =
+                        'Life-threatening condition requiring immediate intensive care';
+                } else {
+                    diagnosis = 'Sepsis';
                     diagnosisClass = 'sepsis';
                     diagnosisIcon = '🦠';
                     diagnosisDescription = 'SIRS with confirmed or suspected infection';
-                    }
-                } else {
+                }
+            } else {
                 diagnosis = 'SIRS';
                 diagnosisClass = 'sirs';
                 diagnosisIcon = '🔥';
-                diagnosisDescription = 'Systemic Inflammatory Response Syndrome - investigate underlying cause';
-                }
-            } else {
+                diagnosisDescription =
+                    'Systemic Inflammatory Response Syndrome - investigate underlying cause';
+            }
+        } else {
             diagnosis = 'Normal';
             diagnosisClass = 'normal';
             diagnosisIcon = '✅';
@@ -437,11 +461,17 @@ export const sirs = {
         document.getElementById('diagnosis-description').textContent = diagnosisDescription;
 
         // Update progression highlighting
-        document.querySelectorAll('.progression-step').forEach(step => step.classList.remove('active'));
-        document.querySelectorAll('.management-item').forEach(item => item.classList.remove('active'));
+        document
+            .querySelectorAll('.progression-step')
+            .forEach(step => step.classList.remove('active'));
+        document
+            .querySelectorAll('.management-item')
+            .forEach(item => item.classList.remove('active'));
 
         document.querySelector(`.progression-step.${diagnosisClass}`).classList.add('active');
-        document.querySelector(`.management-item.${diagnosisClass}-management`).classList.add('active');
+        document
+            .querySelector(`.management-item.${diagnosisClass}-management`)
+            .classList.add('active');
 
         // Update diagnosis display styling
         const diagnosisDisplay = document.querySelector('.diagnosis-display');

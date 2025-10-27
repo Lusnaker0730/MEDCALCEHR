@@ -1,10 +1,16 @@
-import { getMostRecentObservation, calculateAge, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    calculateAge,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const crcl = {
     id: 'crcl',
     title: 'Creatinine Clearance (Cockcroft-Gault Equation)',
     description: 'Calculates CrCl according to the Cockcroft-Gault equation.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -64,7 +70,7 @@ export const crcl = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const ageEl = container.querySelector('#crcl-age');
         const genderEl = container.querySelector('#crcl-gender');
         const resultEl = container.querySelector('#crcl-result');
@@ -111,13 +117,13 @@ export const crcl = {
                         ${category}
                     </div>
                 `;
-                
+
                 resultEl.className = 'result calculated';
             } else {
                 // Reset to default values if inputs are invalid
                 const valueEl = resultEl.querySelector('.result-item .value');
-                valueEl.innerHTML = `-- <span class="unit">mL/min</span>`;
-                
+                valueEl.innerHTML = '-- <span class="unit">mL/min</span>';
+
                 resultEl.className = 'result';
             }
         };
@@ -135,7 +141,8 @@ export const crcl = {
         }
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, '29463-7').then(obs => { // Weight
+        getMostRecentObservation(client, '29463-7').then(obs => {
+            // Weight
             if (obs && obs.valueQuantity) {
                 const weightInput = container.querySelector('#crcl-weight');
                 if (weightInput) {
@@ -144,8 +151,9 @@ export const crcl = {
             }
             calculateAndUpdate();
         });
-        
-        getMostRecentObservation(client, '2160-0').then(obs => { // Serum Creatinine
+
+        getMostRecentObservation(client, '2160-0').then(obs => {
+            // Serum Creatinine
             if (obs && obs.valueQuantity) {
                 const scrInput = container.querySelector('#crcl-scr');
                 if (scrInput) {

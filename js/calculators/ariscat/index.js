@@ -4,8 +4,9 @@ import { calculateAge } from '../../utils.js';
 export const ariscat = {
     id: 'ariscat',
     title: 'ARISCAT Score for Postoperative Pulmonary Complications',
-    description: 'Predicts risk of pulmonary complications after surgery, including respiratory failure.',
-    generateHTML: function() {
+    description:
+        'Predicts risk of pulmonary complications after surgery, including respiratory failure.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -70,7 +71,7 @@ export const ariscat = {
             <div id="ariscat-result" class="ariscat-result-box" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const calculate = () => {
             const groups = ['age', 'spo2', 'resp', 'anemia', 'site', 'duration', 'emergency'];
             let score = 0;
@@ -113,7 +114,7 @@ export const ariscat = {
                 `;
                 resultEl.style.display = 'flex';
             } else {
-                 container.querySelector('#ariscat-result').style.display = 'none';
+                container.querySelector('#ariscat-result').style.display = 'none';
             }
         };
 
@@ -126,12 +127,18 @@ export const ariscat = {
         } else {
             ageRadios[2].checked = true;
         }
-        ageRadios.forEach(r => { if(r.checked) r.parentElement.classList.add('selected')});
+        ageRadios.forEach(r => {
+            if (r.checked) {
+                r.parentElement.classList.add('selected');
+            }
+        });
 
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.segmented-control, .radio-group');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });

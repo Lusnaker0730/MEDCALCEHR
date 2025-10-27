@@ -4,12 +4,12 @@ export const ciwaAr = {
     id: 'ciwa-ar',
     title: 'CIWA-Ar for Alcohol Withdrawal',
     description: 'The CIWA-Ar objectifies severity of alcohol withdrawal.',
-    generateHTML: function() {
+    generateHTML: function () {
         const categories = [
             {
                 id: 'nausea',
                 title: 'Nausea/vomiting',
-                prompt: "Ask 'Do you feel sick to your stomach? Have you vomited?'",
+                prompt: 'Ask \'Do you feel sick to your stomach? Have you vomited?\'',
                 options: [
                     { score: 0, text: 'No nausea and no vomiting' },
                     { score: 1, text: 'Mild nausea and no vomiting' },
@@ -18,7 +18,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Intermittent nausea with dry heaves' },
                     { score: 5, text: '(More severe symptoms)' },
                     { score: 6, text: '(More severe symptoms)' },
-                    { score: 7, text: 'Constant nausea, frequent dry heaves and vomiting' },
+                    { score: 7, text: 'Constant nausea, frequent dry heaves and vomiting' }
                 ]
             },
             {
@@ -33,7 +33,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderate, with patient\'s arms extended' },
                     { score: 5, text: '(More severe symptoms)' },
                     { score: 6, text: '(More severe symptoms)' },
-                    { score: 7, text: 'Severe, even with arms not extended' },
+                    { score: 7, text: 'Severe, even with arms not extended' }
                 ]
             },
             {
@@ -48,7 +48,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Beads of sweat obvious on forehead' },
                     { score: 5, text: '(More severe symptoms)' },
                     { score: 6, text: '(More severe symptoms)' },
-                    { score: 7, text: 'Drenching sweats' },
+                    { score: 7, text: 'Drenching sweats' }
                 ]
             },
             {
@@ -63,7 +63,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderately anxious, or guarded' },
                     { score: 5, text: '(More severe symptoms)' },
                     { score: 6, text: '(More severe symptoms)' },
-                    { score: 7, text: 'Equivalent to acute panic states' },
+                    { score: 7, text: 'Equivalent to acute panic states' }
                 ]
             },
             {
@@ -78,7 +78,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderately fidgety and restless' },
                     { score: 5, text: '(More severe symptoms)' },
                     { score: 6, text: '(More severe symptoms)' },
-                    { score: 7, text: 'Paces back and forth, or constantly thrashes about' },
+                    { score: 7, text: 'Paces back and forth, or constantly thrashes about' }
                 ]
             },
             {
@@ -93,7 +93,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderately severe hallucinations' },
                     { score: 5, text: 'Severe hallucinations' },
                     { score: 6, text: 'Extremely severe hallucinations' },
-                    { score: 7, text: 'Continuous hallucinations' },
+                    { score: 7, text: 'Continuous hallucinations' }
                 ]
             },
             {
@@ -108,7 +108,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderately severe hallucinations' },
                     { score: 5, text: 'Severe hallucinations' },
                     { score: 6, text: 'Extremely severe hallucinations' },
-                    { score: 7, text: 'Continuous hallucinations' },
+                    { score: 7, text: 'Continuous hallucinations' }
                 ]
             },
             {
@@ -123,7 +123,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderately severe hallucinations' },
                     { score: 5, text: 'Severe hallucinations' },
                     { score: 6, text: 'Extremely severe hallucinations' },
-                    { score: 7, text: 'Continuous hallucinations' },
+                    { score: 7, text: 'Continuous hallucinations' }
                 ]
             },
             {
@@ -138,7 +138,7 @@ export const ciwaAr = {
                     { score: 4, text: 'Moderately severe' },
                     { score: 5, text: 'Severe' },
                     { score: 6, text: 'Very severe' },
-                    { score: 7, text: 'Extremely severe' },
+                    { score: 7, text: 'Extremely severe' }
                 ]
             },
             {
@@ -150,9 +150,9 @@ export const ciwaAr = {
                     { score: 1, text: 'Cannot do serial additions or is uncertain about date' },
                     { score: 2, text: 'Disoriented for date by no more than 2 calendar days' },
                     { score: 3, text: 'Disoriented for date by more than 2 calendar days' },
-                    { score: 4, text: 'Disoriented for place and/or person' },
+                    { score: 4, text: 'Disoriented for place and/or person' }
                 ]
-            },
+            }
         ];
 
         let html = `
@@ -186,7 +186,7 @@ export const ciwaAr = {
         `;
         return html;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const categories = container.querySelectorAll('.ciwa-ar-category');
 
         categories.forEach(cat => {
@@ -206,7 +206,7 @@ export const ciwaAr = {
                 });
             });
         });
-        
+
         container.querySelector('#calculate-ciwa-ar').addEventListener('click', () => {
             let score = 0;
             categories.forEach(cat => {
@@ -221,11 +221,13 @@ export const ciwaAr = {
             } else if (score <= 15) {
                 severity = 'Mild to moderate withdrawal';
                 recommendation = 'Medication is usually indicated.';
-            } else { // score > 15
+            } else {
+                // score > 15
                 severity = 'Severe withdrawal';
-                recommendation = 'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.';
+                recommendation =
+                    'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.';
             }
-            
+
             const resultEl = container.querySelector('#ciwa-ar-result');
             resultEl.innerHTML = `
                 <p><strong>CIWA-Ar Score:</strong> ${score}</p>

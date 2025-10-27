@@ -4,21 +4,23 @@ export const mme = {
     id: 'mme',
     title: 'Morphine Milligram Equivalents (MME) Calculator',
     description: 'Calculates total daily morphine milligram equivalents.',
-    generateHTML: function() {
+    generateHTML: function () {
         const conversionFactors = {
-            'Codeine': 0.15,
+            Codeine: 0.15,
             'Fentanyl transdermal (mcg/hr)': 2.4,
-            'Hydrocodone': 1,
-            'Hydromorphone': 4,
+            Hydrocodone: 1,
+            Hydromorphone: 4,
             'Methadone (1-20mg/day)': 4,
             'Methadone (21-40mg/day)': 8,
             'Methadone (41-60mg/day)': 10,
             'Methadone (61-80mg/day)': 12,
-            'Morphine': 1,
-            'Oxycodone': 1.5,
-            'Oxymorphone': 3
+            Morphine: 1,
+            Oxycodone: 1.5,
+            Oxymorphone: 3
         };
-        const options = Object.keys(conversionFactors).map(k => `<option value="${k}">${k}</option>`).join('');
+        const options = Object.keys(conversionFactors)
+            .map(k => `<option value="${k}">${k}</option>`)
+            .join('');
 
         return `
             <h3>${this.title}</h3>
@@ -167,21 +169,23 @@ export const mme = {
             </div>
         `;
     },
-    initialize: function() {
+    initialize: function () {
         const conversionFactors = {
-            'Codeine': 0.15,
+            Codeine: 0.15,
             'Fentanyl transdermal (mcg/hr)': 2.4,
-            'Hydrocodone': 1,
-            'Hydromorphone': 4,
+            Hydrocodone: 1,
+            Hydromorphone: 4,
             'Methadone (1-20mg/day)': 4,
             'Methadone (21-40mg/day)': 8,
             'Methadone (41-60mg/day)': 10,
             'Methadone (61-80mg/day)': 12,
-            'Morphine': 1,
-            'Oxycodone': 1.5,
-            'Oxymorphone': 3
+            Morphine: 1,
+            Oxycodone: 1.5,
+            Oxymorphone: 3
         };
-        const options = Object.keys(conversionFactors).map(k => `<option value="${k}">${k}</option>`).join('');
+        const options = Object.keys(conversionFactors)
+            .map(k => `<option value="${k}">${k}</option>`)
+            .join('');
 
         const addOpioidRow = () => {
             const list = document.getElementById('mme-opioid-list');
@@ -193,11 +197,15 @@ export const mme = {
                 <button class="remove-opioid-btn">Remove</button>
             `;
             list.appendChild(newItem);
-            newItem.querySelector('.remove-opioid-btn').addEventListener('click', () => newItem.remove());
+            newItem
+                .querySelector('.remove-opioid-btn')
+                .addEventListener('click', () => newItem.remove());
         };
 
         document.getElementById('add-opioid-btn').addEventListener('click', addOpioidRow);
-        document.querySelector('.remove-opioid-btn').addEventListener('click', (e) => e.target.parentElement.remove());
+        document
+            .querySelector('.remove-opioid-btn')
+            .addEventListener('click', e => e.target.parentElement.remove());
 
         document.getElementById('calculate-mme').addEventListener('click', () => {
             let totalMME = 0;
@@ -207,7 +215,7 @@ export const mme = {
             items.forEach(item => {
                 const drug = item.querySelector('.opioid-select').value;
                 const dose = parseFloat(item.querySelector('.opioid-dose').value);
-                
+
                 if (drug && dose > 0) {
                     const factor = conversionFactors[drug];
                     totalMME += dose * factor;
@@ -215,16 +223,15 @@ export const mme = {
                     calculationError = true;
                 }
             });
-            
+
             const resultEl = document.getElementById('mme-result');
             if (calculationError) {
-                 resultEl.innerText = 'Please enter a valid dose for all opioids.';
-                 resultEl.style.display = 'block';
+                resultEl.innerText = 'Please enter a valid dose for all opioids.';
+                resultEl.style.display = 'block';
             } else if (items.length === 0) {
-                 resultEl.innerText = 'Please add at least one opioid.';
-                 resultEl.style.display = 'block';
-            }
-            else {
+                resultEl.innerText = 'Please add at least one opioid.';
+                resultEl.style.display = 'block';
+            } else {
                 let riskLevel = '';
                 let riskColor = '';
                 let warningMessage = '';
@@ -236,15 +243,18 @@ export const mme = {
                 } else if (totalMME < 50) {
                     riskLevel = '2x Higher Risk';
                     riskColor = '#7cb342';
-                    warningMessage = 'There is no completely safe dose when prescribing opioids at any dose and duration.';
+                    warningMessage =
+                        'There is no completely safe dose when prescribing opioids at any dose and duration.';
                 } else if (totalMME < 100) {
                     riskLevel = '3.7x Higher Risk (⚠️ Caution)';
                     riskColor = '#ff9800';
-                    warningMessage = 'Strongly consider opioid analgesics and decreasing daily opioid dose.';
+                    warningMessage =
+                        'Strongly consider opioid analgesics and decreasing daily opioid dose.';
                 } else {
                     riskLevel = '8.8x Higher Risk (⚠️ Extreme Caution)';
                     riskColor = '#d32f2f';
-                    warningMessage = 'Consult pain specialist to reassess pain management and decrease dose if clinically feasible.';
+                    warningMessage =
+                        'Consult pain specialist to reassess pain management and decrease dose if clinically feasible.';
                 }
 
                 resultEl.innerHTML = `

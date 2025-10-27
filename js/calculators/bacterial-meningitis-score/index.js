@@ -1,4 +1,3 @@
-
 import { getPatientConditions, getObservation } from '../../utils.js';
 
 export const bacterialMeningitisScore = {
@@ -110,9 +109,11 @@ export const bacterialMeningitisScore = {
         </div>
     `,
 
-    initialize: (client) => {
+    initialize: client => {
         const calculate = () => {
-            const score = Array.from(document.querySelectorAll('.form-container input:checked')).reduce((acc, input) => {
+            const score = Array.from(
+                document.querySelectorAll('.form-container input:checked')
+            ).reduce((acc, input) => {
                 return acc + parseInt(input.value);
             }, 0);
 
@@ -141,15 +142,21 @@ export const bacterialMeningitisScore = {
         // --- FHIR Integration ---
         const setRadio = (name, value) => {
             const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
-            if (radio) radio.checked = true;
+            if (radio) {
+                radio.checked = true;
+            }
         };
 
         // CSF Gram Stain (LOINC: 664-3) - checking for positive result
         getObservation(client, '664-3').then(obs => {
             if (obs && obs.valueCodeableConcept) {
                 // Assuming positive if a code indicating presence is found (example SNOMED code)
-                const isPositive = obs.valueCodeableConcept.coding.some(c => c.code === '260348003');
-                if (isPositive) setRadio('gram_stain', '2');
+                const isPositive = obs.valueCodeableConcept.coding.some(
+                    c => c.code === '260348003'
+                );
+                if (isPositive) {
+                    setRadio('gram_stain', '2');
+                }
             }
         });
 
@@ -175,12 +182,14 @@ export const bacterialMeningitisScore = {
         });
 
         // Seizure (SNOMED: 91175000)
-        getPatientConditions(client, ['91175000']).then(conditions => {
-            if (conditions.length > 0) {
-                setRadio('seizure', '1');
-            }
-        }).finally(() => {
-            setTimeout(calculate, 500); // Calculate after all FHIR data has populated
-        });
+        getPatientConditions(client, ['91175000'])
+            .then(conditions => {
+                if (conditions.length > 0) {
+                    setRadio('seizure', '1');
+                }
+            })
+            .finally(() => {
+                setTimeout(calculate, 500); // Calculate after all FHIR data has populated
+            });
     }
 };

@@ -4,7 +4,8 @@ import { getMostRecentObservation, getPatientConditions } from '../../utils.js';
 export const cpis = {
     id: 'cpis',
     title: 'Clinical Pulmonary Infection Score (CPIS) for VAP',
-    description: 'Predicts ventilator-associated pneumonia (VAP) likelihood in patients on mechanical ventilation.',
+    description:
+        'Predicts ventilator-associated pneumonia (VAP) likelihood in patients on mechanical ventilation.',
 
     generateHTML: () => `
         <div class="form-container">
@@ -160,9 +161,11 @@ export const cpis = {
         </div>
     `,
 
-    initialize: (client) => {
+    initialize: client => {
         const calculate = () => {
-            const score = Array.from(document.querySelectorAll('.form-container input:checked')).reduce((acc, input) => {
+            const score = Array.from(
+                document.querySelectorAll('.form-container input:checked')
+            ).reduce((acc, input) => {
                 return acc + parseInt(input.value);
             }, 0);
 
@@ -181,7 +184,7 @@ export const cpis = {
                 interpretationDetail.textContent = 'Score <6 suggests VAP is less likely';
                 resultBox.className = 'result-box cpis-result cpis-low-risk';
                 riskIcon.textContent = '✓';
-                
+
                 managementContent.innerHTML = `
                     <ul>
                         <li><strong>Continue monitoring:</strong> Serial clinical assessments</li>
@@ -195,7 +198,7 @@ export const cpis = {
                 interpretationDetail.textContent = 'Score ≥6 suggests VAP is likely';
                 resultBox.className = 'result-box cpis-result cpis-high-risk';
                 riskIcon.textContent = '⚠';
-                
+
                 managementContent.innerHTML = `
                     <ul>
                         <li><strong>Obtain cultures:</strong> Tracheal aspirate or BAL before antibiotics</li>
@@ -230,63 +233,70 @@ export const cpis = {
         }
 
         // Temperature (LOINC: 8310-5 - Body temperature)
-        getMostRecentObservation(client, '8310-5').then(obs => {
-            if (obs && obs.valueQuantity) {
-                let tempC = obs.valueQuantity.value;
-                // Convert to Celsius if in Fahrenheit
-                if (obs.valueQuantity.unit === 'degF' || obs.valueQuantity.code === '[degF]') {
-                    tempC = (tempC - 32) * 5/9;
+        getMostRecentObservation(client, '8310-5')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    let tempC = obs.valueQuantity.value;
+                    // Convert to Celsius if in Fahrenheit
+                    if (obs.valueQuantity.unit === 'degF' || obs.valueQuantity.code === '[degF]') {
+                        tempC = ((tempC - 32) * 5) / 9;
+                    }
+
+                    if (tempC >= 36.5 && tempC <= 38.4) {
+                        setRadio('temperature', '0');
+                    } else if (tempC >= 38.5 && tempC <= 38.9) {
+                        setRadio('temperature', '1');
+                    } else {
+                        setRadio('temperature', '2');
+                    }
                 }
-                
-                if (tempC >= 36.5 && tempC <= 38.4) {
-                    setRadio('temperature', '0');
-                } else if (tempC >= 38.5 && tempC <= 38.9) {
-                    setRadio('temperature', '1');
-                } else {
-                    setRadio('temperature', '2');
-                }
-            }
-        }).catch(err => console.log('Temperature data not available'));
+            })
+            .catch(err => console.log('Temperature data not available'));
 
         // WBC Count (LOINC: 6690-2 - Leukocytes [#/volume] in Blood by Automated count)
-        getMostRecentObservation(client, '6690-2').then(obs => {
-            if (obs && obs.valueQuantity) {
-                const wbc = obs.valueQuantity.value;
-                if (wbc >= 4 && wbc <= 11) {
-                    setRadio('wbc', '0');
-                } else {
-                    setRadio('wbc', '1'); // Default to 1, would need band % for score of 2
+        getMostRecentObservation(client, '6690-2')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    const wbc = obs.valueQuantity.value;
+                    if (wbc >= 4 && wbc <= 11) {
+                        setRadio('wbc', '0');
+                    } else {
+                        setRadio('wbc', '1'); // Default to 1, would need band % for score of 2
+                    }
                 }
-            }
-        }).catch(err => console.log('WBC data not available'));
+            })
+            .catch(err => console.log('WBC data not available'));
 
         // PaO2/FiO2 ratio - would need both PaO2 and FiO2 values
         // LOINC: 50984-4 - Oxygen [Partial pressure] in Arterial blood
         // LOINC: 3150-0 - Inhaled oxygen concentration
-        
+
         Promise.all([
             getMostRecentObservation(client, '50984-4'),
             getMostRecentObservation(client, '3150-0')
-        ]).then(([pao2Obs, fio2Obs]) => {
-            if (pao2Obs && pao2Obs.valueQuantity && fio2Obs && fio2Obs.valueQuantity) {
-                const pao2 = pao2Obs.valueQuantity.value;
-                let fio2 = fio2Obs.valueQuantity.value;
-                
-                // FiO2 might be as percentage or decimal
-                if (fio2 > 1) fio2 = fio2 / 100;
-                
-                const ratio = pao2 / fio2;
-                
-                if (ratio > 240) {
-                    setRadio('oxygenation', '0');
-                } else {
-                    setRadio('oxygenation', '2');
+        ])
+            .then(([pao2Obs, fio2Obs]) => {
+                if (pao2Obs && pao2Obs.valueQuantity && fio2Obs && fio2Obs.valueQuantity) {
+                    const pao2 = pao2Obs.valueQuantity.value;
+                    let fio2 = fio2Obs.valueQuantity.value;
+
+                    // FiO2 might be as percentage or decimal
+                    if (fio2 > 1) {
+                        fio2 = fio2 / 100;
+                    }
+
+                    const ratio = pao2 / fio2;
+
+                    if (ratio > 240) {
+                        setRadio('oxygenation', '0');
+                    } else {
+                        setRadio('oxygenation', '2');
+                    }
                 }
-            }
-        }).catch(err => console.log('Oxygenation data not available'));
+            })
+            .catch(err => console.log('Oxygenation data not available'));
 
         // Calculate initial score
         setTimeout(calculate, 500);
     }
 };
-

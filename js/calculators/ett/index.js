@@ -3,8 +3,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const ett = {
     id: 'ett',
     title: 'Endotracheal Tube (ETT) Depth and Tidal Volume Calculator',
-    description: 'Calculates estimated ETT depth and tidal volume based on patient height and gender.',
-    generateHTML: function() {
+    description:
+        'Calculates estimated ETT depth and tidal volume based on patient height and gender.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -23,13 +24,16 @@ export const ett = {
             <div id="ett-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const heightEl = container.querySelector('#ett-height');
         const genderEl = container.querySelector('#ett-gender');
         genderEl.value = patient.gender;
 
-        getMostRecentObservation(client, '8302-2').then(obs => { // Height
-            if (obs && obs.valueQuantity) heightEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '8302-2').then(obs => {
+            // Height
+            if (obs && obs.valueQuantity) {
+                heightEl.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
 
         container.querySelector('#calculate-ett').addEventListener('click', () => {
@@ -42,16 +46,16 @@ export const ett = {
             }
 
             // ETT Depth Calculation (Height/10 + 4)
-            const ettDepth = (heightCm / 10) + 4;
+            const ettDepth = heightCm / 10 + 4;
 
             // Ideal Body Weight (IBW) Calculation
             const heightIn = heightCm / 2.54;
             const heightInOver5Ft = heightIn > 60 ? heightIn - 60 : 0;
             let ibw = 0;
             if (gender === 'male') {
-                ibw = 50 + (2.3 * heightInOver5Ft);
+                ibw = 50 + 2.3 * heightInOver5Ft;
             } else {
-                ibw = 45.5 + (2.3 * heightInOver5Ft);
+                ibw = 45.5 + 2.3 * heightInOver5Ft;
             }
 
             // Tidal Volume Calculation (6-8 mL/kg of IBW)

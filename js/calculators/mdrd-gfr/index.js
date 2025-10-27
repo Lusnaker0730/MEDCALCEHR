@@ -1,10 +1,16 @@
 // js/calculators/mdrd-gfr.js
-import { getMostRecentObservation, calculateAge, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    calculateAge,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const mdrdGfr = {
     id: 'mdrd-gfr',
     title: 'MDRD GFR Equation',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
@@ -75,7 +81,7 @@ export const mdrdGfr = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const ageInput = container.querySelector('#mdrd-age');
         const genderSelect = container.querySelector('#mdrd-gender');
         const raceSelect = container.querySelector('#mdrd-race');
@@ -91,9 +97,13 @@ export const mdrdGfr = {
 
             if (creatinineMgDl > 0 && age > 0) {
                 let gfr = 175 * Math.pow(creatinineMgDl, -1.154) * Math.pow(age, -0.203);
-                if (isFemale) gfr *= 0.742;
-                if (isAA) gfr *= 1.212;
-                
+                if (isFemale) {
+                    gfr *= 0.742;
+                }
+                if (isAA) {
+                    gfr *= 1.212;
+                }
+
                 // Determine CKD stage
                 let stage = '';
                 let stageColor = '';
@@ -116,7 +126,7 @@ export const mdrdGfr = {
                     stage = 'Stage 5 (Kidney failure)';
                     stageColor = '#f44336';
                 }
-                
+
                 // Update result display
                 const valueEl = resultEl.querySelector('.result-item .value');
                 valueEl.innerHTML = `
@@ -126,13 +136,13 @@ export const mdrdGfr = {
                         ${stage}
                     </div>
                 `;
-                
+
                 resultEl.className = 'result calculated';
             } else {
                 // Reset to default values if inputs are invalid
                 const valueEl = resultEl.querySelector('.result-item .value');
-                valueEl.innerHTML = `-- <span class="unit">mL/min/1.73m²</span>`;
-                
+                valueEl.innerHTML = '-- <span class="unit">mL/min/1.73m²</span>';
+
                 resultEl.className = 'result';
             }
         };
@@ -169,4 +179,3 @@ export const mdrdGfr = {
         calculateAndUpdate();
     }
 };
-

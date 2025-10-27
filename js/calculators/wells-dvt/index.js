@@ -1,7 +1,7 @@
 export const wellsDVT = {
     id: 'wells-dvt',
-    title: "Wells' Criteria for DVT",
-    generateHTML: function() {
+    title: 'Wells\' Criteria for DVT',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>Calculates risk of DVT based on clinical criteria.</p>
@@ -21,9 +21,11 @@ export const wellsDVT = {
             <div id="wells-dvt-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function() {
+    initialize: function () {
         document.getElementById('calculate-wells-dvt').addEventListener('click', () => {
-            const checkboxes = document.querySelectorAll('.calculator-card .check-item input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll(
+                '.calculator-card .check-item input[type="checkbox"]'
+            );
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {

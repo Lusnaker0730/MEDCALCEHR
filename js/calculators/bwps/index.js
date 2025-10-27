@@ -4,7 +4,7 @@ export const bwps = {
     id: 'bwps',
     title: 'Burch-Wartofsky Point Scale (BWPS) for Thyrotoxicosis',
     description: 'Predicts likelihood that biochemical thyrotoxicosis is thyroid storm.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -90,17 +90,17 @@ export const bwps = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const fields = ['temp', 'cns', 'gi', 'hr', 'chf', 'afib', 'precip'];
         const resultValueEl = container.querySelector('#bwps-result .result-value');
         const resultEl = container.querySelector('#bwps-result');
-        
+
         const calculate = () => {
             let score = 0;
             let allAnswered = true;
             fields.forEach(id => {
                 const el = container.querySelector(`#bwps-${id}`);
-                if (el.value === "") {
+                if (el.value === '') {
                     allAnswered = false;
                 } else {
                     score += parseInt(el.value);
@@ -121,43 +121,59 @@ export const bwps = {
             } else {
                 interpretation = 'Score <25 is unlikely to represent thyroid storm.';
             }
-            
+
             resultEl.className = 'result-box ttkg-result calculated';
             resultValueEl.innerHTML = `
                 <div style="font-size: 1.5em; font-weight: bold;">${score} points</div>
                 ${interpretation}
             `;
         };
-        
+
         // Auto-populate data
-        getMostRecentObservation(client, '8310-5').then(obs => { // Temperature F
-             if (obs && obs.valueQuantity) {
+        getMostRecentObservation(client, '8310-5').then(obs => {
+            // Temperature F
+            if (obs && obs.valueQuantity) {
                 const tempF = obs.valueQuantity.value;
                 const tempSelect = container.querySelector('#bwps-temp');
-                if (tempF < 99) tempSelect.value = "0";
-                else if (tempF < 100) tempSelect.value = "5";
-                else if (tempF < 101) tempSelect.value = "10";
-                else if (tempF < 102) tempSelect.value = "15";
-                else if (tempF < 103) tempSelect.value = "20";
-                else if (tempF < 104) tempSelect.value = "25";
-                else tempSelect.value = "30";
-             }
-             calculate();
+                if (tempF < 99) {
+                    tempSelect.value = '0';
+                } else if (tempF < 100) {
+                    tempSelect.value = '5';
+                } else if (tempF < 101) {
+                    tempSelect.value = '10';
+                } else if (tempF < 102) {
+                    tempSelect.value = '15';
+                } else if (tempF < 103) {
+                    tempSelect.value = '20';
+                } else if (tempF < 104) {
+                    tempSelect.value = '25';
+                } else {
+                    tempSelect.value = '30';
+                }
+            }
+            calculate();
         });
-        getMostRecentObservation(client, '8867-4').then(obs => { // Heart Rate
-             if (obs && obs.valueQuantity) {
+        getMostRecentObservation(client, '8867-4').then(obs => {
+            // Heart Rate
+            if (obs && obs.valueQuantity) {
                 const hr = obs.valueQuantity.value;
                 const hrSelect = container.querySelector('#bwps-hr');
-                if (hr < 90) hrSelect.value = "0";
-                else if (hr < 110) hrSelect.value = "5";
-                else if (hr < 120) hrSelect.value = "10";
-                else if (hr < 130) hrSelect.value = "15";
-                else if (hr < 140) hrSelect.value = "20";
-                else hrSelect.value = "25";
-             }
-             calculate();
+                if (hr < 90) {
+                    hrSelect.value = '0';
+                } else if (hr < 110) {
+                    hrSelect.value = '5';
+                } else if (hr < 120) {
+                    hrSelect.value = '10';
+                } else if (hr < 130) {
+                    hrSelect.value = '15';
+                } else if (hr < 140) {
+                    hrSelect.value = '20';
+                } else {
+                    hrSelect.value = '25';
+                }
+            }
+            calculate();
         });
-
 
         fields.forEach(id => {
             container.querySelector(`#bwps-${id}`).addEventListener('change', calculate);

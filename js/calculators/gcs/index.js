@@ -4,7 +4,7 @@ export const gcs = {
     id: 'gcs',
     title: 'Glasgow Coma Scale (GCS)',
     description: 'Coma severity based on Eye (4), Verbal (5), and Motor (6) criteria.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>Coma severity based on Eye (4), Verbal (5), and Motor (6) criteria.</p>
@@ -70,11 +70,15 @@ export const gcs = {
             <div id="gcs-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function() {
+    initialize: function () {
         document.getElementById('calculate-gcs').addEventListener('click', () => {
             const eyeScore = parseInt(document.querySelector('input[name="eye"]:checked').value);
-            const verbalScore = parseInt(document.querySelector('input[name="verbal"]:checked').value);
-            const motorScore = parseInt(document.querySelector('input[name="motor"]:checked').value);
+            const verbalScore = parseInt(
+                document.querySelector('input[name="verbal"]:checked').value
+            );
+            const motorScore = parseInt(
+                document.querySelector('input[name="motor"]:checked').value
+            );
             const totalScore = eyeScore + verbalScore + motorScore;
 
             let severity = '';
@@ -82,10 +86,11 @@ export const gcs = {
                 severity = 'Mild brain injury';
             } else if (totalScore >= 9) {
                 severity = 'Moderate brain injury';
-            } else { // <= 8
+            } else {
+                // <= 8
                 severity = 'Severe brain injury';
             }
-            
+
             const resultEl = document.getElementById('gcs-result');
             resultEl.innerHTML = `
                 <p><strong>Total GCS Score:</strong> ${totalScore} (E${eyeScore}V${verbalScore}M${motorScore})</p>

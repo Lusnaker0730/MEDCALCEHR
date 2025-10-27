@@ -1,10 +1,10 @@
-
 import { getPatient, getPatientConditions, getObservation } from '../../utils.js';
 
 export const garfieldAf = {
     id: 'garfield-af',
     title: 'GARFIELD-AF Risk Score',
-    description: 'Predicts mortality, stroke, and bleeding in patients with and w/out anticoagulation.',
+    description:
+        'Predicts mortality, stroke, and bleeding in patients with and w/out anticoagulation.',
 
     generateHTML: () => `
         <div class="form-container">
@@ -151,52 +151,127 @@ export const garfieldAf = {
         </div>
     `,
 
-    initialize: (client) => {
+    initialize: client => {
         // Coefficients and baseline survival from GARFIELD-AF risk tool paper
         const modelData = {
             mortality: {
-                coeffs: { age: 0.076, female: -0.165, weight: -0.007, hf: 0.638, vascular: 0.168, stroke: 0.380, bleed: 0.354, carotid: 0.334, diabetes: 0.161, ckd: 0.490, dementia: 0.404, smoker: 0.421, pulse: 0.008, dbp: -0.006, oac_noac: -0.402, oac_vka: -0.270, antiplatelet: 0.198, ethnicity_black: 0.134, ethnicity_asian: -0.420, ethnicity_hispanic: -0.091 },
+                coeffs: {
+                    age: 0.076,
+                    female: -0.165,
+                    weight: -0.007,
+                    hf: 0.638,
+                    vascular: 0.168,
+                    stroke: 0.38,
+                    bleed: 0.354,
+                    carotid: 0.334,
+                    diabetes: 0.161,
+                    ckd: 0.49,
+                    dementia: 0.404,
+                    smoker: 0.421,
+                    pulse: 0.008,
+                    dbp: -0.006,
+                    oac_noac: -0.402,
+                    oac_vka: -0.27,
+                    antiplatelet: 0.198,
+                    ethnicity_black: 0.134,
+                    ethnicity_asian: -0.42,
+                    ethnicity_hispanic: -0.091
+                },
                 baseline: { t6m: 0.985, t1y: 0.969, t2y: 0.935 }
             },
             stroke: {
-                coeffs: { age: 0.038, female: 0.021, weight: -0.008, hf: 0.098, vascular: 0.315, stroke: 0.811, bleed: 0.021, carotid: 0.228, diabetes: 0.052, ckd: 0.076, dementia: 0.288, smoker: 0.131, pulse: 0.002, dbp: -0.008, oac_noac: -0.366, oac_vka: -0.490, antiplatelet: 0.128, ethnicity_black: 0.176, ethnicity_asian: -0.040, ethnicity_hispanic: 0.057 },
+                coeffs: {
+                    age: 0.038,
+                    female: 0.021,
+                    weight: -0.008,
+                    hf: 0.098,
+                    vascular: 0.315,
+                    stroke: 0.811,
+                    bleed: 0.021,
+                    carotid: 0.228,
+                    diabetes: 0.052,
+                    ckd: 0.076,
+                    dementia: 0.288,
+                    smoker: 0.131,
+                    pulse: 0.002,
+                    dbp: -0.008,
+                    oac_noac: -0.366,
+                    oac_vka: -0.49,
+                    antiplatelet: 0.128,
+                    ethnicity_black: 0.176,
+                    ethnicity_asian: -0.04,
+                    ethnicity_hispanic: 0.057
+                },
                 baseline: { t6m: 0.994, t1y: 0.989, t2y: 0.978 }
             },
             bleeding: {
-                coeffs: { age: 0.016, female: 0.124, weight: -0.004, hf: 0.147, vascular: 0.170, stroke: 0.110, bleed: 0.697, carotid: 0.111, diabetes: 0.071, ckd: 0.364, dementia: 0.008, smoker: 0.079, pulse: 0.002, dbp: -0.001, oac_noac: 0.648, oac_vka: 0.706, antiplatelet: 0.385, ethnicity_black: 0.007, ethnicity_asian: 0.284, ethnicity_hispanic: -0.229 },
+                coeffs: {
+                    age: 0.016,
+                    female: 0.124,
+                    weight: -0.004,
+                    hf: 0.147,
+                    vascular: 0.17,
+                    stroke: 0.11,
+                    bleed: 0.697,
+                    carotid: 0.111,
+                    diabetes: 0.071,
+                    ckd: 0.364,
+                    dementia: 0.008,
+                    smoker: 0.079,
+                    pulse: 0.002,
+                    dbp: -0.001,
+                    oac_noac: 0.648,
+                    oac_vka: 0.706,
+                    antiplatelet: 0.385,
+                    ethnicity_black: 0.007,
+                    ethnicity_asian: 0.284,
+                    ethnicity_hispanic: -0.229
+                },
                 baseline: { t6m: 0.993, t1y: 0.985, t2y: 0.971 }
             }
         };
 
         const calculate = () => {
-            const getRadioValue = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || '0';
-            const getNumeric = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const getRadioValue = name =>
+                document.querySelector(`input[name="${name}"]:checked`)?.value || '0';
+            const getNumeric = id => parseFloat(document.getElementById(id).value) || 0;
 
             const values = {
-                age: getNumeric('age'), female: parseInt(getRadioValue('sex')), weight: getNumeric('weight'),
-                hf: parseInt(getRadioValue('heart_failure')), vascular: parseInt(getRadioValue('vascular_disease')), stroke: parseInt(getRadioValue('prior_stroke')),
-                bleed: parseInt(getRadioValue('bleeding_history')), carotid: parseInt(getRadioValue('carotid_disease')), diabetes: parseInt(getRadioValue('diabetes')),
-                ckd: parseInt(getRadioValue('ckd')), dementia: parseInt(getRadioValue('dementia')), smoker: parseInt(getRadioValue('smoker')),
-                pulse: getNumeric('pulse'), dbp: getNumeric('dbp'), antiplatelet: parseInt(getRadioValue('antiplatelet')),
-                oac_noac: getRadioValue('oac') === 'noac' ? 1 : 0, oac_vka: getRadioValue('oac') === 'vka' ? 1 : 0,
+                age: getNumeric('age'),
+                female: parseInt(getRadioValue('sex')),
+                weight: getNumeric('weight'),
+                hf: parseInt(getRadioValue('heart_failure')),
+                vascular: parseInt(getRadioValue('vascular_disease')),
+                stroke: parseInt(getRadioValue('prior_stroke')),
+                bleed: parseInt(getRadioValue('bleeding_history')),
+                carotid: parseInt(getRadioValue('carotid_disease')),
+                diabetes: parseInt(getRadioValue('diabetes')),
+                ckd: parseInt(getRadioValue('ckd')),
+                dementia: parseInt(getRadioValue('dementia')),
+                smoker: parseInt(getRadioValue('smoker')),
+                pulse: getNumeric('pulse'),
+                dbp: getNumeric('dbp'),
+                antiplatelet: parseInt(getRadioValue('antiplatelet')),
+                oac_noac: getRadioValue('oac') === 'noac' ? 1 : 0,
+                oac_vka: getRadioValue('oac') === 'vka' ? 1 : 0,
                 ethnicity_black: getRadioValue('ethnicity') === 'black' ? 1 : 0,
                 ethnicity_asian: getRadioValue('ethnicity') === 'asian' ? 1 : 0,
                 ethnicity_hispanic: getRadioValue('ethnicity') === 'hispanic' ? 1 : 0
             };
 
-            const calculateRisk = (outcome) => {
+            const calculateRisk = outcome => {
                 const lp = Object.keys(modelData[outcome].coeffs).reduce((sum, key) => {
-                    return sum + (modelData[outcome].coeffs[key] * (values[key] || 0));
+                    return sum + modelData[outcome].coeffs[key] * (values[key] || 0);
                 }, 0);
 
                 const S0 = modelData[outcome].baseline;
                 return {
                     t6m: (1 - Math.pow(S0.t6m, Math.exp(lp))) * 100,
                     t1y: (1 - Math.pow(S0.t1y, Math.exp(lp))) * 100,
-                    t2y: (1 - Math.pow(S0.t2y, Math.exp(lp))) * 100,
+                    t2y: (1 - Math.pow(S0.t2y, Math.exp(lp))) * 100
                 };
             };
-            
+
             const mortalityRisk = calculateRisk('mortality');
             const strokeRisk = calculateRisk('stroke');
             const bleedingRisk = calculateRisk('bleeding');
@@ -217,9 +292,21 @@ export const garfieldAf = {
                     </div>
                 </div>`;
 
-            document.getElementById('result_6m').innerHTML = formatResult(mortalityRisk.t6m, strokeRisk.t6m, bleedingRisk.t6m);
-            document.getElementById('result_1y').innerHTML = formatResult(mortalityRisk.t1y, strokeRisk.t1y, bleedingRisk.t1y);
-            document.getElementById('result_2y').innerHTML = formatResult(mortalityRisk.t2y, strokeRisk.t2y, bleedingRisk.t2y);
+            document.getElementById('result_6m').innerHTML = formatResult(
+                mortalityRisk.t6m,
+                strokeRisk.t6m,
+                bleedingRisk.t6m
+            );
+            document.getElementById('result_1y').innerHTML = formatResult(
+                mortalityRisk.t1y,
+                strokeRisk.t1y,
+                bleedingRisk.t1y
+            );
+            document.getElementById('result_2y').innerHTML = formatResult(
+                mortalityRisk.t2y,
+                strokeRisk.t2y,
+                bleedingRisk.t2y
+            );
         };
 
         // Add visual feedback for radio button selections
@@ -279,48 +366,82 @@ export const garfieldAf = {
         };
 
         getPatient(client).then(patient => {
-            if (patient.gender === 'female') setRadio('sex', '1');
+            if (patient.gender === 'female') {
+                setRadio('sex', '1');
+            }
             const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
             setInput('age', age, 0);
         });
 
         const conditionMap = {
-            '84114007': 'heart_failure', '49601007': 'vascular_disease', '230690007': 'prior_stroke',
-            '131148009': 'bleeding_history', '51275005': 'carotid_disease', '44054006': 'diabetes', '52448006': 'dementia'
+            84114007: 'heart_failure',
+            49601007: 'vascular_disease',
+            230690007: 'prior_stroke',
+            131148009: 'bleeding_history',
+            51275005: 'carotid_disease',
+            44054006: 'diabetes',
+            52448006: 'dementia'
         };
         getPatientConditions(client, Object.keys(conditionMap)).then(conditions => {
             conditions.forEach(c => {
                 const key = conditionMap[c.code.coding[0].code];
-                if (key) setRadio(key, '1');
+                if (key) {
+                    setRadio(key, '1');
+                }
             });
         });
 
-        getObservation(client, "33914-3").then(egfr => { // eGFR
-            if (egfr && egfr.valueQuantity && egfr.valueQuantity.value < 60) setRadio('ckd', '1');
-        });
-        getObservation(client, "72166-2").then(smoking => { // Smoking
-            if (smoking && smoking.valueCodeableConcept && smoking.valueCodeableConcept.coding.some(c => c.code === '449868002')) setRadio('smoker', '1');
-        });
-        getObservation(client, "29463-7").then(obs => setInput('weight', obs.valueQuantity.value, 1));
-        getObservation(client, "8867-4").then(obs => setInput('pulse', obs.valueQuantity.value, 0));
-        getObservation(client, "8462-4").then(obs => setInput('dbp', obs.valueQuantity.value, 0));
-
-        client.patient.request(`MedicationStatement?status=active&category=outpatient`).then(meds => {
-             if (meds.entry) {
-                const antiplatelets = ['1191', '32968']; // Aspirin, Clopidogrel
-                const noacs = ['1364430', '1339905', '1490481']; // Apixaban, Dabigatran, Rivaroxaban
-                const vkas = ['11289']; // Warfarin
-                
-                meds.entry.forEach(e => {
-                    const code = e.resource.medicationCodeableConcept?.coding.find(c => c.system === 'http://www.nlm.nih.gov/research/umls/rxnorm')?.code;
-                    if (!code) return;
-                    if (antiplatelets.includes(code)) setRadio('antiplatelet', '1');
-                    if (noacs.includes(code)) setRadio('oac', 'noac');
-                    if (vkas.includes(code)) setRadio('oac', 'vka');
-                });
+        getObservation(client, '33914-3').then(egfr => {
+            // eGFR
+            if (egfr && egfr.valueQuantity && egfr.valueQuantity.value < 60) {
+                setRadio('ckd', '1');
             }
-        }).finally(() => {
-            setTimeout(calculate, 500);
         });
+        getObservation(client, '72166-2').then(smoking => {
+            // Smoking
+            if (
+                smoking &&
+                smoking.valueCodeableConcept &&
+                smoking.valueCodeableConcept.coding.some(c => c.code === '449868002')
+            ) {
+                setRadio('smoker', '1');
+            }
+        });
+        getObservation(client, '29463-7').then(obs =>
+            setInput('weight', obs.valueQuantity.value, 1)
+        );
+        getObservation(client, '8867-4').then(obs => setInput('pulse', obs.valueQuantity.value, 0));
+        getObservation(client, '8462-4').then(obs => setInput('dbp', obs.valueQuantity.value, 0));
+
+        client.patient
+            .request('MedicationStatement?status=active&category=outpatient')
+            .then(meds => {
+                if (meds.entry) {
+                    const antiplatelets = ['1191', '32968']; // Aspirin, Clopidogrel
+                    const noacs = ['1364430', '1339905', '1490481']; // Apixaban, Dabigatran, Rivaroxaban
+                    const vkas = ['11289']; // Warfarin
+
+                    meds.entry.forEach(e => {
+                        const code = e.resource.medicationCodeableConcept?.coding.find(
+                            c => c.system === 'http://www.nlm.nih.gov/research/umls/rxnorm'
+                        )?.code;
+                        if (!code) {
+                            return;
+                        }
+                        if (antiplatelets.includes(code)) {
+                            setRadio('antiplatelet', '1');
+                        }
+                        if (noacs.includes(code)) {
+                            setRadio('oac', 'noac');
+                        }
+                        if (vkas.includes(code)) {
+                            setRadio('oac', 'vka');
+                        }
+                    });
+                }
+            })
+            .finally(() => {
+                setTimeout(calculate, 500);
+            });
     }
 };

@@ -3,8 +3,9 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 export const actionIcu = {
     id: 'action-icu',
     title: 'ACTION ICU Score for Intensive Care in NSTEMI',
-    description: 'Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI.',
-    generateHTML: function() {
+    description:
+        'Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -77,8 +78,11 @@ export const actionIcu = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
-        const riskMap = [3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0, 81.7, 86.6, 90.6]; // Index is score, value is risk %
+    initialize: function (client, patient, container) {
+        const riskMap = [
+            3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0,
+            81.7, 86.6, 90.6
+        ]; // Index is score, value is risk %
 
         const calculate = () => {
             const groups = ['age', 'creatinine', 'hr', 'sbp', 'troponin', 'hf', 'st', 'revasc'];
@@ -95,7 +99,8 @@ export const actionIcu = {
             });
 
             if (allAnswered) {
-                const riskPercent = score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
+                const riskPercent =
+                    score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
                 const resultEl = container.querySelector('#action-icu-result');
                 resultEl.innerHTML = `
                     <div class="score-section">
@@ -115,7 +120,9 @@ export const actionIcu = {
         };
 
         const setRadioWithValue = (name, value, conditions) => {
-            if (value === null) return;
+            if (value === null) {
+                return;
+            }
             for (const [radioIndex, condition] of conditions.entries()) {
                 if (condition(value)) {
                     const radio = container.querySelectorAll(`input[name="${name}"]`)[radioIndex];
@@ -130,29 +137,51 @@ export const actionIcu = {
 
         const patientAge = calculateAge(patient.birthDate);
         setRadioWithValue('age', patientAge, [v => v < 70, v => v >= 70]);
-        
-        getMostRecentObservation(client, '2160-0').then(obs => { // Serum Creatinine
-            if (obs && obs.valueQuantity) setRadioWithValue('creatinine', obs.valueQuantity.value, [v => v < 1.1, v => v >= 1.1]);
+
+        getMostRecentObservation(client, '2160-0').then(obs => {
+            // Serum Creatinine
+            if (obs && obs.valueQuantity) {
+                setRadioWithValue('creatinine', obs.valueQuantity.value, [
+                    v => v < 1.1,
+                    v => v >= 1.1
+                ]);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '8867-4').then(obs => { // Heart Rate
-            if (obs && obs.valueQuantity) setRadioWithValue('hr', obs.valueQuantity.value, [v => v < 85, v => v >= 85 && v <= 100, v => v > 100]);
+        getMostRecentObservation(client, '8867-4').then(obs => {
+            // Heart Rate
+            if (obs && obs.valueQuantity) {
+                setRadioWithValue('hr', obs.valueQuantity.value, [
+                    v => v < 85,
+                    v => v >= 85 && v <= 100,
+                    v => v > 100
+                ]);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '8480-6').then(obs => { // Systolic Blood Pressure
-             if (obs && obs.valueQuantity) setRadioWithValue('sbp', obs.valueQuantity.value, [v => v >= 145, v => v >= 125 && v < 145, v => v < 125]);
-             calculate();
+        getMostRecentObservation(client, '8480-6').then(obs => {
+            // Systolic Blood Pressure
+            if (obs && obs.valueQuantity) {
+                setRadioWithValue('sbp', obs.valueQuantity.value, [
+                    v => v >= 145,
+                    v => v >= 125 && v < 145,
+                    v => v < 125
+                ]);
+            }
+            calculate();
         });
-        
+
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.segmented-control, .radio-group');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });
         });
-        
+
         calculate(); // Initial calculation
     }
 };

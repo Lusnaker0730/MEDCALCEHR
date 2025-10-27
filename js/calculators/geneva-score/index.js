@@ -5,7 +5,7 @@ export const genevaScore = {
     id: 'geneva-score',
     title: 'Revised Geneva Score (Simplified)',
     description: 'Estimates the pre-test probability of pulmonary embolism (PE).',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -40,28 +40,28 @@ export const genevaScore = {
             <div id="geneva-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         // If only one parameter is passed (old style), use it as container
         if (!container && typeof client === 'object' && client.nodeType === 1) {
             container = client;
         }
-        
+
         // Use document if container is not a DOM element
         const root = container || document;
-        
+
         const calculateBtn = root.querySelector('#calculate-geneva');
         if (!calculateBtn) {
             console.error('Calculate button not found');
             return;
         }
-        
+
         // Auto-populate age
         const age = calculateAge(patient.birthDate);
         const ageCheckbox = root.querySelector('#geneva-age');
         if (age > 65 && ageCheckbox) {
             ageCheckbox.checked = true;
         }
-        
+
         // Auto-populate heart rate
         const hrInput = root.querySelector('#geneva-hr');
         if (hrInput) {
@@ -71,7 +71,7 @@ export const genevaScore = {
                 }
             });
         }
-        
+
         calculateBtn.addEventListener('click', () => {
             let score = 0;
             const checkboxes = root.querySelectorAll('#geneva-form input[type="checkbox"]:checked');
@@ -90,7 +90,7 @@ export const genevaScore = {
             let probability = '';
             let riskLevel = '';
             let bgColor = '';
-            
+
             // Using three-level classification
             if (score <= 1) {
                 probability = 'Low Clinical Probability';
@@ -128,16 +128,20 @@ export const genevaScore = {
                 </div>
             `;
             resultEl.style.display = 'block';
-            resultEl.style.backgroundColor = score <= 1 ? '#d4edda' : (score <= 4 ? '#fff3cd' : '#f8d7da');
-            resultEl.style.borderColor = score <= 1 ? '#c3e6cb' : (score <= 4 ? '#ffc107' : '#f5c6cb');
+            resultEl.style.backgroundColor =
+                score <= 1 ? '#d4edda' : score <= 4 ? '#fff3cd' : '#f8d7da';
+            resultEl.style.borderColor =
+                score <= 1 ? '#c3e6cb' : score <= 4 ? '#ffc107' : '#f5c6cb';
         });
-        
+
         // Auto-populate patient age if available
         if (patient && patient.birthDate) {
             const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
             if (age > 65) {
                 const ageCheckbox = root.querySelector('#geneva-age');
-                if (ageCheckbox) ageCheckbox.checked = true;
+                if (ageCheckbox) {
+                    ageCheckbox.checked = true;
+                }
             }
         }
     }

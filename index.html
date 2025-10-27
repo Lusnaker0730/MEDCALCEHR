@@ -1,52 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CGMH EHRCALC</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚕️</text></svg>">
-    <link rel="stylesheet" href="style.css">
-    <script>
-        // Redirect to launch.html if this page is loaded directly,
-        // the URL doesn't contain a "state" parameter,
-        // and there is no active FHIR session data in sessionStorage.
-        if (!/state=/.test(location.search) && !sessionStorage.getItem('SMART_KEY')) {
-            window.location.href = 'launch.html';
-        }
-    </script>
-</head>
-<body>
-    <div class="container">
-        <div class="sticky-header">
-            <h1>CGMH EHRCALC on FHIR</h1>
-            <div id="patient-info">Loading patient data...</div>
-            <hr>
-            <div class="calculators-header">
-                <h2>Available Calculators</h2>
-                <div class="controls-row">
-                    <div class="search-container">
-                        <input type="search" id="search-bar" placeholder="Search for a calculator...">
-                    </div>
-                    <div class="sort-container">
-                        <label for="sort-select">Sort:</label>
-                        <select id="sort-select">
-                            <option value="a-z">A → Z</option>
-                            <option value="z-a">Z → A</option>
-                            <option value="recently-added">Recently Added</option>
-                            <option value="most-used">Most Used</option>
-                        </select>
+<!doctype html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <!-- Security Headers -->
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org;"
+        />
+        <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+        <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+        <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+        <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+
+        <title>CGMH EHRCALC</title>
+        <meta
+            name="description"
+            content="92 Clinical Calculators for Healthcare Professionals integrated with FHIR EHR systems"
+        />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚕️</text></svg>"
+        />
+        <link rel="stylesheet" href="style.css" />
+        <script>
+            // Redirect to launch.html if this page is loaded directly,
+            // the URL doesn't contain a "state" parameter,
+            // and there is no active FHIR session data in sessionStorage.
+            if (!/state=/.test(location.search) && !sessionStorage.getItem('SMART_KEY')) {
+                window.location.href = 'launch.html';
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="sticky-header">
+                <h1>CGMH EHRCALC on FHIR</h1>
+                <div id="patient-info">Loading patient data...</div>
+                <hr />
+                <div class="calculators-header">
+                    <h2>Available Calculators</h2>
+                    <div class="controls-row">
+                        <div class="search-container">
+                            <input
+                                type="search"
+                                id="search-bar"
+                                placeholder="Search for a calculator..."
+                            />
+                        </div>
+                        <div class="sort-container">
+                            <label for="sort-select">Sort:</label>
+                            <select id="sort-select">
+                                <option value="a-z">A → Z</option>
+                                <option value="z-a">Z → A</option>
+                                <option value="recently-added">Recently Added</option>
+                                <option value="most-used">Most Used</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="content-area">
-            <div id="calculator-list" class="calculator-list">
-                <!-- Calculator links will be dynamically inserted here -->
+            <div class="content-area">
+                <div id="calculator-list" class="calculator-list">
+                    <!-- Calculator links will be dynamically inserted here -->
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
-    <script type="module" src="js/main.js"></script>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
+        <script type="module" src="js/main.js"></script>
+    </body>
 </html>

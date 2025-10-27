@@ -4,8 +4,9 @@ import { calculateAge } from '../../utils.js';
 export const centor = {
     id: 'centor',
     title: 'Centor Score (Modified/McIsaac) for Strep Pharyngitis',
-    description: 'Estimates probability that pharyngitis is streptococcal, and suggests management course.',
-    generateHTML: function() {
+    description:
+        'Estimates probability that pharyngitis is streptococcal, and suggests management course.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -29,7 +30,7 @@ export const centor = {
             <div id="centor-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient) {
+    initialize: function (client, patient) {
         const age = calculateAge(patient.birthDate);
         if (age >= 3 && age <= 14) {
             document.getElementById('age-under-15').checked = true;
@@ -57,8 +58,10 @@ export const centor = {
                 recommendation = 'Consider throat culture or rapid antigen testing.';
             } else if (score === 3) {
                 probability = '≈56%';
-                recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
-            } else { // score >= 4
+                recommendation =
+                    'Consider throat culture or rapid antigen testing. May treat empirically.';
+            } else {
+                // score >= 4
                 probability = '>85%';
                 recommendation = 'Empiric antibiotic treatment is justified.';
             }

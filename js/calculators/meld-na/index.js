@@ -5,7 +5,7 @@ export const meldNa = {
     id: 'meld-na',
     title: 'MELD-Na (UNOS/OPTN)',
     description: 'Quantifies end-stage liver disease for transplant planning with sodium.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -140,7 +140,7 @@ export const meldNa = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         // Get all input elements using container.querySelector
         const biliInput = container.querySelector('#meld-na-bili');
         const inrInput = container.querySelector('#meld-na-inr');
@@ -150,27 +150,37 @@ export const meldNa = {
         const resultEl = container.querySelector('#meld-na-result');
 
         // LOINC: Bili: 1975-2, INR: 34714-6, Creat: 2160-0, Sodium: 2951-2
-        const biliPromise = client ? getMostRecentObservation(client, '1975-2') : Promise.resolve(null);
-        const inrPromise = client ? getMostRecentObservation(client, '34714-6') : Promise.resolve(null);
-        const creatPromise = client ? getMostRecentObservation(client, '2160-0') : Promise.resolve(null);
-        const sodiumPromise = client ? getMostRecentObservation(client, '2951-2') : Promise.resolve(null);
+        const biliPromise = client
+            ? getMostRecentObservation(client, '1975-2')
+            : Promise.resolve(null);
+        const inrPromise = client
+            ? getMostRecentObservation(client, '34714-6')
+            : Promise.resolve(null);
+        const creatPromise = client
+            ? getMostRecentObservation(client, '2160-0')
+            : Promise.resolve(null);
+        const sodiumPromise = client
+            ? getMostRecentObservation(client, '2951-2')
+            : Promise.resolve(null);
 
-        Promise.all([biliPromise, inrPromise, creatPromise, sodiumPromise]).then(([bili, inr, creat, sodium]) => {
-            if (bili && bili.valueQuantity) {
-                biliInput.value = bili.valueQuantity.value.toFixed(1);
-            }
-            if (inr && inr.valueQuantity) {
-                inrInput.value = inr.valueQuantity.value.toFixed(2);
-            }
-            if (creat && creat.valueQuantity) {
-                creatInput.value = creat.valueQuantity.value.toFixed(1);
-            }
-            if (sodium && sodium.valueQuantity) {
-                sodiumInput.value = sodium.valueQuantity.value.toFixed(0);
-            }
-            // Trigger calculation after loading data
-            calculateAndUpdate();
-        }).catch(err => console.log('Lab data not fully available'));
+        Promise.all([biliPromise, inrPromise, creatPromise, sodiumPromise])
+            .then(([bili, inr, creat, sodium]) => {
+                if (bili && bili.valueQuantity) {
+                    biliInput.value = bili.valueQuantity.value.toFixed(1);
+                }
+                if (inr && inr.valueQuantity) {
+                    inrInput.value = inr.valueQuantity.value.toFixed(2);
+                }
+                if (creat && creat.valueQuantity) {
+                    creatInput.value = creat.valueQuantity.value.toFixed(1);
+                }
+                if (sodium && sodium.valueQuantity) {
+                    sodiumInput.value = sodium.valueQuantity.value.toFixed(0);
+                }
+                // Trigger calculation after loading data
+                calculateAndUpdate();
+            })
+            .catch(err => console.log('Lab data not fully available'));
 
         const calculateAndUpdate = () => {
             const bili = parseFloat(biliInput.value);
@@ -186,24 +196,29 @@ export const meldNa = {
             }
 
             // Apply UNOS/OPTN rules
-            let adjustedBili = Math.max(bili, 1.0);
-            let adjustedInr = Math.max(inr, 1.0);
+            const adjustedBili = Math.max(bili, 1.0);
+            const adjustedInr = Math.max(inr, 1.0);
             let adjustedCreat = Math.max(creat, 1.0);
             if (onDialysis || adjustedCreat > 4.0) {
                 adjustedCreat = 4.0;
             }
-            
+
             // Calculate original MELD
-            let meldScore = 0.957 * Math.log(adjustedCreat) + 0.378 * Math.log(adjustedBili) + 
-                           1.120 * Math.log(adjustedInr) + 0.643;
+            let meldScore =
+                0.957 * Math.log(adjustedCreat) +
+                0.378 * Math.log(adjustedBili) +
+                1.12 * Math.log(adjustedInr) +
+                0.643;
             meldScore = Math.round(meldScore * 10) / 10;
 
             // Calculate MELD-Na
             let meldNaScore = meldScore;
             if (meldScore > 11) {
-                let adjustedSodium = Math.max(125, Math.min(137, sodium));
-                meldNaScore = meldScore + 1.32 * (137 - adjustedSodium) - 
-                             (0.033 * meldScore * (137 - adjustedSodium));
+                const adjustedSodium = Math.max(125, Math.min(137, sodium));
+                meldNaScore =
+                    meldScore +
+                    1.32 * (137 - adjustedSodium) -
+                    0.033 * meldScore * (137 - adjustedSodium);
             }
 
             // Final score capping

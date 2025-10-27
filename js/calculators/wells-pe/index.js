@@ -3,8 +3,8 @@ import { getMostRecentObservation } from '../../utils.js';
 
 export const wellsPE = {
     id: 'wells-pe',
-    title: "Wells' Criteria for Pulmonary Embolism",
-    generateHTML: function() {
+    title: 'Wells\' Criteria for Pulmonary Embolism',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <div class="checklist">
@@ -88,7 +88,7 @@ export const wellsPE = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         getMostRecentObservation(client, '8867-4').then(hrObs => {
             if (hrObs && hrObs.valueQuantity.value > 100) {
                 document.getElementById('wells-hr').checked = true;
@@ -96,7 +96,9 @@ export const wellsPE = {
         });
 
         document.getElementById('calculate-wells').addEventListener('click', () => {
-            const checkboxes = document.querySelectorAll('.calculator-card .check-item input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll(
+                '.calculator-card .check-item input[type="checkbox"]'
+            );
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {
@@ -105,9 +107,13 @@ export const wellsPE = {
             });
 
             let risk = '';
-            if (score <= 1) risk = 'Low Risk (PE unlikely)';
-            else if (score <= 6) risk = 'Moderate Risk';
-            else risk = 'High Risk (PE likely)';
+            if (score <= 1) {
+                risk = 'Low Risk (PE unlikely)';
+            } else if (score <= 6) {
+                risk = 'Moderate Risk';
+            } else {
+                risk = 'High Risk (PE likely)';
+            }
 
             const resultEl = document.getElementById('wells-result');
             resultEl.innerHTML = `
@@ -118,5 +124,3 @@ export const wellsPE = {
         });
     }
 };
-
-

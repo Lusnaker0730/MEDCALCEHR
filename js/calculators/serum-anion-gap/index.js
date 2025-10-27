@@ -4,7 +4,7 @@ export const serumAnionGap = {
     id: 'serum-anion-gap',
     title: 'Serum Anion Gap',
     description: 'Evaluates states of metabolic acidosis.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -98,16 +98,22 @@ export const serumAnionGap = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         // Fetch recent lab values
         getMostRecentObservation(client, '2951-2').then(obs => {
-            if (obs && obs.valueQuantity) document.getElementById('sag-na').value = obs.valueQuantity.value.toFixed(0);
+            if (obs && obs.valueQuantity) {
+                document.getElementById('sag-na').value = obs.valueQuantity.value.toFixed(0);
+            }
         });
         getMostRecentObservation(client, '2075-0').then(obs => {
-            if (obs && obs.valueQuantity) document.getElementById('sag-cl').value = obs.valueQuantity.value.toFixed(0);
+            if (obs && obs.valueQuantity) {
+                document.getElementById('sag-cl').value = obs.valueQuantity.value.toFixed(0);
+            }
         });
         getMostRecentObservation(client, '1963-8').then(obs => {
-            if (obs && obs.valueQuantity) document.getElementById('sag-hco3').value = obs.valueQuantity.value.toFixed(0);
+            if (obs && obs.valueQuantity) {
+                document.getElementById('sag-hco3').value = obs.valueQuantity.value.toFixed(0);
+            }
         });
 
         document.getElementById('calculate-sag').addEventListener('click', () => {
@@ -121,14 +127,17 @@ export const serumAnionGap = {
             }
 
             const anionGap = na - (cl + hco3);
-            
+
             let interpretation = '';
             if (anionGap > 12) {
-                interpretation = 'High Anion Gap: Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions).';
+                interpretation =
+                    'High Anion Gap: Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions).';
             } else if (anionGap < 6) {
-                interpretation = 'Low Anion Gap: Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+                interpretation =
+                    'Low Anion Gap: Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
             } else {
-                interpretation = 'Normal Anion Gap: Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                interpretation =
+                    'Normal Anion Gap: Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
             }
 
             const resultEl = document.getElementById('sag-result');

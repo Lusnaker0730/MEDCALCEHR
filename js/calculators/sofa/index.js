@@ -4,8 +4,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const sofa = {
     id: 'sofa',
     title: 'SOFA Score for Sepsis Organ Failure',
-    description: 'Sequential Organ Failure Assessment (SOFA) Score predicts ICU mortality based on lab results and clinical data.',
-    generateHTML: function() {
+    description:
+        'Sequential Organ Failure Assessment (SOFA) Score predicts ICU mortality based on lab results and clinical data.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="calculator-description">${this.description}</p>
@@ -316,106 +317,140 @@ export const sofa = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         // Auto-populate lab values and set up event listeners
         this.populateLabValues(client);
         this.setupEventListeners();
         this.calculateScore();
     },
-    
-    populateLabValues: function(client) {
+
+    populateLabValues: function (client) {
         // Get platelets
-        getMostRecentObservation(client, '2160-0').then(platelets => {
-            if(platelets && platelets.valueQuantity) {
-                const val = platelets.valueQuantity.value;
-                document.getElementById('current-platelets').textContent = `${val.toFixed(0)} ×10³/μL`;
-                
-                const select = document.getElementById('sofa-coag');
-                if (val >= 150) select.value = "0";
-                else if (val >= 100) select.value = "1";
-                else if (val >= 50) select.value = "2";
-                else if (val >= 20) select.value = "3";
-                else select.value = "4";
-                
-                this.updateOrganScore('coag', select.value);
-            } else {
+        getMostRecentObservation(client, '2160-0')
+            .then(platelets => {
+                if (platelets && platelets.valueQuantity) {
+                    const val = platelets.valueQuantity.value;
+                    document.getElementById('current-platelets').textContent =
+                        `${val.toFixed(0)} ×10³/μL`;
+
+                    const select = document.getElementById('sofa-coag');
+                    if (val >= 150) {
+                        select.value = '0';
+                    } else if (val >= 100) {
+                        select.value = '1';
+                    } else if (val >= 50) {
+                        select.value = '2';
+                    } else if (val >= 20) {
+                        select.value = '3';
+                    } else {
+                        select.value = '4';
+                    }
+
+                    this.updateOrganScore('coag', select.value);
+                } else {
+                    document.getElementById('current-platelets').textContent = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching platelets:', error);
                 document.getElementById('current-platelets').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching platelets:', error);
-            document.getElementById('current-platelets').textContent = 'Not available';
-        });
+            });
 
         // Get creatinine
-        getMostRecentObservation(client, '2160-0').then(creatinine => {
-            if(creatinine && creatinine.valueQuantity) {
-                const val = creatinine.valueQuantity.value;
-                document.getElementById('current-creatinine').textContent = `${val.toFixed(1)} mg/dL`;
-                
-                const select = document.getElementById('sofa-renal');
-                if (val < 1.2) select.value = "0";
-                else if (val < 2.0) select.value = "1";
-                else if (val < 3.5) select.value = "2";
-                else if (val < 5.0) select.value = "3";
-                else select.value = "4";
-                
-                this.updateOrganScore('renal', select.value);
-            } else {
+        getMostRecentObservation(client, '2160-0')
+            .then(creatinine => {
+                if (creatinine && creatinine.valueQuantity) {
+                    const val = creatinine.valueQuantity.value;
+                    document.getElementById('current-creatinine').textContent =
+                        `${val.toFixed(1)} mg/dL`;
+
+                    const select = document.getElementById('sofa-renal');
+                    if (val < 1.2) {
+                        select.value = '0';
+                    } else if (val < 2.0) {
+                        select.value = '1';
+                    } else if (val < 3.5) {
+                        select.value = '2';
+                    } else if (val < 5.0) {
+                        select.value = '3';
+                    } else {
+                        select.value = '4';
+                    }
+
+                    this.updateOrganScore('renal', select.value);
+                } else {
+                    document.getElementById('current-creatinine').textContent = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching creatinine:', error);
                 document.getElementById('current-creatinine').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching creatinine:', error);
-            document.getElementById('current-creatinine').textContent = 'Not available';
-        });
+            });
 
         // Get bilirubin
-        getMostRecentObservation(client, '1975-2').then(bilirubin => {
-            if(bilirubin && bilirubin.valueQuantity) {
-                const val = bilirubin.valueQuantity.value;
-                document.getElementById('current-bilirubin').textContent = `${val.toFixed(1)} mg/dL`;
-                
-                const select = document.getElementById('sofa-liver');
-                if (val < 1.2) select.value = "0";
-                else if (val < 2.0) select.value = "1";
-                else if (val < 6.0) select.value = "2";
-                else if (val < 12.0) select.value = "3";
-                else select.value = "4";
-                
-                this.updateOrganScore('liver', select.value);
-            } else {
+        getMostRecentObservation(client, '1975-2')
+            .then(bilirubin => {
+                if (bilirubin && bilirubin.valueQuantity) {
+                    const val = bilirubin.valueQuantity.value;
+                    document.getElementById('current-bilirubin').textContent =
+                        `${val.toFixed(1)} mg/dL`;
+
+                    const select = document.getElementById('sofa-liver');
+                    if (val < 1.2) {
+                        select.value = '0';
+                    } else if (val < 2.0) {
+                        select.value = '1';
+                    } else if (val < 6.0) {
+                        select.value = '2';
+                    } else if (val < 12.0) {
+                        select.value = '3';
+                    } else {
+                        select.value = '4';
+                    }
+
+                    this.updateOrganScore('liver', select.value);
+                } else {
+                    document.getElementById('current-bilirubin').textContent = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching bilirubin:', error);
                 document.getElementById('current-bilirubin').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching bilirubin:', error);
-            document.getElementById('current-bilirubin').textContent = 'Not available';
-        });
+            });
 
         // Recalculate after data population
         setTimeout(() => this.calculateScore(), 1000);
     },
-    
-    setupEventListeners: function() {
+
+    setupEventListeners: function () {
         const selects = document.querySelectorAll('.sofa-select');
         selects.forEach(select => {
-            select.addEventListener('change', (e) => {
+            select.addEventListener('change', e => {
                 const organType = e.target.id.replace('sofa-', '');
                 this.updateOrganScore(organType, e.target.value);
                 this.calculateScore();
             });
         });
     },
-    
-    updateOrganScore: function(organType, score) {
+
+    updateOrganScore: function (organType, score) {
         const scoreElement = document.getElementById(`${organType}-score`);
         if (scoreElement) {
             scoreElement.textContent = score;
         }
     },
-    
-    calculateScore: function() {
-        const selectors = ['sofa-resp', 'sofa-coag', 'sofa-liver', 'sofa-cardio', 'sofa-cns', 'sofa-renal'];
+
+    calculateScore: function () {
+        const selectors = [
+            'sofa-resp',
+            'sofa-coag',
+            'sofa-liver',
+            'sofa-cardio',
+            'sofa-cns',
+            'sofa-renal'
+        ];
         let totalScore = 0;
-        
+
         selectors.forEach(id => {
             const value = parseInt(document.getElementById(id).value);
             totalScore += value;
@@ -423,12 +458,12 @@ export const sofa = {
 
         // Update total score display
         document.getElementById('total-sofa-score').textContent = totalScore;
-        
+
         // Update mortality assessment
         let mortalityRisk = '';
         let mortalityPercentage = '';
         let riskClass = '';
-        
+
         if (totalScore <= 6) {
             mortalityRisk = 'Low Risk';
             mortalityPercentage = '~10%';
@@ -446,14 +481,16 @@ export const sofa = {
             mortalityPercentage = '>80%';
             riskClass = 'very-high-mortality';
         }
-        
+
         document.getElementById('mortality-risk').textContent = mortalityRisk;
         document.getElementById('mortality-percentage').textContent = mortalityPercentage;
-        
+
         // Update interpretation highlighting
-        document.querySelectorAll('.interpretation-item').forEach(item => item.classList.remove('active'));
+        document
+            .querySelectorAll('.interpretation-item')
+            .forEach(item => item.classList.remove('active'));
         document.querySelector(`.interpretation-item.${riskClass}`).classList.add('active');
-        
+
         // Update score circle color
         const scoreCircle = document.querySelector('.score-circle');
         scoreCircle.className = `score-circle ${riskClass}`;

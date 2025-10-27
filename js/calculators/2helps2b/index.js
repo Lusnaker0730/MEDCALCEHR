@@ -1,9 +1,9 @@
-
 export const helps2bScore = {
     id: '2helps2b-score',
     title: '2HELPS2B Score',
-    description: 'Estimates seizure risk in acutely ill patients undergoing continuous EEG (cEEG), based on the 2HELPS2B score and seizure probability table.',
-    generateHTML: function() {
+    description:
+        'Estimates seizure risk in acutely ill patients undergoing continuous EEG (cEEG), based on the 2HELPS2B score and seizure probability table.',
+    generateHTML: function () {
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -35,9 +35,11 @@ export const helps2bScore = {
             </div>
         `;
     },
-    initialize: function() {
+    initialize: function () {
         document.getElementById('calculate-2helps2b').addEventListener('click', () => {
-            const checkboxes = document.querySelectorAll('#calculator-container .check-item input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll(
+                '#calculator-container .check-item input[type="checkbox"]'
+            );
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {
@@ -46,10 +48,15 @@ export const helps2bScore = {
             });
 
             const riskMap = {
-                0: "<5%", 1: "12%", 2: "27%", 3: "50%", 4: "73%", 5: "88%"
+                0: '<5%',
+                1: '12%',
+                2: '27%',
+                3: '50%',
+                4: '73%',
+                5: '88%'
             };
 
-            const seizureRisk = score >= 6 ? ">95%" : riskMap[score];
+            const seizureRisk = score >= 6 ? '>95%' : riskMap[score];
 
             document.getElementById('2helps2b-result').innerHTML = `
                 <p>2HELPS2B Score: ${score}</p>
@@ -59,24 +66,24 @@ export const helps2bScore = {
         });
 
         // Image Modal Logic
-        const modal = document.getElementById("image-modal");
-        const imgThumb = document.getElementById("ref-image-thumb");
-        const modalImg = document.getElementById("modal-image");
-        const closeBtn = document.querySelector(".close-btn");
+        const modal = document.getElementById('image-modal');
+        const imgThumb = document.getElementById('ref-image-thumb');
+        const modalImg = document.getElementById('modal-image');
+        const closeBtn = document.querySelector('.close-btn');
 
-        imgThumb.onclick = function() {
-            modal.style.display = "block";
+        imgThumb.onclick = function () {
+            modal.style.display = 'block';
             modalImg.src = this.src;
-        }
+        };
 
-        closeBtn.onclick = function() {
-            modal.style.display = "none";
-        }
+        closeBtn.onclick = function () {
+            modal.style.display = 'none';
+        };
 
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
-        }
+        };
     }
 };

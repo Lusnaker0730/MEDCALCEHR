@@ -1,10 +1,10 @@
-
 import { getObservation, getPatient, convertToMmolL, convertToMgDl } from '../../utils.js';
 
 export const sexShock = {
     id: 'sex-shock',
     title: 'SEX-SHOCK Risk Score for Cardiogenic Shock',
-    description: 'Calculates the risk of in-hospital cardiogenic shock in patients with acute coronary syndrome (ACS).',
+    description:
+        'Calculates the risk of in-hospital cardiogenic shock in patients with acute coronary syndrome (ACS).',
 
     generateHTML: () => `
         <h3>${sexShock.title}</h3>
@@ -498,173 +498,204 @@ export const sexShock = {
         </div>
     `,
 
-    initialize: function(client) {
+    initialize: function (client) {
         // Auto-populate patient demographics
         this.populatePatientData(client);
-        
+
         // Set up event listeners
         this.setupEventListeners();
-        
+
         // Initial toggle states and calculation
         this.updateToggleStates();
         this.calculateRisk();
     },
-    
-    populatePatientData: function(client) {
+
+    populatePatientData: function (client) {
         // Get patient demographics
-        getPatient(client).then(patient => {
-            // Calculate age
-            const birthDate = new Date(patient.birthDate);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            const adjustedAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) ? age - 1 : age;
-            
-            document.getElementById('patient-age').textContent = `${adjustedAge} years`;
-            
-            // Auto-check age
-            if (adjustedAge > 70) {
-                document.getElementById('age-no').checked = false;
-                document.getElementById('age-yes').checked = true;
-            } else {
-                document.getElementById('age-no').checked = true;
-                document.getElementById('age-yes').checked = false;
-            }
-            
-            // Set gender
-            const gender = patient.gender || 'unknown';
-            document.getElementById('patient-gender').textContent = gender.charAt(0).toUpperCase() + gender.slice(1);
-            
-            // Auto-check gender
-            if (gender.toLowerCase() === 'female') {
-                document.getElementById('sex-male').checked = false;
-                document.getElementById('sex-female').checked = true;
-            } else {
-                document.getElementById('sex-male').checked = true;
-                document.getElementById('sex-female').checked = false;
-            }
-        }).catch(error => {
-            console.error('Error fetching patient data:', error);
-            document.getElementById('patient-age').textContent = 'Not available';
-            document.getElementById('patient-gender').textContent = 'Not available';
-        });
+        getPatient(client)
+            .then(patient => {
+                // Calculate age
+                const birthDate = new Date(patient.birthDate);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                const adjustedAge =
+                    monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())
+                        ? age - 1
+                        : age;
+
+                document.getElementById('patient-age').textContent = `${adjustedAge} years`;
+
+                // Auto-check age
+                if (adjustedAge > 70) {
+                    document.getElementById('age-no').checked = false;
+                    document.getElementById('age-yes').checked = true;
+                } else {
+                    document.getElementById('age-no').checked = true;
+                    document.getElementById('age-yes').checked = false;
+                }
+
+                // Set gender
+                const gender = patient.gender || 'unknown';
+                document.getElementById('patient-gender').textContent =
+                    gender.charAt(0).toUpperCase() + gender.slice(1);
+
+                // Auto-check gender
+                if (gender.toLowerCase() === 'female') {
+                    document.getElementById('sex-male').checked = false;
+                    document.getElementById('sex-female').checked = true;
+                } else {
+                    document.getElementById('sex-male').checked = true;
+                    document.getElementById('sex-female').checked = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching patient data:', error);
+                document.getElementById('patient-age').textContent = 'Not available';
+                document.getElementById('patient-gender').textContent = 'Not available';
+            });
 
         // Get vital signs
-        getObservation(client, "8867-4").then(hrObs => { // Heart Rate
-            if (hrObs && hrObs.valueQuantity) {
-                const hr = hrObs.valueQuantity.value;
-                document.getElementById('patient-hr').textContent = `${hr} bpm`;
-                
-                if (hr > 90) {
-                    document.getElementById('hr-no').checked = false;
-                    document.getElementById('hr-yes').checked = true;
+        getObservation(client, '8867-4')
+            .then(hrObs => {
+                // Heart Rate
+                if (hrObs && hrObs.valueQuantity) {
+                    const hr = hrObs.valueQuantity.value;
+                    document.getElementById('patient-hr').textContent = `${hr} bpm`;
+
+                    if (hr > 90) {
+                        document.getElementById('hr-no').checked = false;
+                        document.getElementById('hr-yes').checked = true;
+                    } else {
+                        document.getElementById('hr-no').checked = true;
+                        document.getElementById('hr-yes').checked = false;
+                    }
                 } else {
-                    document.getElementById('hr-no').checked = true;
-                    document.getElementById('hr-yes').checked = false;
+                    document.getElementById('patient-hr').textContent = 'Not available';
                 }
-            } else {
+            })
+            .catch(error => {
+                console.error('Error fetching heart rate:', error);
                 document.getElementById('patient-hr').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching heart rate:', error);
-            document.getElementById('patient-hr').textContent = 'Not available';
-        });
+            });
 
         // Get blood pressure
-        getObservation(client, "8480-6").then(sbpObs => { // SBP
-            if (sbpObs && sbpObs.valueQuantity) {
-                getObservation(client, "8462-4").then(dbpObs => { // DBP
-                    if (dbpObs && dbpObs.valueQuantity) {
-                        const sbp = sbpObs.valueQuantity.value;
-                        const dbp = dbpObs.valueQuantity.value;
-                        const pp = sbp - dbp;
-                        
-                        document.getElementById('patient-bp').textContent = `${sbp}/${dbp} mmHg (PP: ${pp})`;
-                        
-                        if (sbp < 125 && pp < 45) {
-                            document.getElementById('bp-no').checked = false;
-                            document.getElementById('bp-yes').checked = true;
-                        } else {
-                            document.getElementById('bp-no').checked = true;
-                            document.getElementById('bp-yes').checked = false;
-                        }
-                    } else {
-                        document.getElementById('patient-bp').textContent = `${sbpObs.valueQuantity.value}/- mmHg`;
-                    }
-                }).catch(error => {
-                    document.getElementById('patient-bp').textContent = `${sbpObs.valueQuantity.value}/- mmHg`;
-                });
-            } else {
+        getObservation(client, '8480-6')
+            .then(sbpObs => {
+                // SBP
+                if (sbpObs && sbpObs.valueQuantity) {
+                    getObservation(client, '8462-4')
+                        .then(dbpObs => {
+                            // DBP
+                            if (dbpObs && dbpObs.valueQuantity) {
+                                const sbp = sbpObs.valueQuantity.value;
+                                const dbp = dbpObs.valueQuantity.value;
+                                const pp = sbp - dbp;
+
+                                document.getElementById('patient-bp').textContent =
+                                    `${sbp}/${dbp} mmHg (PP: ${pp})`;
+
+                                if (sbp < 125 && pp < 45) {
+                                    document.getElementById('bp-no').checked = false;
+                                    document.getElementById('bp-yes').checked = true;
+                                } else {
+                                    document.getElementById('bp-no').checked = true;
+                                    document.getElementById('bp-yes').checked = false;
+                                }
+                            } else {
+                                document.getElementById('patient-bp').textContent =
+                                    `${sbpObs.valueQuantity.value}/- mmHg`;
+                            }
+                        })
+                        .catch(error => {
+                            document.getElementById('patient-bp').textContent =
+                                `${sbpObs.valueQuantity.value}/- mmHg`;
+                        });
+                } else {
+                    document.getElementById('patient-bp').textContent = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching blood pressure:', error);
                 document.getElementById('patient-bp').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching blood pressure:', error);
-            document.getElementById('patient-bp').textContent = 'Not available';
-        });
+            });
 
         // Get glucose
-        getObservation(client, "2339-0").then(glucoseObs => { // Glucose
-            if (glucoseObs && glucoseObs.valueQuantity) {
-                const glucoseMmolL = convertToMmolL(glucoseObs.valueQuantity.value, 'glucose');
-                if (glucoseMmolL > 10) {
-                    document.getElementById('glucose-no').checked = false;
-                    document.getElementById('glucose-yes').checked = true;
-                } else {
-                    document.getElementById('glucose-no').checked = true;
-                    document.getElementById('glucose-yes').checked = false;
+        getObservation(client, '2339-0')
+            .then(glucoseObs => {
+                // Glucose
+                if (glucoseObs && glucoseObs.valueQuantity) {
+                    const glucoseMmolL = convertToMmolL(glucoseObs.valueQuantity.value, 'glucose');
+                    if (glucoseMmolL > 10) {
+                        document.getElementById('glucose-no').checked = false;
+                        document.getElementById('glucose-yes').checked = true;
+                    } else {
+                        document.getElementById('glucose-no').checked = true;
+                        document.getElementById('glucose-yes').checked = false;
+                    }
                 }
-            }
-        }).catch(error => {
-            console.error('Error fetching glucose:', error);
-        });
-        
+            })
+            .catch(error => {
+                console.error('Error fetching glucose:', error);
+            });
+
         // Get LVEF
-        getObservation(client, "39156-5").then(lvefObs => { // LVEF
-            if (lvefObs && lvefObs.valueQuantity) {
-                const lvef = lvefObs.valueQuantity.value;
-                // Reset all LVEF options
-                document.getElementById('lvef-high').checked = false;
-                document.getElementById('lvef-mid').checked = false;
-                document.getElementById('lvef-low').checked = false;
-                
-                // Set the correct option
-                if (lvef > 50) {
-                    document.getElementById('lvef-high').checked = true;
-                } else if (lvef >= 35) {
-                    document.getElementById('lvef-mid').checked = true;
-                } else {
-                    document.getElementById('lvef-low').checked = true;
+        getObservation(client, '39156-5')
+            .then(lvefObs => {
+                // LVEF
+                if (lvefObs && lvefObs.valueQuantity) {
+                    const lvef = lvefObs.valueQuantity.value;
+                    // Reset all LVEF options
+                    document.getElementById('lvef-high').checked = false;
+                    document.getElementById('lvef-mid').checked = false;
+                    document.getElementById('lvef-low').checked = false;
+
+                    // Set the correct option
+                    if (lvef > 50) {
+                        document.getElementById('lvef-high').checked = true;
+                    } else if (lvef >= 35) {
+                        document.getElementById('lvef-mid').checked = true;
+                    } else {
+                        document.getElementById('lvef-low').checked = true;
+                    }
                 }
-            }
-        }).catch(error => {
-            console.error('Error fetching LVEF:', error);
-        });
+            })
+            .catch(error => {
+                console.error('Error fetching LVEF:', error);
+            });
 
         // Get Creatinine
-        getObservation(client, "2160-0").then(crObs => { // Creatinine
-            if (crObs && crObs.valueQuantity) {
-                document.getElementById('creatinine').value = crObs.valueQuantity.value.toFixed(2);
-                document.getElementById('creatinine').placeholder = '';
-            } else {
+        getObservation(client, '2160-0')
+            .then(crObs => {
+                // Creatinine
+                if (crObs && crObs.valueQuantity) {
+                    document.getElementById('creatinine').value =
+                        crObs.valueQuantity.value.toFixed(2);
+                    document.getElementById('creatinine').placeholder = '';
+                } else {
+                    document.getElementById('creatinine').placeholder = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching creatinine:', error);
                 document.getElementById('creatinine').placeholder = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching creatinine:', error);
-            document.getElementById('creatinine').placeholder = 'Not available';
-        });
+            });
 
         // Get C-reactive protein
-        getObservation(client, "1988-5").then(crpObs => { // C-reactive protein
-            if (crpObs && crpObs.valueQuantity) {
-                document.getElementById('crp').value = crpObs.valueQuantity.value.toFixed(1);
-                document.getElementById('crp').placeholder = '';
-            } else {
+        getObservation(client, '1988-5')
+            .then(crpObs => {
+                // C-reactive protein
+                if (crpObs && crpObs.valueQuantity) {
+                    document.getElementById('crp').value = crpObs.valueQuantity.value.toFixed(1);
+                    document.getElementById('crp').placeholder = '';
+                } else {
+                    document.getElementById('crp').placeholder = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching CRP:', error);
                 document.getElementById('crp').placeholder = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching CRP:', error);
-            document.getElementById('crp').placeholder = 'Not available';
-        });
+            });
 
         // Recalculate after data population
         setTimeout(() => {
@@ -672,8 +703,8 @@ export const sexShock = {
             this.calculateRisk();
         }, 1500);
     },
-    
-    setupEventListeners: function() {
+
+    setupEventListeners: function () {
         const inputs = document.querySelectorAll('.sex-shock-container input');
         inputs.forEach(input => {
             input.addEventListener('change', () => {
@@ -686,8 +717,8 @@ export const sexShock = {
             });
         });
     },
-    
-    updateToggleStates: function() {
+
+    updateToggleStates: function () {
         // Update toggle button active states for browsers that don't support :has()
         const toggles = document.querySelectorAll('.sex-shock-toggle');
         toggles.forEach(toggle => {
@@ -702,148 +733,151 @@ export const sexShock = {
             });
         });
     },
-    
-    calculateRisk: function() {
-            const getRadioValue = (name) => parseInt(document.querySelector(`input[name="${name}"]:checked`)?.value || '0');
-            const getInputValue = (id) => parseFloat(document.getElementById(id).value) || 0;
 
-            const isFemale = getRadioValue('sex');
-            const isAgeOver70 = getRadioValue('age');
-            const noPci = getRadioValue('pci');
-            const isTimiLow = getRadioValue('timi');
-            const isLeftMain = getRadioValue('left_main');
-            const isGlycemiaHigh = getRadioValue('glycemia');
-            const isBpLow = getRadioValue('bp');
-            const isHrHigh = getRadioValue('hr');
-            const isKillip3 = getRadioValue('killip');
-            const isArrest = getRadioValue('arrest');
-            const lvefValue = getRadioValue('lvef');
-            const isStElevation = getRadioValue('st_elevation');
-            const creatinineValue = getInputValue('creatinine');
-            const crpValue = getInputValue('crp');
+    calculateRisk: function () {
+        const getRadioValue = name =>
+            parseInt(document.querySelector(`input[name="${name}"]:checked`)?.value || '0');
+        const getInputValue = id => parseFloat(document.getElementById(id).value) || 0;
 
-            // SEX-SHOCK Score calculation using logistic regression formula
-            // Based on the formula: Y = (Intercept) + β × log₂(CRP mg/L + 1) + β × log₂(Creatinine μmol/L) + ... 
-            // Risk, % = [1 / (1 + e^-Y)] × 100
-            
-            // Gender-specific coefficients from the SEX-SHOCK model (from your image)
-            const femaleCoefficients = {
-                intercept: -7.08042535,
-                crp: 0.091519247,
-                creatinine: 0.609175556,
-                stElevation: 0.032769134,
-                lvef35to50: -1.095259107,
-                lvefLess50: -1.947426861,
-                ageOver70: 0.182533294,
-                cardiacArrest: 1.256698585,
-                killipClass3: 1.050255447,
-                heartRate: 0.240774064,
-                sbpAndPP: 0.819218972,
-                glycemia: 0.401892719,
-                culpritLeftMain: 0.639735341, // Available in female model
-                postPciTimi: 0.719770781 // Available in female model
-            };
-            
-            const maleCoefficients = {
-                intercept: -7.966559951,
-                crp: 0.069589203,
-                creatinine: 0.604010175,
-                stElevation: 0.767955919,
-                lvef35to50: -1.272230998,
-                lvefLess50: -2.015325176,
-                ageOver70: 0.263511391,
-                cardiacArrest: 1.14591438,
-                killipClass3: 0.684880861,
-                heartRate: 0.538557699,
-                sbpAndPP: 0.706186026,
-                glycemia: 0.837549978,
-                culpritLeftMain: 0.903552475, // Available in male model
-                postPciTimi: 0.496589182 // Available in male model
-            };
-            
-            // Select coefficients based on gender
-            const coefficients = isFemale ? femaleCoefficients : maleCoefficients;
-            
-            // Calculate Y using the logistic regression formula
-            let Y = coefficients.intercept;
-            
-            // CRP: log₂(CRP mg/L + 1)
-            if (crpValue > 0) {
-                Y += coefficients.crp * Math.log2(crpValue + 1);
-            }
-            
-            // Creatinine: log₂(Creatinine μmol/L) - need to convert mg/dL to μmol/L
-            if (creatinineValue > 0) {
-                const creatinineUmol = creatinineValue * 88.4; // Convert mg/dL to μmol/L
-                Y += coefficients.creatinine * Math.log2(creatinineUmol);
-            }
-            
-            // ST-segment elevation
-            Y += coefficients.stElevation * isStElevation;
-            
-            // LVEF categories - coefficients are negative because higher EF is protective
-            // Reference category appears to be <35% (most severe), so higher EF gets negative coefficients
-            if (lvefValue === 55) { // >50% - most protective, gets most negative coefficient
-                Y += coefficients.lvefLess50; // Use the most negative coefficient
-            } else if (lvefValue === 42.5) { // 35-50% - intermediate protection
-                Y += coefficients.lvef35to50; // Use intermediate negative coefficient
-            }
-            // <35% is reference category (coefficient = 0) - highest risk
-            
-            // Age >70 years
-            Y += coefficients.ageOver70 * isAgeOver70;
-            
-            // Cardiac arrest
-            Y += coefficients.cardiacArrest * isArrest;
-            
-            // Killip class III
-            Y += coefficients.killipClass3 * isKillip3;
-            
-            // Heart rate >90/min
-            Y += coefficients.heartRate * isHrHigh;
-            
-            // SBP <125 and PP <45 mmHg
-            Y += coefficients.sbpAndPP * isBpLow;
-            
-            // Glycemia >10 mmol/L
-            Y += coefficients.glycemia * isGlycemiaHigh;
-            
-            // Culprit lesion of left main (now available in both models)
-            Y += coefficients.culpritLeftMain * isLeftMain;
-            
-            // Post-PCI TIMI flow <3 (now available in both models)
-            Y += coefficients.postPciTimi * isTimiLow;
-            
-            // Calculate risk percentage: Risk, % = [1 / (1 + e^-Y)] × 100
-            const risk = (1 / (1 + Math.exp(-Y))) * 100;
-            
-            // Debug information (can be removed in production)
-            console.log('SEX-SHOCK Calculation Debug:');
-            console.log('Gender:', isFemale ? 'Female' : 'Male');
-            console.log('Y value:', Y);
-            console.log('Risk:', risk.toFixed(2) + '%');
-            console.log('Input values:', {
-                crp: crpValue,
-                creatinine: creatinineValue,
-                stElevation: isStElevation,
-                lvef: lvefValue,
-                age: isAgeOver70,
-                arrest: isArrest,
-                killip: isKillip3,
-                hr: isHrHigh,
-                bp: isBpLow,
-                glycemia: isGlycemiaHigh,
-                leftMain: isLeftMain,
-                timi: isTimiLow
-            });
+        const isFemale = getRadioValue('sex');
+        const isAgeOver70 = getRadioValue('age');
+        const noPci = getRadioValue('pci');
+        const isTimiLow = getRadioValue('timi');
+        const isLeftMain = getRadioValue('left_main');
+        const isGlycemiaHigh = getRadioValue('glycemia');
+        const isBpLow = getRadioValue('bp');
+        const isHrHigh = getRadioValue('hr');
+        const isKillip3 = getRadioValue('killip');
+        const isArrest = getRadioValue('arrest');
+        const lvefValue = getRadioValue('lvef');
+        const isStElevation = getRadioValue('st_elevation');
+        const creatinineValue = getInputValue('creatinine');
+        const crpValue = getInputValue('crp');
+
+        // SEX-SHOCK Score calculation using logistic regression formula
+        // Based on the formula: Y = (Intercept) + β × log₂(CRP mg/L + 1) + β × log₂(Creatinine μmol/L) + ...
+        // Risk, % = [1 / (1 + e^-Y)] × 100
+
+        // Gender-specific coefficients from the SEX-SHOCK model (from your image)
+        const femaleCoefficients = {
+            intercept: -7.08042535,
+            crp: 0.091519247,
+            creatinine: 0.609175556,
+            stElevation: 0.032769134,
+            lvef35to50: -1.095259107,
+            lvefLess50: -1.947426861,
+            ageOver70: 0.182533294,
+            cardiacArrest: 1.256698585,
+            killipClass3: 1.050255447,
+            heartRate: 0.240774064,
+            sbpAndPP: 0.819218972,
+            glycemia: 0.401892719,
+            culpritLeftMain: 0.639735341, // Available in female model
+            postPciTimi: 0.719770781 // Available in female model
+        };
+
+        const maleCoefficients = {
+            intercept: -7.966559951,
+            crp: 0.069589203,
+            creatinine: 0.604010175,
+            stElevation: 0.767955919,
+            lvef35to50: -1.272230998,
+            lvefLess50: -2.015325176,
+            ageOver70: 0.263511391,
+            cardiacArrest: 1.14591438,
+            killipClass3: 0.684880861,
+            heartRate: 0.538557699,
+            sbpAndPP: 0.706186026,
+            glycemia: 0.837549978,
+            culpritLeftMain: 0.903552475, // Available in male model
+            postPciTimi: 0.496589182 // Available in male model
+        };
+
+        // Select coefficients based on gender
+        const coefficients = isFemale ? femaleCoefficients : maleCoefficients;
+
+        // Calculate Y using the logistic regression formula
+        let Y = coefficients.intercept;
+
+        // CRP: log₂(CRP mg/L + 1)
+        if (crpValue > 0) {
+            Y += coefficients.crp * Math.log2(crpValue + 1);
+        }
+
+        // Creatinine: log₂(Creatinine μmol/L) - need to convert mg/dL to μmol/L
+        if (creatinineValue > 0) {
+            const creatinineUmol = creatinineValue * 88.4; // Convert mg/dL to μmol/L
+            Y += coefficients.creatinine * Math.log2(creatinineUmol);
+        }
+
+        // ST-segment elevation
+        Y += coefficients.stElevation * isStElevation;
+
+        // LVEF categories - coefficients are negative because higher EF is protective
+        // Reference category appears to be <35% (most severe), so higher EF gets negative coefficients
+        if (lvefValue === 55) {
+            // >50% - most protective, gets most negative coefficient
+            Y += coefficients.lvefLess50; // Use the most negative coefficient
+        } else if (lvefValue === 42.5) {
+            // 35-50% - intermediate protection
+            Y += coefficients.lvef35to50; // Use intermediate negative coefficient
+        }
+        // <35% is reference category (coefficient = 0) - highest risk
+
+        // Age >70 years
+        Y += coefficients.ageOver70 * isAgeOver70;
+
+        // Cardiac arrest
+        Y += coefficients.cardiacArrest * isArrest;
+
+        // Killip class III
+        Y += coefficients.killipClass3 * isKillip3;
+
+        // Heart rate >90/min
+        Y += coefficients.heartRate * isHrHigh;
+
+        // SBP <125 and PP <45 mmHg
+        Y += coefficients.sbpAndPP * isBpLow;
+
+        // Glycemia >10 mmol/L
+        Y += coefficients.glycemia * isGlycemiaHigh;
+
+        // Culprit lesion of left main (now available in both models)
+        Y += coefficients.culpritLeftMain * isLeftMain;
+
+        // Post-PCI TIMI flow <3 (now available in both models)
+        Y += coefficients.postPciTimi * isTimiLow;
+
+        // Calculate risk percentage: Risk, % = [1 / (1 + e^-Y)] × 100
+        const risk = (1 / (1 + Math.exp(-Y))) * 100;
+
+        // Debug information (can be removed in production)
+        console.log('SEX-SHOCK Calculation Debug:');
+        console.log('Gender:', isFemale ? 'Female' : 'Male');
+        console.log('Y value:', Y);
+        console.log('Risk:', risk.toFixed(2) + '%');
+        console.log('Input values:', {
+            crp: crpValue,
+            creatinine: creatinineValue,
+            stElevation: isStElevation,
+            lvef: lvefValue,
+            age: isAgeOver70,
+            arrest: isArrest,
+            killip: isKillip3,
+            hr: isHrHigh,
+            bp: isBpLow,
+            glycemia: isGlycemiaHigh,
+            leftMain: isLeftMain,
+            timi: isTimiLow
+        });
 
         // Update score display with risk percentage
         document.getElementById('result-score').textContent = risk.toFixed(1);
-        
+
         // Update risk category and recommendations based on percentage
         let riskCategory = '';
         let riskClass = '';
-        
+
         if (risk < 5) {
             riskCategory = 'Low Risk';
             riskClass = 'low-risk';
@@ -857,21 +891,23 @@ export const sexShock = {
             riskCategory = 'Very High Risk';
             riskClass = 'very-high-risk';
         }
-        
+
         document.getElementById('risk-category').textContent = riskCategory;
-        
+
         // Update risk interpretation
         const riskDescription = document.getElementById('result-interpretation');
         const modelType = isFemale ? 'Female' : 'Male';
         riskDescription.textContent = `${risk.toFixed(1)}% risk of in-hospital cardiogenic shock (${modelType} model)`;
-        
+
         // Update risk level highlighting
         document.querySelectorAll('.risk-level').forEach(level => level.classList.remove('active'));
-        document.querySelectorAll('.recommendation-item').forEach(item => item.classList.remove('active'));
-        
+        document
+            .querySelectorAll('.recommendation-item')
+            .forEach(item => item.classList.remove('active'));
+
         document.querySelector(`.risk-level.${riskClass}`).classList.add('active');
         document.querySelector(`.recommendation-item.${riskClass}-rec`).classList.add('active');
-        
+
         // Update score circle color
         const scoreCircle = document.querySelector('.score-circle');
         scoreCircle.className = `score-circle ${riskClass}`;

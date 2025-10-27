@@ -1,10 +1,15 @@
 // js/calculators/calcium-correction.js
-import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const calciumCorrection = {
     id: 'calcium-correction',
     title: 'Calcium Correction for Albumin',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
@@ -59,7 +64,7 @@ export const calciumCorrection = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         // Initialize unit conversion with auto-calculation
         const calculateAndUpdate = () => {
             const totalCalciumMgDl = getValueInStandardUnit(container, 'ca-total', 'mg/dL');
@@ -69,7 +74,7 @@ export const calciumCorrection = {
             if (totalCalciumMgDl > 0 && albuminGdl > 0) {
                 const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
                 const correctedCalciumMmol = correctedCalcium * 0.2495;
-                
+
                 resultEl.innerHTML = `
                     <div style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px;">
                         <div style="font-size: 1.1em; margin-bottom: 8px;">Corrected Calcium:</div>
@@ -95,15 +100,19 @@ export const calciumCorrection = {
         getMostRecentObservation(client, '17861-6').then(obs => {
             if (obs && obs.valueQuantity) {
                 const input = container.querySelector('#ca-total');
-                if (input) input.value = obs.valueQuantity.value.toFixed(1);
+                if (input) {
+                    input.value = obs.valueQuantity.value.toFixed(1);
+                }
                 calculateAndUpdate();
             }
         });
-        
+
         getMostRecentObservation(client, '1751-7').then(obs => {
             if (obs && obs.valueQuantity) {
                 const input = container.querySelector('#ca-albumin');
-                if (input) input.value = obs.valueQuantity.value.toFixed(1);
+                if (input) {
+                    input.value = obs.valueQuantity.value.toFixed(1);
+                }
                 calculateAndUpdate();
             }
         });
@@ -113,15 +122,8 @@ export const calciumCorrection = {
         if (calculateBtn) {
             calculateBtn.addEventListener('click', calculateAndUpdate);
         }
-        
+
         // Initial calculation
         calculateAndUpdate();
     }
 };
-
-
-
-
-
-
-

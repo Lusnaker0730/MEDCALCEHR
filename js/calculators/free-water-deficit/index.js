@@ -4,8 +4,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const freeWaterDeficit = {
     id: 'free-water-deficit',
     title: 'Free Water Deficit in Hypernatremia',
-    description: 'Calculates free water deficit by estimated total body water in a patient with hypernatremia or dehydration.',
-    generateHTML: function() {
+    description:
+        'Calculates free water deficit by estimated total body water in a patient with hypernatremia or dehydration.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -160,7 +161,7 @@ export const freeWaterDeficit = {
             </div>
         `;
     },
-    initialize: function(client, patient) {
+    initialize: function (client, patient) {
         const weightInput = document.getElementById('fwd-weight');
         const weightUnit = document.getElementById('fwd-weight-unit');
         const weightConverted = document.getElementById('fwd-weight-converted');
@@ -174,19 +175,25 @@ export const freeWaterDeficit = {
         genderSelect.value = patient.gender || 'male';
 
         // Load observations from FHIR
-        getMostRecentObservation(client, '29463-7').then(obs => { 
-            if(obs) weightInput.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '29463-7').then(obs => {
+            if (obs) {
+                weightInput.value = obs.valueQuantity.value.toFixed(1);
+            }
             autoCalculate();
         });
         getMostRecentObservation(client, '2951-2').then(obs => {
-            if(obs) sodiumInput.value = obs.valueQuantity.value.toFixed(0);
+            if (obs) {
+                sodiumInput.value = obs.valueQuantity.value.toFixed(0);
+            }
             autoCalculate();
         });
 
         // Function to convert weight to kg
         function getWeightInKg() {
             const weight = parseFloat(weightInput.value);
-            if (!weight || weight <= 0) return null;
+            if (!weight || weight <= 0) {
+                return null;
+            }
             const unit = weightUnit.value;
             return unit === 'lbs' ? weight / 2.20462 : weight;
         }
@@ -194,7 +201,9 @@ export const freeWaterDeficit = {
         // Function to get sodium in mEq/L
         function getSodiumInMeqL() {
             const sodium = parseFloat(sodiumInput.value);
-            if (!sodium || sodium <= 0) return null;
+            if (!sodium || sodium <= 0) {
+                return null;
+            }
             // mEq/L and mmol/L are equivalent for sodium
             return sodium;
         }
@@ -228,8 +237,8 @@ export const freeWaterDeficit = {
                 if (sodium > 140) {
                     const tbwFactor = isMale ? 0.6 : 0.5;
                     const totalBodyWater = weightKg * tbwFactor;
-                    const deficit = totalBodyWater * ((sodium / 140) - 1);
-                    
+                    const deficit = totalBodyWater * (sodium / 140 - 1);
+
                     resultEl.innerHTML = `
                         <p><strong>Free Water Deficit: ${deficit.toFixed(1)} L</strong></p>
                         <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
@@ -255,7 +264,7 @@ export const freeWaterDeficit = {
             } else {
                 resultEl.style.display = 'none';
             }
-            
+
             updateWeightConversion();
         }
 

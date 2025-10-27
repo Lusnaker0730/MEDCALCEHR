@@ -1,9 +1,8 @@
-
 export const kawasaki = {
     id: 'kawasaki',
     title: 'Kawasaki Disease Diagnostic Criteria',
     description: 'Diagnoses Kawasaki Disease based on clinical criteria.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -71,22 +70,32 @@ export const kawasaki = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const resultEl = container.querySelector('#kawasaki-result');
         const resultValueEl = container.querySelector('#kawasaki-result .result-value');
 
         const calculate = () => {
             const fever = container.querySelector('input[name="fever"]:checked');
             const cad = container.querySelector('input[name="cad"]:checked');
-            
+
             // The 5 principal clinical features (AHA guidelines count extremity changes as one)
-            const extremChanges = container.querySelector('input[name="acute_extrem"]:checked')?.value === '1' || container.querySelector('input[name="subacute_extrem"]:checked')?.value === '1';
-            const exanthem = container.querySelector('input[name="exanthem"]:checked')?.value === '1';
-            const conjunctival = container.querySelector('input[name="conjunctival"]:checked')?.value === '1';
+            const extremChanges =
+                container.querySelector('input[name="acute_extrem"]:checked')?.value === '1' ||
+                container.querySelector('input[name="subacute_extrem"]:checked')?.value === '1';
+            const exanthem =
+                container.querySelector('input[name="exanthem"]:checked')?.value === '1';
+            const conjunctival =
+                container.querySelector('input[name="conjunctival"]:checked')?.value === '1';
             const oral = container.querySelector('input[name="oral"]:checked')?.value === '1';
             const lymph = container.querySelector('input[name="lymph"]:checked')?.value === '1';
 
-            const principalFeaturesCount = [extremChanges, exanthem, conjunctival, oral, lymph].filter(Boolean).length;
+            const principalFeaturesCount = [
+                extremChanges,
+                exanthem,
+                conjunctival,
+                oral,
+                lymph
+            ].filter(Boolean).length;
 
             if (!fever) {
                 resultValueEl.textContent = 'Please select criteria.';
@@ -119,14 +128,16 @@ export const kawasaki = {
         };
 
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.segmented-control');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });
         });
-        
+
         // Set all to 'No' initially and trigger calculation
         container.querySelectorAll('.segmented-control').forEach(group => {
             const noRadio = group.querySelector('input[type="radio"][value="0"]');

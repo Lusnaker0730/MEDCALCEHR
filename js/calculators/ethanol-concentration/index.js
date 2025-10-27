@@ -4,7 +4,7 @@ export const ethanolConcentration = {
     id: 'ethanol-concentration',
     title: 'Estimated Ethanol (and Toxic Alcohol) Serum Concentration Based on Ingestion',
     description: 'Predicts ethanol concentration based on ingestion of alcohol.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -114,12 +114,15 @@ export const ethanolConcentration = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const weightEl = container.querySelector('#eth-weight');
         container.querySelector('#eth-gender').value = patient.gender;
 
-        getMostRecentObservation(client, '29463-7').then(obs => { // Weight
-            if (obs && obs.valueQuantity) weightEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '29463-7').then(obs => {
+            // Weight
+            if (obs && obs.valueQuantity) {
+                weightEl.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
 
         container.querySelector('#calculate-ethanol').addEventListener('click', () => {

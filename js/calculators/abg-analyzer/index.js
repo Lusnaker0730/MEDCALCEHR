@@ -4,7 +4,7 @@ export const abgAnalyzer = {
     id: 'abg-analyzer',
     title: 'Arterial Blood Gas (ABG) Analyzer',
     description: 'Interprets ABG.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -40,17 +40,17 @@ export const abgAnalyzer = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const fields = {
             ph: container.querySelector('#abg-ph'),
             pco2: container.querySelector('#abg-pco2'),
             hco3: container.querySelector('#abg-hco3'),
             sodium: container.querySelector('#abg-sodium'),
             chloride: container.querySelector('#abg-chloride'),
-            albumin: container.querySelector('#abg-albumin'),
+            albumin: container.querySelector('#abg-albumin')
         };
         const resultValueEl = container.querySelector('#abg-result .result-value');
-        
+
         const interpret = () => {
             const vals = {};
             for (const key in fields) {
@@ -65,10 +65,11 @@ export const abgAnalyzer = {
 
             let primaryDisorder = '';
             let compensation = '';
-            let interpretation = [];
+            const interpretation = [];
 
             // Step 1: Determine primary disorder
-            if (vals.ph < 7.35) { // Acidosis
+            if (vals.ph < 7.35) {
+                // Acidosis
                 if (vals.pco2 > 45) {
                     primaryDisorder = 'Respiratory Acidosis';
                 } else if (vals.hco3 < 22) {
@@ -76,7 +77,8 @@ export const abgAnalyzer = {
                 } else {
                     primaryDisorder = 'Mixed Acidosis';
                 }
-            } else if (vals.ph > 7.45) { // Alkalosis
+            } else if (vals.ph > 7.45) {
+                // Alkalosis
                 if (vals.pco2 < 35) {
                     primaryDisorder = 'Respiratory Alkalosis';
                 } else if (vals.hco3 > 26) {
@@ -84,17 +86,24 @@ export const abgAnalyzer = {
                 } else {
                     primaryDisorder = 'Mixed Alkalosis';
                 }
-            } else { // pH is normal
-                 if (vals.pco2 > 45 && vals.hco3 > 26) {
-                    interpretation.push('pH is normal, consider underlying Metabolic Alkalosis and Respiratory Acidosis.');
-                 } else if (vals.pco2 < 35 && vals.hco3 < 22) {
-                    interpretation.push('pH is normal, consider underlying Metabolic Acidosis and Respiratory Alkalosis.');
-                 } else {
+            } else {
+                // pH is normal
+                if (vals.pco2 > 45 && vals.hco3 > 26) {
+                    interpretation.push(
+                        'pH is normal, consider underlying Metabolic Alkalosis and Respiratory Acidosis.'
+                    );
+                } else if (vals.pco2 < 35 && vals.hco3 < 22) {
+                    interpretation.push(
+                        'pH is normal, consider underlying Metabolic Acidosis and Respiratory Alkalosis.'
+                    );
+                } else {
                     interpretation.push('Normal acid-base status.');
-                 }
+                }
             }
-            
-            if (primaryDisorder) interpretation.push(`<strong>Primary ${primaryDisorder}</strong>`);
+
+            if (primaryDisorder) {
+                interpretation.push(`<strong>Primary ${primaryDisorder}</strong>`);
+            }
 
             // Step 2: Anion Gap for Metabolic Acidosis
             if (primaryDisorder.includes('Metabolic Acidosis')) {
@@ -103,15 +112,23 @@ export const abgAnalyzer = {
                 // Corrected AG = AG + 2.5 * (Normal Albumin - Observed Albumin in g/dL)
                 const albumin_g_dL = vals.albumin / 10;
                 const correctedAG = anionGap + 2.5 * (4.0 - albumin_g_dL);
-                
-                if (correctedAG > 12) {
-                    interpretation[0] = `<strong>This is a High-Anion Gap Metabolic Acidosis.</strong>`;
-                    const deltaDelta = (correctedAG - 12) + vals.hco3;
-                    if (deltaDelta > 28) interpretation.push('with an underlying Metabolic Alkalosis (Delta-Delta > 28).');
-                    if (deltaDelta < 22) interpretation.push('with an underlying Non-Gap Metabolic Acidosis (Delta-Delta < 22).');
 
+                if (correctedAG > 12) {
+                    interpretation[0] =
+                        '<strong>This is a High-Anion Gap Metabolic Acidosis.</strong>';
+                    const deltaDelta = correctedAG - 12 + vals.hco3;
+                    if (deltaDelta > 28) {
+                        interpretation.push(
+                            'with an underlying Metabolic Alkalosis (Delta-Delta > 28).'
+                        );
+                    }
+                    if (deltaDelta < 22) {
+                        interpretation.push(
+                            'with an underlying Non-Gap Metabolic Acidosis (Delta-Delta < 22).'
+                        );
+                    }
                 } else {
-                     interpretation[0] = `<strong>This is a Non-Gap Metabolic Acidosis.</strong>`;
+                    interpretation[0] = '<strong>This is a Non-Gap Metabolic Acidosis.</strong>';
                 }
             }
 
@@ -128,57 +145,97 @@ export const abgAnalyzer = {
                 if (Math.abs(vals.pco2 - expectedPCO2) <= 5) {
                     compensation = 'Appropriately Compensated by Respiratory Acidosis.';
                 } else {
-                     compensation = 'with Inappropriate Respiratory Compensation.';
+                    compensation = 'with Inappropriate Respiratory Compensation.';
                 }
             } else if (primaryDisorder === 'Respiratory Acidosis') {
-                const chronicity = container.querySelector('input[name="chronicity"]:checked').value;
+                const chronicity = container.querySelector(
+                    'input[name="chronicity"]:checked'
+                ).value;
                 const deltaPCO2 = (vals.pco2 - 40) / 10;
                 let expectedHCO3;
                 if (chronicity === 'acute') {
                     expectedHCO3 = 24 + 1 * deltaPCO2;
-                } else { // chronic
+                } else {
+                    // chronic
                     expectedHCO3 = 24 + 4 * deltaPCO2;
                 }
                 if (Math.abs(vals.hco3 - expectedHCO3) <= 2) {
-                    compensation = `Appropriately Compensated by Metabolic Alkalosis.`;
+                    compensation = 'Appropriately Compensated by Metabolic Alkalosis.';
                 } else {
-                    compensation = `with Inappropriate Metabolic Compensation.`;
+                    compensation = 'with Inappropriate Metabolic Compensation.';
                 }
             } else if (primaryDisorder === 'Respiratory Alkalosis') {
-                const chronicity = container.querySelector('input[name="chronicity"]:checked').value;
-                 const deltaPCO2 = (40 - vals.pco2) / 10;
+                const chronicity = container.querySelector(
+                    'input[name="chronicity"]:checked'
+                ).value;
+                const deltaPCO2 = (40 - vals.pco2) / 10;
                 let expectedHCO3;
                 if (chronicity === 'acute') {
                     expectedHCO3 = 24 - 2 * deltaPCO2;
-                } else { // chronic
+                } else {
+                    // chronic
                     expectedHCO3 = 24 - 5 * deltaPCO2;
                 }
-                 if (Math.abs(vals.hco3 - expectedHCO3) <= 2) {
-                    compensation = `Appropriately Compensated by Metabolic Acidosis.`;
+                if (Math.abs(vals.hco3 - expectedHCO3) <= 2) {
+                    compensation = 'Appropriately Compensated by Metabolic Acidosis.';
                 } else {
-                    compensation = `with Inappropriate Metabolic Compensation.`;
+                    compensation = 'with Inappropriate Metabolic Compensation.';
                 }
             }
 
-            if (compensation) interpretation.push(compensation);
-            
+            if (compensation) {
+                interpretation.push(compensation);
+            }
+
             container.querySelector('#abg-result').className = 'result-box ttkg-result calculated';
             resultValueEl.innerHTML = interpretation.join('<br>');
         };
 
         // Auto-populate data
-        getMostRecentObservation(client, '11558-4').then(obs => { if(obs) fields.ph.value = obs.valueQuantity.value.toFixed(2); interpret(); }); // pH
-        getMostRecentObservation(client, '11557-6').then(obs => { if(obs) fields.pco2.value = obs.valueQuantity.value.toFixed(0); interpret(); }); // PCO2
-        getMostRecentObservation(client, '14627-4').then(obs => { if(obs) fields.hco3.value = obs.valueQuantity.value.toFixed(0); interpret(); }); // HCO3
-        getMostRecentObservation(client, '2951-2').then(obs => { if(obs) fields.sodium.value = obs.valueQuantity.value.toFixed(0); interpret(); }); // Sodium
-        getMostRecentObservation(client, '2075-0').then(obs => { if(obs) fields.chloride.value = obs.valueQuantity.value.toFixed(0); interpret(); }); // Chloride
-        getMostRecentObservation(client, '1751-7').then(obs => { if(obs) fields.albumin.value = obs.valueQuantity.value.toFixed(0); interpret(); }); // Albumin g/L
+        getMostRecentObservation(client, '11558-4').then(obs => {
+            if (obs) {
+                fields.ph.value = obs.valueQuantity.value.toFixed(2);
+            }
+            interpret();
+        }); // pH
+        getMostRecentObservation(client, '11557-6').then(obs => {
+            if (obs) {
+                fields.pco2.value = obs.valueQuantity.value.toFixed(0);
+            }
+            interpret();
+        }); // PCO2
+        getMostRecentObservation(client, '14627-4').then(obs => {
+            if (obs) {
+                fields.hco3.value = obs.valueQuantity.value.toFixed(0);
+            }
+            interpret();
+        }); // HCO3
+        getMostRecentObservation(client, '2951-2').then(obs => {
+            if (obs) {
+                fields.sodium.value = obs.valueQuantity.value.toFixed(0);
+            }
+            interpret();
+        }); // Sodium
+        getMostRecentObservation(client, '2075-0').then(obs => {
+            if (obs) {
+                fields.chloride.value = obs.valueQuantity.value.toFixed(0);
+            }
+            interpret();
+        }); // Chloride
+        getMostRecentObservation(client, '1751-7').then(obs => {
+            if (obs) {
+                fields.albumin.value = obs.valueQuantity.value.toFixed(0);
+            }
+            interpret();
+        }); // Albumin g/L
 
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => {
-                 if (input.type === 'radio') {
+                if (input.type === 'radio') {
                     const group = input.closest('.segmented-control');
-                    group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                    group
+                        .querySelectorAll('label')
+                        .forEach(label => label.classList.remove('selected'));
                     input.parentElement.classList.add('selected');
                 }
                 interpret();

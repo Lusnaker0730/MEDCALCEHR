@@ -5,7 +5,7 @@ export const tpaDosing = {
     id: 'tpa-dosing-stroke',
     title: 'tPA Dosing for Acute Stroke',
     description: 'Calculates tissue plasminogen activator (tPA) dosing for acute ischemic stroke.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>Calculates tissue plasminogen activator (tPA) dosing for acute ischemic stroke.</p>
@@ -161,7 +161,7 @@ export const tpaDosing = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         const weightInput = document.getElementById('weight');
         const symptomOnsetInput = document.getElementById('symptom-onset');
 
@@ -170,7 +170,7 @@ export const tpaDosing = {
             if (weightObs) {
                 weightInput.value = weightObs.valueQuantity.value.toFixed(1);
             } else {
-                weightInput.placeholder = "e.g., 70";
+                weightInput.placeholder = 'e.g., 70';
             }
         });
 
@@ -188,7 +188,7 @@ export const tpaDosing = {
 
                 let eligibilityStatus = '';
                 let eligibilityClass = '';
-                
+
                 if (symptomOnset > 0) {
                     if (symptomOnset <= 4.5) {
                         eligibilityStatus = '✅ Within time window for IV tPA';
@@ -242,7 +242,6 @@ export const tpaDosing = {
                     </div>
                 `;
                 resultEl.style.display = 'block';
-
             } else {
                 resultEl.innerHTML = '<p class="error">Please enter a valid weight.</p>';
                 resultEl.style.display = 'block';

@@ -4,7 +4,7 @@ import { getMostRecentObservation } from '../../utils.js';
 export const qtc = {
     id: 'qtc',
     title: 'Corrected QT Interval (QTc)',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
@@ -82,9 +82,11 @@ export const qtc = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         getMostRecentObservation(client, '8867-4').then(obs => {
-            if (obs) document.getElementById('qtc-hr').value = obs.valueQuantity.value.toFixed(0);
+            if (obs) {
+                document.getElementById('qtc-hr').value = obs.valueQuantity.value.toFixed(0);
+            }
         });
 
         document.getElementById('calculate-qtc').addEventListener('click', () => {
@@ -96,19 +98,19 @@ export const qtc = {
             if (qt > 0 && hr > 0) {
                 const rr = 60 / hr;
                 let qtcValue;
-                switch(formula) {
-                    case 'bazett':
-                        qtcValue = qt / Math.sqrt(rr);
-                        break;
-                    case 'fridericia':
-                        qtcValue = qt / Math.cbrt(rr);
-                        break;
-                    case 'hodges':
-                        qtcValue = qt + 1.75 * (hr - 60);
-                        break;
-                    case 'framingham':
-                        qtcValue = qt + 154 * (1 - rr);
-                        break;
+                switch (formula) {
+                case 'bazett':
+                    qtcValue = qt / Math.sqrt(rr);
+                    break;
+                case 'fridericia':
+                    qtcValue = qt / Math.cbrt(rr);
+                    break;
+                case 'hodges':
+                    qtcValue = qt + 1.75 * (hr - 60);
+                    break;
+                case 'framingham':
+                    qtcValue = qt + 154 * (1 - rr);
+                    break;
                 }
                 resultEl.innerHTML = `<p>QTc (${formula}): ${qtcValue.toFixed(0)} ms</p>`;
                 resultEl.style.display = 'block';
@@ -119,4 +121,3 @@ export const qtc = {
         });
     }
 };
-

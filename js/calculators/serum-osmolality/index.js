@@ -1,10 +1,16 @@
-import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const serumOsmolality = {
     id: 'serum-osmolality',
     title: 'Serum Osmolality/Osmolarity',
-    description: 'Calculates expected serum osmolarity, for comparison to measured osmolality to detect unmeasured compounds in the serum.',
-    generateHTML: function() {
+    description:
+        'Calculates expected serum osmolarity, for comparison to measured osmolality to detect unmeasured compounds in the serum.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -147,10 +153,10 @@ export const serumOsmolality = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const naInput = container.querySelector('#osmo-na');
         const resultEl = container.querySelector('#osmolality-result');
-        
+
         const calculateAndUpdate = () => {
             const na = parseFloat(naInput.value);
             const glucoseMgDl = getValueInStandardUnit(container, 'osmo-glucose', 'mg/dL');
@@ -161,12 +167,12 @@ export const serumOsmolality = {
                 return;
             }
 
-            const calculatedOsmolality = (2 * na) + (glucoseMgDl / 18) + (bunMgDl / 2.8);
-            
+            const calculatedOsmolality = 2 * na + glucoseMgDl / 18 + bunMgDl / 2.8;
+
             // Determine interpretation
             let interpretation = '';
             let interpretationColor = '';
-            
+
             if (calculatedOsmolality < 275) {
                 interpretation = 'Below normal range';
                 interpretationColor = '#2196f3';
@@ -177,7 +183,7 @@ export const serumOsmolality = {
                 interpretation = 'Within normal range';
                 interpretationColor = '#4caf50';
             }
-            
+
             const glucoseMmol = glucoseMgDl * 0.0555;
             const bunMmol = bunMgDl * 0.357;
 
@@ -234,46 +240,52 @@ export const serumOsmolality = {
         // Initialize unit conversions
         initializeUnitConversion(container, 'osmo-glucose', calculateAndUpdate);
         initializeUnitConversion(container, 'osmo-bun', calculateAndUpdate);
-        
+
         // Auto-populate Sodium
-        getMostRecentObservation(client, '2951-2').then(obs => {
-            if (obs && obs.valueQuantity) {
-                naInput.value = obs.valueQuantity.value.toFixed(0);
-            }
-            calculateAndUpdate();
-        }).catch(error => {
-            console.error('Error fetching sodium:', error);
-        });
-        
+        getMostRecentObservation(client, '2951-2')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    naInput.value = obs.valueQuantity.value.toFixed(0);
+                }
+                calculateAndUpdate();
+            })
+            .catch(error => {
+                console.error('Error fetching sodium:', error);
+            });
+
         // Auto-populate Glucose
-        getMostRecentObservation(client, '2345-7').then(obs => {
-            if (obs && obs.valueQuantity) {
-                const glucoseInput = container.querySelector('#osmo-glucose');
-                if (glucoseInput) {
-                    glucoseInput.value = obs.valueQuantity.value.toFixed(0);
+        getMostRecentObservation(client, '2345-7')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    const glucoseInput = container.querySelector('#osmo-glucose');
+                    if (glucoseInput) {
+                        glucoseInput.value = obs.valueQuantity.value.toFixed(0);
+                    }
                 }
-            }
-            calculateAndUpdate();
-        }).catch(error => {
-            console.error('Error fetching glucose:', error);
-        });
-        
+                calculateAndUpdate();
+            })
+            .catch(error => {
+                console.error('Error fetching glucose:', error);
+            });
+
         // Auto-populate BUN
-        getMostRecentObservation(client, '3094-0').then(obs => {
-            if (obs && obs.valueQuantity) {
-                const bunInput = container.querySelector('#osmo-bun');
-                if (bunInput) {
-                    bunInput.value = obs.valueQuantity.value.toFixed(0);
+        getMostRecentObservation(client, '3094-0')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    const bunInput = container.querySelector('#osmo-bun');
+                    if (bunInput) {
+                        bunInput.value = obs.valueQuantity.value.toFixed(0);
+                    }
                 }
-            }
-            calculateAndUpdate();
-        }).catch(error => {
-            console.error('Error fetching BUN:', error);
-        });
+                calculateAndUpdate();
+            })
+            .catch(error => {
+                console.error('Error fetching BUN:', error);
+            });
 
         // Add event listener for sodium input
         naInput.addEventListener('input', calculateAndUpdate);
-        
+
         // Initial calculation
         calculateAndUpdate();
     }

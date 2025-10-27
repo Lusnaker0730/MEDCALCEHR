@@ -4,8 +4,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const qsofaScore = {
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
-    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥2 is positive.',
-    generateHTML: function() {
+    description:
+        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥2 is positive.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -27,21 +28,21 @@ export const qsofaScore = {
             <div id="qsofa-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         // If only one parameter is passed (old style), use it as container
         if (!container && typeof client === 'object' && client.nodeType === 1) {
             container = client;
         }
-        
+
         // Use document if container is not a DOM element
         const root = container || document;
-        
+
         const calculateBtn = root.querySelector('#calculate-qsofa');
         if (!calculateBtn) {
             console.error('Calculate button not found');
             return;
         }
-        
+
         // Auto-populate respiratory rate
         getMostRecentObservation(client, '9279-1').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -52,7 +53,7 @@ export const qsofaScore = {
                 }
             }
         });
-        
+
         // Auto-populate systolic blood pressure
         getMostRecentObservation(client, '8480-6').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -63,25 +64,28 @@ export const qsofaScore = {
                 }
             }
         });
-        
+
         calculateBtn.addEventListener('click', () => {
             const inputs = root.querySelectorAll('#qsofa-form input[type="checkbox"]:checked');
             const score = inputs.length;
-            
+
             let interpretation = '';
             let riskLevel = '';
             let bgColor = '';
-            
+
             if (score >= 2) {
-                interpretation = 'Positive qSOFA: Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
+                interpretation =
+                    'Positive qSOFA: Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
                 riskLevel = 'High Risk';
                 bgColor = '#dc3545';
             } else if (score === 1) {
-                interpretation = 'Intermediate qSOFA: Monitor closely. Consider early intervention if clinical suspicion is high.';
+                interpretation =
+                    'Intermediate qSOFA: Monitor closely. Consider early intervention if clinical suspicion is high.';
                 riskLevel = 'Moderate Risk';
                 bgColor = '#ffc107';
             } else {
-                interpretation = 'Negative qSOFA: Lower risk, but continue to monitor if infection is suspected.';
+                interpretation =
+                    'Negative qSOFA: Lower risk, but continue to monitor if infection is suspected.';
                 riskLevel = 'Low Risk';
                 bgColor = '#28a745';
             }
@@ -109,8 +113,10 @@ export const qsofaScore = {
                 </div>
             `;
             resultEl.style.display = 'block';
-            resultEl.style.backgroundColor = score >= 2 ? '#f8d7da' : (score === 1 ? '#fff3cd' : '#d4edda');
-            resultEl.style.borderColor = score >= 2 ? '#f5c6cb' : (score === 1 ? '#ffc107' : '#c3e6cb');
+            resultEl.style.backgroundColor =
+                score >= 2 ? '#f8d7da' : score === 1 ? '#fff3cd' : '#d4edda';
+            resultEl.style.borderColor =
+                score >= 2 ? '#f5c6cb' : score === 1 ? '#ffc107' : '#c3e6cb';
         });
     }
 };

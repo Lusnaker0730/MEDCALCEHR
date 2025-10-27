@@ -14,7 +14,7 @@ window.onload = () => {
         container.innerHTML = '<h2>No calculator specified.</h2>';
         return;
     }
-    
+
     // Find metadata for title
     const calculatorInfo = calculatorModules.find(c => c.id === calculatorId);
 
@@ -34,37 +34,40 @@ window.onload = () => {
             // Dynamically import the specific calculator module from its own folder
             const module = await import(`/js/calculators/${calculatorId}/index.js`);
             // The calculator object is usually the main export, let's find it.
-            const calculator = Object.values(module)[0]; 
+            const calculator = Object.values(module)[0];
 
             if (!calculator || typeof calculator.generateHTML !== 'function') {
                 throw new Error('Invalid calculator module structure.');
             }
 
             card.innerHTML = calculator.generateHTML();
-            
-            FHIR.oauth2.ready().then(client => {
-                displayPatientInfo(client, patientInfoDiv).then(patient => {
-                    if (typeof calculator.initialize === 'function') {
-                        // Add a try-catch here as well to catch runtime errors during initialization
-                        try {
-                            calculator.initialize(client, patient, card);
-                        } catch (initError) {
-                            console.error('Error during calculator initialization:', initError);
-                            card.innerHTML = `<div class="error-box">An error occurred while initializing this calculator.</div>`;
-                        }
-                    }
-                });
-            }).catch(error => {
-                console.error(error);
-                patientInfoDiv.innerText = "Failed to initialize SMART on FHIR client.";
-            });
 
+            FHIR.oauth2
+                .ready()
+                .then(client => {
+                    displayPatientInfo(client, patientInfoDiv).then(patient => {
+                        if (typeof calculator.initialize === 'function') {
+                            // Add a try-catch here as well to catch runtime errors during initialization
+                            try {
+                                calculator.initialize(client, patient, card);
+                            } catch (initError) {
+                                console.error('Error during calculator initialization:', initError);
+                                card.innerHTML =
+                                    '<div class="error-box">An error occurred while initializing this calculator.</div>';
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                    patientInfoDiv.innerText = 'Failed to initialize SMART on FHIR client.';
+                });
         } catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            card.innerHTML = `<div class="error-box">This calculator is temporarily unavailable due to an error.</div>`;
+            card.innerHTML =
+                '<div class="error-box">This calculator is temporarily unavailable due to an error.</div>';
         }
     };
 
     loadCalculator();
 };
-

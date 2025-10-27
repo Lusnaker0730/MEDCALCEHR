@@ -2,21 +2,101 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 
 // Coefficients and baseline survival data from the official SCORE2-Diabetes calculator
 const score2DiabetesData = {
-    "low": {
-        "male": { "age": 0.0652, "sbp": 0.0139, "tchol": 0.2079, "hdl": -0.4485, "hba1c": 0.0211, "egfr": -0.0076, "smoking": 0.3838, "s010": 0.9765, "mean_x": 4.9664 },
-        "female": { "age": 0.0768, "sbp": 0.0152, "tchol": 0.147, "hdl": -0.5659, "hba1c": 0.0232, "egfr": -0.0084, "smoking": 0.5422, "s010": 0.9859, "mean_x": 5.215 }
+    low: {
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9765,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9859,
+            mean_x: 5.215
+        }
     },
-    "moderate": {
-        "male": { "age": 0.0652, "sbp": 0.0139, "tchol": 0.2079, "hdl": -0.4485, "hba1c": 0.0211, "egfr": -0.0076, "smoking": 0.3838, "s010": 0.9626, "mean_x": 4.9664 },
-        "female": { "age": 0.0768, "sbp": 0.0152, "tchol": 0.147, "hdl": -0.5659, "hba1c": 0.0232, "egfr": -0.0084, "smoking": 0.5422, "s010": 0.9782, "mean_x": 5.215 }
+    moderate: {
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9626,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9782,
+            mean_x: 5.215
+        }
     },
-    "high": {
-        "male": { "age": 0.0652, "sbp": 0.0139, "tchol": 0.2079, "hdl": -0.4485, "hba1c": 0.0211, "egfr": -0.0076, "smoking": 0.3838, "s010": 0.9388, "mean_x": 4.9664 },
-        "female": { "age": 0.0768, "sbp": 0.0152, "tchol": 0.147, "hdl": -0.5659, "hba1c": 0.0232, "egfr": -0.0084, "smoking": 0.5422, "s010": 0.9661, "mean_x": 5.215 }
+    high: {
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9388,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9661,
+            mean_x: 5.215
+        }
     },
-    "very_high": {
-        "male": { "age": 0.0652, "sbp": 0.0139, "tchol": 0.2079, "hdl": -0.4485, "hba1c": 0.0211, "egfr": -0.0076, "smoking": 0.3838, "s010": 0.9038, "mean_x": 4.9664 },
-        "female": { "age": 0.0768, "sbp": 0.0152, "tchol": 0.147, "hdl": -0.5659, "hba1c": 0.0232, "egfr": -0.0084, "smoking": 0.5422, "s010": 0.9472, "mean_x": 5.215 }
+    very_high: {
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9038,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9472,
+            mean_x: 5.215
+        }
     }
 };
 
@@ -24,7 +104,7 @@ export const score2Diabetes = {
     id: 'score2-diabetes',
     title: 'Systematic Coronary Risk Evaluation 2-Diabetes (SCORE2-Diabetes)',
     description: 'Predicts 10-year CVD risk in patients with type 2 diabetes.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <div class="score2-diabetes-container">
                 <div class="calculator-header">
@@ -304,41 +384,66 @@ export const score2Diabetes = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const fields = {
-            get sex() { return container.querySelector('input[name="sex"]:checked'); },
+            get sex() {
+                return container.querySelector('input[name="sex"]:checked');
+            },
             age: container.querySelector('#score2d-age'),
-            get smoking() { return container.querySelector('input[name="smoking"]:checked'); },
+            get smoking() {
+                return container.querySelector('input[name="smoking"]:checked');
+            },
             sbp: container.querySelector('#score2d-sbp'),
             tchol: container.querySelector('#score2d-tchol'),
             hdl: container.querySelector('#score2d-hdl'),
             hba1c: container.querySelector('#score2d-hba1c'),
             egfr: container.querySelector('#score2d-egfr'),
-            get region() { return container.querySelector('input[name="region"]:checked'); }
+            get region() {
+                return container.querySelector('input[name="region"]:checked');
+            }
         };
 
         // Auto-populate patient demographics display
         const patientAge = calculateAge(patient.birthDate);
         container.querySelector('#patient-age').textContent = `${patientAge} years`;
-        container.querySelector('#patient-gender').textContent = patient.gender === 'male' ? 'Male' : 'Female';
+        container.querySelector('#patient-gender').textContent =
+            patient.gender === 'male' ? 'Male' : 'Female';
 
         const calculate = () => {
             const riskPercentageEl = container.querySelector('#risk-percentage');
             const riskInterpretationEl = container.querySelector('#risk-interpretation');
             const riskStratificationEl = container.querySelector('#risk-stratification');
-            
+
             // Check which fields are missing
             const missingFields = [];
-            if (!fields.sex) missingFields.push('Gender');
-            if (!fields.age.value) missingFields.push('Age');
-            if (!fields.smoking) missingFields.push('Smoking Status');
-            if (!fields.sbp.value) missingFields.push('Systolic Blood Pressure');
-            if (!fields.egfr.value) missingFields.push('eGFR');
-            if (!fields.tchol.value) missingFields.push('Total Cholesterol');
-            if (!fields.hdl.value) missingFields.push('HDL Cholesterol');
-            if (!fields.hba1c.value) missingFields.push('HbA1c');
-            if (!fields.region) missingFields.push('Geographic Risk Region');
-            
+            if (!fields.sex) {
+                missingFields.push('Gender');
+            }
+            if (!fields.age.value) {
+                missingFields.push('Age');
+            }
+            if (!fields.smoking) {
+                missingFields.push('Smoking Status');
+            }
+            if (!fields.sbp.value) {
+                missingFields.push('Systolic Blood Pressure');
+            }
+            if (!fields.egfr.value) {
+                missingFields.push('eGFR');
+            }
+            if (!fields.tchol.value) {
+                missingFields.push('Total Cholesterol');
+            }
+            if (!fields.hdl.value) {
+                missingFields.push('HDL Cholesterol');
+            }
+            if (!fields.hba1c.value) {
+                missingFields.push('HbA1c');
+            }
+            if (!fields.region) {
+                missingFields.push('Geographic Risk Region');
+            }
+
             // Debug logging
             console.log('SCORE2-Diabetes Calculation Debug:', {
                 sex: fields.sex?.value,
@@ -352,7 +457,7 @@ export const score2Diabetes = {
                 region: fields.region?.value,
                 missingFields: missingFields
             });
-            
+
             if (missingFields.length > 0) {
                 riskPercentageEl.textContent = '-';
                 riskInterpretationEl.innerHTML = `
@@ -370,7 +475,7 @@ export const score2Diabetes = {
             const region = fields.region.value;
             const sex = fields.sex.value;
             const age = parseFloat(fields.age.value);
-            
+
             // Age validation
             if (age < 40 || age > 69) {
                 riskPercentageEl.textContent = 'N/A';
@@ -389,9 +494,9 @@ export const score2Diabetes = {
             // Convert units for calculation
             const tchol_mmol = parseFloat(fields.tchol.value) / 38.67;
             const hdl_mmol = parseFloat(fields.hdl.value) / 38.67;
-            const hba1c_mmol = (parseFloat(fields.hba1c.value) * 10.93) - 23.5;
+            const hba1c_mmol = parseFloat(fields.hba1c.value) * 10.93 - 23.5;
 
-            const ind_x = 
+            const ind_x =
                 coeffs.age * age +
                 coeffs.sbp * parseFloat(fields.sbp.value) +
                 coeffs.tchol * tchol_mmol +
@@ -404,27 +509,31 @@ export const score2Diabetes = {
 
             // Update result display
             riskPercentageEl.textContent = `${risk.toFixed(1)}%`;
-            
+
             // Determine risk category and interpretation
             let riskCategory, riskClass, interpretation;
             if (risk < 5) {
                 riskCategory = 'low';
                 riskClass = 'low-risk';
-                interpretation = 'Low cardiovascular risk - Focus on lifestyle modifications and reassess in 5 years';
+                interpretation =
+                    'Low cardiovascular risk - Focus on lifestyle modifications and reassess in 5 years';
             } else if (risk < 10) {
                 riskCategory = 'moderate';
                 riskClass = 'moderate-risk';
-                interpretation = 'Moderate cardiovascular risk - Consider statin therapy and intensive lifestyle modifications';
+                interpretation =
+                    'Moderate cardiovascular risk - Consider statin therapy and intensive lifestyle modifications';
             } else if (risk < 20) {
                 riskCategory = 'high';
                 riskClass = 'high-risk';
-                interpretation = 'High cardiovascular risk - Statin therapy recommended with intensive lifestyle modifications';
+                interpretation =
+                    'High cardiovascular risk - Statin therapy recommended with intensive lifestyle modifications';
             } else {
                 riskCategory = 'very-high';
                 riskClass = 'very-high-risk';
-                interpretation = 'Very high cardiovascular risk - High-intensity statin therapy and consider combination therapy';
+                interpretation =
+                    'Very high cardiovascular risk - High-intensity statin therapy and consider combination therapy';
             }
-            
+
             riskPercentageEl.className = `result-percentage ${riskClass}`;
             riskInterpretationEl.innerHTML = `
                 <div class="risk-badge ${riskClass}">
@@ -432,7 +541,7 @@ export const score2Diabetes = {
                 </div>
                 <div class="interpretation-text">${interpretation}</div>
             `;
-            
+
             // Show and highlight risk stratification
             riskStratificationEl.style.display = 'block';
             container.querySelectorAll('.risk-category').forEach(cat => {
@@ -455,86 +564,100 @@ export const score2Diabetes = {
         }
 
         // Auto-populate lab values
-        getMostRecentObservation(client, '8480-6').then(obs => { 
-            if (obs && obs.valueQuantity) {
-                fields.sbp.value = obs.valueQuantity.value.toFixed(0);
-                fields.sbp.placeholder = '';
-            } else {
-                fields.sbp.placeholder = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching SBP:', error);
-            fields.sbp.placeholder = 'Not available';
-        });
-        
-        getMostRecentObservation(client, '2093-3').then(obs => { 
-            if (obs && obs.valueQuantity) {
-                fields.tchol.value = obs.valueQuantity.value.toFixed(0);
-                fields.tchol.placeholder = '';
-            } else {
-                fields.tchol.placeholder = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching Total Cholesterol:', error);
-            fields.tchol.placeholder = 'Not available';
-        });
-        
-        getMostRecentObservation(client, '2085-9').then(obs => { 
-            if (obs && obs.valueQuantity) {
-                fields.hdl.value = obs.valueQuantity.value.toFixed(0);
-                fields.hdl.placeholder = '';
-            } else {
-                fields.hdl.placeholder = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching HDL:', error);
-            fields.hdl.placeholder = 'Not available';
-        });
-        
-        getMostRecentObservation(client, '4548-4').then(obs => { 
-            if (obs && obs.valueQuantity) {
-                fields.hba1c.value = obs.valueQuantity.value.toFixed(1);
-                fields.hba1c.placeholder = '';
-            } else {
-                fields.hba1c.placeholder = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching HbA1c:', error);
-            fields.hba1c.placeholder = 'Not available';
-        });
-        
-        getMostRecentObservation(client, '33914-3').then(obs => { 
-            if (obs && obs.valueQuantity) {
-                fields.egfr.value = obs.valueQuantity.value.toFixed(0);
-                fields.egfr.placeholder = '';
-            } else {
-                fields.egfr.placeholder = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching eGFR:', error);
-            fields.egfr.placeholder = 'Not available';
-        });
-        
-        // Smoking status
-        getMostRecentObservation(client, '72166-2').then(obs => {
-            if (obs && obs.valueCodeableConcept) {
-                const smokingCode = obs.valueCodeableConcept.coding[0].code;
-                const isSmoker = smokingCode === '449868002';
-                const smokingRadio = container.querySelector(`input[name="smoking"][value="${isSmoker ? 1 : 0}"]`);
-                if(smokingRadio){
-                    smokingRadio.checked = true;
-                    this.updateToggleState(smokingRadio);
+        getMostRecentObservation(client, '8480-6')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.sbp.value = obs.valueQuantity.value.toFixed(0);
+                    fields.sbp.placeholder = '';
+                } else {
+                    fields.sbp.placeholder = 'Not available';
                 }
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching smoking status:', error);
-        });
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching SBP:', error);
+                fields.sbp.placeholder = 'Not available';
+            });
+
+        getMostRecentObservation(client, '2093-3')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.tchol.value = obs.valueQuantity.value.toFixed(0);
+                    fields.tchol.placeholder = '';
+                } else {
+                    fields.tchol.placeholder = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching Total Cholesterol:', error);
+                fields.tchol.placeholder = 'Not available';
+            });
+
+        getMostRecentObservation(client, '2085-9')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.hdl.value = obs.valueQuantity.value.toFixed(0);
+                    fields.hdl.placeholder = '';
+                } else {
+                    fields.hdl.placeholder = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching HDL:', error);
+                fields.hdl.placeholder = 'Not available';
+            });
+
+        getMostRecentObservation(client, '4548-4')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.hba1c.value = obs.valueQuantity.value.toFixed(1);
+                    fields.hba1c.placeholder = '';
+                } else {
+                    fields.hba1c.placeholder = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching HbA1c:', error);
+                fields.hba1c.placeholder = 'Not available';
+            });
+
+        getMostRecentObservation(client, '33914-3')
+            .then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.egfr.value = obs.valueQuantity.value.toFixed(0);
+                    fields.egfr.placeholder = '';
+                } else {
+                    fields.egfr.placeholder = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching eGFR:', error);
+                fields.egfr.placeholder = 'Not available';
+            });
+
+        // Smoking status
+        getMostRecentObservation(client, '72166-2')
+            .then(obs => {
+                if (obs && obs.valueCodeableConcept) {
+                    const smokingCode = obs.valueCodeableConcept.coding[0].code;
+                    const isSmoker = smokingCode === '449868002';
+                    const smokingRadio = container.querySelector(
+                        `input[name="smoking"][value="${isSmoker ? 1 : 0}"]`
+                    );
+                    if (smokingRadio) {
+                        smokingRadio.checked = true;
+                        this.updateToggleState(smokingRadio);
+                    }
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching smoking status:', error);
+            });
 
         // Event listeners
         container.querySelectorAll('input').forEach(input => {
@@ -544,7 +667,7 @@ export const score2Diabetes = {
                 }
                 calculate();
             });
-            
+
             if (input.type === 'number') {
                 input.addEventListener('input', calculate);
             }
@@ -553,8 +676,8 @@ export const score2Diabetes = {
         // Initial calculation
         setTimeout(calculate, 500);
     },
-    
-    updateToggleState: function(selectedInput) {
+
+    updateToggleState: function (selectedInput) {
         const group = selectedInput.closest('.score2-toggle-group, .region-selector');
         if (group) {
             group.querySelectorAll('.toggle-option, .region-option').forEach(option => {

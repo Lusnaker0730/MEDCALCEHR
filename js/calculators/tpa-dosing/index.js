@@ -3,8 +3,9 @@ import { getMostRecentObservation } from '../../utils.js';
 export const tpaDosing = {
     id: 'tpa-dosing',
     title: 'tPA (Alteplase) Dosing for Ischemic Stroke',
-    description: 'Calculates tPA (alteplase) dosing for acute ischemic stroke based on patient weight.',
-    generateHTML: function() {
+    description:
+        'Calculates tPA (alteplase) dosing for acute ischemic stroke based on patient weight.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -16,11 +17,14 @@ export const tpaDosing = {
             <div id="tpa-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const weightEl = container.querySelector('#tpa-weight');
 
-        getMostRecentObservation(client, '29463-7').then(obs => { // Weight
-            if (obs && obs.valueQuantity) weightEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '29463-7').then(obs => {
+            // Weight
+            if (obs && obs.valueQuantity) {
+                weightEl.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
 
         container.querySelector('#calculate-tpa').addEventListener('click', () => {
@@ -35,7 +39,7 @@ export const tpaDosing = {
             if (weight > 100) {
                 weight = 100;
             }
-            
+
             const totalDose = weight * 0.9;
             const bolusDose = totalDose * 0.1;
             const infusionDose = totalDose * 0.9;

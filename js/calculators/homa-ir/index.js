@@ -1,11 +1,16 @@
 // js/calculators/homa-ir.js
-import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const homaIr = {
     id: 'homa-ir',
     title: 'HOMA-IR (Homeostatic Model Assessment for Insulin Resistance)',
     description: 'Approximates insulin resistance.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -76,7 +81,7 @@ export const homaIr = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const insulinInput = container.querySelector('#homa-insulin');
         const resultEl = container.querySelector('#homa-ir-result');
 
@@ -87,11 +92,11 @@ export const homaIr = {
             if (glucoseMgDl > 0 && insulin > 0) {
                 const homaIrScore = (glucoseMgDl * insulin) / 405;
                 const glucoseMmol = glucoseMgDl * 0.0555;
-                
+
                 let interpretation = '';
                 let statusColor = '';
                 let status = '';
-                
+
                 if (homaIrScore > 2.9) {
                     interpretation = 'High likelihood of insulin resistance.';
                     status = 'Insulin Resistant';
@@ -105,7 +110,7 @@ export const homaIr = {
                     status = 'Optimal Sensitivity';
                     statusColor = '#4caf50';
                 }
-                
+
                 resultEl.innerHTML = `
                     <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; margin-bottom: 15px;">
                         <div style="font-size: 1.1em; margin-bottom: 8px;">HOMA-IR Score:</div>
@@ -147,7 +152,8 @@ export const homaIr = {
         initializeUnitConversion(container, 'homa-glucose', calculateAndUpdate);
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '2339-0').then(obs => { // Fasting Glucose
+        getMostRecentObservation(client, '2339-0').then(obs => {
+            // Fasting Glucose
             if (obs && obs.valueQuantity) {
                 const glucoseInput = container.querySelector('#homa-glucose');
                 if (glucoseInput) {
@@ -156,8 +162,9 @@ export const homaIr = {
             }
             calculateAndUpdate();
         });
-        
-        getMostRecentObservation(client, '20448-7').then(obs => { // Insulin
+
+        getMostRecentObservation(client, '20448-7').then(obs => {
+            // Insulin
             if (obs && obs.valueQuantity) {
                 insulinInput.value = obs.valueQuantity.value.toFixed(1);
             } else {
@@ -168,7 +175,7 @@ export const homaIr = {
 
         // Event listener
         insulinInput.addEventListener('input', calculateAndUpdate);
-        
+
         // Initial calculation
         calculateAndUpdate();
     }

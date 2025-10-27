@@ -4,20 +4,60 @@ export const dasi = {
     id: 'dasi',
     title: 'Duke Activity Status Index (DASI)',
     description: 'Estimates functional capacity.',
-    generateHTML: function() {
+    generateHTML: function () {
         const activities = [
-            { id: 'dasi-care', label: 'Can you take care of yourself, (i.e., eating, dressing, bathing or using the toilet)?', weight: 2.75 },
-            { id: 'dasi-walk-indoors', label: 'Can you walk indoors, such as around your house?', weight: 1.75 },
-            { id: 'dasi-walk-flat', label: 'Can you walk a block or two on level ground?', weight: 2.75 },
-            { id: 'dasi-climb-stairs', label: 'Can you climb a flight of stairs or walk up a hill?', weight: 5.5 },
+            {
+                id: 'dasi-care',
+                label: 'Can you take care of yourself, (i.e., eating, dressing, bathing or using the toilet)?',
+                weight: 2.75
+            },
+            {
+                id: 'dasi-walk-indoors',
+                label: 'Can you walk indoors, such as around your house?',
+                weight: 1.75
+            },
+            {
+                id: 'dasi-walk-flat',
+                label: 'Can you walk a block or two on level ground?',
+                weight: 2.75
+            },
+            {
+                id: 'dasi-climb-stairs',
+                label: 'Can you climb a flight of stairs or walk up a hill?',
+                weight: 5.5
+            },
             { id: 'dasi-run', label: 'Can you run a short distance?', weight: 8.0 },
-            { id: 'dasi-light-housework', label: 'Can you do light work around the house like dusting or washing dishes?', weight: 2.7 },
-            { id: 'dasi-moderate-housework', label: 'Can you do moderate work around the house like vacuuming, sweeping floors or carrying in groceries?', weight: 3.5 },
-            { id: 'dasi-heavy-housework', label: 'Can you do heavy work around the house like scrubbing floors or lifting or moving heavy furniture?', weight: 8.0 },
-            { id: 'dasi-yardwork', label: 'Can you do yardwork like raking leaves, weeding or pushing a power mower?', weight: 4.5 },
+            {
+                id: 'dasi-light-housework',
+                label: 'Can you do light work around the house like dusting or washing dishes?',
+                weight: 2.7
+            },
+            {
+                id: 'dasi-moderate-housework',
+                label: 'Can you do moderate work around the house like vacuuming, sweeping floors or carrying in groceries?',
+                weight: 3.5
+            },
+            {
+                id: 'dasi-heavy-housework',
+                label: 'Can you do heavy work around the house like scrubbing floors or lifting or moving heavy furniture?',
+                weight: 8.0
+            },
+            {
+                id: 'dasi-yardwork',
+                label: 'Can you do yardwork like raking leaves, weeding or pushing a power mower?',
+                weight: 4.5
+            },
             { id: 'dasi-sex', label: 'Can you have sexual relations?', weight: 5.25 },
-            { id: 'dasi-recreation-mild', label: 'Can you participate in mild recreational activities like bowling or dancing?', weight: 6.0 },
-            { id: 'dasi-recreation-strenuous', label: 'Can you participate in strenuous sports like swimming, singles tennis, football, basketball or skiing?', weight: 7.5 }
+            {
+                id: 'dasi-recreation-mild',
+                label: 'Can you participate in mild recreational activities like bowling or dancing?',
+                weight: 6.0
+            },
+            {
+                id: 'dasi-recreation-strenuous',
+                label: 'Can you participate in strenuous sports like swimming, singles tennis, football, basketball or skiing?',
+                weight: 7.5
+            }
         ];
 
         let html = `
@@ -27,7 +67,7 @@ export const dasi = {
             <div class="checklist">
         `;
         activities.forEach(act => {
-             html += `<div class="check-item"><input type="checkbox" id="${act.id}" data-weight="${act.weight}"><label for="${act.id}">${act.label}</label></div>`;
+            html += `<div class="check-item"><input type="checkbox" id="${act.id}" data-weight="${act.weight}"><label for="${act.id}">${act.label}</label></div>`;
         });
         html += `
             </div>
@@ -66,7 +106,7 @@ export const dasi = {
         `;
         return html;
     },
-    initialize: function() {
+    initialize: function () {
         document.getElementById('calculate-dasi').addEventListener('click', () => {
             let score = 0;
             document.querySelectorAll('.checklist input[type="checkbox"]:checked').forEach(box => {
@@ -76,16 +116,19 @@ export const dasi = {
             // Formula to estimate METs from DASI score
             // VO2peak (mL/kg/min) = (0.43 × DASI) + 9.6
             // METs = VO2peak / 3.5
-            const vo2peak = (0.43 * score) + 9.6;
+            const vo2peak = 0.43 * score + 9.6;
             const mets = vo2peak / 3.5;
 
             let interpretation = '';
             if (mets < 4) {
-                interpretation = '<span style="color: #dc3545; font-weight: 600;">Poor functional capacity</span>';
+                interpretation =
+                    '<span style="color: #dc3545; font-weight: 600;">Poor functional capacity</span>';
             } else if (mets < 7) {
-                interpretation = '<span style="color: #ffc107; font-weight: 600;">Moderate functional capacity</span>';
+                interpretation =
+                    '<span style="color: #ffc107; font-weight: 600;">Moderate functional capacity</span>';
             } else {
-                interpretation = '<span style="color: #28a745; font-weight: 600;">Good functional capacity</span>';
+                interpretation =
+                    '<span style="color: #28a745; font-weight: 600;">Good functional capacity</span>';
             }
 
             const resultEl = document.getElementById('dasi-result');

@@ -1,4 +1,3 @@
-
 export const benzoConversion = {
     id: 'benzo-conversion',
     title: 'Benzodiazepine Conversion Calculator',
@@ -13,14 +12,18 @@ export const benzoConversion = {
             lorazepam: { name: 'Lorazepam (Ativan)', equivalent: 1 },
             oxazepam: { name: 'Oxazepam (Serax)', equivalent: 15 },
             temazepam: { name: 'Temazepam (Restoril)', equivalent: 20 },
-            triazolam: { name: 'Triazolam (Halcion)', equivalent: 0.25 },
+            triazolam: { name: 'Triazolam (Halcion)', equivalent: 0.25 }
         };
 
-        const createDrugList = (groupName) => {
+        const createDrugList = groupName => {
             let html = '';
             for (const key in benzoEquivalents) {
                 const drug = benzoEquivalents[key];
-                const checked = (groupName === 'from' && key === 'alprazolam') || (groupName === 'to' && key === 'diazepam') ? 'checked' : '';
+                const checked =
+                    (groupName === 'from' && key === 'alprazolam') ||
+                    (groupName === 'to' && key === 'diazepam')
+                        ? 'checked'
+                        : '';
                 html += `<label><input type="radio" name="${groupName}" value="${key}" ${checked}><span>${drug.name}</span></label>`;
             }
             return html;
@@ -79,7 +82,7 @@ export const benzoConversion = {
             lorazepam: { name: 'Lorazepam (Ativan)', equivalent: 1 },
             oxazepam: { name: 'Oxazepam (Serax)', equivalent: 15 },
             temazepam: { name: 'Temazepam (Restoril)', equivalent: 20 },
-            triazolam: { name: 'Triazolam (Halcion)', equivalent: 0.25 },
+            triazolam: { name: 'Triazolam (Halcion)', equivalent: 0.25 }
         };
 
         const calculate = () => {
@@ -91,25 +94,31 @@ export const benzoConversion = {
             const toDrug = benzoEquivalents[toDrugKey];
 
             if (!fromDrug || !toDrug || dosage === 0) {
-                 document.getElementById('result-equivalent').textContent = '- mg';
-                 document.getElementById('result-range').textContent = '- mg';
-                 document.getElementById('result-equivalent-desc').textContent = 'Please enter a valid dosage.';
-                 document.getElementById('result-range-desc').textContent = 'Please enter a valid dosage.';
+                document.getElementById('result-equivalent').textContent = '- mg';
+                document.getElementById('result-range').textContent = '- mg';
+                document.getElementById('result-equivalent-desc').textContent =
+                    'Please enter a valid dosage.';
+                document.getElementById('result-range-desc').textContent =
+                    'Please enter a valid dosage.';
                 return;
             }
-            
+
             const equivalentDose = (dosage / fromDrug.equivalent) * toDrug.equivalent;
             const lowerRange = equivalentDose * 0.5;
             const upperRange = equivalentDose * 2.0;
 
-            document.getElementById('result-equivalent').textContent = `${equivalentDose.toFixed(1)} mg`;
-            document.getElementById('result-range').textContent = `${lowerRange.toFixed(1)}-${upperRange.toFixed(1)} mg`;
+            document.getElementById('result-equivalent').textContent =
+                `${equivalentDose.toFixed(1)} mg`;
+            document.getElementById('result-range').textContent =
+                `${lowerRange.toFixed(1)}-${upperRange.toFixed(1)} mg`;
 
             const fromDrugShortName = fromDrug.name.split(' ')[0];
             const toDrugShortName = toDrug.name.split(' ')[0];
 
-            document.getElementById('result-equivalent-desc').textContent = `${toDrugShortName} dose equivalent to ${dosage} mg ${fromDrugShortName}`;
-            document.getElementById('result-range-desc').textContent = `Range of ${toDrugShortName} dose equivalent to ${dosage} mg ${fromDrugShortName}`;
+            document.getElementById('result-equivalent-desc').textContent =
+                `${toDrugShortName} dose equivalent to ${dosage} mg ${fromDrugShortName}`;
+            document.getElementById('result-range-desc').textContent =
+                `Range of ${toDrugShortName} dose equivalent to ${dosage} mg ${fromDrugShortName}`;
         };
 
         document.querySelectorAll('.form-container input').forEach(input => {
@@ -127,9 +136,11 @@ export const benzoConversion = {
         });
 
         // Set initial selected styles
-        document.querySelectorAll('input[name="from"]:checked, input[name="to"]:checked').forEach(radio => {
-            radio.parentElement.classList.add('selected');
-        });
+        document
+            .querySelectorAll('input[name="from"]:checked, input[name="to"]:checked')
+            .forEach(radio => {
+                radio.parentElement.classList.add('selected');
+            });
 
         calculate(); // Initial calculation
     }

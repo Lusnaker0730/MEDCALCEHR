@@ -1,10 +1,15 @@
-import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const phenytoinCorrection = {
     id: 'phenytoin-correction',
     title: 'Phenytoin (Dilantin) Correction for Albumin/Renal Failure',
     description: 'Corrects serum phenytoin level for renal failure and/or hypoalbuminemia.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -120,7 +125,7 @@ export const phenytoinCorrection = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const totalEl = container.querySelector('#pheny-total');
         const renalEl = container.querySelector('#pheny-renal');
         const resultEl = container.querySelector('#phenytoin-result');
@@ -136,8 +141,8 @@ export const phenytoinCorrection = {
             }
 
             const K = hasRenalFailure ? 0.2 : 0.1;
-            const correctedPhenytoin = totalPhenytoin / (( (1-K) * albuminGdl / 4.4) + K);
-            
+            const correctedPhenytoin = totalPhenytoin / (((1 - K) * albuminGdl) / 4.4 + K);
+
             // Determine therapeutic status
             let status = '';
             let statusColor = '';
@@ -167,7 +172,7 @@ export const phenytoinCorrection = {
                         <div><strong>Total Phenytoin:</strong> ${totalPhenytoin.toFixed(1)} mcg/mL</div>
                         <div><strong>Albumin:</strong> ${albuminGdl.toFixed(1)} g/dL</div>
                         <div><strong>Renal Failure:</strong> ${hasRenalFailure ? 'Yes (K=0.2)' : 'No (K=0.1)'}</div>
-                        <div><strong>Correction Factor:</strong> ${(( (1-K) * albuminGdl / 4.4) + K).toFixed(3)}</div>
+                        <div><strong>Correction Factor:</strong> ${(((1 - K) * albuminGdl) / 4.4 + K).toFixed(3)}</div>
                     </div>
                 </div>
                 
@@ -184,12 +189,16 @@ export const phenytoinCorrection = {
         initializeUnitConversion(container, 'pheny-albumin', calculateAndUpdate);
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '4038-8').then(obs => { // Phenytoin
-            if (obs && obs.valueQuantity) totalEl.value = obs.valueQuantity.value.toFixed(1);
+        getMostRecentObservation(client, '4038-8').then(obs => {
+            // Phenytoin
+            if (obs && obs.valueQuantity) {
+                totalEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculateAndUpdate();
         });
-        
-        getMostRecentObservation(client, '1751-7').then(obs => { // Albumin
+
+        getMostRecentObservation(client, '1751-7').then(obs => {
+            // Albumin
             if (obs && obs.valueQuantity) {
                 const albuminInput = container.querySelector('#pheny-albumin');
                 if (albuminInput) {
@@ -208,7 +217,7 @@ export const phenytoinCorrection = {
         if (oldBtn) {
             oldBtn.style.display = 'none';
         }
-        
+
         // Initial calculation
         calculateAndUpdate();
     }

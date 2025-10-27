@@ -4,7 +4,7 @@ import { getMostRecentObservation } from '../../utils.js';
 export const map = {
     id: 'map',
     title: 'Mean Arterial Pressure (MAP)',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
@@ -88,29 +88,35 @@ export const map = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const sbpInput = container.querySelector('#map-sbp');
         const dbpInput = container.querySelector('#map-dbp');
         const resultEl = container.querySelector('#map-result');
 
         // LOINC 85354-9 for Blood Pressure Panel
         if (client) {
-            getMostRecentObservation(client, '85354-9').then(bpPanel => {
-                if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === '8480-6'); // Systolic
-                    const dbpComp = bpPanel.component.find(c => c.code.coding[0].code === '8462-4'); // Diastolic
+            getMostRecentObservation(client, '85354-9')
+                .then(bpPanel => {
+                    if (bpPanel && bpPanel.component) {
+                        const sbpComp = bpPanel.component.find(
+                            c => c.code.coding[0].code === '8480-6'
+                        ); // Systolic
+                        const dbpComp = bpPanel.component.find(
+                            c => c.code.coding[0].code === '8462-4'
+                        ); // Diastolic
 
-                    if (sbpComp && sbpComp.valueQuantity) {
-                        sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
-                    }
-                    
-                    if (dbpComp && dbpComp.valueQuantity) {
-                        dbpInput.value = dbpComp.valueQuantity.value.toFixed(0);
-                    }
+                        if (sbpComp && sbpComp.valueQuantity) {
+                            sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
+                        }
 
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('BP data not available'));
+                        if (dbpComp && dbpComp.valueQuantity) {
+                            dbpInput.value = dbpComp.valueQuantity.value.toFixed(0);
+                        }
+
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('BP data not available'));
         }
 
         const calculateAndUpdate = () => {
@@ -123,23 +129,26 @@ export const map = {
             }
 
             if (sbp < dbp) {
-                resultEl.innerHTML = `<p style="color: red;"><strong>⚠️ Error:</strong> Systolic BP must be ≥ Diastolic BP</p>`;
+                resultEl.innerHTML =
+                    '<p style="color: red;"><strong>⚠️ Error:</strong> Systolic BP must be ≥ Diastolic BP</p>';
                 resultEl.style.display = 'block';
                 return;
             }
 
             const mapCalc = dbp + (sbp - dbp) / 3;
-            
+
             // Determine clinical status
             let status = '';
             if (mapCalc < 60) {
-                status = '<span style="color: #d32f2f; font-weight: bold;">⚠️ Low (Hypotension)</span>';
+                status =
+                    '<span style="color: #d32f2f; font-weight: bold;">⚠️ Low (Hypotension)</span>';
             } else if (mapCalc < 70) {
                 status = '<span style="color: #f57c00; font-weight: bold;">⚠️ Below Normal</span>';
             } else if (mapCalc <= 100) {
                 status = '<span style="color: #388e3c; font-weight: bold;">✓ Normal</span>';
             } else {
-                status = '<span style="color: #d32f2f; font-weight: bold;">⚠️ Elevated (Hypertension)</span>';
+                status =
+                    '<span style="color: #d32f2f; font-weight: bold;">⚠️ Elevated (Hypertension)</span>';
             }
 
             resultEl.innerHTML = `
@@ -157,15 +166,8 @@ export const map = {
         // Add event listeners for automatic calculation on input change
         sbpInput.addEventListener('input', calculateAndUpdate);
         dbpInput.addEventListener('input', calculateAndUpdate);
-        
+
         // Initial calculation if both values are already set
         calculateAndUpdate();
     }
 };
-
-
-
-
-
-
-

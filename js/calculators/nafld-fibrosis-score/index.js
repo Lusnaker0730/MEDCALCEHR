@@ -4,7 +4,7 @@ export const nafldFibrosisScore = {
     id: 'nafld-fibrosis-score',
     title: 'NAFLD (Non-Alcoholic Fatty Liver Disease) Fibrosis Score',
     description: 'Estimates amount of scarring in the liver based on several laboratory tests.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -142,7 +142,7 @@ export const nafldFibrosisScore = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const ageEl = container.querySelector('#nafld-age');
         const bmiEl = container.querySelector('#nafld-bmi');
         const diabetesEl = container.querySelector('#nafld-diabetes');
@@ -158,40 +158,55 @@ export const nafldFibrosisScore = {
 
         // Fetch observations
         if (client) {
-            getMostRecentObservation(client, '39156-5').then(obs => { // BMI
-                if (obs && obs.valueQuantity) {
-                    bmiEl.value = obs.valueQuantity.value.toFixed(1);
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('BMI data not available'));
-            
-            getMostRecentObservation(client, '1920-8').then(obs => { // AST
-                if (obs && obs.valueQuantity) {
-                    astEl.value = obs.valueQuantity.value.toFixed(0);
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('AST data not available'));
-            
-            getMostRecentObservation(client, '1742-6').then(obs => { // ALT
-                if (obs && obs.valueQuantity) {
-                    altEl.value = obs.valueQuantity.value.toFixed(0);
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('ALT data not available'));
-            
-            getMostRecentObservation(client, '777-3').then(obs => { // Platelet
-                if (obs && obs.valueQuantity) {
-                    plateletEl.value = obs.valueQuantity.value.toFixed(0);
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('Platelet data not available'));
-            
-            getMostRecentObservation(client, '1751-7').then(obs => { // Albumin
-                if (obs && obs.valueQuantity) {
-                    albuminEl.value = obs.valueQuantity.value.toFixed(1);
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('Albumin data not available'));
+            getMostRecentObservation(client, '39156-5')
+                .then(obs => {
+                    // BMI
+                    if (obs && obs.valueQuantity) {
+                        bmiEl.value = obs.valueQuantity.value.toFixed(1);
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('BMI data not available'));
+
+            getMostRecentObservation(client, '1920-8')
+                .then(obs => {
+                    // AST
+                    if (obs && obs.valueQuantity) {
+                        astEl.value = obs.valueQuantity.value.toFixed(0);
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('AST data not available'));
+
+            getMostRecentObservation(client, '1742-6')
+                .then(obs => {
+                    // ALT
+                    if (obs && obs.valueQuantity) {
+                        altEl.value = obs.valueQuantity.value.toFixed(0);
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('ALT data not available'));
+
+            getMostRecentObservation(client, '777-3')
+                .then(obs => {
+                    // Platelet
+                    if (obs && obs.valueQuantity) {
+                        plateletEl.value = obs.valueQuantity.value.toFixed(0);
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('Platelet data not available'));
+
+            getMostRecentObservation(client, '1751-7')
+                .then(obs => {
+                    // Albumin
+                    if (obs && obs.valueQuantity) {
+                        albuminEl.value = obs.valueQuantity.value.toFixed(1);
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('Albumin data not available'));
         }
 
         const calculateAndUpdate = () => {
@@ -204,20 +219,35 @@ export const nafldFibrosisScore = {
             const albumin = parseFloat(albuminEl.value);
 
             // Check if all values are valid
-            if (isNaN(age) || isNaN(bmi) || isNaN(ast) || isNaN(alt) || isNaN(platelet) || isNaN(albumin)) {
+            if (
+                isNaN(age) ||
+                isNaN(bmi) ||
+                isNaN(ast) ||
+                isNaN(alt) ||
+                isNaN(platelet) ||
+                isNaN(albumin)
+            ) {
                 resultEl.style.display = 'none';
                 return;
             }
 
             if (alt === 0) {
-                resultEl.innerHTML = `<p style="color: red;"><strong>Error:</strong> ALT cannot be zero for calculation.</p>`;
+                resultEl.innerHTML =
+                    '<p style="color: red;"><strong>Error:</strong> ALT cannot be zero for calculation.</p>';
                 resultEl.style.display = 'block';
                 return;
             }
 
             const astAltRatio = ast / alt;
-            const score = -1.675 + (0.037 * age) + (0.094 * bmi) + (1.13 * diabetes) + (0.99 * astAltRatio) - (0.013 * platelet) - (0.66 * albumin);
-            
+            const score =
+                -1.675 +
+                0.037 * age +
+                0.094 * bmi +
+                1.13 * diabetes +
+                0.99 * astAltRatio -
+                0.013 * platelet -
+                0.66 * albumin;
+
             let fibrosisStage = '';
             let interpretation = '';
             let riskColor = '';
@@ -232,12 +262,14 @@ export const nafldFibrosisScore = {
                 fibrosisStage = 'Indeterminate';
                 interpretation = 'Further evaluation needed';
                 riskColor = '#ff9800';
-                recommendedAction = 'Consider FibroScan (transient elastography) or other confirmatory testing';
+                recommendedAction =
+                    'Consider FibroScan (transient elastography) or other confirmatory testing';
             } else {
                 fibrosisStage = 'F3-F4 (Advanced Fibrosis/Cirrhosis)';
                 interpretation = 'High probability of advanced fibrosis';
                 riskColor = '#d32f2f';
-                recommendedAction = 'Recommend specialist referral for further evaluation and management';
+                recommendedAction =
+                    'Recommend specialist referral for further evaluation and management';
             }
 
             resultEl.innerHTML = `
@@ -277,7 +309,7 @@ export const nafldFibrosisScore = {
         altEl.addEventListener('input', calculateAndUpdate);
         plateletEl.addEventListener('input', calculateAndUpdate);
         albuminEl.addEventListener('input', calculateAndUpdate);
-        
+
         // Initial calculation if data is already loaded
         calculateAndUpdate();
     }

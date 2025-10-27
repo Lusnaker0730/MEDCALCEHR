@@ -4,7 +4,7 @@ export const stopBang = {
     id: 'stop-bang',
     title: 'STOP-BANG Score for Obstructive Sleep Apnea',
     description: 'Screens for obstructive sleep apnea using validated clinical criteria.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="calculator-description">${this.description}</p>
@@ -308,100 +308,110 @@ export const stopBang = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         // Auto-populate patient data
         this.populatePatientData(client);
-        
+
         // Set up event listeners for checkboxes
         this.setupEventListeners();
-        
+
         // Initial calculation
         this.calculateScore();
     },
-    
-    populatePatientData: function(client) {
+
+    populatePatientData: function (client) {
         // Get patient demographics
-        getPatient(client).then(patient => {
-            // Calculate age
-            const birthDate = new Date(patient.birthDate);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            const adjustedAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()) ? age - 1 : age;
-            
-            document.getElementById('patient-age').textContent = `${adjustedAge} years`;
-            
-            // Auto-check age if > 50
-            if (adjustedAge > 50) {
-                document.getElementById('sb-age').checked = true;
-                this.updateToggleText('sb-age', true);
-            }
-            
-            // Set gender
-            const gender = patient.gender || 'unknown';
-            document.getElementById('patient-gender').textContent = gender.charAt(0).toUpperCase() + gender.slice(1);
-            
-            // Auto-check gender if male
-            if (gender.toLowerCase() === 'male') {
-                document.getElementById('sb-gender').checked = true;
-                this.updateToggleText('sb-gender', true);
-            }
-        }).catch(error => {
-            console.error('Error fetching patient data:', error);
-            document.getElementById('patient-age').textContent = 'Not available';
-            document.getElementById('patient-gender').textContent = 'Not available';
-        });
-        
-        // Get BMI from observations
-        getMostRecentObservation(client, '39156-5').then(bmiObs => {
-            if (bmiObs && bmiObs.valueQuantity) {
-                const bmi = bmiObs.valueQuantity.value;
-                document.getElementById('patient-bmi').textContent = `${bmi.toFixed(1)} kg/m²`;
-                
-                // Auto-check BMI if > 35
-                if (bmi > 35) {
-                    document.getElementById('sb-bmi').checked = true;
-                    this.updateToggleText('sb-bmi', true);
+        getPatient(client)
+            .then(patient => {
+                // Calculate age
+                const birthDate = new Date(patient.birthDate);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                const adjustedAge =
+                    monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())
+                        ? age - 1
+                        : age;
+
+                document.getElementById('patient-age').textContent = `${adjustedAge} years`;
+
+                // Auto-check age if > 50
+                if (adjustedAge > 50) {
+                    document.getElementById('sb-age').checked = true;
+                    this.updateToggleText('sb-age', true);
                 }
-            } else {
+
+                // Set gender
+                const gender = patient.gender || 'unknown';
+                document.getElementById('patient-gender').textContent =
+                    gender.charAt(0).toUpperCase() + gender.slice(1);
+
+                // Auto-check gender if male
+                if (gender.toLowerCase() === 'male') {
+                    document.getElementById('sb-gender').checked = true;
+                    this.updateToggleText('sb-gender', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching patient data:', error);
+                document.getElementById('patient-age').textContent = 'Not available';
+                document.getElementById('patient-gender').textContent = 'Not available';
+            });
+
+        // Get BMI from observations
+        getMostRecentObservation(client, '39156-5')
+            .then(bmiObs => {
+                if (bmiObs && bmiObs.valueQuantity) {
+                    const bmi = bmiObs.valueQuantity.value;
+                    document.getElementById('patient-bmi').textContent = `${bmi.toFixed(1)} kg/m²`;
+
+                    // Auto-check BMI if > 35
+                    if (bmi > 35) {
+                        document.getElementById('sb-bmi').checked = true;
+                        this.updateToggleText('sb-bmi', true);
+                    }
+                } else {
+                    document.getElementById('patient-bmi').textContent = 'Not available';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching BMI:', error);
                 document.getElementById('patient-bmi').textContent = 'Not available';
-            }
-        }).catch(error => {
-            console.error('Error fetching BMI:', error);
-            document.getElementById('patient-bmi').textContent = 'Not available';
-        });
-        
+            });
+
         // Check for hypertension
-        getPatientConditions(client, ['38341003']).then(conditions => {
-            if (conditions.length > 0) {
-                document.getElementById('sb-pressure').checked = true;
-                this.updateToggleText('sb-pressure', true);
-            }
-        }).catch(error => {
-            console.error('Error fetching conditions:', error);
-        });
-        
+        getPatientConditions(client, ['38341003'])
+            .then(conditions => {
+                if (conditions.length > 0) {
+                    document.getElementById('sb-pressure').checked = true;
+                    this.updateToggleText('sb-pressure', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching conditions:', error);
+            });
+
         // Recalculate after data population
         setTimeout(() => this.calculateScore(), 1000);
     },
-    
-    setupEventListeners: function() {
+
+    setupEventListeners: function () {
         const checkboxes = document.querySelectorAll('.stop-bang-container input[type="checkbox"]');
         checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
+            checkbox.addEventListener('change', e => {
                 this.updateToggleText(e.target.id, e.target.checked);
                 this.calculateScore();
             });
         });
     },
-    
-    updateToggleText: function(checkboxId, isChecked) {
+
+    updateToggleText: function (checkboxId, isChecked) {
         const label = document.querySelector(`label[for="${checkboxId}"]`);
         const textSpan = label.querySelector('.toggle-text');
         textSpan.textContent = isChecked ? 'Yes' : 'No';
     },
-    
-    calculateScore: function() {
+
+    calculateScore: function () {
         const checkboxes = document.querySelectorAll('.stop-bang-container input[type="checkbox"]');
         let score = 0;
         checkboxes.forEach(box => {
@@ -412,12 +422,12 @@ export const stopBang = {
 
         // Update score display
         document.getElementById('current-score').textContent = score;
-        
+
         // Update risk assessment
         let riskLevel = '';
         let riskDescription = '';
         let riskClass = '';
-        
+
         if (score <= 2) {
             riskLevel = 'Low Risk';
             riskDescription = 'Low probability of moderate to severe OSA';
@@ -431,17 +441,19 @@ export const stopBang = {
             riskDescription = 'High probability of moderate to severe OSA';
             riskClass = 'high-risk';
         }
-        
+
         document.getElementById('risk-level').textContent = riskLevel;
         document.getElementById('risk-description').textContent = riskDescription;
-        
+
         // Update risk level highlighting
         document.querySelectorAll('.risk-item').forEach(item => item.classList.remove('active'));
-        document.querySelectorAll('.recommendation-item').forEach(item => item.classList.remove('active'));
-        
+        document
+            .querySelectorAll('.recommendation-item')
+            .forEach(item => item.classList.remove('active'));
+
         document.querySelector(`.risk-item.${riskClass}`).classList.add('active');
         document.querySelector(`.recommendation-item.${riskClass}-rec`).classList.add('active');
-        
+
         // Update score circle color
         const scoreCircle = document.querySelector('.score-circle');
         scoreCircle.className = `score-circle ${riskClass}`;

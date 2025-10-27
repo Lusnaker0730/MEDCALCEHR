@@ -1,11 +1,16 @@
 // js/calculators/fena.js
-import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const fena = {
     id: 'fena',
     title: 'Fractional Excretion of Sodium (FENa)',
     description: 'Determines if renal failure is due to prerenal or intrinsic pathology.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -170,7 +175,7 @@ export const fena = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const uNaInput = container.querySelector('#urine-na');
         const sNaInput = container.querySelector('#serum-na');
         const resultEl = container.querySelector('#fena-result');
@@ -182,28 +187,31 @@ export const fena = {
             const sCrMgDl = getValueInStandardUnit(container, 'serum-creat', 'mg/dL');
 
             if (uNa > 0 && sNa > 0 && uCrMgDl > 0 && sCrMgDl > 0) {
-                const fenaValue = ((uNa / sNa) / (uCrMgDl / sCrMgDl)) * 100;
-                
+                const fenaValue = (uNa / sNa / (uCrMgDl / sCrMgDl)) * 100;
+
                 let interpretation = '';
                 let category = '';
                 let categoryColor = '';
                 let details = '';
-                
+
                 if (fenaValue < 1) {
                     category = 'Prerenal AKI';
                     categoryColor = '#2196f3';
                     interpretation = 'FENa < 1% suggests a prerenal cause of AKI.';
-                    details = 'Suggests volume depletion, decreased effective circulating volume, heart failure, or hepatorenal syndrome.';
+                    details =
+                        'Suggests volume depletion, decreased effective circulating volume, heart failure, or hepatorenal syndrome.';
                 } else if (fenaValue > 2) {
                     category = 'Intrinsic/ATN';
                     categoryColor = '#f44336';
                     interpretation = 'FENa > 2% suggests an intrinsic cause (e.g., ATN).';
-                    details = 'Suggests acute tubular necrosis, acute interstitial nephritis, or other intrinsic renal disease.';
+                    details =
+                        'Suggests acute tubular necrosis, acute interstitial nephritis, or other intrinsic renal disease.';
                 } else {
                     category = 'Indeterminate';
                     categoryColor = '#ff9800';
                     interpretation = 'FENa between 1% and 2% is indeterminate.';
-                    details = 'May represent transition phase or mixed picture. Consider clinical context and additional testing.';
+                    details =
+                        'May represent transition phase or mixed picture. Consider clinical context and additional testing.';
                 }
 
                 resultEl.innerHTML = `
@@ -260,40 +268,42 @@ export const fena = {
         const uCrPromise = getMostRecentObservation(client, '2161-8');
         const sCrPromise = getMostRecentObservation(client, '2160-0');
 
-        Promise.all([uNaPromise, sNaPromise, uCrPromise, sCrPromise]).then(([uNa, sNa, uCr, sCr]) => {
-            if (uNa && uNa.valueQuantity) {
-                uNaInput.value = uNa.valueQuantity.value.toFixed(0);
-            } else {
-                uNaInput.placeholder = "e.g., 20";
-            }
-            
-            if (sNa && sNa.valueQuantity) {
-                sNaInput.value = sNa.valueQuantity.value.toFixed(0);
-            } else {
-                sNaInput.placeholder = "e.g., 140";
-            }
-            
-            if (uCr && uCr.valueQuantity) {
-                const uCrInput = container.querySelector('#urine-creat');
-                if (uCrInput) {
-                    uCrInput.value = uCr.valueQuantity.value.toFixed(0);
+        Promise.all([uNaPromise, sNaPromise, uCrPromise, sCrPromise]).then(
+            ([uNa, sNa, uCr, sCr]) => {
+                if (uNa && uNa.valueQuantity) {
+                    uNaInput.value = uNa.valueQuantity.value.toFixed(0);
+                } else {
+                    uNaInput.placeholder = 'e.g., 20';
                 }
-            }
-            
-            if (sCr && sCr.valueQuantity) {
-                const sCrInput = container.querySelector('#serum-creat');
-                if (sCrInput) {
-                    sCrInput.value = sCr.valueQuantity.value.toFixed(1);
+
+                if (sNa && sNa.valueQuantity) {
+                    sNaInput.value = sNa.valueQuantity.value.toFixed(0);
+                } else {
+                    sNaInput.placeholder = 'e.g., 140';
                 }
+
+                if (uCr && uCr.valueQuantity) {
+                    const uCrInput = container.querySelector('#urine-creat');
+                    if (uCrInput) {
+                        uCrInput.value = uCr.valueQuantity.value.toFixed(0);
+                    }
+                }
+
+                if (sCr && sCr.valueQuantity) {
+                    const sCrInput = container.querySelector('#serum-creat');
+                    if (sCrInput) {
+                        sCrInput.value = sCr.valueQuantity.value.toFixed(1);
+                    }
+                }
+
+                calculateAndUpdate();
             }
-            
-            calculateAndUpdate();
-        });
+        );
 
         // Event listeners
         uNaInput.addEventListener('input', calculateAndUpdate);
         sNaInput.addEventListener('input', calculateAndUpdate);
-        
+
         // Initial calculation
         calculateAndUpdate();
     }

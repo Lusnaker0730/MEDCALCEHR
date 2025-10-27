@@ -4,7 +4,7 @@ export const gad7 = {
     id: 'gad-7',
     title: 'GAD-7 (General Anxiety Disorder-7)',
     description: 'Measures severity of anxiety.',
-    generateHTML: function() {
+    generateHTML: function () {
         const questions = [
             'Feeling nervous, anxious, or on edge',
             'Not being able to stop or control worrying',
@@ -85,7 +85,7 @@ export const gad7 = {
         `;
         return html;
     },
-    initialize: function() {
+    initialize: function () {
         document.getElementById('calculate-gad7').addEventListener('click', () => {
             let score = 0;
             for (let i = 0; i < 7; i++) {
@@ -107,10 +107,12 @@ export const gad7 = {
                 severity = 'Moderate anxiety';
                 severityClass = 'moderate';
                 recommendation = 'Consider therapy or pharmacotherapy.';
-            } else { // score >= 15
+            } else {
+                // score >= 15
                 severity = 'Severe anxiety';
                 severityClass = 'severe';
-                recommendation = 'Active treatment with therapy and/or pharmacotherapy is indicated.';
+                recommendation =
+                    'Active treatment with therapy and/or pharmacotherapy is indicated.';
             }
 
             const resultEl = document.getElementById('gad7-result');
@@ -136,7 +138,7 @@ export const gad7 = {
                 </div>
             `;
             resultEl.style.display = 'block';
-            
+
             // Smooth scroll to result
             resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });

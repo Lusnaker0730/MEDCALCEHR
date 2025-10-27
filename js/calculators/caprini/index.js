@@ -5,7 +5,7 @@ export const caprini = {
     id: 'caprini',
     title: 'Caprini Score for Venous Thromboembolism (2005)',
     description: 'Stratifies VTE risk in surgical patients, guiding prophylaxis decisions.',
-    generateHTML: function() {
+    generateHTML: function () {
         const riskFactors = {
             '1 Point': [
                 { id: 'age41', label: 'Age 41-60 years' },
@@ -30,7 +30,10 @@ export const caprini = {
                 { id: 'age75', label: 'Age ≥ 75 years' },
                 { id: 'history-vte', label: 'History of VTE' },
                 { id: 'family-history-vte', label: 'Family history of VTE' },
-                { id: 'thrombophilia', label: 'Thrombophilia (e.g., Factor V Leiden, Prothrombin 20210A)' }
+                {
+                    id: 'thrombophilia',
+                    label: 'Thrombophilia (e.g., Factor V Leiden, Prothrombin 20210A)'
+                }
             ],
             '5 Points': [
                 { id: 'stroke-paralysis', label: 'Stroke with paralysis (<1 month)' },
@@ -41,13 +44,13 @@ export const caprini = {
         };
 
         let html = `<h3>${this.title}</h3><p>${this.description}</p>`;
-        
+
         for (const [points, factors] of Object.entries(riskFactors)) {
             html += `<h4>${points}</h4><div class="checklist">`;
             factors.forEach(factor => {
                 html += `<div class="check-item"><input type="checkbox" id="${factor.id}" data-points="${points.split(' ')[0]}"><label for="${factor.id}">${factor.label}</label></div>`;
             });
-            html += `</div>`;
+            html += '</div>';
         }
 
         html += `
@@ -56,7 +59,7 @@ export const caprini = {
         `;
         return html;
     },
-    initialize: function(client, patient) {
+    initialize: function (client, patient) {
         // Pre-fill based on patient data
         const age = calculateAge(patient.birthDate);
         if (age >= 75) {
@@ -77,10 +80,16 @@ export const caprini = {
 
             // Handle mutually exclusive age points
             if (document.getElementById('age75').checked) {
-                if (document.getElementById('age61').checked) score -= 2;
-                if (document.getElementById('age41').checked) score -= 1;
+                if (document.getElementById('age61').checked) {
+                    score -= 2;
+                }
+                if (document.getElementById('age41').checked) {
+                    score -= 1;
+                }
             } else if (document.getElementById('age61').checked) {
-                 if (document.getElementById('age41').checked) score -= 1;
+                if (document.getElementById('age41').checked) {
+                    score -= 1;
+                }
             }
 
             let riskCategory = '';
@@ -90,13 +99,17 @@ export const caprini = {
                 recommendation = 'Early ambulation.';
             } else if (score >= 1 && score <= 2) {
                 riskCategory = 'Low Risk';
-                recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                recommendation =
+                    'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
             } else if (score >= 3 && score <= 4) {
                 riskCategory = 'Moderate Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
-            } else { // score >= 5
+                recommendation =
+                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+            } else {
+                // score >= 5
                 riskCategory = 'High Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                recommendation =
+                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
             }
 
             const resultEl = document.getElementById('caprini-result');

@@ -1,7 +1,7 @@
 export const nihss = {
     id: 'nihss',
     title: 'NIH Stroke Scale/Score (NIHSS)',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>Quantifies stroke severity and monitors for neurological changes over time.</p>
@@ -143,7 +143,7 @@ export const nihss = {
             <div id="nihss-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function() {
+    initialize: function () {
         document.getElementById('calculate-nihss').addEventListener('click', () => {
             const selects = document.querySelectorAll('.calculator-card select');
             let score = 0;
@@ -152,11 +152,17 @@ export const nihss = {
             });
 
             let severity = '';
-            if (score === 0) severity = 'No stroke symptoms';
-            else if (score >= 1 && score <= 4) severity = 'Minor stroke';
-            else if (score >= 5 && score <= 15) severity = 'Moderate stroke';
-            else if (score >= 16 && score <= 20) severity = 'Moderate-to-severe stroke';
-            else if (score >= 21) severity = 'Severe stroke';
+            if (score === 0) {
+                severity = 'No stroke symptoms';
+            } else if (score >= 1 && score <= 4) {
+                severity = 'Minor stroke';
+            } else if (score >= 5 && score <= 15) {
+                severity = 'Moderate stroke';
+            } else if (score >= 16 && score <= 20) {
+                severity = 'Moderate-to-severe stroke';
+            } else if (score >= 21) {
+                severity = 'Severe stroke';
+            }
 
             const resultEl = document.getElementById('nihss-result');
             resultEl.innerHTML = `

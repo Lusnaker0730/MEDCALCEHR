@@ -4,7 +4,7 @@ export const intraopFluid = {
     id: 'intraop-fluid',
     title: 'Intraoperative Fluid Dosing in Adult Patients',
     description: 'Doses IV fluids intraoperatively.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -81,10 +81,10 @@ export const intraopFluid = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const fields = {
             weight: container.querySelector('#ifd-weight'),
-            npo: container.querySelector('#ifd-npo'),
+            npo: container.querySelector('#ifd-npo')
         };
         const resultEl = container.querySelector('#ifd-result');
 
@@ -92,19 +92,20 @@ export const intraopFluid = {
             const weight = parseFloat(fields.weight.value);
             const npoHours = parseFloat(fields.npo.value);
             const traumaRadio = container.querySelector('input[name="trauma"]:checked');
-            
+
             if (isNaN(weight) || isNaN(npoHours) || !traumaRadio) {
                 resultEl.style.display = 'none';
                 return;
             }
-            
-            const maintenanceRate = weight > 20 ? weight + 40 : (weight > 10 ? 40 + (weight - 10) * 2 : weight * 4);
+
+            const maintenanceRate =
+                weight > 20 ? weight + 40 : weight > 10 ? 40 + (weight - 10) * 2 : weight * 4;
             const npoDeficit = maintenanceRate * npoHours;
             const traumaLossRate = parseFloat(traumaRadio.value) * weight;
 
-            const firstHourFluids = (npoDeficit / 2) + maintenanceRate + traumaLossRate;
-            const secondHourFluids = (npoDeficit / 4) + maintenanceRate + traumaLossRate;
-            const thirdHourFluids = (npoDeficit / 4) + maintenanceRate + traumaLossRate;
+            const firstHourFluids = npoDeficit / 2 + maintenanceRate + traumaLossRate;
+            const secondHourFluids = npoDeficit / 4 + maintenanceRate + traumaLossRate;
+            const thirdHourFluids = npoDeficit / 4 + maintenanceRate + traumaLossRate;
             const fourthHourFluids = maintenanceRate + traumaLossRate;
 
             resultEl.innerHTML = `
@@ -132,7 +133,7 @@ export const intraopFluid = {
             resultEl.style.display = 'grid';
         };
 
-        getMostRecentObservation(client, '29463-7').then(obs => { 
+        getMostRecentObservation(client, '29463-7').then(obs => {
             if (obs && obs.valueQuantity) {
                 fields.weight.value = obs.valueQuantity.value.toFixed(1);
             }
@@ -141,15 +142,17 @@ export const intraopFluid = {
 
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => {
-                 if (input.type === 'radio') {
+                if (input.type === 'radio') {
                     const group = input.closest('.radio-group');
-                    group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                    group
+                        .querySelectorAll('label')
+                        .forEach(label => label.classList.remove('selected'));
                     input.parentElement.classList.add('selected');
                 }
                 calculate();
             });
         });
-        
+
         calculate();
     }
 };

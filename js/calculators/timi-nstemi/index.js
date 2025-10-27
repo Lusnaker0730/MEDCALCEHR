@@ -1,4 +1,3 @@
-
 import { getPatient, getPatientConditions, getObservation } from '../../utils.js';
 
 export const timiNstemi = {
@@ -340,25 +339,39 @@ export const timiNstemi = {
         </div>
     `,
 
-    initialize: (client) => {
+    initialize: client => {
         const riskMapping = {
-            0: '5%', 1: '5%', 2: '8%', 3: '13%', 4: '20%', 5: '26%', 6: '41%', 7: '41%'
+            0: '5%',
+            1: '5%',
+            2: '8%',
+            3: '13%',
+            4: '20%',
+            5: '26%',
+            6: '41%',
+            7: '41%'
         };
 
         const calculate = () => {
-            const score = Array.from(document.querySelectorAll('.timi-form-container input:checked')).reduce((acc, input) => {
+            const score = Array.from(
+                document.querySelectorAll('.timi-form-container input:checked')
+            ).reduce((acc, input) => {
                 return acc + parseInt(input.value);
             }, 0);
 
             const risk = riskMapping[score] || 'N/A';
             document.getElementById('result-score').textContent = score;
             document.getElementById('risk-percentage').textContent = risk;
-            document.getElementById('result-interpretation').textContent = `risk at 14 days of: all-cause mortality, new or recurrent MI, or severe recurrent ischemia requiring urgent revascularization.`;
-            
+            document.getElementById('result-interpretation').textContent =
+                'risk at 14 days of: all-cause mortality, new or recurrent MI, or severe recurrent ischemia requiring urgent revascularization.';
+
             // Update risk level highlighting
-            document.querySelectorAll('.risk-level').forEach(level => level.classList.remove('active'));
-            document.querySelectorAll('.recommendation-item').forEach(item => item.classList.remove('active'));
-            
+            document
+                .querySelectorAll('.risk-level')
+                .forEach(level => level.classList.remove('active'));
+            document
+                .querySelectorAll('.recommendation-item')
+                .forEach(item => item.classList.remove('active'));
+
             if (score <= 2) {
                 document.querySelector('.low-risk').classList.add('active');
                 document.querySelector('.low-risk-rec').classList.add('active');
@@ -378,52 +391,84 @@ export const timiNstemi = {
         // --- FHIR Integration ---
         const setRadio = (name, value) => {
             const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
-            if (radio) radio.checked = true;
+            if (radio) {
+                radio.checked = true;
+            }
         };
 
         getPatient(client).then(patient => {
             const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
-            if (age >= 65) setRadio('age', '1');
+            if (age >= 65) {
+                setRadio('age', '1');
+            }
         });
 
         const cadRiskFactorsCodes = [
             '38341003', // Hypertension
             '55822004', // Hypercholesterolemia
-            '44054006', // Diabetes
+            '44054006' // Diabetes
         ];
         getPatientConditions(client, cadRiskFactorsCodes).then(conditions => {
-            getObservation(client, "72166-2").then(smokingObs => { // Smoking status
+            getObservation(client, '72166-2').then(smokingObs => {
+                // Smoking status
                 let riskCount = conditions.length;
-                if (smokingObs && smokingObs.valueCodeableConcept && smokingObs.valueCodeableConcept.coding.some(c => ['449868002', '428041000124106'].includes(c.code))) {
+                if (
+                    smokingObs &&
+                    smokingObs.valueCodeableConcept &&
+                    smokingObs.valueCodeableConcept.coding.some(c =>
+                        ['449868002', '428041000124106'].includes(c.code)
+                    )
+                ) {
                     riskCount++;
                 }
-                if (riskCount >= 3) setRadio('cad_risk', '1');
+                if (riskCount >= 3) {
+                    setRadio('cad_risk', '1');
+                }
             });
         });
-        
-        getPatientConditions(client, ['53741008']).then(conditions => { // Known CAD
-            if (conditions.length > 0) setRadio('known_cad', '1');
-        });
 
-        client.patient.request(`MedicationStatement?status=active&category=outpatient`).then(meds => {
-             if (meds.entry) {
-                const hasAspirin = meds.entry.some(e => 
-                    e.resource.medicationCodeableConcept &&
-                    e.resource.medicationCodeableConcept.coding.some(c => c.code === '1191') // RxNorm for Aspirin
-                );
-                if (hasAspirin) setRadio('asa', '1');
+        getPatientConditions(client, ['53741008']).then(conditions => {
+            // Known CAD
+            if (conditions.length > 0) {
+                setRadio('known_cad', '1');
             }
         });
 
-        const troponinCodes = ['30239-8', '15056-5', '10839-9', '32195-5']; // Troponin T and I
-        Promise.all(troponinCodes.map(code => getObservation(client, code))).then(observations => {
-            const positiveMarker = observations.some(obs => {
-                if (!obs || !obs.valueQuantity || !obs.referenceRange || !obs.referenceRange[0].high) return false;
-                return obs.valueQuantity.value > obs.referenceRange[0].high.value;
+        client.patient
+            .request('MedicationStatement?status=active&category=outpatient')
+            .then(meds => {
+                if (meds.entry) {
+                    const hasAspirin = meds.entry.some(
+                        e =>
+                            e.resource.medicationCodeableConcept &&
+                            e.resource.medicationCodeableConcept.coding.some(c => c.code === '1191') // RxNorm for Aspirin
+                    );
+                    if (hasAspirin) {
+                        setRadio('asa', '1');
+                    }
+                }
             });
-            if (positiveMarker) setRadio('marker', '1');
-        }).finally(() => {
-            setTimeout(calculate, 500); // Calculate after all FHIR data has a chance to populate
-        });
+
+        const troponinCodes = ['30239-8', '15056-5', '10839-9', '32195-5']; // Troponin T and I
+        Promise.all(troponinCodes.map(code => getObservation(client, code)))
+            .then(observations => {
+                const positiveMarker = observations.some(obs => {
+                    if (
+                        !obs ||
+                        !obs.valueQuantity ||
+                        !obs.referenceRange ||
+                        !obs.referenceRange[0].high
+                    ) {
+                        return false;
+                    }
+                    return obs.valueQuantity.value > obs.referenceRange[0].high.value;
+                });
+                if (positiveMarker) {
+                    setRadio('marker', '1');
+                }
+            })
+            .finally(() => {
+                setTimeout(calculate, 500); // Calculate after all FHIR data has a chance to populate
+            });
     }
 };

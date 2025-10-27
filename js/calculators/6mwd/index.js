@@ -3,8 +3,9 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 export const sixMwd = {
     id: '6mwd',
     title: '6 Minute Walk Distance',
-    description: 'Calculates reference values for distance walked, as a measure of functional status.',
-    generateHTML: function() {
+    description:
+        'Calculates reference values for distance walked, as a measure of functional status.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class.description">${this.description}</p>
@@ -53,7 +54,7 @@ export const sixMwd = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const ageEl = container.querySelector('#mwd6-age');
         const genderEl = container.querySelector('#mwd6-gender');
         const heightEl = container.querySelector('#mwd6-height');
@@ -72,14 +73,15 @@ export const sixMwd = {
                 resultEl.style.display = 'none';
                 return;
             }
-            
+
             const gender = genderRadio.value;
             let expectedDistance = 0;
             // Enright, F. (2003). The six-minute walk test. Respiratory Care, 48(8), 783-785.
             if (gender === 'male') {
-                expectedDistance = (7.57 * height) - (5.02 * age) - (1.76 * weight) - 309;
-            } else { // female
-                expectedDistance = (2.11 * height) - (2.29 * weight) - (5.78 * age) + 667;
+                expectedDistance = 7.57 * height - 5.02 * age - 1.76 * weight - 309;
+            } else {
+                // female
+                expectedDistance = 2.11 * height - 2.29 * weight - 5.78 * age + 667;
             }
 
             // Lolkema, D. (2006). Reference values for the 6-minute walk test in a healthy Dutch population aged 40–70 years: a cross-sectional study.
@@ -95,11 +97,15 @@ export const sixMwd = {
                     <span class="value">${expectedDistance.toFixed(0)} <span class="unit">meters</span></span>
                     <span class="label">Expected 6 Minute Walk Distance for healthy patient</span>
                 </div>
-                ${!isNaN(percentage) ? `
+                ${
+    !isNaN(percentage)
+        ? `
                 <div class="result-item">
                     <span class="value">${percentage.toFixed(0)}<span class="unit">%</span></span>
                     <span class="label">Percentage of expected distance for healthy patient</span>
-                </div>` : ''}
+                </div>`
+        : ''
+}
                 <div class="result-item">
                     <span class="value">${lowerLimitNormal.toFixed(0)} <span class="unit">meters</span></span>
                     <span class="label">Lower limit of normal</span>
@@ -111,29 +117,36 @@ export const sixMwd = {
         // Auto-populate and setup listeners
         ageEl.value = calculateAge(patient.birthDate);
         const patientGender = patient.gender;
-        const genderRadio = container.querySelector(`input[name="gender"][value="${patientGender}"]`);
-        if(genderRadio) {
+        const genderRadio = container.querySelector(
+            `input[name="gender"][value="${patientGender}"]`
+        );
+        if (genderRadio) {
             genderRadio.checked = true;
             genderRadio.parentElement.classList.add('selected');
         }
 
-
         getMostRecentObservation(client, '8302-2').then(obs => {
-            if (obs && obs.valueQuantity) heightEl.value = obs.valueQuantity.value.toFixed(1);
+            if (obs && obs.valueQuantity) {
+                heightEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculate();
         });
         getMostRecentObservation(client, '29463-7').then(obs => {
-            if (obs && obs.valueQuantity) weightEl.value = obs.valueQuantity.value.toFixed(1);
+            if (obs && obs.valueQuantity) {
+                weightEl.value = obs.valueQuantity.value.toFixed(1);
+            }
             calculate();
         });
-        
+
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
         });
 
         container.querySelectorAll('.segmented-control input').forEach(radio => {
-            radio.addEventListener('change', (event) => {
-                container.querySelectorAll('.segmented-control label').forEach(label => label.classList.remove('selected'));
+            radio.addEventListener('change', event => {
+                container
+                    .querySelectorAll('.segmented-control label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });

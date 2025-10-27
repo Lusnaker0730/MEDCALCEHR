@@ -1,9 +1,15 @@
-import { getPatient, getMostRecentObservation, getPatientConditions, getMedicationRequests } from '../../utils.js';
+import {
+    getPatient,
+    getMostRecentObservation,
+    getPatientConditions,
+    getMedicationRequests
+} from '../../utils.js';
 
 export const hasBled = {
     id: 'has-bled',
     title: 'HAS-BLED Score for Major Bleeding Risk',
-    description: 'Estimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care.',
+    description:
+        'Estimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care.',
     generateHTML: () => `
         <div class="calculator-container">
             <div class="input-group">
@@ -77,7 +83,15 @@ export const hasBled = {
     `,
     initialize: async (client, patient, container) => {
         const riskFactors = [
-            'hypertension', 'renal', 'liver', 'stroke', 'bleeding', 'inr', 'age', 'meds', 'alcohol'
+            'hypertension',
+            'renal',
+            'liver',
+            'stroke',
+            'bleeding',
+            'inr',
+            'age',
+            'meds',
+            'alcohol'
         ];
 
         const scoreInterpretation = {
@@ -92,7 +106,9 @@ export const hasBled = {
         const calculateHasBledScore = () => {
             let score = 0;
             riskFactors.forEach(id => {
-                const button = container.querySelector(`.segmented-control[data-id="${id}"] .active`);
+                const button = container.querySelector(
+                    `.segmented-control[data-id="${id}"] .active`
+                );
                 if (button) {
                     score += parseInt(button.value);
                 }
@@ -101,17 +117,22 @@ export const hasBled = {
             const interpretationText = scoreInterpretation[score] || scoreInterpretation[5];
 
             container.querySelector('#has-bled-score').innerText = `${score} points`;
-            container.querySelector('#has-bled-interpretation').innerText = `Annual bleeding risk: ${interpretationText}`;
+            container.querySelector('#has-bled-interpretation').innerText =
+                `Annual bleeding risk: ${interpretationText}`;
         };
 
         riskFactors.forEach(id => {
-            container.querySelectorAll(`.segmented-control[data-id="${id}"] button`).forEach(button => {
-                button.addEventListener('click', (e) => {
-                    container.querySelectorAll(`.segmented-control[data-id="${id}"] button`).forEach(btn => btn.classList.remove('active'));
-                    e.target.classList.add('active');
-                    calculateHasBledScore();
+            container
+                .querySelectorAll(`.segmented-control[data-id="${id}"] button`)
+                .forEach(button => {
+                    button.addEventListener('click', e => {
+                        container
+                            .querySelectorAll(`.segmented-control[data-id="${id}"] button`)
+                            .forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
+                        calculateHasBledScore();
+                    });
                 });
-            });
         });
 
         calculateHasBledScore();
@@ -121,18 +142,21 @@ export const hasBled = {
             const setRadioValue = (id, value) => {
                 const control = container.querySelector(`.segmented-control[data-id="${id}"]`);
                 if (control) {
-                    control.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                    control
+                        .querySelectorAll('button')
+                        .forEach(btn => btn.classList.remove('active'));
                     const buttonToActivate = control.querySelector(`button[value="${value}"]`);
                     if (buttonToActivate) {
                         buttonToActivate.classList.add('active');
                     }
                 }
             };
-            
+
             // Age > 65
             const patientData = await getPatient(client);
             if (patientData && patientData.birthDate) {
-                const age = new Date().getFullYear() - new Date(patientData.birthDate).getFullYear();
+                const age =
+                    new Date().getFullYear() - new Date(patientData.birthDate).getFullYear();
                 if (age > 65) {
                     setRadioValue('age', '1');
                 }
@@ -141,18 +165,20 @@ export const hasBled = {
             // Conditions
             const conditions = await getPatientConditions(client, [
                 '38341003', // Hypertension
-                '709044004', '34947000', '80294001', // Renal disease
+                '709044004',
+                '34947000',
+                '80294001', // Renal disease
                 '19943007', // Liver disease (Cirrhosis)
                 '230690007', // Stroke
                 '131148009' // Bleeding
             ]);
 
             const conditionMap = {
-                'hypertension': ['38341003'],
-                'renal': ['709044004', '34947000', '80294001'],
-                'liver': ['19943007'],
-                'stroke': ['230690007'],
-                'bleeding': ['131148009']
+                hypertension: ['38341003'],
+                renal: ['709044004', '34947000', '80294001'],
+                liver: ['19943007'],
+                stroke: ['230690007'],
+                bleeding: ['131148009']
             };
 
             for (const [key, codes] of Object.entries(conditionMap)) {
@@ -166,14 +192,21 @@ export const hasBled = {
             if (sbp && sbp.valueQuantity.value > 160) {
                 setRadioValue('hypertension', '1');
             }
-            
+
             const creatinine = await getMostRecentObservation(client, '2160-0'); // Creatinine
-            if (creatinine && creatinine.valueQuantity.value > 2.26) { // Assuming mg/dL
+            if (creatinine && creatinine.valueQuantity.value > 2.26) {
+                // Assuming mg/dL
                 setRadioValue('renal', '1');
             }
 
             // Medications
-            const meds = await getMedicationRequests(client, ['1191', '32953', '5640', '7294', '3329']); // Aspirin, Clopidogrel, Ibuprofen, Naproxen, Diclofenac
+            const meds = await getMedicationRequests(client, [
+                '1191',
+                '32953',
+                '5640',
+                '7294',
+                '3329'
+            ]); // Aspirin, Clopidogrel, Ibuprofen, Naproxen, Diclofenac
             if (meds && meds.length > 0) {
                 setRadioValue('meds', '1');
             }

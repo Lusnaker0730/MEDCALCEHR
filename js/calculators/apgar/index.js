@@ -1,9 +1,8 @@
-
 export const apgarScore = {
     id: 'apgar-score',
     title: 'APGAR Score',
     description: 'Assesses neonates 1 and 5 minutes after birth.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -52,13 +51,15 @@ export const apgarScore = {
             <div id="apgar-result" class="ariscat-result-box" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const resultEl = container.querySelector('#apgar-result');
 
         const calculate = () => {
             const groups = ['activity', 'pulse', 'grimace', 'appearance', 'respirations'];
             let score = 0;
-            const allAnswered = groups.every(groupName => container.querySelector(`input[name="${groupName}"]:checked`));
+            const allAnswered = groups.every(groupName =>
+                container.querySelector(`input[name="${groupName}"]:checked`)
+            );
 
             if (!allAnswered) {
                 resultEl.style.display = 'none';
@@ -66,12 +67,15 @@ export const apgarScore = {
             }
 
             groups.forEach(groupName => {
-                score += parseInt(container.querySelector(`input[name="${groupName}"]:checked`).value);
+                score += parseInt(
+                    container.querySelector(`input[name="${groupName}"]:checked`).value
+                );
             });
-            
+
             let interpretation = '';
             if (score < 7) {
-                interpretation = 'Scores <7 suggest potential need for medical intervention, like suction, drying, warming, and stimulating the neonate. Supplemental oxygen may be indicated as well.';
+                interpretation =
+                    'Scores <7 suggest potential need for medical intervention, like suction, drying, warming, and stimulating the neonate. Supplemental oxygen may be indicated as well.';
             } else {
                 interpretation = 'A score of 7-10 is generally considered normal and reassuring.';
             }
@@ -89,9 +93,11 @@ export const apgarScore = {
         };
 
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.radio-group');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });

@@ -5,7 +5,7 @@ export const maintenanceFluids = {
     id: 'maintenance-fluids',
     title: 'Maintenance Fluids Calculations',
     description: 'Calculates maintenance fluid requirements by weight.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>Calculates maintenance fluid requirements by weight (Holliday-Segar method).</p>
@@ -81,7 +81,7 @@ export const maintenanceFluids = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const weightInput = container.querySelector('#weight-fluids');
         const resultEl = container.querySelector('#fluids-result');
 
@@ -90,12 +90,14 @@ export const maintenanceFluids = {
         }
 
         if (client) {
-            getMostRecentObservation(client, '29463-7').then(weightObs => {
-                if (weightObs && weightObs.valueQuantity) {
-                    weightInput.value = weightObs.valueQuantity.value.toFixed(1);
-                    calculateAndUpdate();
-                }
-            }).catch(err => console.log('Weight data not available'));
+            getMostRecentObservation(client, '29463-7')
+                .then(weightObs => {
+                    if (weightObs && weightObs.valueQuantity) {
+                        weightInput.value = weightObs.valueQuantity.value.toFixed(1);
+                        calculateAndUpdate();
+                    }
+                })
+                .catch(err => console.log('Weight data not available'));
         }
 
         const calculateAndUpdate = () => {
@@ -110,9 +112,9 @@ export const maintenanceFluids = {
             if (weight <= 10) {
                 hourlyRate = weight * 4;
             } else if (weight <= 20) {
-                hourlyRate = (10 * 4) + ((weight - 10) * 2);
+                hourlyRate = 10 * 4 + (weight - 10) * 2;
             } else {
-                hourlyRate = (10 * 4) + (10 * 2) + ((weight - 20) * 1);
+                hourlyRate = 10 * 4 + 10 * 2 + (weight - 20) * 1;
             }
             const dailyRate = hourlyRate * 24;
 
@@ -131,7 +133,7 @@ export const maintenanceFluids = {
 
         // Add event listener for automatic calculation on input change
         weightInput.addEventListener('input', calculateAndUpdate);
-        
+
         // Initial calculation if weight is already set
         calculateAndUpdate();
     }

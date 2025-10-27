@@ -5,7 +5,7 @@ export const ldl = {
     id: 'ldl',
     title: 'LDL Calculated',
     description: 'Calculates LDL based on total and HDL cholesterol and triglycerides.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
@@ -121,20 +121,20 @@ export const ldl = {
             </div>
         `;
     },
-    initialize: function(client) {
+    initialize: function (client) {
         // Get DOM elements
         const totalCholInput = document.getElementById('total-chol');
         const totalCholUnit = document.getElementById('total-chol-unit');
         const totalCholConverted = document.getElementById('total-chol-converted');
-        
+
         const hdlCholInput = document.getElementById('hdl-chol');
         const hdlCholUnit = document.getElementById('hdl-chol-unit');
         const hdlCholConverted = document.getElementById('hdl-chol-converted');
-        
+
         const trigInput = document.getElementById('trig');
         const trigUnit = document.getElementById('trig-unit');
         const trigConverted = document.getElementById('trig-converted');
-        
+
         const resultEl = document.getElementById('ldl-result');
 
         // Conversion factors
@@ -143,13 +143,17 @@ export const ldl = {
 
         // Convert cholesterol to mg/dL
         function getCholInMgDl(value, unit) {
-            if (!value || value <= 0) return null;
+            if (!value || value <= 0) {
+                return null;
+            }
             return unit === 'mmol/L' ? value * CHOL_CONVERSION : value;
         }
 
         // Convert triglycerides to mg/dL
         function getTrigInMgDl(value, unit) {
-            if (!value || value <= 0) return null;
+            if (!value || value <= 0) {
+                return null;
+            }
             return unit === 'mmol/L' ? value * TRIG_CONVERSION : value;
         }
 
@@ -219,7 +223,7 @@ export const ldl = {
                 }
 
                 // Calculate LDL using Friedewald equation
-                const ldlMgDl = totalMgDl - hdlMgDl - (trigMgDl / 5);
+                const ldlMgDl = totalMgDl - hdlMgDl - trigMgDl / 5;
                 const ldlMmol = ldlMgDl / CHOL_CONVERSION;
 
                 // Determine risk category
@@ -285,19 +289,30 @@ export const ldl = {
         const hdlCholPromise = getMostRecentObservation(client, '2085-9');
         const trigPromise = getMostRecentObservation(client, '2571-8');
 
-        Promise.all([totalCholPromise, hdlCholPromise, trigPromise]).then(([totalChol, hdl, trig]) => {
-            if (totalChol) totalCholInput.value = totalChol.valueQuantity.value.toFixed(0);
-            else totalCholInput.placeholder = "e.g., 200";
-            
-            if (hdl) hdlCholInput.value = hdl.valueQuantity.value.toFixed(0);
-            else hdlCholInput.placeholder = "e.g., 50";
+        Promise.all([totalCholPromise, hdlCholPromise, trigPromise]).then(
+            ([totalChol, hdl, trig]) => {
+                if (totalChol) {
+                    totalCholInput.value = totalChol.valueQuantity.value.toFixed(0);
+                } else {
+                    totalCholInput.placeholder = 'e.g., 200';
+                }
 
-            if (trig) trigInput.value = trig.valueQuantity.value.toFixed(0);
-            else trigInput.placeholder = "e.g., 150";
+                if (hdl) {
+                    hdlCholInput.value = hdl.valueQuantity.value.toFixed(0);
+                } else {
+                    hdlCholInput.placeholder = 'e.g., 50';
+                }
 
-            // Auto-calculate after loading data
-            autoCalculate();
-        });
+                if (trig) {
+                    trigInput.value = trig.valueQuantity.value.toFixed(0);
+                } else {
+                    trigInput.placeholder = 'e.g., 150';
+                }
+
+                // Auto-calculate after loading data
+                autoCalculate();
+            }
+        );
 
         // Initial calculation if values already exist
         autoCalculate();

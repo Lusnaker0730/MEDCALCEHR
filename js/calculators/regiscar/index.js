@@ -1,4 +1,3 @@
-
 export const regiscar = {
     id: 'regiscar',
     title: 'RegiSCAR Score for DRESS',
@@ -369,8 +368,8 @@ export const regiscar = {
         </div>
     `,
 
-    initialize: (client) => {
-        const updateToggleState = (input) => {
+    initialize: client => {
+        const updateToggleState = input => {
             const group = input.closest('.regiscar-toggle-group, .regiscar-radio-group');
             if (group) {
                 group.querySelectorAll('.toggle-option, .radio-option').forEach(option => {
@@ -399,11 +398,18 @@ export const regiscar = {
 
         const calculate = () => {
             const criteriaNames = [
-                'fever', 'lymph-nodes', 'lymphocytes', 'eosinophilia', 
-                'rash', 'skin-features', 'biopsy', 'organ', 
-                'resolution', 'alternative'
+                'fever',
+                'lymph-nodes',
+                'lymphocytes',
+                'eosinophilia',
+                'rash',
+                'skin-features',
+                'biopsy',
+                'organ',
+                'resolution',
+                'alternative'
             ];
-            
+
             const score = criteriaNames.reduce((acc, name) => {
                 const selected = document.querySelector(`input[name="${name}"]:checked`);
                 const value = selected ? parseInt(selected.value) : 0;
@@ -415,9 +421,9 @@ export const regiscar = {
             const resultInterpretation = document.getElementById('result-interpretation');
             const resultDescription = document.getElementById('result-description');
             const resultMain = document.querySelector('.result-main');
-            
+
             resultScore.textContent = score;
-            
+
             let interpretation = '';
             let description = '';
             let resultClass = '';
@@ -443,7 +449,7 @@ export const regiscar = {
             resultInterpretation.textContent = interpretation;
             resultDescription.textContent = description;
             resultMain.className = `result-main ${resultClass}`;
-            
+
             // Highlight corresponding interpretation item
             document.querySelectorAll('.interpretation-item').forEach(item => {
                 item.classList.remove('active');
@@ -456,24 +462,26 @@ export const regiscar = {
 
         // Event listeners for all radio buttons
         document.querySelectorAll('.regiscar-container input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
+            radio.addEventListener('change', e => {
                 updateToggleState(e.target);
                 calculate();
             });
-            
+
             // Initialize toggle states
             if (radio.checked) {
                 updateToggleState(radio);
             }
         });
-        
+
         // FHIR data fetching
-        const getObservation = (code) => client.patient.request(
-            `Observation?code=${code}&_sort=-date&_count=1`
-        ).then(r => r.entry && r.entry[0] ? r.entry[0].resource : null).catch(error => {
-            console.error(`Error fetching observation ${code}:`, error);
-            return null;
-        });
+        const getObservation = code =>
+            client.patient
+                .request(`Observation?code=${code}&_sort=-date&_count=1`)
+                .then(r => (r.entry && r.entry[0] ? r.entry[0].resource : null))
+                .catch(error => {
+                    console.error(`Error fetching observation ${code}:`, error);
+                    return null;
+                });
 
         // Auto-populate temperature
         getObservation('8310-5').then(temp => {
@@ -497,7 +505,9 @@ export const regiscar = {
                 } else if (value >= 700) {
                     radioValue = '1';
                 }
-                const eosRadio = document.querySelector(`input[name="eosinophilia"][value="${radioValue}"]`);
+                const eosRadio = document.querySelector(
+                    `input[name="eosinophilia"][value="${radioValue}"]`
+                );
                 if (eosRadio) {
                     eosRadio.checked = true;
                     updateToggleState(eosRadio);
@@ -505,7 +515,7 @@ export const regiscar = {
                 }
             }
         });
-        
+
         // Initial calculation
         calculate();
     }

@@ -1,8 +1,8 @@
 import { getMostRecentObservation } from '../../utils.js';
 
 // HScore probability calculation using logistic regression formula
-const getProbability = (score) => {
-    const probability = 1 / (1 + Math.exp(-(-4.3 + (0.03 * score))));
+const getProbability = score => {
+    const probability = 1 / (1 + Math.exp(-(-4.3 + 0.03 * score)));
     return (probability * 100).toFixed(1);
 };
 
@@ -10,7 +10,7 @@ export const hscore = {
     id: 'hscore',
     title: 'HScore for Reactive Hemophagocytic Syndrome',
     description: 'Diagnoses reactive hemophagocytic syndrome.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -257,13 +257,25 @@ export const hscore = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const resultEl = container.querySelector('#hscore-result');
-        const groups = ['immuno', 'temp', 'organo', 'cytopenias', 'ferritin', 'trig', 'fibrinogen', 'ast', 'bma'];
+        const groups = [
+            'immuno',
+            'temp',
+            'organo',
+            'cytopenias',
+            'ferritin',
+            'trig',
+            'fibrinogen',
+            'ast',
+            'bma'
+        ];
 
         const calculate = () => {
             let score = 0;
-            const allAnswered = groups.every(group => container.querySelector(`input[name="${group}"]:checked`));
+            const allAnswered = groups.every(group =>
+                container.querySelector(`input[name="${group}"]:checked`)
+            );
 
             if (!allAnswered) {
                 resultEl.style.display = 'none';
@@ -273,7 +285,7 @@ export const hscore = {
             groups.forEach(group => {
                 score += parseInt(container.querySelector(`input[name="${group}"]:checked`).value);
             });
-            
+
             const probability = getProbability(score);
 
             resultEl.innerHTML = `
@@ -291,10 +303,14 @@ export const hscore = {
         };
 
         const setRadioFromValue = (groupName, value, ranges) => {
-            if (value === null) return;
+            if (value === null) {
+                return;
+            }
             const radioToSelect = ranges.find(range => range.condition(value));
             if (radioToSelect) {
-                const radio = container.querySelector(`input[name="${groupName}"][value="${radioToSelect.value}"]`);
+                const radio = container.querySelector(
+                    `input[name="${groupName}"][value="${radioToSelect.value}"]`
+                );
                 if (radio) {
                     radio.checked = true;
                     radio.parentElement.classList.add('selected');
@@ -304,67 +320,89 @@ export const hscore = {
 
         // Auto-populate data
         Promise.all([
-            getMostRecentObservation(client, '718-7'),   // Hgb
-            getMostRecentObservation(client, '6690-2'),  // WBC
+            getMostRecentObservation(client, '718-7'), // Hgb
+            getMostRecentObservation(client, '6690-2'), // WBC
             getMostRecentObservation(client, '26515-7') // Platelets
         ]).then(([hgb, wbc, platelets]) => {
             let cytopeniaCount = 0;
-            if (hgb && hgb.valueQuantity.value < 9.2) cytopeniaCount++;
-            if (wbc && wbc.valueQuantity.value < 5) cytopeniaCount++; // Assuming x10^9/L -> x10^3/mm^3
-            if (platelets && platelets.valueQuantity.value < 110) cytopeniaCount++;
-            
+            if (hgb && hgb.valueQuantity.value < 9.2) {
+                cytopeniaCount++;
+            }
+            if (wbc && wbc.valueQuantity.value < 5) {
+                cytopeniaCount++;
+            } // Assuming x10^9/L -> x10^3/mm^3
+            if (platelets && platelets.valueQuantity.value < 110) {
+                cytopeniaCount++;
+            }
+
             setRadioFromValue('cytopenias', cytopeniaCount, [
-                 { condition: v => v <= 1, value: '0' },
-                 { condition: v => v === 2, value: '24' },
-                 { condition: v => v === 3, value: '34' }
+                { condition: v => v <= 1, value: '0' },
+                { condition: v => v === 2, value: '24' },
+                { condition: v => v === 3, value: '34' }
             ]);
             calculate();
         });
 
-        getMostRecentObservation(client, '8310-5').then(obs => { // Temp F
-            if (obs) setRadioFromValue('temp', obs.valueQuantity.value, [
-                { condition: v => v < 101.1, value: '0' },
-                { condition: v => v <= 102.9, value: '33' },
-                { condition: v => v > 102.9, value: '49' }
-            ]);
+        getMostRecentObservation(client, '8310-5').then(obs => {
+            // Temp F
+            if (obs) {
+                setRadioFromValue('temp', obs.valueQuantity.value, [
+                    { condition: v => v < 101.1, value: '0' },
+                    { condition: v => v <= 102.9, value: '33' },
+                    { condition: v => v > 102.9, value: '49' }
+                ]);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '2276-4').then(obs => { // Ferritin
-            if (obs) setRadioFromValue('ferritin', obs.valueQuantity.value, [
-                { condition: v => v < 2000, value: '0' },
-                { condition: v => v <= 6000, value: '35' },
-                { condition: v => v > 6000, value: '50' }
-            ]);
+        getMostRecentObservation(client, '2276-4').then(obs => {
+            // Ferritin
+            if (obs) {
+                setRadioFromValue('ferritin', obs.valueQuantity.value, [
+                    { condition: v => v < 2000, value: '0' },
+                    { condition: v => v <= 6000, value: '35' },
+                    { condition: v => v > 6000, value: '50' }
+                ]);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '2571-8').then(obs => { // Triglycerides mg/dL
-            if (obs) setRadioFromValue('trig', obs.valueQuantity.value, [
-                { condition: v => v < 132.7, value: '0' },
-                { condition: v => v <= 354, value: '44' },
-                { condition: v => v > 354, value: '64' }
-            ]);
+        getMostRecentObservation(client, '2571-8').then(obs => {
+            // Triglycerides mg/dL
+            if (obs) {
+                setRadioFromValue('trig', obs.valueQuantity.value, [
+                    { condition: v => v < 132.7, value: '0' },
+                    { condition: v => v <= 354, value: '44' },
+                    { condition: v => v > 354, value: '64' }
+                ]);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '3255-7').then(obs => { // Fibrinogen g/L -> mg/dL
-            if (obs) setRadioFromValue('fibrinogen', obs.valueQuantity.value * 100, [
-                { condition: v => v >= 250, value: '0' },
-                { condition: v => v < 250, value: '30' }
-            ]);
+        getMostRecentObservation(client, '3255-7').then(obs => {
+            // Fibrinogen g/L -> mg/dL
+            if (obs) {
+                setRadioFromValue('fibrinogen', obs.valueQuantity.value * 100, [
+                    { condition: v => v >= 250, value: '0' },
+                    { condition: v => v < 250, value: '30' }
+                ]);
+            }
             calculate();
         });
-        getMostRecentObservation(client, '1920-8').then(obs => { // AST
-            if (obs) setRadioFromValue('ast', obs.valueQuantity.value, [
-                { condition: v => v < 30, value: '0' },
-                { condition: v => v >= 30, value: '19' }
-            ]);
+        getMostRecentObservation(client, '1920-8').then(obs => {
+            // AST
+            if (obs) {
+                setRadioFromValue('ast', obs.valueQuantity.value, [
+                    { condition: v => v < 30, value: '0' },
+                    { condition: v => v >= 30, value: '19' }
+                ]);
+            }
             calculate();
         });
-
 
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.radio-group, .segmented-control');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });

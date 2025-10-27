@@ -1,39 +1,54 @@
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
 
 const getPoints = {
-    age: (v) => v * 0.08,
-    ef: (v) => v * -0.05,
-    sbp: (v) => v * -0.02,
-    bmi: (v) => {
-        if (v < 20) return 2;
-        if (v >= 20 && v < 25) return 1;
-        if (v >= 25 && v < 30) return 0;
-        if (v >= 30) return -1;
+    age: v => v * 0.08,
+    ef: v => v * -0.05,
+    sbp: v => v * -0.02,
+    bmi: v => {
+        if (v < 20) {
+            return 2;
+        }
+        if (v >= 20 && v < 25) {
+            return 1;
+        }
+        if (v >= 25 && v < 30) {
+            return 0;
+        }
+        if (v >= 30) {
+            return -1;
+        }
         return 0;
     },
-    creatinine: (v) => {
+    creatinine: v => {
         const creatinine_mg_dl = v / 88.4; // Convert umol/L to mg/dL
-        if (creatinine_mg_dl <= 0.90) return 0;
-        if (creatinine_mg_dl > 0.90 && creatinine_mg_dl <= 1.30) return 1;
-        if (creatinine_mg_dl > 1.30 && creatinine_mg_dl <= 2.20) return 3;
-        if (creatinine_mg_dl > 2.20) return 5;
+        if (creatinine_mg_dl <= 0.9) {
+            return 0;
+        }
+        if (creatinine_mg_dl > 0.9 && creatinine_mg_dl <= 1.3) {
+            return 1;
+        }
+        if (creatinine_mg_dl > 1.3 && creatinine_mg_dl <= 2.2) {
+            return 3;
+        }
+        if (creatinine_mg_dl > 2.2) {
+            return 5;
+        }
         return 0;
     }
 };
 
-const getMortality = (score) => {
+const getMortality = score => {
     const linearPredictor = 0.047 * (score - 21.6);
     const prob1yr = 1 - Math.pow(0.92, Math.exp(linearPredictor));
     const prob3yr = 1 - Math.pow(0.79, Math.exp(linearPredictor));
     return { prob1yr: (prob1yr * 100).toFixed(1), prob3yr: (prob3yr * 100).toFixed(1) };
 };
 
-
 export const maggic = {
     id: 'maggic-hf',
     title: 'MAGGIC Risk Calculator for Heart Failure',
     description: 'Estimates 1- and 3- year mortality in heart failure.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -188,22 +203,23 @@ export const maggic = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const fields = {
             age: container.querySelector('#maggic-age'),
             ef: container.querySelector('#maggic-ef'),
             sbp: container.querySelector('#maggic-sbp'),
             bmi: container.querySelector('#maggic-bmi'),
-            creatinine: container.querySelector('#maggic-creatinine'),
+            creatinine: container.querySelector('#maggic-creatinine')
         };
         const radios = ['nyha', 'gender', 'smoker', 'diabetes', 'copd', 'hfdx', 'bb', 'acei'];
         const resultEl = container.querySelector('#maggic-result');
         const resultValueEl = container.querySelector('#maggic-result .result-value');
-        
+
         const calculate = () => {
             let score = 0;
-            const allFilled = Object.values(fields).every(el => el.value !== '') && 
-                              radios.every(r => container.querySelector(`input[name="${r}"]:checked`));
+            const allFilled =
+                Object.values(fields).every(el => el.value !== '') &&
+                radios.every(r => container.querySelector(`input[name="${r}"]:checked`));
 
             if (!allFilled) {
                 resultValueEl.textContent = 'Please fill out required fields.';
@@ -219,7 +235,7 @@ export const maggic = {
             radios.forEach(r => {
                 score += parseInt(container.querySelector(`input[name="${r}"]:checked`).value);
             });
-            
+
             const mortality = getMortality(score);
             resultEl.className = 'result-box ttkg-result calculated';
             resultValueEl.innerHTML = `
@@ -235,27 +251,51 @@ export const maggic = {
 
         // Auto-populate data
         fields.age.value = calculateAge(patient.birthDate);
-        const genderRadio = container.querySelector(`input[name="gender"][value="${patient.gender === 'male' ? 1 : 0}"]`);
+        const genderRadio = container.querySelector(
+            `input[name="gender"][value="${patient.gender === 'male' ? 1 : 0}"]`
+        );
         if (genderRadio) {
             genderRadio.checked = true;
             genderRadio.parentElement.classList.add('selected');
         }
 
-        getMostRecentObservation(client, '39156-5').then(obs => { if(obs) fields.bmi.value = obs.valueQuantity.value.toFixed(1); calculate(); }); // BMI
-        getMostRecentObservation(client, '8480-6').then(obs => { if(obs) fields.sbp.value = obs.valueQuantity.value.toFixed(0); calculate(); }); // SBP
-        getMostRecentObservation(client, '2160-0').then(obs => { if(obs) fields.creatinine.value = obs.valueQuantity.value.toFixed(0); calculate(); }); // Creatinine umol/L
-        
+        getMostRecentObservation(client, '39156-5').then(obs => {
+            if (obs) {
+                fields.bmi.value = obs.valueQuantity.value.toFixed(1);
+            }
+            calculate();
+        }); // BMI
+        getMostRecentObservation(client, '8480-6').then(obs => {
+            if (obs) {
+                fields.sbp.value = obs.valueQuantity.value.toFixed(0);
+            }
+            calculate();
+        }); // SBP
+        getMostRecentObservation(client, '2160-0').then(obs => {
+            if (obs) {
+                fields.creatinine.value = obs.valueQuantity.value.toFixed(0);
+            }
+            calculate();
+        }); // Creatinine umol/L
+
         // Simplified check for conditions
-        getPatientConditions(client, ['414990002', '195967001']).then(conditions => { // Diabetes, COPD
-            const hasDiabetes = conditions.some(c => c.code.coding.some(co => co.code === '414990002'));
-            const diabetesRadio = container.querySelector(`input[name="diabetes"][value="${hasDiabetes ? 3 : 0}"]`);
-            if(diabetesRadio) {
+        getPatientConditions(client, ['414990002', '195967001']).then(conditions => {
+            // Diabetes, COPD
+            const hasDiabetes = conditions.some(c =>
+                c.code.coding.some(co => co.code === '414990002')
+            );
+            const diabetesRadio = container.querySelector(
+                `input[name="diabetes"][value="${hasDiabetes ? 3 : 0}"]`
+            );
+            if (diabetesRadio) {
                 diabetesRadio.checked = true;
                 diabetesRadio.parentElement.classList.add('selected');
             }
             const hasCopd = conditions.some(c => c.code.coding.some(co => co.code === '195967001'));
-            const copdRadio = container.querySelector(`input[name="copd"][value="${hasCopd ? 2 : 0}"]`);
-            if(copdRadio) {
+            const copdRadio = container.querySelector(
+                `input[name="copd"][value="${hasCopd ? 2 : 0}"]`
+            );
+            if (copdRadio) {
                 copdRadio.checked = true;
                 copdRadio.parentElement.classList.add('selected');
             }
@@ -266,7 +306,9 @@ export const maggic = {
             input.addEventListener('input', () => {
                 if (input.type === 'radio') {
                     const group = input.closest('.segmented-control, .radio-group');
-                    group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                    group
+                        .querySelectorAll('label')
+                        .forEach(label => label.classList.remove('selected'));
                     input.parentElement.classList.add('selected');
                 }
                 calculate();

@@ -3,7 +3,7 @@ import { getMostRecentObservation } from '../../utils.js';
 export const rcri = {
     id: 'rcri',
     title: 'Revised Cardiac Risk Index for Pre-Operative Risk',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p>Estimates risk of cardiac complications after noncardiac surgery.</p>
@@ -45,7 +45,7 @@ export const rcri = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         // Auto-populate creatinine
         getMostRecentObservation(client, '2160-0').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -60,7 +60,7 @@ export const rcri = {
                 }
             }
         });
-        
+
         container.querySelector('#calculate-rcri').addEventListener('click', () => {
             const checkboxes = container.querySelectorAll('.check-item input[type="checkbox"]');
             let score = 0;

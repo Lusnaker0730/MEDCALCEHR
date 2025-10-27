@@ -142,10 +142,10 @@ export const fourPeps = {
             <p>Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. <em>JAMA Cardiology</em>, 6(6), 669–677. <a href="https://doi.org/10.1001/jamacardio.2021.0064" target="_blank">doi:10.1001/jamacardio.2021.0064</a>.</p>
         </div>
     `,
-    initialize: async (client) => {
+    initialize: async client => {
         const calculate = () => {
             let score = 0;
-            
+
             const ageInput = document.getElementById('fourpeps-age');
             const age = parseInt(ageInput.value);
             if (!isNaN(age) && age > 74) {
@@ -166,11 +166,13 @@ export const fourPeps = {
             if (score <= 3) {
                 probability = '2-7%';
                 riskLevel = 'Low CPP';
-                recommendation = 'PE can be ruled out if 4PEPS score is 0-3 and D-dimer is negative (using age-adjusted threshold).';
+                recommendation =
+                    'PE can be ruled out if 4PEPS score is 0-3 and D-dimer is negative (using age-adjusted threshold).';
             } else if (score <= 9) {
                 probability = '20-65%';
                 riskLevel = 'Moderate CPP';
-                recommendation = 'PE can be ruled out if D-dimer level &lt;0.5 µg/mL OR &lt;(age x 0.01) µg/mL';
+                recommendation =
+                    'PE can be ruled out if D-dimer level &lt;0.5 µg/mL OR &lt;(age x 0.01) µg/mL';
             } else {
                 probability = '66-95%';
                 riskLevel = 'High CPP';
@@ -184,9 +186,11 @@ export const fourPeps = {
         };
 
         document.querySelectorAll('.segmented-control').forEach(group => {
-            group.addEventListener('click', (event) => {
+            group.addEventListener('click', event => {
                 const button = event.target.closest('button');
-                if (!button) return;
+                if (!button) {
+                    return;
+                }
 
                 group.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
@@ -206,7 +210,10 @@ export const fourPeps = {
                 }
                 if (patient.gender) {
                     const sexGroup = document.querySelector('[data-name="sex"]');
-                    const btn = patient.gender === 'male' ? sexGroup.querySelector('[data-value="2"]') : sexGroup.querySelector('[data-value="0"]');
+                    const btn =
+                        patient.gender === 'male'
+                            ? sexGroup.querySelector('[data-value="2"]')
+                            : sexGroup.querySelector('[data-value="0"]');
                     sexGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                 }
@@ -218,7 +225,7 @@ export const fourPeps = {
             const [conditions, hrObs, o2Obs] = await Promise.all([
                 getPatientConditions(client, [...chronicRespCodes, ...vteCodes]),
                 getMostRecentObservation(client, '8867-4'), // Heart rate
-                getMostRecentObservation(client, '59408-5')  // O2 Sat on Room Air
+                getMostRecentObservation(client, '59408-5') // O2 Sat on Room Air
             ]);
 
             if (conditions) {
@@ -245,9 +252,8 @@ export const fourPeps = {
                 group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
                 group.querySelector('[data-value="3"]').classList.add('active');
             }
-
         } catch (error) {
-            console.error("Error auto-populating 4PEPS:", error);
+            console.error('Error auto-populating 4PEPS:', error);
         } finally {
             calculate();
         }

@@ -1,10 +1,15 @@
-import { getMostRecentObservation, createUnitSelector, initializeUnitConversion, getValueInStandardUnit } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    createUnitSelector,
+    initializeUnitConversion,
+    getValueInStandardUnit
+} from '../../utils.js';
 
 export const isthDic = {
     id: 'isth-dic',
     title: 'ISTH Criteria for Disseminated Intravascular Coagulation (DIC)',
     description: 'Diagnoses overt disseminated intravascular coagulation (DIC).',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -76,16 +81,18 @@ export const isthDic = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const resultEl = container.querySelector('#isth-dic-result');
         const groups = ['platelet', 'fibrin_marker', 'pt', 'fibrinogen'];
-        
+
         // Get PT input field (this one doesn't need unit conversion)
         const ptInput = container.querySelector('#pt-input');
 
         const calculate = () => {
             let score = 0;
-            const allAnswered = groups.every(group => container.querySelector(`input[name="${group}"]:checked`));
+            const allAnswered = groups.every(group =>
+                container.querySelector(`input[name="${group}"]:checked`)
+            );
 
             if (!allAnswered) {
                 resultEl.style.display = 'none';
@@ -95,14 +102,15 @@ export const isthDic = {
             groups.forEach(group => {
                 score += parseInt(container.querySelector(`input[name="${group}"]:checked`).value);
             });
-            
+
             let interpretation = '';
             let scoreClass = '';
             if (score >= 5) {
                 interpretation = 'Score ≥5 is compatible with overt DIC. Repeat score daily.';
                 scoreClass = 'high-risk';
             } else {
-                interpretation = 'Score <5 is not suggestive of overt DIC, may be non-overt DIC; repeat within next 1-2 days and manage clinically as appropriate.';
+                interpretation =
+                    'Score <5 is not suggestive of overt DIC, may be non-overt DIC; repeat within next 1-2 days and manage clinically as appropriate.';
                 scoreClass = 'low-risk';
             }
 
@@ -119,69 +127,76 @@ export const isthDic = {
         };
 
         const setRadioFromValue = (groupName, value, ranges) => {
-            if (value === null || value === undefined || value === '' || isNaN(value)) return;
+            if (value === null || value === undefined || value === '' || isNaN(value)) {
+                return;
+            }
             const radioToSelect = ranges.find(range => range.condition(value));
             if (radioToSelect) {
-                const radio = container.querySelector(`input[name="${groupName}"][value="${radioToSelect.value}"]`);
+                const radio = container.querySelector(
+                    `input[name="${groupName}"][value="${radioToSelect.value}"]`
+                );
                 if (radio) {
                     radio.checked = true;
                     const group = radio.closest('.radio-group, .segmented-control');
                     if (group) {
-                        group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                        group
+                            .querySelectorAll('label')
+                            .forEach(label => label.classList.remove('selected'));
                     }
                     radio.parentElement.classList.add('selected');
                     calculate();
                 }
             }
         };
-        
+
         // Auto-selection from input fields with unit conversion
         const updatePlateletRadio = () => {
             const value = getValueInStandardUnit(container, 'platelet-input', '×10⁹/L');
             setRadioFromValue('platelet', value, [
                 { condition: v => v >= 100, value: '0' },
                 { condition: v => v >= 50 && v < 100, value: '1' },
-                { condition: v => v < 50, value: '2' },
+                { condition: v => v < 50, value: '2' }
             ]);
         };
-        
+
         const updateDdimerRadio = () => {
             const value = getValueInStandardUnit(container, 'ddimer-input', 'mg/L');
             setRadioFromValue('fibrin_marker', value, [
                 { condition: v => v < 0.5, value: '0' },
                 { condition: v => v >= 0.5 && v <= 5, value: '2' },
-                { condition: v => v > 5, value: '3' },
+                { condition: v => v > 5, value: '3' }
             ]);
         };
-        
+
         const updateFibrinogenRadio = () => {
             const value = getValueInStandardUnit(container, 'fibrinogen-input', 'g/L');
             setRadioFromValue('fibrinogen', value, [
                 { condition: v => v >= 1, value: '0' },
-                { condition: v => v < 1, value: '1' },
+                { condition: v => v < 1, value: '1' }
             ]);
         };
-        
+
         // Initialize unit conversions
         initializeUnitConversion(container, 'platelet-input', updatePlateletRadio);
         initializeUnitConversion(container, 'ddimer-input', updateDdimerRadio);
         initializeUnitConversion(container, 'fibrinogen-input', updateFibrinogenRadio);
-        
+
         // PT input listener (no unit conversion needed)
-        ptInput.addEventListener('input', (e) => {
+        ptInput.addEventListener('input', e => {
             const value = parseFloat(e.target.value);
             if (!isNaN(value)) {
                 const prolongation = value - 12; // Assuming normal PT is 12s
                 setRadioFromValue('pt', prolongation, [
                     { condition: v => v < 3, value: '0' },
                     { condition: v => v >= 3 && v < 6, value: '1' },
-                    { condition: v => v >= 6, value: '2' },
+                    { condition: v => v >= 6, value: '2' }
                 ]);
             }
         });
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, '26515-7').then(obs => { // Platelets
+        getMostRecentObservation(client, '26515-7').then(obs => {
+            // Platelets
             if (obs && obs.valueQuantity) {
                 const plateletInput = container.querySelector('#platelet-input');
                 if (plateletInput) {
@@ -190,8 +205,9 @@ export const isthDic = {
                 }
             }
         });
-        
-        getMostRecentObservation(client, '48065-7').then(obs => { // D-dimer mg/L FEU
+
+        getMostRecentObservation(client, '48065-7').then(obs => {
+            // D-dimer mg/L FEU
             if (obs && obs.valueQuantity) {
                 const ddimerInput = container.querySelector('#ddimer-input');
                 if (ddimerInput) {
@@ -200,8 +216,9 @@ export const isthDic = {
                 }
             }
         });
-        
-        getMostRecentObservation(client, '5902-2').then(obs => { // PT seconds
+
+        getMostRecentObservation(client, '5902-2').then(obs => {
+            // PT seconds
             if (obs && obs.valueQuantity) {
                 const value = obs.valueQuantity.value;
                 ptInput.value = value.toFixed(1);
@@ -209,12 +226,13 @@ export const isthDic = {
                 setRadioFromValue('pt', prolongation, [
                     { condition: v => v < 3, value: '0' },
                     { condition: v => v >= 3 && v < 6, value: '1' },
-                    { condition: v => v >= 6, value: '2' },
+                    { condition: v => v >= 6, value: '2' }
                 ]);
             }
         });
-        
-        getMostRecentObservation(client, '3255-7').then(obs => { // Fibrinogen g/L
+
+        getMostRecentObservation(client, '3255-7').then(obs => {
+            // Fibrinogen g/L
             if (obs && obs.valueQuantity) {
                 const fibrinogenInput = container.querySelector('#fibrinogen-input');
                 if (fibrinogenInput) {
@@ -224,11 +242,12 @@ export const isthDic = {
             }
         });
 
-
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.radio-group, .segmented-control');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });

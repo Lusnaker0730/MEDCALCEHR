@@ -4,8 +4,9 @@ import { calculateAge, getMostRecentObservation } from '../../utils.js';
 export const guptaMica = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
-    description: 'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = √(1 + e^x) where x = -5.25 + sum of selected variables.',
-    generateHTML: function() {
+    description:
+        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = √(1 + e^x) where x = -5.25 + sum of selected variables.',
+    generateHTML: function () {
         return `
             <div class="calculator-header">
                 <h3 class="calculator-title">
@@ -124,9 +125,9 @@ export const guptaMica = {
             <div id="mica-result" class="result-container" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient) {
+    initialize: function (client, patient) {
         // Helper function to mark field as auto-populated
-        const markAutoFilled = (element) => {
+        const markAutoFilled = element => {
             if (element) {
                 element.style.background = '#e6f7ff';
                 element.style.borderColor = '#91d5ff';
@@ -146,18 +147,23 @@ export const guptaMica = {
 
         // Auto-populate creatinine
         if (client) {
-            getMostRecentObservation(client, '2160-0').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const crInput = document.getElementById('mica-creat');
-                    let crValue = obs.valueQuantity.value;
-                    // Convert if needed (µmol/L to mg/dL: divide by 88.4)
-                    if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
-                        crValue = crValue / 88.4;
+            getMostRecentObservation(client, '2160-0')
+                .then(obs => {
+                    if (obs && obs.valueQuantity) {
+                        const crInput = document.getElementById('mica-creat');
+                        let crValue = obs.valueQuantity.value;
+                        // Convert if needed (µmol/L to mg/dL: divide by 88.4)
+                        if (
+                            obs.valueQuantity.unit === 'µmol/L' ||
+                            obs.valueQuantity.unit === 'umol/L'
+                        ) {
+                            crValue = crValue / 88.4;
+                        }
+                        crInput.value = crValue.toFixed(2);
+                        markAutoFilled(crInput);
                     }
-                    crInput.value = crValue.toFixed(2);
-                    markAutoFilled(crInput);
-                }
-            }).catch(err => console.log('Creatinine not available'));
+                })
+                .catch(err => console.log('Creatinine not available'));
         }
 
         document.getElementById('calculate-mica').addEventListener('click', () => {
@@ -166,7 +172,7 @@ export const guptaMica = {
             const asaClass = parseFloat(document.getElementById('mica-asa').value);
             const creat = parseFloat(document.getElementById('mica-creat').value);
             const procedure = parseFloat(document.getElementById('mica-procedure').value);
-            
+
             if (isNaN(age) || isNaN(creat)) {
                 alert('⚠️ Please fill out all required fields.');
                 return;
@@ -174,44 +180,46 @@ export const guptaMica = {
 
             // Calculate x using the formula: x = -5.25 + sum of values
             let x = -5.25;
-            
+
             // Age contribution: Age × 0.02
             x += age * 0.02;
-            
+
             // Functional status
             x += functionalStatus;
-            
+
             // ASA class
             x += asaClass;
-            
+
             // Creatinine: elevated ≥1.5 mg/dL adds 0.61
             if (creat >= 1.5) {
                 x += 0.61;
             }
-            
+
             // Type of procedure
             x += procedure;
-            
+
             // Calculate risk using formula: risk % = √(1 + e^x)
             const risk = Math.sqrt(1 + Math.exp(x));
             const riskPercent = risk.toFixed(2);
-            
+
             // Determine risk level and color
-            let riskLevel = "low";
-            let riskColor = "#10b981";
-            let riskIcon = "✓";
-            let riskDescription = "Low risk of postoperative MI or cardiac arrest";
-            
+            let riskLevel = 'low';
+            let riskColor = '#10b981';
+            let riskIcon = '✓';
+            let riskDescription = 'Low risk of postoperative MI or cardiac arrest';
+
             if (risk > 5) {
-                riskLevel = "high";
-                riskColor = "#ef4444";
-                riskIcon = "⚠";
-                riskDescription = "High risk of postoperative MI or cardiac arrest - Consider risk modification strategies";
+                riskLevel = 'high';
+                riskColor = '#ef4444';
+                riskIcon = '⚠';
+                riskDescription =
+                    'High risk of postoperative MI or cardiac arrest - Consider risk modification strategies';
             } else if (risk > 2) {
-                riskLevel = "intermediate";
-                riskColor = "#f59e0b";
-                riskIcon = "⚡";
-                riskDescription = "Intermediate risk of postoperative MI or cardiac arrest - Consider perioperative optimization";
+                riskLevel = 'intermediate';
+                riskColor = '#f59e0b';
+                riskIcon = '⚡';
+                riskDescription =
+                    'Intermediate risk of postoperative MI or cardiac arrest - Consider perioperative optimization';
             }
 
             const resultEl = document.getElementById('mica-result');

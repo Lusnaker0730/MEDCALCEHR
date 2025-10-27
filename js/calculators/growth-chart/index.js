@@ -3,8 +3,9 @@ import { cdcData } from './cdc-data.js';
 export const growthChart = {
     id: 'growth-chart',
     title: 'Pediatric Growth Chart',
-    description: 'Plots patient\'s growth data (height, weight, BMI) against standard growth curves.',
-    generateHTML: function() {
+    description:
+        'Plots patient\'s growth data (height, weight, BMI) against standard growth curves.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -134,7 +135,7 @@ export const growthChart = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const heightCanvas = container.querySelector('#growthChartCanvasHeight');
         const weightCanvas = container.querySelector('#growthChartCanvasWeight');
         const bmiCanvas = container.querySelector('#growthChartCanvasBMI');
@@ -146,34 +147,47 @@ export const growthChart = {
                 head: '8287-5'
             };
             const requests = Object.entries(loincCodes).map(([key, code]) =>
-                client.patient.request(`Observation?code=${code}&_sort=date`).then(response => ({ key, response }))
+                client.patient
+                    .request(`Observation?code=${code}&_sort=date`)
+                    .then(response => ({ key, response }))
             );
             try {
                 const results = await Promise.all(requests);
                 const data = { height: [], weight: [], head: [] };
                 results.forEach(({ key, response }) => {
                     if (response.entry) {
-                        data[key] = response.entry.map(item => ({
-                            ageMonths: new Date(item.resource.effectiveDateTime).getTime() / (1000 * 60 * 60 * 24 * 30.4375) - new Date(patient.birthDate).getTime() / (1000 * 60 * 60 * 24 * 30.4375),
-                            value: item.resource.valueQuantity.value,
-                            unit: item.resource.valueQuantity.unit
-                        })).filter(item => item.ageMonths >= 0);
+                        data[key] = response.entry
+                            .map(item => ({
+                                ageMonths:
+                                    new Date(item.resource.effectiveDateTime).getTime() /
+                                        (1000 * 60 * 60 * 24 * 30.4375) -
+                                    new Date(patient.birthDate).getTime() /
+                                        (1000 * 60 * 60 * 24 * 30.4375),
+                                value: item.resource.valueQuantity.value,
+                                unit: item.resource.valueQuantity.unit
+                            }))
+                            .filter(item => item.ageMonths >= 0);
                     }
                 });
                 return data;
             } catch (error) {
-                console.error("Error fetching growth data:", error);
-                container.innerHTML = `<div class="error-box">An error occurred while fetching growth data.</div>`;
+                console.error('Error fetching growth data:', error);
+                container.innerHTML =
+                    '<div class="error-box">An error occurred while fetching growth data.</div>';
                 return null;
             }
         }
 
         function calculateBmiData(heightData, weightData) {
-            if (heightData.length === 0 || weightData.length === 0) return [];
+            if (heightData.length === 0 || weightData.length === 0) {
+                return [];
+            }
             const bmiData = [];
             weightData.forEach(w => {
-                const closestHeight = heightData.reduce((prev, curr) => 
-                    Math.abs(curr.ageMonths - w.ageMonths) < Math.abs(prev.ageMonths - w.ageMonths) ? curr : prev
+                const closestHeight = heightData.reduce((prev, curr) =>
+                    Math.abs(curr.ageMonths - w.ageMonths) < Math.abs(prev.ageMonths - w.ageMonths)
+                        ? curr
+                        : prev
                 );
                 if (Math.abs(closestHeight.ageMonths - w.ageMonths) < 0.5) {
                     const heightInMeters = closestHeight.value / 100;
@@ -186,7 +200,14 @@ export const growthChart = {
             return bmiData;
         }
 
-        function createChart(canvas, title, patientData, cdcPercentileData, yAxisLabel, patientDataLabel) {
+        function createChart(
+            canvas,
+            title,
+            patientData,
+            cdcPercentileData,
+            yAxisLabel,
+            patientDataLabel
+        ) {
             if (!cdcPercentileData || cdcPercentileData.length === 0) {
                 // Handle case where there is no CDC data
                 const patientDataset = {
@@ -199,9 +220,9 @@ export const growthChart = {
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 6,
-                    pointHoverRadius: 8,
+                    pointHoverRadius: 8
                 };
-                
+
                 new Chart(canvas.getContext('2d'), {
                     type: 'line',
                     data: { datasets: [patientDataset] },
@@ -213,8 +234,8 @@ export const growthChart = {
                             mode: 'index'
                         },
                         plugins: {
-                            title: { 
-                                display: true, 
+                            title: {
+                                display: true,
                                 text: title,
                                 font: { size: 16, weight: 'bold' },
                                 color: '#1f2937'
@@ -234,13 +255,13 @@ export const growthChart = {
                                 borderColor: '#2563eb',
                                 borderWidth: 1,
                                 callbacks: {
-                                    title: function(context) {
+                                    title: function (context) {
                                         const ageMonths = context[0].parsed.x;
                                         const years = Math.floor(ageMonths / 12);
                                         const months = Math.round(ageMonths % 12);
                                         return `Age: ${years}y ${months}m`;
                                     },
-                                    label: function(context) {
+                                    label: function (context) {
                                         return `${context.dataset.label}: ${context.parsed.y.toFixed(1)} ${yAxisLabel.match(/\(([^)]+)\)/)?.[1] || ''}`;
                                     }
                                 }
@@ -250,8 +271,8 @@ export const growthChart = {
                             x: {
                                 type: 'linear',
                                 position: 'bottom',
-                                title: { 
-                                    display: true, 
+                                title: {
+                                    display: true,
                                     text: 'Age (Months)',
                                     font: { size: 14, weight: 'bold' }
                                 },
@@ -262,8 +283,8 @@ export const growthChart = {
                             y: {
                                 type: 'linear',
                                 position: 'left',
-                                title: { 
-                                    display: true, 
+                                title: {
+                                    display: true,
                                     text: yAxisLabel,
                                     font: { size: 14, weight: 'bold' }
                                 },
@@ -301,7 +322,9 @@ export const growthChart = {
                         label: `CDC ${percentile}`,
                         data: cdcPercentileData.map(row => ({ x: row.Agemos, y: row[percentile] })),
                         borderColor: config.color,
-                        backgroundColor: `${config.color}${Math.round(config.alpha * 255).toString(16).padStart(2, '0')}`,
+                        backgroundColor: `${config.color}${Math.round(config.alpha * 255)
+                            .toString(16)
+                            .padStart(2, '0')}`,
                         borderWidth: config.width,
                         borderDash: config.dash,
                         pointRadius: 0,
@@ -323,7 +346,7 @@ export const growthChart = {
                     };
                 }
             }
-            
+
             // Enhanced patient data visualization
             const patientDataset = {
                 label: patientDataLabel,
@@ -351,8 +374,8 @@ export const growthChart = {
                         mode: 'index'
                     },
                     plugins: {
-                        title: { 
-                            display: true, 
+                        title: {
+                            display: true,
                             text: title,
                             font: { size: 16, weight: 'bold' },
                             color: '#1f2937',
@@ -364,12 +387,14 @@ export const growthChart = {
                             labels: {
                                 usePointStyle: true,
                                 padding: 15,
-                                filter: function(legendItem, chartData) {
+                                filter: function (legendItem, chartData) {
                                     // Only show patient data and key percentiles in legend
-                                    return legendItem.text.includes('Patient') || 
-                                           legendItem.text.includes('P5') || 
-                                           legendItem.text.includes('P50') || 
-                                           legendItem.text.includes('P95');
+                                    return (
+                                        legendItem.text.includes('Patient') ||
+                                        legendItem.text.includes('P5') ||
+                                        legendItem.text.includes('P50') ||
+                                        legendItem.text.includes('P95')
+                                    );
                                 }
                             }
                         },
@@ -380,20 +405,24 @@ export const growthChart = {
                             borderColor: '#2563eb',
                             borderWidth: 1,
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const ageMonths = context[0].parsed.x;
                                     const years = Math.floor(ageMonths / 12);
                                     const months = Math.round(ageMonths % 12);
                                     return `Age: ${years}y ${months}m (${ageMonths.toFixed(1)} months)`;
                                 },
-                                label: function(context) {
+                                label: function (context) {
                                     const unit = yAxisLabel.match(/\(([^)]+)\)/)?.[1] || '';
                                     const value = context.parsed.y.toFixed(1);
                                     let label = `${context.dataset.label}: ${value} ${unit}`;
-                                    
+
                                     // Add Z-score calculation for patient data
                                     if (context.dataset.label.includes('Patient')) {
-                                        const zscore = calculateZScore(context.parsed.x, context.parsed.y, cdcPercentileData);
+                                        const zscore = calculateZScore(
+                                            context.parsed.x,
+                                            context.parsed.y,
+                                            cdcPercentileData
+                                        );
                                         if (zscore !== null) {
                                             label += ` (Z-score: ${zscore.toFixed(2)})`;
                                         }
@@ -407,8 +436,8 @@ export const growthChart = {
                         x: {
                             type: 'linear',
                             position: 'bottom',
-                            title: { 
-                                display: true, 
+                            title: {
+                                display: true,
                                 text: 'Age (Months)',
                                 font: { size: 14, weight: 'bold' }
                             },
@@ -417,18 +446,20 @@ export const growthChart = {
                                 drawTicks: true
                             },
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     const years = Math.floor(value / 12);
                                     const months = Math.round(value % 12);
-                                    return years > 0 ? `${years}y${months > 0 ? ` ${months}m` : ''}` : `${months}m`;
+                                    return years > 0
+                                        ? `${years}y${months > 0 ? ` ${months}m` : ''}`
+                                        : `${months}m`;
                                 }
                             }
                         },
                         y: {
                             type: 'linear',
                             position: 'left',
-                            title: { 
-                                display: true, 
+                            title: {
+                                display: true,
                                 text: yAxisLabel,
                                 font: { size: 14, weight: 'bold' }
                             },
@@ -443,23 +474,27 @@ export const growthChart = {
 
         // Z-score calculation function
         function calculateZScore(ageMonths, value, cdcData) {
-            if (!cdcData || cdcData.length === 0) return null;
-            
+            if (!cdcData || cdcData.length === 0) {
+                return null;
+            }
+
             // Find closest age point in CDC data
-            const closestPoint = cdcData.reduce((prev, curr) => 
+            const closestPoint = cdcData.reduce((prev, curr) =>
                 Math.abs(curr.Agemos - ageMonths) < Math.abs(prev.Agemos - ageMonths) ? curr : prev
             );
-            
-            if (Math.abs(closestPoint.Agemos - ageMonths) > 1) return null; // Too far from reference point
-            
+
+            if (Math.abs(closestPoint.Agemos - ageMonths) > 1) {
+                return null;
+            } // Too far from reference point
+
             // Approximate Z-score using P50 and standard deviation estimation
             const p50 = closestPoint.P50;
             const p5 = closestPoint.P5;
             const p95 = closestPoint.P95;
-            
+
             // Rough estimate: assume normal distribution where P5 ≈ -1.645 SD, P95 ≈ +1.645 SD
             const sdEstimate = (p95 - p5) / (2 * 1.645);
-            
+
             return (value - p50) / sdEstimate;
         }
 
@@ -467,24 +502,29 @@ export const growthChart = {
         function updateChartStatus(type, dataCount, latestValue, latestAge, cdcData) {
             const statusEl = container.querySelector(`#${type}-status`);
             const summaryEl = container.querySelector(`#${type}-summary`);
-            
+
             if (dataCount === 0) {
                 statusEl.innerHTML = '<span class="status-warning">⚠️ No data available</span>';
-                summaryEl.innerHTML = '<p class="no-data">No measurements recorded for this patient.</p>';
+                summaryEl.innerHTML =
+                    '<p class="no-data">No measurements recorded for this patient.</p>';
                 return;
             }
 
             statusEl.innerHTML = `<span class="status-success">✅ ${dataCount} measurement${dataCount > 1 ? 's' : ''}</span>`;
-            
+
             if (latestValue && latestAge !== undefined && cdcData && cdcData.length > 0) {
                 const zscore = calculateZScore(latestAge, latestValue, cdcData);
                 const percentileEstimate = estimatePercentile(zscore);
-                
+
                 let interpretation = '';
                 if (zscore !== null) {
-                    if (zscore < -2) interpretation = 'Below normal range';
-                    else if (zscore > 2) interpretation = 'Above normal range';
-                    else interpretation = 'Within normal range';
+                    if (zscore < -2) {
+                        interpretation = 'Below normal range';
+                    } else if (zscore > 2) {
+                        interpretation = 'Above normal range';
+                    } else {
+                        interpretation = 'Within normal range';
+                    }
                 }
 
                 const years = Math.floor(latestAge / 12);
@@ -503,25 +543,46 @@ export const growthChart = {
 
         // Function to estimate percentile from Z-score
         function estimatePercentile(zscore) {
-            if (zscore === null) return '';
-            
+            if (zscore === null) {
+                return '';
+            }
+
             // Rough approximation
-            if (zscore <= -2.33) return '3';
-            if (zscore <= -1.645) return '5';
-            if (zscore <= -1.28) return '10';
-            if (zscore <= -0.674) return '25';
-            if (zscore <= 0) return '50';
-            if (zscore <= 0.674) return '75';
-            if (zscore <= 1.28) return '90';
-            if (zscore <= 1.645) return '95';
-            if (zscore <= 2.33) return '97';
+            if (zscore <= -2.33) {
+                return '3';
+            }
+            if (zscore <= -1.645) {
+                return '5';
+            }
+            if (zscore <= -1.28) {
+                return '10';
+            }
+            if (zscore <= -0.674) {
+                return '25';
+            }
+            if (zscore <= 0) {
+                return '50';
+            }
+            if (zscore <= 0.674) {
+                return '75';
+            }
+            if (zscore <= 1.28) {
+                return '90';
+            }
+            if (zscore <= 1.645) {
+                return '95';
+            }
+            if (zscore <= 2.33) {
+                return '97';
+            }
             return '>97';
         }
 
         getGrowthData(client).then(data => {
             if (data) {
                 if (data.height.length === 0 && data.weight.length === 0) {
-                    container.innerHTML = '<div class="no-growth-data"><h4>📊 No Growth Data Available</h4><p>No height or weight measurements found for this patient. Please ensure growth data has been recorded in the patient\'s medical record.</p></div>';
+                    container.innerHTML =
+                        '<div class="no-growth-data"><h4>📊 No Growth Data Available</h4><p>No height or weight measurements found for this patient. Please ensure growth data has been recorded in the patient\'s medical record.</p></div>';
                     return;
                 }
 
@@ -529,41 +590,76 @@ export const growthChart = {
                 const gender = patient.gender || 'female';
 
                 // Get latest measurements for summaries
-                const latestHeight = data.height.length > 0 ? data.height[data.height.length - 1] : null;
-                const latestWeight = data.weight.length > 0 ? data.weight[data.weight.length - 1] : null;
+                const latestHeight =
+                    data.height.length > 0 ? data.height[data.height.length - 1] : null;
+                const latestWeight =
+                    data.weight.length > 0 ? data.weight[data.weight.length - 1] : null;
                 const latestBMI = bmiData.length > 0 ? bmiData[bmiData.length - 1] : null;
 
                 // Create Height Chart
-                const cdcHeightDataSet = (gender === 'female') ? cdcData.lenageinf_g : cdcData.lenageinf_b;
+                const cdcHeightDataSet =
+                    gender === 'female' ? cdcData.lenageinf_g : cdcData.lenageinf_b;
                 const cdcHeightData = cdcHeightDataSet ? cdcHeightDataSet.data : [];
                 if (heightCanvas) {
-                    createChart(heightCanvas, 'Height for Age', data.height, cdcHeightData, 'Height (cm)', 'Patient Height');
-                    updateChartStatus('height', data.height.length, 
-                        latestHeight ? latestHeight.value : null, 
-                        latestHeight ? latestHeight.ageMonths : null, 
-                        cdcHeightData);
+                    createChart(
+                        heightCanvas,
+                        'Height for Age',
+                        data.height,
+                        cdcHeightData,
+                        'Height (cm)',
+                        'Patient Height'
+                    );
+                    updateChartStatus(
+                        'height',
+                        data.height.length,
+                        latestHeight ? latestHeight.value : null,
+                        latestHeight ? latestHeight.ageMonths : null,
+                        cdcHeightData
+                    );
                 }
 
                 // Create Weight Chart
-                const cdcWeightDataSet = (gender === 'female') ? cdcData.wtageinf_g : cdcData.wtageinf_b;
+                const cdcWeightDataSet =
+                    gender === 'female' ? cdcData.wtageinf_g : cdcData.wtageinf_b;
                 const cdcWeightData = cdcWeightDataSet ? cdcWeightDataSet.data : [];
                 if (weightCanvas) {
-                    createChart(weightCanvas, 'Weight for Age', data.weight, cdcWeightData, 'Weight (kg)', 'Patient Weight');
-                    updateChartStatus('weight', data.weight.length, 
-                        latestWeight ? latestWeight.value : null, 
-                        latestWeight ? latestWeight.ageMonths : null, 
-                        cdcWeightData);
+                    createChart(
+                        weightCanvas,
+                        'Weight for Age',
+                        data.weight,
+                        cdcWeightData,
+                        'Weight (kg)',
+                        'Patient Weight'
+                    );
+                    updateChartStatus(
+                        'weight',
+                        data.weight.length,
+                        latestWeight ? latestWeight.value : null,
+                        latestWeight ? latestWeight.ageMonths : null,
+                        cdcWeightData
+                    );
                 }
-                
+
                 // Create BMI Chart
-                const cdcBmiDataSet = (gender === 'female') ? cdcData.bmiagerev_g : cdcData.bmiagerev_b;
+                const cdcBmiDataSet =
+                    gender === 'female' ? cdcData.bmiagerev_g : cdcData.bmiagerev_b;
                 const cdcBmiData = cdcBmiDataSet ? cdcBmiDataSet.data : [];
                 if (bmiCanvas) {
-                    createChart(bmiCanvas, 'BMI for Age', bmiData, cdcBmiData, 'BMI (kg/m²)', 'Patient BMI');
-                    updateChartStatus('bmi', bmiData.length, 
-                        latestBMI ? latestBMI.value : null, 
-                        latestBMI ? latestBMI.ageMonths : null, 
-                        cdcBmiData);
+                    createChart(
+                        bmiCanvas,
+                        'BMI for Age',
+                        bmiData,
+                        cdcBmiData,
+                        'BMI (kg/m²)',
+                        'Patient BMI'
+                    );
+                    updateChartStatus(
+                        'bmi',
+                        bmiData.length,
+                        latestBMI ? latestBMI.value : null,
+                        latestBMI ? latestBMI.ageMonths : null,
+                        cdcBmiData
+                    );
                 }
 
                 // Add growth velocity analysis
@@ -590,17 +686,22 @@ export const growthChart = {
 
         // Function to calculate growth velocity
         function calculateVelocity(type, measurements, unit, multiplier = 1) {
-            if (measurements.length < 2) return '';
-            
+            if (measurements.length < 2) {
+                return '';
+            }
+
             const recent = measurements.slice(-2);
             const timeDiff = recent[1].ageMonths - recent[0].ageMonths;
             const valueDiff = (recent[1].value - recent[0].value) * multiplier;
-            
-            if (timeDiff <= 0) return '';
-            
+
+            if (timeDiff <= 0) {
+                return '';
+            }
+
             const velocity = valueDiff / timeDiff;
-            const timeStr = timeDiff < 2 ? `${timeDiff.toFixed(1)} month` : `${timeDiff.toFixed(1)} months`;
-            
+            const timeStr =
+                timeDiff < 2 ? `${timeDiff.toFixed(1)} month` : `${timeDiff.toFixed(1)} months`;
+
             return `
                 <div class="velocity-item">
                     <strong>${type} Velocity:</strong>

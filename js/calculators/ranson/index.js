@@ -5,7 +5,7 @@ export const ransonScore = {
     id: 'ranson-score',
     title: 'Ranson Score for Pancreatitis',
     description: 'Predicts severity and mortality of acute pancreatitis (for non-gallstone cases).',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -51,28 +51,28 @@ export const ransonScore = {
             <div id="ranson-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         // If only one parameter is passed (old style), use it as container
         if (!container && typeof client === 'object' && client.nodeType === 1) {
             container = client;
         }
-        
+
         // Use document if container is not a DOM element
         const root = container || document;
-        
+
         const calculateBtn = root.querySelector('#calculate-ranson');
         if (!calculateBtn) {
             console.error('Calculate button not found');
             return;
         }
-        
+
         // Auto-populate age
         const age = calculateAge(patient.birthDate);
         const ageCheckbox = root.querySelector('#ranson-age');
         if (age > 55 && ageCheckbox) {
             ageCheckbox.checked = true;
         }
-        
+
         // Auto-populate WBC
         getMostRecentObservation(client, '6690-2').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -83,7 +83,7 @@ export const ransonScore = {
                 }
             }
         });
-        
+
         // Auto-populate glucose
         getMostRecentObservation(client, '2345-7').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -98,7 +98,7 @@ export const ransonScore = {
                 }
             }
         });
-        
+
         // Auto-populate AST
         getMostRecentObservation(client, '1920-8').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -109,7 +109,7 @@ export const ransonScore = {
                 }
             }
         });
-        
+
         // Auto-populate LDH
         getMostRecentObservation(client, '2532-0').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -120,7 +120,7 @@ export const ransonScore = {
                 }
             }
         });
-        
+
         // Auto-populate calcium
         getMostRecentObservation(client, '17861-6').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -135,15 +135,15 @@ export const ransonScore = {
                 }
             }
         });
-        
+
         calculateBtn.addEventListener('click', () => {
             const inputs = root.querySelectorAll('#ranson-form input[type="checkbox"]:checked');
             const score = inputs.length;
-            
+
             let mortality = '';
             let riskLevel = '';
             let bgColor = '';
-            
+
             if (score <= 2) {
                 mortality = '~0-3%';
                 riskLevel = 'Low Risk';
@@ -185,8 +185,22 @@ export const ransonScore = {
                 </div>
             `;
             resultEl.style.display = 'block';
-            resultEl.style.backgroundColor = score <= 2 ? '#d4edda' : (score <= 4 ? '#fff3cd' : (score <= 6 ? '#fff3cd' : '#f8d7da'));
-            resultEl.style.borderColor = score <= 2 ? '#c3e6cb' : (score <= 4 ? '#ffc107' : (score <= 6 ? '#fd7e14' : '#f5c6cb'));
+            resultEl.style.backgroundColor =
+                score <= 2
+                    ? '#d4edda'
+                    : score <= 4
+                        ? '#fff3cd'
+                        : score <= 6
+                            ? '#fff3cd'
+                            : '#f8d7da';
+            resultEl.style.borderColor =
+                score <= 2
+                    ? '#c3e6cb'
+                    : score <= 4
+                        ? '#ffc107'
+                        : score <= 6
+                            ? '#fd7e14'
+                            : '#f5c6cb';
         });
     }
 };

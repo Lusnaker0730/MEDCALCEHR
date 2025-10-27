@@ -38,7 +38,7 @@ export const hepScore = {
             <p>Cuker, A., et al. (2010). The HIT Expert Probability (HEP) Score: a novel pre-test probability model for heparin-induced thrombocytopenia based on broad expert opinion. <em>Journal of thrombosis and haemostasis : JTH</em>, 8(12), 2642–2650. <a href="https://doi.org/10.1111/j.1538-7836.2010.04059.x" target="_blank">doi:10.1111/j.1538-7836.2010.04059.x</a>. PMID: 20854372.</p>
         </div>
     `,
-    initialize: async (client) => {
+    initialize: async client => {
         const criteriaContainer = document.getElementById('hep-score-criteria');
         const onsetToggle = document.querySelector('[data-name="hit_onset_type"]');
 
@@ -53,7 +53,7 @@ export const hepScore = {
             },
             timing_typical: {
                 label: 'Timing of platelet count fall',
-                condition: (type) => type === 'typical',
+                condition: type => type === 'typical',
                 options: [
                     { text: 'Fall begins <4 days after heparin exposure', value: -2 },
                     { text: 'Fall begins 4 days after heparin exposure', value: 2 },
@@ -64,7 +64,7 @@ export const hepScore = {
             },
             timing_rapid: {
                 label: 'Timing of platelet count fall',
-                condition: (type) => type === 'rapid',
+                condition: type => type === 'rapid',
                 options: [
                     { text: 'Fall begins <48 hours after heparin re-exposure', value: -1 },
                     { text: 'Fall begins ≥48 hours after heparin re-exposure', value: 2 }
@@ -79,32 +79,68 @@ export const hepScore = {
             },
             thrombosis_typical: {
                 label: 'Thrombosis',
-                condition: (type) => type === 'typical',
+                condition: type => type === 'typical',
                 options: [
-                    { text: 'New venous thromboembolism (VTE) or arterial thromboembolism (ATE) ≥4 days after heparin exposure', value: 3 },
-                    { text: 'Progression of pre-existing VTE or ATE while receiving heparin', value: 2 },
+                    {
+                        text: 'New venous thromboembolism (VTE) or arterial thromboembolism (ATE) ≥4 days after heparin exposure',
+                        value: 3
+                    },
+                    {
+                        text: 'Progression of pre-existing VTE or ATE while receiving heparin',
+                        value: 2
+                    },
                     { text: 'None', value: 0 }
                 ]
             },
             thrombosis_rapid: {
                 label: 'Thrombosis',
-                condition: (type) => type === 'rapid',
+                condition: type => type === 'rapid',
                 options: [
-                    { text: 'New venous thromboembolism (VTE) or arterial thromboembolism (ATE) after heparin exposure', value: 3 },
-                    { text: 'Progression of pre-existing VTE or ATE while receiving heparin', value: 2 },
+                    {
+                        text: 'New venous thromboembolism (VTE) or arterial thromboembolism (ATE) after heparin exposure',
+                        value: 3
+                    },
+                    {
+                        text: 'Progression of pre-existing VTE or ATE while receiving heparin',
+                        value: 2
+                    },
                     { text: 'None', value: 0 }
                 ]
             },
-            skin_necrosis: { label: 'Skin necrosis at subcutaneous heparin injection sites', yes: 3, no: 0 },
-            systemic_reaction: { label: 'Acute systemic reaction after IV heparin bolus', yes: 2, no: 0 },
-            bleeding: { label: 'Presence of bleeding, petechiae or extensive bruising', yes: -1, no: 0 },
-            chronic_thrombocytopenia: { label: 'Presence of chronic thrombocytopenic disorder', yes: -1, no: 0 },
-            new_medication: { label: 'Newly initiated non-heparin medication known to cause thrombocytopenia', yes: -1, no: 0 },
+            skin_necrosis: {
+                label: 'Skin necrosis at subcutaneous heparin injection sites',
+                yes: 3,
+                no: 0
+            },
+            systemic_reaction: {
+                label: 'Acute systemic reaction after IV heparin bolus',
+                yes: 2,
+                no: 0
+            },
+            bleeding: {
+                label: 'Presence of bleeding, petechiae or extensive bruising',
+                yes: -1,
+                no: 0
+            },
+            chronic_thrombocytopenia: {
+                label: 'Presence of chronic thrombocytopenic disorder',
+                yes: -1,
+                no: 0
+            },
+            new_medication: {
+                label: 'Newly initiated non-heparin medication known to cause thrombocytopenia',
+                yes: -1,
+                no: 0
+            },
             severe_infection: { label: 'Severe infection', yes: -2, no: 0 },
             dic: { label: 'Severe disseminated intravascular coagulation (DIC)', yes: -2, no: 0 },
             arterial_device: { label: 'Indwelling intra-arterial device', yes: -2, no: 0 },
-            cardiopulmonary_bypass: { label: 'Cardiopulmonary bypass within previous 96 hours', yes: -1, no: 0 },
-            no_other_cause: { label: 'No other apparent cause', yes: 3, no: 0 },
+            cardiopulmonary_bypass: {
+                label: 'Cardiopulmonary bypass within previous 96 hours',
+                yes: -1,
+                no: 0
+            },
+            no_other_cause: { label: 'No other apparent cause', yes: 3, no: 0 }
         };
 
         const renderCriteria = (onsetType = 'typical') => {
@@ -115,12 +151,17 @@ export const hepScore = {
                 }
 
                 let controlHTML = '';
-                if (data.options) { // Multi-button group
-                    const buttons = data.options.map((opt, index) => 
-                        `<button data-value="${opt.value}" class="${index === 0 ? 'active' : ''}">${opt.text} <strong>${opt.value > 0 ? '+' : ''}${opt.value}</strong></button>`
-                    ).join('');
+                if (data.options) {
+                    // Multi-button group
+                    const buttons = data.options
+                        .map(
+                            (opt, index) =>
+                                `<button data-value="${opt.value}" class="${index === 0 ? 'active' : ''}">${opt.text} <strong>${opt.value > 0 ? '+' : ''}${opt.value}</strong></button>`
+                        )
+                        .join('');
                     controlHTML = `<div class="segmented-control" data-name="${key}">${buttons}</div>`;
-                } else { // Yes/No button group
+                } else {
+                    // Yes/No button group
                     controlHTML = `
                         <div class="segmented-control" data-name="${key}">
                             <button data-value="${data.no}" class="active">No <strong>${data.no > 0 ? '+' : ''}${data.no}</strong></button>
@@ -164,9 +205,11 @@ export const hepScore = {
 
         const attachEventListeners = () => {
             criteriaContainer.querySelectorAll('.segmented-control').forEach(group => {
-                group.addEventListener('click', (event) => {
+                group.addEventListener('click', event => {
                     const button = event.target.closest('button');
-                    if (!button) return;
+                    if (!button) {
+                        return;
+                    }
                     group.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
                     calculateScore();
@@ -174,9 +217,11 @@ export const hepScore = {
             });
         };
 
-        onsetToggle.addEventListener('click', (event) => {
+        onsetToggle.addEventListener('click', event => {
             const button = event.target.closest('button');
-            if (!button || button.classList.contains('active')) return;
+            if (!button || button.classList.contains('active')) {
+                return;
+            }
             onsetToggle.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             renderCriteria(button.dataset.value);
@@ -191,8 +236,13 @@ export const hepScore = {
             if (plateletObs && plateletObs.valueQuantity) {
                 const nadirGroup = criteriaContainer.querySelector('[data-name="nadir_platelet"]');
                 if (nadirGroup) {
-                    const btn = plateletObs.valueQuantity.value < 20 ? nadirGroup.querySelector('[data-value="-2"]') : nadirGroup.querySelector('[data-value="2"]');
-                    nadirGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    const btn =
+                        plateletObs.valueQuantity.value < 20
+                            ? nadirGroup.querySelector('[data-value="-2"]')
+                            : nadirGroup.querySelector('[data-value="2"]');
+                    nadirGroup
+                        .querySelectorAll('button')
+                        .forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                 }
             }
@@ -200,21 +250,22 @@ export const hepScore = {
             const conditionCodes = [
                 '451574005', // VTE
                 '110483000', // ATE
-                '67751000'   // DIC
+                '67751000' // DIC
             ];
             const conditions = await getPatientConditions(client, conditionCodes);
             if (conditions) {
                 if (conditions.some(c => c.code.coding[0].code === '67751000')) {
                     const dicGroup = criteriaContainer.querySelector('[data-name="dic"]');
                     if (dicGroup) {
-                        dicGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                        dicGroup
+                            .querySelectorAll('button')
+                            .forEach(b => b.classList.remove('active'));
                         dicGroup.querySelector('[data-value="-2"]').classList.add('active');
                     }
                 }
             }
-            
         } catch (error) {
-            console.error("Error auto-populating HEP score:", error);
+            console.error('Error auto-populating HEP score:', error);
         } finally {
             calculateScore();
         }

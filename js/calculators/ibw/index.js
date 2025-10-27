@@ -4,7 +4,7 @@ import { getMostRecentObservation } from '../../utils.js';
 export const ibw = {
     id: 'ibw',
     title: 'Ideal & Adjusted Body Weight',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <div class="input-group">
@@ -109,18 +109,22 @@ export const ibw = {
             </div>
         `;
     },
-    initialize: function(client, patient) {
+    initialize: function (client, patient) {
         const heightInput = document.getElementById('ibw-height');
         const genderSelect = document.getElementById('ibw-gender');
         const actualWeightInput = document.getElementById('ibw-actual');
 
         genderSelect.value = patient.gender;
-        
+
         getMostRecentObservation(client, '8302-2').then(obs => {
-            if (obs) heightInput.value = obs.valueQuantity.value.toFixed(1);
+            if (obs) {
+                heightInput.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
         getMostRecentObservation(client, '29463-7').then(obs => {
-            if (obs) actualWeightInput.value = obs.valueQuantity.value.toFixed(1);
+            if (obs) {
+                actualWeightInput.value = obs.valueQuantity.value.toFixed(1);
+            }
         });
 
         document.getElementById('calculate-ibw').addEventListener('click', () => {
@@ -140,7 +144,7 @@ export const ibw = {
                     }
                 } else {
                     // For simplicity, handle this edge case. A more complex formula might be needed for < 5ft.
-                    ibw = isMale ? 50 : 45.5; 
+                    ibw = isMale ? 50 : 45.5;
                 }
 
                 let resultHTML = `<p>Ideal Body Weight: ${ibw.toFixed(1)} kg</p>`;
@@ -159,4 +163,3 @@ export const ibw = {
         });
     }
 };
-

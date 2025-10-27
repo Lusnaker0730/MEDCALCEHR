@@ -5,25 +5,37 @@ export const pecarn = {
     id: 'pecarn',
     title: 'PECARN Pediatric Head Injury/Trauma Algorithm',
     description: 'Predicts need for brain imaging after pediatric head injury.',
-    generateHTML: function() {
+    generateHTML: function () {
         const criteriaUnder2 = [
-            { id: 'gcs-not-15', label: 'Altered mental status (GCS < 15, irritable, lethargic, etc.)' },
+            {
+                id: 'gcs-not-15',
+                label: 'Altered mental status (GCS < 15, irritable, lethargic, etc.)'
+            },
             { id: 'palpable-fracture', label: 'Palpable skull fracture' },
             { id: 'loc-5-sec', label: 'LOC ≥ 5 seconds' },
             { id: 'not-acting-normally', label: 'Guardian feels child is not acting normally' },
-            { id: 'severe-mechanism', label: 'Severe mechanism of injury (e.g., fall >3ft, MVA, struck by high-impact object)' },
+            {
+                id: 'severe-mechanism',
+                label: 'Severe mechanism of injury (e.g., fall >3ft, MVA, struck by high-impact object)'
+            },
             { id: 'hematoma', label: 'Non-frontal scalp hematoma' }
         ];
         const criteriaOver2 = [
-             { id: 'gcs-not-15-over2', label: 'Altered mental status (GCS < 15, irritable, lethargic, etc.)' },
-             { id: 'signs-basilar-fracture', label: 'Signs of basilar skull fracture (e.g., hemotympanum, raccoon eyes)' },
-             { id: 'loc', label: 'Any loss of consciousness' },
-             { id: 'vomiting', label: 'Vomiting' },
-             { id: 'severe-headache', label: 'Severe headache' },
-             { id: 'severe-mechanism-over2', label: 'Severe mechanism of injury' }
+            {
+                id: 'gcs-not-15-over2',
+                label: 'Altered mental status (GCS < 15, irritable, lethargic, etc.)'
+            },
+            {
+                id: 'signs-basilar-fracture',
+                label: 'Signs of basilar skull fracture (e.g., hemotympanum, raccoon eyes)'
+            },
+            { id: 'loc', label: 'Any loss of consciousness' },
+            { id: 'vomiting', label: 'Vomiting' },
+            { id: 'severe-headache', label: 'Severe headache' },
+            { id: 'severe-mechanism-over2', label: 'Severe mechanism of injury' }
         ];
 
-        let html = `
+        const html = `
             <h3>${this.title}</h3>
             <p>${this.description}</p>
             
@@ -197,14 +209,14 @@ export const pecarn = {
         `;
         return html;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const age = calculateAge(patient.birthDate);
         const ageUnder2Radio = container.querySelector('#age-under-2');
         const ageOver2Radio = container.querySelector('#age-over-2');
         const criteriaUnder2Div = container.querySelector('#pecarn-criteria-under2');
         const criteriaOver2Div = container.querySelector('#pecarn-criteria-over2');
 
-        const setAgeGroup = (age) => {
+        const setAgeGroup = age => {
             if (age < 2) {
                 ageUnder2Radio.checked = true;
                 criteriaUnder2Div.style.display = 'block';
@@ -225,7 +237,7 @@ export const pecarn = {
             let recommendation = '';
             let riskColor = '';
             let riskPercentage = '';
-            
+
             if (ageUnder2Radio.checked) {
                 const gcs = container.querySelector('#gcs-not-15').checked;
                 const fracture = container.querySelector('#palpable-fracture').checked;
@@ -239,7 +251,8 @@ export const pecarn = {
                     riskPercentage = '13-16% risk of ciTBI';
                     riskColor = '#d32f2f';
                 } else if (loc || acting || mechanism || hematoma) {
-                    recommendation = '<strong>Observation vs. CT Based on Clinical Factors</strong>';
+                    recommendation =
+                        '<strong>Observation vs. CT Based on Clinical Factors</strong>';
                     riskPercentage = '4.4% risk of ciTBI';
                     riskColor = '#f57f17';
                 } else {
@@ -247,8 +260,8 @@ export const pecarn = {
                     riskPercentage = '<0.02% risk of ciTBI';
                     riskColor = '#388e3c';
                 }
-
-            } else { // Age >= 2
+            } else {
+                // Age >= 2
                 const gcs = container.querySelector('#gcs-not-15-over2').checked;
                 const basilar = container.querySelector('#signs-basilar-fracture').checked;
                 const loc = container.querySelector('#loc').checked;
@@ -261,9 +274,10 @@ export const pecarn = {
                     riskPercentage = '14% risk of ciTBI';
                     riskColor = '#d32f2f';
                 } else if (loc || vomiting || headache || mechanism) {
-                     recommendation = '<strong>Observation vs. CT Based on Clinical Factors</strong>';
-                     riskPercentage = '4.3% risk of ciTBI';
-                     riskColor = '#f57f17';
+                    recommendation =
+                        '<strong>Observation vs. CT Based on Clinical Factors</strong>';
+                    riskPercentage = '4.3% risk of ciTBI';
+                    riskColor = '#f57f17';
                 } else {
                     recommendation = '<strong>CT Not Recommended</strong>';
                     riskPercentage = '<0.05% risk of ciTBI';
@@ -279,12 +293,16 @@ export const pecarn = {
                     <div style="font-size: 0.95em; color: ${riskColor};">
                         <strong>Risk Assessment:</strong> ${riskPercentage}
                     </div>
-                    ${riskColor === '#f57f17' ? `
+                    ${
+    riskColor === '#f57f17'
+        ? `
                     <div style="font-size: 0.9em; color: ${riskColor}; margin-top: 10px;">
                         <strong>Shared Decision-Making Recommended</strong><br>
                         Factors to consider: Physician experience, multiple findings, parental preference, follow-up reliability
                     </div>
-                    ` : ''}
+                    `
+        : ''
+}
                 </div>
             `;
             resultEl.style.display = 'block';

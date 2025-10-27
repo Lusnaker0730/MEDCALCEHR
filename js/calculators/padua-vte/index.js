@@ -4,7 +4,7 @@ export const paduaVTE = {
     id: 'padua-vte',
     title: 'Padua Prediction Score for Risk of VTE',
     description: 'Determines anticoagulation need in hospitalized patients by risk of VTE.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -25,16 +25,16 @@ export const paduaVTE = {
             <div id="padua-result" class="result" style="display:none;"></div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const root = container || document;
-        
+
         // Auto-populate age
         const age = calculateAge(patient.birthDate);
         const ageCheckbox = root.querySelector('#padua-age');
         if (age >= 70 && ageCheckbox) {
             ageCheckbox.checked = true;
         }
-        
+
         // Auto-populate BMI
         getMostRecentObservation(client, '39156-5').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -45,7 +45,7 @@ export const paduaVTE = {
                 }
             }
         });
-        
+
         root.querySelector('#calculate-padua').addEventListener('click', () => {
             const checkboxes = root.querySelectorAll('.check-item input[type="checkbox"]');
             let score = 0;
@@ -55,9 +55,10 @@ export const paduaVTE = {
                 }
             });
 
-            let riskLevel = (score >= 4) ? 
-                'High Risk for VTE. Pharmacologic prophylaxis is recommended.' : 
-                'Low Risk for VTE. Pharmacologic prophylaxis may not be necessary.';
+            const riskLevel =
+                score >= 4
+                    ? 'High Risk for VTE. Pharmacologic prophylaxis is recommended.'
+                    : 'Low Risk for VTE. Pharmacologic prophylaxis may not be necessary.';
 
             root.querySelector('#padua-result').innerHTML = `
                 <p>Padua Score: ${score}</p>

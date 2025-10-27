@@ -4,7 +4,7 @@ export const steroidConversion = {
     id: 'steroid-conversion',
     title: 'Steroid Conversion Calculator',
     description: 'Converts steroid dosages using dosing equivalencies.',
-    generateHTML: function() {
+    generateHTML: function () {
         const steroids = [
             { name: 'Cortisone', dose: 25 },
             { name: 'Dexamethasone', dose: 0.75 },
@@ -109,7 +109,7 @@ export const steroidConversion = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const fromDoseEl = container.querySelector('#steroid-from-dose');
         const fromTypeEl = container.querySelector('#steroid-from-type');
         const toDoseEl = container.querySelector('#steroid-to-dose');
@@ -120,7 +120,12 @@ export const steroidConversion = {
             const fromEquivalent = parseFloat(fromTypeEl.value);
             const toEquivalent = parseFloat(toTypeEl.value);
 
-            if (isNaN(fromDose) || isNaN(fromEquivalent) || isNaN(toEquivalent) || fromEquivalent === 0) {
+            if (
+                isNaN(fromDose) ||
+                isNaN(fromEquivalent) ||
+                isNaN(toEquivalent) ||
+                fromEquivalent === 0
+            ) {
                 toDoseEl.value = '';
                 return;
             }
@@ -132,7 +137,7 @@ export const steroidConversion = {
         fromDoseEl.addEventListener('input', calculateConversion);
         fromTypeEl.addEventListener('change', calculateConversion);
         toTypeEl.addEventListener('change', calculateConversion);
-        
+
         // Initial calculation
         calculateConversion();
     }

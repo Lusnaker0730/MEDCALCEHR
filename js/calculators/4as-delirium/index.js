@@ -2,10 +2,10 @@
 
 export const fourAsDelirium = {
     id: '4as-delirium',
-    title: "4 A's Test for Delirium Screening",
+    title: '4 A\'s Test for Delirium Screening',
     description: 'Diagnoses delirium in older patients.',
-    
-    generateHTML: function() {
+
+    generateHTML: function () {
         return `
         <div class="calculator-header">
             <h3>${this.title}</h3>
@@ -82,10 +82,22 @@ export const fourAsDelirium = {
 
     initialize: () => {
         const calculate = () => {
-            const alertnessScore = parseInt(document.querySelector('.vertical-radio-group[data-name="alertness"] button.active')?.dataset.value || '0');
-            const amt4Score = parseInt(document.querySelector('.vertical-radio-group[data-name="amt4"] button.active')?.dataset.value || '0');
-            const attentionScore = parseInt(document.querySelector('.vertical-radio-group[data-name="attention"] button.active')?.dataset.value || '0');
-            const acuteChangeScore = parseInt(document.querySelector('.segmented-control[data-name="acute_change"] button.active')?.dataset.value || '0');
+            const alertnessScore = parseInt(
+                document.querySelector('.vertical-radio-group[data-name="alertness"] button.active')
+                    ?.dataset.value || '0'
+            );
+            const amt4Score = parseInt(
+                document.querySelector('.vertical-radio-group[data-name="amt4"] button.active')
+                    ?.dataset.value || '0'
+            );
+            const attentionScore = parseInt(
+                document.querySelector('.vertical-radio-group[data-name="attention"] button.active')
+                    ?.dataset.value || '0'
+            );
+            const acuteChangeScore = parseInt(
+                document.querySelector('.segmented-control[data-name="acute_change"] button.active')
+                    ?.dataset.value || '0'
+            );
 
             const totalScore = alertnessScore + amt4Score + attentionScore + acuteChangeScore;
 
@@ -95,18 +107,23 @@ export const fourAsDelirium = {
             scoreEl.textContent = totalScore;
 
             if (totalScore >= 4) {
-                interpretationEl.textContent = "Likely delirium. Formal assessment for delirium is recommended.";
+                interpretationEl.textContent =
+                    'Likely delirium. Formal assessment for delirium is recommended.';
             } else if (totalScore >= 1 && totalScore <= 3) {
-                interpretationEl.textContent = "Possible cognitive impairment. Further investigation is required.";
+                interpretationEl.textContent =
+                    'Possible cognitive impairment. Further investigation is required.';
             } else {
-                interpretationEl.textContent = 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.';
+                interpretationEl.textContent =
+                    'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.';
             }
         };
 
         document.querySelectorAll('.vertical-radio-group, .segmented-control').forEach(group => {
-            group.addEventListener('click', (event) => {
+            group.addEventListener('click', event => {
                 const button = event.target.closest('button');
-                if (!button) return;
+                if (!button) {
+                    return;
+                }
 
                 group.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
@@ -115,25 +132,25 @@ export const fourAsDelirium = {
         });
 
         // Image Modal Logic
-        const modal = document.getElementById("image-modal");
-        const imgThumb = document.getElementById("ref-image-thumb");
-        const modalImg = document.getElementById("modal-image");
-        const closeBtn = document.querySelector(".close-btn");
+        const modal = document.getElementById('image-modal');
+        const imgThumb = document.getElementById('ref-image-thumb');
+        const modalImg = document.getElementById('modal-image');
+        const closeBtn = document.querySelector('.close-btn');
 
-        imgThumb.onclick = function() {
-            modal.style.display = "block";
+        imgThumb.onclick = function () {
+            modal.style.display = 'block';
             modalImg.src = this.src;
-        }
+        };
 
-        closeBtn.onclick = function() {
-            modal.style.display = "none";
-        }
+        closeBtn.onclick = function () {
+            modal.style.display = 'none';
+        };
 
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
-        }
+        };
 
         calculate(); // Initial calculation
     }

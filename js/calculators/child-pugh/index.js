@@ -4,7 +4,7 @@ export const childPugh = {
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
     description: 'Estimates cirrhosis severity.',
-    generateHTML: function() {
+    generateHTML: function () {
         return `
             <div class="child-pugh-container">
                 <div class="calculator-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 16px; margin-bottom: 25px;">
@@ -339,10 +339,10 @@ export const childPugh = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
-        const updateToggleState = (input) => {
+        const updateToggleState = input => {
             const group = input.closest('.child-pugh-radio-group');
             if (group) {
                 group.querySelectorAll('.radio-option').forEach(option => {
@@ -357,13 +357,16 @@ export const childPugh = {
             if (pointsEl) {
                 const points = parseInt(value);
                 pointsEl.textContent = `${points} pt${points > 1 ? 's' : ''}`;
-                pointsEl.style.color = points === 1 ? '#059669' : points === 2 ? '#d97706' : '#dc2626';
+                pointsEl.style.color =
+                    points === 1 ? '#059669' : points === 2 ? '#d97706' : '#dc2626';
             }
         };
 
         const calculate = () => {
             let score = 0;
-            const allAnswered = groups.every(group => container.querySelector(`input[name="${group}"]:checked`));
+            const allAnswered = groups.every(group =>
+                container.querySelector(`input[name="${group}"]:checked`)
+            );
 
             groups.forEach(group => {
                 const selected = container.querySelector(`input[name="${group}"]:checked`);
@@ -384,12 +387,14 @@ export const childPugh = {
                 resultClassificationEl.textContent = '-';
                 resultPrognosisEl.textContent = 'Please complete all criteria';
                 resultMain.className = 'result-main';
-                container.querySelectorAll('.class-item').forEach(item => item.classList.remove('active'));
+                container
+                    .querySelectorAll('.class-item')
+                    .forEach(item => item.classList.remove('active'));
                 return;
             }
 
             resultScoreEl.textContent = score;
-            
+
             let classification = '';
             let classType = '';
             let prognosis = '';
@@ -427,7 +432,9 @@ export const childPugh = {
         const setRadioFromValue = (groupName, value, ranges, displayValue, unit) => {
             if (value === null || value === undefined) {
                 const displayEl = container.querySelector(`#current-${groupName}`);
-                if (displayEl) displayEl.textContent = 'Not available';
+                if (displayEl) {
+                    displayEl.textContent = 'Not available';
+                }
                 return;
             }
 
@@ -440,7 +447,9 @@ export const childPugh = {
             // Select appropriate radio
             const radioToSelect = ranges.find(range => range.condition(value));
             if (radioToSelect) {
-                const radio = container.querySelector(`input[name="${groupName}"][value="${radioToSelect.value}"]`);
+                const radio = container.querySelector(
+                    `input[name="${groupName}"][value="${radioToSelect.value}"]`
+                );
                 if (radio) {
                     radio.checked = true;
                     updateToggleState(radio);
@@ -449,60 +458,87 @@ export const childPugh = {
         };
 
         // Fetch and set lab values
-        getMostRecentObservation(client, '1975-2').then(obs => { // Bilirubin mg/dL
-            if (obs && obs.valueQuantity) {
-                const value = obs.valueQuantity.value;
-                setRadioFromValue('bilirubin', value, [
-                { condition: v => v < 2, value: '1' },
-                { condition: v => v >= 2 && v <= 3, value: '2' },
-                { condition: v => v > 3, value: '3' },
-                ], value.toFixed(1), 'mg/dL');
-            } else {
+        getMostRecentObservation(client, '1975-2')
+            .then(obs => {
+                // Bilirubin mg/dL
+                if (obs && obs.valueQuantity) {
+                    const value = obs.valueQuantity.value;
+                    setRadioFromValue(
+                        'bilirubin',
+                        value,
+                        [
+                            { condition: v => v < 2, value: '1' },
+                            { condition: v => v >= 2 && v <= 3, value: '2' },
+                            { condition: v => v > 3, value: '3' }
+                        ],
+                        value.toFixed(1),
+                        'mg/dL'
+                    );
+                } else {
+                    container.querySelector('#current-bilirubin').textContent = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching bilirubin:', error);
                 container.querySelector('#current-bilirubin').textContent = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching bilirubin:', error);
-            container.querySelector('#current-bilirubin').textContent = 'Not available';
-        });
+            });
 
-        getMostRecentObservation(client, '1751-7').then(obs => { // Albumin g/dL
-            if (obs && obs.valueQuantity) {
-                const valueGdL = obs.valueQuantity.value / 10; // Convert g/L to g/dL
-                setRadioFromValue('albumin', valueGdL, [
-                { condition: v => v > 3.5, value: '1' },
-                { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
-                { condition: v => v < 2.8, value: '3' },
-                ], valueGdL.toFixed(1), 'g/dL');
-            } else {
+        getMostRecentObservation(client, '1751-7')
+            .then(obs => {
+                // Albumin g/dL
+                if (obs && obs.valueQuantity) {
+                    const valueGdL = obs.valueQuantity.value / 10; // Convert g/L to g/dL
+                    setRadioFromValue(
+                        'albumin',
+                        valueGdL,
+                        [
+                            { condition: v => v > 3.5, value: '1' },
+                            { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
+                            { condition: v => v < 2.8, value: '3' }
+                        ],
+                        valueGdL.toFixed(1),
+                        'g/dL'
+                    );
+                } else {
+                    container.querySelector('#current-albumin').textContent = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching albumin:', error);
                 container.querySelector('#current-albumin').textContent = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching albumin:', error);
-            container.querySelector('#current-albumin').textContent = 'Not available';
-        });
+            });
 
-        getMostRecentObservation(client, '34714-6').then(obs => { // INR
-            if (obs && obs.valueQuantity) {
-                const value = obs.valueQuantity.value;
-                setRadioFromValue('inr', value, [
-                { condition: v => v < 1.7, value: '1' },
-                { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
-                { condition: v => v > 2.3, value: '3' },
-                ], value.toFixed(2), '');
-            } else {
+        getMostRecentObservation(client, '34714-6')
+            .then(obs => {
+                // INR
+                if (obs && obs.valueQuantity) {
+                    const value = obs.valueQuantity.value;
+                    setRadioFromValue(
+                        'inr',
+                        value,
+                        [
+                            { condition: v => v < 1.7, value: '1' },
+                            { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
+                            { condition: v => v > 2.3, value: '3' }
+                        ],
+                        value.toFixed(2),
+                        ''
+                    );
+                } else {
+                    container.querySelector('#current-inr').textContent = 'Not available';
+                }
+                calculate();
+            })
+            .catch(error => {
+                console.error('Error fetching INR:', error);
                 container.querySelector('#current-inr').textContent = 'Not available';
-            }
-            calculate();
-        }).catch(error => {
-            console.error('Error fetching INR:', error);
-            container.querySelector('#current-inr').textContent = 'Not available';
-        });
+            });
 
         // Event listeners for all radio buttons
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
+            radio.addEventListener('change', e => {
                 updateToggleState(e.target);
                 calculate();
             });

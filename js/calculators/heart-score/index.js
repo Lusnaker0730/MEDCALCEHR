@@ -3,8 +3,9 @@ import { calculateAge } from '../../utils.js';
 export const heartScore = {
     id: 'heart-score',
     title: 'HEART Score for Major Cardiac Events',
-    description: 'Predicts 6-week risk of major adverse cardiac events in patients with chest pain.',
-    generateHTML: function() {
+    description:
+        'Predicts 6-week risk of major adverse cardiac events in patients with chest pain.',
+    generateHTML: function () {
         return `
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
@@ -142,7 +143,7 @@ export const heartScore = {
             </div>
         `;
     },
-    initialize: function(client, patient, container) {
+    initialize: function (client, patient, container) {
         const calculate = () => {
             const groups = ['history', 'ecg', 'age', 'risk', 'troponin'];
             let score = 0;
@@ -202,12 +203,18 @@ export const heartScore = {
         } else {
             ageRadios[2].checked = true;
         }
-        ageRadios.forEach(r => { if(r.checked) r.parentElement.classList.add('selected')});
+        ageRadios.forEach(r => {
+            if (r.checked) {
+                r.parentElement.classList.add('selected');
+            }
+        });
 
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
+            radio.addEventListener('change', event => {
                 const group = event.target.closest('.segmented-control, .radio-group');
-                group.querySelectorAll('label').forEach(label => label.classList.remove('selected'));
+                group
+                    .querySelectorAll('label')
+                    .forEach(label => label.classList.remove('selected'));
                 event.target.parentElement.classList.add('selected');
                 calculate();
             });
