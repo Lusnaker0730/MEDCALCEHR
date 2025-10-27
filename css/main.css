@@ -1,0 +1,22 @@
+/* ===================================
+   MEDCALC EHR - Main Stylesheet
+   Modular CSS Architecture
+   =================================== */
+
+/* Critical CSS - Inline in <head> */
+@import url('base.css');
+@import url('forms.css');
+
+/* Non-Critical CSS - Can be loaded async */
+@import url('calculator.css');
+@import url('utilities.css');
+@import url('responsive.css');
+
+/* 
+   Note: For production, consider:
+   1. Inlining critical CSS (base + forms) in <head>
+   2. Loading calculator.css only on calculator pages
+   3. Loading utilities.css and responsive.css asynchronously
+   4. Minifying all CSS files
+*/
+
