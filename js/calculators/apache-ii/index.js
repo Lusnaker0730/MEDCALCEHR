@@ -1,4 +1,4 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { getMostRecentObservation, calculateAge, initializeSegmentedControls } from '../../utils.js';
 
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
@@ -306,6 +306,9 @@ export const apacheIi = {
                     obs.valueQuantity.value.toFixed(0);
             }
         });
+
+        // Initialize visual feedback for segmented controls
+        initializeSegmentedControls(container);
 
         // Handle oxygen method switching
         const oxyMethodInputs = container.querySelectorAll('input[name="oxy_method"]');

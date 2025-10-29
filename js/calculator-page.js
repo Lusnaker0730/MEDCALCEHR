@@ -2,6 +2,9 @@
 import { displayPatientInfo } from '/js/utils.js';
 import { calculatorModules } from '/js/calculators/index.js'; // Keep for title lookup
 
+// Cache version - increment this when you update calculators to force reload
+const CACHE_VERSION = '1.0.3';
+
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     const calculatorId = params.get('name');
@@ -32,7 +35,8 @@ window.onload = () => {
     const loadCalculator = async () => {
         try {
             // Dynamically import the specific calculator module from its own folder
-            const module = await import(`/js/calculators/${calculatorId}/index.js`);
+            // Add version parameter to force reload when CACHE_VERSION changes
+            const module = await import(`/js/calculators/${calculatorId}/index.js?v=${CACHE_VERSION}`);
             // The calculator object is usually the main export, let's find it.
             const calculator = Object.values(module)[0];
 

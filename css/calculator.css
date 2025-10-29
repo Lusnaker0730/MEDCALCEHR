@@ -74,6 +74,15 @@
     border-left: 4px solid #667eea;
 }
 
+/* Description inside calculator-header should be white */
+.calculator-header .description {
+    color: white !important;
+    background: transparent;
+    border: none;
+    opacity: 0.95;
+    padding: 0;
+}
+
 /* Results Display */
 .result {
     margin-top: 30px;

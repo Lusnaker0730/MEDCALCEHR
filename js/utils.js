@@ -442,3 +442,44 @@ export function getValueInStandardUnit(container, inputId, standardUnit) {
 
     return convertUnit(value, currentUnit, standardUnit, measurementType);
 }
+
+/**
+ * Initialize visual feedback for segmented controls with radio buttons
+ * Adds 'selected' class to the label when its radio button is checked
+ * @param {HTMLElement} container - Container element that contains segmented controls
+ */
+export function initializeSegmentedControls(container) {
+    // Handle all segmented controls in the container
+    container.querySelectorAll('.segmented-control, .radio-group').forEach(control => {
+        const labels = control.querySelectorAll('label');
+        const radioInputs = control.querySelectorAll('input[type="radio"]');
+        
+        // Function to update selected state
+        const updateSelectedState = () => {
+            radioInputs.forEach(input => {
+                const label = input.parentElement;
+                if (input.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            });
+        };
+        
+        // Add change event listeners to radio buttons
+        radioInputs.forEach(input => {
+            input.addEventListener('change', updateSelectedState);
+        });
+        
+        // Add click handlers to labels for immediate visual feedback
+        labels.forEach(label => {
+            label.addEventListener('click', () => {
+                // Use setTimeout to ensure the radio state is updated first
+                setTimeout(updateSelectedState, 0);
+            });
+        });
+        
+        // Initialize state on load
+        updateSelectedState();
+    });
+}

@@ -31,7 +31,27 @@ A comprehensive SMART on FHIR application providing **92 clinical calculators** 
 
 ## 🚀 How to Run
 
-### Method 1: Python HTTP Server
+### Method 1: Docker (推薦 / Recommended) 🐳
+
+**最簡單的方式 - 一鍵啟動！**
+
+```bash
+# Windows
+.\start-docker.ps1
+
+# Linux/Mac
+chmod +x start-docker.sh
+./start-docker.sh
+
+# 或使用 Docker Compose
+docker-compose up -d
+```
+
+訪問：**http://localhost:8080**
+
+📖 詳細說明請參考 [Docker 部署指南](README_DOCKER.md)
+
+### Method 2: Python HTTP Server
 1. Navigate to the project directory
 2. Start a local web server:
    ```bash
@@ -42,12 +62,12 @@ A comprehensive SMART on FHIR application providing **92 clinical calculators** 
    python -m SimpleHTTPServer 8000
    ```
 
-### Method 2: Node.js HTTP Server
+### Method 3: Node.js HTTP Server
 ```bash
 npx http-server -p 8000
 ```
 
-### Method 3: Live Server (VS Code Extension)
+### Method 4: Live Server (VS Code Extension)
 1. Install the "Live Server" extension in VS Code
 2. Right-click on `launch.html` and select "Open with Live Server"
 

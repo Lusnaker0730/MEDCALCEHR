@@ -5078,6 +5078,19 @@ html {
     box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
 }
 
+.calculator-header .description {
+    color: white !important;
+    opacity: 0.95;
+}
+
+.calculator-header h3 {
+    color: white !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: white !important;
+    background-clip: unset !important;
+}
+
 .header-icon {
     font-size: 3em;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
@@ -5095,6 +5108,7 @@ html {
     margin: 0;
     opacity: 0.9;
     line-height: 1.4;
+    color: white;
 }
 
 .score2-diabetes-container .patient-demographics {
