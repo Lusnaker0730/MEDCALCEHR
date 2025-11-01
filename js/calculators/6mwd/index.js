@@ -7,50 +7,67 @@ export const sixMwd = {
         'Calculates reference values for distance walked, as a measure of functional status.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class.description">${this.description}</p>
-            <div class="form-container modern">
-                <div class="input-row">
-                    <label>Sex</label>
-                    <div class="segmented-control" id="mwd6-gender">
-                        <label><input type="radio" name="gender" value="male"> Male</label>
-                        <label><input type="radio" name="gender" value="female"> Female</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="mwd6-height">Height</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="mwd6-height">
-                        <span>cm</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="mwd6-age">Age</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="mwd6-age">
-                        <span>years</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="mwd6-weight">Weight</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="mwd6-weight">
-                        <span>kg</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="mwd6-distance">Distance walked</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="mwd6-distance" placeholder="Optional">
-                        <span>m</span>
-                    </div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Sex</div>
+                <div class="radio-group" id="mwd6-gender">
+                    <label class="radio-option">
+                        <input type="radio" name="gender" value="male">
+                        <span class="radio-label">Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="gender" value="female">
+                        <span class="radio-label">Female</span>
+                    </label>
                 </div>
             </div>
-            <div id="mwd6-result" class="result-grid" style="display:none;"></div>
-            <div class="references">
-                <h4>Reference</h4>
+
+            <div class="section">
+                <div class="section-title">Height</div>
+                <div class="input-with-unit">
+                    <input type="number" id="mwd6-height" placeholder="e.g., 175">
+                    <span>cm</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Age</div>
+                <div class="input-with-unit">
+                    <input type="number" id="mwd6-age" placeholder="e.g., 62">
+                    <span>years</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Weight</div>
+                <div class="input-with-unit">
+                    <input type="number" id="mwd6-weight" placeholder="e.g., 88">
+                    <span>kg</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Distance walked (optional)</div>
+                <div class="input-with-unit">
+                    <input type="number" id="mwd6-distance" placeholder="e.g., 400">
+                    <span>m</span>
+                </div>
+                <small class="help-text">Enter actual distance if you want to see percentage of expected</small>
+            </div>
+
+            <div id="mwd6-result" class="result-container"></div>
+
+            <div class="chart-container">
+                <img src="js/calculators/6mwd/6mwd.png" alt="6 Minute Walk Distance Reference Image" class="reference-image" />
+            </div>
+
+            <div class="info-section">
+                <h4>📚 Reference</h4>
                 <p>Enright, P L, & Sherrill, D L. (1998). Reference equations for the six-minute walk in healthy adults. <em>American journal of respiratory and critical care medicine</em>, 158(5 Pt 1), 1384-7.</p>
-                <img src="js/calculators/6mwd/6mwd.png" alt="6 Minute Walk Distance Reference Image" />
             </div>
         `;
     },
@@ -70,7 +87,7 @@ export const sixMwd = {
             const actualDistance = parseInt(distanceEl.value);
 
             if (isNaN(age) || !genderRadio || isNaN(height) || isNaN(weight)) {
-                resultEl.style.display = 'none';
+                resultEl.classList.remove('show');
                 return;
             }
 
@@ -93,36 +110,43 @@ export const sixMwd = {
             }
 
             resultEl.innerHTML = `
-                <div class="result-item">
-                    <span class="value">${expectedDistance.toFixed(0)} <span class="unit">meters</span></span>
-                    <span class="label">Expected 6 Minute Walk Distance for healthy patient</span>
+                <div class="result-header">6 Minute Walk Distance Results</div>
+                <div class="result-score">
+                    <span style="font-size: 4rem; font-weight: bold; color: #667eea;">${expectedDistance.toFixed(0)}</span>
+                    <span style="font-size: 1.2rem; color: #718096; margin-left: 10px;">meters</span>
                 </div>
+                <div class="result-label">Expected 6 Minute Walk Distance for healthy patient</div>
                 ${
-    !isNaN(percentage)
-        ? `
-                <div class="result-item">
-                    <span class="value">${percentage.toFixed(0)}<span class="unit">%</span></span>
-                    <span class="label">Percentage of expected distance for healthy patient</span>
+                    !isNaN(percentage)
+                        ? `
+                <div class="result-item" style="margin-top: 20px;">
+                    <span class="label">Percentage of expected distance</span>
+                    <span class="value" style="font-size: 2rem; font-weight: bold; color: #667eea;">${percentage.toFixed(0)}%</span>
                 </div>`
-        : ''
-}
+                        : ''
+                }
                 <div class="result-item">
-                    <span class="value">${lowerLimitNormal.toFixed(0)} <span class="unit">meters</span></span>
                     <span class="label">Lower limit of normal</span>
+                    <span class="value">${lowerLimitNormal.toFixed(0)} meters</span>
                 </div>
             `;
-            resultEl.style.display = 'grid';
+            resultEl.classList.add('show');
         };
 
         // Auto-populate and setup listeners
-        ageEl.value = calculateAge(patient.birthDate);
-        const patientGender = patient.gender;
-        const genderRadio = container.querySelector(
-            `input[name="gender"][value="${patientGender}"]`
-        );
-        if (genderRadio) {
-            genderRadio.checked = true;
-            genderRadio.parentElement.classList.add('selected');
+        if (patient && patient.birthDate) {
+            ageEl.value = calculateAge(patient.birthDate);
+        }
+        
+        if (patient && patient.gender) {
+            const patientGender = patient.gender;
+            const genderRadio = container.querySelector(
+                `input[name="gender"][value="${patientGender}"]`
+            );
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.closest('.radio-option').classList.add('selected');
+            }
         }
 
         getMostRecentObservation(client, '8302-2').then(obs => {
@@ -138,18 +162,22 @@ export const sixMwd = {
             calculate();
         });
 
-        container.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', calculate);
-        });
-
-        container.querySelectorAll('.segmented-control input').forEach(radio => {
-            radio.addEventListener('change', event => {
-                container
-                    .querySelectorAll('.segmented-control label')
-                    .forEach(label => label.classList.remove('selected'));
-                event.target.parentElement.classList.add('selected');
+        // Add event listeners for radio buttons
+        container.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                // Add visual feedback
+                const parent = radio.closest('.radio-option');
+                const siblings = parent.parentElement.querySelectorAll('.radio-option');
+                siblings.forEach(s => s.classList.remove('selected'));
+                parent.classList.add('selected');
+                
                 calculate();
             });
+        });
+
+        // Add event listeners for text inputs
+        container.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', calculate);
         });
 
         calculate(); // Initial calculation

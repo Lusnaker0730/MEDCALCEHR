@@ -6,29 +6,44 @@ export const ethanolConcentration = {
     description: 'Predicts ethanol concentration based on ingestion of alcohol.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="input-group">
-                <label>Amount Ingested (ounces)</label>
-                <input type="number" id="eth-amount" value="1.5">
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div class="input-group">
-                <label>Alcohol by Volume (%)</label>
-                <input type="number" id="eth-abv" value="40">
+
+            <div class="section">
+                <div class="section-title">Amount Ingested</div>
+                <div class="input-with-unit">
+                    <input type="number" id="eth-amount" value="1.5" step="0.1">
+                    <span>ounces</span>
+                </div>
             </div>
-            <div class="input-group">
-                <label>Patient Weight (kg)</label>
-                <input type="number" id="eth-weight">
+
+            <div class="section">
+                <div class="section-title">Alcohol by Volume</div>
+                <div class="input-with-unit">
+                    <input type="number" id="eth-abv" value="40" step="1">
+                    <span>%</span>
+                </div>
             </div>
-            <div class="input-group">
-                <label>Gender</label>
-                <select id="eth-gender">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
+
+            <div class="section">
+                <div class="section-title">Patient Weight</div>
+                <div class="input-with-unit">
+                    <input type="number" id="eth-weight" placeholder="70" step="0.1">
+                    <span>kg</span>
+                </div>
             </div>
-            <button id="calculate-ethanol">Calculate Concentration</button>
-            <div id="ethanol-result" class="result" style="display:none;"></div>
+
+            <div class="section">
+                <div class="section-title">Gender</div>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="eth-gender" value="male" checked><span class="radio-label">Male (Vd = 0.68 L/kg)</span></label>
+                    <label class="radio-option"><input type="radio" name="eth-gender" value="female"><span class="radio-label">Female (Vd = 0.55 L/kg)</span></label>
+                </div>
+            </div>
+
+            <div id="ethanol-result" class="result-container"></div>
 
             <div class="formula-section">
                 <h4>🧮 Calculation Formula</h4>
@@ -115,35 +130,102 @@ export const ethanolConcentration = {
         `;
     },
     initialize: function (client, patient, container) {
+        const amountEl = container.querySelector('#eth-amount');
+        const abvEl = container.querySelector('#eth-abv');
         const weightEl = container.querySelector('#eth-weight');
-        container.querySelector('#eth-gender').value = patient.gender;
+        const resultEl = container.querySelector('#ethanol-result');
 
+        // Set default gender based on patient
+        if (patient && patient.gender) {
+            const genderRadio = container.querySelector(`input[name="eth-gender"][value="${patient.gender}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.closest('.radio-option').classList.add('selected');
+            }
+        }
+
+        // FHIR auto-populate weight
         getMostRecentObservation(client, '29463-7').then(obs => {
-            // Weight
             if (obs && obs.valueQuantity) {
                 weightEl.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
             }
         });
 
-        container.querySelector('#calculate-ethanol').addEventListener('click', () => {
-            const amountOz = parseFloat(container.querySelector('#eth-amount').value);
-            const abv = parseFloat(container.querySelector('#eth-abv').value);
+        const calculate = () => {
+            const amountOz = parseFloat(amountEl.value);
+            const abv = parseFloat(abvEl.value);
             const weightKg = parseFloat(weightEl.value);
-            const gender = container.querySelector('#eth-gender').value;
+            const genderEl = container.querySelector('input[name="eth-gender"]:checked');
 
-            if (isNaN(amountOz) || isNaN(abv) || isNaN(weightKg)) {
-                alert('Please enter all values.');
+            if (isNaN(amountOz) || isNaN(abv) || isNaN(weightKg) || !genderEl) {
+                resultEl.classList.remove('show');
                 return;
             }
 
+            const gender = genderEl.value;
             const volumeDistribution = gender === 'male' ? 0.68 : 0.55; // L/kg
             const gramsAlcohol = amountOz * 29.57 * (abv / 100) * 0.789; // oz -> mL -> g
             const concentrationMgDl = (gramsAlcohol * 1000) / (weightKg * volumeDistribution * 10); // mg/dL
 
-            container.querySelector('#ethanol-result').innerHTML = `
-                <p>Estimated Peak Serum Ethanol Concentration: ${concentrationMgDl.toFixed(0)} mg/dL</p>
+            let severityLevel = 'low';
+            let severityText = 'Below Legal Limit';
+            if (concentrationMgDl >= 400) {
+                severityLevel = 'high';
+                severityText = 'Potentially Fatal Level';
+            } else if (concentrationMgDl >= 300) {
+                severityLevel = 'high';
+                severityText = 'Severe Intoxication';
+            } else if (concentrationMgDl >= 80) {
+                severityLevel = 'medium';
+                severityText = 'Above Legal Limit (0.08%)';
+            }
+
+            resultEl.innerHTML = `
+                <div class="result-header">
+                    <h3>Estimated Peak Serum Ethanol Concentration</h3>
+                </div>
+                <div class="result-score" style="font-size: 4rem; font-weight: bold; color: #667eea;">${concentrationMgDl.toFixed(0)}</div>
+                <div class="result-label">mg/dL</div>
+                
+                <div class="severity-indicator ${severityLevel}">${severityText}</div>
+                
+                <div class="alert info">
+                    <strong>📊 Clinical Reference</strong>
+                    <ul style="margin: 8px 0 0 20px; text-align: left;">
+                        <li><strong>Legal limit (US driving):</strong> 80 mg/dL (0.08%)</li>
+                        <li><strong>Severe intoxication:</strong> Usually >300 mg/dL</li>
+                        <li><strong>Potentially fatal:</strong> >400-500 mg/dL</li>
+                        <li><strong>Metabolism rate:</strong> ~15-20 mg/dL/hour</li>
+                        <li><strong>Peak time:</strong> 30-90 min after ingestion (empty stomach)</li>
+                    </ul>
+                </div>
             `;
-            container.querySelector('#ethanol-result').style.display = 'block';
+            resultEl.classList.add('show');
+        };
+
+        // Add visual feedback for radio options
+        container.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const input = option.querySelector('input[type="radio"]');
+                if (input) {
+                    input.checked = true;
+                    const radioGroup = option.closest('.radio-group');
+                    radioGroup.querySelectorAll('.radio-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    calculate();
+                }
+            });
         });
+
+        // Add event listeners for number inputs
+        amountEl.addEventListener('input', calculate);
+        abvEl.addEventListener('input', calculate);
+        weightEl.addEventListener('input', calculate);
+
+        // Initial calculation
+        calculate();
     }
 };

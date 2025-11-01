@@ -39,7 +39,6 @@ export const calculatorModules = [
     { id: 'fib-4', title: 'FIB-4 Score for Liver Fibrosis' },
     { id: 'free-water-deficit', title: 'Free Water Deficit in Hypernatremia' },
     { id: 'gad-7', title: 'GAD-7 for Anxiety' },
-    { id: 'garfield-af', title: 'GARFIELD-AF Risk Score' },
     { id: 'gcs', title: 'Glasgow Coma Scale (GCS)' },
     { id: 'geneva-score', title: 'Geneva Score (Revised) for Pulmonary Embolism' },
     { id: 'growth-chart', title: 'Pediatric Growth Chart' },

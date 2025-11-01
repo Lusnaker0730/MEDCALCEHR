@@ -9,8 +9,60 @@ export const helps2bScore = {
                 <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
             </div>
-            <div class="calculator-image-container">
-                <img id="ref-image-thumb" src="js/calculators/2helps2b/jarkvkkq-1289547-1-img.png" alt="2HELPS2B Score Reference" style="max-width: 1000px; width: 100%; border-radius: 8px; cursor: pointer;" />
+            
+            <div class="alert info">
+                <strong>📋 EEG Risk Factors</strong>
+                <p>Select all that apply from the continuous EEG (cEEG) findings:</p>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">EEG Findings</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" data-points="1">
+                        <span class="checkbox-label">Frequency > 2Hz <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" data-points="1">
+                        <span class="checkbox-label">Sporadic epileptiform discharges <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" data-points="1">
+                        <span class="checkbox-label">LPD/BIPD/LRDA <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" data-points="1">
+                        <span class="checkbox-label">Plus features <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" data-points="1">
+                        <span class="checkbox-label">Prior seizure <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" data-points="2">
+                        <span class="checkbox-label">Brief ictal rhythmic discharges (BIRDs) <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="result-container">
+                <div class="result-header">2HELPS2B Score Results</div>
+                <div class="result-score">
+                    <span id="helps2b-score" style="font-size: 4rem; font-weight: bold; color: #667eea;">0</span>
+                    <span style="font-size: 1.2rem; color: #718096; margin-left: 10px;">points</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Risk of Seizure</span>
+                    <span class="value" id="helps2b-risk">< 5%</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Risk Category</span>
+                    <span class="value risk-badge" id="helps2b-category">Very Low</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img id="ref-image-thumb" src="js/calculators/2helps2b/jarkvkkq-1289547-1-img.png" alt="2HELPS2B Score Reference" class="reference-image" style="cursor: pointer;" />
             </div>
             
             <!-- Modal for the image -->
@@ -19,71 +71,104 @@ export const helps2bScore = {
                 <img class="modal-content" id="modal-image">
             </div>
 
-            <div class="checklist">
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Frequency > 2Hz</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Sporadic epileptiform discharges</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>LPD/BIPD/LRDA</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Plus features</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Prior seizure</label></div>
-                <div class="check-item"><input type="checkbox" data-points="2"><label>Brief ictal rhythmic discharges (BIRDs)</label></div>
-            </div>
-            <button id="calculate-2helps2b">Calculate Score</button>
-            <div id="2helps2b-result" class="result" style="display:none;"></div>
-            <div class="citation">
-                <h4>Source:</h4>
+            <div class="info-section">
+                <h4>📚 Reference</h4>
                 <p>Struck, A. F., et al. (2017). Association of an Electroencephalography-Based Risk Score With Seizure Probability in Hospitalized Patients. <em>JAMA Neurology</em>, 74(12), 1419–1424. <a href="https://doi.org/10.1001/jamaneurol.2017.2459" target="_blank">doi:10.1001/jamaneurol.2017.2459</a>. PMID: 29052706.</p>
             </div>
         `;
     },
-    initialize: function () {
-        document.getElementById('calculate-2helps2b').addEventListener('click', () => {
-            const checkboxes = document.querySelectorAll(
-                '#calculator-container .check-item input[type="checkbox"]'
-            );
+    initialize: function (client, patient, container) {
+        const root = container || document;
+        
+        const calculate = () => {
+            const checkboxes = root.querySelectorAll('.checkbox-option input[type="checkbox"]');
             let score = 0;
+            
             checkboxes.forEach(box => {
                 if (box.checked) {
                     score += parseInt(box.dataset.points);
                 }
             });
 
-            const riskMap = {
-                0: '<5%',
-                1: '12%',
-                2: '27%',
-                3: '50%',
-                4: '73%',
-                5: '88%'
+            // Risk mapping
+            const riskData = {
+                0: { risk: '< 5%', category: 'Very Low', level: 'low' },
+                1: { risk: '12%', category: 'Low', level: 'low' },
+                2: { risk: '27%', category: 'Moderate', level: 'moderate' },
+                3: { risk: '50%', category: 'Moderate-High', level: 'moderate' },
+                4: { risk: '73%', category: 'High', level: 'high' },
+                5: { risk: '88%', category: 'Very High', level: 'high' }
             };
 
-            const seizureRisk = score >= 6 ? '>95%' : riskMap[score];
+            const result = score >= 6 
+                ? { risk: '> 95%', category: 'Extremely High', level: 'critical' }
+                : riskData[score];
 
-            document.getElementById('2helps2b-result').innerHTML = `
-                <p>2HELPS2B Score: ${score}</p>
-                <p>Risk of Seizure: ${seizureRisk}</p>
-            `;
-            document.getElementById('2helps2b-result').style.display = 'block';
+            // Update result display
+            const resultContainer = root.querySelector('.result-container');
+            const scoreEl = root.querySelector('#helps2b-score');
+            const riskEl = root.querySelector('#helps2b-risk');
+            const categoryEl = root.querySelector('#helps2b-category');
+
+            if (resultContainer) {
+                resultContainer.classList.add('show');
+            }
+
+            if (scoreEl) scoreEl.textContent = score;
+            if (riskEl) riskEl.textContent = result.risk;
+            
+            if (categoryEl) {
+                categoryEl.textContent = result.category;
+                // Remove all risk level classes
+                categoryEl.classList.remove('risk-low', 'risk-moderate', 'risk-high', 'risk-critical');
+                // Add appropriate risk level class
+                categoryEl.classList.add(`risk-${result.level}`);
+            }
+        };
+
+        // Add event listeners for all checkboxes
+        root.querySelectorAll('.checkbox-option input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                // Add visual feedback
+                const parent = checkbox.closest('.checkbox-option');
+                if (checkbox.checked) {
+                    parent.classList.add('selected');
+                } else {
+                    parent.classList.remove('selected');
+                }
+                
+                calculate();
+            });
         });
 
         // Image Modal Logic
-        const modal = document.getElementById('image-modal');
-        const imgThumb = document.getElementById('ref-image-thumb');
-        const modalImg = document.getElementById('modal-image');
-        const closeBtn = document.querySelector('.close-btn');
+        const modal = root.querySelector('#image-modal');
+        const imgThumb = root.querySelector('#ref-image-thumb');
+        const modalImg = root.querySelector('#modal-image');
+        const closeBtn = root.querySelector('.close-btn');
 
-        imgThumb.onclick = function () {
-            modal.style.display = 'block';
-            modalImg.src = this.src;
-        };
+        if (imgThumb && modal && modalImg) {
+            imgThumb.onclick = function () {
+                modal.style.display = 'block';
+                modalImg.src = this.src;
+            };
+        }
 
-        closeBtn.onclick = function () {
-            modal.style.display = 'none';
-        };
-
-        window.onclick = function (event) {
-            if (event.target === modal) {
+        if (closeBtn && modal) {
+            closeBtn.onclick = function () {
                 modal.style.display = 'none';
-            }
-        };
+            };
+        }
+
+        if (modal) {
+            window.onclick = function (event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+
+        // Initial calculation
+        calculate();
     }
 };

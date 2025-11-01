@@ -7,74 +7,146 @@ export const actionIcu = {
         'Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="form-container modern ariscat-form">
-                <div class="input-row">
-                    <div class="input-label">Age, years</div>
-                    <div class="segmented-control" data-action-group="age">
-                        <label><input type="radio" name="age" value="0"> &lt;70</label>
-                        <label><input type="radio" name="age" value="1"> &ge;70</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Serum creatinine, mg/dL</div>
-                    <div class="segmented-control" data-action-group="creatinine">
-                        <label><input type="radio" name="creatinine" value="0"> &lt;1.1</label>
-                        <label><input type="radio" name="creatinine" value="1"> &ge;1.1</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Heart rate, bpm</div>
-                    <div class="segmented-control multi" data-action-group="hr">
-                        <label><input type="radio" name="hr" value="0"> &lt;85</label>
-                        <label><input type="radio" name="hr" value="1"> 85-100</label>
-                        <label><input type="radio" name="hr" value="3"> &ge;100</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Systolic blood pressure, mmHg</div>
-                    <div class="radio-group vertical-group" data-action-group="sbp">
-                        <label><input type="radio" name="sbp" value="0"> &ge;145</label>
-                        <label><input type="radio" name="sbp" value="1"> 125-145</label>
-                        <label><input type="radio" name="sbp" value="3"> &lt;125</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Ratio of initial troponin to upper limit of normal</div>
-                    <div class="segmented-control" data-action-group="troponin">
-                        <label><input type="radio" name="troponin" value="0"> &lt;12</label>
-                        <label><input type="radio" name="troponin" value="2"> &ge;12</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Signs or symptoms of heart failure</div>
-                    <div class="segmented-control" data-action-group="hf">
-                        <label><input type="radio" name="hf" value="0"> No</label>
-                        <label><input type="radio" name="hf" value="5"> Yes</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">ST segment depression on EKG</div>
-                    <div class="segmented-control" data-action-group="st">
-                        <label><input type="radio" name="st" value="0"> No</label>
-                        <label><input type="radio" name="st" value="1"> Yes</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Prior revascularization</div>
-                    <div class="segmented-control" data-action-group="revasc">
-                        <label><input type="radio" name="revasc" value="0"> Yes</label>
-                        <label><input type="radio" name="revasc" value="1"> No</label>
-                    </div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+
+            <div class="alert info">
+                <strong>📋 NSTEMI Risk Assessment</strong>
+                <p>For initially hemodynamically stable adults with NSTEMI</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Age, years</div>
+                <div class="radio-group" data-action-group="age">
+                    <label class="radio-option">
+                        <input type="radio" name="age" value="0">
+                        <span class="radio-label">&lt;70 <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="age" value="1">
+                        <span class="radio-label">≥70 <strong>+1</strong></span>
+                    </label>
                 </div>
             </div>
-            <div id="action-icu-result" class="ariscat-result-box" style="display:none;"></div>
-            <div class="references">
-                <h4>Reference</h4>
+
+            <div class="section">
+                <div class="section-title">Serum creatinine, mg/dL</div>
+                <div class="radio-group" data-action-group="creatinine">
+                    <label class="radio-option">
+                        <input type="radio" name="creatinine" value="0">
+                        <span class="radio-label">&lt;1.1 <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="creatinine" value="1">
+                        <span class="radio-label">≥1.1 <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Heart rate, bpm</div>
+                <div class="radio-group" data-action-group="hr">
+                    <label class="radio-option">
+                        <input type="radio" name="hr" value="0">
+                        <span class="radio-label">&lt;85 <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="hr" value="1">
+                        <span class="radio-label">85-100 <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="hr" value="3">
+                        <span class="radio-label">≥100 <strong>+3</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Systolic blood pressure, mmHg</div>
+                <div class="radio-group" data-action-group="sbp">
+                    <label class="radio-option">
+                        <input type="radio" name="sbp" value="0">
+                        <span class="radio-label">≥145 <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="sbp" value="1">
+                        <span class="radio-label">125-145 <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="sbp" value="3">
+                        <span class="radio-label">&lt;125 <strong>+3</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Ratio of initial troponin to upper limit of normal</div>
+                <div class="radio-group" data-action-group="troponin">
+                    <label class="radio-option">
+                        <input type="radio" name="troponin" value="0">
+                        <span class="radio-label">&lt;12 <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="troponin" value="2">
+                        <span class="radio-label">≥12 <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Signs or symptoms of heart failure</div>
+                <div class="radio-group" data-action-group="hf">
+                    <label class="radio-option">
+                        <input type="radio" name="hf" value="0">
+                        <span class="radio-label">No <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="hf" value="5">
+                        <span class="radio-label">Yes <strong>+5</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">ST segment depression on EKG</div>
+                <div class="radio-group" data-action-group="st">
+                    <label class="radio-option">
+                        <input type="radio" name="st" value="0">
+                        <span class="radio-label">No <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="st" value="1">
+                        <span class="radio-label">Yes <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Prior revascularization</div>
+                <div class="radio-group" data-action-group="revasc">
+                    <label class="radio-option">
+                        <input type="radio" name="revasc" value="0">
+                        <span class="radio-label">Yes <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="revasc" value="1">
+                        <span class="radio-label">No <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="action-icu-result" class="result-container"></div>
+
+            <div class="chart-container">
+                <img src="js/calculators/action-icu/action-icu.png" alt="ACTION ICU Score Reference Image" class="reference-image" />
+                <img src="js/calculators/action-icu/jah33242-fig-0003.jpg" alt="ACTION ICU Score Reference Image 2" class="reference-image" style="margin-top: 15px;" />
+            </div>
+
+            <div class="info-section">
+                <h4>📚 Reference</h4>
                 <p>Fanaroff, A. C., et al. (2018). Risk Score to Predict Need for Intensive Care in Initially Hemodynamically Stable Adults With Non–ST‐Segment–Elevation Myocardial Infarction. <em>Journal of the American Heart Association</em>, 7(11).</p>
-                <img src="js/calculators/action-icu/action-icu.png" alt="ACTION ICU Score Reference Image" />
-                <img src="js/calculators/action-icu/jah33242-fig-0003.jpg" alt="ACTION ICU Score Reference Image 2" />
             </div>
         `;
     },
@@ -102,20 +174,48 @@ export const actionIcu = {
                 const riskPercent =
                     score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
                 const resultEl = container.querySelector('#action-icu-result');
+                
+                let riskLevel = 'low';
+                let riskDescription = 'Low Risk';
+                if (riskPercent >= 20) {
+                    riskLevel = 'high';
+                    riskDescription = 'High Risk';
+                } else if (riskPercent >= 10) {
+                    riskLevel = 'medium';
+                    riskDescription = 'Moderate Risk';
+                }
+                
                 resultEl.innerHTML = `
-                    <div class="score-section">
-                        <div class="score-value">${score}</div>
-                        <div class="score-label">points</div>
-                        <div class="score-title">ACTION ICU Score</div>
+                    <div class="result-header">
+                        <h3>ACTION ICU Score</h3>
                     </div>
-                    <div class="interpretation-section">
-                        <div class="interp-title">${riskPercent.toFixed(1)}%</div>
-                        <div class="interp-details">Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, or death during index admission)</div>
+                    <div class="result-score" style="font-size: 4rem; font-weight: bold; color: #667eea;">${score}</div>
+                    <div class="result-label">points</div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">ICU Risk:</span>
+                        <span class="result-value" style="font-size: 2.5rem; font-weight: bold; color: #667eea;">${riskPercent.toFixed(1)}%</span>
+                    </div>
+                    
+                    <div class="severity-indicator ${riskLevel}">${riskDescription}</div>
+                    
+                    <div class="alert info">
+                        <strong>📊 Interpretation</strong>
+                        <p>Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI, including:</p>
+                        <ul style="margin: 8px 0 0 20px; text-align: left;">
+                            <li>Cardiac arrest</li>
+                            <li>Cardiogenic shock</li>
+                            <li>High-grade AV block</li>
+                            <li>Respiratory failure</li>
+                            <li>Stroke</li>
+                            <li>Death during index admission</li>
+                        </ul>
                     </div>
                 `;
-                resultEl.style.display = 'flex';
+                resultEl.classList.add('show');
             } else {
-                container.querySelector('#action-icu-result').style.display = 'none';
+                const resultEl = container.querySelector('#action-icu-result');
+                resultEl.classList.remove('show');
             }
         };
 
@@ -171,14 +271,18 @@ export const actionIcu = {
             calculate();
         });
 
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', event => {
-                const group = event.target.closest('.segmented-control, .radio-group');
-                group
-                    .querySelectorAll('label')
-                    .forEach(label => label.classList.remove('selected'));
-                event.target.parentElement.classList.add('selected');
-                calculate();
+        container.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const input = option.querySelector('input[type="radio"]');
+                if (input) {
+                    input.checked = true;
+                    const radioGroup = option.closest('.radio-group');
+                    radioGroup.querySelectorAll('.radio-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    calculate();
+                }
             });
         });
 

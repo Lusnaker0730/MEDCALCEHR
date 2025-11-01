@@ -128,62 +128,74 @@ export const gwtgHf = {
     description: 'Predicts in-hospital all-cause heart failure mortality.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="instructions-box important">
-                <strong>IMPORTANT</strong>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+
+            <div class="alert warning">
+                <strong>⚠️ IMPORTANT</strong>
                 <p>This calculator includes inputs based on race, which may or may not provide better estimates, so we have decided to make race optional. For the same other inputs, this calculator estimates lower in-hospital mortality risk in Black patients.</p>
             </div>
-            <div class="form-container modern">
-                <div class="input-row">
-                    <label for="gwtg-sbp">Systolic BP</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="gwtg-sbp"><span>mm Hg</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="gwtg-bun">BUN</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="gwtg-bun"><span>mg/dL</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="gwtg-sodium">Sodium</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="gwtg-sodium"><span>mEq/L</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="gwtg-age">Age</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="gwtg-age"><span>years</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="gwtg-hr">Heart rate</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="gwtg-hr"><span>beats/min</span>
-                    </div>
-                </div>
-                <div class="input-row ariscat-form">
-                    <div class="input-label">COPD history</div>
-                    <div class="segmented-control">
-                        <label><input type="radio" name="copd" value="0"> No</label>
-                        <label><input type="radio" name="copd" value="2"> Yes</label>
-                    </div>
-                </div>
-                <div class="input-row ariscat-form">
-                    <div class="input-label">
-                        Black race
-                        <span>Race may/may not provide better estimates of in-hospital mortality; optional</span>
-                    </div>
-                    <div class="segmented-control">
-                        <label><input type="radio" name="race" value="0"> No</label>
-                        <label><input type="radio" name="race" value="-3"> Yes</label>
-                    </div>
+
+            <div class="section">
+                <div class="section-title">Systolic BP</div>
+                <div class="input-with-unit">
+                    <input type="number" id="gwtg-sbp" placeholder="120">
+                    <span>mm Hg</span>
                 </div>
             </div>
-            <div id="gwtg-hf-result" class="ariscat-result-box" style="display:none;"></div>
+
+            <div class="section">
+                <div class="section-title">BUN</div>
+                <div class="input-with-unit">
+                    <input type="number" id="gwtg-bun" placeholder="30">
+                    <span>mg/dL</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Sodium</div>
+                <div class="input-with-unit">
+                    <input type="number" id="gwtg-sodium" placeholder="140">
+                    <span>mEq/L</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Age</div>
+                <div class="input-with-unit">
+                    <input type="number" id="gwtg-age" placeholder="65">
+                    <span>years</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Heart rate</div>
+                <div class="input-with-unit">
+                    <input type="number" id="gwtg-hr" placeholder="80">
+                    <span>beats/min</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">COPD history</div>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="copd" value="0" checked><span class="radio-label">No <strong>0</strong></span></label>
+                    <label class="radio-option"><input type="radio" name="copd" value="2"><span class="radio-label">Yes <strong>+2</strong></span></label>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Black race</div>
+                <p class="help-text">Race may/may not provide better estimates of in-hospital mortality; optional</p>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="race" value="0" checked><span class="radio-label">No <strong>0</strong></span></label>
+                    <label class="radio-option"><input type="radio" name="race" value="-3"><span class="radio-label">Yes <strong>-3</strong></span></label>
+                </div>
+            </div>
+
+            <div id="gwtg-hf-result" class="result-container"></div>
         `;
     },
     initialize: function (client, patient, container) {
@@ -206,7 +218,7 @@ export const gwtgHf = {
             );
 
             if (!allFilled) {
-                resultEl.style.display = 'none';
+                resultEl.classList.remove('show');
                 return;
             }
 
@@ -223,17 +235,29 @@ export const gwtgHf = {
             }
 
             const mortality = getMortality(score);
+            
+            let riskLevel = 'low';
+            if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
+                riskLevel = 'high';
+            } else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
+                riskLevel = 'medium';
+            }
 
             resultEl.innerHTML = `
-                <div class="score-section" style="flex-basis: 40%;">
-                    <div class="score-value">${score}</div>
-                    <div class="score-label">points</div>
+                <div class="result-header">
+                    <h3>GWTG-HF Score</h3>
                 </div>
-                <div class="interpretation-section" style="flex-basis: 60%; justify-content: center;">
-                     <div class="interp-details" style="font-size: 1.2em; font-weight: bold; margin-top: 0;">${mortality} predicted in-hospital all-cause mortality</div>
+                <div class="result-score" style="font-size: 4rem; font-weight: bold; color: #667eea;">${score}</div>
+                <div class="result-label">points</div>
+                
+                <div class="result-item">
+                    <span class="result-label">In-hospital mortality:</span>
+                    <span class="result-value" style="font-size: 2rem; font-weight: bold; color: #667eea;">${mortality}</span>
                 </div>
+                
+                <div class="severity-indicator ${riskLevel}">${riskLevel === 'high' ? 'High Risk' : riskLevel === 'medium' ? 'Moderate Risk' : 'Low Risk'}</div>
             `;
-            resultEl.style.display = 'flex';
+            resultEl.classList.add('show');
         };
 
         // Auto-populate data
@@ -263,17 +287,33 @@ export const gwtgHf = {
             calculate();
         });
 
-        container.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', () => {
-                if (input.type === 'radio') {
-                    const group = input.closest('.segmented-control');
-                    group
-                        .querySelectorAll('label')
-                        .forEach(label => label.classList.remove('selected'));
-                    input.parentElement.classList.add('selected');
+        // Add visual feedback for radio options
+        container.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const input = option.querySelector('input[type="radio"]');
+                if (input) {
+                    input.checked = true;
+                    const radioGroup = option.closest('.radio-group');
+                    radioGroup.querySelectorAll('.radio-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    calculate();
                 }
-                calculate();
             });
+        });
+
+        // Add event listeners for number inputs
+        container.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        // Initial visual feedback
+        container.querySelectorAll('.radio-group').forEach(group => {
+            const checkedInput = group.querySelector('input[type="radio"]:checked');
+            if (checkedInput) {
+                checkedInput.closest('.radio-option').classList.add('selected');
+            }
         });
 
         calculate();

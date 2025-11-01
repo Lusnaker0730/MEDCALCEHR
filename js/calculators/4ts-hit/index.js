@@ -5,42 +5,64 @@ export const hepScore = {
     title: 'HIT Expert Probability (HEP) Score for Heparin-Induced Thrombocytopenia',
     description: 'Pre-test clinical scoring model for HIT based on broad expert opinion.',
     generateHTML: () => `
-        <div class="calculator-container hep-score">
-            <div class="input-row-new">
-                <div class="input-label-new">
-                    Type of heparin-induced thrombocytopenia (HIT) onset suspected
-                </div>
-                <div class="input-control-new">
-                    <div class="segmented-control" data-name="hit_onset_type">
-                        <button data-value="typical" class="active">Typical</button>
-                        <button data-value="rapid">Rapid</button>
-                    </div>
-                </div>
-            </div>
+        <div class="calculator-header">
+            <h3>HIT Expert Probability (HEP) Score</h3>
+            <p class="description">Pre-test clinical scoring model for Heparin-Induced Thrombocytopenia (HIT) based on broad expert opinion.</p>
+        </div>
 
-            <div id="hep-score-criteria">
-                <!-- JS will populate this section based on onset type -->
-            </div>
+        <div class="alert info">
+            <strong>📋 HIT Assessment</strong>
+            <p>Select the type of HIT onset and complete all clinical criteria below.</p>
+        </div>
 
-            <div class="result-box hep-score-result">
-                <h3>HEP Score: <span id="hep-score-value">-</span></h3>
-                <p id="hep-score-interpretation"></p>
+        <div class="section">
+            <div class="section-title">Type of HIT onset suspected</div>
+            <div class="radio-group" data-name="hit_onset_type">
+                <label class="radio-option selected">
+                    <input type="radio" name="hit_onset_type" value="typical" checked>
+                    <span class="radio-label">Typical onset</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="hit_onset_type" value="rapid">
+                    <span class="radio-label">Rapid onset (re-exposure)</span>
+                </label>
             </div>
         </div>
 
-        <div class="calculator-image-container" style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
-            <img src="js/calculators/4ts-hit/4HIT.png" alt="HEP Score Table 1" style="max-width: 100%; width: 100%; border-radius: 8px;" />
-            <img src="js/calculators/4ts-hit/6-Table3-1.png" alt="HEP Score Table 2" style="max-width: 100%; width: 100%; border-radius: 8px;" />
+        <div id="hep-score-criteria">
+            <!-- JS will populate this section based on onset type -->
         </div>
 
-        <div class="citation">
-            <h4>Source:</h4>
+        <div class="result-container">
+            <div class="result-header">HEP Score Results</div>
+            <div class="result-score">
+                <span id="hep-score-value" style="font-size: 4rem; font-weight: bold; color: #667eea;">-</span>
+                <span style="font-size: 1.2rem; color: #718096; margin-left: 10px;">points</span>
+            </div>
+            <div class="result-item">
+                <span class="label">Interpretation</span>
+                <span class="value" id="hep-score-interpretation">Select criteria above</span>
+            </div>
+            <div class="result-item">
+                <span class="label">HIT Probability</span>
+                <span class="value risk-badge" id="hep-score-probability">-</span>
+            </div>
+        </div>
+
+        <div class="chart-container" style="display: flex; flex-direction: column; gap: 15px;">
+            <img src="js/calculators/4ts-hit/4HIT.png" alt="HEP Score Table 1" class="reference-image" />
+            <img src="js/calculators/4ts-hit/6-Table3-1.png" alt="HEP Score Table 2" class="reference-image" />
+        </div>
+
+        <div class="info-section">
+            <h4>📚 Reference</h4>
             <p>Cuker, A., et al. (2010). The HIT Expert Probability (HEP) Score: a novel pre-test probability model for heparin-induced thrombocytopenia based on broad expert opinion. <em>Journal of thrombosis and haemostasis : JTH</em>, 8(12), 2642–2650. <a href="https://doi.org/10.1111/j.1538-7836.2010.04059.x" target="_blank">doi:10.1111/j.1538-7836.2010.04059.x</a>. PMID: 20854372.</p>
         </div>
     `,
-    initialize: async client => {
-        const criteriaContainer = document.getElementById('hep-score-criteria');
-        const onsetToggle = document.querySelector('[data-name="hit_onset_type"]');
+    initialize: async (client, patient, container) => {
+        const root = container || document;
+        const criteriaContainer = root.querySelector('#hep-score-criteria');
+        const onsetToggle = root.querySelector('[data-name="hit_onset_type"]');
 
         const criteria = {
             platelet_fall_magnitude: {
@@ -152,27 +174,36 @@ export const hepScore = {
 
                 let controlHTML = '';
                 if (data.options) {
-                    // Multi-button group
-                    const buttons = data.options
+                    // Multi-option radio group
+                    const options = data.options
                         .map(
                             (opt, index) =>
-                                `<button data-value="${opt.value}" class="${index === 0 ? 'active' : ''}">${opt.text} <strong>${opt.value > 0 ? '+' : ''}${opt.value}</strong></button>`
+                                `<label class="radio-option ${index === 0 ? 'selected' : ''}">
+                                    <input type="radio" name="${key}" value="${opt.value}" ${index === 0 ? 'checked' : ''}>
+                                    <span class="radio-label">${opt.text} <strong>${opt.value > 0 ? '+' : ''}${opt.value}</strong></span>
+                                </label>`
                         )
                         .join('');
-                    controlHTML = `<div class="segmented-control" data-name="${key}">${buttons}</div>`;
+                    controlHTML = `<div class="radio-group" data-name="${key}">${options}</div>`;
                 } else {
-                    // Yes/No button group
+                    // Yes/No radio group
                     controlHTML = `
-                        <div class="segmented-control" data-name="${key}">
-                            <button data-value="${data.no}" class="active">No <strong>${data.no > 0 ? '+' : ''}${data.no}</strong></button>
-                            <button data-value="${data.yes}">Yes <strong>${data.yes > 0 ? '+' : ''}${data.yes}</strong></button>
+                        <div class="radio-group" data-name="${key}">
+                            <label class="radio-option selected">
+                                <input type="radio" name="${key}" value="${data.no}" checked>
+                                <span class="radio-label">No <strong>${data.no > 0 ? '+' : ''}${data.no}</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="${key}" value="${data.yes}">
+                                <span class="radio-label">Yes <strong>${data.yes > 0 ? '+' : ''}${data.yes}</strong></span>
+                            </label>
                         </div>`;
                 }
 
                 const row = `
-                    <div class="input-row-new">
-                        <div class="input-label-new">${data.label}</div>
-                        <div class="input-control-new">${controlHTML}</div>
+                    <div class="section">
+                        <div class="section-title">${data.label}</div>
+                        ${controlHTML}
                     </div>`;
                 criteriaContainer.innerHTML += row;
             });
@@ -182,68 +213,99 @@ export const hepScore = {
 
         const calculateScore = () => {
             let score = 0;
-            criteriaContainer.querySelectorAll('.segmented-control').forEach(group => {
-                const selected = group.querySelector('.active');
+            criteriaContainer.querySelectorAll('.radio-group').forEach(group => {
+                const selected = group.querySelector('input[type="radio"]:checked');
                 if (selected) {
-                    score += parseInt(selected.dataset.value);
+                    score += parseInt(selected.value);
                 }
             });
 
-            const scoreValueEl = document.getElementById('hep-score-value');
-            const interpretationEl = document.getElementById('hep-score-interpretation');
+            const resultContainer = root.querySelector('.result-container');
+            const scoreValueEl = root.querySelector('#hep-score-value');
+            const interpretationEl = root.querySelector('#hep-score-interpretation');
+            const probabilityEl = root.querySelector('#hep-score-probability');
 
-            scoreValueEl.textContent = score;
+            if (resultContainer) {
+                resultContainer.classList.add('show');
+            }
+
+            if (scoreValueEl) {
+                scoreValueEl.textContent = score;
+            }
+
+            let interpretation = '';
+            let probability = '';
+            let probabilityLevel = '';
 
             if (score <= -1) {
-                interpretationEl.textContent = 'Scores ≤ -1 suggest a lower probability of HIT.';
+                interpretation = 'Scores ≤ -1 suggest a lower probability of HIT.';
+                probability = 'Low';
+                probabilityLevel = 'risk-low';
             } else if (score >= 4) {
-                interpretationEl.textContent = 'Scores ≥ 4 are >90% sensitive for HIT.';
+                interpretation = 'Scores ≥ 4 are >90% sensitive for HIT.';
+                probability = 'High (>90% sensitive)';
+                probabilityLevel = 'risk-high';
             } else {
-                interpretationEl.textContent = 'Intermediate probability.';
+                interpretation = 'Intermediate probability of HIT.';
+                probability = 'Intermediate';
+                probabilityLevel = 'risk-moderate';
+            }
+
+            if (interpretationEl) {
+                interpretationEl.textContent = interpretation;
+            }
+
+            if (probabilityEl) {
+                probabilityEl.textContent = probability;
+                probabilityEl.classList.remove('risk-low', 'risk-moderate', 'risk-high');
+                probabilityEl.classList.add(probabilityLevel);
             }
         };
 
         const attachEventListeners = () => {
-            criteriaContainer.querySelectorAll('.segmented-control').forEach(group => {
-                group.addEventListener('click', event => {
-                    const button = event.target.closest('button');
-                    if (!button) {
-                        return;
-                    }
-                    group.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
+            criteriaContainer.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    // Add visual feedback
+                    const parent = radio.closest('.radio-option');
+                    const siblings = parent.parentElement.querySelectorAll('.radio-option');
+                    siblings.forEach(s => s.classList.remove('selected'));
+                    parent.classList.add('selected');
+                    
                     calculateScore();
                 });
             });
         };
 
-        onsetToggle.addEventListener('click', event => {
-            const button = event.target.closest('button');
-            if (!button || button.classList.contains('active')) {
-                return;
-            }
-            onsetToggle.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            renderCriteria(button.dataset.value);
+        onsetToggle.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                // Add visual feedback
+                const parent = radio.closest('.radio-option');
+                const siblings = parent.parentElement.querySelectorAll('.radio-option');
+                siblings.forEach(s => s.classList.remove('selected'));
+                parent.classList.add('selected');
+                
+                // Re-render criteria
+                renderCriteria(radio.value);
+            });
         });
 
         // Initial render
         renderCriteria('typical');
 
-        // FHIR auto-population (conceptual)
+        // FHIR auto-population
         try {
             const plateletObs = await getMostRecentObservation(client, '26515-7'); // Platelets
             if (plateletObs && plateletObs.valueQuantity) {
                 const nadirGroup = criteriaContainer.querySelector('[data-name="nadir_platelet"]');
                 if (nadirGroup) {
-                    const btn =
-                        plateletObs.valueQuantity.value < 20
-                            ? nadirGroup.querySelector('[data-value="-2"]')
-                            : nadirGroup.querySelector('[data-value="2"]');
-                    nadirGroup
-                        .querySelectorAll('button')
-                        .forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+                    const radioValue = plateletObs.valueQuantity.value < 20 ? '-2' : '2';
+                    const radioToCheck = nadirGroup.querySelector(`input[value="${radioValue}"]`);
+                    if (radioToCheck) {
+                        radioToCheck.checked = true;
+                        const parent = radioToCheck.closest('.radio-option');
+                        nadirGroup.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                        parent.classList.add('selected');
+                    }
                 }
             }
 
@@ -257,10 +319,13 @@ export const hepScore = {
                 if (conditions.some(c => c.code.coding[0].code === '67751000')) {
                     const dicGroup = criteriaContainer.querySelector('[data-name="dic"]');
                     if (dicGroup) {
-                        dicGroup
-                            .querySelectorAll('button')
-                            .forEach(b => b.classList.remove('active'));
-                        dicGroup.querySelector('[data-value="-2"]').classList.add('active');
+                        const radioToCheck = dicGroup.querySelector('input[value="-2"]');
+                        if (radioToCheck) {
+                            radioToCheck.checked = true;
+                            const parent = radioToCheck.closest('.radio-option');
+                            dicGroup.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                            parent.classList.add('selected');
+                        }
                     }
                 }
             }

@@ -6,37 +6,91 @@ export const abgAnalyzer = {
     description: 'Interprets ABG.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="instructions-box dark-blue">
-                <strong>INSTRUCTIONS</strong>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+
+            <div class="alert warning">
+                <strong>⚠️ Important</strong>
                 <p>This analyzer should not substitute for clinical context. Sodium and chloride are required for anion gap calculation.</p>
             </div>
-            <div class="form-container modern">
-                <div class="input-row"><label for="abg-ph">pH</label><input type="number" id="abg-ph" step="0.01"></div>
-                <div class="input-row"><label for="abg-pco2">PCO₂</label><div class="input-with-unit"><input type="number" id="abg-pco2"><span>mm Hg</span></div></div>
-                <div class="input-row"><label for="abg-hco3">HCO₃⁻</label><div class="input-with-unit"><input type="number" id="abg-hco3"><span>mEq/L</span></div></div>
-                <div class="input-row"><label for="abg-sodium">Sodium</label><div class="input-with-unit"><input type="number" id="abg-sodium"><span>mEq/L</span></div></div>
-                <div class="input-row"><label for="abg-chloride">Chloride</label><div class="input-with-unit"><input type="number" id="abg-chloride"><span>mEq/L</span></div></div>
-                <div class="input-row">
-                    <label for="abg-albumin">Albumin<span>NOTE: Normal albumin levels are typically 4 g/dL in US units and 40 g/L in SI units.</span></label>
-                    <div class="input-with-unit"><input type="number" id="abg-albumin"><span>g/L</span></div>
-                </div>
-                <div class="input-row ariscat-form">
-                    <div class="input-label">If respiratory process present, chronicity</div>
-                    <div class="segmented-control">
-                        <label><input type="radio" name="chronicity" value="acute" checked> Acute</label>
-                        <label><input type="radio" name="chronicity" value="chronic"> Chronic</label>
-                    </div>
+
+            <div class="section">
+                <div class="section-title">pH</div>
+                <input type="number" id="abg-ph" step="0.01" placeholder="e.g., 7.3">
+            </div>
+
+            <div class="section">
+                <div class="section-title">PCO₂</div>
+                <div class="input-with-unit">
+                    <input type="number" id="abg-pco2" placeholder="e.g., 46">
+                    <span>mm Hg</span>
                 </div>
             </div>
-            <div id="abg-result" class="result-box ttkg-result" style="display:block;">
-                <div class="result-value">Please fill out required fields.</div>
+
+            <div class="section">
+                <div class="section-title">HCO₃⁻</div>
+                <div class="input-with-unit">
+                    <input type="number" id="abg-hco3" placeholder="e.g., 26">
+                    <span>mEq/L</span>
+                </div>
             </div>
-            <div class="references">
-                <h4>Reference</h4>
-                <p>Baillie, J K. (2008). Simple, easily memorised “rules of thumb” for the rapid assessment of physiological compensation for respiratory acid-base disorders. <em>Thorax</em>, 63(3), 289-290.</p>
-                <img src="js/calculators/abg-analyzer/ABG-interpretation.avif" alt="ABG Interpretation Reference Image" />
+
+            <div class="section">
+                <div class="section-title">Sodium</div>
+                <div class="input-with-unit">
+                    <input type="number" id="abg-sodium" placeholder="e.g., 145">
+                    <span>mEq/L</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Chloride</div>
+                <div class="input-with-unit">
+                    <input type="number" id="abg-chloride" placeholder="e.g., 145">
+                    <span>mEq/L</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Albumin</div>
+                <div class="input-with-unit">
+                    <input type="number" id="abg-albumin" placeholder="e.g., 5">
+                    <span>g/L</span>
+                </div>
+                <small class="help-text">NOTE: Normal albumin levels are typically 4 g/dL in US units and 40 g/L in SI units.</small>
+            </div>
+
+            <div class="section">
+                <div class="section-title">If respiratory process present, chronicity</div>
+                <div class="radio-group">
+                    <label class="radio-option selected">
+                        <input type="radio" name="chronicity" value="acute" checked>
+                        <span class="radio-label">Acute</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="chronicity" value="chronic">
+                        <span class="radio-label">Chronic</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="abg-result" class="result-container">
+                <div class="result-header">ABG Analysis</div>
+                <div id="abg-primary-disorder" style="font-size: 3rem; font-weight: bold; color: #667eea; margin: 30px 0; text-align: center; line-height: 1.3;">
+                    Please fill out required fields.
+                </div>
+                <div id="abg-details" style="font-size: 1.3rem; line-height: 1.8; color: #2d3748; margin-top: 20px;"></div>
+            </div>
+
+            <div class="chart-container">
+                <img src="js/calculators/abg-analyzer/ABG-interpretation.avif" alt="ABG Interpretation Reference Image" class="reference-image" />
+            </div>
+
+            <div class="info-section">
+                <h4>📚 Reference</h4>
+                <p>Baillie, J K. (2008). Simple, easily memorised "rules of thumb" for the rapid assessment of physiological compensation for respiratory acid-base disorders. <em>Thorax</em>, 63(3), 289-290.</p>
             </div>
         `;
     },
@@ -49,19 +103,24 @@ export const abgAnalyzer = {
             chloride: container.querySelector('#abg-chloride'),
             albumin: container.querySelector('#abg-albumin')
         };
-        const resultValueEl = container.querySelector('#abg-result .result-value');
+        const primaryDisorderEl = container.querySelector('#abg-primary-disorder');
+        const detailsEl = container.querySelector('#abg-details');
+        const resultContainer = container.querySelector('#abg-result');
 
         const interpret = () => {
             const vals = {};
             for (const key in fields) {
                 const val = parseFloat(fields[key].value);
                 if (isNaN(val)) {
-                    resultValueEl.textContent = 'Please fill out required fields.';
-                    container.querySelector('#abg-result').className = 'result-box ttkg-result';
+                    primaryDisorderEl.textContent = 'Please fill out required fields.';
+                    detailsEl.innerHTML = '';
+                    resultContainer.classList.remove('show');
                     return;
                 }
                 vals[key] = val;
             }
+
+            resultContainer.classList.add('show');
 
             let primaryDisorder = '';
             let compensation = '';
@@ -187,8 +246,22 @@ export const abgAnalyzer = {
                 interpretation.push(compensation);
             }
 
-            container.querySelector('#abg-result').className = 'result-box ttkg-result calculated';
-            resultValueEl.innerHTML = interpretation.join('<br>');
+            // Display primary disorder prominently
+            if (primaryDisorder) {
+                primaryDisorderEl.innerHTML = `<strong>${primaryDisorder}</strong>`;
+            } else if (interpretation.length > 0 && interpretation[0].includes('Normal')) {
+                primaryDisorderEl.textContent = 'Normal Acid-Base Status';
+            } else {
+                primaryDisorderEl.innerHTML = interpretation[0] || 'Unknown';
+            }
+
+            // Display details (compensation and additional info)
+            const details = interpretation.slice(1);
+            if (details.length > 0) {
+                detailsEl.innerHTML = details.map(item => `<p style="margin: 10px 0;">${item}</p>`).join('');
+            } else {
+                detailsEl.innerHTML = '';
+            }
         };
 
         // Auto-populate data
@@ -229,17 +302,22 @@ export const abgAnalyzer = {
             interpret();
         }); // Albumin g/L
 
-        container.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', () => {
-                if (input.type === 'radio') {
-                    const group = input.closest('.segmented-control');
-                    group
-                        .querySelectorAll('label')
-                        .forEach(label => label.classList.remove('selected'));
-                    input.parentElement.classList.add('selected');
-                }
+        // Add event listeners for radio buttons
+        container.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                // Add visual feedback
+                const parent = radio.closest('.radio-option');
+                const siblings = parent.parentElement.querySelectorAll('.radio-option');
+                siblings.forEach(s => s.classList.remove('selected'));
+                parent.classList.add('selected');
+                
                 interpret();
             });
+        });
+
+        // Add event listeners for text inputs
+        container.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', interpret);
         });
     }
 };
