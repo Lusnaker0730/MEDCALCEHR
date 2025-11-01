@@ -115,17 +115,11 @@ export const guptaMica = {
                 </div>
             </div>
 
-            <div class="button-container">
-                <button id="calculate-mica" class="calculate-btn">
-                    <span class="btn-icon">🔍</span>
-                    Calculate MICA Risk
-                </button>
-            </div>
-
-            <div id="mica-result" class="result-container" style="display:none;"></div>
+            <div id="mica-result" class="result-container"></div>
         `;
     },
-    initialize: function (client, patient) {
+    initialize: function (client, patient, container) {
+        const root = container || document;
         // Helper function to mark field as auto-populated
         const markAutoFilled = element => {
             if (element) {
@@ -135,46 +129,22 @@ export const guptaMica = {
             }
         };
 
-        // Auto-populate age
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
-            const ageInput = document.getElementById('mica-age');
-            if (ageInput && age > 0) {
-                ageInput.value = age;
-                markAutoFilled(ageInput);
-            }
-        }
+        const ageInput = root.querySelector('#mica-age');
+        const statusSelect = root.querySelector('#mica-status');
+        const asaSelect = root.querySelector('#mica-asa');
+        const creatInput = root.querySelector('#mica-creat');
+        const procedureSelect = root.querySelector('#mica-procedure');
+        const resultEl = root.querySelector('#mica-result');
 
-        // Auto-populate creatinine
-        if (client) {
-            getMostRecentObservation(client, '2160-0')
-                .then(obs => {
-                    if (obs && obs.valueQuantity) {
-                        const crInput = document.getElementById('mica-creat');
-                        let crValue = obs.valueQuantity.value;
-                        // Convert if needed (µmol/L to mg/dL: divide by 88.4)
-                        if (
-                            obs.valueQuantity.unit === 'µmol/L' ||
-                            obs.valueQuantity.unit === 'umol/L'
-                        ) {
-                            crValue = crValue / 88.4;
-                        }
-                        crInput.value = crValue.toFixed(2);
-                        markAutoFilled(crInput);
-                    }
-                })
-                .catch(err => console.log('Creatinine not available'));
-        }
-
-        document.getElementById('calculate-mica').addEventListener('click', () => {
-            const age = parseInt(document.getElementById('mica-age').value);
-            const functionalStatus = parseFloat(document.getElementById('mica-status').value);
-            const asaClass = parseFloat(document.getElementById('mica-asa').value);
-            const creat = parseFloat(document.getElementById('mica-creat').value);
-            const procedure = parseFloat(document.getElementById('mica-procedure').value);
+        const calculate = () => {
+            const age = parseInt(ageInput.value);
+            const functionalStatus = parseFloat(statusSelect.value);
+            const asaClass = parseFloat(asaSelect.value);
+            const creat = parseFloat(creatInput.value);
+            const procedure = parseFloat(procedureSelect.value);
 
             if (isNaN(age) || isNaN(creat)) {
-                alert('⚠️ Please fill out all required fields.');
+                resultEl.classList.remove('show');
                 return;
             }
 
@@ -202,90 +172,88 @@ export const guptaMica = {
             const risk = Math.sqrt(1 + Math.exp(x));
             const riskPercent = risk.toFixed(2);
 
-            // Determine risk level and color
+            // Determine risk level
             let riskLevel = 'low';
-            let riskColor = '#10b981';
-            let riskIcon = '✓';
             let riskDescription = 'Low risk of postoperative MI or cardiac arrest';
 
             if (risk > 5) {
                 riskLevel = 'high';
-                riskColor = '#ef4444';
-                riskIcon = '⚠';
-                riskDescription =
-                    'High risk of postoperative MI or cardiac arrest - Consider risk modification strategies';
+                riskDescription = 'High risk of postoperative MI or cardiac arrest - Consider risk modification strategies';
             } else if (risk > 2) {
-                riskLevel = 'intermediate';
-                riskColor = '#f59e0b';
-                riskIcon = '⚡';
-                riskDescription =
-                    'Intermediate risk of postoperative MI or cardiac arrest - Consider perioperative optimization';
+                riskLevel = 'medium';
+                riskDescription = 'Intermediate risk of postoperative MI or cardiac arrest - Consider perioperative optimization';
             }
 
-            const resultEl = document.getElementById('mica-result');
             resultEl.innerHTML = `
-                <div class="grace-result-card" style="border-left-color: ${riskColor}">
-                    <div class="result-header">
-                        <span class="result-icon" style="color: ${riskColor}">${riskIcon}</span>
-                        <h4 class="result-title">Gupta MICA Risk Assessment</h4>
-                    </div>
-                    
-                    <div class="grace-score-display">
-                        <div class="score-main">
-                            <span class="score-label">Cardiac Risk</span>
-                            <span class="score-value" style="color: ${riskColor}">${riskPercent}%</span>
-                        </div>
-                        <div class="score-divider"></div>
-                        <div class="score-risk">
-                            <span class="risk-label">Risk Category</span>
-                            <span class="risk-category" style="color: ${riskColor}">${riskLevel.toUpperCase()} RISK</span>
-                        </div>
-                    </div>
-
-                    <div class="risk-interpretation" style="background: ${riskColor}15; border-color: ${riskColor}">
-                        <div class="interpretation-icon" style="color: ${riskColor}">ℹ️</div>
-                        <div class="interpretation-text">
-                            <strong>Clinical Interpretation:</strong><br>
-                            ${riskDescription}
-                        </div>
-                    </div>
-
-                    <div class="score-breakdown">
-                        <h5 class="breakdown-title">Formula Components:</h5>
-                        <div class="breakdown-grid">
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Age Component</span>
-                                <span class="breakdown-points">${(age * 0.02).toFixed(2)}</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Functional Status</span>
-                                <span class="breakdown-points">${functionalStatus.toFixed(2)}</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">ASA Class</span>
-                                <span class="breakdown-points">${asaClass.toFixed(2)}</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Creatinine</span>
-                                <span class="breakdown-points">${creat >= 1.5 ? '0.61' : '0.00'}</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">Procedure Type</span>
-                                <span class="breakdown-points">${procedure.toFixed(2)}</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-label">X Value</span>
-                                <span class="breakdown-points">${x.toFixed(2)}</span>
-                            </div>
-                        </div>
-                        <p style="margin-top: 15px; font-size: 0.9em; color: #718096;">
-                            Formula: Cardiac risk, % = √(1 + e<sup>x</sup>) where x = -5.25 + sum of values
-                        </p>
+                <div class="result-header">
+                    <h3>Gupta MICA Risk Assessment</h3>
+                </div>
+                <div class="result-score" style="font-size: 4rem; font-weight: bold; color: #667eea;">${riskPercent}%</div>
+                <div class="result-label">Cardiac Risk</div>
+                
+                <div class="severity-indicator ${riskLevel}">${riskLevel === 'high' ? 'High Risk' : riskLevel === 'medium' ? 'Intermediate Risk' : 'Low Risk'}</div>
+                
+                <div class="alert info">
+                    <strong>📊 Clinical Interpretation</strong>
+                    <p>${riskDescription}</p>
+                </div>
+                
+                <div class="info-section">
+                    <h4>Formula Components</h4>
+                    <div class="data-table">
+                        <table>
+                            <tr><td>Age Component (Age × 0.02)</td><td><strong>${(age * 0.02).toFixed(2)}</strong></td></tr>
+                            <tr><td>Functional Status</td><td><strong>${functionalStatus.toFixed(2)}</strong></td></tr>
+                            <tr><td>ASA Class</td><td><strong>${asaClass.toFixed(2)}</strong></td></tr>
+                            <tr><td>Creatinine (≥1.5 mg/dL)</td><td><strong>${creat >= 1.5 ? '0.61' : '0.00'}</strong></td></tr>
+                            <tr><td>Procedure Type</td><td><strong>${procedure.toFixed(2)}</strong></td></tr>
+                            <tr><td><strong>X Value</strong></td><td><strong>${x.toFixed(2)}</strong></td></tr>
+                        </table>
                     </div>
                 </div>
+                
+                <div class="formula-box">
+                    <strong>Formula:</strong> Cardiac risk, % = √(1 + e<sup>x</sup>) where x = -5.25 + sum of values
+                </div>
             `;
-            resultEl.style.display = 'block';
-            resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
+            resultEl.classList.add('show');
+        };
+
+        // Auto-populate age
+        if (patient && patient.birthDate) {
+            const age = calculateAge(patient.birthDate);
+            if (ageInput && age > 0) {
+                ageInput.value = age;
+                markAutoFilled(ageInput);
+            }
+        }
+
+        // Auto-populate creatinine
+        if (client) {
+            getMostRecentObservation(client, '2160-0')
+                .then(obs => {
+                    if (obs && obs.valueQuantity) {
+                        let crValue = obs.valueQuantity.value;
+                        // Convert if needed (µmol/L to mg/dL: divide by 88.4)
+                        if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
+                            crValue = crValue / 88.4;
+                        }
+                        creatInput.value = crValue.toFixed(2);
+                        markAutoFilled(creatInput);
+                        calculate();
+                    }
+                })
+                .catch(err => console.log('Creatinine not available'));
+        }
+
+        // Add event listeners for auto-calculation
+        ageInput.addEventListener('input', calculate);
+        statusSelect.addEventListener('change', calculate);
+        asaSelect.addEventListener('change', calculate);
+        creatInput.addEventListener('input', calculate);
+        procedureSelect.addEventListener('change', calculate);
+
+        // Initial calculation
+        calculate();
     }
 };
