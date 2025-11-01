@@ -20,7 +20,6 @@ export const serumAnionGap = {
                 <label for="sag-hco3">Bicarbonate (HCO₃⁻) (mEq/L)</label>
                 <input type="number" id="sag-hco3" placeholder="Enter Bicarbonate">
             </div>
-            <button id="calculate-sag">Calculate Anion Gap</button>
             <div id="sag-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -98,54 +97,78 @@ export const serumAnionGap = {
             </div>
         `;
     },
-    initialize: function (client) {
-        // Fetch recent lab values
-        getMostRecentObservation(client, '2951-2').then(obs => {
-            if (obs && obs.valueQuantity) {
-                document.getElementById('sag-na').value = obs.valueQuantity.value.toFixed(0);
-            }
-        });
-        getMostRecentObservation(client, '2075-0').then(obs => {
-            if (obs && obs.valueQuantity) {
-                document.getElementById('sag-cl').value = obs.valueQuantity.value.toFixed(0);
-            }
-        });
-        getMostRecentObservation(client, '1963-8').then(obs => {
-            if (obs && obs.valueQuantity) {
-                document.getElementById('sag-hco3').value = obs.valueQuantity.value.toFixed(0);
-            }
-        });
+    initialize: function (client, patient, container) {
+        const naInput = container.querySelector('#sag-na');
+        const clInput = container.querySelector('#sag-cl');
+        const hco3Input = container.querySelector('#sag-hco3');
+        const resultEl = container.querySelector('#sag-result');
 
-        document.getElementById('calculate-sag').addEventListener('click', () => {
-            const na = parseFloat(document.getElementById('sag-na').value);
-            const cl = parseFloat(document.getElementById('sag-cl').value);
-            const hco3 = parseFloat(document.getElementById('sag-hco3').value);
+        const calculate = () => {
+            const na = parseFloat(naInput.value);
+            const cl = parseFloat(clInput.value);
+            const hco3 = parseFloat(hco3Input.value);
 
             if (isNaN(na) || isNaN(cl) || isNaN(hco3)) {
-                alert('Please enter all values.');
+                resultEl.style.display = 'none';
                 return;
             }
 
             const anionGap = na - (cl + hco3);
 
             let interpretation = '';
+            let alertClass = '';
             if (anionGap > 12) {
-                interpretation =
-                    'High Anion Gap: Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions).';
+                interpretation = 'High Anion Gap: Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions).';
+                alertClass = 'danger';
             } else if (anionGap < 6) {
-                interpretation =
-                    'Low Anion Gap: Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+                interpretation = 'Low Anion Gap: Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+                alertClass = 'warning';
             } else {
-                interpretation =
-                    'Normal Anion Gap: Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                interpretation = 'Normal Anion Gap: Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                alertClass = 'success';
             }
 
-            const resultEl = document.getElementById('sag-result');
             resultEl.innerHTML = `
-                <p>Serum Anion Gap: ${anionGap.toFixed(1)} mEq/L</p>
-                <p>Interpretation: ${interpretation}</p>
+                <div class="result-header"><h4>Anion Gap Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${anionGap.toFixed(1)}</span>
+                    <span class="score-label">mEq/L</span>
+                </div>
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p>${interpretation}</p>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
+        };
+
+        // Auto-populate from FHIR
+        getMostRecentObservation(client, '2951-2').then(obs => {
+            if (obs && obs.valueQuantity) {
+                naInput.value = obs.valueQuantity.value.toFixed(0);
+                calculate();
+            }
         });
+        getMostRecentObservation(client, '2075-0').then(obs => {
+            if (obs && obs.valueQuantity) {
+                clInput.value = obs.valueQuantity.value.toFixed(0);
+                calculate();
+            }
+        });
+        getMostRecentObservation(client, '1963-8').then(obs => {
+            if (obs && obs.valueQuantity) {
+                hco3Input.value = obs.valueQuantity.value.toFixed(0);
+                calculate();
+            }
+        });
+
+        // Event listeners
+        naInput.addEventListener('input', calculate);
+        clInput.addEventListener('input', calculate);
+        hco3Input.addEventListener('input', calculate);
+
+        calculate();
     }
 };

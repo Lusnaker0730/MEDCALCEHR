@@ -10,78 +10,66 @@ export const hasBled = {
     title: 'HAS-BLED Score for Major Bleeding Risk',
     description:
         'Estimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care.',
-    generateHTML: () => `
-        <div class="calculator-container">
-            <div class="input-group">
-                <label>Hypertension (Uncontrolled, >160 mmHg systolic)</label>
-                <div class="segmented-control" data-id="hypertension">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Renal disease (Dialysis, transplant, Cr >2.26 mg/dL or >200 µmol/L)</label>
-                <div class="segmented-control" data-id="renal">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Liver disease (Cirrhosis or bilirubin >2x normal with AST/ALT/AP >3x normal)</label>
-                <div class="segmented-control" data-id="liver">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Stroke history</label>
-                <div class="segmented-control" data-id="stroke">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Prior major bleeding or predisposition to bleeding</label>
-                <div class="segmented-control" data-id="bleeding">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Labile INR (Unstable/high INRs, time in therapeutic range <60%)</label>
-                <div class="segmented-control" data-id="inr">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Age >65</label>
-                <div class="segmented-control" data-id="age">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Medication usage predisposing to bleeding (Aspirin, clopidogrel, NSAIDs)</label>
-                <div class="segmented-control" data-id="meds">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Alcohol use (≥8 drinks/week)</label>
-                <div class="segmented-control" data-id="alcohol">
-                    <button value="0" class="active">No (+0)</button>
-                    <button value="1">Yes (+1)</button>
-                </div>
-            </div>
-            <div class="result-box has-bled-result">
-                <h3 id="has-bled-score">0 points</h3>
-                <p id="has-bled-interpretation">Risk was 0.9% in one validation study (Lip 2011) and 1.13 bleeds per 100 patient-years in another validation study (Pisters 2010). Anticoagulation should be considered: Patient has a relatively low risk for major bleeding (~1/100 patient-years).</p>
+    generateHTML: function () {
+        return `
+        <div class="calculator-header">
+            <h3>HAS-BLED Score for Major Bleeding Risk</h3>
+            <p class="description">Estimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care.</p>
+        </div>
+        
+        <div class="alert info">
+            <span class="alert-icon">ℹ️</span>
+            <div class="alert-content">
+                <p>Select all risk factors that apply. Score automatically calculates.</p>
             </div>
         </div>
-    `,
-    initialize: async (client, patient, container) => {
+        
+        <div class="section">
+            <div class="section-title"><span>HAS-BLED Risk Factors</span></div>
+            <div class="checkbox-group">
+                <label class="checkbox-option" data-id="hypertension">
+                    <input type="checkbox" value="1">
+                    <span><strong>H</strong>ypertension (Uncontrolled, >160 mmHg systolic) <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="renal">
+                    <input type="checkbox" value="1">
+                    <span>Abnormal <strong>R</strong>enal function (Dialysis, transplant, Cr >2.26 mg/dL) <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="liver">
+                    <input type="checkbox" value="1">
+                    <span>Abnormal <strong>L</strong>iver function (Cirrhosis or bilirubin >2x normal with AST/ALT/AP >3x normal) <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="stroke">
+                    <input type="checkbox" value="1">
+                    <span><strong>S</strong>troke history <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="bleeding">
+                    <input type="checkbox" value="1">
+                    <span><strong>B</strong>leeding history or predisposition <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="inr">
+                    <input type="checkbox" value="1">
+                    <span><strong>L</strong>abile INR (Unstable/high INRs, time in therapeutic range <60%) <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="age">
+                    <input type="checkbox" value="1">
+                    <span><strong>E</strong>lderly (Age >65) <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="meds">
+                    <input type="checkbox" value="1">
+                    <span><strong>D</strong>rugs predisposing to bleeding (Aspirin, clopidogrel, NSAIDs) <strong>+1</strong></span>
+                </label>
+                <label class="checkbox-option" data-id="alcohol">
+                    <input type="checkbox" value="1">
+                    <span>Alcohol use (≥8 drinks/week) <strong>+1</strong></span>
+                </label>
+            </div>
+        </div>
+        
+        <div id="has-bled-result" class="result-container"></div>
+        `;
+    },
+    initialize: async function (client, patient, container) {
         const riskFactors = [
             'hypertension',
             'renal',
@@ -95,59 +83,75 @@ export const hasBled = {
         ];
 
         const scoreInterpretation = {
-            0: '0.9% risk (Lip 2011) or 1.13 bleeds/100 patient-years (Pisters 2010). Low risk.',
-            1: '1.02 bleeds/100 patient-years. Low-moderate risk.',
-            2: '1.88 bleeds/100 patient-years. Moderate risk.',
-            3: '3.74 bleeds/100 patient-years. Moderate-high risk.',
-            4: '8.70 bleeds/100 patient-years. High risk.',
-            5: '12.50 bleeds/100 patient-years. Very high risk.'
+            0: { risk: '0.9% risk (Lip 2011) or 1.13 bleeds/100 patient-years', level: 'Low risk', alertClass: 'success' },
+            1: { risk: '1.02 bleeds/100 patient-years', level: 'Low-moderate risk', alertClass: 'success' },
+            2: { risk: '1.88 bleeds/100 patient-years', level: 'Moderate risk', alertClass: 'warning' },
+            3: { risk: '3.74 bleeds/100 patient-years', level: 'Moderate-high risk', alertClass: 'warning' },
+            4: { risk: '8.70 bleeds/100 patient-years', level: 'High risk', alertClass: 'danger' },
+            5: { risk: '12.50 bleeds/100 patient-years', level: 'Very high risk', alertClass: 'danger' }
         };
 
-        const calculateHasBledScore = () => {
+        const calculate = () => {
             let score = 0;
-            riskFactors.forEach(id => {
-                const button = container.querySelector(
-                    `.segmented-control[data-id="${id}"] .active`
-                );
-                if (button) {
-                    score += parseInt(button.value);
-                }
+            container.querySelectorAll('.checkbox-option input[type="checkbox"]').forEach(cb => {
+                if (cb.checked) score++;
             });
 
-            const interpretationText = scoreInterpretation[score] || scoreInterpretation[5];
+            const maxScore = Math.min(score, 5);
+            const interpretation = scoreInterpretation[maxScore];
 
-            container.querySelector('#has-bled-score').innerText = `${score} points`;
-            container.querySelector('#has-bled-interpretation').innerText =
-                `Annual bleeding risk: ${interpretationText}`;
+            const resultEl = container.querySelector('#has-bled-result');
+            resultEl.innerHTML = `
+                <div class="result-header">
+                    <h4>HAS-BLED Score Result</h4>
+                </div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">/ 9 points</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Annual Bleeding Risk:</span>
+                    <span class="value">${interpretation.risk}</span>
+                </div>
+                <div class="severity-indicator ${interpretation.alertClass}">
+                    <strong>${interpretation.level}</strong>
+                </div>
+                <div class="alert ${interpretation.alertClass}">
+                    <span class="alert-icon">${interpretation.alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Recommendation:</strong> ${score >= 3 ? 'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.' : 'Anticoagulation can be considered. Relatively low risk for major bleeding.'}</p>
+                    </div>
+                </div>
+            `;
+            resultEl.style.display = 'block';
         };
 
-        riskFactors.forEach(id => {
-            container
-                .querySelectorAll(`.segmented-control[data-id="${id}"] button`)
-                .forEach(button => {
-                    button.addEventListener('click', e => {
-                        container
-                            .querySelectorAll(`.segmented-control[data-id="${id}"] button`)
-                            .forEach(btn => btn.classList.remove('active'));
-                        e.target.classList.add('active');
-                        calculateHasBledScore();
-                    });
-                });
+        // Visual feedback for checkboxes
+        container.querySelectorAll('.checkbox-option').forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+                calculate();
+            });
+            if (checkbox.checked) {
+                option.classList.add('selected');
+            }
         });
 
-        calculateHasBledScore();
+        calculate();
 
         // FHIR Integration
         if (client) {
-            const setRadioValue = (id, value) => {
-                const control = container.querySelector(`.segmented-control[data-id="${id}"]`);
-                if (control) {
-                    control
-                        .querySelectorAll('button')
-                        .forEach(btn => btn.classList.remove('active'));
-                    const buttonToActivate = control.querySelector(`button[value="${value}"]`);
-                    if (buttonToActivate) {
-                        buttonToActivate.classList.add('active');
+            const setCheckbox = (id, checked) => {
+                const checkbox = container.querySelector(`.checkbox-option[data-id="${id}"] input[type="checkbox"]`);
+                if (checkbox) {
+                    checkbox.checked = checked;
+                    if (checked) {
+                        checkbox.closest('.checkbox-option').classList.add('selected');
                     }
                 }
             };
@@ -155,19 +159,16 @@ export const hasBled = {
             // Age > 65
             const patientData = await getPatient(client);
             if (patientData && patientData.birthDate) {
-                const age =
-                    new Date().getFullYear() - new Date(patientData.birthDate).getFullYear();
+                const age = new Date().getFullYear() - new Date(patientData.birthDate).getFullYear();
                 if (age > 65) {
-                    setRadioValue('age', '1');
+                    setCheckbox('age', true);
                 }
             }
 
             // Conditions
             const conditions = await getPatientConditions(client, [
                 '38341003', // Hypertension
-                '709044004',
-                '34947000',
-                '80294001', // Renal disease
+                '709044004', '34947000', '80294001', // Renal disease
                 '19943007', // Liver disease (Cirrhosis)
                 '230690007', // Stroke
                 '131148009' // Bleeding
@@ -183,35 +184,30 @@ export const hasBled = {
 
             for (const [key, codes] of Object.entries(conditionMap)) {
                 if (conditions.some(c => codes.includes(c.code.coding[0].code))) {
-                    setRadioValue(key, '1');
+                    setCheckbox(key, true);
                 }
             }
 
             // Observations
             const sbp = await getMostRecentObservation(client, '8480-6'); // SBP
             if (sbp && sbp.valueQuantity.value > 160) {
-                setRadioValue('hypertension', '1');
+                setCheckbox('hypertension', true);
             }
 
             const creatinine = await getMostRecentObservation(client, '2160-0'); // Creatinine
             if (creatinine && creatinine.valueQuantity.value > 2.26) {
-                // Assuming mg/dL
-                setRadioValue('renal', '1');
+                setCheckbox('renal', true);
             }
 
             // Medications
             const meds = await getMedicationRequests(client, [
-                '1191',
-                '32953',
-                '5640',
-                '7294',
-                '3329'
+                '1191', '32953', '5640', '7294', '3329'
             ]); // Aspirin, Clopidogrel, Ibuprofen, Naproxen, Diclofenac
             if (meds && meds.length > 0) {
-                setRadioValue('meds', '1');
+                setCheckbox('meds', true);
             }
 
-            calculateHasBledScore();
+            calculate();
         }
     }
 };

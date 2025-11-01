@@ -8,26 +8,129 @@ export const ascvd = {
         'Determines 10-year risk of hard ASCVD and calculates the impact of various therapies on risk reduction.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>${this.description}</p>
-            <div class="check-item" style="margin-bottom: 15px;">
-                <input type="checkbox" id="known-ascvd"><label for="known-ascvd"><strong>Known Clinical ASCVD?</strong> (e.g., history of MI, stroke, PAD)</label>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <hr>
-            <div id="ascvd-risk-inputs">
-                <div class="input-group"><label for="ascvd-age">Age (40-79 years):</label><input type="number" id="ascvd-age" placeholder="e.g., 55" min="40" max="79"></div>
-                <div class="input-group"><label for="ascvd-gender">Gender:</label><select id="ascvd-gender"><option value="male">Male</option><option value="female">Female</option></select></div>
-                <div class="input-group"><label for="ascvd-race">Race:</label><select id="ascvd-race"><option value="white">White</option><option value="aa">African American</option><option value="other">Other</option></select></div>
-                <div class="input-group"><label for="ascvd-tc">Total Cholesterol (mg/dL):</label><input type="number" id="ascvd-tc" placeholder="e.g., 200" min="100" max="400"></div>
-                <div class="input-group"><label for="ascvd-hdl">HDL Cholesterol (mg/dL):</label><input type="number" id="ascvd-hdl" placeholder="e.g., 50" min="20" max="120"></div>
-                <div class="input-group"><label for="ascvd-sbp">Systolic BP (mmHg):</label><input type="number" id="ascvd-sbp" placeholder="e.g., 130" min="90" max="200"></div>
-                <div class="input-group"><label for="ascvd-htn">On HTN Treatment?</label><select id="ascvd-htn"><option value="no">No</option><option value="yes">Yes</option></select></div>
-                <div class="input-group"><label for="ascvd-dm">Diabetes?</label><select id="ascvd-dm"><option value="no">No</option><option value="yes">Yes</option></select></div>
-                <div class="input-group"><label for="ascvd-smoker">Smoker?</label><select id="ascvd-smoker"><option value="no">No</option><option value="yes">Yes</option></select></div>
-            </div>
-            <button id="calculate-ascvd">Calculate Risk & Therapy Impact</button>
             
-            <div id="ascvd-result" class="result" style="display:none;"></div>
+            <div class="alert warning">
+                <span class="alert-icon">⚠️</span>
+                <div class="alert-content">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="known-ascvd">
+                        <span><strong>Known Clinical ASCVD?</strong> (e.g., history of MI, stroke, PAD)</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="ascvd-risk-inputs">
+                <div class="section">
+                    <div class="section-title"><span>Demographics</span></div>
+                    
+                    <div class="input-row">
+                        <label for="ascvd-age">Age</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="ascvd-age" placeholder="e.g., 55" min="40" max="79">
+                            <span>years (40-79)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="section-subtitle mt-15">Gender</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-gender" value="male" checked>
+                            <span>Male</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-gender" value="female">
+                            <span>Female</span>
+                        </label>
+                    </div>
+                    
+                    <div class="section-subtitle mt-15">Race</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-race" value="white" checked>
+                            <span>White</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-race" value="aa">
+                            <span>African American</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-race" value="other">
+                            <span>Other</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title"><span>Lab Values</span></div>
+                    <div class="input-row">
+                        <label for="ascvd-tc">Total Cholesterol</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="ascvd-tc" placeholder="e.g., 200" min="100" max="400">
+                            <span>mg/dL</span>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <label for="ascvd-hdl">HDL Cholesterol</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="ascvd-hdl" placeholder="e.g., 50" min="20" max="120">
+                            <span>mg/dL</span>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <label for="ascvd-sbp">Systolic BP</label>
+                        <div class="input-with-unit">
+                            <input type="number" id="ascvd-sbp" placeholder="e.g., 130" min="90" max="200">
+                            <span>mmHg</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title"><span>Risk Factors</span></div>
+                    
+                    <div class="section-subtitle">On Hypertension Treatment?</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-htn" value="no" checked>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-htn" value="yes">
+                            <span>Yes</span>
+                        </label>
+                    </div>
+                    
+                    <div class="section-subtitle mt-15">Diabetes?</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-dm" value="no" checked>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-dm" value="yes">
+                            <span>Yes</span>
+                        </label>
+                    </div>
+                    
+                    <div class="section-subtitle mt-15">Current Smoker?</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-smoker" value="no" checked>
+                            <span>No</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ascvd-smoker" value="yes">
+                            <span>Yes</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="ascvd-result" class="result-container" style="display:none;"></div>
             
             <!-- Therapy Impact Section -->
             <div id="therapy-impact-section" style="display:none; margin-top: 20px;">
@@ -186,7 +289,6 @@ export const ascvd = {
     },
     initialize: function (client, patient, container) {
         const ageInput = container.querySelector('#ascvd-age');
-        const genderSelect = container.querySelector('#ascvd-gender');
         const sbpInput = container.querySelector('#ascvd-sbp');
         const tcInput = container.querySelector('#ascvd-tc');
         const hdlInput = container.querySelector('#ascvd-hdl');
@@ -195,8 +297,38 @@ export const ascvd = {
             ageInput.value = calculateAge(patient.birthDate);
         }
         if (patient && patient.gender) {
-            genderSelect.value = patient.gender;
+            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+            const genderRadio = container.querySelector(`input[name="ascvd-gender"][value="${genderValue}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.parentElement.classList.add('selected');
+            }
         }
+        
+        // Add visual feedback for radio options
+        const radioOptions = container.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (!radio) return;
+                const group = radio.name;
+                
+                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                this.classList.add('selected');
+                radio.checked = true;
+            });
+        });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio && radio.checked) {
+                option.classList.add('selected');
+            }
+        });
 
         // Try to load FHIR data, but don't block if it fails
         if (client) {
@@ -300,10 +432,10 @@ export const ascvd = {
             } else {
                 // Female
                 if (patient.race === 'white') {
-                    // Recalibrated coefficients for White Females to align with MDCalc
+                    // White Female - Pooled Cohort Equations 2013 ACC/AHA
                     individualSum =
                         -29.799 * lnAge +
-                        4.609 * lnAge * lnAge +
+                        4.884 * lnAge * lnAge +
                         13.54 * lnTC -
                         3.114 * lnAge * lnTC -
                         13.578 * lnHDL +
@@ -334,7 +466,8 @@ export const ascvd = {
             return Math.max(0, Math.min(100, risk));
         };
 
-        container.querySelector('#calculate-ascvd').addEventListener('click', () => {
+        // Calculate function
+        const calculate = () => {
             const resultEl = container.querySelector('#ascvd-result');
             const therapySection = container.querySelector('#therapy-impact-section');
 
@@ -344,11 +477,17 @@ export const ascvd = {
                 const tc = parseFloat(tcInput.value) || 200;
                 const hdl = parseFloat(hdlInput.value) || 50;
                 const sbp = parseFloat(sbpInput.value) || 130;
-                const isMale = container.querySelector('#ascvd-gender').value === 'male';
-                const race = container.querySelector('#ascvd-race').value;
-                const onHtnTx = container.querySelector('#ascvd-htn').value === 'yes';
-                const isDiabetic = container.querySelector('#ascvd-dm').value === 'yes';
-                const isSmoker = container.querySelector('#ascvd-smoker').value === 'yes';
+                const genderRadio = container.querySelector('input[name="ascvd-gender"]:checked');
+                const raceRadio = container.querySelector('input[name="ascvd-race"]:checked');
+                const htnRadio = container.querySelector('input[name="ascvd-htn"]:checked');
+                const dmRadio = container.querySelector('input[name="ascvd-dm"]:checked');
+                const smokerRadio = container.querySelector('input[name="ascvd-smoker"]:checked');
+                
+                const isMale = genderRadio ? genderRadio.value === 'male' : true;
+                const race = raceRadio ? raceRadio.value : 'white';
+                const onHtnTx = htnRadio ? htnRadio.value === 'yes' : false;
+                const isDiabetic = dmRadio ? dmRadio.value === 'yes' : false;
+                const isSmoker = smokerRadio ? smokerRadio.value === 'yes' : false;
 
                 // Store patient data for therapy calculations
                 patientData = {
@@ -374,7 +513,8 @@ export const ascvd = {
                 return;
             }
 
-            const race = container.querySelector('#ascvd-race').value;
+            const raceRadio = container.querySelector('input[name="ascvd-race"]:checked');
+            const race = raceRadio ? raceRadio.value : 'white';
             if (race === 'other') {
                 resultEl.innerText =
                     'The Pooled Cohort Equations are validated for non-Hispanic white and African American individuals. Risk for other groups may be over- or underestimated.';
@@ -385,10 +525,11 @@ export const ascvd = {
             const tc = parseFloat(tcInput.value) || 0;
             const hdl = parseFloat(hdlInput.value) || 0;
             const sbp = parseFloat(sbpInput.value) || 0;
-            const isMale = container.querySelector('#ascvd-gender').value === 'male';
+            const genderRadio = container.querySelector('input[name="ascvd-gender"]:checked');
+            const isMale = genderRadio ? genderRadio.value === 'male' : true;
 
-            // Validate age range
-            if (age < 40 || age > 79) {
+            // Validate age range (only show warning if age is provided and out of range)
+            if (age > 0 && (age < 40 || age > 79)) {
                 resultEl.innerHTML = `
                     <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 10px 0;">
                         <p><strong>⚠️ Age Limitation:</strong> The Pooled Cohort Equations are validated for ages 40-79 years.</p>
@@ -405,25 +546,19 @@ export const ascvd = {
                 return;
             }
 
-            // Validate other inputs
-            if (tc <= 0 || hdl <= 0 || sbp <= 0) {
-                resultEl.innerHTML = `
-                    <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                        <p><strong>❌ Input Error:</strong> Please enter valid values for all required fields.</p>
-                        <ul>
-                            ${tc <= 0 ? '<li>Total Cholesterol must be greater than 0</li>' : ''}
-                            ${hdl <= 0 ? '<li>HDL Cholesterol must be greater than 0</li>' : ''}
-                            ${sbp <= 0 ? '<li>Systolic Blood Pressure must be greater than 0</li>' : ''}
-                        </ul>
-                    </div>
-                `;
-                resultEl.style.display = 'block';
-                therapySection.style.display = 'none';
+            // Skip calculation silently if inputs are not yet provided
+            if (tc <= 0 || hdl <= 0 || sbp <= 0 || age <= 0) {
+                resultEl.style.display = 'none';
+                if (therapySection) therapySection.style.display = 'none';
                 return;
             }
-            const onHtnTx = container.querySelector('#ascvd-htn').value === 'yes';
-            const isDiabetic = container.querySelector('#ascvd-dm').value === 'yes';
-            const isSmoker = container.querySelector('#ascvd-smoker').value === 'yes';
+            const htnRadio = container.querySelector('input[name="ascvd-htn"]:checked');
+            const dmRadio = container.querySelector('input[name="ascvd-dm"]:checked');
+            const smokerRadio = container.querySelector('input[name="ascvd-smoker"]:checked');
+            
+            const onHtnTx = htnRadio ? htnRadio.value === 'yes' : false;
+            const isDiabetic = dmRadio ? dmRadio.value === 'yes' : false;
+            const isSmoker = smokerRadio ? smokerRadio.value === 'yes' : false;
 
             // Store patient data for therapy impact calculations
             patientData = { age, tc, hdl, sbp, isMale, race, onHtnTx, isDiabetic, isSmoker };
@@ -459,15 +594,88 @@ export const ascvd = {
             `;
 
             resultEl.innerHTML = `
-                <p><strong>10-Year ASCVD Risk:</strong> ${riskPercent.toFixed(1)}%</p>
-                <p><strong>Risk Category:</strong> ${riskCategory}</p>
-                <hr class="section-divider">
-                <p><strong>Guideline-Based Suggestion:</strong> ${recommendation}</p>
-                ${riskCategory === 'Borderline Risk' || riskCategory === 'Intermediate Risk' ? riskEnhancersInfo : ''}
+                <div class="result-header">
+                    <h4>ASCVD Risk Results</h4>
+                </div>
+                
+                <div class="result-score">
+                    <span class="result-score-value">${riskPercent.toFixed(1)}</span>
+                    <span class="result-score-unit">%</span>
+                </div>
+                
+                <div class="result-item mt-15">
+                    <span class="result-item-label">10-Year ASCVD Risk</span>
+                    <span class="result-item-value">${riskPercent.toFixed(1)}%</span>
+                </div>
+                
+                <div class="result-item mt-10">
+                    <span class="result-item-label">Risk Category</span>
+                    <span class="result-item-value"><strong>${riskCategory}</strong></span>
+                </div>
+                
+                <div class="alert ${riskPercent >= 7.5 ? 'warning' : 'info'} mt-20">
+                    <span class="alert-icon">${riskPercent >= 7.5 ? '⚠️' : 'ℹ️'}</span>
+                    <div class="alert-content">
+                        <p><strong>Guideline-Based Suggestion:</strong> ${recommendation}</p>
+                        ${riskCategory === 'Borderline Risk' || riskCategory === 'Intermediate Risk' ? riskEnhancersInfo : ''}
+                    </div>
+                </div>
+                
+                <div class="info-section mt-20">
+                    <h5>Calculation Input Summary</h5>
+                    <div class="data-table">
+                        <div class="data-row">
+                            <span>Age</span>
+                            <span>${age} years</span>
+                        </div>
+                        <div class="data-row">
+                            <span>Gender</span>
+                            <span>${isMale ? 'Male' : 'Female'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span>Race</span>
+                            <span>${race === 'aa' ? 'African American' : race === 'white' ? 'White' : 'Other'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span>Total Cholesterol</span>
+                            <span>${tc} mg/dL</span>
+                        </div>
+                        <div class="data-row">
+                            <span>HDL Cholesterol</span>
+                            <span>${hdl} mg/dL</span>
+                        </div>
+                        <div class="data-row">
+                            <span>Systolic BP</span>
+                            <span>${sbp} mmHg</span>
+                        </div>
+                        <div class="data-row">
+                            <span>On HTN Treatment</span>
+                            <span>${onHtnTx ? 'Yes' : 'No'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span>Diabetes</span>
+                            <span>${isDiabetic ? 'Yes' : 'No'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span>Current Smoker</span>
+                            <span>${isSmoker ? 'Yes' : 'No'}</span>
+                        </div>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
-            therapySection.style.display = 'block';
-        });
+            if (therapySection) therapySection.style.display = 'block';
+        };
+
+        // Add event listeners for automatic calculation
+        ageInput.addEventListener('input', calculate);
+        tcInput.addEventListener('input', calculate);
+        hdlInput.addEventListener('input', calculate);
+        sbpInput.addEventListener('input', calculate);
+        knownAscvdCheckbox.addEventListener('change', calculate);
+
+        // Initial calculation (silent - won't show errors)
+        calculate();
 
         // Therapy Impact Calculation
         container.querySelector('#calculate-therapy-impact').addEventListener('click', () => {

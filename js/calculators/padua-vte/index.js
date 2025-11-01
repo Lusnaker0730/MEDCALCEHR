@@ -21,7 +21,6 @@ export const paduaVTE = {
                 <div class="check-item"><input type="checkbox" id="padua-obesity" data-points="1"><label>Obesity (BMI ≥30 kg/m²)</label></div>
                 <div class="check-item"><input type="checkbox" data-points="1"><label>Ongoing hormonal treatment</label></div>
             </div>
-            <button id="calculate-padua">Calculate Score</button>
             <div id="padua-result" class="result" style="display:none;"></div>
         `;
     },
@@ -46,7 +45,7 @@ export const paduaVTE = {
             }
         });
 
-        root.querySelector('#calculate-padua').addEventListener('click', () => {
+        const calculate = () => {
             const checkboxes = root.querySelectorAll('.check-item input[type="checkbox"]');
             let score = 0;
             checkboxes.forEach(box => {
@@ -55,16 +54,36 @@ export const paduaVTE = {
                 }
             });
 
-            const riskLevel =
-                score >= 4
-                    ? 'High Risk for VTE. Pharmacologic prophylaxis is recommended.'
-                    : 'Low Risk for VTE. Pharmacologic prophylaxis may not be necessary.';
+            const alertClass = score >= 4 ? 'danger' : 'success';
+            const riskLevel = score >= 4 ? 'High Risk for VTE' : 'Low Risk for VTE';
+            const recommendation = score >= 4
+                ? 'Pharmacologic prophylaxis is recommended.'
+                : 'Pharmacologic prophylaxis may not be necessary.';
 
             root.querySelector('#padua-result').innerHTML = `
-                <p>Padua Score: ${score}</p>
-                <p>${riskLevel}</p>
+                <div class="result-header"><h4>Padua Score Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">points</span>
+                </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${riskLevel}</strong>
+                </div>
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Recommendation:</strong> ${recommendation}</p>
+                    </div>
+                </div>
             `;
             root.querySelector('#padua-result').style.display = 'block';
+        };
+
+        // Add event listeners
+        root.querySelectorAll('.check-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
         });
+
+        calculate();
     }
 };

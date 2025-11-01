@@ -6,26 +6,56 @@ export const qtc = {
     title: 'Corrected QT Interval (QTc)',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <div class="input-group">
-                <label for="qtc-qt">QT Interval (ms):</label>
-                <input type="number" id="qtc-qt" placeholder="e.g., 400">
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">Calculates corrected QT interval using various formulas to assess risk of arrhythmias.</p>
             </div>
-            <div class="input-group">
-                <label for="qtc-hr">Heart Rate (bpm):</label>
-                <input type="number" id="qtc-hr" placeholder="loading...">
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Measurements</span>
+                </div>
+                <div class="input-row">
+                    <label for="qtc-qt">QT Interval</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="qtc-qt" placeholder="e.g., 400">
+                        <span>ms</span>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <label for="qtc-hr">Heart Rate</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="qtc-hr" placeholder="loading...">
+                        <span>bpm</span>
+                    </div>
+                </div>
             </div>
-            <div class="input-group">
-                <label for="qtc-formula">Formula:</label>
-                <select id="qtc-formula">
-                    <option value="bazett">Bazett</option>
-                    <option value="fridericia">Fridericia</option>
-                    <option value="hodges">Hodges</option>
-                    <option value="framingham">Framingham</option>
-                </select>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Correction Formula</span>
+                </div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="qtc-formula" value="bazett" checked>
+                        <span>Bazett (most common)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="qtc-formula" value="fridericia">
+                        <span>Fridericia (better at extreme HR)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="qtc-formula" value="hodges">
+                        <span>Hodges (linear correction)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="qtc-formula" value="framingham">
+                        <span>Framingham</span>
+                    </label>
+                </div>
             </div>
-            <button id="calculate-qtc">Calculate</button>
-            <div id="qtc-result" class="result" style="display:none;"></div>
+            
+            <div class="result-container" id="qtc-result" style="display:none;"></div>
             
             <div class="formula-reference" style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
                 <h4 style="margin-top: 0;">Formulas</h4>
@@ -83,41 +113,115 @@ export const qtc = {
         `;
     },
     initialize: function (client) {
-        getMostRecentObservation(client, '8867-4').then(obs => {
-            if (obs) {
-                document.getElementById('qtc-hr').value = obs.valueQuantity.value.toFixed(0);
-            }
-        });
-
-        document.getElementById('calculate-qtc').addEventListener('click', () => {
-            const qt = parseFloat(document.getElementById('qtc-qt').value);
-            const hr = parseFloat(document.getElementById('qtc-hr').value);
-            const formula = document.getElementById('qtc-formula').value;
-            const resultEl = document.getElementById('qtc-result');
+        const container = document.querySelector('#calculator-container') || document.body;
+        
+        // Calculate function
+        const calculate = () => {
+            const qt = parseFloat(container.querySelector('#qtc-qt').value);
+            const hr = parseFloat(container.querySelector('#qtc-hr').value);
+            const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
+            const formula = formulaRadio ? formulaRadio.value : 'bazett';
+            const resultEl = container.querySelector('#qtc-result');
 
             if (qt > 0 && hr > 0) {
                 const rr = 60 / hr;
                 let qtcValue;
+                let formulaName;
+                
                 switch (formula) {
-                case 'bazett':
-                    qtcValue = qt / Math.sqrt(rr);
-                    break;
-                case 'fridericia':
-                    qtcValue = qt / Math.cbrt(rr);
-                    break;
-                case 'hodges':
-                    qtcValue = qt + 1.75 * (hr - 60);
-                    break;
-                case 'framingham':
-                    qtcValue = qt + 154 * (1 - rr);
-                    break;
+                    case 'bazett':
+                        qtcValue = qt / Math.sqrt(rr);
+                        formulaName = 'Bazett';
+                        break;
+                    case 'fridericia':
+                        qtcValue = qt / Math.cbrt(rr);
+                        formulaName = 'Fridericia';
+                        break;
+                    case 'hodges':
+                        qtcValue = qt + 1.75 * (hr - 60);
+                        formulaName = 'Hodges';
+                        break;
+                    case 'framingham':
+                        qtcValue = qt + 154 * (1 - rr);
+                        formulaName = 'Framingham';
+                        break;
                 }
-                resultEl.innerHTML = `<p>QTc (${formula}): ${qtcValue.toFixed(0)} ms</p>`;
+                
+                // Determine risk level
+                let riskClass = 'low';
+                let riskText = 'Normal';
+                if (qtcValue > 500) {
+                    riskClass = 'high';
+                    riskText = 'Prolonged - Increased arrhythmia risk';
+                } else if (qtcValue > 460) {
+                    riskClass = 'moderate';
+                    riskText = 'Borderline prolonged';
+                }
+                
+                resultEl.innerHTML = `
+                    <div class="result-header">
+                        <h4>QTc Results (${formulaName})</h4>
+                    </div>
+                    
+                    <div class="result-score">
+                        <span class="result-score-value">${qtcValue.toFixed(0)}</span>
+                        <span class="result-score-unit">ms</span>
+                    </div>
+                    
+                    <div class="severity-indicator ${riskClass} mt-20">
+                        <span class="severity-indicator-text">${riskText}</span>
+                    </div>
+                    
+                    <div class="alert ${riskClass === 'high' ? 'warning' : 'info'} mt-20">
+                        <span class="alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
+                        <div class="alert-content">
+                            <p>${riskClass === 'high' ? 'QTc >500ms significantly increases risk of Torsades de Pointes and sudden cardiac death.' : 'Normal: Men <450ms, Women <460ms'}</p>
+                        </div>
+                    </div>
+                `;
                 resultEl.style.display = 'block';
-            } else {
-                resultEl.innerText = 'Please enter valid QT and Heart Rate values.';
-                resultEl.style.display = 'block';
+                resultEl.classList.add('show');
+            }
+        };
+        
+        // Auto-populate heart rate from FHIR
+        getMostRecentObservation(client, '8867-4').then(obs => {
+            if (obs && obs.valueQuantity) {
+                container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
+                calculate();
             }
         });
+        
+        // Add visual feedback for radio options
+        const radioOptions = container.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                this.classList.add('selected');
+                radio.checked = true;
+                calculate();
+            });
+        });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
+        });
+        
+        // Auto-calculate on input changes
+        container.querySelector('#qtc-qt').addEventListener('input', calculate);
+        container.querySelector('#qtc-hr').addEventListener('input', calculate);
+        
+        // Initial calculation
+        calculate();
     }
 };

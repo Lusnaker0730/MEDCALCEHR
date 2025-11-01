@@ -12,7 +12,6 @@ export const dueDate = {
                     📅 Enter date in format: YYYY-MM-DD (Year-Month-Day)
                 </small>
             </div>
-            <button id="calculate-due-date">Calculate</button>
             <div id="due-date-result" class="result" style="display:none;"></div>
         `;
     },
@@ -47,13 +46,13 @@ export const dueDate = {
             e.target.value = value;
         });
 
-        container.querySelector('#calculate-due-date').addEventListener('click', () => {
+        const calculate = () => {
             const lmpDateString = lmpInput.value.trim();
 
             // Validate date format
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
             if (!dateRegex.test(lmpDateString)) {
-                alert('請輸入正確的日期格式：YYYY-MM-DD\n例如：2025-10-08');
+                container.querySelector('#due-date-result').style.display = 'none';
                 return;
             }
 
@@ -68,15 +67,8 @@ export const dueDate = {
                 lmpDate.getMonth() !== month - 1 ||
                 lmpDate.getDate() !== day
             ) {
-                alert('請輸入有效的日期！\n請確認月份（01-12）和日期（01-31）是否正確。');
+                container.querySelector('#due-date-result').style.display = 'none';
                 return;
-            }
-
-            // Check if date is not in the future
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            if (lmpDate > today) {
-                alert('⚠️ 注意：您輸入的日期是未來的日期。\n最後月經日期通常應該是過去的日期。');
             }
 
             // Calculate Estimated Due Date (EDD) by adding 280 days (40 weeks)
@@ -142,7 +134,13 @@ export const dueDate = {
                     </ul>
                 </div>
             `;
-            resultEl.style.display = 'block';
-        });
+            container.querySelector('#due-date-result').style.display = 'block';
+        };
+
+        // Add event listener for auto-calculation
+        lmpInput.addEventListener('input', calculate);
+        
+        // Initial calculation
+        calculate();
     }
 };

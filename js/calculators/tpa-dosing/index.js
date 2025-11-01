@@ -13,7 +13,6 @@ export const tpaDosing = {
                 <label>Weight (kg)</label>
                 <input type="number" id="tpa-weight">
             </div>
-            <button id="calculate-tpa">Calculate Dosing</button>
             <div id="tpa-result" class="result" style="display:none;"></div>
         `;
     },
@@ -27,11 +26,11 @@ export const tpaDosing = {
             }
         });
 
-        container.querySelector('#calculate-tpa').addEventListener('click', () => {
+        const calculate = () => {
             let weight = parseFloat(weightEl.value);
 
             if (isNaN(weight)) {
-                alert('Please enter patient weight.');
+                container.querySelector('#tpa-result').style.display = 'none';
                 return;
             }
 
@@ -50,6 +49,12 @@ export const tpaDosing = {
                 <p><strong>Infusion Dose (90% of total):</strong> ${infusionDose.toFixed(2)} mg (infuse over 60 minutes)</p>
             `;
             container.querySelector('#tpa-result').style.display = 'block';
-        });
+        };
+
+        // Add event listener for auto-calculation
+        weightEl.addEventListener('input', calculate);
+
+        // Initial calculation
+        calculate();
     }
 };

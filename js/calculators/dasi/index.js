@@ -71,7 +71,6 @@ export const dasi = {
         });
         html += `
             </div>
-            <button id="calculate-dasi">Calculate DASI Score</button>
             <div id="dasi-result" class="result" style="display:none;"></div>
 
             <div class="references">
@@ -106,39 +105,61 @@ export const dasi = {
         `;
         return html;
     },
-    initialize: function () {
-        document.getElementById('calculate-dasi').addEventListener('click', () => {
+    initialize: function (client, patient, container) {
+        const calculate = () => {
             let score = 0;
-            document.querySelectorAll('.checklist input[type="checkbox"]:checked').forEach(box => {
+            container.querySelectorAll('.checklist input[type="checkbox"]:checked').forEach(box => {
                 score += parseFloat(box.dataset.weight);
             });
 
-            // Formula to estimate METs from DASI score
-            // VO2peak (mL/kg/min) = (0.43 × DASI) + 9.6
-            // METs = VO2peak / 3.5
             const vo2peak = 0.43 * score + 9.6;
             const mets = vo2peak / 3.5;
 
             let interpretation = '';
+            let alertClass = '';
             if (mets < 4) {
-                interpretation =
-                    '<span style="color: #dc3545; font-weight: 600;">Poor functional capacity</span>';
+                interpretation = 'Poor functional capacity';
+                alertClass = 'danger';
             } else if (mets < 7) {
-                interpretation =
-                    '<span style="color: #ffc107; font-weight: 600;">Moderate functional capacity</span>';
+                interpretation = 'Moderate functional capacity';
+                alertClass = 'warning';
             } else {
-                interpretation =
-                    '<span style="color: #28a745; font-weight: 600;">Good functional capacity</span>';
+                interpretation = 'Good functional capacity';
+                alertClass = 'success';
             }
 
-            const resultEl = document.getElementById('dasi-result');
+            const resultEl = container.querySelector('#dasi-result');
             resultEl.innerHTML = `
-                <p><strong>DASI Score:</strong> ${score.toFixed(2)}</p>
-                <p><strong>Estimated Peak METs:</strong> ${mets.toFixed(1)}</p>
-                <p>${interpretation}</p>
-                <small><em>Functional capacity is often considered poor if METs < 4, moderate if 4-7, and good if >7.</em></small>
+                <div class="result-header"><h4>DASI Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${score.toFixed(2)}</span>
+                    <span class="score-label">/ 58.2 points</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">VO₂ peak:</span>
+                    <span class="value">${vo2peak.toFixed(1)} mL/kg/min</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Estimated Peak METs:</span>
+                    <span class="value">${mets.toFixed(1)}</span>
+                </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${interpretation}</strong>
+                </div>
+                <div class="alert info">
+                    <span class="alert-icon">ℹ️</span>
+                    <div class="alert-content">
+                        <p><em>Functional capacity: Poor if METs < 4, Moderate if 4-7, Good if >7.</em></p>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
+        };
+
+        container.querySelectorAll('.checklist input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
         });
+
+        calculate();
     }
 };

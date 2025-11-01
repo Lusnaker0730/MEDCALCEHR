@@ -4,101 +4,153 @@ import { getMostRecentObservation } from '../../utils.js';
 export const wellsPE = {
     id: 'wells-pe',
     title: 'Wells\' Criteria for Pulmonary Embolism',
+    description: 'Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <div class="checklist">
-                <div class="check-item"><input type="checkbox" id="wells-dvt" data-points="3"><label for="wells-dvt">Clinical signs and symptoms of DVT</label></div>
-                <div class="check-item"><input type="checkbox" id="wells-alt" data-points="3"><label for="wells-alt">PE is #1 diagnosis OR equally likely</label></div>
-                <div class="check-item"><input type="checkbox" id="wells-hr" data-points="1.5"><label for="wells-hr">Heart rate > 100 bpm</label></div>
-                <div class="check-item"><input type="checkbox" id="wells-immo" data-points="1.5"><label for="wells-immo">Immobilization (≥3d) or surgery in previous 4 weeks</label></div>
-                <div class="check-item"><input type="checkbox" id="wells-prev" data-points="1.5"><label for="wells-prev">Previous, objectively diagnosed PE or DVT</label></div>
-                <div class="check-item"><input type="checkbox" id="wells-hemo" data-points="1"><label for="wells-hemo">Hemoptysis</label></div>
-                <div class="check-item"><input type="checkbox" id="wells-mal" data-points="1"><label for="wells-mal">Malignancy (with treatment within 6 mo, or palliative)</label></div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <button id="calculate-wells">Calculate Score</button>
-            <div id="wells-result" class="result" style="display:none;"></div>
-
-            <!-- Facts & Figures Section -->
-            <div class="wells-info-section" style="margin-top: 40px; padding: 25px; background: #f5f5f5; border-radius: 10px; border-left: 4px solid #667eea;">
-                <h4 style="margin-top: 0; color: #333; font-size: 1.2em; margin-bottom: 20px;">📊 FACTS & FIGURES</h4>
+            
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <div class="alert-title">Instructions</div>
+                    <p>Check all criteria that apply to the patient. Score interpretation helps guide D-dimer testing and CT angiography decisions.</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">📋</span>
+                    <span>Clinical Criteria</span>
+                </div>
                 
-                <div style="margin-bottom: 25px;">
-                    <h5 style="color: #667eea; margin-bottom: 12px; font-weight: 600;">Score Interpretation:</h5>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
-                        <tr style="background: #e8eef7;">
-                            <td style="border: 1px solid #ddd; padding: 10px; font-weight: 600;">Score</td>
-                            <td style="border: 1px solid #ddd; padding: 10px; font-weight: 600;">Risk Category</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;"><strong>Three-Tier Model</strong></td>
-                            <td style="border: 1px solid #ddd; padding: 10px;"></td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;">0 - 1</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">Low Risk</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;">2 - 6</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">Moderate Risk</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;">&gt;6</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">High Risk</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;"><strong>Two Tier Model</strong></td>
-                            <td style="border: 1px solid #ddd; padding: 10px;"></td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;">≤4</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">PE Unlikely (with d-dimer)</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px;">≥5</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">PE Likely (with CTA)</td>
-                        </tr>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-dvt" data-points="3">
+                        <span>Clinical signs and symptoms of DVT <strong>+3</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-alt" data-points="3">
+                        <span>PE is #1 diagnosis OR equally likely <strong>+3</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-hr" data-points="1.5">
+                        <span>Heart rate > 100 bpm <strong>+1.5</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-immo" data-points="1.5">
+                        <span>Immobilization (≥3 days) or surgery in previous 4 weeks <strong>+1.5</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-prev" data-points="1.5">
+                        <span>Previous, objectively diagnosed PE or DVT <strong>+1.5</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-hemo" data-points="1">
+                        <span>Hemoptysis <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="wells-mal" data-points="1">
+                        <span>Malignancy (with treatment within 6 months, or palliative) <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="result-container" id="wells-result" style="display:none;"></div>
+
+            
+            <div class="info-section mt-30">
+                <h4>📊 Score Interpretation</h4>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th colspan="2">Three-Tier Model</th>
+                            </tr>
+                            <tr>
+                                <th>Score</th>
+                                <th>Risk Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>0 - 1</td>
+                                <td><span class="risk-badge low">Low Risk</span></td>
+                            </tr>
+                            <tr>
+                                <td>2 - 6</td>
+                                <td><span class="risk-badge moderate">Moderate Risk</span></td>
+                            </tr>
+                            <tr>
+                                <td>&gt;6</td>
+                                <td><span class="risk-badge high">High Risk</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <table class="mt-20">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Two-Tier Model</th>
+                            </tr>
+                            <tr>
+                                <th>Score</th>
+                                <th>Clinical Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>≤4</td>
+                                <td>PE Unlikely - Consider D-dimer</td>
+                            </tr>
+                            <tr>
+                                <td>≥5</td>
+                                <td>PE Likely - Proceed to CTA</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
-
-                <h4 style="color: #333; font-size: 1.1em; margin-top: 30px; margin-bottom: 15px;">📋 EVIDENCE APPRAISAL</h4>
-                <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 0.9em; color: #333;">
-                    <li>The original Wells study was performed on cohorts where prevalence of PE was high: approximately 30%. Two further emergency department studies validated this tool:
-                        <ul style="margin-top: 8px; padding-left: 20px;">
-                            <li style="margin-top: 5px;">Geneva: 12%-29% PE prevalence</li>
-                        </ul>
-                    </li>
-                    <li style="margin-top: 12px;">The largest study demonstrated risk stratification with:
-                        <ul style="margin-top: 8px; padding-left: 20px;">
-                            <li style="margin-top: 5px;">Moderate score of 2-6 having a 16.2% prevalence.</li>
-                            <li style="margin-top: 5px;">High score of >6 having a 37.5% prevalence.</li>
-                        </ul>
-                    </li>
-                    <li style="margin-top: 12px;"><strong>The Christopher study divided the Wells scoring system into 2 categories:</strong>
-                        <ul style="margin-top: 8px; padding-left: 20px;">
-                            <li style="margin-top: 5px;">A score of 4 or less was defined as "PE unlikely" and scored with a d-dimer</li>
-                            <li style="margin-top: 5px;">A score of 5 or more was defined as "PE likely" and went straight to CTA</li>
-                        </ul>
-                    </li>
-                    <li style="margin-top: 12px;"><strong>Overall incidence of PE was 12.1% in the "unlikely" group.</strong></li>
-                    <li style="margin-top: 12px;">If dimer was negative no further testing was performed.</li>
-                    <li style="margin-top: 12px;"><strong>20.4% of all patients who went to CTA had a diagnosis of PE.</strong></li>
-                    <li style="margin-top: 12px;">In the "PE unlikely" group: subsequent CTA had an incidence of missed PE on 3 month follow up of 0.5%.</li>
-                </ul>
+            </div>
+            
+            <div class="info-section mt-20">
+                <h4>📋 Evidence Appraisal</h4>
+                <div class="formula-box">
+                    <p><strong>Original Wells Study:</strong> Performed on cohorts where PE prevalence was approximately 30%.</p>
+                    <ul>
+                        <li><strong>Geneva Study:</strong> Validated with 12%-29% PE prevalence</li>
+                        <li><strong>Largest Study Results:</strong>
+                            <ul>
+                                <li>Moderate score (2-6): 16.2% PE prevalence</li>
+                                <li>High score (&gt;6): 37.5% PE prevalence</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="formula-box mt-15">
+                    <p><strong>Christopher Study - Two-Tier Approach:</strong></p>
+                    <ul>
+                        <li><strong>Score ≤4 ("PE unlikely"):</strong> D-dimer testing. Overall PE incidence: 12.1%</li>
+                        <li><strong>Score ≥5 ("PE likely"):</strong> Direct CTA. PE diagnosis rate: 20.4%</li>
+                        <li><strong>Missed PE rate:</strong> 0.5% at 3-month follow-up in "PE unlikely" group with negative D-dimer</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-section mt-20">
+                <h4>📚 Reference</h4>
+                <p>Wells PS, Anderson DR, Rodger M, et al. Derivation of a simple clinical model to categorize patients probability of pulmonary embolism: increasing the models utility with the SimpliRED D-dimer. <em>Thromb Haemost</em>. 2000;83(3):416-420.</p>
             </div>
         `;
     },
     initialize: function (client) {
-        getMostRecentObservation(client, '8867-4').then(hrObs => {
-            if (hrObs && hrObs.valueQuantity.value > 100) {
-                document.getElementById('wells-hr').checked = true;
-            }
-        });
-
-        document.getElementById('calculate-wells').addEventListener('click', () => {
-            const checkboxes = document.querySelectorAll(
-                '.calculator-card .check-item input[type="checkbox"]'
-            );
+        const container = document.querySelector('#calculator-container') || document.body;
+        
+        // Calculate function
+        const calculate = () => {
+            const checkboxes = container.querySelectorAll('.checkbox-option input[type="checkbox"]');
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {
@@ -107,20 +159,93 @@ export const wellsPE = {
             });
 
             let risk = '';
+            let riskClass = '';
+            let interpretation = '';
+            let twoTierModel = '';
+            
             if (score <= 1) {
-                risk = 'Low Risk (PE unlikely)';
+                risk = 'Low Risk';
+                riskClass = 'low';
+                interpretation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
+                twoTierModel = 'PE Unlikely (Score ≤4)';
             } else if (score <= 6) {
-                risk = 'Moderate Risk';
+                risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
+                riskClass = score <= 4 ? 'moderate' : 'high';
+                if (score <= 4) {
+                    interpretation = 'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
+                    twoTierModel = 'PE Unlikely (Score ≤4)';
+                } else {
+                    interpretation = 'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
+                    twoTierModel = 'PE Likely (Score ≥5)';
+                }
             } else {
-                risk = 'High Risk (PE likely)';
+                risk = 'High Risk';
+                riskClass = 'high';
+                interpretation = 'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
+                twoTierModel = 'PE Likely (Score ≥5)';
             }
 
-            const resultEl = document.getElementById('wells-result');
+            const resultEl = container.querySelector('#wells-result');
             resultEl.innerHTML = `
-                <p>Wells' Score: ${score}</p>
-                <p>${risk}</p>
+                <div class="result-header">
+                    <h4>Wells' PE Score Results</h4>
+                </div>
+                
+                <div class="result-score">
+                    <span class="result-score-value">${score}</span>
+                    <span class="result-score-unit">points</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-item-label">Three-Tier Model</span>
+                    <span class="result-item-value"><span class="risk-badge ${riskClass}">${risk}</span></span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-item-label">Two-Tier Model</span>
+                    <span class="result-item-value">${twoTierModel}</span>
+                </div>
+                
+                <div class="alert ${riskClass === 'high' ? 'warning' : 'info'} mt-20">
+                    <span class="alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
+                    <div class="alert-content">
+                        <p>${interpretation}</p>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
+            resultEl.classList.add('show');
+        };
+        
+        // Auto-populate heart rate checkbox if available
+        getMostRecentObservation(client, '8867-4').then(hrObs => {
+            if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
+                const hrCheckbox = container.querySelector('#wells-hr');
+                if (hrCheckbox) {
+                    hrCheckbox.checked = true;
+                    hrCheckbox.parentElement.classList.add('selected');
+                    // Recalculate after populating
+                    calculate();
+                }
+            }
         });
+        
+        // Add visual feedback and auto-calculate
+        const checkboxOptions = container.querySelectorAll('.checkbox-option');
+        checkboxOptions.forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+                // Auto-calculate
+                calculate();
+            });
+        });
+        
+        // Initial calculation
+        calculate();
     }
 };

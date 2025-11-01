@@ -53,62 +53,80 @@ export const graceAcs = {
                     </div>
                 </div>
 
-                <div class="grace-section">
-                    <h4 class="section-title">
-                        <span class="section-icon">🏥</span>
-                        Clinical Parameters
-                    </h4>
-                    <div class="grace-select-grid">
-                        <div class="select-group">
-                            <label for="grace-killip">
-                                <span class="label-text">Killip Class</span>
-                                <span class="label-helper">Heart failure classification</span>
-                            </label>
-                            <select id="grace-killip" class="modern-select">
-                                <option value="0">Class I - No heart failure</option>
-                                <option value="20">Class II - Mild heart failure (rales, S3)</option>
-                                <option value="39">Class III - Pulmonary edema</option>
-                                <option value="59">Class IV - Cardiogenic shock</option>
-                            </select>
-                        </div>
-                        <div class="select-group">
-                            <label for="grace-cardiac-arrest">
-                                <span class="label-text">Cardiac Arrest at Admission</span>
-                            </label>
-                            <select id="grace-cardiac-arrest" class="modern-select">
-                                <option value="0">No</option>
-                                <option value="39">Yes</option>
-                            </select>
-                        </div>
-                        <div class="select-group">
-                            <label for="grace-st-deviation">
-                                <span class="label-text">ST Segment Deviation</span>
-                                <span class="label-helper">On ECG</span>
-                            </label>
-                            <select id="grace-st-deviation" class="modern-select">
-                                <option value="0">No</option>
-                                <option value="28">Yes</option>
-                            </select>
-                        </div>
-                        <div class="select-group">
-                            <label for="grace-cardiac-enzymes">
-                                <span class="label-text">Abnormal Cardiac Enzymes</span>
-                                <span class="label-helper">Troponin elevation</span>
-                            </label>
-                            <select id="grace-cardiac-enzymes" class="modern-select">
-                                <option value="0">No</option>
-                                <option value="14">Yes</option>
-                            </select>
-                        </div>
+                <div class="section">
+                    <div class="section-title">
+                        <span>Killip Class</span>
+                    </div>
+                    <div class="help-text mb-10">Heart failure classification</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="grace-killip" value="0" checked>
+                            <span>Class I - No heart failure <strong>0</strong></span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="grace-killip" value="20">
+                            <span>Class II - Mild HF (rales, S3) <strong>+20</strong></span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="grace-killip" value="39">
+                            <span>Class III - Pulmonary edema <strong>+39</strong></span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="grace-killip" value="59">
+                            <span>Class IV - Cardiogenic shock <strong>+59</strong></span>
+                        </label>
                     </div>
                 </div>
-            </div>
-
-            <div class="button-container">
-                <button id="calculate-grace" class="calculate-btn">
-                    <span class="btn-icon">🔍</span>
-                    Calculate Risk Score
-                </button>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span>Cardiac Arrest at Admission</span>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="grace-cardiac-arrest" value="0" checked>
+                            <span>No <strong>0</strong></span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="grace-cardiac-arrest" value="39">
+                            <span>Yes <strong>+39</strong></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span>ST Segment Deviation</span>
+                    </div>
+                    <div class="help-text mb-10">On ECG</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="grace-st-deviation" value="0" checked>
+                            <span>No <strong>0</strong></span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="grace-st-deviation" value="28">
+                            <span>Yes <strong>+28</strong></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span>Abnormal Cardiac Enzymes</span>
+                    </div>
+                    <div class="help-text mb-10">Troponin elevation</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="grace-cardiac-enzymes" value="0" checked>
+                            <span>No <strong>0</strong></span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="grace-cardiac-enzymes" value="14">
+                            <span>Yes <strong>+14</strong></span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <div id="grace-result" class="result-container" style="display:none;"></div>
@@ -153,18 +171,26 @@ export const graceAcs = {
             }
         });
 
-        root.querySelector('#calculate-grace').addEventListener('click', () => {
+        // Calculate function
+        const calculate = () => {
             const age = parseInt(root.querySelector('#grace-age').value);
             const hr = parseInt(root.querySelector('#grace-hr').value);
             const sbp = parseInt(root.querySelector('#grace-sbp').value);
             const creatinine = parseFloat(root.querySelector('#grace-creatinine').value);
-            const killip = parseInt(root.querySelector('#grace-killip').value);
-            const arrest = parseInt(root.querySelector('#grace-cardiac-arrest').value);
-            const st = parseInt(root.querySelector('#grace-st-deviation').value);
-            const enzymes = parseInt(root.querySelector('#grace-cardiac-enzymes').value);
+            
+            const killipRadio = root.querySelector('input[name="grace-killip"]:checked');
+            const arrestRadio = root.querySelector('input[name="grace-cardiac-arrest"]:checked');
+            const stRadio = root.querySelector('input[name="grace-st-deviation"]:checked');
+            const enzymesRadio = root.querySelector('input[name="grace-cardiac-enzymes"]:checked');
+            
+            const killip = killipRadio ? parseInt(killipRadio.value) : 0;
+            const arrest = arrestRadio ? parseInt(arrestRadio.value) : 0;
+            const st = stRadio ? parseInt(stRadio.value) : 0;
+            const enzymes = enzymesRadio ? parseInt(enzymesRadio.value) : 0;
 
+            // Skip calculation if inputs are not yet provided (silent fail)
             if (isNaN(age) || isNaN(hr) || isNaN(sbp) || isNaN(creatinine)) {
-                alert('⚠️ Please fill out all fields.');
+                root.querySelector('#grace-result').style.display = 'none';
                 return;
             }
 
@@ -324,10 +350,40 @@ export const graceAcs = {
                 </div>
             `;
             root.querySelector('#grace-result').style.display = 'block';
-            root.querySelector('#grace-result').scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest'
+        };
+        
+        // Add visual feedback for radio options
+        const radioOptions = root.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                root.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                this.classList.add('selected');
+                radio.checked = true;
+                calculate();
             });
         });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
+        });
+        
+        // Add event listeners for automatic calculation
+        root.querySelector('#grace-age').addEventListener('input', calculate);
+        root.querySelector('#grace-hr').addEventListener('input', calculate);
+        root.querySelector('#grace-sbp').addEventListener('input', calculate);
+        root.querySelector('#grace-creatinine').addEventListener('input', calculate);
+        
+        // Initial calculation
+        calculate();
     }
 };

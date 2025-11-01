@@ -6,97 +6,215 @@ export const gcs = {
     description: 'Coma severity based on Eye (4), Verbal (5), and Motor (6) criteria.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>Coma severity based on Eye (4), Verbal (5), and Motor (6) criteria.</p>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
             
-            <div class="gcs-category">
-                <h4>Eye Opening Response</h4>
-                <div class="input-group-radio">
-                    <input type="radio" id="eye4" name="eye" value="4" checked><label for="eye4">Spontaneous - open with blinking at baseline (4)</label>
+            <!-- Eye Opening Response -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">👁️</span>
+                    <span>Eye Opening Response</span>
                 </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="eye3" name="eye" value="3"><label for="eye3">To verbal stimuli, command, speech (3)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="eye2" name="eye" value="2"><label for="eye2">To pain only (not applied to face) (2)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="eye1" name="eye" value="1"><label for="eye1">No response (1)</label>
-                </div>
-            </div>
-
-            <div class="gcs-category">
-                <h4>Verbal Response</h4>
-                <div class="input-group-radio">
-                    <input type="radio" id="verbal5" name="verbal" value="5" checked><label for="verbal5">Oriented (5)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="verbal4" name="verbal" value="4"><label for="verbal4">Confused speech, but able to answer questions (4)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="verbal3" name="verbal" value="3"><label for="verbal3">Inappropriate words (3)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="verbal2" name="verbal" value="2"><label for="verbal2">Incomprehensible speech (2)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="verbal1" name="verbal" value="1"><label for="verbal1">No response (1)</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="eye" value="4" checked>
+                        <span>Spontaneous - open with blinking at baseline (4)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="eye" value="3">
+                        <span>To verbal stimuli, command, speech (3)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="eye" value="2">
+                        <span>To pain only (not applied to face) (2)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="eye" value="1">
+                        <span>No response (1)</span>
+                    </label>
                 </div>
             </div>
 
-            <div class="gcs-category">
-                <h4>Motor Response</h4>
-                <div class="input-group-radio">
-                    <input type="radio" id="motor6" name="motor" value="6" checked><label for="motor6">Obeys commands for movement (6)</label>
+            <!-- Verbal Response -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">💬</span>
+                    <span>Verbal Response</span>
                 </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="motor5" name="motor" value="5"><label for="motor5">Purposeful movement to painful stimulus (5)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="motor4" name="motor" value="4"><label for="motor4">Withdraws from pain (4)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="motor3" name="motor" value="3"><label for="motor3">Abnormal (spastic) flexion, decorticate posture (3)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="motor2" name="motor" value="2"><label for="motor2">Extensor (rigid) response, decerebrate posture (2)</label>
-                </div>
-                <div class="input-group-radio">
-                    <input type="radio" id="motor1" name="motor" value="1"><label for="motor1">No response (1)</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="verbal" value="5" checked>
+                        <span>Oriented (5)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="verbal" value="4">
+                        <span>Confused speech, but able to answer questions (4)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="verbal" value="3">
+                        <span>Inappropriate words (3)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="verbal" value="2">
+                        <span>Incomprehensible speech (2)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="verbal" value="1">
+                        <span>No response (1)</span>
+                    </label>
                 </div>
             </div>
 
-            <button id="calculate-gcs">Calculate GCS</button>
-            <div id="gcs-result" class="result" style="display:none;"></div>
+            <!-- Motor Response -->
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">💪</span>
+                    <span>Motor Response</span>
+                </div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="motor" value="6" checked>
+                        <span>Obeys commands for movement (6)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="motor" value="5">
+                        <span>Purposeful movement to painful stimulus (5)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="motor" value="4">
+                        <span>Withdraws from pain (4)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="motor" value="3">
+                        <span>Abnormal (spastic) flexion, decorticate posture (3)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="motor" value="2">
+                        <span>Extensor (rigid) response, decerebrate posture (2)</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="motor" value="1">
+                        <span>No response (1)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="result-container" id="gcs-result" style="display:none;"></div>
+            
+            <!-- Interpretation Guide -->
+            <div class="info-section mt-30">
+                <h4>📊 Interpretation</h4>
+                <div class="data-table">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Score</th>
+                                <th>Severity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>13-15</td>
+                                <td><span class="risk-badge low">Mild</span></td>
+                                <td>Mild brain injury</td>
+                            </tr>
+                            <tr>
+                                <td>9-12</td>
+                                <td><span class="risk-badge moderate">Moderate</span></td>
+                                <td>Moderate brain injury</td>
+                            </tr>
+                            <tr>
+                                <td>3-8</td>
+                                <td><span class="risk-badge high">Severe</span></td>
+                                <td>Severe brain injury (coma)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         `;
     },
     initialize: function () {
-        document.getElementById('calculate-gcs').addEventListener('click', () => {
-            const eyeScore = parseInt(document.querySelector('input[name="eye"]:checked').value);
-            const verbalScore = parseInt(
-                document.querySelector('input[name="verbal"]:checked').value
-            );
-            const motorScore = parseInt(
-                document.querySelector('input[name="motor"]:checked').value
-            );
+        const container = document.querySelector('#calculator-container') || document.body;
+        
+        // Calculate function
+        const calculate = () => {
+            const eyeScore = parseInt(container.querySelector('input[name="eye"]:checked').value);
+            const verbalScore = parseInt(container.querySelector('input[name="verbal"]:checked').value);
+            const motorScore = parseInt(container.querySelector('input[name="motor"]:checked').value);
             const totalScore = eyeScore + verbalScore + motorScore;
 
             let severity = '';
+            let severityClass = '';
+            
             if (totalScore >= 13) {
-                severity = 'Mild brain injury';
+                severity = 'Mild';
+                severityClass = 'low';
             } else if (totalScore >= 9) {
-                severity = 'Moderate brain injury';
+                severity = 'Moderate';
+                severityClass = 'moderate';
             } else {
-                // <= 8
-                severity = 'Severe brain injury';
+                severity = 'Severe';
+                severityClass = 'high';
             }
 
-            const resultEl = document.getElementById('gcs-result');
+            const resultEl = container.querySelector('#gcs-result');
             resultEl.innerHTML = `
-                <p><strong>Total GCS Score:</strong> ${totalScore} (E${eyeScore}V${verbalScore}M${motorScore})</p>
-                <p><strong>Severity:</strong> ${severity}</p>
+                <div class="result-header">
+                    <h4>Glasgow Coma Scale Results</h4>
+                </div>
+                
+                <div class="result-score">
+                    <span class="result-score-value">${totalScore}</span>
+                    <span class="result-score-unit">points</span>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-item-label">Component Scores</span>
+                    <span class="result-item-value">E${eyeScore}V${verbalScore}M${motorScore}</span>
+                </div>
+                
+                <div class="severity-indicator ${severityClass} mt-20">
+                    <span class="severity-indicator-text">${severity} Brain Injury</span>
+                </div>
             `;
             resultEl.style.display = 'block';
+            resultEl.classList.add('show');
+        };
+        
+        // Add visual feedback and auto-calculate
+        const radioOptions = container.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                // Remove selected class from all options in this group
+                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                radio.checked = true;
+                
+                // Auto-calculate
+                calculate();
+            });
         });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
+        });
+        
+        // Initial calculation
+        calculate();
     }
 };

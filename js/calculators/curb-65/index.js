@@ -8,20 +8,148 @@ export const curb65 = {
         'Estimates mortality of community-acquired pneumonia to help determine inpatient vs. outpatient treatment.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>${this.description}</p>
-            <div class="checklist">
-                <div class="check-item"><input type="checkbox" id="curb-confusion"><label for="curb-confusion"><strong>C</strong>onfusion (new disorientation to person, place, or time)</label></div>
-                <div class="check-item"><input type="checkbox" id="curb-bun"><label for="curb-bun"><strong>U</strong>rea > 7 mmol/L (BUN > 19 mg/dL)</label></div>
-                <div class="check-item"><input type="checkbox" id="curb-rr"><label for="curb-rr"><strong>R</strong>espiratory Rate ≥ 30 breaths/min</label></div>
-                <div class="check-item"><input type="checkbox" id="curb-bp"><label for="curb-bp"><strong>B</strong>lood Pressure (SBP < 90 mmHg or DBP ≤ 60 mmHg)</label></div>
-                <div class="check-item"><input type="checkbox" id="curb-age"><label for="curb-age">Age ≥ <strong>65</strong> years</label></div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <button id="calculate-curb65">Calculate CURB-65 Score</button>
-            <div id="curb65-result" class="result" style="display:none;"></div>
+            
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <p>Check all criteria that apply. Score automatically calculates.</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>CURB-65 Criteria</span>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="curb-confusion">
+                        <span><strong>C</strong>onfusion (new disorientation to person, place, or time) <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="curb-bun">
+                        <span><strong>U</strong>rea > 7 mmol/L (BUN > 19 mg/dL) <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="curb-rr">
+                        <span><strong>R</strong>espiratory Rate ≥ 30 breaths/min <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="curb-bp">
+                        <span><strong>B</strong>lood Pressure (SBP < 90 or DBP ≤ 60 mmHg) <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="curb-age">
+                        <span>Age ≥ <strong>65</strong> years <strong>+1</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="curb65-result" class="result-container" style="display:none;"></div>
+            
+            <div class="info-section mt-20">
+                <h5>Score Interpretation</h5>
+                <div class="data-table">
+                    <div class="data-row">
+                        <span>0-1 points</span>
+                        <span>0.6-2.7% mortality - Outpatient treatment</span>
+                    </div>
+                    <div class="data-row">
+                        <span>2 points</span>
+                        <span>6.8% mortality - Short hospitalization or supervised outpatient</span>
+                    </div>
+                    <div class="data-row">
+                        <span>3 points</span>
+                        <span>14% mortality - Hospital admission</span>
+                    </div>
+                    <div class="data-row">
+                        <span>4-5 points</span>
+                        <span>27.8% mortality - Hospital + consider ICU</span>
+                    </div>
+                </div>
+            </div>
         `;
     },
     initialize: function (client, patient, container) {
+        // Auto-calculation function
+        const calculate = () => {
+            let score = 0;
+            container.querySelectorAll('.checkbox-option input[type="checkbox"]').forEach(box => {
+                if (box.checked) {
+                    score++;
+                }
+            });
+
+            let mortality = '';
+            let recommendation = '';
+            let riskLevel = '';
+            let alertClass = '';
+            
+            switch (score) {
+            case 0:
+                mortality = '0.6%';
+                recommendation = 'Low risk, consider outpatient treatment.';
+                riskLevel = 'Low Risk';
+                alertClass = 'success';
+                break;
+            case 1:
+                mortality = '2.7%';
+                recommendation = 'Low risk, consider outpatient treatment.';
+                riskLevel = 'Low Risk';
+                alertClass = 'success';
+                break;
+            case 2:
+                mortality = '6.8%';
+                recommendation = 'Moderate risk, consider short inpatient hospitalization or closely supervised outpatient treatment.';
+                riskLevel = 'Moderate Risk';
+                alertClass = 'warning';
+                break;
+            case 3:
+                mortality = '14.0%';
+                recommendation = 'Severe pneumonia; manage in hospital.';
+                riskLevel = 'High Risk';
+                alertClass = 'danger';
+                break;
+            case 4:
+            case 5:
+                mortality = '27.8%';
+                recommendation = 'Severe pneumonia; manage in hospital and assess for ICU admission.';
+                riskLevel = 'Very High Risk';
+                alertClass = 'danger';
+                break;
+            }
+
+            const resultEl = container.querySelector('#curb65-result');
+            resultEl.innerHTML = `
+                <div class="result-header">
+                    <h4>CURB-65 Score Result</h4>
+                </div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">/ 5 points</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">30-Day Mortality Risk:</span>
+                    <span class="value">${mortality}</span>
+                </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${riskLevel}</strong>
+                </div>
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : alertClass === 'warning' ? '⚠' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Recommendation:</strong></p>
+                        <p>${recommendation}</p>
+                    </div>
+                </div>
+            `;
+            resultEl.style.display = 'block';
+        };
+
+        // FHIR auto-population
         const age = calculateAge(patient.birthDate);
         if (age >= 65) {
             container.querySelector('#curb-age').checked = true;
@@ -45,60 +173,36 @@ export const curb65 = {
                     ) {
                         container.querySelector('#curb-bp').checked = true;
                     }
+                    calculate();
                 }
             });
+        
         // Pre-fill BUN (LOINC: 6299-8 or 3094-0)
         getMostRecentObservation(client, '3094-0').then(obs => {
-            // Switched to 3094-0 for better sandbox compatibility
             if (obs && obs.valueQuantity.value > 19) {
                 container.querySelector('#curb-bun').checked = true;
+                calculate();
             }
         });
 
-        container.querySelector('#calculate-curb65').addEventListener('click', () => {
-            let score = 0;
-            container.querySelectorAll('.checklist input[type="checkbox"]').forEach(box => {
-                if (box.checked) {
-                    score++;
+        // Add visual feedback for checkbox options
+        container.querySelectorAll('.checkbox-option').forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
                 }
+                calculate();
             });
-
-            let mortality = '';
-            let recommendation = '';
-            switch (score) {
-            case 0:
-                mortality = '0.6%';
-                recommendation = 'Low risk, consider outpatient treatment.';
-                break;
-            case 1:
-                mortality = '2.7%';
-                recommendation = 'Low risk, consider outpatient treatment.';
-                break;
-            case 2:
-                mortality = '6.8%';
-                recommendation =
-                        'Moderate risk, consider short inpatient hospitalization or closely supervised outpatient treatment.';
-                break;
-            case 3:
-                mortality = '14.0%';
-                recommendation = 'Severe pneumonia; manage in hospital.';
-                break;
-            case 4:
-            case 5:
-                mortality = '27.8%';
-                recommendation =
-                        'Severe pneumonia; manage in hospital and assess for ICU admission.';
-                break;
+            // Initialize state
+            if (checkbox.checked) {
+                option.classList.add('selected');
             }
-
-            const resultEl = container.querySelector('#curb65-result');
-            resultEl.innerHTML = `
-                <p><strong>CURB-65 Score:</strong> ${score}</p>
-                <p><strong>30-Day Mortality Risk:</strong> ~${mortality}</p>
-                <hr>
-                <p><strong>Recommendation:</strong> ${recommendation}</p>
-            `;
-            resultEl.style.display = 'block';
         });
+
+        // Initial calculation
+        calculate();
     }
 };

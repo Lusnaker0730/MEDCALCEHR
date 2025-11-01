@@ -6,24 +6,45 @@ export const ibw = {
     title: 'Ideal & Adjusted Body Weight',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <div class="input-group">
-                <label for="ibw-height">Height (cm):</label>
-                <input type="number" id="ibw-height" placeholder="loading...">
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">Calculates ideal body weight (IBW) and adjusted body weight (ABW) using the Devine formula for medication dosing and clinical assessment.</p>
             </div>
-            <div class="input-group">
-                <label for="ibw-gender">Gender:</label>
-                <select id="ibw-gender">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Patient Information</span>
+                </div>
+                
+                <div class="section-subtitle">Gender</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="ibw-gender" value="male" checked>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ibw-gender" value="female">
+                        <span>Female</span>
+                    </label>
+                </div>
+                
+                <div class="input-row mt-15">
+                    <label for="ibw-height">Height</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="ibw-height" placeholder="loading...">
+                        <span>cm</span>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <label for="ibw-actual">Actual Weight</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="ibw-actual" placeholder="loading...">
+                        <span>kg</span>
+                    </div>
+                </div>
             </div>
-            <div class="input-group">
-                <label for="ibw-actual">Actual Weight (kg):</label>
-                <input type="number" id="ibw-actual" placeholder="loading...">
-            </div>
-            <button id="calculate-ibw">Calculate</button>
-            <div id="ibw-result" class="result" style="display:none;"></div>
+            
+            <div class="result-container" id="ibw-result" style="display:none;"></div>
             
             <div class="formula-section">
                 <h4>📐 Formulas</h4>
@@ -110,28 +131,17 @@ export const ibw = {
         `;
     },
     initialize: function (client, patient) {
-        const heightInput = document.getElementById('ibw-height');
-        const genderSelect = document.getElementById('ibw-gender');
-        const actualWeightInput = document.getElementById('ibw-actual');
-
-        genderSelect.value = patient.gender;
-
-        getMostRecentObservation(client, '8302-2').then(obs => {
-            if (obs) {
-                heightInput.value = obs.valueQuantity.value.toFixed(1);
-            }
-        });
-        getMostRecentObservation(client, '29463-7').then(obs => {
-            if (obs) {
-                actualWeightInput.value = obs.valueQuantity.value.toFixed(1);
-            }
-        });
-
-        document.getElementById('calculate-ibw').addEventListener('click', () => {
+        const container = document.querySelector('#calculator-container') || document.body;
+        const heightInput = container.querySelector('#ibw-height');
+        const actualWeightInput = container.querySelector('#ibw-actual');
+        const resultEl = container.querySelector('#ibw-result');
+        
+        // Calculate function
+        const calculate = () => {
             const heightCm = parseFloat(heightInput.value);
-            const isMale = genderSelect.value === 'male';
+            const genderRadio = container.querySelector('input[name="ibw-gender"]:checked');
+            const isMale = genderRadio ? genderRadio.value === 'male' : true;
             const actualWeight = parseFloat(actualWeightInput.value);
-            const resultEl = document.getElementById('ibw-result');
 
             if (heightCm > 0) {
                 const heightIn = heightCm / 2.54;
@@ -143,23 +153,111 @@ export const ibw = {
                         ibw = 45.5 + 2.3 * (heightIn - 60);
                     }
                 } else {
-                    // For simplicity, handle this edge case. A more complex formula might be needed for < 5ft.
                     ibw = isMale ? 50 : 45.5;
                 }
 
-                let resultHTML = `<p>Ideal Body Weight: ${ibw.toFixed(1)} kg</p>`;
+                let resultHTML = `
+                    <div class="result-header">
+                        <h4>Body Weight Results</h4>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-item-label">Ideal Body Weight (IBW)</span>
+                        <span class="result-item-value"><strong>${ibw.toFixed(1)}</strong> kg</span>
+                    </div>
+                `;
 
                 if (actualWeight > 0 && actualWeight > ibw) {
                     const adjBw = ibw + 0.4 * (actualWeight - ibw);
-                    resultHTML += `<p>Adjusted Body Weight: ${adjBw.toFixed(1)} kg</p>`;
+                    const percentOver = ((actualWeight - ibw) / ibw * 100).toFixed(0);
+                    resultHTML += `
+                        <div class="result-item mt-15">
+                            <span class="result-item-label">Adjusted Body Weight (ABW)</span>
+                            <span class="result-item-value"><strong>${adjBw.toFixed(1)}</strong> kg</span>
+                        </div>
+                        
+                        <div class="alert info mt-20">
+                            <span class="alert-icon">ℹ️</span>
+                            <div class="alert-content">
+                                <p>Actual weight is ${percentOver}% above IBW. Use ABW for drug dosing in obese patients.</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (actualWeight > 0 && actualWeight < ibw) {
+                    const percentUnder = ((ibw - actualWeight) / ibw * 100).toFixed(0);
+                    resultHTML += `
+                        <div class="alert warning mt-20">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="alert-content">
+                                <p>Actual weight is ${percentUnder}% below IBW. Use actual body weight for drug dosing.</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (actualWeight > 0) {
+                    resultHTML += `
+                        <div class="alert info mt-20">
+                            <span class="alert-icon">ℹ️</span>
+                            <div class="alert-content">
+                                <p>Actual weight is at ideal body weight. Use IBW for drug dosing.</p>
+                            </div>
+                        </div>
+                    `;
                 }
 
                 resultEl.innerHTML = resultHTML;
                 resultEl.style.display = 'block';
+                resultEl.classList.add('show');
             } else {
-                resultEl.innerText = 'Please enter a valid height.';
-                resultEl.style.display = 'block';
+                resultEl.style.display = 'none';
+            }
+        };
+
+        // Set gender from patient data
+        if (patient && patient.gender) {
+            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+            const genderRadio = container.querySelector(`input[name="ibw-gender"][value="${genderValue}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.parentElement.classList.add('selected');
+            }
+        }
+
+        // Auto-populate from FHIR
+        getMostRecentObservation(client, '8302-2').then(obs => {
+            if (obs && obs.valueQuantity) {
+                heightInput.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
             }
         });
+        getMostRecentObservation(client, '29463-7').then(obs => {
+            if (obs && obs.valueQuantity) {
+                actualWeightInput.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
+            }
+        });
+
+        // Add visual feedback for radio options
+        const radioOptions = container.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                this.classList.add('selected');
+                radio.checked = true;
+                calculate();
+            });
+        });
+
+        // Auto-calculate on input changes
+        heightInput.addEventListener('input', calculate);
+        actualWeightInput.addEventListener('input', calculate);
+        
+        // Initial calculation
+        calculate();
     }
 };

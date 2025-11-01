@@ -34,7 +34,6 @@ export const mme = {
             </div>
             <button id="add-opioid-btn">Add Opioid</button>
             <hr>
-            <button id="calculate-mme">Calculate Total MME</button>
             <div id="mme-result" class="result" style="display:none;"></div>
 
             <!-- Formula Section -->
@@ -187,27 +186,7 @@ export const mme = {
             .map(k => `<option value="${k}">${k}</option>`)
             .join('');
 
-        const addOpioidRow = () => {
-            const list = document.getElementById('mme-opioid-list');
-            const newItem = document.createElement('div');
-            newItem.className = 'mme-opioid-item';
-            newItem.innerHTML = `
-                <select class="opioid-select">${options}</select>
-                <input type="number" class="opioid-dose" placeholder="Dose">
-                <button class="remove-opioid-btn">Remove</button>
-            `;
-            list.appendChild(newItem);
-            newItem
-                .querySelector('.remove-opioid-btn')
-                .addEventListener('click', () => newItem.remove());
-        };
-
-        document.getElementById('add-opioid-btn').addEventListener('click', addOpioidRow);
-        document
-            .querySelector('.remove-opioid-btn')
-            .addEventListener('click', e => e.target.parentElement.remove());
-
-        document.getElementById('calculate-mme').addEventListener('click', () => {
+        const calculate = () => {
             let totalMME = 0;
             const items = document.querySelectorAll('.mme-opioid-item');
             let calculationError = false;
@@ -274,6 +253,41 @@ export const mme = {
                 `;
                 resultEl.style.display = 'block';
             }
+        };
+
+        const addOpioidRow = () => {
+            const list = document.getElementById('mme-opioid-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'mme-opioid-item';
+            newItem.innerHTML = `
+                <select class="opioid-select">${options}</select>
+                <input type="number" class="opioid-dose" placeholder="Dose">
+                <button class="remove-opioid-btn">Remove</button>
+            `;
+            list.appendChild(newItem);
+            
+            // Add event listeners to new inputs
+            newItem.querySelector('.opioid-select').addEventListener('change', calculate);
+            newItem.querySelector('.opioid-dose').addEventListener('input', calculate);
+            newItem.querySelector('.remove-opioid-btn').addEventListener('click', () => {
+                newItem.remove();
+                calculate();
+            });
+        };
+
+        // Add event listeners to initial row
+        document.querySelectorAll('.mme-opioid-item').forEach(item => {
+            item.querySelector('.opioid-select').addEventListener('change', calculate);
+            item.querySelector('.opioid-dose').addEventListener('input', calculate);
         });
+
+        document.getElementById('add-opioid-btn').addEventListener('click', addOpioidRow);
+        document.querySelector('.remove-opioid-btn').addEventListener('click', e => {
+            e.target.parentElement.remove();
+            calculate();
+        });
+
+        // Initial calculation
+        calculate();
     }
 };

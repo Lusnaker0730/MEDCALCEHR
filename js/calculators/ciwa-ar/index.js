@@ -181,7 +181,6 @@ export const ciwaAr = {
 
         html += `
             </div>
-            <button id="calculate-ciwa-ar">Calculate CIWA-Ar Score</button>
             <div id="ciwa-ar-result" class="result" style="display:none;"></div>
         `;
         return html;
@@ -189,25 +188,8 @@ export const ciwaAr = {
     initialize: function (client, patient, container) {
         const categories = container.querySelectorAll('.ciwa-ar-category');
 
-        categories.forEach(cat => {
-            const options = cat.querySelectorAll('.ciwa-ar-option');
-            options.forEach(opt => {
-                // Pre-select the '0' score option
-                if (opt.dataset.score === '0') {
-                    opt.classList.add('selected');
-                }
-                opt.addEventListener('click', () => {
-                    // Deselect other options in the same category
-                    options.forEach(otherOpt => otherOpt.classList.remove('selected'));
-                    // Select the clicked option
-                    opt.classList.add('selected');
-                    // Update the category's score
-                    cat.dataset.score = opt.dataset.score;
-                });
-            });
-        });
-
-        container.querySelector('#calculate-ciwa-ar').addEventListener('click', () => {
+        // Auto-calculation function
+        const calculate = () => {
             let score = 0;
             categories.forEach(cat => {
                 score += parseInt(cat.dataset.score || 0);
@@ -236,6 +218,29 @@ export const ciwaAr = {
                 <p><strong>Recommendation:</strong> ${recommendation}</p>
             `;
             resultEl.style.display = 'block';
+        };
+
+        categories.forEach(cat => {
+            const options = cat.querySelectorAll('.ciwa-ar-option');
+            options.forEach(opt => {
+                // Pre-select the '0' score option
+                if (opt.dataset.score === '0') {
+                    opt.classList.add('selected');
+                }
+                opt.addEventListener('click', () => {
+                    // Deselect other options in the same category
+                    options.forEach(otherOpt => otherOpt.classList.remove('selected'));
+                    // Select the clicked option
+                    opt.classList.add('selected');
+                    // Update the category's score
+                    cat.dataset.score = opt.dataset.score;
+                    // Auto-calculate on every change
+                    calculate();
+                });
+            });
         });
+
+        // Initial calculation
+        calculate();
     }
 };

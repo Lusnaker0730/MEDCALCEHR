@@ -8,8 +8,10 @@ export const sofa = {
         'Sequential Organ Failure Assessment (SOFA) Score predicts ICU mortality based on lab results and clinical data.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="calculator-description">${this.description}</p>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
 
             <div class="sofa-container">
                 <div class="lab-values-summary">
@@ -36,111 +38,189 @@ export const sofa = {
 
                 <div class="sofa-organs-grid">
                     <!-- Respiration -->
-                    <div class="organ-card respiration">
-                        <div class="organ-header">
-                            <div class="organ-icon">🫁</div>
-                            <div class="organ-title">Respiration</div>
-                            <div class="organ-score" id="resp-score">0</div>
+                    <div class="section">
+                        <div class="section-title">
+                            <span class="section-title-icon">🫁</span>
+                            <span>Respiration - PaO₂/FiO₂ Ratio</span>
                         </div>
-                        <div class="organ-parameter">PaO₂/FiO₂ Ratio</div>
-                        <select id="sofa-resp" class="sofa-select">
-                            <option value="0">≥400 (Score: 0)</option>
-                            <option value="1">&lt;400 (Score: 1)</option>
-                            <option value="2">&lt;300 (Score: 2)</option>
-                            <option value="3">&lt;200 with respiratory support (Score: 3)</option>
-                            <option value="4">&lt;100 with respiratory support (Score: 4)</option>
-                        </select>
-                        <div class="organ-detail">Mechanical ventilation or CPAP required for scores 3-4</div>
+                        <div class="help-text mb-10">Mechanical ventilation or CPAP required for scores 3-4</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-resp" value="0" checked>
+                                <span>≥400 <strong>0</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-resp" value="1">
+                                <span>&lt;400 <strong>+1</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-resp" value="2">
+                                <span>&lt;300 <strong>+2</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-resp" value="3">
+                                <span>&lt;200 with respiratory support <strong>+3</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-resp" value="4">
+                                <span>&lt;100 with respiratory support <strong>+4</strong></span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Coagulation -->
-                    <div class="organ-card coagulation">
-                        <div class="organ-header">
-                            <div class="organ-icon">🩸</div>
-                            <div class="organ-title">Coagulation</div>
-                            <div class="organ-score" id="coag-score">0</div>
+                    <div class="section">
+                        <div class="section-title">
+                            <span class="section-title-icon">🩸</span>
+                            <span>Coagulation - Platelets</span>
                         </div>
-                        <div class="organ-parameter">Platelets (×10³/μL)</div>
-                        <select id="sofa-coag" class="sofa-select">
-                            <option value="0">≥150 (Score: 0)</option>
-                            <option value="1">&lt;150 (Score: 1)</option>
-                            <option value="2">&lt;100 (Score: 2)</option>
-                            <option value="3">&lt;50 (Score: 3)</option>
-                            <option value="4">&lt;20 (Score: 4)</option>
-                        </select>
-                        <div class="organ-detail">Normal platelet count: 150-450 ×10³/μL</div>
+                        <div class="help-text mb-10">Normal platelet count: 150-450 ×10³/μL</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-coag" value="0" checked>
+                                <span>≥150 ×10³/μL <strong>0</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-coag" value="1">
+                                <span>&lt;150 ×10³/μL <strong>+1</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-coag" value="2">
+                                <span>&lt;100 ×10³/μL <strong>+2</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-coag" value="3">
+                                <span>&lt;50 ×10³/μL <strong>+3</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-coag" value="4">
+                                <span>&lt;20 ×10³/μL <strong>+4</strong></span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Liver -->
-                    <div class="organ-card liver">
-                        <div class="organ-header">
-                            <div class="organ-icon">🫀</div>
-                            <div class="organ-title">Liver</div>
-                            <div class="organ-score" id="liver-score">0</div>
+                    <div class="section">
+                        <div class="section-title">
+                            <span class="section-title-icon">🫀</span>
+                            <span>Liver - Bilirubin</span>
                         </div>
-                        <div class="organ-parameter">Bilirubin (mg/dL)</div>
-                        <select id="sofa-liver" class="sofa-select">
-                            <option value="0">&lt;1.2 (Score: 0)</option>
-                            <option value="1">1.2-1.9 (Score: 1)</option>
-                            <option value="2">2.0-5.9 (Score: 2)</option>
-                            <option value="3">6.0-11.9 (Score: 3)</option>
-                            <option value="4">≥12.0 (Score: 4)</option>
-                        </select>
-                        <div class="organ-detail">Normal bilirubin: 0.2-1.2 mg/dL</div>
+                        <div class="help-text mb-10">Normal bilirubin: 0.2-1.2 mg/dL</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-liver" value="0" checked>
+                                <span>&lt;1.2 mg/dL <strong>0</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-liver" value="1">
+                                <span>1.2-1.9 mg/dL <strong>+1</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-liver" value="2">
+                                <span>2.0-5.9 mg/dL <strong>+2</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-liver" value="3">
+                                <span>6.0-11.9 mg/dL <strong>+3</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-liver" value="4">
+                                <span>≥12.0 mg/dL <strong>+4</strong></span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Cardiovascular -->
-                    <div class="organ-card cardiovascular">
-                        <div class="organ-header">
-                            <div class="organ-icon">❤️</div>
-                            <div class="organ-title">Cardiovascular</div>
-                            <div class="organ-score" id="cardio-score">0</div>
+                    <div class="section">
+                        <div class="section-title">
+                            <span class="section-title-icon">❤️</span>
+                            <span>Cardiovascular - Hypotension & Vasopressors</span>
                         </div>
-                        <div class="organ-parameter">Hypotension & Vasopressors</div>
-                        <select id="sofa-cardio" class="sofa-select">
-                            <option value="0">No hypotension (Score: 0)</option>
-                            <option value="1">MAP &lt;70 mmHg (Score: 1)</option>
-                            <option value="2">Dopamine ≤5 or Dobutamine (any dose) (Score: 2)</option>
-                            <option value="3">Dopamine >5 or Epinephrine ≤0.1 or Norepinephrine ≤0.1 (Score: 3)</option>
-                            <option value="4">Dopamine >15 or Epinephrine >0.1 or Norepinephrine >0.1 (Score: 4)</option>
-                        </select>
-                        <div class="organ-detail">Vasopressor doses in μg/kg/min</div>
+                        <div class="help-text mb-10">Vasopressor doses in μg/kg/min</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cardio" value="0" checked>
+                                <span>No hypotension <strong>0</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cardio" value="1">
+                                <span>MAP &lt;70 mmHg <strong>+1</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cardio" value="2">
+                                <span>Dopamine ≤5 or Dobutamine (any) <strong>+2</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cardio" value="3">
+                                <span>Dopamine &gt;5 or Epi/NE ≤0.1 <strong>+3</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cardio" value="4">
+                                <span>Dopamine &gt;15 or Epi/NE &gt;0.1 <strong>+4</strong></span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- CNS -->
-                    <div class="organ-card cns">
-                        <div class="organ-header">
-                            <div class="organ-icon">🧠</div>
-                            <div class="organ-title">Central Nervous System</div>
-                            <div class="organ-score" id="cns-score">0</div>
+                    <div class="section">
+                        <div class="section-title">
+                            <span class="section-title-icon">🧠</span>
+                            <span>Central Nervous System - GCS</span>
                         </div>
-                        <div class="organ-parameter">Glasgow Coma Scale</div>
-                        <select id="sofa-cns" class="sofa-select">
-                            <option value="0">15 (Score: 0)</option>
-                            <option value="1">13-14 (Score: 1)</option>
-                            <option value="2">10-12 (Score: 2)</option>
-                            <option value="3">6-9 (Score: 3)</option>
-                            <option value="4">&lt;6 (Score: 4)</option>
-                        </select>
-                        <div class="organ-detail">Normal GCS: 15 (Eye 4 + Verbal 5 + Motor 6)</div>
+                        <div class="help-text mb-10">Normal GCS: 15 (Eye 4 + Verbal 5 + Motor 6)</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cns" value="0" checked>
+                                <span>GCS 15 <strong>0</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cns" value="1">
+                                <span>GCS 13-14 <strong>+1</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cns" value="2">
+                                <span>GCS 10-12 <strong>+2</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cns" value="3">
+                                <span>GCS 6-9 <strong>+3</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-cns" value="4">
+                                <span>GCS &lt;6 <strong>+4</strong></span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Renal -->
-                    <div class="organ-card renal">
-                        <div class="organ-header">
-                            <div class="organ-icon">🫘</div>
-                            <div class="organ-title">Renal</div>
-                            <div class="organ-score" id="renal-score">0</div>
+                    <div class="section">
+                        <div class="section-title">
+                            <span class="section-title-icon">🫘</span>
+                            <span>Renal - Creatinine / Urine Output</span>
                         </div>
-                        <div class="organ-parameter">Creatinine (mg/dL) or Urine Output</div>
-                        <select id="sofa-renal" class="sofa-select">
-                            <option value="0">&lt;1.2 (Score: 0)</option>
-                            <option value="1">1.2-1.9 (Score: 1)</option>
-                            <option value="2">2.0-3.4 (Score: 2)</option>
-                            <option value="3">3.5-4.9 or UO &lt;500 mL/day (Score: 3)</option>
-                            <option value="4">≥5.0 or UO &lt;200 mL/day (Score: 4)</option>
-                        </select>
-                        <div class="organ-detail">Normal creatinine: 0.6-1.2 mg/dL</div>
+                        <div class="help-text mb-10">Normal creatinine: 0.6-1.2 mg/dL</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-renal" value="0" checked>
+                                <span>&lt;1.2 mg/dL <strong>0</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-renal" value="1">
+                                <span>1.2-1.9 mg/dL <strong>+1</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-renal" value="2">
+                                <span>2.0-3.4 mg/dL <strong>+2</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-renal" value="3">
+                                <span>3.5-4.9 mg/dL or UO &lt;500 mL/day <strong>+3</strong></span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sofa-renal" value="4">
+                                <span>≥5.0 mg/dL or UO &lt;200 mL/day <strong>+4</strong></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -318,9 +398,11 @@ export const sofa = {
         `;
     },
     initialize: function (client) {
-        // Auto-populate lab values and set up event listeners
-        this.populateLabValues(client);
+        // Setup event listeners first
         this.setupEventListeners();
+        // Auto-populate lab values
+        this.populateLabValues(client);
+        // Initial calculation
         this.calculateScore();
     },
 
@@ -333,20 +415,22 @@ export const sofa = {
                     document.getElementById('current-platelets').textContent =
                         `${val.toFixed(0)} ×10³/μL`;
 
-                    const select = document.getElementById('sofa-coag');
-                    if (val >= 150) {
-                        select.value = '0';
-                    } else if (val >= 100) {
-                        select.value = '1';
-                    } else if (val >= 50) {
-                        select.value = '2';
-                    } else if (val >= 20) {
-                        select.value = '3';
-                    } else {
-                        select.value = '4';
+                    // Select appropriate radio button
+                    let radioValue = '0';
+                    if (val < 20) radioValue = '4';
+                    else if (val < 50) radioValue = '3';
+                    else if (val < 100) radioValue = '2';
+                    else if (val < 150) radioValue = '1';
+                    
+                    const radio = document.querySelector(`input[name="sofa-coag"][value="${radioValue}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.parentElement.classList.add('selected');
+                        // Remove selected from others
+                        document.querySelectorAll('input[name="sofa-coag"]').forEach(r => {
+                            if (r !== radio) r.parentElement.classList.remove('selected');
+                        });
                     }
-
-                    this.updateOrganScore('coag', select.value);
                 } else {
                     document.getElementById('current-platelets').textContent = 'Not available';
                 }
@@ -364,20 +448,22 @@ export const sofa = {
                     document.getElementById('current-creatinine').textContent =
                         `${val.toFixed(1)} mg/dL`;
 
-                    const select = document.getElementById('sofa-renal');
-                    if (val < 1.2) {
-                        select.value = '0';
-                    } else if (val < 2.0) {
-                        select.value = '1';
-                    } else if (val < 3.5) {
-                        select.value = '2';
-                    } else if (val < 5.0) {
-                        select.value = '3';
-                    } else {
-                        select.value = '4';
+                    // Select appropriate radio button
+                    let radioValue = '0';
+                    if (val >= 5.0) radioValue = '4';
+                    else if (val >= 3.5) radioValue = '3';
+                    else if (val >= 2.0) radioValue = '2';
+                    else if (val >= 1.2) radioValue = '1';
+                    
+                    const radio = document.querySelector(`input[name="sofa-renal"][value="${radioValue}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.parentElement.classList.add('selected');
+                        // Remove selected from others
+                        document.querySelectorAll('input[name="sofa-renal"]').forEach(r => {
+                            if (r !== radio) r.parentElement.classList.remove('selected');
+                        });
                     }
-
-                    this.updateOrganScore('renal', select.value);
                 } else {
                     document.getElementById('current-creatinine').textContent = 'Not available';
                 }
@@ -395,20 +481,22 @@ export const sofa = {
                     document.getElementById('current-bilirubin').textContent =
                         `${val.toFixed(1)} mg/dL`;
 
-                    const select = document.getElementById('sofa-liver');
-                    if (val < 1.2) {
-                        select.value = '0';
-                    } else if (val < 2.0) {
-                        select.value = '1';
-                    } else if (val < 6.0) {
-                        select.value = '2';
-                    } else if (val < 12.0) {
-                        select.value = '3';
-                    } else {
-                        select.value = '4';
+                    // Select appropriate radio button
+                    let radioValue = '0';
+                    if (val >= 12.0) radioValue = '4';
+                    else if (val >= 6.0) radioValue = '3';
+                    else if (val >= 2.0) radioValue = '2';
+                    else if (val >= 1.2) radioValue = '1';
+                    
+                    const radio = document.querySelector(`input[name="sofa-liver"][value="${radioValue}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.parentElement.classList.add('selected');
+                        // Remove selected from others
+                        document.querySelectorAll('input[name="sofa-liver"]').forEach(r => {
+                            if (r !== radio) r.parentElement.classList.remove('selected');
+                        });
                     }
-
-                    this.updateOrganScore('liver', select.value);
                 } else {
                     document.getElementById('current-bilirubin').textContent = 'Not available';
                 }
@@ -423,13 +511,33 @@ export const sofa = {
     },
 
     setupEventListeners: function () {
-        const selects = document.querySelectorAll('.sofa-select');
-        selects.forEach(select => {
-            select.addEventListener('change', e => {
-                const organType = e.target.id.replace('sofa-', '');
-                this.updateOrganScore(organType, e.target.value);
+        // Add visual feedback and auto-calculate for radio options
+        const radioOptions = document.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const radio = option.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                // Remove selected class from all options in this group
+                document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                option.classList.add('selected');
+                radio.checked = true;
+                
+                // Auto-calculate
                 this.calculateScore();
             });
+        });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
         });
     },
 
@@ -441,7 +549,7 @@ export const sofa = {
     },
 
     calculateScore: function () {
-        const selectors = [
+        const groups = [
             'sofa-resp',
             'sofa-coag',
             'sofa-liver',
@@ -451,9 +559,11 @@ export const sofa = {
         ];
         let totalScore = 0;
 
-        selectors.forEach(id => {
-            const value = parseInt(document.getElementById(id).value);
-            totalScore += value;
+        groups.forEach(groupName => {
+            const checked = document.querySelector(`input[name="${groupName}"]:checked`);
+            if (checked) {
+                totalScore += parseInt(checked.value);
+            }
         });
 
         // Update total score display

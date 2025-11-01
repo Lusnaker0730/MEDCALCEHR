@@ -5,36 +5,42 @@ export const rcri = {
     title: 'Revised Cardiac Risk Index for Pre-Operative Risk',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>Estimates risk of cardiac complications after noncardiac surgery.</p>
-            <div class="checklist">
-                <div class="check-item">
-                    <input type="checkbox" id="rcri-surgery" data-points="1">
-                    <label for="rcri-surgery">High-risk surgery (intraperitoneal, intrathoracic, suprainguinal vascular)</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="rcri-ihd" data-points="1">
-                    <label for="rcri-ihd">History of Ischemic Heart Disease (MI or positive stress test)</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="rcri-hf" data-points="1">
-                    <label for="rcri-hf">History of Congestive Heart Failure</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="rcri-cvd" data-points="1">
-                    <label for="rcri-cvd">History of Cerebrovascular Disease (stroke or TIA)</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="rcri-insulin" data-points="1">
-                    <label for="rcri-insulin">Preoperative treatment with insulin</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="rcri-creatinine" data-points="1">
-                    <label for="rcri-creatinine">Preoperative serum creatinine > 2.0 mg/dL</label>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">Estimates risk of cardiac complications after noncardiac surgery.</p>
+            </div>
+            
+            <div class="section">
+                <div class="section-title"><span>RCRI Factors</span></div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="rcri-surgery" data-points="1">
+                        <span>High-risk surgery (intraperitoneal, intrathoracic, suprainguinal vascular) <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="rcri-ihd" data-points="1">
+                        <span>History of Ischemic Heart Disease (MI or positive stress test) <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="rcri-hf" data-points="1">
+                        <span>History of Congestive Heart Failure <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="rcri-cvd" data-points="1">
+                        <span>History of Cerebrovascular Disease (stroke or TIA) <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="rcri-insulin" data-points="1">
+                        <span>Preoperative treatment with insulin <strong>+1</strong></span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="rcri-creatinine" data-points="1">
+                        <span>Preoperative serum creatinine > 2.0 mg/dL <strong>+1</strong></span>
+                    </label>
                 </div>
             </div>
-            <button id="calculate-rcri">Calculate Score</button>
-            <div id="rcri-result" class="result" style="display:none;"></div>
+            
+            <div id="rcri-result" class="result-container"></div>
             <div class="references">
                 <h4>Reference</h4>
                 <p>Lee, T. H., Marcantonio, E. R., Mangione, C. M., Thomas, E. J., Polanczyk, C. A., Cook, E. F., ... & Goldman, L. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.</p>
@@ -61,8 +67,8 @@ export const rcri = {
             }
         });
 
-        container.querySelector('#calculate-rcri').addEventListener('click', () => {
-            const checkboxes = container.querySelectorAll('.check-item input[type="checkbox"]');
+        const calculate = () => {
+            const checkboxes = container.querySelectorAll('.checkbox-option input[type="checkbox"]');
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {
@@ -72,27 +78,62 @@ export const rcri = {
 
             let risk = '';
             let complicationsRate = '';
+            let alertClass = '';
             if (score === 0) {
                 risk = 'Class I (Low Risk)';
                 complicationsRate = '0.4%';
+                alertClass = 'success';
             } else if (score === 1) {
                 risk = 'Class II (Low Risk)';
                 complicationsRate = '0.9%';
+                alertClass = 'success';
             } else if (score === 2) {
                 risk = 'Class III (Moderate Risk)';
                 complicationsRate = '6.6%';
-            } else if (score >= 3) {
+                alertClass = 'warning';
+            } else {
                 risk = 'Class IV (High Risk)';
                 complicationsRate = '11%';
+                alertClass = 'danger';
             }
 
             const resultEl = container.querySelector('#rcri-result');
             resultEl.innerHTML = `
-                <p>RCRI Score: ${score}</p>
-                <p>Risk Class: ${risk}</p>
-                <p>Rate of Major Cardiac Complications: ${complicationsRate}</p>
+                <div class="result-header"><h4>RCRI Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">/ 6 points</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Risk Class:</span>
+                    <span class="value">${risk}</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">Major Cardiac Complications:</span>
+                    <span class="value">${complicationsRate}</span>
+                </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${risk}</strong>
+                </div>
             `;
             resultEl.style.display = 'block';
+        };
+
+        container.querySelectorAll('.checkbox-option').forEach(option => {
+            const checkbox = option.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+                calculate();
+            });
+            if (checkbox.checked) {
+                option.classList.add('selected');
+            }
         });
+
+        calculate();
     }
 };

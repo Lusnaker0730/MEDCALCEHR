@@ -6,22 +6,32 @@ export const map = {
     title: 'Mean Arterial Pressure (MAP)',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <div class="input-group">
-                <label for="map-sbp">Systolic BP (mmHg):</label>
-                <input type="number" id="map-sbp" placeholder="e.g., 120">
-            </div>
-            <div class="input-group">
-                <label for="map-dbp">Diastolic BP (mmHg):</label>
-                <input type="number" id="map-dbp" placeholder="e.g., 80">
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.</p>
             </div>
             
-            <div id="map-result" class="result" style="display:none;">
-                <div class="result-item">
-                    <span class="value">-- <span class="unit">mmHg</span></span>
-                    <span class="label">Mean Arterial Pressure (MAP)</span>
+            <div class="section">
+                <div class="section-title">
+                    <span>Blood Pressure Measurements</span>
+                </div>
+                <div class="input-row">
+                    <label for="map-sbp">Systolic BP</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="map-sbp" placeholder="e.g., 120">
+                        <span>mmHg</span>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <label for="map-dbp">Diastolic BP</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="map-dbp" placeholder="e.g., 80">
+                        <span>mmHg</span>
+                    </div>
                 </div>
             </div>
+            
+            <div class="result-container" id="map-result" style="display:none;"></div>
 
             <!-- Formula Section -->
             <div class="formula-section">
@@ -151,16 +161,46 @@ export const map = {
                     '<span style="color: #d32f2f; font-weight: bold;">⚠️ Elevated (Hypertension)</span>';
             }
 
+            // Determine severity class
+            let severityClass = 'low';
+            let severityText = 'Normal';
+            if (mapCalc < 60) {
+                severityClass = 'high';
+                severityText = 'Critically Low (Shock Risk)';
+            } else if (mapCalc < 70) {
+                severityClass = 'moderate';
+                severityText = 'Below Normal';
+            } else if (mapCalc <= 100) {
+                severityClass = 'low';
+                severityText = 'Normal';
+            } else {
+                severityClass = 'high';
+                severityText = 'Elevated (Hypertension)';
+            }
+            
             resultEl.innerHTML = `
-                <div class="result-item">
-                    <span class="value">${mapCalc.toFixed(1)} <span class="unit">mmHg</span></span>
-                    <span class="label">Mean Arterial Pressure (MAP)</span>
+                <div class="result-header">
+                    <h4>MAP Results</h4>
                 </div>
-                <div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; text-align: center;">
-                    ${status}
+                
+                <div class="result-score">
+                    <span class="result-score-value">${mapCalc.toFixed(1)}</span>
+                    <span class="result-score-unit">mmHg</span>
+                </div>
+                
+                <div class="severity-indicator ${severityClass} mt-20">
+                    <span class="severity-indicator-text">${severityText}</span>
+                </div>
+                
+                <div class="alert ${severityClass === 'high' ? 'warning' : 'info'} mt-20">
+                    <span class="alert-icon">${severityClass === 'high' ? '⚠️' : 'ℹ️'}</span>
+                    <div class="alert-content">
+                        <p>${mapCalc < 60 ? 'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.' : mapCalc > 100 ? 'Sustained MAP >100 mmHg requires management.' : 'Normal MAP (70-100 mmHg) indicates adequate organ perfusion.'}</p>
+                    </div>
                 </div>
             `;
             resultEl.style.display = 'block';
+            resultEl.classList.add('show');
         };
 
         // Add event listeners for automatic calculation on input change

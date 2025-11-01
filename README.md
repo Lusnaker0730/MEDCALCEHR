@@ -49,6 +49,120 @@ docker-compose up -d
 
 訪問：**http://localhost:8080**
 
+#### 🔄 更新 Docker 容器（包含最新檔案）
+
+如果您遇到 404 錯誤或需要更新容器：
+
+```powershell
+# Windows - 自動重建並啟動
+.\rebuild-docker.ps1
+
+# 或手動執行
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+#### 🏥 透過 SMART on FHIR 啟動
+
+1. **確保容器正在運行**
+   ```bash
+   docker ps  # 應看到 medcalcehr-app
+   ```
+
+2. **訪問健康檢查頁面**
+   - http://localhost:8080/health-check.html
+
+3. **使用 SMART Health IT Launcher 測試**
+   - 前往：https://launch.smarthealthit.org/
+   - App Launch URL: `http://localhost:8080/launch.html`
+   - 或使用您的 IP: `http://YOUR_IP:8080/launch.html`
+   - FHIR Version: **R4 (FHIR 4.0.1)**
+   - 選擇測試病患並點擊 **"Launch App!"**
+
+4. **詳細設定指南**
+   - 參考：[SMART_LAUNCH_GUIDE.md](SMART_LAUNCH_GUIDE.md)
+
+#### 🔍 檢查清單
+
+- ✅ Docker 容器運行中：`docker ps`
+- ✅ 可訪問首頁：http://localhost:8080
+- ✅ 可訪問啟動頁：http://localhost:8080/launch.html
+- ✅ 健康檢查通過：http://localhost:8080/health-check.html
+- ✅ 計算器測試通過：http://localhost:8080/test-calculators.html
+
+#### 🧪 測試所有計算器
+
+自動化測試工具可以驗證所有 91 個計算器模組：
+
+```
+http://localhost:8080/test-calculators.html
+```
+
+**功能**：
+- ✅ 自動測試所有計算器載入
+- ✅ 驗證模組結構和必要方法
+- ✅ 即時顯示測試進度和結果
+- ✅ 可篩選成功/失敗項目
+- ✅ 可匯出 JSON 格式報告
+- ✅ 單個計算器重新測試
+
+詳細說明：[計算器測試指南](CALCULATOR_TESTING_GUIDE.md)
+
+#### 🎨 統一樣式系統
+
+所有計算器現在使用統一的樣式系統，確保一致的使用者體驗：
+
+**新功能**：
+- ✅ 預定義的 UI 組件庫（輸入、按鈕、結果顯示）
+- ✅ 統一的顏色方案和風險指標
+- ✅ 響應式設計（手機、平板、桌面）
+- ✅ 無障礙支援
+- ✅ 列印友好樣式
+
+**開發指南**：
+- 快速參考：[UNIFIED_STYLE_QUICK_REF.md](UNIFIED_STYLE_QUICK_REF.md)
+- 完整指南：[CALCULATOR_STYLE_GUIDE.md](CALCULATOR_STYLE_GUIDE.md)
+- CSS 檔案：`css/unified-calculator.css`
+
+**範例組件**：
+
+<details>
+<summary>點擊查看基本範本</summary>
+
+```javascript
+export const exampleCalculator = {
+    generateHTML: function() {
+        return `
+            <!-- 標題 -->
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">計算器說明</p>
+            </div>
+            
+            <!-- 輸入 -->
+            <div class="input-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age">
+            </div>
+            
+            <!-- 按鈕 -->
+            <button class="btn-calculate">Calculate</button>
+            
+            <!-- 結果 -->
+            <div class="result-container" style="display: none;">
+                <div class="result-score">
+                    <span class="result-score-value">24.5</span>
+                    <span class="result-score-unit">kg/m²</span>
+                </div>
+                <div class="risk-badge low">Low Risk</div>
+            </div>
+        `;
+    }
+};
+```
+</details>
+
 📖 詳細說明請參考 [Docker 部署指南](README_DOCKER.md)
 
 ### Method 2: Python HTTP Server

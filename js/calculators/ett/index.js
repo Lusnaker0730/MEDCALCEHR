@@ -20,7 +20,6 @@ export const ett = {
                     <option value="female">Female</option>
                 </select>
             </div>
-            <button id="calculate-ett">Calculate</button>
             <div id="ett-result" class="result" style="display:none;"></div>
         `;
     },
@@ -36,12 +35,12 @@ export const ett = {
             }
         });
 
-        container.querySelector('#calculate-ett').addEventListener('click', () => {
+        const calculate = () => {
             const heightCm = parseFloat(heightEl.value);
             const gender = genderEl.value;
 
             if (isNaN(heightCm)) {
-                alert('Please enter patient height.');
+                container.querySelector('#ett-result').style.display = 'none';
                 return;
             }
 
@@ -68,6 +67,13 @@ export const ett = {
                 <p>Tidal Volume Range (6-8 mL/kg): ${tidalVolumeLow.toFixed(0)} - ${tidalVolumeHigh.toFixed(0)} mL</p>
             `;
             container.querySelector('#ett-result').style.display = 'block';
-        });
+        };
+
+        // Add event listeners for auto-calculation
+        heightEl.addEventListener('input', calculate);
+        genderEl.addEventListener('change', calculate);
+        
+        // Initial calculation
+        calculate();
     }
 };

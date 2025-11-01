@@ -28,7 +28,6 @@ export const phenytoinCorrection = {
                     <option value="yes">Yes</option>
                 </select>
             </div>
-            <button id="calculate-phenytoin">Calculate Corrected Level</button>
             <div id="phenytoin-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -211,12 +210,6 @@ export const phenytoinCorrection = {
         // Event listeners
         totalEl.addEventListener('input', calculateAndUpdate);
         renalEl.addEventListener('change', calculateAndUpdate);
-
-        // Remove old calculate button listener if exists
-        const oldBtn = container.querySelector('#calculate-phenytoin');
-        if (oldBtn) {
-            oldBtn.style.display = 'none';
-        }
 
         // Initial calculation
         calculateAndUpdate();

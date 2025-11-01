@@ -7,31 +7,51 @@ export const meldNa = {
     description: 'Quantifies end-stage liver disease for transplant planning with sodium.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>${this.description}</p>
-            
-            <div class="input-group">
-                <label for="meld-na-bili">Bilirubin (mg/dL):</label>
-                <input type="number" id="meld-na-bili" placeholder="e.g., 3.0" min="0" step="0.1">
-            </div>
-            <div class="input-group">
-                <label for="meld-na-inr">INR:</label>
-                <input type="number" id="meld-na-inr" placeholder="e.g., 1.5" min="0" step="0.01">
-            </div>
-            <div class="input-group">
-                <label for="meld-na-creat">Creatinine (mg/dL):</label>
-                <input type="number" id="meld-na-creat" placeholder="e.g., 1.5" min="0" step="0.1">
-            </div>
-            <div class="input-group">
-                <label for="meld-na-sodium">Sodium (mEq/L):</label>
-                <input type="number" id="meld-na-sodium" placeholder="e.g., 130" min="100" max="155" step="1">
-            </div>
-            <div class="check-item">
-                <input type="checkbox" id="meld-na-dialysis">
-                <label for="meld-na-dialysis">Patient on dialysis twice in the last week</label>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
             
-            <div id="meld-na-result" class="result" style="display:none;"></div>
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <p>MELD-Na has superior predictive accuracy compared to MELD alone for 90-day mortality. Enter laboratory values below for automatic calculation.</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>🔬 Laboratory Values</span>
+                </div>
+                <div class="input-with-unit">
+                    <label for="meld-na-bili">Bilirubin (Total)</label>
+                    <input type="number" id="meld-na-bili" placeholder="e.g., 3.0" min="0" step="0.1">
+                    <span class="unit">mg/dL</span>
+                </div>
+                <div class="input-with-unit">
+                    <label for="meld-na-inr">INR</label>
+                    <input type="number" id="meld-na-inr" placeholder="e.g., 1.5" min="0" step="0.01">
+                    <span class="unit"></span>
+                </div>
+                <div class="input-with-unit">
+                    <label for="meld-na-creat">Creatinine</label>
+                    <input type="number" id="meld-na-creat" placeholder="e.g., 1.5" min="0" step="0.1">
+                    <span class="unit">mg/dL</span>
+                </div>
+                <div class="input-with-unit">
+                    <label for="meld-na-sodium">Sodium</label>
+                    <input type="number" id="meld-na-sodium" placeholder="e.g., 130" min="100" max="155" step="1">
+                    <span class="unit">mEq/L</span>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="meld-na-dialysis">
+                        <span>Patient on dialysis twice in the last week</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="meld-na-result" class="result-container" style="display:none;"></div>
 
             <!-- Formula Section -->
             <div class="formula-section">
@@ -255,25 +275,34 @@ export const meldNa = {
                 riskColor = '#b71c1c';
             }
 
+            const alertClass = meldNaScore < 17 ? 'success' : meldNaScore < 23 ? 'warning' : 'danger';
+            
             resultEl.innerHTML = `
+                <div class="result-header">
+                    <h4>MELD-Na Score Result</h4>
+                </div>
+                <div class="result-score">
+                    <span class="score-value">${meldNaScore}</span>
+                    <span class="score-label">MELD-Na Score</span>
+                </div>
                 <div class="result-item">
-                    <span class="value">${meldNaScore}</span>
-                    <span class="label">MELD-Na Score</span>
+                    <span class="label">90-Day Mortality:</span>
+                    <span class="value">${mortalityRate}</span>
                 </div>
-                <div style="background: ${riskColor}20; border-left: 4px solid ${riskColor}; padding: 15px; border-radius: 5px; margin-top: 15px;">
-                    <div style="font-size: 0.95em; margin-bottom: 8px;">
-                        <strong style="color: ${riskColor};">📊 Risk Category:</strong> <span style="color: ${riskColor}; font-weight: bold;">${riskCategory}</span>
-                    </div>
-                    <div style="font-size: 0.95em;">
-                        <strong style="color: ${riskColor};">⚠️ 90-Day Mortality:</strong> <span style="color: ${riskColor}; font-weight: bold;">${mortalityRate}</span>
-                    </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${riskCategory}</strong>
                 </div>
-                <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 5px; font-size: 0.85em; border-left: 4px solid #2196F3;">
-                    <strong>Score Breakdown:</strong><br>
-                    • Original MELD: ${meldScore.toFixed(1)}<br>
-                    • Adjusted Bilirubin (min 1.0): ${adjustedBili.toFixed(1)} mg/dL<br>
-                    • Adjusted INR (min 1.0): ${adjustedInr.toFixed(2)}<br>
-                    • Adjusted Creatinine (max 4.0${onDialysis ? ', on dialysis' : ''}): ${adjustedCreat.toFixed(1)} mg/dL
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Score Breakdown:</strong></p>
+                        <ul>
+                            <li>Original MELD: ${meldScore.toFixed(1)}</li>
+                            <li>Adjusted Bilirubin (min 1.0): ${adjustedBili.toFixed(1)} mg/dL</li>
+                            <li>Adjusted INR (min 1.0): ${adjustedInr.toFixed(2)}</li>
+                            <li>Adjusted Creatinine (max 4.0${onDialysis ? ', on dialysis' : ''}): ${adjustedCreat.toFixed(1)} mg/dL</li>
+                        </ul>
+                    </div>
                 </div>
             `;
             resultEl.style.display = 'block';

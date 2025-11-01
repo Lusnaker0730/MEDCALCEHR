@@ -7,64 +7,130 @@ export const heartScore = {
         'Predicts 6-week risk of major adverse cardiac events in patients with chest pain.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="instructions-box">
-                <strong>INSTRUCTIONS</strong>
-                <p>Use in patients ≥21 years old presenting with symptoms suggestive of ACS. Do not use if new ST-segment elevation ≥1 mm or other new EKG changes, hypotension, life expectancy less than 1 year, or noncardiac medical/surgical/psychiatric illness determined by the provider to require admission.</p>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div class="form-container modern ariscat-form">
-                <div class="input-row vertical">
-                    <div class="input-label">History</div>
-                    <div class="radio-group vertical-group" data-heart-group="history">
-                        <label><input type="radio" name="history" value="0"> Slightly suspicious</label>
-                        <label><input type="radio" name="history" value="1"> Moderately suspicious</label>
-                        <label><input type="radio" name="history" value="2"> Highly suspicious</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">
-                        EKG
-                        <span>1 point: No ST deviation but LBBB, LVH, repolarization changes (e.g. digoxin); 2 points: ST deviation not due to LBBB, LVH, or digoxin</span>
-                    </div>
-                    <div class="radio-group vertical-group" data-heart-group="ecg">
-                        <label><input type="radio" name="ecg" value="0"> Normal</label>
-                        <label><input type="radio" name="ecg" value="1"> Non-specific repolarization disturbance</label>
-                        <label><input type="radio" name="ecg" value="2"> Significant ST deviation</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Age</div>
-                    <div class="segmented-control multi" data-heart-group="age">
-                        <label><input type="radio" name="age" value="0"> &lt;45</label>
-                        <label><input type="radio" name="age" value="1"> 45-64</label>
-                        <label><input type="radio" name="age" value="2"> &ge;65</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">
-                        Risk factors
-                        <span>Risk factors: HTN, hypercholesterolemia, DM, obesity (BMI >30 kg/m²), smoking (current, or smoking cessation ≤3 mo), positive family history (parent or sibling with CVD before age 65); atherosclerotic disease: prior MI, PCI/CABG, CVA/TIA, or peripheral arterial disease</span>
-                    </div>
-                    <div class="radio-group vertical-group" data-heart-group="risk">
-                        <label><input type="radio" name="risk" value="0"> No known risk factors</label>
-                        <label><input type="radio" name="risk" value="1"> 1-2 risk factors</label>
-                        <label><input type="radio" name="risk" value="2"> ≥3 risk factors or history of atherosclerotic disease</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">
-                        Initial troponin
-                        <span>Use local, regular sensitivity troponin assays and corresponding cutoffs</span>
-                    </div>
-                    <div class="radio-group vertical-group" data-heart-group="troponin">
-                        <label><input type="radio" name="troponin" value="0"> ≤normal limit</label>
-                        <label><input type="radio" name="troponin" value="1"> 1-3× normal limit</label>
-                        <label><input type="radio" name="troponin" value="2"> >3× normal limit</label>
-                    </div>
+            
+            <div class="alert warning">
+                <span class="alert-icon">⚠️</span>
+                <div class="alert-content">
+                    <div class="alert-title">Inclusion Criteria</div>
+                    <p>Use in patients ≥21 years old presenting with symptoms suggestive of ACS. <strong>Do not use if:</strong> new ST-segment elevation ≥1 mm, hypotension, life expectancy &lt;1 year, or noncardiac illness requiring admission.</p>
                 </div>
             </div>
-            <div id="heart-score-result" class="ariscat-result-box" style="display:none;"></div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">📋</span>
+                    <span>History</span>
+                </div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="history" value="0" checked>
+                        <span>Slightly suspicious <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="history" value="1">
+                        <span>Moderately suspicious <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="history" value="2">
+                        <span>Highly suspicious <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">📊</span>
+                    <span>EKG</span>
+                </div>
+                <div class="help-text mb-10">1 point: No ST deviation but LBBB, LVH, repolarization changes; 2 points: ST deviation not due to LBBB, LVH, or digoxin</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="ecg" value="0" checked>
+                        <span>Normal <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ecg" value="1">
+                        <span>Non-specific repolarization disturbance <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ecg" value="2">
+                        <span>Significant ST deviation <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">👤</span>
+                    <span>Age</span>
+                </div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="age" value="0" checked>
+                        <span>&lt;45 years <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="age" value="1">
+                        <span>45-64 years <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="age" value="2">
+                        <span>≥65 years <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">⚡</span>
+                    <span>Risk Factors</span>
+                </div>
+                <div class="help-text mb-10">Risk factors: HTN, hypercholesterolemia, DM, obesity (BMI &gt;30), smoking (current or quit ≤3 mo), positive family history (parent/sibling with CVD before age 65), atherosclerotic disease (prior MI, PCI/CABG, CVA/TIA, PAD)</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="risk" value="0" checked>
+                        <span>No known risk factors <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="risk" value="1">
+                        <span>1-2 risk factors <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="risk" value="2">
+                        <span>≥3 risk factors or history of atherosclerotic disease <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span class="section-title-icon">🔬</span>
+                    <span>Initial Troponin</span>
+                </div>
+                <div class="help-text mb-10">Use local, regular sensitivity troponin assays and corresponding cutoffs</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="troponin" value="0" checked>
+                        <span>≤normal limit <strong>0</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="troponin" value="1">
+                        <span>1-3× normal limit <strong>+1</strong></span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="troponin" value="2">
+                        <span>&gt;3× normal limit <strong>+2</strong></span>
+                    </label>
+                </div>
+            </div>
+            
+            <button class="btn-calculate" id="calculate-heart">Calculate HEART Score</button>
+            
+            <div id="heart-score-result" class="result-container" style="display:none;"></div>
             
             <div class="formula-section">
                 <h4 class="formula-title">

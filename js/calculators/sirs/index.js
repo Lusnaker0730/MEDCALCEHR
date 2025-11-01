@@ -8,8 +8,10 @@ export const sirs = {
         'Evaluates SIRS criteria and progression to sepsis and septic shock using clinical parameters.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="calculator-description">${this.description}</p>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
 
             <div class="sirs-container">
                 <div class="current-vitals">

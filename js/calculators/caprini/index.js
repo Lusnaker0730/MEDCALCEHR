@@ -54,72 +54,83 @@ export const caprini = {
         }
 
         html += `
-            <button id="calculate-caprini">Calculate Score</button>
             <div id="caprini-result" class="result" style="display:none;"></div>
         `;
         return html;
     },
-    initialize: function (client, patient) {
-        // Pre-fill based on patient data
-        const age = calculateAge(patient.birthDate);
-        if (age >= 75) {
-            document.getElementById('age75').checked = true;
-        } else if (age >= 61) {
-            document.getElementById('age61').checked = true;
-        } else if (age >= 41) {
-            document.getElementById('age41').checked = true;
-        }
-
-        document.getElementById('calculate-caprini').addEventListener('click', () => {
+    initialize: function (client, patient, container) {
+        const calculate = () => {
             let score = 0;
-            document.querySelectorAll('.checklist input[type="checkbox"]').forEach(box => {
+            container.querySelectorAll('.checklist input[type="checkbox"]').forEach(box => {
                 if (box.checked) {
                     score += parseInt(box.dataset.points);
                 }
             });
 
             // Handle mutually exclusive age points
-            if (document.getElementById('age75').checked) {
-                if (document.getElementById('age61').checked) {
-                    score -= 2;
-                }
-                if (document.getElementById('age41').checked) {
-                    score -= 1;
-                }
-            } else if (document.getElementById('age61').checked) {
-                if (document.getElementById('age41').checked) {
-                    score -= 1;
-                }
+            if (container.querySelector('#age75')?.checked) {
+                if (container.querySelector('#age61')?.checked) score -= 2;
+                if (container.querySelector('#age41')?.checked) score -= 1;
+            } else if (container.querySelector('#age61')?.checked) {
+                if (container.querySelector('#age41')?.checked) score -= 1;
             }
 
             let riskCategory = '';
             let recommendation = '';
+            let alertClass = '';
             if (score === 0) {
                 riskCategory = 'Lowest Risk';
                 recommendation = 'Early ambulation.';
+                alertClass = 'success';
             } else if (score >= 1 && score <= 2) {
                 riskCategory = 'Low Risk';
-                recommendation =
-                    'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                alertClass = 'info';
             } else if (score >= 3 && score <= 4) {
                 riskCategory = 'Moderate Risk';
-                recommendation =
-                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                alertClass = 'warning';
             } else {
-                // score >= 5
                 riskCategory = 'High Risk';
-                recommendation =
-                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                alertClass = 'danger';
             }
 
-            const resultEl = document.getElementById('caprini-result');
+            const resultEl = container.querySelector('#caprini-result');
             resultEl.innerHTML = `
-                <p><strong>Caprini Score:</strong> ${score}</p>
-                <p><strong>Risk Category:</strong> ${riskCategory}</p>
-                <hr>
-                <p><strong>Recommended Prophylaxis:</strong> ${recommendation}</p>
+                <div class="result-header"><h4>Caprini Score Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">points</span>
+                </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${riskCategory}</strong>
+                </div>
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Recommended Prophylaxis:</strong> ${recommendation}</p>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
+        };
+
+        // Pre-fill based on patient data
+        const age = calculateAge(patient.birthDate);
+        if (age >= 75) {
+            container.querySelector('#age75').checked = true;
+        } else if (age >= 61) {
+            container.querySelector('#age61').checked = true;
+        } else if (age >= 41) {
+            container.querySelector('#age41').checked = true;
+        }
+
+        // Add event listeners
+        container.querySelectorAll('.checklist input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
         });
+
+        calculate();
     }
 };

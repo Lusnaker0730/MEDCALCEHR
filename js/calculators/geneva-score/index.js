@@ -36,7 +36,6 @@ export const genevaScore = {
                     <input type="checkbox" id="geneva-palpation" value="1"><label for="geneva-palpation">Pain on deep vein palpation AND unilateral edema</label>
                 </div>
             </form>
-            <button id="calculate-geneva">Calculate Score</button>
             <div id="geneva-result" class="result" style="display:none;"></div>
         `;
     },
@@ -48,12 +47,6 @@ export const genevaScore = {
 
         // Use document if container is not a DOM element
         const root = container || document;
-
-        const calculateBtn = root.querySelector('#calculate-geneva');
-        if (!calculateBtn) {
-            console.error('Calculate button not found');
-            return;
-        }
 
         // Auto-populate age
         const age = calculateAge(patient.birthDate);
@@ -72,7 +65,7 @@ export const genevaScore = {
             });
         }
 
-        calculateBtn.addEventListener('click', () => {
+        const calculate = () => {
             let score = 0;
             const checkboxes = root.querySelectorAll('#geneva-form input[type="checkbox"]:checked');
             checkboxes.forEach(box => {
@@ -85,6 +78,12 @@ export const genevaScore = {
                 score += 1;
             } else if (hr >= 95) {
                 score += 2;
+            }
+            
+            const resultEl = root.querySelector('#geneva-result');
+            if (isNaN(hr)) {
+                resultEl.style.display = 'none';
+                return;
             }
 
             let probability = '';
@@ -105,8 +104,6 @@ export const genevaScore = {
                 riskLevel = 'High Risk';
                 bgColor = '#dc3545';
             }
-
-            const resultEl = root.querySelector('#geneva-result');
             resultEl.innerHTML = `
                 <div style="text-align: center; padding: 20px;">
                     <h3 style="margin: 0 0 10px 0; color: #333;">Revised Geneva Score</h3>
@@ -132,7 +129,17 @@ export const genevaScore = {
                 score <= 1 ? '#d4edda' : score <= 4 ? '#fff3cd' : '#f8d7da';
             resultEl.style.borderColor =
                 score <= 1 ? '#c3e6cb' : score <= 4 ? '#ffc107' : '#f5c6cb';
+        };
+
+        // Add event listeners for auto-calculation
+        const checkboxes = root.querySelectorAll('#geneva-form input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
         });
+        
+        if (hrInput) {
+            hrInput.addEventListener('input', calculate);
+        }
 
         // Auto-populate patient age if available
         if (patient && patient.birthDate) {
@@ -144,5 +151,8 @@ export const genevaScore = {
                 }
             }
         }
+        
+        // Initial calculation
+        calculate();
     }
 };

@@ -13,25 +13,26 @@ export const bmiBsa = {
     title: 'BMI & Body Surface Area (BSA)',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <div class="input-group">
-                <label for="bmi-bsa-weight">Weight:</label>
-                ${createUnitSelector('bmi-bsa-weight', 'weight', ['kg', 'lbs'], 'kg')}
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.</p>
             </div>
-            <div class="input-group">
-                <label for="bmi-bsa-height">Height:</label>
-                ${createUnitSelector('bmi-bsa-height', 'height', ['cm', 'in'], 'cm')}
-            </div>
-            <div id="bmi-bsa-result" class="result" style="display:block;">
-                <div class="result-item">
-                    <span class="value">-- <span class="unit">kg/m²</span></span>
-                    <span class="label">BMI</span>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Patient Measurements</span>
                 </div>
-                <div class="result-item">
-                    <span class="value">-- <span class="unit">m²</span></span>
-                    <span class="label">Body Surface Area (BSA)</span>
+                <div class="input-group">
+                    <label for="bmi-bsa-weight">Weight:</label>
+                    ${createUnitSelector('bmi-bsa-weight', 'weight', ['kg', 'lbs'], 'kg')}
+                </div>
+                <div class="input-group">
+                    <label for="bmi-bsa-height">Height:</label>
+                    ${createUnitSelector('bmi-bsa-height', 'height', ['cm', 'in'], 'cm')}
                 </div>
             </div>
+            
+            <div class="result-container" id="bmi-bsa-result" style="display:none;"></div>
             <div class="formula-section">
                 <h4>Formulas</h4>
                 <div class="formula-item">
@@ -88,51 +89,58 @@ export const bmiBsa = {
                         );
                     }
 
-                    // Determine BMI category
+                    // Determine BMI category and severity
                     let bmiCategory = '';
-                    let bmiColor = '';
+                    let severityClass = 'low';
                     if (bmi < 18.5) {
                         bmiCategory = 'Underweight';
-                        bmiColor = '#03a9f4';
+                        severityClass = 'moderate';
                     } else if (bmi < 25) {
                         bmiCategory = 'Normal weight';
-                        bmiColor = '#4caf50';
+                        severityClass = 'low';
                     } else if (bmi < 30) {
                         bmiCategory = 'Overweight';
-                        bmiColor = '#ff9800';
+                        severityClass = 'moderate';
                     } else if (bmi < 35) {
                         bmiCategory = 'Obese (Class I)';
-                        bmiColor = '#ff5722';
+                        severityClass = 'high';
                     } else if (bmi < 40) {
                         bmiCategory = 'Obese (Class II)';
-                        bmiColor = '#f44336';
+                        severityClass = 'high';
                     } else {
                         bmiCategory = 'Obese (Class III)';
-                        bmiColor = '#d32f2f';
+                        severityClass = 'high';
                     }
 
-                    // Update BMI result
-                    const bmiValueEl = resultEl.querySelector('.result-item:first-child .value');
-                    bmiValueEl.innerHTML = `
-                        <div style="font-size: 1.8em; font-weight: bold;">${bmi.toFixed(1)}</div>
-                        <div style="font-size: 0.9em; margin-top: 3px;">kg/m²</div>
-                        <div style="margin-top: 8px; padding: 6px 12px; background: ${bmiColor}; color: white; border-radius: 15px; font-size: 0.85em;">
-                            ${bmiCategory}
+                    resultEl.innerHTML = `
+                        <div class="result-header">
+                            <h4>BMI & BSA Results</h4>
+                        </div>
+                        
+                        <div class="result-item">
+                            <span class="result-item-label">Body Mass Index (BMI)</span>
+                            <span class="result-item-value"><strong>${bmi.toFixed(1)}</strong> kg/m²</span>
+                        </div>
+                        
+                        <div class="severity-indicator ${severityClass} mt-15">
+                            <span class="severity-indicator-text">${bmiCategory}</span>
+                        </div>
+                        
+                        <div class="result-item mt-20">
+                            <span class="result-item-label">Body Surface Area (BSA)</span>
+                            <span class="result-item-value"><strong>${bsa.toFixed(2)}</strong> m²</span>
+                        </div>
+                        
+                        <div class="alert info mt-20">
+                            <span class="alert-icon">ℹ️</span>
+                            <div class="alert-content">
+                                <p>BSA calculated using Du Bois formula. Used for medication dosing and cardiac index calculation.</p>
+                            </div>
                         </div>
                     `;
-
-                    // Update BSA result
-                    const bsaValueEl = resultEl.querySelector('.result-item:last-child .value');
-                    bsaValueEl.innerHTML = `
-                        <div style="font-size: 1.8em; font-weight: bold;">${bsa.toFixed(2)}</div>
-                        <div style="font-size: 0.9em; margin-top: 3px;">m²</div>
-                        <div style="margin-top: 8px; font-size: 0.85em; color: #666;">
-                            (Du Bois formula)
-                        </div>
-                    `;
-
-                    resultEl.className = 'result calculated';
+                    
                     resultEl.style.display = 'block';
+                    resultEl.classList.add('show');
 
                     // Clear any previous errors
                     const errorContainer = container.querySelector('#bmi-bsa-error');
@@ -140,14 +148,8 @@ export const bmiBsa = {
                         errorContainer.remove();
                     }
                 } else {
-                    // Reset to default values if inputs are invalid
-                    const bmiValueEl = resultEl.querySelector('.result-item:first-child .value');
-                    bmiValueEl.innerHTML = '-- <span class="unit">kg/m²</span>';
-
-                    const bsaValueEl = resultEl.querySelector('.result-item:last-child .value');
-                    bsaValueEl.innerHTML = '-- <span class="unit">m²</span>';
-
-                    resultEl.className = 'result';
+                    // Hide result if inputs are invalid
+                    resultEl.style.display = 'none';
                 }
             } catch (error) {
                 logError(error, {

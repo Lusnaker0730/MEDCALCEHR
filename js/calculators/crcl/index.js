@@ -12,33 +12,52 @@ export const crcl = {
     description: 'Calculates CrCl according to the Cockcroft-Gault equation.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="input-group">
-                <label>Age (years)</label>
-                <input type="number" id="crcl-age" placeholder="e.g., 65">
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div class="input-group">
-                <label>Weight:</label>
-                ${createUnitSelector('crcl-weight', 'weight', ['kg', 'lbs'], 'kg')}
-            </div>
-            <div class="input-group">
-                <label>Serum Creatinine:</label>
-                ${createUnitSelector('crcl-scr', 'creatinine', ['mg/dL', 'µmol/L'], 'mg/dL')}
-            </div>
-            <div class="input-group">
-                <label>Gender</label>
-                <select id="crcl-gender">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
-            <div id="crcl-result" class="result" style="display:block;">
-                <div class="result-item">
-                    <span class="value">-- <span class="unit">mL/min</span></span>
-                    <span class="label">Creatinine Clearance (CrCl)</span>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Patient Information</span>
+                </div>
+                
+                <div class="section-subtitle">Gender</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="crcl-gender" value="male" checked>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="crcl-gender" value="female">
+                        <span>Female</span>
+                    </label>
+                </div>
+                
+                <div class="input-row mt-15">
+                    <label for="crcl-age">Age</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="crcl-age" placeholder="e.g., 65">
+                        <span>years</span>
+                    </div>
+                </div>
+                <div class="input-group mt-10">
+                    <label>Weight:</label>
+                    ${createUnitSelector('crcl-weight', 'weight', ['kg', 'lbs'], 'kg')}
                 </div>
             </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Lab Values</span>
+                </div>
+                <div class="input-group">
+                    <label>Serum Creatinine:</label>
+                    ${createUnitSelector('crcl-scr', 'creatinine', ['mg/dL', 'µmol/L'], 'mg/dL')}
+                </div>
+            </div>
+            
+            <div class="result-container" id="crcl-result" style="display:none;"></div>
             <div class="formula-section">
                 <h4>Cockcroft-Gault Formula</h4>
                 <div class="formula-item">
@@ -72,7 +91,6 @@ export const crcl = {
     },
     initialize: function (client, patient, container) {
         const ageEl = container.querySelector('#crcl-age');
-        const genderEl = container.querySelector('#crcl-gender');
         const resultEl = container.querySelector('#crcl-result');
 
         // Function to calculate and update results
@@ -80,7 +98,14 @@ export const crcl = {
             const age = parseInt(ageEl.value);
             const weightKg = getValueInStandardUnit(container, 'crcl-weight', 'kg');
             const scrMgDl = getValueInStandardUnit(container, 'crcl-scr', 'mg/dL');
-            const gender = genderEl.value;
+            const genderRadio = container.querySelector('input[name="crcl-gender"]:checked');
+            const gender = genderRadio ? genderRadio.value : 'male';
+
+            // Skip calculation if inputs are not yet provided
+            if (!age || !weightKg || !scrMgDl || isNaN(age) || isNaN(weightKg) || isNaN(scrMgDl)) {
+                resultEl.style.display = 'none';
+                return;
+            }
 
             if (!isNaN(age) && weightKg > 0 && scrMgDl > 0 && age > 0) {
                 let crcl = ((140 - age) * weightKg) / (72 * scrMgDl);
@@ -88,43 +113,64 @@ export const crcl = {
                     crcl *= 0.85;
                 }
 
-                // Determine kidney function category
+                // Determine kidney function category and severity
                 let category = '';
-                let categoryColor = '';
+                let severityClass = 'low';
+                let alertType = 'info';
+                let alertMsg = '';
+                
                 if (crcl >= 90) {
                     category = 'Normal kidney function';
-                    categoryColor = '#4caf50';
+                    severityClass = 'low';
+                    alertMsg = 'Normal creatinine clearance.';
                 } else if (crcl >= 60) {
                     category = 'Mild reduction';
-                    categoryColor = '#8bc34a';
+                    severityClass = 'low';
+                    alertMsg = 'Mildly reduced creatinine clearance.';
                 } else if (crcl >= 30) {
                     category = 'Moderate reduction';
-                    categoryColor = '#ff9800';
+                    severityClass = 'moderate';
+                    alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
+                    alertType = 'warning';
                 } else if (crcl >= 15) {
                     category = 'Severe reduction';
-                    categoryColor = '#ff5722';
+                    severityClass = 'high';
+                    alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
+                    alertType = 'warning';
                 } else {
                     category = 'Kidney failure';
-                    categoryColor = '#f44336';
+                    severityClass = 'high';
+                    alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
+                    alertType = 'warning';
                 }
 
                 // Update result display
-                const valueEl = resultEl.querySelector('.result-item .value');
-                valueEl.innerHTML = `
-                    <div style="font-size: 2em; font-weight: bold;">${crcl.toFixed(1)}</div>
-                    <div style="font-size: 0.9em; margin-top: 5px;">mL/min</div>
-                    <div style="margin-top: 10px; padding: 8px; background: ${categoryColor}; color: white; border-radius: 5px; font-size: 0.9em;">
-                        ${category}
+                resultEl.innerHTML = `
+                    <div class="result-header">
+                        <h4>Creatinine Clearance Results</h4>
+                    </div>
+                    
+                    <div class="result-score">
+                        <span class="result-score-value">${crcl.toFixed(1)}</span>
+                        <span class="result-score-unit">mL/min</span>
+                    </div>
+                    
+                    <div class="severity-indicator ${severityClass} mt-20">
+                        <span class="severity-indicator-text">${category}</span>
+                    </div>
+                    
+                    <div class="alert ${alertType} mt-20">
+                        <span class="alert-icon">${alertType === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                        <div class="alert-content">
+                            <p>${alertMsg}</p>
+                        </div>
                     </div>
                 `;
-
-                resultEl.className = 'result calculated';
+                
+                resultEl.style.display = 'block';
+                resultEl.classList.add('show');
             } else {
-                // Reset to default values if inputs are invalid
-                const valueEl = resultEl.querySelector('.result-item .value');
-                valueEl.innerHTML = '-- <span class="unit">mL/min</span>';
-
-                resultEl.className = 'result';
+                resultEl.style.display = 'none';
             }
         };
 
@@ -137,8 +183,38 @@ export const crcl = {
             ageEl.value = calculateAge(patient.birthDate);
         }
         if (patient && patient.gender) {
-            genderEl.value = patient.gender;
+            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+            const genderRadio = container.querySelector(`input[name="crcl-gender"][value="${genderValue}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.parentElement.classList.add('selected');
+            }
         }
+        
+        // Add visual feedback for radio options
+        const radioOptions = container.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                this.classList.add('selected');
+                radio.checked = true;
+                calculateAndUpdate();
+            });
+        });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
+        });
 
         // Auto-populate from FHIR data
         getMostRecentObservation(client, '29463-7').then(obs => {
@@ -165,7 +241,6 @@ export const crcl = {
 
         // Add event listeners for automatic calculation
         ageEl.addEventListener('input', calculateAndUpdate);
-        genderEl.addEventListener('change', calculateAndUpdate);
 
         // Initial calculation
         calculateAndUpdate();

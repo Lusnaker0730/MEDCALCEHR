@@ -21,7 +21,6 @@ export const tpaDosing = {
                 <small>Must be ≤ 4.5 hours for IV tPA eligibility</small>
             </div>
             
-            <button id="calculate-tpa-stroke">Calculate tPA Dosing</button>
             <div id="tpa-stroke-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -174,7 +173,7 @@ export const tpaDosing = {
             }
         });
 
-        document.getElementById('calculate-tpa-stroke').addEventListener('click', () => {
+        const calculate = () => {
             const weight = parseFloat(weightInput.value);
             const symptomOnset = parseFloat(symptomOnsetInput.value);
             const resultEl = document.getElementById('tpa-stroke-result');
@@ -243,9 +242,15 @@ export const tpaDosing = {
                 `;
                 resultEl.style.display = 'block';
             } else {
-                resultEl.innerHTML = '<p class="error">Please enter a valid weight.</p>';
-                resultEl.style.display = 'block';
+                resultEl.style.display = 'none';
             }
-        });
+        };
+
+        // Add event listeners for auto-calculation
+        weightInput.addEventListener('input', calculate);
+        symptomOnsetInput.addEventListener('input', calculate);
+
+        // Initial calculation
+        calculate();
     }
 };

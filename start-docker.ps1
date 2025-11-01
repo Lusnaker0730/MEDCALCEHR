@@ -121,3 +121,5 @@ Write-Host ""
 Write-Host "按任意鍵退出..." -ForegroundColor Gray
 pause
 
+
+

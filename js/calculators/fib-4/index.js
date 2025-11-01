@@ -54,11 +54,6 @@ export const fib4 = {
                     </div>
                 </div>
 
-                <button id="calculate-fib4" class="fib4-calculate-btn">
-                    <span>Calculate FIB-4 Score</span>
-                    <span class="btn-icon">→</span>
-                </button>
-
                 <div id="fib4-result" class="fib4-result" style="display:none;"></div>
 
                 <div class="fib4-formula-section">
@@ -227,16 +222,10 @@ export const fib4 = {
             calculateAndUpdate();
         });
 
-        // Event listeners
+        // Event listeners for auto-calculation
         ageInput.addEventListener('input', calculateAndUpdate);
         astInput.addEventListener('input', calculateAndUpdate);
         altInput.addEventListener('input', calculateAndUpdate);
-
-        // Remove old calculate button, use auto-calculation
-        const oldBtn = container.querySelector('#calculate-fib4');
-        if (oldBtn) {
-            oldBtn.style.display = 'none';
-        }
 
         // Initial calculation
         calculateAndUpdate();

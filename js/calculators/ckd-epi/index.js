@@ -14,28 +14,48 @@ export const ckdEpi = {
     title: 'CKD-EPI GFR (2021 Refit)',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <div class="input-group">
-                <label for="ckd-epi-creatinine">Serum Creatinine:</label>
-                ${createUnitSelector('ckd-epi-creatinine', 'creatinine', ['mg/dL', 'µmol/L'], 'mg/dL')}
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">Estimates GFR using the CKD-EPI 2021 race-free equation, the recommended method for assessing kidney function.</p>
             </div>
-            <div class="input-group">
-                <label for="ckd-epi-age">Age:</label>
-                <input type="number" id="ckd-epi-age" placeholder="loading...">
-            </div>
-            <div class="input-group">
-                <label for="ckd-epi-gender">Gender:</label>
-                <select id="ckd-epi-gender">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
-            <div id="ckd-epi-result" class="result" style="display:block;">
-                <div class="result-item">
-                    <span class="value">-- <span class="unit">mL/min/1.73m²</span></span>
-                    <span class="label">eGFR (CKD-EPI 2021)</span>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Patient Information</span>
+                </div>
+                
+                <div class="section-subtitle">Gender</div>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="ckd-epi-gender" value="male" checked>
+                        <span>Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="ckd-epi-gender" value="female">
+                        <span>Female</span>
+                    </label>
+                </div>
+                
+                <div class="input-row mt-15">
+                    <label for="ckd-epi-age">Age</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="ckd-epi-age" placeholder="loading...">
+                        <span>years</span>
+                    </div>
                 </div>
             </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <span>Lab Values</span>
+                </div>
+                <div class="input-group">
+                    <label for="ckd-epi-creatinine">Serum Creatinine:</label>
+                    ${createUnitSelector('ckd-epi-creatinine', 'creatinine', ['mg/dL', 'µmol/L'], 'mg/dL')}
+                </div>
+            </div>
+            
+            <div class="result-container" id="ckd-epi-result" style="display:none;"></div>
             <div class="formula-section">
                 <h4>CKD-EPI 2021 Formula</h4>
                 <div class="formula-item">
@@ -61,7 +81,6 @@ export const ckdEpi = {
     },
     initialize: function (client, patient, container) {
         const ageInput = container.querySelector('#ckd-epi-age');
-        const genderSelect = container.querySelector('#ckd-epi-gender');
         const resultEl = container.querySelector('#ckd-epi-result');
 
         // Function to calculate and update results
@@ -70,7 +89,14 @@ export const ckdEpi = {
                 // Get creatinine in mg/dL (standard unit)
                 const creatinineMgDl = getValueInStandardUnit(container, 'ckd-epi-creatinine', 'mg/dL');
                 const age = parseFloat(ageInput.value);
-                const gender = genderSelect.value;
+                const genderRadio = container.querySelector('input[name="ckd-epi-gender"]:checked');
+                const gender = genderRadio ? genderRadio.value : 'male';
+
+                // Skip calculation if inputs are not yet provided
+                if (!creatinineMgDl || !age || isNaN(creatinineMgDl) || isNaN(age)) {
+                    resultEl.style.display = 'none';
+                    return;
+                }
 
                 // Validate input
                 const inputs = {
@@ -112,41 +138,66 @@ export const ckdEpi = {
                         );
                     }
 
-                    // Determine CKD stage
+                    // Determine CKD stage and severity
                     let stage = '';
-                    let stageColor = '';
+                    let severityClass = 'low';
+                    let alertType = 'info';
+                    let alertMsg = '';
+                    
                     if (gfr >= 90) {
                         stage = 'Stage 1 (Normal or high)';
-                        stageColor = '#4caf50';
+                        severityClass = 'low';
+                        alertMsg = 'Normal kidney function.';
                     } else if (gfr >= 60) {
                         stage = 'Stage 2 (Mild)';
-                        stageColor = '#8bc34a';
+                        severityClass = 'low';
+                        alertMsg = 'Mildly decreased kidney function.';
                     } else if (gfr >= 45) {
                         stage = 'Stage 3a (Mild to moderate)';
-                        stageColor = '#ffc107';
+                        severityClass = 'moderate';
+                        alertMsg = 'Mild to moderate reduction in kidney function.';
                     } else if (gfr >= 30) {
                         stage = 'Stage 3b (Moderate to severe)';
-                        stageColor = '#ff9800';
+                        severityClass = 'moderate';
+                        alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+                        alertType = 'warning';
                     } else if (gfr >= 15) {
                         stage = 'Stage 4 (Severe)';
-                        stageColor = '#ff5722';
+                        severityClass = 'high';
+                        alertMsg = 'Severe reduction in kidney function. Nephrology referral required.';
+                        alertType = 'warning';
                     } else {
                         stage = 'Stage 5 (Kidney failure)';
-                        stageColor = '#f44336';
+                        severityClass = 'high';
+                        alertMsg = 'Kidney failure. Consider dialysis or transplantation.';
+                        alertType = 'warning';
                     }
 
                     // Update result display
-                    const valueEl = resultEl.querySelector('.result-item .value');
-                    valueEl.innerHTML = `
-                        <div style="font-size: 2em; font-weight: bold;">${gfr.toFixed(0)}</div>
-                        <div style="font-size: 0.9em; margin-top: 5px;">mL/min/1.73m²</div>
-                        <div style="margin-top: 10px; padding: 8px; background: ${stageColor}; color: white; border-radius: 5px; font-size: 0.9em;">
-                            ${stage}
+                    resultEl.innerHTML = `
+                        <div class="result-header">
+                            <h4>eGFR Results (CKD-EPI 2021)</h4>
+                        </div>
+                        
+                        <div class="result-score">
+                            <span class="result-score-value">${gfr.toFixed(0)}</span>
+                            <span class="result-score-unit">mL/min/1.73m²</span>
+                        </div>
+                        
+                        <div class="severity-indicator ${severityClass} mt-20">
+                            <span class="severity-indicator-text">${stage}</span>
+                        </div>
+                        
+                        <div class="alert ${alertType} mt-20">
+                            <span class="alert-icon">${alertType === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                            <div class="alert-content">
+                                <p>${alertMsg}</p>
+                            </div>
                         </div>
                     `;
-
-                    resultEl.className = 'result calculated';
+                    
                     resultEl.style.display = 'block';
+                    resultEl.classList.add('show');
 
                     // Clear any previous errors
                     const errorContainer = container.querySelector('#ckd-epi-error');
@@ -188,8 +239,38 @@ export const ckdEpi = {
             ageInput.value = calculateAge(patient.birthDate);
         }
         if (patient && patient.gender) {
-            genderSelect.value = patient.gender;
+            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+            const genderRadio = container.querySelector(`input[name="ckd-epi-gender"][value="${genderValue}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.parentElement.classList.add('selected');
+            }
         }
+        
+        // Add visual feedback for radio options
+        const radioOptions = container.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                const group = radio.name;
+                
+                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                
+                this.classList.add('selected');
+                radio.checked = true;
+                calculateAndUpdate();
+            });
+        });
+        
+        // Initialize selected state
+        radioOptions.forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
+        });
 
         // Auto-populate from FHIR data
         getMostRecentObservation(client, '2160-0')
@@ -228,7 +309,6 @@ export const ckdEpi = {
 
         // Add event listeners for automatic calculation
         ageInput.addEventListener('input', calculateAndUpdate);
-        genderSelect.addEventListener('change', calculateAndUpdate);
 
         // Initial calculation
         calculateAndUpdate();

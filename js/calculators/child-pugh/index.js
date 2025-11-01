@@ -6,22 +6,17 @@ export const childPugh = {
     description: 'Estimates cirrhosis severity.',
     generateHTML: function () {
         return `
-            <div class="child-pugh-container">
-                <div class="calculator-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 16px; margin-bottom: 25px;">
-                    <div class="header-icon" style="font-size: 3em;">🫀</div>
-                    <div class="header-content">
-                        <h2 class="calculator-title" style="color: white !important; background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: white !important; background-clip: unset !important; margin: 0 0 8px 0; font-size: 1.8em; font-weight: 700;">${this.title}</h2>
-                        <p class="calculator-description" style="color: white !important; margin: 0; opacity: 0.95; font-size: 1.1em;">${this.description}</p>
-                    </div>
-                </div>
+            <div class="calculator-header">
+                <h3>🫀 ${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
 
-                <div class="instructions-notice">
-                    <div class="notice-icon">ℹ️</div>
-                    <div class="notice-content">
-                        <h5>About Child-Pugh Score</h5>
-                        <p>The Child-Pugh score assesses the prognosis of chronic liver disease, mainly cirrhosis. It uses five clinical measures to classify patients into three categories (A, B, C) with different survival rates and surgical risks.</p>
-                    </div>
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <p><strong>About Child-Pugh Score:</strong> Assesses the prognosis of chronic liver disease, mainly cirrhosis. Uses five clinical measures to classify patients into three categories (A, B, C) with different survival rates and surgical risks.</p>
                 </div>
+            </div>
 
                 <div class="lab-values-summary">
                     <h4>🧪 Current Lab Values</h4>
@@ -54,27 +49,18 @@ export const childPugh = {
                                 <div class="criterion-title">Bilirubin (Total)</div>
                                 <div class="criterion-points" data-points="bilirubin">0 pts</div>
                             </div>
-                            <div class="child-pugh-radio-group">
+                            <div class="radio-group">
                                 <label class="radio-option">
                                     <input type="radio" name="bilirubin" value="1">
-                                    <span class="radio-content">
-                                        <span class="radio-label">&lt;2 mg/dL (&lt;34.2 μmol/L)</span>
-                                        <span class="radio-score">1 pt</span>
-                                    </span>
+                                    <span>&lt;2 mg/dL (&lt;34.2 μmol/L) <strong>+1</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="bilirubin" value="2">
-                                    <span class="radio-content">
-                                        <span class="radio-label">2-3 mg/dL (34.2-51.3 μmol/L)</span>
-                                        <span class="radio-score">2 pts</span>
-                                    </span>
+                                    <span>2-3 mg/dL (34.2-51.3 μmol/L) <strong>+2</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="bilirubin" value="3">
-                                    <span class="radio-content">
-                                        <span class="radio-label">&gt;3 mg/dL (&gt;51.3 μmol/L)</span>
-                                        <span class="radio-score">3 pts</span>
-                                    </span>
+                                    <span>&gt;3 mg/dL (&gt;51.3 μmol/L) <strong>+3</strong></span>
                                 </label>
                             </div>
                         </div>
@@ -84,27 +70,18 @@ export const childPugh = {
                                 <div class="criterion-title">Albumin</div>
                                 <div class="criterion-points" data-points="albumin">0 pts</div>
                             </div>
-                            <div class="child-pugh-radio-group">
+                            <div class="radio-group">
                                 <label class="radio-option">
                                     <input type="radio" name="albumin" value="1">
-                                    <span class="radio-content">
-                                        <span class="radio-label">&gt;3.5 g/dL (&gt;35 g/L)</span>
-                                        <span class="radio-score">1 pt</span>
-                                    </span>
+                                    <span>&gt;3.5 g/dL (&gt;35 g/L) <strong>+1</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="albumin" value="2">
-                                    <span class="radio-content">
-                                        <span class="radio-label">2.8-3.5 g/dL (28-35 g/L)</span>
-                                        <span class="radio-score">2 pts</span>
-                                    </span>
+                                    <span>2.8-3.5 g/dL (28-35 g/L) <strong>+2</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="albumin" value="3">
-                                    <span class="radio-content">
-                                        <span class="radio-label">&lt;2.8 g/dL (&lt;28 g/L)</span>
-                                        <span class="radio-score">3 pts</span>
-                                    </span>
+                                    <span>&lt;2.8 g/dL (&lt;28 g/L) <strong>+3</strong></span>
                                 </label>
                             </div>
                         </div>
@@ -114,27 +91,18 @@ export const childPugh = {
                                 <div class="criterion-title">INR (International Normalized Ratio)</div>
                                 <div class="criterion-points" data-points="inr">0 pts</div>
                             </div>
-                            <div class="child-pugh-radio-group">
+                            <div class="radio-group">
                                 <label class="radio-option">
                                     <input type="radio" name="inr" value="1">
-                                    <span class="radio-content">
-                                        <span class="radio-label">&lt;1.7</span>
-                                        <span class="radio-score">1 pt</span>
-                                    </span>
+                                    <span>&lt;1.7 <strong>+1</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="inr" value="2">
-                                    <span class="radio-content">
-                                        <span class="radio-label">1.7-2.3</span>
-                                        <span class="radio-score">2 pts</span>
-                                    </span>
+                                    <span>1.7-2.3 <strong>+2</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="inr" value="3">
-                                    <span class="radio-content">
-                                        <span class="radio-label">&gt;2.3</span>
-                                        <span class="radio-score">3 pts</span>
-                                    </span>
+                                    <span>&gt;2.3 <strong>+3</strong></span>
                                 </label>
                             </div>
                         </div>
@@ -153,27 +121,18 @@ export const childPugh = {
                                 <div class="criterion-subtitle">Fluid accumulation in peritoneal cavity</div>
                                 <div class="criterion-points" data-points="ascites">0 pts</div>
                             </div>
-                            <div class="child-pugh-radio-group">
+                            <div class="radio-group">
                                 <label class="radio-option">
                                     <input type="radio" name="ascites" value="1">
-                                    <span class="radio-content">
-                                        <span class="radio-label">Absent</span>
-                                        <span class="radio-score">1 pt</span>
-                                    </span>
+                                    <span>Absent <strong>+1</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="ascites" value="2">
-                                    <span class="radio-content">
-                                        <span class="radio-label">Slight (controlled with diuretics)</span>
-                                        <span class="radio-score">2 pts</span>
-                                    </span>
+                                    <span>Slight (controlled with diuretics) <strong>+2</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="ascites" value="3">
-                                    <span class="radio-content">
-                                        <span class="radio-label">Moderate (despite diuretic therapy)</span>
-                                        <span class="radio-score">3 pts</span>
-                                    </span>
+                                    <span>Moderate (despite diuretic therapy) <strong>+3</strong></span>
                                 </label>
                             </div>
                         </div>
@@ -184,27 +143,18 @@ export const childPugh = {
                                 <div class="criterion-subtitle">Neuropsychiatric abnormalities</div>
                                 <div class="criterion-points" data-points="encephalopathy">0 pts</div>
                             </div>
-                            <div class="child-pugh-radio-group">
+                            <div class="radio-group">
                                 <label class="radio-option">
                                     <input type="radio" name="encephalopathy" value="1">
-                                    <span class="radio-content">
-                                        <span class="radio-label">No Encephalopathy</span>
-                                        <span class="radio-score">1 pt</span>
-                                    </span>
+                                    <span>No Encephalopathy <strong>+1</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="encephalopathy" value="2">
-                                    <span class="radio-content">
-                                        <span class="radio-label">Grade 1-2 (mild confusion, asterixis)</span>
-                                        <span class="radio-score">2 pts</span>
-                                    </span>
+                                    <span>Grade 1-2 (mild confusion, asterixis) <strong>+2</strong></span>
                                 </label>
                                 <label class="radio-option">
                                     <input type="radio" name="encephalopathy" value="3">
-                                    <span class="radio-content">
-                                        <span class="radio-label">Grade 3-4 (severe confusion, coma)</span>
-                                        <span class="radio-score">3 pts</span>
-                                    </span>
+                                    <span>Grade 3-4 (severe confusion, coma) <strong>+3</strong></span>
                                 </label>
                             </div>
                         </div>
@@ -343,12 +293,12 @@ export const childPugh = {
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
         const updateToggleState = input => {
-            const group = input.closest('.child-pugh-radio-group');
+            const group = input.closest('.radio-group');
             if (group) {
                 group.querySelectorAll('.radio-option').forEach(option => {
-                    option.classList.remove('active');
+                    option.classList.remove('selected');
                 });
-                input.closest('.radio-option').classList.add('active');
+                input.closest('.radio-option').classList.add('selected');
             }
         };
 

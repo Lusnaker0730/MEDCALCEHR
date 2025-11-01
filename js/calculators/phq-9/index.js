@@ -1,6 +1,7 @@
 export const phq9 = {
     id: 'phq-9',
     title: 'PHQ-9 (Patient Health Questionnaire-9)',
+    description: 'Screens for depression and monitors treatment response.',
     generateHTML: function () {
         const questions = [
             'Little interest or pleasure in doing things',
@@ -14,57 +15,103 @@ export const phq9 = {
             'Thoughts that you would be better off dead or of hurting yourself in some way'
         ];
 
-        let questionsHTML =
-            '<p>Over the last 2 weeks, how often have you been bothered by any of the following problems?</p>';
-        questionsHTML += '<div class="form-container">';
+        let html = `
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+            
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <p><strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by any of the following problems?</p>
+                </div>
+            </div>
+        `;
+
         questions.forEach((q, i) => {
-            questionsHTML += `
-                <div class="form-group">
-                    <label>${i + 1}. ${q}</label>
-                    <select id="phq9-q${i}">
-                        <option value="0">Not at all</option>
-                        <option value="1">Several days</option>
-                        <option value="2">More than half the days</option>
-                        <option value="3">Nearly every day</option>
-                    </select>
+            html += `
+                <div class="section">
+                    <div class="section-title"><span>${i + 1}. ${q}</span></div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="phq9-q${i}" value="0" checked><span>Not at all <strong>+0</strong></span></label>
+                        <label class="radio-option"><input type="radio" name="phq9-q${i}" value="1"><span>Several days <strong>+1</strong></span></label>
+                        <label class="radio-option"><input type="radio" name="phq9-q${i}" value="2"><span>More than half the days <strong>+2</strong></span></label>
+                        <label class="radio-option"><input type="radio" name="phq9-q${i}" value="3"><span>Nearly every day <strong>+3</strong></span></label>
+                    </div>
                 </div>
             `;
         });
-        questionsHTML += '</div>';
 
-        return `
-            <h3>${this.title}</h3>
-            ${questionsHTML}
-            <button id="calculate-phq9">Calculate Score</button>
-            <div id="phq9-result" class="result" style="display:none;"></div>
-        `;
+        html += `<div id="phq9-result" class="result-container"></div>`;
+        return html;
     },
-    initialize: function () {
-        document.getElementById('calculate-phq9').addEventListener('click', () => {
+    initialize: function (client, patient, container) {
+        const calculate = () => {
             let score = 0;
             for (let i = 0; i < 9; i++) {
-                score += parseInt(document.getElementById(`phq9-q${i}`).value);
+                const checked = container.querySelector(`input[name="phq9-q${i}"]:checked`);
+                if (checked) {
+                    score += parseInt(checked.value);
+                }
             }
 
             let severity = '';
+            let alertClass = '';
             if (score <= 4) {
                 severity = 'Minimal depression';
+                alertClass = 'success';
             } else if (score <= 9) {
                 severity = 'Mild depression';
+                alertClass = 'info';
             } else if (score <= 14) {
                 severity = 'Moderate depression';
+                alertClass = 'warning';
             } else if (score <= 19) {
                 severity = 'Moderately severe depression';
+                alertClass = 'danger';
             } else {
                 severity = 'Severe depression';
+                alertClass = 'danger';
             }
 
-            const resultEl = document.getElementById('phq9-result');
+            const resultEl = container.querySelector('#phq9-result');
             resultEl.innerHTML = `
-                <p>PHQ-9 Score: ${score}</p>
-                <p>Depression Severity: ${severity}</p>
+                <div class="result-header"><h4>PHQ-9 Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">/ 27 points</span>
+                </div>
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${severity}</strong>
+                </div>
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Recommendation:</strong> ${score <= 4 ? 'Monitor, may not require treatment.' : score <= 14 ? 'Consider counseling, follow-up, and/or pharmacotherapy.' : 'Active treatment with pharmacotherapy and/or psychotherapy recommended.'}</p>
+                    </div>
+                </div>
             `;
             resultEl.style.display = 'block';
+        };
+
+        container.querySelectorAll('.radio-option').forEach(option => {
+            const radio = option.querySelector('input[type="radio"]');
+            radio.addEventListener('change', () => {
+                const name = radio.name;
+                container.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                    r.closest('.radio-option').classList.remove('selected');
+                });
+                if (radio.checked) {
+                    option.classList.add('selected');
+                }
+                calculate();
+            });
+            if (radio.checked) {
+                option.classList.add('selected');
+            }
         });
+
+        calculate();
     }
 };

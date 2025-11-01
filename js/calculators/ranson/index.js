@@ -47,7 +47,6 @@ export const ransonScore = {
                     <input type="checkbox" id="ranson-fluid" value="1"><label for="ranson-fluid">Fluid sequestration > 6 L</label>
                 </div>
             </form>
-            <button id="calculate-ranson">Calculate Score</button>
             <div id="ranson-result" class="result" style="display:none;"></div>
         `;
     },
@@ -136,71 +135,61 @@ export const ransonScore = {
             }
         });
 
-        calculateBtn.addEventListener('click', () => {
+        const calculate = () => {
             const inputs = root.querySelectorAll('#ranson-form input[type="checkbox"]:checked');
             const score = inputs.length;
 
             let mortality = '';
-            let riskLevel = '';
-            let bgColor = '';
+            let severity = '';
+            let alertClass = '';
 
             if (score <= 2) {
                 mortality = '~0-3%';
-                riskLevel = 'Low Risk';
-                bgColor = '#28a745';
+                severity = 'Low Risk';
+                alertClass = 'success';
             } else if (score <= 4) {
                 mortality = '~15-20%';
-                riskLevel = 'Moderate Risk';
-                bgColor = '#ffc107';
+                severity = 'Moderate Risk';
+                alertClass = 'warning';
             } else if (score <= 6) {
                 mortality = '~40%';
-                riskLevel = 'High Risk';
-                bgColor = '#fd7e14';
+                severity = 'High Risk';
+                alertClass = 'danger';
             } else {
                 mortality = '>50% to 100%';
-                riskLevel = 'Very High Risk';
-                bgColor = '#dc3545';
+                severity = 'Very High Risk';
+                alertClass = 'danger';
             }
 
             const resultEl = root.querySelector('#ranson-result');
             resultEl.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <h3 style="margin: 0 0 10px 0; color: #333;">Ranson's Criteria Score</h3>
-                    <div style="font-size: 3em; font-weight: bold; color: ${bgColor}; margin: 15px 0;">
-                        ${score}
-                    </div>
-                    <div style="display: inline-block; padding: 8px 16px; background: ${bgColor}; color: white; border-radius: 20px; font-weight: 600; margin: 10px 0;">
-                        ${riskLevel}
-                    </div>
-                    <p style="font-size: 1.2em; margin: 15px 0 0 0; color: #495057;">
-                        <strong>Estimated Mortality:</strong> ${mortality}
-                    </p>
+                <div class="result-header"><h4>Ranson Score Result</h4></div>
+                <div class="result-score">
+                    <span class="score-value">${score}</span>
+                    <span class="score-label">/ 11 points</span>
                 </div>
-                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #666;">
-                    <strong>Mortality by Score:</strong><br>
-                    0-2: 0-3% mortality<br>
-                    3-4: 15-20% mortality<br>
-                    5-6: ~40% mortality<br>
-                    ≥7: >50% mortality
+                <div class="severity-indicator ${alertClass}">
+                    <strong>${severity}</strong>
+                </div>
+                <div class="result-item">
+                    <span class="label">Estimated Mortality:</span>
+                    <span class="value">${mortality}</span>
+                </div>
+                <div class="alert ${alertClass}">
+                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <div class="alert-content">
+                        <p><strong>Mortality by Score:</strong> 0-2: 0-3% | 3-4: 15-20% | 5-6: ~40% | ≥7: >50%</p>
+                    </div>
                 </div>
             `;
             resultEl.style.display = 'block';
-            resultEl.style.backgroundColor =
-                score <= 2
-                    ? '#d4edda'
-                    : score <= 4
-                        ? '#fff3cd'
-                        : score <= 6
-                            ? '#fff3cd'
-                            : '#f8d7da';
-            resultEl.style.borderColor =
-                score <= 2
-                    ? '#c3e6cb'
-                    : score <= 4
-                        ? '#ffc107'
-                        : score <= 6
-                            ? '#fd7e14'
-                            : '#f5c6cb';
+        };
+
+        // Add event listeners to all checkboxes
+        root.querySelectorAll('#ranson-form input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
         });
+
+        calculate();
     }
 };

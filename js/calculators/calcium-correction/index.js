@@ -20,7 +20,6 @@ export const calciumCorrection = {
                 <label for="ca-albumin">Albumin:</label>
                 ${createUnitSelector('ca-albumin', 'albumin', ['g/dL', 'g/L'], 'g/dL')}
             </div>
-            <button id="calculate-ca">Calculate</button>
             <div id="ca-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -116,12 +115,6 @@ export const calciumCorrection = {
                 calculateAndUpdate();
             }
         });
-
-        // Manual calculate button (for compatibility)
-        const calculateBtn = container.querySelector('#calculate-ca');
-        if (calculateBtn) {
-            calculateBtn.addEventListener('click', calculateAndUpdate);
-        }
 
         // Initial calculation
         calculateAndUpdate();
