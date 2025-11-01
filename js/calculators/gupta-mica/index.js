@@ -5,15 +5,12 @@ export const guptaMica = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
     description:
-        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = √(1 + e^x) where x = -5.25 + sum of selected variables.',
+        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] × 100 where x = -5.25 + sum of selected variables.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
-                <h3 class="calculator-title">
-                    <span class="title-icon">🫀</span>
-                    ${this.title}
-                </h3>
-                <p class="calculator-description">${this.description}</p>
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
 
             <div class="grace-container">
@@ -168,8 +165,8 @@ export const guptaMica = {
             // Type of procedure
             x += procedure;
 
-            // Calculate risk using formula: risk % = √(1 + e^x)
-            const risk = Math.sqrt(1 + Math.exp(x));
+            // Calculate risk using formula: risk % = 1 / (1 + e^-x) × 100 (logistic regression)
+            const risk = (1 / (1 + Math.exp(-x))) * 100;
             const riskPercent = risk.toFixed(2);
 
             // Determine risk level
@@ -213,7 +210,8 @@ export const guptaMica = {
                 </div>
                 
                 <div class="formula-box">
-                    <strong>Formula:</strong> Cardiac risk, % = √(1 + e<sup>x</sup>) where x = -5.25 + sum of values
+                    <strong>Formula:</strong> Cardiac risk, % = [1 / (1 + e<sup>-x</sup>)] × 100<br>
+                    where x = -5.25 + sum of values (logistic regression)
                 </div>
             `;
             resultEl.classList.add('show');
