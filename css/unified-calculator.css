@@ -493,9 +493,12 @@
 }
 
 .info-section h4 {
-    color: #2d3748;
+    color: #2d3748 !important;
+    -webkit-text-fill-color: #2d3748 !important;
+    background: none !important;
     margin: 0 0 15px 0;
     font-size: 1.1em;
+    font-weight: 600;
 }
 
 .info-section p {
@@ -510,6 +513,23 @@
     border-radius: 8px;
     margin: 15px 0;
     border: 1px solid #e2e8f0;
+    color: #2d3748;
+}
+
+.formula-box p,
+.formula-box ul,
+.formula-box li,
+.formula-box strong {
+    color: #2d3748 !important;
+    -webkit-text-fill-color: #2d3748 !important;
+}
+
+.formula-box table {
+    color: #2d3748 !important;
+}
+
+.formula-box * {
+    -webkit-text-fill-color: inherit !important;
 }
 
 .formula-title {
@@ -675,6 +695,14 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.data-table tbody tr {
+    background: white;
+}
+
+.data-table tbody {
+    color: #2d3748;
+}
+
 .data-table th {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -686,6 +714,14 @@
 .data-table td {
     padding: 12px 16px;
     border-bottom: 1px solid #e2e8f0;
+    color: #2d3748 !important;
+    background: white;
+    -webkit-text-fill-color: #2d3748 !important;
+}
+
+.data-table td strong {
+    color: #1a202c !important;
+    -webkit-text-fill-color: #1a202c !important;
 }
 
 .data-table tr:last-child td {
@@ -694,6 +730,29 @@
 
 .data-table tr:hover {
     background: rgba(102, 126, 234, 0.03);
+}
+
+.data-table tr:hover td {
+    color: #2d3748 !important;
+    -webkit-text-fill-color: #2d3748 !important;
+}
+
+/* 确保表格内所有文本元素都可见 */
+.data-table * {
+    color: inherit;
+}
+
+.data-table tbody,
+.data-table tbody tr,
+.data-table tbody td {
+    background: white !important;
+    color: #2d3748 !important;
+}
+
+.data-table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    -webkit-text-fill-color: white !important;
 }
 
 /* =============================================
@@ -769,7 +828,101 @@
 }
 
 /* =============================================
-   17. 列印樣式
+   17. Badge 徽章樣式
+   ============================================= */
+
+.badge-points {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    margin-left: 8px;
+}
+
+.badge-points.warning {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
+}
+
+.badge-risk {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.badge-risk.low {
+    background: rgba(72, 187, 120, 0.15);
+    color: #2f855a;
+    border: 2px solid #48bb78;
+}
+
+.badge-risk.moderate {
+    background: rgba(237, 137, 54, 0.15);
+    color: #c05621;
+    border: 2px solid #ed8936;
+}
+
+.badge-risk.moderate-high {
+    background: rgba(245, 158, 11, 0.15);
+    color: #92400e;
+    border: 2px solid #f59e0b;
+}
+
+.badge-risk.high {
+    background: rgba(245, 101, 101, 0.15);
+    color: #c53030;
+    border: 2px solid #f56565;
+}
+
+/* =============================================
+   18. 結果分解明細樣式
+   ============================================= */
+
+.result-breakdown {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.breakdown-title {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.breakdown-label {
+    color: #4a5568;
+    font-size: 0.95em;
+}
+
+.breakdown-value {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 0.95em;
+}
+
+/* =============================================
+   19. 列印樣式
    ============================================= */
 
 @media print {

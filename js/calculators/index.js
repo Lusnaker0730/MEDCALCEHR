@@ -59,6 +59,7 @@ export const calculatorModules = [
     { id: 'map', title: 'Mean Arterial Pressure (MAP)' },
     { id: 'mdrd-gfr', title: 'MDRD GFR Equation' },
     { id: 'meld-na', title: 'MELD-Na Score for Liver Disease Severity' },
+    { id: 'mews', title: 'Modified Early Warning Score (MEWS)' },
     { id: 'mme', title: 'Morphine Milligram Equivalent (MME) Calculator' },
     { id: 'nafld-fibrosis-score', title: 'NAFLD Fibrosis Score' },
     { id: 'nihss', title: 'NIH Stroke Scale (NIHSS)' },
