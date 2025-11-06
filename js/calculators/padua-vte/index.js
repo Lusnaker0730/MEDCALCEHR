@@ -56,9 +56,10 @@ export const paduaVTE = {
 
             const alertClass = score >= 4 ? 'danger' : 'success';
             const riskLevel = score >= 4 ? 'High Risk for VTE' : 'Low Risk for VTE';
-            const recommendation = score >= 4
-                ? 'Pharmacologic prophylaxis is recommended.'
-                : 'Pharmacologic prophylaxis may not be necessary.';
+            const recommendation =
+                score >= 4
+                    ? 'Pharmacologic prophylaxis is recommended.'
+                    : 'Pharmacologic prophylaxis may not be necessary.';
 
             root.querySelector('#padua-result').innerHTML = `
                 <div class="result-header"><h4>Padua Score Result</h4></div>

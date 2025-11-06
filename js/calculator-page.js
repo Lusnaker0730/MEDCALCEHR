@@ -36,7 +36,9 @@ window.onload = () => {
         try {
             // Dynamically import the specific calculator module from its own folder
             // Add version parameter to force reload when CACHE_VERSION changes
-            const module = await import(`/js/calculators/${calculatorId}/index.js?v=${CACHE_VERSION}`);
+            const module = await import(
+                `/js/calculators/${calculatorId}/index.js?v=${CACHE_VERSION}`
+            );
             // The calculator object is usually the main export, let's find it.
             const calculator = Object.values(module)[0];
 

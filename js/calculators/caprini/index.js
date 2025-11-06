@@ -84,15 +84,18 @@ export const caprini = {
                 alertClass = 'success';
             } else if (score >= 1 && score <= 2) {
                 riskCategory = 'Low Risk';
-                recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                recommendation =
+                    'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
                 alertClass = 'info';
             } else if (score >= 3 && score <= 4) {
                 riskCategory = 'Moderate Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                recommendation =
+                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
                 alertClass = 'warning';
             } else {
                 riskCategory = 'High Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                recommendation =
+                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
                 alertClass = 'danger';
             }
 

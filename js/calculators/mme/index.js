@@ -265,7 +265,7 @@ export const mme = {
                 <button class="remove-opioid-btn">Remove</button>
             `;
             list.appendChild(newItem);
-            
+
             // Add event listeners to new inputs
             newItem.querySelector('.opioid-select').addEventListener('change', calculate);
             newItem.querySelector('.opioid-dose').addEventListener('input', calculate);

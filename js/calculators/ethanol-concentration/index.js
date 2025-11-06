@@ -137,7 +137,9 @@ export const ethanolConcentration = {
 
         // Set default gender based on patient
         if (patient && patient.gender) {
-            const genderRadio = container.querySelector(`input[name="eth-gender"][value="${patient.gender}"]`);
+            const genderRadio = container.querySelector(
+                `input[name="eth-gender"][value="${patient.gender}"]`
+            );
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.closest('.radio-option').classList.add('selected');

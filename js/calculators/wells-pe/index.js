@@ -3,8 +3,9 @@ import { getMostRecentObservation } from '../../utils.js';
 
 export const wellsPE = {
     id: 'wells-pe',
-    title: 'Wells\' Criteria for Pulmonary Embolism',
-    description: 'Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.',
+    title: "Wells' Criteria for Pulmonary Embolism",
+    description:
+        'Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -147,10 +148,12 @@ export const wellsPE = {
     },
     initialize: function (client) {
         const container = document.querySelector('#calculator-container') || document.body;
-        
+
         // Calculate function
         const calculate = () => {
-            const checkboxes = container.querySelectorAll('.checkbox-option input[type="checkbox"]');
+            const checkboxes = container.querySelectorAll(
+                '.checkbox-option input[type="checkbox"]'
+            );
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {
@@ -162,26 +165,30 @@ export const wellsPE = {
             let riskClass = '';
             let interpretation = '';
             let twoTierModel = '';
-            
+
             if (score <= 1) {
                 risk = 'Low Risk';
                 riskClass = 'low';
-                interpretation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
+                interpretation =
+                    'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
                 twoTierModel = 'PE Unlikely (Score ≤4)';
             } else if (score <= 6) {
                 risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
                 riskClass = score <= 4 ? 'moderate' : 'high';
                 if (score <= 4) {
-                    interpretation = 'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
+                    interpretation =
+                        'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
                     twoTierModel = 'PE Unlikely (Score ≤4)';
                 } else {
-                    interpretation = 'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
+                    interpretation =
+                        'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
                     twoTierModel = 'PE Likely (Score ≥5)';
                 }
             } else {
                 risk = 'High Risk';
                 riskClass = 'high';
-                interpretation = 'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
+                interpretation =
+                    'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
                 twoTierModel = 'PE Likely (Score ≥5)';
             }
 
@@ -216,7 +223,7 @@ export const wellsPE = {
             resultEl.style.display = 'block';
             resultEl.classList.add('show');
         };
-        
+
         // Auto-populate heart rate checkbox if available
         getMostRecentObservation(client, '8867-4').then(hrObs => {
             if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
@@ -229,12 +236,12 @@ export const wellsPE = {
                 }
             }
         });
-        
+
         // Add visual feedback and auto-calculate
         const checkboxOptions = container.querySelectorAll('.checkbox-option');
         checkboxOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 if (this.checked) {
                     option.classList.add('selected');
                 } else {
@@ -244,7 +251,7 @@ export const wellsPE = {
                 calculate();
             });
         });
-        
+
         // Initial calculation
         calculate();
     }

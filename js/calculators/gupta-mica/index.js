@@ -175,10 +175,12 @@ export const guptaMica = {
 
             if (risk > 5) {
                 riskLevel = 'high';
-                riskDescription = 'High risk of postoperative MI or cardiac arrest - Consider risk modification strategies';
+                riskDescription =
+                    'High risk of postoperative MI or cardiac arrest - Consider risk modification strategies';
             } else if (risk > 2) {
                 riskLevel = 'medium';
-                riskDescription = 'Intermediate risk of postoperative MI or cardiac arrest - Consider perioperative optimization';
+                riskDescription =
+                    'Intermediate risk of postoperative MI or cardiac arrest - Consider perioperative optimization';
             }
 
             resultEl.innerHTML = `
@@ -233,7 +235,10 @@ export const guptaMica = {
                     if (obs && obs.valueQuantity) {
                         let crValue = obs.valueQuantity.value;
                         // Convert if needed (µmol/L to mg/dL: divide by 88.4)
-                        if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
+                        if (
+                            obs.valueQuantity.unit === 'µmol/L' ||
+                            obs.valueQuantity.unit === 'umol/L'
+                        ) {
                             crValue = crValue / 88.4;
                         }
                         creatInput.value = crValue.toFixed(2);

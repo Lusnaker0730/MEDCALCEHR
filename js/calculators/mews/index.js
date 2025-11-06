@@ -4,7 +4,8 @@ import { getMostRecentObservation } from '../../utils.js';
 export const mewsScore = {
     id: 'mews',
     title: 'Modified Early Warning Score (MEWS)',
-    description: 'Determines the degree of illness of a patient. Identifies patients at risk for clinical deterioration.',
+    description:
+        'Determines the degree of illness of a patient. Identifies patients at risk for clinical deterioration.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -398,24 +399,28 @@ export const mewsScore = {
                 riskLevel = 'Low Risk';
                 recommendation = 'Continue routine monitoring';
             } else if (score === 2 || score === 3) {
-                interpretation = 'Moderate risk of clinical deterioration. Increase frequency of observations and notify nurse in charge.';
+                interpretation =
+                    'Moderate risk of clinical deterioration. Increase frequency of observations and notify nurse in charge.';
                 riskBadgeClass = 'moderate';
                 severityClass = 'moderate';
                 riskLevel = 'Moderate Risk';
                 recommendation = 'Increase observation frequency; notify nurse in charge';
             } else if (score === 4) {
-                interpretation = 'Moderate-high risk of clinical deterioration. Urgent call to doctor and consider ICU assessment.';
+                interpretation =
+                    'Moderate-high risk of clinical deterioration. Urgent call to doctor and consider ICU assessment.';
                 riskBadgeClass = 'moderate-high';
                 severityClass = 'moderate';
                 riskLevel = 'Moderate-High Risk';
                 recommendation = 'Urgent doctor call; consider ICU assessment';
             } else {
-                interpretation = 'High risk of clinical deterioration. Emergency call to doctor and immediate ICU assessment required.';
+                interpretation =
+                    'High risk of clinical deterioration. Emergency call to doctor and immediate ICU assessment required.';
                 riskBadgeClass = 'high';
                 severityClass = 'high';
                 riskLevel = 'High Risk';
                 recommendation = 'Emergency doctor call; immediate ICU assessment';
-                chanceText = 'Statistically linked to increased likelihood of death or ICU admission.';
+                chanceText =
+                    'Statistically linked to increased likelihood of death or ICU admission.';
             }
 
             // Check for any parameter with +3 points
@@ -501,7 +506,7 @@ export const mewsScore = {
                 else if (sbp >= 81 && sbp <= 100) sbpValue = '1';
                 else if (sbp >= 101 && sbp <= 199) sbpValue = '0';
                 else if (sbp >= 200) sbpValue = '2';
-                
+
                 const sbpRadio = root.querySelector(`input[name="sbp"][value="${sbpValue}"]`);
                 if (sbpRadio) {
                     sbpRadio.checked = true;
@@ -521,7 +526,7 @@ export const mewsScore = {
                 else if (hr >= 101 && hr <= 110) hrValue = '1';
                 else if (hr >= 111 && hr <= 129) hrValue = '2';
                 else if (hr >= 130) hrValue = '3';
-                
+
                 const hrRadio = root.querySelector(`input[name="hr"][value="${hrValue}"]`);
                 if (hrRadio) {
                     hrRadio.checked = true;
@@ -540,7 +545,7 @@ export const mewsScore = {
                 else if (rr >= 15 && rr <= 20) rrValue = '1';
                 else if (rr >= 21 && rr <= 29) rrValue = '2';
                 else if (rr >= 30) rrValue = '3';
-                
+
                 const rrRadio = root.querySelector(`input[name="rr"][value="${rrValue}"]`);
                 if (rrRadio) {
                     rrRadio.checked = true;
@@ -554,17 +559,17 @@ export const mewsScore = {
             if (obs && obs.valueQuantity) {
                 let temp = obs.valueQuantity.value;
                 const unit = obs.valueQuantity.unit || obs.valueQuantity.code;
-                
+
                 // Convert Fahrenheit to Celsius if needed
                 if (unit === '[degF]' || unit === 'degF' || unit === 'F') {
-                    temp = (temp - 32) * 5 / 9;
+                    temp = ((temp - 32) * 5) / 9;
                 }
-                
+
                 let tempValue = '0';
                 if (temp < 35) tempValue = '2';
                 else if (temp >= 35 && temp <= 38.4) tempValue = '0';
                 else if (temp >= 38.5) tempValue = '2';
-                
+
                 const tempRadio = root.querySelector(`input[name="temp"][value="${tempValue}"]`);
                 if (tempRadio) {
                     tempRadio.checked = true;
@@ -577,22 +582,22 @@ export const mewsScore = {
         const radioOptions = root.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
-            radio.addEventListener('change', function() {
+            radio.addEventListener('change', function () {
                 // Remove 'selected' class from all options in the same group
                 const groupName = this.name;
                 root.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
                     r.closest('.radio-option')?.classList.remove('selected');
                 });
-                
+
                 // Add 'selected' class to selected option
                 if (this.checked) {
                     option.classList.add('selected');
                 }
-                
+
                 // Auto-calculate
                 calculate();
             });
-            
+
             // Initialize state
             if (radio.checked) {
                 option.classList.add('selected');
@@ -603,4 +608,3 @@ export const mewsScore = {
         calculate();
     }
 };
-

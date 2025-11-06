@@ -74,7 +74,8 @@ export const gad7 = {
             } else {
                 severity = 'Severe anxiety';
                 alertClass = 'danger';
-                recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+                recommendation =
+                    'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
             }
 
             const resultEl = container.querySelector('#gad7-result');

@@ -298,30 +298,32 @@ export const ascvd = {
         }
         if (patient && patient.gender) {
             const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="ascvd-gender"][value="${genderValue}"]`);
+            const genderRadio = container.querySelector(
+                `input[name="ascvd-gender"][value="${genderValue}"]`
+            );
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.parentElement.classList.add('selected');
             }
         }
-        
+
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 if (!radio) return;
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -482,7 +484,7 @@ export const ascvd = {
                 const htnRadio = container.querySelector('input[name="ascvd-htn"]:checked');
                 const dmRadio = container.querySelector('input[name="ascvd-dm"]:checked');
                 const smokerRadio = container.querySelector('input[name="ascvd-smoker"]:checked');
-                
+
                 const isMale = genderRadio ? genderRadio.value === 'male' : true;
                 const race = raceRadio ? raceRadio.value : 'white';
                 const onHtnTx = htnRadio ? htnRadio.value === 'yes' : false;
@@ -535,10 +537,10 @@ export const ascvd = {
                         <p><strong>⚠️ Age Limitation:</strong> The Pooled Cohort Equations are validated for ages 40-79 years.</p>
                         <p><strong>Current Age:</strong> ${age} years</p>
                         <p><strong>Recommendation:</strong> ${
-    age < 40
-        ? 'For patients under 40, focus on lifestyle modifications and traditional risk factor management. Consider family history and other risk enhancers.'
-        : 'For patients over 79, clinical judgment should guide treatment decisions as the equations may not accurately predict risk.'
-}</p>
+                            age < 40
+                                ? 'For patients under 40, focus on lifestyle modifications and traditional risk factor management. Consider family history and other risk enhancers.'
+                                : 'For patients over 79, clinical judgment should guide treatment decisions as the equations may not accurately predict risk.'
+                        }</p>
                     </div>
                 `;
                 resultEl.style.display = 'block';
@@ -555,7 +557,7 @@ export const ascvd = {
             const htnRadio = container.querySelector('input[name="ascvd-htn"]:checked');
             const dmRadio = container.querySelector('input[name="ascvd-dm"]:checked');
             const smokerRadio = container.querySelector('input[name="ascvd-smoker"]:checked');
-            
+
             const onHtnTx = htnRadio ? htnRadio.value === 'yes' : false;
             const isDiabetic = dmRadio ? dmRadio.value === 'yes' : false;
             const isSmoker = smokerRadio ? smokerRadio.value === 'yes' : false;
@@ -699,18 +701,18 @@ export const ascvd = {
                 let statinDescription = '';
 
                 switch (intensity) {
-                case 'high':
-                    ldlReduction = 0.5;
-                    statinDescription = 'High-intensity statin';
-                    break;
-                case 'moderate':
-                    ldlReduction = 0.4;
-                    statinDescription = 'Moderate-intensity statin';
-                    break;
-                case 'low':
-                    ldlReduction = 0.25;
-                    statinDescription = 'Low-intensity statin';
-                    break;
+                    case 'high':
+                        ldlReduction = 0.5;
+                        statinDescription = 'High-intensity statin';
+                        break;
+                    case 'moderate':
+                        ldlReduction = 0.4;
+                        statinDescription = 'Moderate-intensity statin';
+                        break;
+                    case 'low':
+                        ldlReduction = 0.25;
+                        statinDescription = 'Low-intensity statin';
+                        break;
                 }
 
                 // Estimate LDL-C = TC - HDL - (Triglycerides/5). Assume Triglycerides are 150 for estimation.

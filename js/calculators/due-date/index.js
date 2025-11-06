@@ -139,7 +139,7 @@ export const dueDate = {
 
         // Add event listener for auto-calculation
         lmpInput.addEventListener('input', calculate);
-        
+
         // Initial calculation
         calculate();
     }

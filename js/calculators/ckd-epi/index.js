@@ -87,7 +87,11 @@ export const ckdEpi = {
         const calculateAndUpdate = () => {
             try {
                 // Get creatinine in mg/dL (standard unit)
-                const creatinineMgDl = getValueInStandardUnit(container, 'ckd-epi-creatinine', 'mg/dL');
+                const creatinineMgDl = getValueInStandardUnit(
+                    container,
+                    'ckd-epi-creatinine',
+                    'mg/dL'
+                );
                 const age = parseFloat(ageInput.value);
                 const genderRadio = container.querySelector('input[name="ckd-epi-gender"]:checked');
                 const gender = genderRadio ? genderRadio.value : 'male';
@@ -101,11 +105,11 @@ export const ckdEpi = {
                 // Validate input
                 const inputs = {
                     creatinine: creatinineMgDl,
-                    age: age,
+                    age: age
                 };
                 const schema = {
                     creatinine: ValidationRules.creatinine,
-                    age: ValidationRules.age,
+                    age: ValidationRules.age
                 };
                 const validation = validateCalculatorInput(inputs, schema);
 
@@ -143,7 +147,7 @@ export const ckdEpi = {
                     let severityClass = 'low';
                     let alertType = 'info';
                     let alertMsg = '';
-                    
+
                     if (gfr >= 90) {
                         stage = 'Stage 1 (Normal or high)';
                         severityClass = 'low';
@@ -159,12 +163,14 @@ export const ckdEpi = {
                     } else if (gfr >= 30) {
                         stage = 'Stage 3b (Moderate to severe)';
                         severityClass = 'moderate';
-                        alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+                        alertMsg =
+                            'Moderate to severe reduction in kidney function. Consider nephrology referral.';
                         alertType = 'warning';
                     } else if (gfr >= 15) {
                         stage = 'Stage 4 (Severe)';
                         severityClass = 'high';
-                        alertMsg = 'Severe reduction in kidney function. Nephrology referral required.';
+                        alertMsg =
+                            'Severe reduction in kidney function. Nephrology referral required.';
                         alertType = 'warning';
                     } else {
                         stage = 'Stage 5 (Kidney failure)';
@@ -195,7 +201,7 @@ export const ckdEpi = {
                             </div>
                         </div>
                     `;
-                    
+
                     resultEl.style.display = 'block';
                     resultEl.classList.add('show');
 
@@ -214,7 +220,7 @@ export const ckdEpi = {
             } catch (error) {
                 logError(error, {
                     calculator: 'ckd-epi',
-                    action: 'calculateAndUpdate',
+                    action: 'calculateAndUpdate'
                 });
 
                 // Display error message
@@ -240,30 +246,32 @@ export const ckdEpi = {
         }
         if (patient && patient.gender) {
             const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="ckd-epi-gender"][value="${genderValue}"]`);
+            const genderRadio = container.querySelector(
+                `input[name="ckd-epi-gender"][value="${genderValue}"]`
+            );
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.parentElement.classList.add('selected');
             }
         }
-        
+
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculateAndUpdate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -274,7 +282,7 @@ export const ckdEpi = {
 
         // Auto-populate from FHIR data
         getMostRecentObservation(client, '2160-0')
-            .then((obs) => {
+            .then(obs => {
                 if (obs && obs.valueQuantity) {
                     const creatinineInput = container.querySelector('#ckd-epi-creatinine');
                     if (creatinineInput) {
@@ -284,7 +292,7 @@ export const ckdEpi = {
                 // Calculate initial results if data was populated
                 calculateAndUpdate();
             })
-            .catch((error) => {
+            .catch(error => {
                 const fhirError = new FHIRDataError(
                     '无法从 EHR 系统加载肌酐数据',
                     'CKD_EPI_FHIR_LOAD_ERROR',
@@ -292,7 +300,7 @@ export const ckdEpi = {
                 );
                 logError(fhirError, {
                     calculator: 'ckd-epi',
-                    action: 'loadFHIRData',
+                    action: 'loadFHIRData'
                 });
 
                 // Display a non-intrusive warning
@@ -300,7 +308,8 @@ export const ckdEpi = {
                 warningContainer.className = 'warning-message';
                 warningContainer.style.cssText =
                     'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
-                warningContainer.innerHTML = '<strong>提示:</strong> 无法自动加载患者数据，请手动输入肌酐值。';
+                warningContainer.innerHTML =
+                    '<strong>提示:</strong> 无法自动加载患者数据，请手动输入肌酐值。';
                 container.insertBefore(warningContainer, container.firstChild.nextSibling);
 
                 // Still allow manual calculation

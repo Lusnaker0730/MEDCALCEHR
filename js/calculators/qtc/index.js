@@ -114,7 +114,7 @@ export const qtc = {
     },
     initialize: function (client) {
         const container = document.querySelector('#calculator-container') || document.body;
-        
+
         // Calculate function
         const calculate = () => {
             const qt = parseFloat(container.querySelector('#qtc-qt').value);
@@ -127,7 +127,7 @@ export const qtc = {
                 const rr = 60 / hr;
                 let qtcValue;
                 let formulaName;
-                
+
                 switch (formula) {
                     case 'bazett':
                         qtcValue = qt / Math.sqrt(rr);
@@ -146,7 +146,7 @@ export const qtc = {
                         formulaName = 'Framingham';
                         break;
                 }
-                
+
                 // Determine risk level
                 let riskClass = 'low';
                 let riskText = 'Normal';
@@ -157,7 +157,7 @@ export const qtc = {
                     riskClass = 'moderate';
                     riskText = 'Borderline prolonged';
                 }
-                
+
                 resultEl.innerHTML = `
                     <div class="result-header">
                         <h4>QTc Results (${formulaName})</h4>
@@ -183,7 +183,7 @@ export const qtc = {
                 resultEl.classList.add('show');
             }
         };
-        
+
         // Auto-populate heart rate from FHIR
         getMostRecentObservation(client, '8867-4').then(obs => {
             if (obs && obs.valueQuantity) {
@@ -191,24 +191,24 @@ export const qtc = {
                 calculate();
             }
         });
-        
+
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -216,11 +216,11 @@ export const qtc = {
                 option.classList.add('selected');
             }
         });
-        
+
         // Auto-calculate on input changes
         container.querySelector('#qtc-qt').addEventListener('input', calculate);
         container.querySelector('#qtc-hr').addEventListener('input', calculate);
-        
+
         // Initial calculation
         calculate();
     }

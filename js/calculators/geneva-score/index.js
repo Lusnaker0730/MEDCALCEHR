@@ -79,7 +79,7 @@ export const genevaScore = {
             } else if (hr >= 95) {
                 score += 2;
             }
-            
+
             const resultEl = root.querySelector('#geneva-result');
             if (isNaN(hr)) {
                 resultEl.style.display = 'none';
@@ -136,7 +136,7 @@ export const genevaScore = {
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', calculate);
         });
-        
+
         if (hrInput) {
             hrInput.addEventListener('input', calculate);
         }
@@ -151,7 +151,7 @@ export const genevaScore = {
                 }
             }
         }
-        
+
         // Initial calculation
         calculate();
     }

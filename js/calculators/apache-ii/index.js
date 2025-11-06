@@ -1,4 +1,8 @@
-import { getMostRecentObservation, calculateAge, initializeSegmentedControls } from '../../utils.js';
+import {
+    getMostRecentObservation,
+    calculateAge,
+    initializeSegmentedControls
+} from '../../utils.js';
 
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
@@ -428,7 +432,7 @@ export const apacheIi = {
 
                 let mortalityClass = 'low';
                 let riskLevel = 'Low Risk';
-                
+
                 if (mortality < 10) {
                     mortalityClass = 'low';
                     riskLevel = 'Low Risk';
@@ -488,24 +492,24 @@ export const apacheIi = {
                 resultEl.style.display = 'block';
             }
         };
-        
+
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -513,12 +517,12 @@ export const apacheIi = {
                 option.classList.add('selected');
             }
         });
-        
+
         // Handle oxygen method switching with auto-calculate
         const oxyMethodInputs = container.querySelectorAll('input[name="oxy_method"]');
         const fio2Inputs = container.querySelector('#fio2_pao2_inputs');
         const pao2OnlyInputs = container.querySelector('#pao2_only_inputs');
-        
+
         oxyMethodInputs.forEach(input => {
             input.addEventListener('change', () => {
                 if (input.value === 'fio2_pao2') {
@@ -531,7 +535,7 @@ export const apacheIi = {
                 calculate();
             });
         });
-        
+
         // Auto-calculate on input changes
         const numberInputs = container.querySelectorAll('input[type="number"]');
         numberInputs.forEach(input => {
@@ -539,7 +543,7 @@ export const apacheIi = {
                 calculate();
             });
         });
-        
+
         // Initial calculation
         calculate();
     }

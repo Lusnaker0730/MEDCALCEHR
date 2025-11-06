@@ -177,7 +177,7 @@ export const map = {
                 severityClass = 'high';
                 severityText = 'Elevated (Hypertension)';
             }
-            
+
             resultEl.innerHTML = `
                 <div class="result-header">
                     <h4>MAP Results</h4>

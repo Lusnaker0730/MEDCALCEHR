@@ -68,7 +68,9 @@ export const rcri = {
         });
 
         const calculate = () => {
-            const checkboxes = container.querySelectorAll('.checkbox-option input[type="checkbox"]');
+            const checkboxes = container.querySelectorAll(
+                '.checkbox-option input[type="checkbox"]'
+            );
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {

@@ -235,11 +235,19 @@ export const gwtgHf = {
             }
 
             const mortality = getMortality(score);
-            
+
             let riskLevel = 'low';
-            if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
+            if (
+                mortality.includes('>50%') ||
+                mortality.includes('40-50') ||
+                mortality.includes('30-40')
+            ) {
                 riskLevel = 'high';
-            } else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
+            } else if (
+                mortality.includes('20-30') ||
+                mortality.includes('15-20') ||
+                mortality.includes('10-15')
+            ) {
                 riskLevel = 'medium';
             }
 

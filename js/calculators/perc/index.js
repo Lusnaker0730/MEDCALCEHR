@@ -92,8 +92,12 @@ export const perc = {
             .then(response => {
                 if (response.entry && response.entry.length > 0) {
                     const vitals = response.entry[0].resource;
-                    const hrComponent = vitals.component.find(c => c.code.coding[0].code === '8867-4');
-                    const o2Component = vitals.component.find(c => c.code.coding[0].code === '59408-5');
+                    const hrComponent = vitals.component.find(
+                        c => c.code.coding[0].code === '8867-4'
+                    );
+                    const o2Component = vitals.component.find(
+                        c => c.code.coding[0].code === '59408-5'
+                    );
 
                     if (hrComponent && hrComponent.valueQuantity.value >= 100) {
                         container.querySelector('#hr100').checked = true;

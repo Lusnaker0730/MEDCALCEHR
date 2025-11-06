@@ -85,15 +85,18 @@ export const qsofaScore = {
             let severityClass = '';
 
             if (score >= 2) {
-                interpretation = 'Positive qSOFA: Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
+                interpretation =
+                    'Positive qSOFA: Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
                 riskBadgeClass = 'high';
                 severityClass = 'high';
             } else if (score === 1) {
-                interpretation = 'Intermediate qSOFA: Monitor closely. Consider early intervention if clinical suspicion is high.';
+                interpretation =
+                    'Intermediate qSOFA: Monitor closely. Consider early intervention if clinical suspicion is high.';
                 riskBadgeClass = 'moderate';
                 severityClass = 'moderate';
             } else {
-                interpretation = 'Negative qSOFA: Lower risk, but continue to monitor if infection is suspected.';
+                interpretation =
+                    'Negative qSOFA: Lower risk, but continue to monitor if infection is suspected.';
                 riskBadgeClass = 'low';
                 severityClass = 'low';
             }
@@ -150,7 +153,7 @@ export const qsofaScore = {
         const checkboxOptions = root.querySelectorAll('.checkbox-option');
         checkboxOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 if (this.checked) {
                     option.classList.add('checked');
                 } else {
@@ -159,7 +162,7 @@ export const qsofaScore = {
                 // Auto-calculate
                 calculate();
             });
-            
+
             // Initialize state
             if (checkbox.checked) {
                 option.classList.add('checked');

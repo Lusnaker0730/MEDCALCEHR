@@ -275,8 +275,9 @@ export const meldNa = {
                 riskColor = '#b71c1c';
             }
 
-            const alertClass = meldNaScore < 17 ? 'success' : meldNaScore < 23 ? 'warning' : 'danger';
-            
+            const alertClass =
+                meldNaScore < 17 ? 'success' : meldNaScore < 23 ? 'warning' : 'danger';
+
             resultEl.innerHTML = `
                 <div class="result-header">
                     <h4>MELD-Na Score Result</h4>

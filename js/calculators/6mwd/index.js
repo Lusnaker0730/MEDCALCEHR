@@ -137,7 +137,7 @@ export const sixMwd = {
         if (patient && patient.birthDate) {
             ageEl.value = calculateAge(patient.birthDate);
         }
-        
+
         if (patient && patient.gender) {
             const patientGender = patient.gender;
             const genderRadio = container.querySelector(
@@ -170,7 +170,7 @@ export const sixMwd = {
                 const siblings = parent.parentElement.querySelectorAll('.radio-option');
                 siblings.forEach(s => s.classList.remove('selected'));
                 parent.classList.add('selected');
-                
+
                 calculate();
             });
         });

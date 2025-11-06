@@ -1,271 +1,295 @@
 <!doctype html>
 <html lang="zh-TW">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CGMH EHRCALC - 健康檢查</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-        .check-item {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .check-item.success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-        }
-        .check-item.error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-        }
-        .check-item.pending {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-        }
-        .icon {
-            font-size: 24px;
-            min-width: 30px;
-        }
-        .check-content {
-            flex: 1;
-        }
-        .check-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .check-detail {
-            font-size: 14px;
-            color: #666;
-        }
-        .info-box {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .info-box h3 {
-            margin: 0 0 10px 0;
-            color: #0066cc;
-        }
-        .link-list {
-            list-style: none;
-            padding: 0;
-        }
-        .link-list li {
-            margin: 8px 0;
-        }
-        .link-list a {
-            color: #0066cc;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            display: inline-block;
-        }
-        .link-list a:hover {
-            background: #e7f3ff;
-        }
-        button {
-            background: #0066cc;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        button:hover {
-            background: #0052a3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🏥 CGMH EHRCALC - 系統健康檢查</h1>
-        
-        <div id="checks">
-            <div class="check-item pending">
-                <div class="icon">⏳</div>
-                <div class="check-content">
-                    <div class="check-title">正在檢查...</div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CGMH EHRCALC - 健康檢查</title>
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+                    sans-serif;
+                max-width: 800px;
+                margin: 50px auto;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .container {
+                background: white;
+                border-radius: 8px;
+                padding: 30px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #2c3e50;
+                margin-bottom: 30px;
+            }
+            .check-item {
+                padding: 15px;
+                margin: 10px 0;
+                border-radius: 5px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            .check-item.success {
+                background: #d4edda;
+                border: 1px solid #c3e6cb;
+            }
+            .check-item.error {
+                background: #f8d7da;
+                border: 1px solid #f5c6cb;
+            }
+            .check-item.pending {
+                background: #fff3cd;
+                border: 1px solid #ffeaa7;
+            }
+            .icon {
+                font-size: 24px;
+                min-width: 30px;
+            }
+            .check-content {
+                flex: 1;
+            }
+            .check-title {
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            .check-detail {
+                font-size: 14px;
+                color: #666;
+            }
+            .info-box {
+                background: #e7f3ff;
+                border: 1px solid #b3d9ff;
+                border-radius: 5px;
+                padding: 15px;
+                margin: 20px 0;
+            }
+            .info-box h3 {
+                margin: 0 0 10px 0;
+                color: #0066cc;
+            }
+            .link-list {
+                list-style: none;
+                padding: 0;
+            }
+            .link-list li {
+                margin: 8px 0;
+            }
+            .link-list a {
+                color: #0066cc;
+                text-decoration: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+                display: inline-block;
+            }
+            .link-list a:hover {
+                background: #e7f3ff;
+            }
+            button {
+                background: #0066cc;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: 20px;
+            }
+            button:hover {
+                background: #0052a3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🏥 CGMH EHRCALC - 系統健康檢查</h1>
+
+            <div id="checks">
+                <div class="check-item pending">
+                    <div class="icon">⏳</div>
+                    <div class="check-content">
+                        <div class="check-title">正在檢查...</div>
+                    </div>
                 </div>
             </div>
+
+            <div class="info-box">
+                <h3>📋 快速連結</h3>
+                <ul class="link-list">
+                    <li>🏠 <a href="index.html">應用程式首頁</a></li>
+                    <li>🚀 <a href="launch.html">SMART 啟動頁面</a></li>
+                    <li>🧪 <a href="test-calculators.html">計算器測試工具</a></li>
+                    <li>🧮 <a href="calculator.html?name=bmi-bsa">測試計算器 (BMI/BSA)</a></li>
+                    <li>
+                        🔗
+                        <a href="https://launch.smarthealthit.org/" target="_blank"
+                            >SMART Health IT Launcher</a
+                        >
+                    </li>
+                </ul>
+            </div>
+
+            <button onclick="runChecks()">🔄 重新檢查</button>
         </div>
 
-        <div class="info-box">
-            <h3>📋 快速連結</h3>
-            <ul class="link-list">
-                <li>🏠 <a href="index.html">應用程式首頁</a></li>
-                <li>🚀 <a href="launch.html">SMART 啟動頁面</a></li>
-                <li>🧪 <a href="test-calculators.html">計算器測試工具</a></li>
-                <li>🧮 <a href="calculator.html?name=bmi-bsa">測試計算器 (BMI/BSA)</a></li>
-                <li>🔗 <a href="https://launch.smarthealthit.org/" target="_blank">SMART Health IT Launcher</a></li>
-            </ul>
-        </div>
-
-        <button onclick="runChecks()">🔄 重新檢查</button>
-    </div>
-
-    <script>
-        const checks = [
-            {
-                name: '基本檔案存在',
-                test: async () => {
-                    const files = ['index.html', 'launch.html', 'calculator.html', 'style.css'];
-                    const results = await Promise.all(
-                        files.map(async file => {
-                            try {
-                                const response = await fetch(file, { method: 'HEAD' });
-                                return { file, ok: response.ok };
-                            } catch {
-                                return { file, ok: false };
-                            }
-                        })
-                    );
-                    const failed = results.filter(r => !r.ok);
-                    return {
-                        success: failed.length === 0,
-                        detail: failed.length === 0 
-                            ? '所有基本檔案都存在'
-                            : `缺少檔案: ${failed.map(f => f.file).join(', ')}`
-                    };
-                }
-            },
-            {
-                name: 'JavaScript 模組載入',
-                test: async () => {
-                    const modules = [
-                        'js/main.js',
-                        'js/calculator-page.js',
-                        'js/utils.js',
-                        'js/calculators/index.js'
-                    ];
-                    const results = await Promise.all(
-                        modules.map(async module => {
-                            try {
-                                const response = await fetch(module, { method: 'HEAD' });
-                                return { module, ok: response.ok };
-                            } catch {
-                                return { module, ok: false };
-                            }
-                        })
-                    );
-                    const failed = results.filter(r => !r.ok);
-                    return {
-                        success: failed.length === 0,
-                        detail: failed.length === 0 
-                            ? 'JavaScript 模組可正常訪問'
-                            : `無法訪問: ${failed.map(f => f.module).join(', ')}`
-                    };
-                }
-            },
-            {
-                name: 'CSS 樣式表載入',
-                test: async () => {
-                    try {
-                        const response = await fetch('style.css', { method: 'HEAD' });
+        <script>
+            const checks = [
+                {
+                    name: '基本檔案存在',
+                    test: async () => {
+                        const files = ['index.html', 'launch.html', 'calculator.html', 'style.css'];
+                        const results = await Promise.all(
+                            files.map(async file => {
+                                try {
+                                    const response = await fetch(file, { method: 'HEAD' });
+                                    return { file, ok: response.ok };
+                                } catch {
+                                    return { file, ok: false };
+                                }
+                            })
+                        );
+                        const failed = results.filter(r => !r.ok);
                         return {
-                            success: response.ok,
-                            detail: response.ok ? 'CSS 樣式表可正常訪問' : 'CSS 樣式表無法訪問'
+                            success: failed.length === 0,
+                            detail:
+                                failed.length === 0
+                                    ? '所有基本檔案都存在'
+                                    : `缺少檔案: ${failed.map(f => f.file).join(', ')}`
                         };
-                    } catch {
-                        return { success: false, detail: 'CSS 樣式表載入失敗' };
                     }
-                }
-            },
-            {
-                name: 'FHIR Client 庫',
-                test: async () => {
-                    try {
-                        const response = await fetch('https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js', { method: 'HEAD' });
+                },
+                {
+                    name: 'JavaScript 模組載入',
+                    test: async () => {
+                        const modules = [
+                            'js/main.js',
+                            'js/calculator-page.js',
+                            'js/utils.js',
+                            'js/calculators/index.js'
+                        ];
+                        const results = await Promise.all(
+                            modules.map(async module => {
+                                try {
+                                    const response = await fetch(module, { method: 'HEAD' });
+                                    return { module, ok: response.ok };
+                                } catch {
+                                    return { module, ok: false };
+                                }
+                            })
+                        );
+                        const failed = results.filter(r => !r.ok);
                         return {
-                            success: response.ok,
-                            detail: response.ok ? 'FHIR Client 庫可正常訪問' : 'FHIR Client 庫無法訪問'
+                            success: failed.length === 0,
+                            detail:
+                                failed.length === 0
+                                    ? 'JavaScript 模組可正常訪問'
+                                    : `無法訪問: ${failed.map(f => f.module).join(', ')}`
                         };
-                    } catch {
-                        return { success: false, detail: 'FHIR Client 庫載入失敗（檢查網路連線）' };
                     }
-                }
-            },
-            {
-                name: 'SMART 啟動頁面配置',
-                test: async () => {
-                    try {
-                        const response = await fetch('launch.html');
-                        if (!response.ok) {
-                            return { success: false, detail: 'launch.html 不存在（需要重建 Docker 容器）' };
+                },
+                {
+                    name: 'CSS 樣式表載入',
+                    test: async () => {
+                        try {
+                            const response = await fetch('style.css', { method: 'HEAD' });
+                            return {
+                                success: response.ok,
+                                detail: response.ok ? 'CSS 樣式表可正常訪問' : 'CSS 樣式表無法訪問'
+                            };
+                        } catch {
+                            return { success: false, detail: 'CSS 樣式表載入失敗' };
                         }
-                        const text = await response.text();
-                        const hasOAuth = text.includes('FHIR.oauth2.authorize');
-                        const hasClientId = text.includes('client_id');
-                        return {
-                            success: hasOAuth && hasClientId,
-                            detail: hasOAuth && hasClientId 
-                                ? 'SMART 啟動配置正確'
-                                : '配置不完整（缺少 OAuth2 設定）'
-                        };
-                    } catch {
-                        return { success: false, detail: 'launch.html 無法訪問' };
                     }
-                }
-            },
-            {
-                name: '計算器模組',
-                test: async () => {
-                    try {
-                        const response = await fetch('js/calculators/index.js');
-                        if (!response.ok) {
-                            return { success: false, detail: '計算器索引檔案無法訪問' };
+                },
+                {
+                    name: 'FHIR Client 庫',
+                    test: async () => {
+                        try {
+                            const response = await fetch(
+                                'https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js',
+                                { method: 'HEAD' }
+                            );
+                            return {
+                                success: response.ok,
+                                detail: response.ok
+                                    ? 'FHIR Client 庫可正常訪問'
+                                    : 'FHIR Client 庫無法訪問'
+                            };
+                        } catch {
+                            return {
+                                success: false,
+                                detail: 'FHIR Client 庫載入失敗（檢查網路連線）'
+                            };
                         }
-                        const text = await response.text();
-                        const hasExport = text.includes('export') && text.includes('calculatorModules');
-                        return {
-                            success: hasExport,
-                            detail: hasExport ? '計算器模組載入正常' : '計算器模組格式錯誤'
-                        };
-                    } catch {
-                        return { success: false, detail: '計算器模組載入失敗' };
+                    }
+                },
+                {
+                    name: 'SMART 啟動頁面配置',
+                    test: async () => {
+                        try {
+                            const response = await fetch('launch.html');
+                            if (!response.ok) {
+                                return {
+                                    success: false,
+                                    detail: 'launch.html 不存在（需要重建 Docker 容器）'
+                                };
+                            }
+                            const text = await response.text();
+                            const hasOAuth = text.includes('FHIR.oauth2.authorize');
+                            const hasClientId = text.includes('client_id');
+                            return {
+                                success: hasOAuth && hasClientId,
+                                detail:
+                                    hasOAuth && hasClientId
+                                        ? 'SMART 啟動配置正確'
+                                        : '配置不完整（缺少 OAuth2 設定）'
+                            };
+                        } catch {
+                            return { success: false, detail: 'launch.html 無法訪問' };
+                        }
+                    }
+                },
+                {
+                    name: '計算器模組',
+                    test: async () => {
+                        try {
+                            const response = await fetch('js/calculators/index.js');
+                            if (!response.ok) {
+                                return { success: false, detail: '計算器索引檔案無法訪問' };
+                            }
+                            const text = await response.text();
+                            const hasExport =
+                                text.includes('export') && text.includes('calculatorModules');
+                            return {
+                                success: hasExport,
+                                detail: hasExport ? '計算器模組載入正常' : '計算器模組格式錯誤'
+                            };
+                        } catch {
+                            return { success: false, detail: '計算器模組載入失敗' };
+                        }
                     }
                 }
-            }
-        ];
+            ];
 
-        async function runChecks() {
-            const container = document.getElementById('checks');
-            container.innerHTML = '<div class="check-item pending"><div class="icon">⏳</div><div class="check-content"><div class="check-title">執行檢查中...</div></div></div>';
-            
-            const results = [];
-            
-            for (const check of checks) {
-                const result = await check.test();
-                results.push({ ...check, ...result });
-                
-                // 更新顯示
-                container.innerHTML = results.map(r => {
-                    const className = r.success ? 'success' : 'error';
-                    const icon = r.success ? '✅' : '❌';
-                    return `
+            async function runChecks() {
+                const container = document.getElementById('checks');
+                container.innerHTML =
+                    '<div class="check-item pending"><div class="icon">⏳</div><div class="check-content"><div class="check-title">執行檢查中...</div></div></div>';
+
+                const results = [];
+
+                for (const check of checks) {
+                    const result = await check.test();
+                    results.push({ ...check, ...result });
+
+                    // 更新顯示
+                    container.innerHTML = results
+                        .map(r => {
+                            const className = r.success ? 'success' : 'error';
+                            const icon = r.success ? '✅' : '❌';
+                            return `
                         <div class="check-item ${className}">
                             <div class="icon">${icon}</div>
                             <div class="check-content">
@@ -274,21 +298,26 @@
                             </div>
                         </div>
                     `;
-                }).join('');
-            }
-            
-            // 顯示摘要
-            const allSuccess = results.every(r => r.success);
-            const successCount = results.filter(r => r.success).length;
-            const totalCount = results.length;
-            
-            const summaryClass = allSuccess ? 'success' : (successCount > 0 ? 'pending' : 'error');
-            const summaryIcon = allSuccess ? '🎉' : (successCount > 0 ? '⚠️' : '❌');
-            const summaryText = allSuccess 
-                ? '所有檢查通過！系統運行正常。'
-                : `${successCount}/${totalCount} 項檢查通過。請檢查失敗項目。`;
-            
-            container.innerHTML += `
+                        })
+                        .join('');
+                }
+
+                // 顯示摘要
+                const allSuccess = results.every(r => r.success);
+                const successCount = results.filter(r => r.success).length;
+                const totalCount = results.length;
+
+                const summaryClass = allSuccess
+                    ? 'success'
+                    : successCount > 0
+                      ? 'pending'
+                      : 'error';
+                const summaryIcon = allSuccess ? '🎉' : successCount > 0 ? '⚠️' : '❌';
+                const summaryText = allSuccess
+                    ? '所有檢查通過！系統運行正常。'
+                    : `${successCount}/${totalCount} 項檢查通過。請檢查失敗項目。`;
+
+                container.innerHTML += `
                 <div class="check-item ${summaryClass}" style="margin-top: 20px; font-weight: 600;">
                     <div class="icon">${summaryIcon}</div>
                     <div class="check-content">
@@ -297,10 +326,10 @@
                     </div>
                 </div>
             `;
-            
-            // 如果有失敗項目，顯示建議
-            if (!allSuccess) {
-                container.innerHTML += `
+
+                // 如果有失敗項目，顯示建議
+                if (!allSuccess) {
+                    container.innerHTML += `
                     <div class="info-box" style="background: #fff3cd; border-color: #ffeaa7;">
                         <h3>🔧 建議操作</h3>
                         <p>如果 launch.html 缺失，請執行：</p>
@@ -311,12 +340,11 @@ docker-compose up -d</pre>
                         <p>或執行：<code>rebuild-docker.ps1</code></p>
                     </div>
                 `;
+                }
             }
-        }
 
-        // 頁面載入時執行檢查
-        runChecks();
-    </script>
-</body>
+            // 頁面載入時執行檢查
+            runChecks();
+        </script>
+    </body>
 </html>
-

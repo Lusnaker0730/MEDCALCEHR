@@ -453,7 +453,7 @@ export function initializeSegmentedControls(container) {
     container.querySelectorAll('.segmented-control, .radio-group').forEach(control => {
         const labels = control.querySelectorAll('label');
         const radioInputs = control.querySelectorAll('input[type="radio"]');
-        
+
         // Function to update selected state
         const updateSelectedState = () => {
             radioInputs.forEach(input => {
@@ -465,12 +465,12 @@ export function initializeSegmentedControls(container) {
                 }
             });
         };
-        
+
         // Add change event listeners to radio buttons
         radioInputs.forEach(input => {
             input.addEventListener('change', updateSelectedState);
         });
-        
+
         // Add click handlers to labels for immediate visual feedback
         labels.forEach(label => {
             label.addEventListener('click', () => {
@@ -478,7 +478,7 @@ export function initializeSegmentedControls(container) {
                 setTimeout(updateSelectedState, 0);
             });
         });
-        
+
         // Initialize state on load
         updateSelectedState();
     });

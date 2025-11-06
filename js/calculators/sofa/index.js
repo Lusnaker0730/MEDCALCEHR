@@ -421,8 +421,10 @@ export const sofa = {
                     else if (val < 50) radioValue = '3';
                     else if (val < 100) radioValue = '2';
                     else if (val < 150) radioValue = '1';
-                    
-                    const radio = document.querySelector(`input[name="sofa-coag"][value="${radioValue}"]`);
+
+                    const radio = document.querySelector(
+                        `input[name="sofa-coag"][value="${radioValue}"]`
+                    );
                     if (radio) {
                         radio.checked = true;
                         radio.parentElement.classList.add('selected');
@@ -454,8 +456,10 @@ export const sofa = {
                     else if (val >= 3.5) radioValue = '3';
                     else if (val >= 2.0) radioValue = '2';
                     else if (val >= 1.2) radioValue = '1';
-                    
-                    const radio = document.querySelector(`input[name="sofa-renal"][value="${radioValue}"]`);
+
+                    const radio = document.querySelector(
+                        `input[name="sofa-renal"][value="${radioValue}"]`
+                    );
                     if (radio) {
                         radio.checked = true;
                         radio.parentElement.classList.add('selected');
@@ -487,8 +491,10 @@ export const sofa = {
                     else if (val >= 6.0) radioValue = '3';
                     else if (val >= 2.0) radioValue = '2';
                     else if (val >= 1.2) radioValue = '1';
-                    
-                    const radio = document.querySelector(`input[name="sofa-liver"][value="${radioValue}"]`);
+
+                    const radio = document.querySelector(
+                        `input[name="sofa-liver"][value="${radioValue}"]`
+                    );
                     if (radio) {
                         radio.checked = true;
                         radio.parentElement.classList.add('selected');
@@ -517,21 +523,21 @@ export const sofa = {
             option.addEventListener('click', () => {
                 const radio = option.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 // Remove selected class from all options in this group
                 document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 // Add selected class to clicked option
                 option.classList.add('selected');
                 radio.checked = true;
-                
+
                 // Auto-calculate
                 this.calculateScore();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');

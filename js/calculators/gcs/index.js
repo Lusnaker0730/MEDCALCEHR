@@ -139,17 +139,21 @@ export const gcs = {
     },
     initialize: function () {
         const container = document.querySelector('#calculator-container') || document.body;
-        
+
         // Calculate function
         const calculate = () => {
             const eyeScore = parseInt(container.querySelector('input[name="eye"]:checked').value);
-            const verbalScore = parseInt(container.querySelector('input[name="verbal"]:checked').value);
-            const motorScore = parseInt(container.querySelector('input[name="motor"]:checked').value);
+            const verbalScore = parseInt(
+                container.querySelector('input[name="verbal"]:checked').value
+            );
+            const motorScore = parseInt(
+                container.querySelector('input[name="motor"]:checked').value
+            );
             const totalScore = eyeScore + verbalScore + motorScore;
 
             let severity = '';
             let severityClass = '';
-            
+
             if (totalScore >= 13) {
                 severity = 'Mild';
                 severityClass = 'low';
@@ -184,28 +188,28 @@ export const gcs = {
             resultEl.style.display = 'block';
             resultEl.classList.add('show');
         };
-        
+
         // Add visual feedback and auto-calculate
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 // Remove selected class from all options in this group
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 // Add selected class to clicked option
                 this.classList.add('selected');
                 radio.checked = true;
-                
+
                 // Auto-calculate
                 calculate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -213,7 +217,7 @@ export const gcs = {
                 option.classList.add('selected');
             }
         });
-        
+
         // Initial calculation
         calculate();
     }

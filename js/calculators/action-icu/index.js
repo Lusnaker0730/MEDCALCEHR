@@ -174,7 +174,7 @@ export const actionIcu = {
                 const riskPercent =
                     score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
                 const resultEl = container.querySelector('#action-icu-result');
-                
+
                 let riskLevel = 'low';
                 let riskDescription = 'Low Risk';
                 if (riskPercent >= 20) {
@@ -184,7 +184,7 @@ export const actionIcu = {
                     riskLevel = 'medium';
                     riskDescription = 'Moderate Risk';
                 }
-                
+
                 resultEl.innerHTML = `
                     <div class="result-header">
                         <h3>ACTION ICU Score</h3>
