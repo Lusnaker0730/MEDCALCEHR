@@ -501,11 +501,17 @@ export const mewsScore = {
             if (obs && obs.valueQuantity) {
                 const sbp = obs.valueQuantity.value;
                 let sbpValue = '0';
-                if (sbp <= 70) sbpValue = '3';
-                else if (sbp >= 71 && sbp <= 80) sbpValue = '2';
-                else if (sbp >= 81 && sbp <= 100) sbpValue = '1';
-                else if (sbp >= 101 && sbp <= 199) sbpValue = '0';
-                else if (sbp >= 200) sbpValue = '2';
+                if (sbp <= 70) {
+                    sbpValue = '3';
+                } else if (sbp >= 71 && sbp <= 80) {
+                    sbpValue = '2';
+                } else if (sbp >= 81 && sbp <= 100) {
+                    sbpValue = '1';
+                } else if (sbp >= 101 && sbp <= 199) {
+                    sbpValue = '0';
+                } else if (sbp >= 200) {
+                    sbpValue = '2';
+                }
 
                 const sbpRadio = root.querySelector(`input[name="sbp"][value="${sbpValue}"]`);
                 if (sbpRadio) {
@@ -520,12 +526,19 @@ export const mewsScore = {
             if (obs && obs.valueQuantity) {
                 const hr = obs.valueQuantity.value;
                 let hrValue = '0';
-                if (hr < 40) hrValue = '2';
-                else if (hr >= 41 && hr <= 50) hrValue = '1';
-                else if (hr >= 51 && hr <= 100) hrValue = '0';
-                else if (hr >= 101 && hr <= 110) hrValue = '1';
-                else if (hr >= 111 && hr <= 129) hrValue = '2';
-                else if (hr >= 130) hrValue = '3';
+                if (hr < 40) {
+                    hrValue = '2';
+                } else if (hr >= 41 && hr <= 50) {
+                    hrValue = '1';
+                } else if (hr >= 51 && hr <= 100) {
+                    hrValue = '0';
+                } else if (hr >= 101 && hr <= 110) {
+                    hrValue = '1';
+                } else if (hr >= 111 && hr <= 129) {
+                    hrValue = '2';
+                } else if (hr >= 130) {
+                    hrValue = '3';
+                }
 
                 const hrRadio = root.querySelector(`input[name="hr"][value="${hrValue}"]`);
                 if (hrRadio) {
@@ -540,11 +553,17 @@ export const mewsScore = {
             if (obs && obs.valueQuantity) {
                 const rr = obs.valueQuantity.value;
                 let rrValue = '0';
-                if (rr < 9) rrValue = '2';
-                else if (rr >= 9 && rr <= 14) rrValue = '0';
-                else if (rr >= 15 && rr <= 20) rrValue = '1';
-                else if (rr >= 21 && rr <= 29) rrValue = '2';
-                else if (rr >= 30) rrValue = '3';
+                if (rr < 9) {
+                    rrValue = '2';
+                } else if (rr >= 9 && rr <= 14) {
+                    rrValue = '0';
+                } else if (rr >= 15 && rr <= 20) {
+                    rrValue = '1';
+                } else if (rr >= 21 && rr <= 29) {
+                    rrValue = '2';
+                } else if (rr >= 30) {
+                    rrValue = '3';
+                }
 
                 const rrRadio = root.querySelector(`input[name="rr"][value="${rrValue}"]`);
                 if (rrRadio) {
@@ -566,9 +585,13 @@ export const mewsScore = {
                 }
 
                 let tempValue = '0';
-                if (temp < 35) tempValue = '2';
-                else if (temp >= 35 && temp <= 38.4) tempValue = '0';
-                else if (temp >= 38.5) tempValue = '2';
+                if (temp < 35) {
+                    tempValue = '2';
+                } else if (temp >= 35 && temp <= 38.4) {
+                    tempValue = '0';
+                } else if (temp >= 38.5) {
+                    tempValue = '2';
+                }
 
                 const tempRadio = root.querySelector(`input[name="temp"][value="${tempValue}"]`);
                 if (tempRadio) {

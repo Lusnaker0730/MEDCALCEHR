@@ -43,7 +43,7 @@ export const gad7 = {
             `;
         });
 
-        html += `<div id="gad7-result" class="result-container"></div>`;
+        html += '<div id="gad7-result" class="result-container"></div>';
         return html;
     },
     initialize: function (client, patient, container) {

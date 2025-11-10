@@ -115,8 +115,12 @@ export const helps2bScore = {
                 resultContainer.classList.add('show');
             }
 
-            if (scoreEl) scoreEl.textContent = score;
-            if (riskEl) riskEl.textContent = result.risk;
+            if (scoreEl) {
+                scoreEl.textContent = score;
+            }
+            if (riskEl) {
+                riskEl.textContent = result.risk;
+            }
 
             if (categoryEl) {
                 categoryEl.textContent = result.category;

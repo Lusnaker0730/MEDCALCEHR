@@ -252,10 +252,18 @@ export const fourPeps = {
                 resultContainer.classList.add('show');
             }
 
-            if (scoreEl) scoreEl.textContent = score;
-            if (probabilityEl) probabilityEl.textContent = probability;
-            if (riskLevelEl) riskLevelEl.textContent = riskLevel;
-            if (recommendationEl) recommendationEl.innerHTML = recommendation;
+            if (scoreEl) {
+                scoreEl.textContent = score;
+            }
+            if (probabilityEl) {
+                probabilityEl.textContent = probability;
+            }
+            if (riskLevelEl) {
+                riskLevelEl.textContent = riskLevel;
+            }
+            if (recommendationEl) {
+                recommendationEl.innerHTML = recommendation;
+            }
         };
 
         // Add event listeners for all radio buttons

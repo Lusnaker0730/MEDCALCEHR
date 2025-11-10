@@ -69,10 +69,16 @@ export const caprini = {
 
             // Handle mutually exclusive age points
             if (container.querySelector('#age75')?.checked) {
-                if (container.querySelector('#age61')?.checked) score -= 2;
-                if (container.querySelector('#age41')?.checked) score -= 1;
+                if (container.querySelector('#age61')?.checked) {
+                    score -= 2;
+                }
+                if (container.querySelector('#age41')?.checked) {
+                    score -= 1;
+                }
             } else if (container.querySelector('#age61')?.checked) {
-                if (container.querySelector('#age41')?.checked) score -= 1;
+                if (container.querySelector('#age41')?.checked) {
+                    score -= 1;
+                }
             }
 
             let riskCategory = '';

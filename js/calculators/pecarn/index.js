@@ -294,15 +294,15 @@ export const pecarn = {
                         <strong>Risk Assessment:</strong> ${riskPercentage}
                     </div>
                     ${
-                        riskColor === '#f57f17'
-                            ? `
+    riskColor === '#f57f17'
+        ? `
                     <div style="font-size: 0.9em; color: ${riskColor}; margin-top: 10px;">
                         <strong>Shared Decision-Making Recommended</strong><br>
                         Factors to consider: Physician experience, multiple findings, parental preference, follow-up reliability
                     </div>
                     `
-                            : ''
-                    }
+        : ''
+}
                 </div>
             `;
             resultEl.style.display = 'block';

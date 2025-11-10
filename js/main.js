@@ -6,18 +6,18 @@ function sortCalculators(calculators, sortType) {
     const sorted = [...calculators]; // Create a copy to avoid mutating original
 
     switch (sortType) {
-        case 'a-z':
-            return sorted.sort((a, b) => a.title.localeCompare(b.title));
-        case 'z-a':
-            return sorted.sort((a, b) => b.title.localeCompare(a.title));
-        case 'recently-added':
-            // For now, reverse the default order (assuming newer ones are at the end)
-            return sorted.reverse();
-        case 'most-used':
-            // For now, use the default order (could be enhanced with usage tracking)
-            return sorted;
-        default:
-            return sorted;
+    case 'a-z':
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+    case 'z-a':
+        return sorted.sort((a, b) => b.title.localeCompare(a.title));
+    case 'recently-added':
+        // For now, reverse the default order (assuming newer ones are at the end)
+        return sorted.reverse();
+    case 'most-used':
+        // For now, use the default order (could be enhanced with usage tracking)
+        return sorted;
+    default:
+        return sorted;
     }
 }
 

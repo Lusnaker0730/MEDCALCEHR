@@ -114,7 +114,9 @@ export const hasBled = {
         const calculate = () => {
             let score = 0;
             container.querySelectorAll('.checkbox-option input[type="checkbox"]').forEach(cb => {
-                if (cb.checked) score++;
+                if (cb.checked) {
+                    score++;
+                }
             });
 
             const maxScore = Math.min(score, 5);

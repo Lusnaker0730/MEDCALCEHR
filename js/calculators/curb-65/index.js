@@ -89,39 +89,39 @@ export const curb65 = {
             let alertClass = '';
 
             switch (score) {
-                case 0:
-                    mortality = '0.6%';
-                    recommendation = 'Low risk, consider outpatient treatment.';
-                    riskLevel = 'Low Risk';
-                    alertClass = 'success';
-                    break;
-                case 1:
-                    mortality = '2.7%';
-                    recommendation = 'Low risk, consider outpatient treatment.';
-                    riskLevel = 'Low Risk';
-                    alertClass = 'success';
-                    break;
-                case 2:
-                    mortality = '6.8%';
-                    recommendation =
+            case 0:
+                mortality = '0.6%';
+                recommendation = 'Low risk, consider outpatient treatment.';
+                riskLevel = 'Low Risk';
+                alertClass = 'success';
+                break;
+            case 1:
+                mortality = '2.7%';
+                recommendation = 'Low risk, consider outpatient treatment.';
+                riskLevel = 'Low Risk';
+                alertClass = 'success';
+                break;
+            case 2:
+                mortality = '6.8%';
+                recommendation =
                         'Moderate risk, consider short inpatient hospitalization or closely supervised outpatient treatment.';
-                    riskLevel = 'Moderate Risk';
-                    alertClass = 'warning';
-                    break;
-                case 3:
-                    mortality = '14.0%';
-                    recommendation = 'Severe pneumonia; manage in hospital.';
-                    riskLevel = 'High Risk';
-                    alertClass = 'danger';
-                    break;
-                case 4:
-                case 5:
-                    mortality = '27.8%';
-                    recommendation =
+                riskLevel = 'Moderate Risk';
+                alertClass = 'warning';
+                break;
+            case 3:
+                mortality = '14.0%';
+                recommendation = 'Severe pneumonia; manage in hospital.';
+                riskLevel = 'High Risk';
+                alertClass = 'danger';
+                break;
+            case 4:
+            case 5:
+                mortality = '27.8%';
+                recommendation =
                         'Severe pneumonia; manage in hospital and assess for ICU admission.';
-                    riskLevel = 'Very High Risk';
-                    alertClass = 'danger';
-                    break;
+                riskLevel = 'Very High Risk';
+                alertClass = 'danger';
+                break;
             }
 
             const resultEl = container.querySelector('#curb65-result');
