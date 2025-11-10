@@ -9,7 +9,7 @@ export const ciwaAr = {
             {
                 id: 'nausea',
                 title: 'Nausea/vomiting',
-                prompt: 'Ask \'Do you feel sick to your stomach? Have you vomited?\'',
+                prompt: "Ask 'Do you feel sick to your stomach? Have you vomited?'",
                 options: [
                     { score: 0, text: 'No nausea and no vomiting' },
                     { score: 1, text: 'Mild nausea and no vomiting' },
@@ -30,7 +30,7 @@ export const ciwaAr = {
                     { score: 1, text: 'Not visible, but can be felt fingertip to fingertip' },
                     { score: 2, text: '(More severe symptoms)' },
                     { score: 3, text: '(More severe symptoms)' },
-                    { score: 4, text: 'Moderate, with patient\'s arms extended' },
+                    { score: 4, text: "Moderate, with patient's arms extended" },
                     { score: 5, text: '(More severe symptoms)' },
                     { score: 6, text: '(More severe symptoms)' },
                     { score: 7, text: 'Severe, even with arms not extended' }

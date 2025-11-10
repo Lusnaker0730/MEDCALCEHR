@@ -129,22 +129,22 @@ export const qtc = {
                 let formulaName;
 
                 switch (formula) {
-                case 'bazett':
-                    qtcValue = qt / Math.sqrt(rr);
-                    formulaName = 'Bazett';
-                    break;
-                case 'fridericia':
-                    qtcValue = qt / Math.cbrt(rr);
-                    formulaName = 'Fridericia';
-                    break;
-                case 'hodges':
-                    qtcValue = qt + 1.75 * (hr - 60);
-                    formulaName = 'Hodges';
-                    break;
-                case 'framingham':
-                    qtcValue = qt + 154 * (1 - rr);
-                    formulaName = 'Framingham';
-                    break;
+                    case 'bazett':
+                        qtcValue = qt / Math.sqrt(rr);
+                        formulaName = 'Bazett';
+                        break;
+                    case 'fridericia':
+                        qtcValue = qt / Math.cbrt(rr);
+                        formulaName = 'Fridericia';
+                        break;
+                    case 'hodges':
+                        qtcValue = qt + 1.75 * (hr - 60);
+                        formulaName = 'Hodges';
+                        break;
+                    case 'framingham':
+                        qtcValue = qt + 154 * (1 - rr);
+                        formulaName = 'Framingham';
+                        break;
                 }
 
                 // Determine risk level

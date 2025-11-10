@@ -4,7 +4,7 @@ export const growthChart = {
     id: 'growth-chart',
     title: 'Pediatric Growth Chart',
     description:
-        'Plots patient\'s growth data (height, weight, BMI) against standard growth curves.',
+        "Plots patient's growth data (height, weight, BMI) against standard growth curves.",
     generateHTML: function () {
         return `
             <h3>${this.title}</h3>

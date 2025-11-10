@@ -22,103 +22,103 @@ export const fourCMortalityCovid = {
             </div>
 
             ${this.createRow(
-        'age',
-        'Age, years',
-        [
-            { value: 0, text: '<50', points: '0' },
-            { value: 2, text: '50-59', points: '+2' },
-            { value: 4, text: '60-69', points: '+4' },
-            { value: 6, text: '70-79', points: '+6' },
-            { value: 7, text: '≥80', points: '+7' }
-        ],
-        'vertical-radio-group'
-    )}
+                'age',
+                'Age, years',
+                [
+                    { value: 0, text: '<50', points: '0' },
+                    { value: 2, text: '50-59', points: '+2' },
+                    { value: 4, text: '60-69', points: '+4' },
+                    { value: 6, text: '70-79', points: '+6' },
+                    { value: 7, text: '≥80', points: '+7' }
+                ],
+                'vertical-radio-group'
+            )}
 
                 ${this.createRow(
-        'sex',
-        'Sex at birth',
-        [
-            { value: 0, text: 'Female', points: '0' },
-            { value: 1, text: 'Male', points: '+1' }
-        ],
-        'segmented-control'
-    )}
+                    'sex',
+                    'Sex at birth',
+                    [
+                        { value: 0, text: 'Female', points: '0' },
+                        { value: 1, text: 'Male', points: '+1' }
+                    ],
+                    'segmented-control'
+                )}
 
                 ${this.createRow(
-        'comorbidities',
-        'Number of comorbidities*',
-        [
-            { value: 0, text: '0', points: '0' },
-            { value: 1, text: '1', points: '+1' },
-            { value: 2, text: '≥2', points: '+2' }
-        ],
-        'segmented-control'
-    )}
+                    'comorbidities',
+                    'Number of comorbidities*',
+                    [
+                        { value: 0, text: '0', points: '0' },
+                        { value: 1, text: '1', points: '+1' },
+                        { value: 2, text: '≥2', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
 
                 ${this.createRow(
-        'resp_rate',
-        'Respiratory rate, breaths/min',
-        [
-            { value: 0, text: '<20', points: '0' },
-            { value: 1, text: '20-29', points: '+1' },
-            { value: 2, text: '≥30', points: '+2' }
-        ],
-        'segmented-control'
-    )}
+                    'resp_rate',
+                    'Respiratory rate, breaths/min',
+                    [
+                        { value: 0, text: '<20', points: '0' },
+                        { value: 1, text: '20-29', points: '+1' },
+                        { value: 2, text: '≥30', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
 
                 ${this.createRow(
-        'oxygen_sat',
-        'Peripheral oxygen saturation on room air',
-        [
-            { value: 0, text: '≥92%', points: '0' },
-            { value: 2, text: '<92%', points: '+2' }
-        ],
-        'segmented-control'
-    )}
+                    'oxygen_sat',
+                    'Peripheral oxygen saturation on room air',
+                    [
+                        { value: 0, text: '≥92%', points: '0' },
+                        { value: 2, text: '<92%', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
                 
                 ${this.createRow(
-        'gcs',
-        'Glasgow Coma Scale',
-        [
-            { value: 0, text: '15', points: '0' },
-            { value: 2, text: '<15', points: '+2' }
-        ],
-        'segmented-control'
-    )}
+                    'gcs',
+                    'Glasgow Coma Scale',
+                    [
+                        { value: 0, text: '15', points: '0' },
+                        { value: 2, text: '<15', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
                 
                 ${this.createRow(
-        'urea',
-        'Urea or BUN (use one measurement available)',
-        [
-            {
-                value: 0,
-                text: 'Urea <7 mmol/L (<42 mg/dL) OR BUN <19.6 mg/dL',
-                points: '0'
-            },
-            {
-                value: 1,
-                text: 'Urea ≥7 to <14 mmol/L (≥42mg/dL to <84 mg/dL) OR BUN ≥19.6 to <39.2 mg/dL',
-                points: '1'
-            },
-            {
-                value: 3,
-                text: 'Urea ≥14 mmol/L (>84 mg/dL) OR BUN >39.2 mg/dL',
-                points: '3'
-            }
-        ],
-        'vertical-radio-group'
-    )}
+                    'urea',
+                    'Urea or BUN (use one measurement available)',
+                    [
+                        {
+                            value: 0,
+                            text: 'Urea <7 mmol/L (<42 mg/dL) OR BUN <19.6 mg/dL',
+                            points: '0'
+                        },
+                        {
+                            value: 1,
+                            text: 'Urea ≥7 to <14 mmol/L (≥42mg/dL to <84 mg/dL) OR BUN ≥19.6 to <39.2 mg/dL',
+                            points: '1'
+                        },
+                        {
+                            value: 3,
+                            text: 'Urea ≥14 mmol/L (>84 mg/dL) OR BUN >39.2 mg/dL',
+                            points: '3'
+                        }
+                    ],
+                    'vertical-radio-group'
+                )}
                 
                 ${this.createRow(
-        'crp',
-        'C-reactive protein, mg/L',
-        [
-            { value: 0, text: '<50 mg/L (<5 mg/dL)', points: '0' },
-            { value: 1, text: '50-99 mg/L (5-9.9 mg/dL)', points: '1' },
-            { value: 2, text: '≥100 mg/L (≥10 mg/dL)', points: '2' }
-        ],
-        'vertical-radio-group'
-    )}
+                    'crp',
+                    'C-reactive protein, mg/L',
+                    [
+                        { value: 0, text: '<50 mg/L (<5 mg/dL)', points: '0' },
+                        { value: 1, text: '50-99 mg/L (5-9.9 mg/dL)', points: '1' },
+                        { value: 2, text: '≥100 mg/L (≥10 mg/dL)', points: '2' }
+                    ],
+                    'vertical-radio-group'
+                )}
             
             <!-- 共病症說明 -->
             <div class="alert warning mt-20">

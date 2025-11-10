@@ -1,6 +1,6 @@
 export const wellsDVT = {
     id: 'wells-dvt',
-    title: 'Wells\' Criteria for DVT',
+    title: "Wells' Criteria for DVT",
     description: 'Calculates risk of deep vein thrombosis (DVT) based on clinical criteria.',
     generateHTML: function () {
         return `

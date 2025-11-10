@@ -4,7 +4,7 @@
 // This prevents a syntax error in one calculator from breaking the entire app.
 export const calculatorModules = [
     { id: '2helps2b', title: '2HELPS2B Score for Seizure Risk' },
-    { id: '4as-delirium', title: '4 A\'s Test for Delirium' },
+    { id: '4as-delirium', title: "4 A's Test for Delirium" },
     { id: '4c-mortality-covid', title: '4C Mortality Score for COVID-19' },
     { id: '4peps', title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)' },
     { id: '4ts-hit', title: '4Ts Score for Heparin-Induced Thrombocytopenia (HIT)' },

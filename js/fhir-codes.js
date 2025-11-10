@@ -8,118 +8,118 @@
  */
 export const LOINC_CODES = {
     // Vital Signs
-    SYSTOLIC_BP: '8480-6',              // Systolic blood pressure
-    DIASTOLIC_BP: '8462-4',             // Diastolic blood pressure
-    BP_PANEL: '85354-9',                // Blood pressure panel
-    HEART_RATE: '8867-4',               // Heart rate
-    RESPIRATORY_RATE: '9279-1',         // Respiratory rate
-    TEMPERATURE: '8310-5',              // Body temperature
-    OXYGEN_SATURATION: '59408-5',       // Oxygen saturation
+    SYSTOLIC_BP: '8480-6', // Systolic blood pressure
+    DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
+    BP_PANEL: '85354-9', // Blood pressure panel
+    HEART_RATE: '8867-4', // Heart rate
+    RESPIRATORY_RATE: '9279-1', // Respiratory rate
+    TEMPERATURE: '8310-5', // Body temperature
+    OXYGEN_SATURATION: '59408-5', // Oxygen saturation
     OXYGEN_SATURATION_PULSE_OX: '2708-6', // O2 saturation by pulse oximetry
 
     // Body Measurements
-    HEIGHT: '8302-2',                   // Body height
-    WEIGHT: '29463-7',                  // Body weight
-    BMI: '39156-5',                     // Body mass index
-    HEAD_CIRCUMFERENCE: '8287-5',       // Head circumference
+    HEIGHT: '8302-2', // Body height
+    WEIGHT: '29463-7', // Body weight
+    BMI: '39156-5', // Body mass index
+    HEAD_CIRCUMFERENCE: '8287-5', // Head circumference
 
     // Laboratory - Hematology
-    HEMOGLOBIN: '718-7',                // Hemoglobin
-    HEMATOCRIT: '4544-3',               // Hematocrit
-    WBC: '6690-2',                      // White blood cells
-    PLATELETS: '777-3',                 // Platelets
-    PLATELETS_ALT: '2160-0',            // Platelets (alternative code)
+    HEMOGLOBIN: '718-7', // Hemoglobin
+    HEMATOCRIT: '4544-3', // Hematocrit
+    WBC: '6690-2', // White blood cells
+    PLATELETS: '777-3', // Platelets
+    PLATELETS_ALT: '2160-0', // Platelets (alternative code)
 
     // Laboratory - Chemistry
-    SODIUM: '2951-2',                   // Sodium
-    POTASSIUM: '2823-3',                // Potassium
-    CHLORIDE: '2075-0',                 // Chloride
-    CO2: '2028-9',                      // Carbon dioxide
-    BUN: '3094-0',                      // Blood urea nitrogen
-    BUN_ALT: '6299-8',                  // BUN (alternative code)
-    CREATININE: '2160-0',               // Creatinine
-    GLUCOSE: '2345-7',                  // Glucose
-    CALCIUM: '17861-6',                 // Calcium
-    MAGNESIUM: '2601-3',                // Magnesium
-    PHOSPHATE: '2777-1',                // Phosphate
-    ALBUMIN: '1751-7',                  // Albumin
+    SODIUM: '2951-2', // Sodium
+    POTASSIUM: '2823-3', // Potassium
+    CHLORIDE: '2075-0', // Chloride
+    CO2: '2028-9', // Carbon dioxide
+    BUN: '3094-0', // Blood urea nitrogen
+    BUN_ALT: '6299-8', // BUN (alternative code)
+    CREATININE: '2160-0', // Creatinine
+    GLUCOSE: '2345-7', // Glucose
+    CALCIUM: '17861-6', // Calcium
+    MAGNESIUM: '2601-3', // Magnesium
+    PHOSPHATE: '2777-1', // Phosphate
+    ALBUMIN: '1751-7', // Albumin
 
     // Laboratory - Liver Function
-    BILIRUBIN_TOTAL: '1975-2',          // Bilirubin total
-    BILIRUBIN_DIRECT: '1968-7',         // Bilirubin direct
-    AST: '1920-8',                      // AST (SGOT)
-    ALT: '1742-6',                      // ALT (SGPT)
-    ALP: '6768-6',                      // Alkaline phosphatase
-    GGT: '2324-2',                      // Gamma glutamyl transferase
-    ALBUMIN_SERUM: '1751-7',            // Albumin serum
-    TOTAL_PROTEIN: '2885-2',            // Total protein
-    INR: '6301-6',                      // INR
+    BILIRUBIN_TOTAL: '1975-2', // Bilirubin total
+    BILIRUBIN_DIRECT: '1968-7', // Bilirubin direct
+    AST: '1920-8', // AST (SGOT)
+    ALT: '1742-6', // ALT (SGPT)
+    ALP: '6768-6', // Alkaline phosphatase
+    GGT: '2324-2', // Gamma glutamyl transferase
+    ALBUMIN_SERUM: '1751-7', // Albumin serum
+    TOTAL_PROTEIN: '2885-2', // Total protein
+    INR: '6301-6', // INR
 
     // Laboratory - Lipid Panel
-    CHOLESTEROL_TOTAL: '2093-3',        // Cholesterol total
-    HDL: '2085-9',                      // HDL cholesterol
-    LDL: '2089-1',                      // LDL cholesterol
-    TRIGLYCERIDES: '2571-8',            // Triglycerides
+    CHOLESTEROL_TOTAL: '2093-3', // Cholesterol total
+    HDL: '2085-9', // HDL cholesterol
+    LDL: '2089-1', // LDL cholesterol
+    TRIGLYCERIDES: '2571-8', // Triglycerides
 
     // Laboratory - Renal Function
-    EGFR: '33914-3',                    // eGFR
-    URINE_POTASSIUM: '2829-0',          // Urine potassium
-    SERUM_OSMOLALITY: '2695-6',         // Serum osmolality
-    URINE_OSMOLALITY: '2697-2',         // Urine osmolality
-    URINE_SODIUM: '2828-2',             // Urine sodium
-    URINE_CREATININE: '2161-8',         // Urine creatinine
+    EGFR: '33914-3', // eGFR
+    URINE_POTASSIUM: '2829-0', // Urine potassium
+    SERUM_OSMOLALITY: '2695-6', // Serum osmolality
+    URINE_OSMOLALITY: '2697-2', // Urine osmolality
+    URINE_SODIUM: '2828-2', // Urine sodium
+    URINE_CREATININE: '2161-8', // Urine creatinine
 
     // Laboratory - Inflammatory Markers
-    CRP: '1988-5',                      // C-reactive protein
-    ESR: '4537-7',                      // Erythrocyte sedimentation rate
-    PROCALCITONIN: '33959-8',           // Procalcitonin
+    CRP: '1988-5', // C-reactive protein
+    ESR: '4537-7', // Erythrocyte sedimentation rate
+    PROCALCITONIN: '33959-8', // Procalcitonin
 
     // Laboratory - Cardiac Markers
-    TROPONIN_I: '10839-9',              // Troponin I
-    TROPONIN_T: '6598-7',               // Troponin T
-    TROPONIN_T_HIGH: '30239-8',         // Troponin T high sensitivity
-    TROPONIN_I_HIGH: '15056-5',         // Troponin I high sensitivity
-    TROPONIN_ALT: '32195-5',            // Troponin (alternative)
-    BNP: '30934-4',                     // BNP
-    NT_PRO_BNP: '33762-6',              // NT-proBNP
+    TROPONIN_I: '10839-9', // Troponin I
+    TROPONIN_T: '6598-7', // Troponin T
+    TROPONIN_T_HIGH: '30239-8', // Troponin T high sensitivity
+    TROPONIN_I_HIGH: '15056-5', // Troponin I high sensitivity
+    TROPONIN_ALT: '32195-5', // Troponin (alternative)
+    BNP: '30934-4', // BNP
+    NT_PRO_BNP: '33762-6', // NT-proBNP
 
     // Laboratory - Coagulation
-    PT: '5902-2',                       // Prothrombin time
-    PTT: '14979-9',                     // Partial thromboplastin time
-    FIBRINOGEN: '3255-7',               // Fibrinogen
-    D_DIMER: '48065-7',                 // D-dimer
+    PT: '5902-2', // Prothrombin time
+    PTT: '14979-9', // Partial thromboplastin time
+    FIBRINOGEN: '3255-7', // Fibrinogen
+    D_DIMER: '48065-7', // D-dimer
 
     // Laboratory - Arterial Blood Gas
-    PH: '2744-1',                       // pH
-    PCO2: '2019-8',                     // pCO2
-    PO2: '2703-7',                      // pO2
-    HCO3: '1960-4',                     // Bicarbonate
-    BASE_EXCESS: '1925-7',              // Base excess
-    LACTATE: '2524-7',                  // Lactate
+    PH: '2744-1', // pH
+    PCO2: '2019-8', // pCO2
+    PO2: '2703-7', // pO2
+    HCO3: '1960-4', // Bicarbonate
+    BASE_EXCESS: '1925-7', // Base excess
+    LACTATE: '2524-7', // Lactate
 
     // Laboratory - Other
-    HBA1C: '4548-4',                    // Hemoglobin A1c
-    TSH: '3016-3',                      // Thyroid stimulating hormone
-    FREE_T4: '3053-6',                  // Free T4
-    CORTISOL: '2143-6',                 // Cortisol
-    URIC_ACID: '3084-1',                // Uric acid
-    AMYLASE: '1798-8',                  // Amylase
-    LIPASE: '3040-3',                   // Lipase
-    LDH: '2532-0',                      // Lactate dehydrogenase
-    FERRITIN: '2276-4',                 // Ferritin
-    VITAMIN_D: '1989-3',                // Vitamin D 25-hydroxy
+    HBA1C: '4548-4', // Hemoglobin A1c
+    TSH: '3016-3', // Thyroid stimulating hormone
+    FREE_T4: '3053-6', // Free T4
+    CORTISOL: '2143-6', // Cortisol
+    URIC_ACID: '3084-1', // Uric acid
+    AMYLASE: '1798-8', // Amylase
+    LIPASE: '3040-3', // Lipase
+    LDH: '2532-0', // Lactate dehydrogenase
+    FERRITIN: '2276-4', // Ferritin
+    VITAMIN_D: '1989-3', // Vitamin D 25-hydroxy
 
     // Clinical Assessments
-    GCS: '9269-2',                      // Glasgow Coma Scale
-    PAIN_SCORE: '72514-3',              // Pain severity
-    APGAR_1MIN: '9272-6',               // Apgar score 1 minute
-    APGAR_5MIN: '9274-2',               // Apgar score 5 minute
-    SMOKING_STATUS: '72166-2',          // Smoking status
+    GCS: '9269-2', // Glasgow Coma Scale
+    PAIN_SCORE: '72514-3', // Pain severity
+    APGAR_1MIN: '9272-6', // Apgar score 1 minute
+    APGAR_5MIN: '9274-2', // Apgar score 5 minute
+    SMOKING_STATUS: '72166-2', // Smoking status
 
     // Other Observations
-    UREA: '3094-0',                     // Urea
-    BLOOD_TYPE: '882-1',                // Blood type
-    RH_FACTOR: '10331-7'                // Rh factor
+    UREA: '3094-0', // Urea
+    BLOOD_TYPE: '882-1', // Blood type
+    RH_FACTOR: '10331-7' // Rh factor
 };
 
 /**
@@ -347,4 +347,3 @@ export default {
     getVitalSignsCodes,
     getLabCodesByCategory
 };
-
