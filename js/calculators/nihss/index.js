@@ -43,106 +43,106 @@ export const nihss = {
             </div>
             
             ${this.createItem('nihss-1a', '1a. Level of Consciousness', [
-                { value: '0', label: '0 - Alert' },
-                { value: '1', label: '1 - Not alert, but arousable by minor stimulation' },
-                { value: '2', label: '2 - Not alert, requires repeated stimulation to attend' },
-                { value: '3', label: '3 - Unresponsive, or reflex motor responses only' }
-            ])}
+        { value: '0', label: '0 - Alert' },
+        { value: '1', label: '1 - Not alert, but arousable by minor stimulation' },
+        { value: '2', label: '2 - Not alert, requires repeated stimulation to attend' },
+        { value: '3', label: '3 - Unresponsive, or reflex motor responses only' }
+    ])}
             
             ${this.createItem('nihss-1b', '1b. LOC Questions (Month, Age)', [
-                { value: '0', label: '0 - Answers both correctly' },
-                { value: '1', label: '1 - Answers one correctly' },
-                { value: '2', label: '2 - Answers neither correctly' }
-            ])}
+        { value: '0', label: '0 - Answers both correctly' },
+        { value: '1', label: '1 - Answers one correctly' },
+        { value: '2', label: '2 - Answers neither correctly' }
+    ])}
             
             ${this.createItem('nihss-1c', '1c. LOC Commands (Open/close eyes, grip/release hand)', [
-                { value: '0', label: '0 - Performs both correctly' },
-                { value: '1', label: '1 - Performs one correctly' },
-                { value: '2', label: '2 - Performs neither correctly' }
-            ])}
+        { value: '0', label: '0 - Performs both correctly' },
+        { value: '1', label: '1 - Performs one correctly' },
+        { value: '2', label: '2 - Performs neither correctly' }
+    ])}
             
             ${this.createItem('nihss-2', '2. Best Gaze', [
-                { value: '0', label: '0 - Normal' },
-                { value: '1', label: '1 - Partial gaze palsy' },
-                { value: '2', label: '2 - Forced deviation' }
-            ])}
+        { value: '0', label: '0 - Normal' },
+        { value: '1', label: '1 - Partial gaze palsy' },
+        { value: '2', label: '2 - Forced deviation' }
+    ])}
             
             ${this.createItem('nihss-3', '3. Visual Fields', [
-                { value: '0', label: '0 - No visual loss' },
-                { value: '1', label: '1 - Partial hemianopia' },
-                { value: '2', label: '2 - Complete hemianopia' },
-                { value: '3', label: '3 - Bilateral hemianopia' }
-            ])}
+        { value: '0', label: '0 - No visual loss' },
+        { value: '1', label: '1 - Partial hemianopia' },
+        { value: '2', label: '2 - Complete hemianopia' },
+        { value: '3', label: '3 - Bilateral hemianopia' }
+    ])}
             
             ${this.createItem('nihss-4', '4. Facial Palsy', [
-                { value: '0', label: '0 - Normal' },
-                { value: '1', label: '1 - Minor paralysis' },
-                { value: '2', label: '2 - Partial paralysis' },
-                { value: '3', label: '3 - Complete paralysis of one or both sides' }
-            ])}
+        { value: '0', label: '0 - Normal' },
+        { value: '1', label: '1 - Minor paralysis' },
+        { value: '2', label: '2 - Partial paralysis' },
+        { value: '3', label: '3 - Complete paralysis of one or both sides' }
+    ])}
             
             ${this.createItem('nihss-5a', '5a. Motor Arm - Left', [
-                { value: '0', label: '0 - No drift' },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
-            ])}
+        { value: '0', label: '0 - No drift' },
+        { value: '1', label: '1 - Drift' },
+        { value: '2', label: '2 - Some effort against gravity' },
+        { value: '3', label: '3 - No effort against gravity, but moves' },
+        { value: '4', label: '4 - No movement' }
+    ])}
             
             ${this.createItem('nihss-5b', '5b. Motor Arm - Right', [
-                { value: '0', label: '0 - No drift' },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
-            ])}
+        { value: '0', label: '0 - No drift' },
+        { value: '1', label: '1 - Drift' },
+        { value: '2', label: '2 - Some effort against gravity' },
+        { value: '3', label: '3 - No effort against gravity, but moves' },
+        { value: '4', label: '4 - No movement' }
+    ])}
             
             ${this.createItem('nihss-6a', '6a. Motor Leg - Left', [
-                { value: '0', label: '0 - No drift' },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
-            ])}
+        { value: '0', label: '0 - No drift' },
+        { value: '1', label: '1 - Drift' },
+        { value: '2', label: '2 - Some effort against gravity' },
+        { value: '3', label: '3 - No effort against gravity, but moves' },
+        { value: '4', label: '4 - No movement' }
+    ])}
             
             ${this.createItem('nihss-6b', '6b. Motor Leg - Right', [
-                { value: '0', label: '0 - No drift' },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
-            ])}
+        { value: '0', label: '0 - No drift' },
+        { value: '1', label: '1 - Drift' },
+        { value: '2', label: '2 - Some effort against gravity' },
+        { value: '3', label: '3 - No effort against gravity, but moves' },
+        { value: '4', label: '4 - No movement' }
+    ])}
             
             ${this.createItem('nihss-7', '7. Limb Ataxia', [
-                { value: '0', label: '0 - Absent' },
-                { value: '1', label: '1 - Present in one limb' },
-                { value: '2', label: '2 - Present in two or more limbs' }
-            ])}
+        { value: '0', label: '0 - Absent' },
+        { value: '1', label: '1 - Present in one limb' },
+        { value: '2', label: '2 - Present in two or more limbs' }
+    ])}
             
             ${this.createItem('nihss-8', '8. Sensory', [
-                { value: '0', label: '0 - Normal' },
-                { value: '1', label: '1 - Mild-to-moderate loss' },
-                { value: '2', label: '2 - Severe-to-total loss' }
-            ])}
+        { value: '0', label: '0 - Normal' },
+        { value: '1', label: '1 - Mild-to-moderate loss' },
+        { value: '2', label: '2 - Severe-to-total loss' }
+    ])}
             
             ${this.createItem('nihss-9', '9. Best Language', [
-                { value: '0', label: '0 - No aphasia' },
-                { value: '1', label: '1 - Mild-to-moderate aphasia' },
-                { value: '2', label: '2 - Severe aphasia' },
-                { value: '3', label: '3 - Mute, global aphasia' }
-            ])}
+        { value: '0', label: '0 - No aphasia' },
+        { value: '1', label: '1 - Mild-to-moderate aphasia' },
+        { value: '2', label: '2 - Severe aphasia' },
+        { value: '3', label: '3 - Mute, global aphasia' }
+    ])}
             
             ${this.createItem('nihss-10', '10. Dysarthria', [
-                { value: '0', label: '0 - Normal articulation' },
-                { value: '1', label: '1 - Mild-to-moderate dysarthria' },
-                { value: '2', label: '2 - Severe dysarthria (unintelligible)' }
-            ])}
+        { value: '0', label: '0 - Normal articulation' },
+        { value: '1', label: '1 - Mild-to-moderate dysarthria' },
+        { value: '2', label: '2 - Severe dysarthria (unintelligible)' }
+    ])}
             
             ${this.createItem('nihss-11', '11. Extinction and Inattention (Neglect)', [
-                { value: '0', label: '0 - No neglect' },
-                { value: '1', label: '1 - Partial neglect' },
-                { value: '2', label: '2 - Complete neglect' }
-            ])}
+        { value: '0', label: '0 - No neglect' },
+        { value: '1', label: '1 - Partial neglect' },
+        { value: '2', label: '2 - Complete neglect' }
+    ])}
             
             <div class="result-container" id="nihss-result" style="display:none;"></div>
             

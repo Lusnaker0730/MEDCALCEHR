@@ -106,8 +106,8 @@ export function displayError(container, error, userMessage = null) {
                 ${message}
             </div>
             ${
-                window.location.hostname === 'localhost'
-                    ? `
+    window.location.hostname === 'localhost'
+        ? `
                 <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
                     <summary style="cursor: pointer;">技术详情</summary>
                     <pre style="margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 3px; overflow-x: auto;">
@@ -115,8 +115,8 @@ ${error.stack || error.message}
                     </pre>
                 </details>
             `
-                    : ''
-            }
+        : ''
+}
         </div>
     `;
 }

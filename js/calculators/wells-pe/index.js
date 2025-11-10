@@ -3,7 +3,7 @@ import { getMostRecentObservation } from '../../utils.js';
 
 export const wellsPE = {
     id: 'wells-pe',
-    title: "Wells' Criteria for Pulmonary Embolism",
+    title: 'Wells\' Criteria for Pulmonary Embolism',
     description:
         'Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.',
     generateHTML: function () {
