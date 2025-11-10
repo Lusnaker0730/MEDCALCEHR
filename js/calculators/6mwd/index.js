@@ -117,14 +117,14 @@ export const sixMwd = {
                 </div>
                 <div class="result-label">Expected 6 Minute Walk Distance for healthy patient</div>
                 ${
-    !isNaN(percentage)
-        ? `
+                    !isNaN(percentage)
+                        ? `
                 <div class="result-item" style="margin-top: 20px;">
                     <span class="label">Percentage of expected distance</span>
                     <span class="value" style="font-size: 2rem; font-weight: bold; color: #667eea;">${percentage.toFixed(0)}%</span>
                 </div>`
-        : ''
-}
+                        : ''
+                }
                 <div class="result-item">
                     <span class="label">Lower limit of normal</span>
                     <span class="value">${lowerLimitNormal.toFixed(0)} meters</span>

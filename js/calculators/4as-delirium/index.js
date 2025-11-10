@@ -2,7 +2,7 @@
 
 export const fourAsDelirium = {
     id: '4as-delirium',
-    title: '4 A\'s Test for Delirium Screening',
+    title: "4 A's Test for Delirium Screening",
     description: 'Diagnoses delirium in older patients.',
 
     generateHTML: function () {
