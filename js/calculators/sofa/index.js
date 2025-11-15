@@ -417,18 +417,27 @@ export const sofa = {
 
                     // Select appropriate radio button
                     let radioValue = '0';
-                    if (val < 20) radioValue = '4';
-                    else if (val < 50) radioValue = '3';
-                    else if (val < 100) radioValue = '2';
-                    else if (val < 150) radioValue = '1';
-                    
-                    const radio = document.querySelector(`input[name="sofa-coag"][value="${radioValue}"]`);
+                    if (val < 20) {
+                        radioValue = '4';
+                    } else if (val < 50) {
+                        radioValue = '3';
+                    } else if (val < 100) {
+                        radioValue = '2';
+                    } else if (val < 150) {
+                        radioValue = '1';
+                    }
+
+                    const radio = document.querySelector(
+                        `input[name="sofa-coag"][value="${radioValue}"]`
+                    );
                     if (radio) {
                         radio.checked = true;
                         radio.parentElement.classList.add('selected');
                         // Remove selected from others
                         document.querySelectorAll('input[name="sofa-coag"]').forEach(r => {
-                            if (r !== radio) r.parentElement.classList.remove('selected');
+                            if (r !== radio) {
+                                r.parentElement.classList.remove('selected');
+                            }
                         });
                     }
                 } else {
@@ -450,18 +459,27 @@ export const sofa = {
 
                     // Select appropriate radio button
                     let radioValue = '0';
-                    if (val >= 5.0) radioValue = '4';
-                    else if (val >= 3.5) radioValue = '3';
-                    else if (val >= 2.0) radioValue = '2';
-                    else if (val >= 1.2) radioValue = '1';
-                    
-                    const radio = document.querySelector(`input[name="sofa-renal"][value="${radioValue}"]`);
+                    if (val >= 5.0) {
+                        radioValue = '4';
+                    } else if (val >= 3.5) {
+                        radioValue = '3';
+                    } else if (val >= 2.0) {
+                        radioValue = '2';
+                    } else if (val >= 1.2) {
+                        radioValue = '1';
+                    }
+
+                    const radio = document.querySelector(
+                        `input[name="sofa-renal"][value="${radioValue}"]`
+                    );
                     if (radio) {
                         radio.checked = true;
                         radio.parentElement.classList.add('selected');
                         // Remove selected from others
                         document.querySelectorAll('input[name="sofa-renal"]').forEach(r => {
-                            if (r !== radio) r.parentElement.classList.remove('selected');
+                            if (r !== radio) {
+                                r.parentElement.classList.remove('selected');
+                            }
                         });
                     }
                 } else {
@@ -483,18 +501,27 @@ export const sofa = {
 
                     // Select appropriate radio button
                     let radioValue = '0';
-                    if (val >= 12.0) radioValue = '4';
-                    else if (val >= 6.0) radioValue = '3';
-                    else if (val >= 2.0) radioValue = '2';
-                    else if (val >= 1.2) radioValue = '1';
-                    
-                    const radio = document.querySelector(`input[name="sofa-liver"][value="${radioValue}"]`);
+                    if (val >= 12.0) {
+                        radioValue = '4';
+                    } else if (val >= 6.0) {
+                        radioValue = '3';
+                    } else if (val >= 2.0) {
+                        radioValue = '2';
+                    } else if (val >= 1.2) {
+                        radioValue = '1';
+                    }
+
+                    const radio = document.querySelector(
+                        `input[name="sofa-liver"][value="${radioValue}"]`
+                    );
                     if (radio) {
                         radio.checked = true;
                         radio.parentElement.classList.add('selected');
                         // Remove selected from others
                         document.querySelectorAll('input[name="sofa-liver"]').forEach(r => {
-                            if (r !== radio) r.parentElement.classList.remove('selected');
+                            if (r !== radio) {
+                                r.parentElement.classList.remove('selected');
+                            }
                         });
                     }
                 } else {
@@ -517,21 +544,21 @@ export const sofa = {
             option.addEventListener('click', () => {
                 const radio = option.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 // Remove selected class from all options in this group
                 document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 // Add selected class to clicked option
                 option.classList.add('selected');
                 radio.checked = true;
-                
+
                 // Auto-calculate
                 this.calculateScore();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');

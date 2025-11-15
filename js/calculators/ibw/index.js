@@ -135,7 +135,7 @@ export const ibw = {
         const heightInput = container.querySelector('#ibw-height');
         const actualWeightInput = container.querySelector('#ibw-actual');
         const resultEl = container.querySelector('#ibw-result');
-        
+
         // Calculate function
         const calculate = () => {
             const heightCm = parseFloat(heightInput.value);
@@ -169,7 +169,7 @@ export const ibw = {
 
                 if (actualWeight > 0 && actualWeight > ibw) {
                     const adjBw = ibw + 0.4 * (actualWeight - ibw);
-                    const percentOver = ((actualWeight - ibw) / ibw * 100).toFixed(0);
+                    const percentOver = (((actualWeight - ibw) / ibw) * 100).toFixed(0);
                     resultHTML += `
                         <div class="result-item mt-15">
                             <span class="result-item-label">Adjusted Body Weight (ABW)</span>
@@ -184,7 +184,7 @@ export const ibw = {
                         </div>
                     `;
                 } else if (actualWeight > 0 && actualWeight < ibw) {
-                    const percentUnder = ((ibw - actualWeight) / ibw * 100).toFixed(0);
+                    const percentUnder = (((ibw - actualWeight) / ibw) * 100).toFixed(0);
                     resultHTML += `
                         <div class="alert warning mt-20">
                             <span class="alert-icon">⚠️</span>
@@ -215,7 +215,9 @@ export const ibw = {
         // Set gender from patient data
         if (patient && patient.gender) {
             const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="ibw-gender"][value="${genderValue}"]`);
+            const genderRadio = container.querySelector(
+                `input[name="ibw-gender"][value="${genderValue}"]`
+            );
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.parentElement.classList.add('selected');
@@ -239,14 +241,14 @@ export const ibw = {
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculate();
@@ -256,7 +258,7 @@ export const ibw = {
         // Auto-calculate on input changes
         heightInput.addEventListener('input', calculate);
         actualWeightInput.addEventListener('input', calculate);
-        
+
         // Initial calculation
         calculate();
     }

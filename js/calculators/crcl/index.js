@@ -118,7 +118,7 @@ export const crcl = {
                 let severityClass = 'low';
                 let alertType = 'info';
                 let alertMsg = '';
-                
+
                 if (crcl >= 90) {
                     category = 'Normal kidney function';
                     severityClass = 'low';
@@ -130,17 +130,20 @@ export const crcl = {
                 } else if (crcl >= 30) {
                     category = 'Moderate reduction';
                     severityClass = 'moderate';
-                    alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
+                    alertMsg =
+                        'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
                     alertType = 'warning';
                 } else if (crcl >= 15) {
                     category = 'Severe reduction';
                     severityClass = 'high';
-                    alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
+                    alertMsg =
+                        'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
                     alertType = 'warning';
                 } else {
                     category = 'Kidney failure';
                     severityClass = 'high';
-                    alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
+                    alertMsg =
+                        'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
                     alertType = 'warning';
                 }
 
@@ -166,7 +169,7 @@ export const crcl = {
                         </div>
                     </div>
                 `;
-                
+
                 resultEl.style.display = 'block';
                 resultEl.classList.add('show');
             } else {
@@ -184,30 +187,32 @@ export const crcl = {
         }
         if (patient && patient.gender) {
             const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="crcl-gender"][value="${genderValue}"]`);
+            const genderRadio = container.querySelector(
+                `input[name="crcl-gender"][value="${genderValue}"]`
+            );
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.parentElement.classList.add('selected');
             }
         }
-        
+
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculateAndUpdate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');

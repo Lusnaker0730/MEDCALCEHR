@@ -263,17 +263,19 @@ export const hepScore = {
         };
 
         const attachEventListeners = () => {
-            criteriaContainer.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
-                radio.addEventListener('change', () => {
-                    // Add visual feedback
-                    const parent = radio.closest('.radio-option');
-                    const siblings = parent.parentElement.querySelectorAll('.radio-option');
-                    siblings.forEach(s => s.classList.remove('selected'));
-                    parent.classList.add('selected');
-                    
-                    calculateScore();
+            criteriaContainer
+                .querySelectorAll('.radio-option input[type="radio"]')
+                .forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        // Add visual feedback
+                        const parent = radio.closest('.radio-option');
+                        const siblings = parent.parentElement.querySelectorAll('.radio-option');
+                        siblings.forEach(s => s.classList.remove('selected'));
+                        parent.classList.add('selected');
+
+                        calculateScore();
+                    });
                 });
-            });
         };
 
         onsetToggle.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -283,7 +285,7 @@ export const hepScore = {
                 const siblings = parent.parentElement.querySelectorAll('.radio-option');
                 siblings.forEach(s => s.classList.remove('selected'));
                 parent.classList.add('selected');
-                
+
                 // Re-render criteria
                 renderCriteria(radio.value);
             });
@@ -303,7 +305,9 @@ export const hepScore = {
                     if (radioToCheck) {
                         radioToCheck.checked = true;
                         const parent = radioToCheck.closest('.radio-option');
-                        nadirGroup.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                        nadirGroup
+                            .querySelectorAll('.radio-option')
+                            .forEach(opt => opt.classList.remove('selected'));
                         parent.classList.add('selected');
                     }
                 }
@@ -323,7 +327,9 @@ export const hepScore = {
                         if (radioToCheck) {
                             radioToCheck.checked = true;
                             const parent = radioToCheck.closest('.radio-option');
-                            dicGroup.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                            dicGroup
+                                .querySelectorAll('.radio-option')
+                                .forEach(opt => opt.classList.remove('selected'));
                             parent.classList.add('selected');
                         }
                     }

@@ -379,14 +379,14 @@ export const preventCVD = {
                     </div>
                     <div style="font-size: 0.85em; color: ${riskColor}; margin-top: 10px;">
                         ${
-    risk < 5
-        ? 'Focus on lifestyle modifications: maintain healthy diet, exercise, avoid smoking.'
-        : risk < 10
-            ? 'Consider lifestyle modifications and potentially blood pressure management.'
-            : risk < 20
-                ? 'Pharmacological intervention (statins, BP control) likely needed. Consult healthcare provider.'
-                : 'High risk - requires intensive management. Specialist referral recommended.'
-}
+                            risk < 5
+                                ? 'Focus on lifestyle modifications: maintain healthy diet, exercise, avoid smoking.'
+                                : risk < 10
+                                  ? 'Consider lifestyle modifications and potentially blood pressure management.'
+                                  : risk < 20
+                                    ? 'Pharmacological intervention (statins, BP control) likely needed. Consult healthcare provider.'
+                                    : 'High risk - requires intensive management. Specialist referral recommended.'
+                        }
                     </div>
                 </div>
             `;

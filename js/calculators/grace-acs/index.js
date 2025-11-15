@@ -177,12 +177,12 @@ export const graceAcs = {
             const hr = parseInt(root.querySelector('#grace-hr').value);
             const sbp = parseInt(root.querySelector('#grace-sbp').value);
             const creatinine = parseFloat(root.querySelector('#grace-creatinine').value);
-            
+
             const killipRadio = root.querySelector('input[name="grace-killip"]:checked');
             const arrestRadio = root.querySelector('input[name="grace-cardiac-arrest"]:checked');
             const stRadio = root.querySelector('input[name="grace-st-deviation"]:checked');
             const enzymesRadio = root.querySelector('input[name="grace-cardiac-enzymes"]:checked');
-            
+
             const killip = killipRadio ? parseInt(killipRadio.value) : 0;
             const arrest = arrestRadio ? parseInt(arrestRadio.value) : 0;
             const st = stRadio ? parseInt(stRadio.value) : 0;
@@ -351,24 +351,24 @@ export const graceAcs = {
             `;
             root.querySelector('#grace-result').style.display = 'block';
         };
-        
+
         // Add visual feedback for radio options
         const radioOptions = root.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 root.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -376,13 +376,13 @@ export const graceAcs = {
                 option.classList.add('selected');
             }
         });
-        
+
         // Add event listeners for automatic calculation
         root.querySelector('#grace-age').addEventListener('input', calculate);
         root.querySelector('#grace-hr').addEventListener('input', calculate);
         root.querySelector('#grace-sbp').addEventListener('input', calculate);
         root.querySelector('#grace-creatinine').addEventListener('input', calculate);
-        
+
         // Initial calculation
         calculate();
     }

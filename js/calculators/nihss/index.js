@@ -2,15 +2,19 @@ export const nihss = {
     id: 'nihss',
     title: 'NIH Stroke Scale/Score (NIHSS)',
     description: 'Quantifies stroke severity and monitors for neurological changes over time.',
-    
-    createItem: function(id, label, options) {
-        const optionsHTML = options.map((opt, index) => `
+
+    createItem: function (id, label, options) {
+        const optionsHTML = options
+            .map(
+                (opt, index) => `
             <label class="radio-option">
                 <input type="radio" name="${id}" value="${opt.value}" ${index === 0 ? 'checked' : ''}>
                 <span>${opt.label}</span>
             </label>
-        `).join('');
-        
+        `
+            )
+            .join('');
+
         return `
             <div class="section">
                 <div class="section-title">
@@ -22,7 +26,7 @@ export const nihss = {
             </div>
         `;
     },
-    
+
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -192,16 +196,28 @@ export const nihss = {
     },
     initialize: function () {
         const container = document.querySelector('#calculator-container') || document.body;
-        
+
         // Calculate function
         const calculate = () => {
             // Get all radio button groups
             const groups = [
-                'nihss-1a', 'nihss-1b', 'nihss-1c', 'nihss-2', 'nihss-3', 
-                'nihss-4', 'nihss-5a', 'nihss-5b', 'nihss-6a', 'nihss-6b', 
-                'nihss-7', 'nihss-8', 'nihss-9', 'nihss-10', 'nihss-11'
+                'nihss-1a',
+                'nihss-1b',
+                'nihss-1c',
+                'nihss-2',
+                'nihss-3',
+                'nihss-4',
+                'nihss-5a',
+                'nihss-5b',
+                'nihss-6a',
+                'nihss-6b',
+                'nihss-7',
+                'nihss-8',
+                'nihss-9',
+                'nihss-10',
+                'nihss-11'
             ];
-            
+
             let score = 0;
             groups.forEach(groupName => {
                 const checked = container.querySelector(`input[name="${groupName}"]:checked`);
@@ -213,7 +229,7 @@ export const nihss = {
             let severity = '';
             let severityClass = '';
             let interpretation = '';
-            
+
             if (score === 0) {
                 severity = 'No Stroke';
                 severityClass = 'low';
@@ -221,7 +237,8 @@ export const nihss = {
             } else if (score >= 1 && score <= 4) {
                 severity = 'Minor Stroke';
                 severityClass = 'low';
-                interpretation = 'Minor stroke. Consider outpatient management with close follow-up.';
+                interpretation =
+                    'Minor stroke. Consider outpatient management with close follow-up.';
             } else if (score >= 5 && score <= 15) {
                 severity = 'Moderate Stroke';
                 severityClass = 'moderate';
@@ -229,7 +246,8 @@ export const nihss = {
             } else if (score >= 16 && score <= 20) {
                 severity = 'Moderate-to-Severe Stroke';
                 severityClass = 'high';
-                interpretation = 'Moderate-to-severe stroke. Intensive monitoring and intervention required.';
+                interpretation =
+                    'Moderate-to-severe stroke. Intensive monitoring and intervention required.';
             } else {
                 severity = 'Severe Stroke';
                 severityClass = 'high';
@@ -261,28 +279,28 @@ export const nihss = {
             resultEl.style.display = 'block';
             resultEl.classList.add('show');
         };
-        
+
         // Add visual feedback and auto-calculate
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 // Remove selected class from all options in this group
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 // Add selected class to clicked option
                 this.classList.add('selected');
                 radio.checked = true;
-                
+
                 // Auto-calculate
                 calculate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -290,7 +308,7 @@ export const nihss = {
                 option.classList.add('selected');
             }
         });
-        
+
         // Initial calculation
         calculate();
     }

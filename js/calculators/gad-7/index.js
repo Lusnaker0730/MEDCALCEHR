@@ -43,7 +43,7 @@ export const gad7 = {
             `;
         });
 
-        html += `<div id="gad7-result" class="result-container"></div>`;
+        html += '<div id="gad7-result" class="result-container"></div>';
         return html;
     },
     initialize: function (client, patient, container) {
@@ -74,7 +74,8 @@ export const gad7 = {
             } else {
                 severity = 'Severe anxiety';
                 alertClass = 'danger';
-                recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+                recommendation =
+                    'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
             }
 
             const resultEl = container.querySelector('#gad7-result');

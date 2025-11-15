@@ -1,6 +1,6 @@
 export const wellsDVT = {
     id: 'wells-dvt',
-    title: 'Wells\' Criteria for DVT',
+    title: "Wells' Criteria for DVT",
     description: 'Calculates risk of deep vein thrombosis (DVT) based on clinical criteria.',
     generateHTML: function () {
         return `
@@ -109,10 +109,12 @@ export const wellsDVT = {
     },
     initialize: function () {
         const container = document.querySelector('#calculator-container') || document.body;
-        
+
         // Calculate function
         const calculate = () => {
-            const checkboxes = container.querySelectorAll('.checkbox-option input[type="checkbox"]');
+            const checkboxes = container.querySelectorAll(
+                '.checkbox-option input[type="checkbox"]'
+            );
             let score = 0;
             checkboxes.forEach(box => {
                 if (box.checked) {
@@ -123,19 +125,22 @@ export const wellsDVT = {
             let risk = '';
             let riskClass = '';
             let interpretation = '';
-            
+
             if (score >= 3) {
                 risk = 'High Risk';
                 riskClass = 'high';
-                interpretation = 'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
+                interpretation =
+                    'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
             } else if (score >= 1) {
                 risk = 'Moderate Risk';
                 riskClass = 'moderate';
-                interpretation = 'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
+                interpretation =
+                    'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
             } else {
                 risk = 'Low Risk';
                 riskClass = 'low';
-                interpretation = 'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
+                interpretation =
+                    'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
             }
 
             const resultEl = container.querySelector('#wells-dvt-result');
@@ -163,12 +168,12 @@ export const wellsDVT = {
             resultEl.style.display = 'block';
             resultEl.classList.add('show');
         };
-        
+
         // Add visual feedback and auto-calculate
         const checkboxOptions = container.querySelectorAll('.checkbox-option');
         checkboxOptions.forEach(option => {
             const checkbox = option.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 if (this.checked) {
                     option.classList.add('selected');
                 } else {
@@ -178,7 +183,7 @@ export const wellsDVT = {
                 calculate();
             });
         });
-        
+
         // Initial calculation
         calculate();
     }

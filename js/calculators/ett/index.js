@@ -72,7 +72,7 @@ export const ett = {
         // Add event listeners for auto-calculation
         heightEl.addEventListener('input', calculate);
         genderEl.addEventListener('change', calculate);
-        
+
         // Initial calculation
         calculate();
     }

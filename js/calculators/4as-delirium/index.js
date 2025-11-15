@@ -2,7 +2,7 @@
 
 export const fourAsDelirium = {
     id: '4as-delirium',
-    title: '4 A\'s Test for Delirium Screening',
+    title: "4 A's Test for Delirium Screening",
     description: 'Diagnoses delirium in older patients.',
 
     generateHTML: function () {
@@ -119,7 +119,7 @@ export const fourAsDelirium = {
 
     initialize: (client, patient, container) => {
         const root = container || document;
-        
+
         const calculate = () => {
             const alertnessScore = parseInt(
                 root.querySelector('input[name="alertness"]:checked')?.value || '0'
@@ -171,7 +171,7 @@ export const fourAsDelirium = {
                 const siblings = parent.parentElement.querySelectorAll('.radio-option');
                 siblings.forEach(s => s.classList.remove('selected'));
                 parent.classList.add('selected');
-                
+
                 calculate();
             });
         });

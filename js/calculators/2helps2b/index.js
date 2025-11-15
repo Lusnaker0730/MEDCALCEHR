@@ -79,11 +79,11 @@ export const helps2bScore = {
     },
     initialize: function (client, patient, container) {
         const root = container || document;
-        
+
         const calculate = () => {
             const checkboxes = root.querySelectorAll('.checkbox-option input[type="checkbox"]');
             let score = 0;
-            
+
             checkboxes.forEach(box => {
                 if (box.checked) {
                     score += parseInt(box.dataset.points);
@@ -100,9 +100,10 @@ export const helps2bScore = {
                 5: { risk: '88%', category: 'Very High', level: 'high' }
             };
 
-            const result = score >= 6 
-                ? { risk: '> 95%', category: 'Extremely High', level: 'critical' }
-                : riskData[score];
+            const result =
+                score >= 6
+                    ? { risk: '> 95%', category: 'Extremely High', level: 'critical' }
+                    : riskData[score];
 
             // Update result display
             const resultContainer = root.querySelector('.result-container');
@@ -114,13 +115,22 @@ export const helps2bScore = {
                 resultContainer.classList.add('show');
             }
 
-            if (scoreEl) scoreEl.textContent = score;
-            if (riskEl) riskEl.textContent = result.risk;
-            
+            if (scoreEl) {
+                scoreEl.textContent = score;
+            }
+            if (riskEl) {
+                riskEl.textContent = result.risk;
+            }
+
             if (categoryEl) {
                 categoryEl.textContent = result.category;
                 // Remove all risk level classes
-                categoryEl.classList.remove('risk-low', 'risk-moderate', 'risk-high', 'risk-critical');
+                categoryEl.classList.remove(
+                    'risk-low',
+                    'risk-moderate',
+                    'risk-high',
+                    'risk-critical'
+                );
                 // Add appropriate risk level class
                 categoryEl.classList.add(`risk-${result.level}`);
             }
@@ -136,7 +146,7 @@ export const helps2bScore = {
                 } else {
                     parent.classList.remove('selected');
                 }
-                
+
                 calculate();
             });
         });

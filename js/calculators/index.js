@@ -2,90 +2,159 @@
 
 // This is a static list of metadata, not imported modules.
 // This prevents a syntax error in one calculator from breaking the entire app.
+
+// Calculator categories
+export const categories = {
+    cardiovascular: '心血管',
+    renal: '腎臟功能',
+    'critical-care': '重症醫學',
+    pediatric: '兒科',
+    'drug-conversion': '藥物換算',
+    infection: '感染評估',
+    neurology: '神經科',
+    respiratory: '呼吸系統',
+    metabolic: '代謝疾病',
+    hematology: '血液科',
+    gastroenterology: '消化系統',
+    obstetrics: '產科',
+    psychiatry: '精神科',
+    general: '一般醫學'
+};
+
 export const calculatorModules = [
-    { id: '2helps2b', title: '2HELPS2B Score for Seizure Risk' },
-    { id: '4as-delirium', title: '4 A\'s Test for Delirium' },
-    { id: '4c-mortality-covid', title: '4C Mortality Score for COVID-19' },
-    { id: '4peps', title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)' },
-    { id: '4ts-hit', title: '4Ts Score for Heparin-Induced Thrombocytopenia (HIT)' },
-    { id: '6mwd', title: '6-Minute Walk Distance (6MWD) Calculator' },
-    { id: 'abl', title: 'ABL90 FLEX Analyzer Calculator' },
-    { id: 'abg-analyzer', title: 'ABG Analyzer' },
-    { id: 'action-icu', title: 'ACTION-ICU Risk Score for Intensive Care in NSTEMI' },
-    { id: 'af-risk', title: 'Atrial Fibrillation (AF) Risk Score (CHADVAS&HASBLED)' },
-    { id: 'apache-ii', title: 'APACHE II Score' },
-    { id: 'apgar', title: 'APGAR Score' },
-    { id: 'ariscat', title: 'ARISCAT Score for Postoperative Pulmonary Complications' },
-    { id: 'ascvd', title: 'ASCVD Risk Score (10-Year)' },
-    { id: 'bacterial-meningitis-score', title: 'Bacterial Meningitis Score for Children' },
-    { id: 'benzo-conversion', title: 'Benzodiazepine Conversion Calculator' },
-    { id: 'bmi-bsa', title: 'BMI and BSA Calculator' },
-    { id: 'bwps', title: 'BWPS for Thyrotoxicosis' },
-    { id: 'calcium-correction', title: 'Corrected Calcium for Hypoalbuminemia' },
-    { id: 'caprini', title: 'Caprini Score for VTE Risk' },
-    { id: 'centor', title: 'Centor Score for Strep Pharyngitis' },
-    { id: 'charlson', title: 'Charlson Comorbidity Index (CCI)' },
-    { id: 'child-pugh', title: 'Child-Pugh Score for Cirrhosis Mortality' },
-    { id: 'ciwa-ar', title: 'CIWA-Ar for Alcohol Withdrawal' },
-    { id: 'ckd-epi', title: 'CKD-EPI GFR (2021)' },
-    { id: 'cpis', title: 'Clinical Pulmonary Infection Score (CPIS) for VAP' },
-    { id: 'crcl', title: 'Cockcroft-Gault Creatinine Clearance' },
-    { id: 'curb-65', title: 'CURB-65 Score for Pneumonia Severity' },
-    { id: 'dasi', title: 'Duke Activity Status Index (DASI)' },
-    { id: 'due-date', title: 'Due Date Calculator' },
-    { id: 'ethanol-concentration', title: 'Ethanol Concentration Conversion' },
-    { id: 'ett', title: 'ETT Depth and Tidal Volume Calculator' },
-    { id: 'fena', title: 'Fractional Excretion of Sodium (FENa)' },
-    { id: 'fib-4', title: 'FIB-4 Score for Liver Fibrosis' },
-    { id: 'free-water-deficit', title: 'Free Water Deficit in Hypernatremia' },
-    { id: 'gad-7', title: 'GAD-7 for Anxiety' },
-    { id: 'gcs', title: 'Glasgow Coma Scale (GCS)' },
-    { id: 'geneva-score', title: 'Geneva Score (Revised) for Pulmonary Embolism' },
-    { id: 'growth-chart', title: 'Pediatric Growth Chart' },
-    { id: 'grace-acs', title: 'GRACE ACS Risk Score' },
-    { id: 'gupta-mica', title: 'Gupta Perioperative Cardiac Risk (MICA)' },
-    { id: 'gwtg-hf', title: 'GWTG-HF Risk Score' },
-    { id: 'has-bled', title: 'HAS-BLED Score for Major Bleeding Risk' },
-    { id: 'heart-score', title: 'HEART Score for Major Cardiac Events' },
-    { id: 'homa-ir', title: 'HOMA-IR for Insulin Resistance' },
-    { id: 'hscore', title: 'HScore for Hemophagocytic Lymphohistiocytosis (HLH)' },
-    { id: 'ibw', title: 'Ideal Body Weight (IBW) Calculator' },
-    { id: 'intraop-fluid', title: 'Intraoperative Fluid Dosing Calculator' },
-    { id: 'isth-dic', title: 'ISTH Criteria for DIC' },
-    { id: 'kawasaki', title: 'Kawasaki Disease Diagnostic Criteria' },
-    { id: 'ldl', title: 'Friedewald Equation for LDL Cholesterol' },
-    { id: 'maintenance-fluids', title: 'Maintenance Fluids Calculator' },
-    { id: 'maggic', title: 'MAGGIC Risk Calculator for Heart Failure' },
-    { id: 'map', title: 'Mean Arterial Pressure (MAP)' },
-    { id: 'mdrd-gfr', title: 'MDRD GFR Equation' },
-    { id: 'meld-na', title: 'MELD-Na Score for Liver Disease Severity' },
-    { id: 'mme', title: 'Morphine Milligram Equivalent (MME) Calculator' },
-    { id: 'nafld-fibrosis-score', title: 'NAFLD Fibrosis Score' },
-    { id: 'nihss', title: 'NIH Stroke Scale (NIHSS)' },
-    { id: 'padua-vte', title: 'Padua Prediction Score for VTE Risk' },
-    { id: 'pecarn', title: 'PECARN Head Trauma Rule for Children' },
-    { id: 'perc', title: 'PERC Rule for Pulmonary Embolism' },
-    { id: 'phenytoin-correction', title: 'Corrected Phenytoin for Hypoalbuminemia' },
-    { id: 'phq-9', title: 'PHQ-9 for Depression' },
-    { id: 'prevent-cvd', title: 'QRISK3-Based CVD Risk (UK)' },
-    { id: 'qsofa', title: 'qSOFA Score for Sepsis' },
-    { id: 'qtc', title: 'Corrected QT Interval (QTc)' },
-    { id: 'ranson', title: 'Ranson Criteria for Pancreatitis Mortality' },
-    { id: 'rcri', title: 'Revised Cardiac Risk Index (RCRI)' },
-    { id: 'regiscar', title: 'RegiSCAR Score for DRESS' },
-    { id: 'score2-diabetes', title: 'SCORE2-Diabetes for 10-Year CVD Risk' },
-    { id: 'serum-anion-gap', title: 'Serum Anion Gap' },
-    { id: 'serum-osmolality', title: 'Serum Osmolality' },
-    { id: 'sex-shock', title: 'SEX-SHOCK Risk Score for Cardiogenic Shock' },
-    { id: 'sirs', title: 'SIRS Criteria for Systemic Inflammatory Response' },
-    { id: 'sodium-correction', title: 'Corrected Sodium for Hyperglycemia' },
-    { id: 'sofa', title: 'SOFA Score for Sepsis Organ Failure' },
-    { id: 'steroid-conversion', title: 'Corticosteroid Conversion Calculator' },
-    { id: 'stop-bang', title: 'STOP-BANG for Obstructive Sleep Apnea' },
-    { id: 'timi-nstemi', title: 'TIMI Risk Score for UA/NSTEMI' },
-    { id: 'tpa-dosing-stroke', title: 'tPA Dosing for Acute Stroke' },
-    { id: 'tpa-dosing', title: 'tPA Dosing for PE and MI' },
-    { id: 'ttkg', title: 'Transtubular Potassium Gradient (TTKG)' },
-    { id: 'wells-dvt', title: 'Wells Criteria for DVT' },
-    { id: 'wells-pe', title: 'Wells Criteria for PE' }
+    { id: '2helps2b', title: '2HELPS2B Score for Seizure Risk', category: 'neurology' },
+    { id: '4as-delirium', title: '4 A\'s Test for Delirium', category: 'neurology' },
+    { id: '4c-mortality-covid', title: '4C Mortality Score for COVID-19', category: 'infection' },
+    { id: '4peps', title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)', category: 'cardiovascular' },
+    { id: '4ts-hit', title: '4Ts Score for Heparin-Induced Thrombocytopenia (HIT)', category: 'hematology' },
+    { id: '6mwd', title: '6-Minute Walk Distance (6MWD) Calculator', category: 'respiratory' },
+    { id: 'abl', title: 'ABL90 FLEX Analyzer Calculator', category: 'general' },
+    { id: 'abg-analyzer', title: 'ABG Analyzer', category: 'respiratory' },
+    { id: 'action-icu', title: 'ACTION-ICU Risk Score for Intensive Care in NSTEMI', category: 'cardiovascular' },
+    { id: 'af-risk', title: 'Atrial Fibrillation (AF) Risk Score (CHADVAS&HASBLED)', category: 'cardiovascular' },
+    { id: 'apache-ii', title: 'APACHE II Score', category: 'critical-care' },
+    { id: 'apgar', title: 'APGAR Score', category: 'pediatric' },
+    { id: 'ariscat', title: 'ARISCAT Score for Postoperative Pulmonary Complications', category: 'respiratory' },
+    { id: 'ascvd', title: 'ASCVD Risk Score (10-Year)', category: 'cardiovascular' },
+    { id: 'bacterial-meningitis-score', title: 'Bacterial Meningitis Score for Children', category: 'pediatric' },
+    { id: 'benzo-conversion', title: 'Benzodiazepine Conversion Calculator', category: 'drug-conversion' },
+    { id: 'bmi-bsa', title: 'BMI and BSA Calculator', category: 'general' },
+    { id: 'bwps', title: 'BWPS for Thyrotoxicosis', category: 'metabolic' },
+    { id: 'calcium-correction', title: 'Corrected Calcium for Hypoalbuminemia', category: 'metabolic' },
+    { id: 'caprini', title: 'Caprini Score for VTE Risk', category: 'cardiovascular' },
+    { id: 'centor', title: 'Centor Score for Strep Pharyngitis', category: 'infection' },
+    { id: 'charlson', title: 'Charlson Comorbidity Index (CCI)', category: 'general' },
+    { id: 'child-pugh', title: 'Child-Pugh Score for Cirrhosis Mortality', category: 'gastroenterology' },
+    { id: 'ciwa-ar', title: 'CIWA-Ar for Alcohol Withdrawal', category: 'psychiatry' },
+    { id: 'ckd-epi', title: 'CKD-EPI GFR (2021)', category: 'renal' },
+    { id: 'cpis', title: 'Clinical Pulmonary Infection Score (CPIS) for VAP', category: 'respiratory' },
+    { id: 'crcl', title: 'Cockcroft-Gault Creatinine Clearance', category: 'renal' },
+    { id: 'curb-65', title: 'CURB-65 Score for Pneumonia Severity', category: 'respiratory' },
+    { id: 'dasi', title: 'Duke Activity Status Index (DASI)', category: 'cardiovascular' },
+    { id: 'due-date', title: 'Due Date Calculator', category: 'obstetrics' },
+    { id: 'ethanol-concentration', title: 'Ethanol Concentration Conversion', category: 'metabolic' },
+    { id: 'ett', title: 'ETT Depth and Tidal Volume Calculator', category: 'respiratory' },
+    { id: 'fena', title: 'Fractional Excretion of Sodium (FENa)', category: 'renal' },
+    { id: 'fib-4', title: 'FIB-4 Score for Liver Fibrosis', category: 'gastroenterology' },
+    { id: 'free-water-deficit', title: 'Free Water Deficit in Hypernatremia', category: 'metabolic' },
+    { id: 'gad-7', title: 'GAD-7 for Anxiety', category: 'psychiatry' },
+    { id: 'gcs', title: 'Glasgow Coma Scale (GCS)', category: 'neurology' },
+    { id: 'geneva-score', title: 'Geneva Score (Revised) for Pulmonary Embolism', category: 'cardiovascular' },
+    { id: 'growth-chart', title: 'Pediatric Growth Chart', category: 'pediatric' },
+    { id: 'grace-acs', title: 'GRACE ACS Risk Score', category: 'cardiovascular' },
+    { id: 'gupta-mica', title: 'Gupta Perioperative Cardiac Risk (MICA)', category: 'cardiovascular' },
+    { id: 'gwtg-hf', title: 'GWTG-HF Risk Score', category: 'cardiovascular' },
+    { id: 'has-bled', title: 'HAS-BLED Score for Major Bleeding Risk', category: 'cardiovascular' },
+    { id: 'heart-score', title: 'HEART Score for Major Cardiac Events', category: 'cardiovascular' },
+    { id: 'homa-ir', title: 'HOMA-IR for Insulin Resistance', category: 'metabolic' },
+    { id: 'hscore', title: 'HScore for Hemophagocytic Lymphohistiocytosis (HLH)', category: 'hematology' },
+    { id: 'ibw', title: 'Ideal Body Weight (IBW) Calculator', category: 'general' },
+    { id: 'intraop-fluid', title: 'Intraoperative Fluid Dosing Calculator', category: 'general' },
+    { id: 'isth-dic', title: 'ISTH Criteria for DIC', category: 'hematology' },
+    { id: 'kawasaki', title: 'Kawasaki Disease Diagnostic Criteria', category: 'pediatric' },
+    { id: 'ldl', title: 'Friedewald Equation for LDL Cholesterol', category: 'cardiovascular' },
+    { id: 'maintenance-fluids', title: 'Maintenance Fluids Calculator', category: 'pediatric' },
+    { id: 'maggic', title: 'MAGGIC Risk Calculator for Heart Failure', category: 'cardiovascular' },
+    { id: 'map', title: 'Mean Arterial Pressure (MAP)', category: 'general' },
+    { id: 'mdrd-gfr', title: 'MDRD GFR Equation', category: 'renal' },
+    { id: 'meld-na', title: 'MELD-Na Score for Liver Disease Severity', category: 'gastroenterology' },
+    { id: 'mews', title: 'Modified Early Warning Score (MEWS)', category: 'critical-care' },
+    { id: 'mme', title: 'Morphine Milligram Equivalent (MME) Calculator', category: 'drug-conversion' },
+    { id: 'nafld-fibrosis-score', title: 'NAFLD Fibrosis Score', category: 'gastroenterology' },
+    { id: 'nihss', title: 'NIH Stroke Scale (NIHSS)', category: 'neurology' },
+    { id: 'padua-vte', title: 'Padua Prediction Score for VTE Risk', category: 'cardiovascular' },
+    { id: 'pecarn', title: 'PECARN Head Trauma Rule for Children', category: 'pediatric' },
+    { id: 'perc', title: 'PERC Rule for Pulmonary Embolism', category: 'cardiovascular' },
+    { id: 'phenytoin-correction', title: 'Corrected Phenytoin for Hypoalbuminemia', category: 'neurology' },
+    { id: 'phq-9', title: 'PHQ-9 for Depression', category: 'psychiatry' },
+    { id: 'prevent-cvd', title: 'QRISK3-Based CVD Risk (UK)', category: 'cardiovascular' },
+    { id: 'qsofa', title: 'qSOFA Score for Sepsis', category: 'critical-care' },
+    { id: 'qtc', title: 'Corrected QT Interval (QTc)', category: 'cardiovascular' },
+    { id: 'ranson', title: 'Ranson Criteria for Pancreatitis Mortality', category: 'gastroenterology' },
+    { id: 'rcri', title: 'Revised Cardiac Risk Index (RCRI)', category: 'cardiovascular' },
+    { id: 'regiscar', title: 'RegiSCAR Score for DRESS', category: 'general' },
+    { id: 'score2-diabetes', title: 'SCORE2-Diabetes for 10-Year CVD Risk', category: 'cardiovascular' },
+    { id: 'serum-anion-gap', title: 'Serum Anion Gap', category: 'metabolic' },
+    { id: 'serum-osmolality', title: 'Serum Osmolality', category: 'metabolic' },
+    { id: 'sex-shock', title: 'SEX-SHOCK Risk Score for Cardiogenic Shock', category: 'cardiovascular' },
+    { id: 'sirs', title: 'SIRS Criteria for Systemic Inflammatory Response', category: 'critical-care' },
+    { id: 'sodium-correction', title: 'Corrected Sodium for Hyperglycemia', category: 'metabolic' },
+    { id: 'sofa', title: 'SOFA Score for Sepsis Organ Failure', category: 'critical-care' },
+    { id: 'steroid-conversion', title: 'Corticosteroid Conversion Calculator', category: 'drug-conversion' },
+    { id: 'stop-bang', title: 'STOP-BANG for Obstructive Sleep Apnea', category: 'respiratory' },
+    { id: 'timi-nstemi', title: 'TIMI Risk Score for UA/NSTEMI', category: 'cardiovascular' },
+    { id: 'tpa-dosing-stroke', title: 'tPA Dosing for Acute Stroke', category: 'neurology' },
+    { id: 'tpa-dosing', title: 'tPA Dosing for PE and MI', category: 'cardiovascular' },
+    { id: 'ttkg', title: 'Transtubular Potassium Gradient (TTKG)', category: 'renal' },
+    { id: 'wells-dvt', title: 'Wells Criteria for DVT', category: 'cardiovascular' },
+    { id: 'wells-pe', title: 'Wells Criteria for PE', category: 'cardiovascular' }
 ].sort((a, b) => a.title.localeCompare(b.title));
+
+/**
+ * Dynamically load a calculator module
+ * @param {string} calculatorId - The calculator ID
+ * @returns {Promise<Object>} The calculator module
+ */
+export async function loadCalculator(calculatorId) {
+    try {
+        // Use CACHE_VERSION if available for cache busting
+        const version = window.CACHE_VERSION || Date.now();
+        const module = await import(`/js/calculators/${calculatorId}/index.js?v=${version}`);
+        
+        // Return the calculator object (usually the first export)
+        return module.default || Object.values(module)[0];
+    } catch (error) {
+        console.error(`Failed to load calculator: ${calculatorId}`, error);
+        throw new Error(`無法載入計算器模組：${calculatorId}`);
+    }
+}
+
+/**
+ * Check if a calculator module exists
+ * @param {string} calculatorId - The calculator ID
+ * @returns {boolean} Whether the calculator exists
+ */
+export function calculatorExists(calculatorId) {
+    return calculatorModules.some(calc => calc.id === calculatorId);
+}
+
+/**
+ * Get calculator metadata by ID
+ * @param {string} calculatorId - The calculator ID
+ * @returns {Object|null} Calculator metadata or null
+ */
+export function getCalculatorMetadata(calculatorId) {
+    return calculatorModules.find(calc => calc.id === calculatorId) || null;
+}
+
+/**
+ * Get calculators by category
+ * @param {string} category - The category name
+ * @returns {Array} Array of calculator metadata
+ */
+export function getCalculatorsByCategory(category) {
+    if (category === 'all' || !category) {
+        return calculatorModules;
+    }
+    return calculatorModules.filter(calc => calc.category === category);
+}

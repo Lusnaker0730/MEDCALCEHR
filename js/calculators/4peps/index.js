@@ -204,7 +204,7 @@ export const fourPeps = {
     `,
     initialize: async (client, patient, container) => {
         const root = container || document;
-        
+
         const calculate = () => {
             let score = 0;
 
@@ -252,10 +252,18 @@ export const fourPeps = {
                 resultContainer.classList.add('show');
             }
 
-            if (scoreEl) scoreEl.textContent = score;
-            if (probabilityEl) probabilityEl.textContent = probability;
-            if (riskLevelEl) riskLevelEl.textContent = riskLevel;
-            if (recommendationEl) recommendationEl.innerHTML = recommendation;
+            if (scoreEl) {
+                scoreEl.textContent = score;
+            }
+            if (probabilityEl) {
+                probabilityEl.textContent = probability;
+            }
+            if (riskLevelEl) {
+                riskLevelEl.textContent = riskLevel;
+            }
+            if (recommendationEl) {
+                recommendationEl.innerHTML = recommendation;
+            }
         };
 
         // Add event listeners for all radio buttons
@@ -266,7 +274,7 @@ export const fourPeps = {
                 const siblings = parent.parentElement.querySelectorAll('.radio-option');
                 siblings.forEach(s => s.classList.remove('selected'));
                 parent.classList.add('selected');
-                
+
                 calculate();
             });
         });
@@ -317,7 +325,9 @@ export const fourPeps = {
                     if (radioToCheck) {
                         radioToCheck.checked = true;
                         const parent = radioToCheck.closest('.radio-option');
-                        group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                        group
+                            .querySelectorAll('.radio-option')
+                            .forEach(opt => opt.classList.remove('selected'));
                         parent.classList.add('selected');
                     }
                 }
@@ -327,7 +337,9 @@ export const fourPeps = {
                     if (radioToCheck) {
                         radioToCheck.checked = true;
                         const parent = radioToCheck.closest('.radio-option');
-                        group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                        group
+                            .querySelectorAll('.radio-option')
+                            .forEach(opt => opt.classList.remove('selected'));
                         parent.classList.add('selected');
                     }
                 }
@@ -339,7 +351,9 @@ export const fourPeps = {
                 if (radioToCheck) {
                     radioToCheck.checked = true;
                     const parent = radioToCheck.closest('.radio-option');
-                    group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                    group
+                        .querySelectorAll('.radio-option')
+                        .forEach(opt => opt.classList.remove('selected'));
                     parent.classList.add('selected');
                 }
             }
@@ -350,7 +364,9 @@ export const fourPeps = {
                 if (radioToCheck) {
                     radioToCheck.checked = true;
                     const parent = radioToCheck.closest('.radio-option');
-                    group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+                    group
+                        .querySelectorAll('.radio-option')
+                        .forEach(opt => opt.classList.remove('selected'));
                     parent.classList.add('selected');
                 }
             }

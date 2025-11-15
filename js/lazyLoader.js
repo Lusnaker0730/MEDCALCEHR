@@ -114,7 +114,7 @@ export class ImageLazyLoader {
             root: null,
             rootMargin: '50px',
             threshold: 0.01,
-            ...options,
+            ...options
         };
 
         this.observer = null;
@@ -129,8 +129,8 @@ export class ImageLazyLoader {
             return;
         }
 
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
+        this.observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     this.loadImage(entry.target);
                     this.observer.unobserve(entry.target);
@@ -143,7 +143,7 @@ export class ImageLazyLoader {
 
     observeImages() {
         const images = document.querySelectorAll('img[data-src], img[loading="lazy"]');
-        images.forEach((img) => {
+        images.forEach(img => {
             this.observer.observe(img);
         });
     }
@@ -187,7 +187,7 @@ export class ImageLazyLoader {
 
     loadAllImages() {
         const images = document.querySelectorAll('img[data-src]');
-        images.forEach((img) => {
+        images.forEach(img => {
             const src = img.dataset.src;
             if (src) {
                 img.src = src;
@@ -203,7 +203,7 @@ export class ImageLazyLoader {
                 this.observer.observe(element);
             } else {
                 const images = element.querySelectorAll('img[data-src]');
-                images.forEach((img) => this.observer.observe(img));
+                images.forEach(img => this.observer.observe(img));
             }
         }
     }
@@ -231,7 +231,7 @@ export function prefetchResource(url, type = 'fetch') {
  * Preload important resources
  */
 export function preloadResources(resources) {
-    resources.forEach((resource) => {
+    resources.forEach(resource => {
         const link = document.createElement('link');
         link.rel = 'preload';
         link.as = resource.type;
@@ -304,6 +304,5 @@ export default {
     preloadResources,
     onIdle,
     loadOnIdle,
-    initImageLazyLoading,
+    initImageLazyLoading
 };
-

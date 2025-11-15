@@ -147,7 +147,7 @@ export const mdrdGfr = {
                 let severityClass = 'low';
                 let alertType = 'info';
                 let alertMsg = '';
-                
+
                 if (gfr >= 90) {
                     stage = 'Stage 1 (Normal or high)';
                     severityClass = 'low';
@@ -163,7 +163,8 @@ export const mdrdGfr = {
                 } else if (gfr >= 30) {
                     stage = 'Stage 3b (Moderate to severe)';
                     severityClass = 'moderate';
-                    alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+                    alertMsg =
+                        'Moderate to severe reduction in kidney function. Consider nephrology referral.';
                     alertType = 'warning';
                 } else if (gfr >= 15) {
                     stage = 'Stage 4 (Severe)';
@@ -199,7 +200,7 @@ export const mdrdGfr = {
                         </div>
                     </div>
                 `;
-                
+
                 resultEl.style.display = 'block';
                 resultEl.classList.add('show');
             } else {
@@ -216,30 +217,32 @@ export const mdrdGfr = {
         }
         if (patient && patient.gender) {
             const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="mdrd-gender"][value="${genderValue}"]`);
+            const genderRadio = container.querySelector(
+                `input[name="mdrd-gender"][value="${genderValue}"]`
+            );
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.parentElement.classList.add('selected');
             }
         }
-        
+
         // Add visual feedback for radio options
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 this.classList.add('selected');
                 radio.checked = true;
                 calculateAndUpdate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');

@@ -38,9 +38,11 @@ export const centor = {
     initialize: function (client, patient, container) {
         const calculate = () => {
             let score = 0;
-            container.querySelectorAll('.checkbox-option input[type="checkbox"]:checked').forEach(item => {
-                score += parseInt(item.dataset.points);
-            });
+            container
+                .querySelectorAll('.checkbox-option input[type="checkbox"]:checked')
+                .forEach(item => {
+                    score += parseInt(item.dataset.points);
+                });
             score += parseInt(container.querySelector('input[name="age-group"]:checked').value);
 
             let probability = '';
@@ -60,7 +62,8 @@ export const centor = {
                 alertClass = 'warning';
             } else if (score === 3) {
                 probability = '≈56%';
-                recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
+                recommendation =
+                    'Consider throat culture or rapid antigen testing. May treat empirically.';
                 alertClass = 'warning';
             } else {
                 probability = '>85%';

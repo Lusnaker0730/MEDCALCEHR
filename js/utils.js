@@ -42,7 +42,8 @@ export function calculateAge(birthDate) {
 export function displayPatientInfo(client, patientInfoDiv) {
     const renderPatient = patient => {
         const name = patient.name[0];
-        const formattedName = `${name.given.join(' ')} ${name.family}`;
+        // 優先使用 text 字段（台灣格式），如果沒有則使用 given 和 family
+        const formattedName = name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
         const age = calculateAge(patient.birthDate);
         patientInfoDiv.innerHTML = `
             <p><strong>Name:</strong> ${formattedName}</p>
@@ -453,7 +454,7 @@ export function initializeSegmentedControls(container) {
     container.querySelectorAll('.segmented-control, .radio-group').forEach(control => {
         const labels = control.querySelectorAll('label');
         const radioInputs = control.querySelectorAll('input[type="radio"]');
-        
+
         // Function to update selected state
         const updateSelectedState = () => {
             radioInputs.forEach(input => {
@@ -465,12 +466,12 @@ export function initializeSegmentedControls(container) {
                 }
             });
         };
-        
+
         // Add change event listeners to radio buttons
         radioInputs.forEach(input => {
             input.addEventListener('change', updateSelectedState);
         });
-        
+
         // Add click handlers to labels for immediate visual feedback
         labels.forEach(label => {
             label.addEventListener('click', () => {
@@ -478,7 +479,7 @@ export function initializeSegmentedControls(container) {
                 setTimeout(updateSelectedState, 0);
             });
         });
-        
+
         // Initialize state on load
         updateSelectedState();
     });

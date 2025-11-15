@@ -43,7 +43,7 @@ export const phq9 = {
             `;
         });
 
-        html += `<div id="phq9-result" class="result-container"></div>`;
+        html += '<div id="phq9-result" class="result-container"></div>';
         return html;
     },
     initialize: function (client, patient, container) {

@@ -118,13 +118,16 @@ export const serumAnionGap = {
             let interpretation = '';
             let alertClass = '';
             if (anionGap > 12) {
-                interpretation = 'High Anion Gap: Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions).';
+                interpretation =
+                    'High Anion Gap: Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions).';
                 alertClass = 'danger';
             } else if (anionGap < 6) {
-                interpretation = 'Low Anion Gap: Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+                interpretation =
+                    'Low Anion Gap: Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
                 alertClass = 'warning';
             } else {
-                interpretation = 'Normal Anion Gap: Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                interpretation =
+                    'Normal Anion Gap: Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
                 alertClass = 'success';
             }
 

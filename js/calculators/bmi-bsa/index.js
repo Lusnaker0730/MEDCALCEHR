@@ -59,11 +59,11 @@ export const bmiBsa = {
                 // Validate input
                 const inputs = {
                     weight: weightKg,
-                    height: heightCm,
+                    height: heightCm
                 };
                 const schema = {
                     weight: ValidationRules.weight,
-                    height: ValidationRules.height,
+                    height: ValidationRules.height
                 };
                 const validation = validateCalculatorInput(inputs, schema);
 
@@ -138,7 +138,7 @@ export const bmiBsa = {
                             </div>
                         </div>
                     `;
-                    
+
                     resultEl.style.display = 'block';
                     resultEl.classList.add('show');
 
@@ -154,7 +154,7 @@ export const bmiBsa = {
             } catch (error) {
                 logError(error, {
                     calculator: 'bmi-bsa',
-                    action: 'calculateAndUpdate',
+                    action: 'calculateAndUpdate'
                 });
 
                 // Display error message
@@ -195,7 +195,7 @@ export const bmiBsa = {
                 // Calculate initial results if data was populated
                 calculateAndUpdate();
             })
-            .catch((error) => {
+            .catch(error => {
                 const fhirError = new FHIRDataError(
                     '无法从 EHR 系统加载体重或身高数据',
                     'BMI_BSA_FHIR_LOAD_ERROR',
@@ -203,14 +203,16 @@ export const bmiBsa = {
                 );
                 logError(fhirError, {
                     calculator: 'bmi-bsa',
-                    action: 'loadFHIRData',
+                    action: 'loadFHIRData'
                 });
 
                 // Display a non-intrusive warning but still allow manual input
                 const warningContainer = document.createElement('div');
                 warningContainer.className = 'warning-message';
-                warningContainer.style.cssText = 'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
-                warningContainer.innerHTML = '<strong>提示:</strong> 无法自动加载患者数据，请手动输入体重和身高。';
+                warningContainer.style.cssText =
+                    'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
+                warningContainer.innerHTML =
+                    '<strong>提示:</strong> 无法自动加载患者数据，请手动输入体重和身高。';
                 container.insertBefore(warningContainer, container.firstChild.nextSibling);
 
                 // Still allow manual calculation

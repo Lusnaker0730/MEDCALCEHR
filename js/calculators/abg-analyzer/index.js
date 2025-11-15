@@ -258,7 +258,9 @@ export const abgAnalyzer = {
             // Display details (compensation and additional info)
             const details = interpretation.slice(1);
             if (details.length > 0) {
-                detailsEl.innerHTML = details.map(item => `<p style="margin: 10px 0;">${item}</p>`).join('');
+                detailsEl.innerHTML = details
+                    .map(item => `<p style="margin: 10px 0;">${item}</p>`)
+                    .join('');
             } else {
                 detailsEl.innerHTML = '';
             }
@@ -310,7 +312,7 @@ export const abgAnalyzer = {
                 const siblings = parent.parentElement.querySelectorAll('.radio-option');
                 siblings.forEach(s => s.classList.remove('selected'));
                 parent.classList.add('selected');
-                
+
                 interpret();
             });
         });

@@ -83,18 +83,40 @@ export const hasBled = {
         ];
 
         const scoreInterpretation = {
-            0: { risk: '0.9% risk (Lip 2011) or 1.13 bleeds/100 patient-years', level: 'Low risk', alertClass: 'success' },
-            1: { risk: '1.02 bleeds/100 patient-years', level: 'Low-moderate risk', alertClass: 'success' },
-            2: { risk: '1.88 bleeds/100 patient-years', level: 'Moderate risk', alertClass: 'warning' },
-            3: { risk: '3.74 bleeds/100 patient-years', level: 'Moderate-high risk', alertClass: 'warning' },
+            0: {
+                risk: '0.9% risk (Lip 2011) or 1.13 bleeds/100 patient-years',
+                level: 'Low risk',
+                alertClass: 'success'
+            },
+            1: {
+                risk: '1.02 bleeds/100 patient-years',
+                level: 'Low-moderate risk',
+                alertClass: 'success'
+            },
+            2: {
+                risk: '1.88 bleeds/100 patient-years',
+                level: 'Moderate risk',
+                alertClass: 'warning'
+            },
+            3: {
+                risk: '3.74 bleeds/100 patient-years',
+                level: 'Moderate-high risk',
+                alertClass: 'warning'
+            },
             4: { risk: '8.70 bleeds/100 patient-years', level: 'High risk', alertClass: 'danger' },
-            5: { risk: '12.50 bleeds/100 patient-years', level: 'Very high risk', alertClass: 'danger' }
+            5: {
+                risk: '12.50 bleeds/100 patient-years',
+                level: 'Very high risk',
+                alertClass: 'danger'
+            }
         };
 
         const calculate = () => {
             let score = 0;
             container.querySelectorAll('.checkbox-option input[type="checkbox"]').forEach(cb => {
-                if (cb.checked) score++;
+                if (cb.checked) {
+                    score++;
+                }
             });
 
             const maxScore = Math.min(score, 5);
@@ -147,7 +169,9 @@ export const hasBled = {
         // FHIR Integration
         if (client) {
             const setCheckbox = (id, checked) => {
-                const checkbox = container.querySelector(`.checkbox-option[data-id="${id}"] input[type="checkbox"]`);
+                const checkbox = container.querySelector(
+                    `.checkbox-option[data-id="${id}"] input[type="checkbox"]`
+                );
                 if (checkbox) {
                     checkbox.checked = checked;
                     if (checked) {
@@ -159,7 +183,8 @@ export const hasBled = {
             // Age > 65
             const patientData = await getPatient(client);
             if (patientData && patientData.birthDate) {
-                const age = new Date().getFullYear() - new Date(patientData.birthDate).getFullYear();
+                const age =
+                    new Date().getFullYear() - new Date(patientData.birthDate).getFullYear();
                 if (age > 65) {
                     setCheckbox('age', true);
                 }
@@ -168,7 +193,9 @@ export const hasBled = {
             // Conditions
             const conditions = await getPatientConditions(client, [
                 '38341003', // Hypertension
-                '709044004', '34947000', '80294001', // Renal disease
+                '709044004',
+                '34947000',
+                '80294001', // Renal disease
                 '19943007', // Liver disease (Cirrhosis)
                 '230690007', // Stroke
                 '131148009' // Bleeding
@@ -201,7 +228,11 @@ export const hasBled = {
 
             // Medications
             const meds = await getMedicationRequests(client, [
-                '1191', '32953', '5640', '7294', '3329'
+                '1191',
+                '32953',
+                '5640',
+                '7294',
+                '3329'
             ]); // Aspirin, Clopidogrel, Ibuprofen, Naproxen, Diclofenac
             if (meds && meds.length > 0) {
                 setCheckbox('meds', true);

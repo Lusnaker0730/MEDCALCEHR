@@ -69,10 +69,16 @@ export const caprini = {
 
             // Handle mutually exclusive age points
             if (container.querySelector('#age75')?.checked) {
-                if (container.querySelector('#age61')?.checked) score -= 2;
-                if (container.querySelector('#age41')?.checked) score -= 1;
+                if (container.querySelector('#age61')?.checked) {
+                    score -= 2;
+                }
+                if (container.querySelector('#age41')?.checked) {
+                    score -= 1;
+                }
             } else if (container.querySelector('#age61')?.checked) {
-                if (container.querySelector('#age41')?.checked) score -= 1;
+                if (container.querySelector('#age41')?.checked) {
+                    score -= 1;
+                }
             }
 
             let riskCategory = '';
@@ -84,15 +90,18 @@ export const caprini = {
                 alertClass = 'success';
             } else if (score >= 1 && score <= 2) {
                 riskCategory = 'Low Risk';
-                recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                recommendation =
+                    'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
                 alertClass = 'info';
             } else if (score >= 3 && score <= 4) {
                 riskCategory = 'Moderate Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                recommendation =
+                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
                 alertClass = 'warning';
             } else {
                 riskCategory = 'High Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                recommendation =
+                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
                 alertClass = 'danger';
             }
 

@@ -1,9 +1,65 @@
 // js/calculator-page.js
 import { displayPatientInfo } from '/js/utils.js';
-import { calculatorModules } from '/js/calculators/index.js'; // Keep for title lookup
+import { loadCalculator, getCalculatorMetadata } from '/js/calculators/index.js';
+import { favoritesManager } from '/js/favorites.js';
+import { i18n } from '/js/i18n.js';
 
 // Cache version - increment this when you update calculators to force reload
-const CACHE_VERSION = '1.0.3';
+window.CACHE_VERSION = '1.0.4';
+
+/**
+ * Show loading indicator
+ */
+function showLoading(element) {
+    element.innerHTML = `
+        <div class="loading-container" style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            min-height: 200px;
+        ">
+            <div class="loading-spinner" style="
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+            "></div>
+            <p style="margin-top: 20px; color: #666; font-size: 0.95em;">載入計算器中...</p>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+}
+
+/**
+ * Show error message
+ */
+function showError(element, message) {
+    element.innerHTML = `
+        <div class="error-box" style="
+            background: #fee;
+            border-left: 4px solid #d32f2f;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        ">
+            <div style="font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
+                ⚠️ 錯誤
+            </div>
+            <div style="color: #555; font-size: 0.9em;">
+                ${message}
+            </div>
+        </div>
+    `;
+}
 
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
@@ -19,7 +75,7 @@ window.onload = () => {
     }
 
     // Find metadata for title
-    const calculatorInfo = calculatorModules.find(c => c.id === calculatorId);
+    const calculatorInfo = getCalculatorMetadata(calculatorId);
 
     if (!calculatorInfo) {
         container.innerHTML = `<h2>Calculator "${calculatorId}" not found.</h2>`;
@@ -32,13 +88,17 @@ window.onload = () => {
     card.className = 'calculator-card';
     container.appendChild(card);
 
-    const loadCalculator = async () => {
+    // 記錄最近使用和使用統計
+    favoritesManager.addToRecent(calculatorId);
+    favoritesManager.trackUsage(calculatorId);
+
+    // Show loading indicator
+    showLoading(card);
+
+    const loadCalculatorModule = async () => {
         try {
-            // Dynamically import the specific calculator module from its own folder
-            // Add version parameter to force reload when CACHE_VERSION changes
-            const module = await import(`/js/calculators/${calculatorId}/index.js?v=${CACHE_VERSION}`);
-            // The calculator object is usually the main export, let's find it.
-            const calculator = Object.values(module)[0];
+            // Use the new loadCalculator function from index.js
+            const calculator = await loadCalculator(calculatorId);
 
             if (!calculator || typeof calculator.generateHTML !== 'function') {
                 throw new Error('Invalid calculator module structure.');
@@ -68,10 +128,12 @@ window.onload = () => {
                 });
         } catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            card.innerHTML =
-                '<div class="error-box">This calculator is temporarily unavailable due to an error.</div>';
+            showError(
+                card,
+                '此計算器暫時無法使用。請稍後再試或聯繫技術支援。'
+            );
         }
     };
 
-    loadCalculator();
+    loadCalculatorModule();
 };

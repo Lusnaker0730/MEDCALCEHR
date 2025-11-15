@@ -21,52 +21,104 @@ export const fourCMortalityCovid = {
                 </div>
             </div>
 
-            ${this.createRow('age', 'Age, years', [
+            ${this.createRow(
+                'age',
+                'Age, years',
+                [
                     { value: 0, text: '<50', points: '0' },
                     { value: 2, text: '50-59', points: '+2' },
                     { value: 4, text: '60-69', points: '+4' },
                     { value: 6, text: '70-79', points: '+6' },
                     { value: 7, text: '≥80', points: '+7' }
-                ], 'vertical-radio-group')}
+                ],
+                'vertical-radio-group'
+            )}
 
-                ${this.createRow('sex', 'Sex at birth', [
-                    { value: 0, text: 'Female', points: '0' },
-                    { value: 1, text: 'Male', points: '+1' }
-                ], 'segmented-control')}
+                ${this.createRow(
+                    'sex',
+                    'Sex at birth',
+                    [
+                        { value: 0, text: 'Female', points: '0' },
+                        { value: 1, text: 'Male', points: '+1' }
+                    ],
+                    'segmented-control'
+                )}
 
-                ${this.createRow('comorbidities', 'Number of comorbidities*', [
-                    { value: 0, text: '0', points: '0' },
-                    { value: 1, text: '1', points: '+1' },
-                    { value: 2, text: '≥2', points: '+2' }
-                ], 'segmented-control')}
+                ${this.createRow(
+                    'comorbidities',
+                    'Number of comorbidities*',
+                    [
+                        { value: 0, text: '0', points: '0' },
+                        { value: 1, text: '1', points: '+1' },
+                        { value: 2, text: '≥2', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
 
-                ${this.createRow('resp_rate', 'Respiratory rate, breaths/min', [
-                    { value: 0, text: '<20', points: '0' },
-                    { value: 1, text: '20-29', points: '+1' },
-                    { value: 2, text: '≥30', points: '+2' }
-                ], 'segmented-control')}
+                ${this.createRow(
+                    'resp_rate',
+                    'Respiratory rate, breaths/min',
+                    [
+                        { value: 0, text: '<20', points: '0' },
+                        { value: 1, text: '20-29', points: '+1' },
+                        { value: 2, text: '≥30', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
 
-                ${this.createRow('oxygen_sat', 'Peripheral oxygen saturation on room air', [
-                    { value: 0, text: '≥92%', points: '0' },
-                    { value: 2, text: '<92%', points: '+2' }
-                ], 'segmented-control')}
+                ${this.createRow(
+                    'oxygen_sat',
+                    'Peripheral oxygen saturation on room air',
+                    [
+                        { value: 0, text: '≥92%', points: '0' },
+                        { value: 2, text: '<92%', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
                 
-                ${this.createRow('gcs', 'Glasgow Coma Scale', [
-                    { value: 0, text: '15', points: '0' },
-                    { value: 2, text: '<15', points: '+2' }
-                ], 'segmented-control')}
+                ${this.createRow(
+                    'gcs',
+                    'Glasgow Coma Scale',
+                    [
+                        { value: 0, text: '15', points: '0' },
+                        { value: 2, text: '<15', points: '+2' }
+                    ],
+                    'segmented-control'
+                )}
                 
-                ${this.createRow('urea', 'Urea or BUN (use one measurement available)', [
-                    { value: 0, text: 'Urea <7 mmol/L (<42 mg/dL) OR BUN <19.6 mg/dL', points: '0' },
-                    { value: 1, text: 'Urea ≥7 to <14 mmol/L (≥42mg/dL to <84 mg/dL) OR BUN ≥19.6 to <39.2 mg/dL', points: '1' },
-                    { value: 3, text: 'Urea ≥14 mmol/L (>84 mg/dL) OR BUN >39.2 mg/dL', points: '3' }
-                ], 'vertical-radio-group')}
+                ${this.createRow(
+                    'urea',
+                    'Urea or BUN (use one measurement available)',
+                    [
+                        {
+                            value: 0,
+                            text: 'Urea <7 mmol/L (<42 mg/dL) OR BUN <19.6 mg/dL',
+                            points: '0'
+                        },
+                        {
+                            value: 1,
+                            text: 'Urea ≥7 to <14 mmol/L (≥42mg/dL to <84 mg/dL) OR BUN ≥19.6 to <39.2 mg/dL',
+                            points: '1'
+                        },
+                        {
+                            value: 3,
+                            text: 'Urea ≥14 mmol/L (>84 mg/dL) OR BUN >39.2 mg/dL',
+                            points: '3'
+                        }
+                    ],
+                    'vertical-radio-group'
+                )}
                 
-                ${this.createRow('crp', 'C-reactive protein, mg/L', [
-                    { value: 0, text: '<50 mg/L (<5 mg/dL)', points: '0' },
-                    { value: 1, text: '50-99 mg/L (5-9.9 mg/dL)', points: '1' },
-                    { value: 2, text: '≥100 mg/L (≥10 mg/dL)', points: '2' }
-                ], 'vertical-radio-group')}
+                ${this.createRow(
+                    'crp',
+                    'C-reactive protein, mg/L',
+                    [
+                        { value: 0, text: '<50 mg/L (<5 mg/dL)', points: '0' },
+                        { value: 1, text: '50-99 mg/L (5-9.9 mg/dL)', points: '1' },
+                        { value: 2, text: '≥100 mg/L (≥10 mg/dL)', points: '2' }
+                    ],
+                    'vertical-radio-group'
+                )}
             
             <!-- 共病症說明 -->
             <div class="alert warning mt-20">
@@ -124,13 +176,17 @@ export const fourCMortalityCovid = {
 
     createRow: function (id, label, options, type) {
         // 統一使用 radio-option 樣式（垂直列表）
-        const optionsHTML = options.map((opt, index) => `
+        const optionsHTML = options
+            .map(
+                (opt, index) => `
             <label class="radio-option">
                 <input type="radio" name="${id}" value="${opt.value}" ${index === 0 ? 'checked' : ''}>
                 <span>${opt.text} <strong>${opt.points}</strong></span>
             </label>
-        `).join('');
-        
+        `
+            )
+            .join('');
+
         return `
             <div class="section">
                 <div class="section-title">
@@ -145,28 +201,28 @@ export const fourCMortalityCovid = {
 
     initialize: async function (client) {
         const container = document.querySelector('#calculator-container') || document.body;
-        
+
         // Add visual feedback for radio button selection (統一樣式)
         const radioOptions = container.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const radio = this.querySelector('input[type="radio"]');
                 const group = radio.name;
-                
+
                 // Remove selected class from all options in this group
                 container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
                     r.parentElement.classList.remove('selected');
                 });
-                
+
                 // Add selected class to clicked option
                 this.classList.add('selected');
                 radio.checked = true;
-                
+
                 // Recalculate
                 calculate();
             });
         });
-        
+
         // Initialize selected state
         radioOptions.forEach(option => {
             const radio = option.querySelector('input[type="radio"]');
@@ -174,7 +230,7 @@ export const fourCMortalityCovid = {
                 option.classList.add('selected');
             }
         });
-        
+
         // Helper function to select the correct radio based on a value
         const selectRadioByValue = (groupName, value) => {
             const radios = container.querySelectorAll(`input[name="${groupName}"]`);
@@ -182,36 +238,67 @@ export const fourCMortalityCovid = {
 
             // Specific logic for each group
             if (groupName === 'age') {
-                if (value < 50) selectedRadio = radios[0];
-                else if (value <= 59) selectedRadio = radios[1];
-                else if (value <= 69) selectedRadio = radios[2];
-                else if (value <= 79) selectedRadio = radios[3];
-                else selectedRadio = radios[4];
+                if (value < 50) {
+                    selectedRadio = radios[0];
+                } else if (value <= 59) {
+                    selectedRadio = radios[1];
+                } else if (value <= 69) {
+                    selectedRadio = radios[2];
+                } else if (value <= 79) {
+                    selectedRadio = radios[3];
+                } else {
+                    selectedRadio = radios[4];
+                }
             } else if (groupName === 'sex') {
-                if (value === 'female') selectedRadio = radios[0];
-                else if (value === 'male') selectedRadio = radios[1];
+                if (value === 'female') {
+                    selectedRadio = radios[0];
+                } else if (value === 'male') {
+                    selectedRadio = radios[1];
+                }
             } else if (groupName === 'comorbidities') {
-                if (value === 0) selectedRadio = radios[0];
-                else if (value === 1) selectedRadio = radios[1];
-                else selectedRadio = radios[2];
+                if (value === 0) {
+                    selectedRadio = radios[0];
+                } else if (value === 1) {
+                    selectedRadio = radios[1];
+                } else {
+                    selectedRadio = radios[2];
+                }
             } else if (groupName === 'resp_rate') {
-                if (value < 20) selectedRadio = radios[0];
-                else if (value <= 29) selectedRadio = radios[1];
-                else selectedRadio = radios[2];
+                if (value < 20) {
+                    selectedRadio = radios[0];
+                } else if (value <= 29) {
+                    selectedRadio = radios[1];
+                } else {
+                    selectedRadio = radios[2];
+                }
             } else if (groupName === 'oxygen_sat') {
-                if (value >= 92) selectedRadio = radios[0];
-                else selectedRadio = radios[1];
+                if (value >= 92) {
+                    selectedRadio = radios[0];
+                } else {
+                    selectedRadio = radios[1];
+                }
             } else if (groupName === 'gcs') {
-                if (value === 15) selectedRadio = radios[0];
-                else selectedRadio = radios[1];
+                if (value === 15) {
+                    selectedRadio = radios[0];
+                } else {
+                    selectedRadio = radios[1];
+                }
             } else if (groupName === 'urea') {
-                if (value < 7) selectedRadio = radios[0];
-                else if (value < 14) selectedRadio = radios[1];
-                else selectedRadio = radios[2];
+                if (value < 7) {
+                    selectedRadio = radios[0];
+                } else if (value < 14) {
+                    selectedRadio = radios[1];
+                } else {
+                    selectedRadio = radios[2];
+                }
             } else if (groupName === 'crp') {
-                if (value < 50) selectedRadio = radios[0];
-                else if (value < 100) selectedRadio = radios[1];
-                else selectedRadio = radios[2];
+                if (value < 50) {
+                    selectedRadio = radios[0];
+                } else if (value < 100) {
+                    selectedRadio = radios[1];
+                } else {
+                    selectedRadio = radios[2];
+                }
             }
 
             if (selectedRadio) {
@@ -222,9 +309,18 @@ export const fourCMortalityCovid = {
 
         const calculate = () => {
             let score = 0;
-            
+
             // Get all radio groups
-            const radioGroups = ['age', 'sex', 'comorbidities', 'resp_rate', 'oxygen_sat', 'gcs', 'urea', 'crp'];
+            const radioGroups = [
+                'age',
+                'sex',
+                'comorbidities',
+                'resp_rate',
+                'oxygen_sat',
+                'gcs',
+                'urea',
+                'crp'
+            ];
             radioGroups.forEach(group => {
                 const selected = container.querySelector(`input[name="${group}"]:checked`);
                 if (selected) {

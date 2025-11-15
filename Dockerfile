@@ -1,5 +1,5 @@
 # Stage 1: Build stage (optional, for future if needed)
-FROM nginx:alpine as production
+FROM nginx:alpine AS production
 
 # Set working directory
 WORKDIR /usr/share/nginx/html
