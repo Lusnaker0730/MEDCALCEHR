@@ -140,7 +140,11 @@ export const growthChart = {
         const weightCanvas = container.querySelector('#growthChartCanvasWeight');
         const bmiCanvas = container.querySelector('#growthChartCanvasBMI');
 
-        async function getGrowthData(client) {
+        async function getGrowthData(client, patient) {
+            if (!client || !client.patient || !patient || !patient.birthDate) {
+                return { height: [], weight: [], head: [] };
+            }
+            
             const loincCodes = {
                 height: '8302-2',
                 weight: '29463-7',
@@ -578,7 +582,7 @@ export const growthChart = {
             return '>97';
         }
 
-        getGrowthData(client).then(data => {
+        getGrowthData(client, patient).then(data => {
             if (data) {
                 if (data.height.length === 0 && data.weight.length === 0) {
                     container.innerHTML =

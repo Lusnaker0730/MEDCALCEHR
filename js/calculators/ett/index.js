@@ -26,7 +26,9 @@ export const ett = {
     initialize: function (client, patient, container) {
         const heightEl = container.querySelector('#ett-height');
         const genderEl = container.querySelector('#ett-gender');
-        genderEl.value = patient.gender;
+        if (patient && patient.gender) {
+            genderEl.value = patient.gender;
+        }
 
         getMostRecentObservation(client, '8302-2').then(obs => {
             // Height

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { duedate } from '../../js/calculators/due-date/index.js';
+import { dueDate } from '../../js/calculators/due-date/index.js';
 
 describe('Due Date Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Due Date Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(duedate).toBeDefined();
-            expect(typeof duedate.generateHTML).toBe('function');
-            expect(typeof duedate.initialize).toBe('function');
+            expect(dueDate).toBeDefined();
+            expect(typeof dueDate.generateHTML).toBe('function');
+            expect(typeof dueDate.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(duedate.id).toBe('due-date');
+            expect(dueDate.id).toBe('due-date');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = duedate.generateHTML();
+            const html = dueDate.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = duedate.generateHTML();
+            const html = dueDate.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Due Date Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = duedate.generateHTML();
+            const html = dueDate.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                duedate.initialize(null, null, container);
+                dueDate.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = duedate.generateHTML();
+            const html = dueDate.generateHTML();
             container.innerHTML = html;
-            duedate.initialize(null, null, container);
+            dueDate.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

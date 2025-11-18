@@ -44,7 +44,7 @@ export const afRisk = {
         `;
     },
     initialize: function (client, patient, container) {
-        const age = calculateAge(patient.birthDate);
+        const age = patient && patient.birthDate ? calculateAge(patient.birthDate) : 0;
         const age75Check = container.querySelector('#age75');
         const age65Check = container.querySelector('#age65');
 
@@ -69,7 +69,7 @@ export const afRisk = {
             });
 
             // Generate Treatment Recommendation
-            const isMale = patient.gender === 'male';
+            const isMale = patient && patient.gender === 'male';
             const strokeRiskScoreForOAC = isMale ? cha2ds2vasc_score : cha2ds2vasc_score - 1;
 
             let recommendation = '';
@@ -123,7 +123,7 @@ export const afRisk = {
         } else if (age >= 65) {
             age65Check.checked = true;
         }
-        if (patient.gender === 'female') {
+        if (patient && patient.gender === 'female') {
             container.querySelector('#female').checked = true;
         }
 

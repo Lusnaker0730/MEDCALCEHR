@@ -95,6 +95,7 @@ describe('Utils - Observation Retrieval', () => {
     test('getMostRecentObservation should handle errors gracefully', async () => {
         mockClient.patient.request.mockRejectedValue(new Error('Network error'));
 
-        await expect(getMostRecentObservation(mockClient, '85354-9')).rejects.toThrow('Network error');
+        const result = await getMostRecentObservation(mockClient, '85354-9');
+        expect(result).toBeNull();
     });
 });

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { freewaterdeficit } from '../../js/calculators/free-water-deficit/index.js';
+import { freeWaterDeficit } from '../../js/calculators/free-water-deficit/index.js';
 
 describe('Free Water Deficit Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Free Water Deficit Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(freewaterdeficit).toBeDefined();
-            expect(typeof freewaterdeficit.generateHTML).toBe('function');
-            expect(typeof freewaterdeficit.initialize).toBe('function');
+            expect(freeWaterDeficit).toBeDefined();
+            expect(typeof freeWaterDeficit.generateHTML).toBe('function');
+            expect(typeof freeWaterDeficit.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(freewaterdeficit.id).toBe('free-water-deficit');
+            expect(freeWaterDeficit.id).toBe('free-water-deficit');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = freewaterdeficit.generateHTML();
+            const html = freeWaterDeficit.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = freewaterdeficit.generateHTML();
+            const html = freeWaterDeficit.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Free Water Deficit Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = freewaterdeficit.generateHTML();
+            const html = freeWaterDeficit.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                freewaterdeficit.initialize(null, null, container);
+                freeWaterDeficit.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = freewaterdeficit.generateHTML();
+            const html = freeWaterDeficit.generateHTML();
             container.innerHTML = html;
-            freewaterdeficit.initialize(null, null, container);
+            freeWaterDeficit.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

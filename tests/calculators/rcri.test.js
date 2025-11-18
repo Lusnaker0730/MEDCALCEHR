@@ -198,7 +198,7 @@ describe('RCRI Calculator', () => {
 
         test('should include renal insufficiency factor', () => {
             const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('renal' || 'creatinine');
+            expect(html.toLowerCase()).toContain('creatinine');
         });
     });
 

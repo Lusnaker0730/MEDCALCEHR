@@ -66,7 +66,7 @@ export const sixMwd = {
             </div>
 
             <div class="info-section">
-                <h4>📚 Reference</h4>
+                <h4>Reference</h4>
                 <p>Enright, P L, & Sherrill, D L. (1998). Reference equations for the six-minute walk in healthy adults. <em>American journal of respiratory and critical care medicine</em>, 158(5 Pt 1), 1384-7.</p>
             </div>
         `;
@@ -101,7 +101,7 @@ export const sixMwd = {
                 expectedDistance = 2.11 * height - 2.29 * weight - 5.78 * age + 667;
             }
 
-            // Lolkema, D. (2006). Reference values for the 6-minute walk test in a healthy Dutch population aged 40–70 years: a cross-sectional study.
+            // Lolkema, D. (2006). Reference values for the 6-minute walk test in a healthy Dutch population aged 40-70 years: a cross-sectional study.
             const lowerLimitNormal = expectedDistance - 153; // for men and women
 
             let percentage = NaN;

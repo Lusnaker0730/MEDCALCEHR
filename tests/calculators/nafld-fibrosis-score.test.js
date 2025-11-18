@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { nafldfibrosisscore } from '../../js/calculators/nafld-fibrosis-score/index.js';
+import { nafldFibrosisScore } from '../../js/calculators/nafld-fibrosis-score/index.js';
 
 describe('Nafld Fibrosis Score Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Nafld Fibrosis Score Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(nafldfibrosisscore).toBeDefined();
-            expect(typeof nafldfibrosisscore.generateHTML).toBe('function');
-            expect(typeof nafldfibrosisscore.initialize).toBe('function');
+            expect(nafldFibrosisScore).toBeDefined();
+            expect(typeof nafldFibrosisScore.generateHTML).toBe('function');
+            expect(typeof nafldFibrosisScore.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(nafldfibrosisscore.id).toBe('nafld-fibrosis-score');
+            expect(nafldFibrosisScore.id).toBe('nafld-fibrosis-score');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = nafldfibrosisscore.generateHTML();
+            const html = nafldFibrosisScore.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = nafldfibrosisscore.generateHTML();
+            const html = nafldFibrosisScore.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Nafld Fibrosis Score Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = nafldfibrosisscore.generateHTML();
+            const html = nafldFibrosisScore.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                nafldfibrosisscore.initialize(null, null, container);
+                nafldFibrosisScore.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = nafldfibrosisscore.generateHTML();
+            const html = nafldFibrosisScore.generateHTML();
             container.innerHTML = html;
-            nafldfibrosisscore.initialize(null, null, container);
+            nafldFibrosisScore.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

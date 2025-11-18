@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { 6mwd } from '../../js/calculators/6mwd/index.js';
+import { sixMwd } from '../../js/calculators/6mwd/index.js';
 
-describe('6mwd Calculator', () => {
+describe('sixMwd Calculator', () => {
     let container;
 
     beforeEach(() => {
@@ -17,26 +17,26 @@ describe('6mwd Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(6mwd).toBeDefined();
-            expect(typeof 6mwd.generateHTML).toBe('function');
-            expect(typeof 6mwd.initialize).toBe('function');
+            expect(sixMwd).toBeDefined();
+            expect(typeof sixMwd.generateHTML).toBe('function');
+            expect(typeof sixMwd.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(6mwd.id).toBe('6mwd');
+            expect(sixMwd.id).toBe('6mwd');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = 6mwd.generateHTML();
+            const html = sixMwd.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = 6mwd.generateHTML();
+            const html = sixMwd.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('6mwd Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = 6mwd.generateHTML();
+            const html = sixMwd.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                6mwd.initialize(null, null, container);
+                sixMwd.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = 6mwd.generateHTML();
+            const html = sixMwd.generateHTML();
             container.innerHTML = html;
-            6mwd.initialize(null, null, container);
+            sixMwd.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

@@ -250,13 +250,17 @@ export const maggic = {
         };
 
         // Auto-populate data
-        fields.age.value = calculateAge(patient.birthDate);
-        const genderRadio = container.querySelector(
-            `input[name="gender"][value="${patient.gender === 'male' ? 1 : 0}"]`
-        );
-        if (genderRadio) {
-            genderRadio.checked = true;
-            genderRadio.parentElement.classList.add('selected');
+        if (patient && patient.birthDate) {
+            fields.age.value = calculateAge(patient.birthDate);
+        }
+        if (patient && patient.gender) {
+            const genderRadio = container.querySelector(
+                `input[name="gender"][value="${patient.gender === 'male' ? 1 : 0}"]`
+            );
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.parentElement.classList.add('selected');
+            }
         }
 
         getMostRecentObservation(client, '39156-5').then(obs => {

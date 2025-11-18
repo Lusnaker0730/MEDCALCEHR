@@ -66,8 +66,7 @@ describe('CIWA-Ar Calculator', () => {
             const html = ciwaAr.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('#ciwa-result') || 
-                                  container.querySelector('.result-container');
+            const resultContainer = container.querySelector('#ciwa-ar-result');
             expect(resultContainer).toBeTruthy();
         });
     });

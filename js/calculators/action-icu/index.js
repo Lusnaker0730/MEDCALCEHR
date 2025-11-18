@@ -235,8 +235,10 @@ export const actionIcu = {
             }
         };
 
-        const patientAge = calculateAge(patient.birthDate);
-        setRadioWithValue('age', patientAge, [v => v < 70, v => v >= 70]);
+        if (patient && patient.birthDate) {
+            const patientAge = calculateAge(patient.birthDate);
+            setRadioWithValue('age', patientAge, [v => v < 70, v => v >= 70]);
+        }
 
         getMostRecentObservation(client, '2160-0').then(obs => {
             // Serum Creatinine

@@ -269,7 +269,9 @@ export const gwtgHf = {
         };
 
         // Auto-populate data
-        fields.age.value = calculateAge(patient.birthDate);
+        if (patient && patient.birthDate) {
+            fields.age.value = calculateAge(patient.birthDate);
+        }
         getMostRecentObservation(client, '8480-6').then(obs => {
             if (obs) {
                 fields.sbp.value = obs.valueQuantity.value.toFixed(0);

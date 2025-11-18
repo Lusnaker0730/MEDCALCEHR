@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { serumosmolality } from '../../js/calculators/serum-osmolality/index.js';
+import { serumOsmolality } from '../../js/calculators/serum-osmolality/index.js';
 
 describe('Serum Osmolality Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Serum Osmolality Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(serumosmolality).toBeDefined();
-            expect(typeof serumosmolality.generateHTML).toBe('function');
-            expect(typeof serumosmolality.initialize).toBe('function');
+            expect(serumOsmolality).toBeDefined();
+            expect(typeof serumOsmolality.generateHTML).toBe('function');
+            expect(typeof serumOsmolality.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(serumosmolality.id).toBe('serum-osmolality');
+            expect(serumOsmolality.id).toBe('serum-osmolality');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = serumosmolality.generateHTML();
+            const html = serumOsmolality.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = serumosmolality.generateHTML();
+            const html = serumOsmolality.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Serum Osmolality Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = serumosmolality.generateHTML();
+            const html = serumOsmolality.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                serumosmolality.initialize(null, null, container);
+                serumOsmolality.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = serumosmolality.generateHTML();
+            const html = serumOsmolality.generateHTML();
             container.innerHTML = html;
-            serumosmolality.initialize(null, null, container);
+            serumOsmolality.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

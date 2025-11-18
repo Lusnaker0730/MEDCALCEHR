@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { serumaniongap } from '../../js/calculators/serum-anion-gap/index.js';
+import { serumAnionGap } from '../../js/calculators/serum-anion-gap/index.js';
 
 describe('Serum Anion Gap Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Serum Anion Gap Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(serumaniongap).toBeDefined();
-            expect(typeof serumaniongap.generateHTML).toBe('function');
-            expect(typeof serumaniongap.initialize).toBe('function');
+            expect(serumAnionGap).toBeDefined();
+            expect(typeof serumAnionGap.generateHTML).toBe('function');
+            expect(typeof serumAnionGap.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(serumaniongap.id).toBe('serum-anion-gap');
+            expect(serumAnionGap.id).toBe('serum-anion-gap');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = serumaniongap.generateHTML();
+            const html = serumAnionGap.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = serumaniongap.generateHTML();
+            const html = serumAnionGap.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Serum Anion Gap Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = serumaniongap.generateHTML();
+            const html = serumAnionGap.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                serumaniongap.initialize(null, null, container);
+                serumAnionGap.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = serumaniongap.generateHTML();
+            const html = serumAnionGap.generateHTML();
             container.innerHTML = html;
-            serumaniongap.initialize(null, null, container);
+            serumAnionGap.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

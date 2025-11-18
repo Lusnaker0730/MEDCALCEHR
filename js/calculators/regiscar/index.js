@@ -474,14 +474,18 @@ export const regiscar = {
         });
 
         // FHIR data fetching
-        const getObservation = code =>
-            client.patient
+        const getObservation = code => {
+            if (!client || !client.patient) {
+                return Promise.resolve(null);
+            }
+            return client.patient
                 .request(`Observation?code=${code}&_sort=-date&_count=1`)
                 .then(r => (r.entry && r.entry[0] ? r.entry[0].resource : null))
                 .catch(error => {
                     console.error(`Error fetching observation ${code}:`, error);
                     return null;
                 });
+        };
 
         // Auto-populate temperature
         getObservation('8310-5').then(temp => {

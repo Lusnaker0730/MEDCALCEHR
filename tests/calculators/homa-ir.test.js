@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { homair } from '../../js/calculators/homa-ir/index.js';
+import { homaIr } from '../../js/calculators/homa-ir/index.js';
 
 describe('Homa Ir Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Homa Ir Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(homair).toBeDefined();
-            expect(typeof homair.generateHTML).toBe('function');
-            expect(typeof homair.initialize).toBe('function');
+            expect(homaIr).toBeDefined();
+            expect(typeof homaIr.generateHTML).toBe('function');
+            expect(typeof homaIr.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(homair.id).toBe('homa-ir');
+            expect(homaIr.id).toBe('homa-ir');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = homair.generateHTML();
+            const html = homaIr.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = homair.generateHTML();
+            const html = homaIr.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Homa Ir Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = homair.generateHTML();
+            const html = homaIr.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                homair.initialize(null, null, container);
+                homaIr.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = homair.generateHTML();
+            const html = homaIr.generateHTML();
             container.innerHTML = html;
-            homair.initialize(null, null, container);
+            homaIr.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

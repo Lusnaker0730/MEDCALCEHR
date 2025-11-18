@@ -188,7 +188,7 @@ describe('Caprini VTE Risk Calculator', () => {
 
         test('should include mobility risk factors', () => {
             const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('mobility' || 'bed rest' || 'immobil');
+            expect(html.toLowerCase()).toContain('bed');
         });
 
         test('should include history of VTE risk factor', () => {
@@ -198,7 +198,7 @@ describe('Caprini VTE Risk Calculator', () => {
 
         test('should include cancer risk factor', () => {
             const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('cancer' || 'malignancy');
+            expect(html.toLowerCase()).toContain('malignancy');
         });
     });
 

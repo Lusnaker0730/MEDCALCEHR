@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { apgar } from '../../js/calculators/apgar/index.js';
+import { apgarScore } from '../../js/calculators/apgar/index.js';
 
 describe('Apgar Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Apgar Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(apgar).toBeDefined();
-            expect(typeof apgar.generateHTML).toBe('function');
-            expect(typeof apgar.initialize).toBe('function');
+            expect(apgarScore).toBeDefined();
+            expect(typeof apgarScore.generateHTML).toBe('function');
+            expect(typeof apgarScore.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(apgar.id).toBe('apgar');
+            expect(apgarScore.id).toBe('apgar-score');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = apgar.generateHTML();
+            const html = apgarScore.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = apgar.generateHTML();
+            const html = apgarScore.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Apgar Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = apgar.generateHTML();
+            const html = apgarScore.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                apgar.initialize(null, null, container);
+                apgarScore.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = apgar.generateHTML();
+            const html = apgarScore.generateHTML();
             container.innerHTML = html;
-            apgar.initialize(null, null, container);
+            apgarScore.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

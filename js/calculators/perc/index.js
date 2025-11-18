@@ -81,12 +81,15 @@ export const perc = {
         };
 
         // Pre-fill age
+        if (patient && patient.birthDate) {
         const age = calculateAge(patient.birthDate);
         if (age >= 50) {
             container.querySelector('#age50').checked = true;
+            }
         }
 
         // Pre-fill heart rate and O2 saturation from most recent vitals
+        if (client && patient && patient.id) {
         client
             .request(`Observation?patient=${patient.id}&code=85353-1&_sort=-date&_count=1`)
             .then(response => {
@@ -108,6 +111,7 @@ export const perc = {
                     calculate();
                 }
             });
+        }
 
         // Visual feedback and auto-calculation
         container.querySelectorAll('.checkbox-option').forEach(option => {

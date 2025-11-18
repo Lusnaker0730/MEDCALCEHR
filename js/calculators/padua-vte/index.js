@@ -28,10 +28,12 @@ export const paduaVTE = {
         const root = container || document;
 
         // Auto-populate age
-        const age = calculateAge(patient.birthDate);
-        const ageCheckbox = root.querySelector('#padua-age');
-        if (age >= 70 && ageCheckbox) {
-            ageCheckbox.checked = true;
+        if (patient && patient.birthDate) {
+            const age = calculateAge(patient.birthDate);
+            const ageCheckbox = root.querySelector('#padua-age');
+            if (age >= 70 && ageCheckbox) {
+                ageCheckbox.checked = true;
+            }
         }
 
         // Auto-populate BMI

@@ -210,7 +210,6 @@ export const pecarn = {
         return html;
     },
     initialize: function (client, patient, container) {
-        const age = calculateAge(patient.birthDate);
         const ageUnder2Radio = container.querySelector('#age-under-2');
         const ageOver2Radio = container.querySelector('#age-over-2');
         const criteriaUnder2Div = container.querySelector('#pecarn-criteria-under2');
@@ -227,7 +226,11 @@ export const pecarn = {
                 criteriaOver2Div.style.display = 'block';
             }
         };
-        setAgeGroup(age); // Set on load
+
+        if (patient && patient.birthDate) {
+            const age = calculateAge(patient.birthDate);
+            setAgeGroup(age);
+        }
 
         ageUnder2Radio.addEventListener('change', () => setAgeGroup(1));
         ageOver2Radio.addEventListener('change', () => setAgeGroup(2));

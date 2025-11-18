@@ -39,7 +39,7 @@ describe('Cpis Calculator', () => {
             const html = cpis.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
+            const resultContainer = container.querySelector('#cpis-result-box');
             expect(resultContainer).toBeTruthy();
         });
     });

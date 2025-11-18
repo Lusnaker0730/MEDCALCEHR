@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { intraopfluid } from '../../js/calculators/intraop-fluid/index.js';
+import { intraopFluid } from '../../js/calculators/intraop-fluid/index.js';
 
 describe('Intraop Fluid Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('Intraop Fluid Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(intraopfluid).toBeDefined();
-            expect(typeof intraopfluid.generateHTML).toBe('function');
-            expect(typeof intraopfluid.initialize).toBe('function');
+            expect(intraopFluid).toBeDefined();
+            expect(typeof intraopFluid.generateHTML).toBe('function');
+            expect(typeof intraopFluid.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(intraopfluid.id).toBe('intraop-fluid');
+            expect(intraopFluid.id).toBe('intraop-fluid');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = intraopfluid.generateHTML();
+            const html = intraopFluid.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = intraopfluid.generateHTML();
+            const html = intraopFluid.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('Intraop Fluid Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = intraopfluid.generateHTML();
+            const html = intraopFluid.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                intraopfluid.initialize(null, null, container);
+                intraopFluid.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = intraopfluid.generateHTML();
+            const html = intraopFluid.generateHTML();
             container.innerHTML = html;
-            intraopfluid.initialize(null, null, container);
+            intraopFluid.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

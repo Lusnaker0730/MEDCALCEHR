@@ -118,6 +118,7 @@ export const ariscat = {
             }
         };
 
+        if (patient && patient.birthDate) {
         const patientAge = calculateAge(patient.birthDate);
         const ageRadios = container.querySelectorAll('input[name="age"]');
         if (patientAge <= 50) {
@@ -132,6 +133,7 @@ export const ariscat = {
                 r.parentElement.classList.add('selected');
             }
         });
+        }
 
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', event => {

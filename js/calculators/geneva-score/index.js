@@ -49,10 +49,12 @@ export const genevaScore = {
         const root = container || document;
 
         // Auto-populate age
-        const age = calculateAge(patient.birthDate);
-        const ageCheckbox = root.querySelector('#geneva-age');
-        if (age > 65 && ageCheckbox) {
-            ageCheckbox.checked = true;
+        if (patient && patient.birthDate) {
+            const age = calculateAge(patient.birthDate);
+            const ageCheckbox = root.querySelector('#geneva-age');
+            if (age > 65 && ageCheckbox) {
+                ageCheckbox.checked = true;
+            }
         }
 
         // Auto-populate heart rate

@@ -104,7 +104,7 @@ describe('Padua VTE Calculator', () => {
                 checkboxes[0].checked = true;
                 checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
 
-                const resultValue = container.querySelector('.result-value');
+                const resultValue = container.querySelector('.result-score');
                 expect(resultValue).toBeTruthy();
             }
         });

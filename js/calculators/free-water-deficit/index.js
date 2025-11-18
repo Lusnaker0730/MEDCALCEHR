@@ -171,8 +171,10 @@ export const freeWaterDeficit = {
         const resultEl = document.getElementById('fwd-result');
 
         // Set initial values
-        weightInput.value = patient.weight || '';
-        genderSelect.value = patient.gender || 'male';
+        if (patient) {
+            weightInput.value = patient.weight || '';
+            genderSelect.value = patient.gender || 'male';
+        }
 
         // Load observations from FHIR
         getMostRecentObservation(client, '29463-7').then(obs => {

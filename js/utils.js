@@ -7,12 +7,19 @@
  * @returns {Promise<Object|null>} A promise that resolves to the Observation resource or null.
  */
 export function getMostRecentObservation(client, code) {
+    if (!client || !client.patient) {
+        return Promise.resolve(null);
+    }
     return client.patient
         .request(`Observation?code=${code}&_sort=-date&_count=1`)
         .then(response => {
             if (response.entry && response.entry.length > 0) {
                 return response.entry[0].resource;
             }
+            return null;
+        })
+        .catch(error => {
+            console.error('Error fetching observation:', error);
             return null;
         });
 }
@@ -89,6 +96,9 @@ export function displayPatientInfo(client, patientInfoDiv) {
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
  */
 export function getPatientConditions(client, codes) {
+    if (!client || !client.patient) {
+        return Promise.resolve([]);
+    }
     const codeString = codes.join(',');
     return client.patient
         .request(`Condition?clinical-status=active&code=${codeString}`)
@@ -96,6 +106,10 @@ export function getPatientConditions(client, codes) {
             if (response.entry) {
                 return response.entry.map(e => e.resource);
             }
+            return [];
+        })
+        .catch(error => {
+            console.error('Error fetching patient conditions:', error);
             return [];
         });
 }
@@ -106,7 +120,15 @@ export function getPatientConditions(client, codes) {
  * @returns {Promise<Object|null>} A promise that resolves to the patient resource or null.
  */
 export function getPatient(client) {
-    return client.patient.read().then(patient => patient || null);
+    if (!client || !client.patient) {
+        return Promise.resolve(null);
+    }
+    return client.patient.read()
+        .then(patient => patient || null)
+        .catch(error => {
+            console.error('Error fetching patient:', error);
+            return null;
+        });
 }
 
 /**
@@ -116,12 +138,19 @@ export function getPatient(client) {
  * @returns {Promise<Object|null>} A promise that resolves to the observation resource or null.
  */
 export function getObservation(client, code) {
+    if (!client || !client.patient) {
+        return Promise.resolve(null);
+    }
     return client.patient
         .request(`Observation?code=${code}&_sort=-date&_count=1`)
         .then(response => {
             if (response.entry && response.entry.length > 0) {
                 return response.entry[0].resource;
             }
+            return null;
+        })
+        .catch(error => {
+            console.error('Error fetching observation:', error);
             return null;
         });
 }

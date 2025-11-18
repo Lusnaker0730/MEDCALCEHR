@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { stopbang } from '../../js/calculators/stop-bang/index.js';
+import { stopBang } from '../../js/calculators/stop-bang/index.js';
 
 describe('Stop Bang Calculator', () => {
     let container;
@@ -17,49 +17,49 @@ describe('Stop Bang Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(stopbang).toBeDefined();
-            expect(typeof stopbang.generateHTML).toBe('function');
-            expect(typeof stopbang.initialize).toBe('function');
+            expect(stopBang).toBeDefined();
+            expect(typeof stopBang.generateHTML).toBe('function');
+            expect(typeof stopBang.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(stopbang.id).toBe('stop-bang');
+            expect(stopBang.id).toBe('stop-bang');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = stopbang.generateHTML();
+            const html = stopBang.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = stopbang.generateHTML();
+            const html = stopBang.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
+            const resultContainer = container.querySelector('.stop-bang-result-container');
             expect(resultContainer).toBeTruthy();
         });
     });
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = stopbang.generateHTML();
+            const html = stopBang.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                stopbang.initialize(null, null, container);
+                stopBang.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = stopbang.generateHTML();
+            const html = stopBang.generateHTML();
             container.innerHTML = html;
-            stopbang.initialize(null, null, container);
+            stopBang.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

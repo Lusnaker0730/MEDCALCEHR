@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { cleanupDOM } from './test-helpers.js';
-import { ettETT } from '../../js/calculators/ettETT/index.js';
+import { ett } from '../../js/calculators/ett/index.js';
 
 describe('EttETT Calculator', () => {
     let container;
@@ -17,26 +17,26 @@ describe('EttETT Calculator', () => {
 
     describe('Module Structure', () => {
         test('should export calculator object', () => {
-            expect(ettETT).toBeDefined();
-            expect(typeof ettETT.generateHTML).toBe('function');
-            expect(typeof ettETT.initialize).toBe('function');
+            expect(ett).toBeDefined();
+            expect(typeof ett.generateHTML).toBe('function');
+            expect(typeof ett.initialize).toBe('function');
         });
 
         test('should have correct calculator ID', () => {
-            expect(ettETT.id).toBe('ettETT');
+            expect(ett.id).toBe('ett');
         });
     });
 
     describe('HTML Generation', () => {
         test('should generate valid HTML', () => {
-            const html = ettETT.generateHTML();
+            const html = ett.generateHTML();
             expect(html).toBeDefined();
             expect(typeof html).toBe('string');
             expect(html.length).toBeGreaterThan(0);
         });
 
         test('should include result container', () => {
-            const html = ettETT.generateHTML();
+            const html = ett.generateHTML();
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
@@ -46,20 +46,20 @@ describe('EttETT Calculator', () => {
 
     describe('FHIR Integration', () => {
         test('should work without FHIR client', () => {
-            const html = ettETT.generateHTML();
+            const html = ett.generateHTML();
             container.innerHTML = html;
 
             expect(() => {
-                ettETT.initialize(null, null, container);
+                ett.initialize(null, null, container);
             }).not.toThrow();
         });
     });
 
     describe('Basic Functionality', () => {
         beforeEach(() => {
-            const html = ettETT.generateHTML();
+            const html = ett.generateHTML();
             container.innerHTML = html;
-            ettETT.initialize(null, null, container);
+            ett.initialize(null, null, container);
         });
 
         test('should initialize without errors', () => {

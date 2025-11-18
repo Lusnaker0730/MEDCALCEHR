@@ -126,13 +126,15 @@ export const caprini = {
         };
 
         // Pre-fill based on patient data
-        const age = calculateAge(patient.birthDate);
-        if (age >= 75) {
-            container.querySelector('#age75').checked = true;
-        } else if (age >= 61) {
-            container.querySelector('#age61').checked = true;
-        } else if (age >= 41) {
-            container.querySelector('#age41').checked = true;
+        if (patient && patient.birthDate) {
+            const age = calculateAge(patient.birthDate);
+            if (age >= 75) {
+                container.querySelector('#age75').checked = true;
+            } else if (age >= 61) {
+                container.querySelector('#age61').checked = true;
+            } else if (age >= 41) {
+                container.querySelector('#age41').checked = true;
+            }
         }
 
         // Add event listeners

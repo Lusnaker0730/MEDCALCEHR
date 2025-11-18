@@ -404,10 +404,18 @@ export const score2Diabetes = {
         };
 
         // Auto-populate patient demographics display
-        const patientAge = calculateAge(patient.birthDate);
-        container.querySelector('#patient-age').textContent = `${patientAge} years`;
-        container.querySelector('#patient-gender').textContent =
-            patient.gender === 'male' ? 'Male' : 'Female';
+        let patientAge = null;
+        if (patient && patient.birthDate) {
+            patientAge = calculateAge(patient.birthDate);
+            container.querySelector('#patient-age').textContent = `${patientAge} years`;
+        }
+        
+        let patientGender = null;
+        if (patient && patient.gender) {
+            patientGender = patient.gender;
+            container.querySelector('#patient-gender').textContent =
+                patient.gender === 'male' ? 'Male' : 'Female';
+        }
 
         const calculate = () => {
             const riskPercentageEl = container.querySelector('#risk-percentage');
@@ -554,13 +562,16 @@ export const score2Diabetes = {
         };
 
         // Auto-populate form fields
-        fields.age.value = patientAge;
+        if (patientAge !== null) {
+            fields.age.value = patientAge;
+        }
 
-        const patientGender = patient.gender;
-        const genderRadio = container.querySelector(`input[name="sex"][value="${patientGender}"]`);
-        if (genderRadio) {
-            genderRadio.checked = true;
-            this.updateToggleState(genderRadio);
+        if (patientGender) {
+            const genderRadio = container.querySelector(`input[name="sex"][value="${patientGender}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                this.updateToggleState(genderRadio);
+            }
         }
 
         // Auto-populate lab values

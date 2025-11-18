@@ -92,11 +92,13 @@ export const centor = {
             resultEl.style.display = 'block';
         };
 
+        if (patient && patient.birthDate) {
         const age = calculateAge(patient.birthDate);
         if (age >= 3 && age <= 14) {
             container.querySelector('#age-under-15').checked = true;
         } else if (age >= 45) {
             container.querySelector('#age-over-45').checked = true;
+            }
         }
 
         container.querySelectorAll('.checkbox-option, .radio-option').forEach(option => {
