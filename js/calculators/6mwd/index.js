@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const sixMwd = {
     id: '6mwd',
@@ -149,13 +150,13 @@ export const sixMwd = {
             }
         }
 
-        getMostRecentObservation(client, '8302-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
                 heightEl.value = obs.valueQuantity.value.toFixed(1);
             }
             calculate();
         });
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
                 weightEl.value = obs.valueQuantity.value.toFixed(1);
             }

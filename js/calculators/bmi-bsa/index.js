@@ -176,8 +176,8 @@ export const bmiBsa = {
         initializeUnitConversion(container, 'bmi-bsa-height', calculateAndUpdate);
 
         // Auto-populate from FHIR data
-        const weightPromise = getMostRecentObservation(client, '29463-7');
-        const heightPromise = getMostRecentObservation(client, '8302-2');
+        const weightPromise = getMostRecentObservation(client, LOINC_CODES.WEIGHT);
+        const heightPromise = getMostRecentObservation(client, LOINC_CODES.HEIGHT);
 
         Promise.all([weightPromise, heightPromise])
             .then(([weightObs, heightObs]) => {

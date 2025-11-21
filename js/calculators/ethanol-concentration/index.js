@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const ethanolConcentration = {
     id: 'ethanol-concentration',
@@ -46,13 +47,13 @@ export const ethanolConcentration = {
             <div id="ethanol-result" class="result-container"></div>
 
             <div class="formula-section">
-                <h4>🧮 Calculation Formula</h4>
+                <h4>?�� Calculation Formula</h4>
                 
                 <div class="formula-steps">
                     <div class="formula-step">
                         <h5>Step 1: Calculate Volume of Alcohol</h5>
                         <div class="formula-box">
-                            <strong>Volume (mL)</strong> = Amount (oz) × 29.57 mL/oz
+                            <strong>Volume (mL)</strong> = Amount (oz) ? 29.57 mL/oz
                         </div>
                         <p class="formula-note">Convert ounces to milliliters (1 oz = 29.57 mL)</p>
                     </div>
@@ -60,23 +61,23 @@ export const ethanolConcentration = {
                     <div class="formula-step">
                         <h5>Step 2: Calculate Grams of Pure Alcohol</h5>
                         <div class="formula-box">
-                            <strong>Grams of Alcohol</strong> = Volume (mL) × (ABV% / 100) × 0.789 g/mL
+                            <strong>Grams of Alcohol</strong> = Volume (mL) ? (ABV% / 100) ? 0.789 g/mL
                         </div>
                         <p class="formula-note">
-                            • ABV% = Alcohol by Volume percentage<br>
-                            • 0.789 g/mL = density of ethanol
+                            ??ABV% = Alcohol by Volume percentage<br>
+                            ??0.789 g/mL = density of ethanol
                         </p>
                     </div>
 
                     <div class="formula-step">
                         <h5>Step 3: Calculate Serum Concentration</h5>
                         <div class="formula-box">
-                            <strong>Concentration (mg/dL)</strong> = (Grams × 1000 mg/g) / (Weight (kg) × Vd × 10 dL/L)
+                            <strong>Concentration (mg/dL)</strong> = (Grams ? 1000 mg/g) / (Weight (kg) ? Vd ? 10 dL/L)
                         </div>
                         <p class="formula-note">
                             <strong>Volume of Distribution (Vd):</strong><br>
-                            • Male: 0.68 L/kg<br>
-                            • Female: 0.55 L/kg
+                            ??Male: 0.68 L/kg<br>
+                            ??Female: 0.55 L/kg
                         </p>
                     </div>
 
@@ -85,15 +86,15 @@ export const ethanolConcentration = {
                         <div class="formula-box highlight">
                             <strong>Peak Serum Ethanol (mg/dL)</strong> = 
                             <div class="fraction">
-                                <div class="numerator">Amount (oz) × 29.57 × (ABV% / 100) × 0.789 × 1000</div>
-                                <div class="denominator">Weight (kg) × Vd × 10</div>
+                                <div class="numerator">Amount (oz) ? 29.57 ? (ABV% / 100) ? 0.789 ? 1000</div>
+                                <div class="denominator">Weight (kg) ? Vd ? 10</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="clinical-notes">
-                    <h5>📋 Clinical Notes</h5>
+                    <h5>?? Clinical Notes</h5>
                     <ul>
                         <li><strong>Assumptions:</strong> This calculation assumes complete absorption and no metabolism</li>
                         <li><strong>Peak concentration:</strong> Typically occurs 30-90 minutes after ingestion on empty stomach</li>
@@ -105,7 +106,7 @@ export const ethanolConcentration = {
                 </div>
 
                 <div class="common-drinks">
-                    <h5>🍺 Common Alcoholic Beverages</h5>
+                    <h5>?�� Common Alcoholic Beverages</h5>
                     <div class="drinks-grid">
                         <div class="drink-card">
                             <strong>Beer</strong>
@@ -147,7 +148,7 @@ export const ethanolConcentration = {
         }
 
         // FHIR auto-populate weight
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
                 weightEl.value = obs.valueQuantity.value.toFixed(1);
                 calculate();
@@ -193,7 +194,7 @@ export const ethanolConcentration = {
                 <div class="severity-indicator ${severityLevel}">${severityText}</div>
                 
                 <div class="alert info">
-                    <strong>📊 Clinical Reference</strong>
+                    <strong>?? Clinical Reference</strong>
                     <ul style="margin: 8px 0 0 20px; text-align: left;">
                         <li><strong>Legal limit (US driving):</strong> 80 mg/dL (0.08%)</li>
                         <li><strong>Severe intoxication:</strong> Usually >300 mg/dL</li>

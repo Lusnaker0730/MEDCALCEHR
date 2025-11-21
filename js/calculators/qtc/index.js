@@ -1,5 +1,6 @@
 // js/calculators/qtc.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const qtc = {
     id: 'qtc',
@@ -185,7 +186,7 @@ export const qtc = {
         };
 
         // Auto-populate heart rate from FHIR
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
                 calculate();

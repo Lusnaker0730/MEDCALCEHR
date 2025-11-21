@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const preventCVD = {
     id: 'prevent-cvd',
@@ -213,10 +214,10 @@ export const preventCVD = {
 
         // Load FHIR data if available
         if (client) {
-            getMostRecentObservation(client, '85354-9')
+            getMostRecentObservation(client, LOINC_CODES.BP_PANEL)
                 .then(bp => {
                     if (bp && bp.component) {
-                        const sbp = bp.component.find(c => c.code.coding[0].code === '8480-6');
+                        const sbp = bp.component.find(c => c.code.coding[0].code === LOINC_CODES.SYSTOLIC_BP);
                         if (sbp && sbp.valueQuantity) {
                             sbpInput.value = sbp.valueQuantity.value.toFixed(0);
                         }
@@ -224,7 +225,7 @@ export const preventCVD = {
                 })
                 .catch(err => console.log('BP data not available'));
 
-            getMostRecentObservation(client, '2093-3')
+            getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL)
                 .then(chol => {
                     if (chol && chol.valueQuantity) {
                         // Convert mg/dL to mmol/L (divide by 38.67)
@@ -233,7 +234,7 @@ export const preventCVD = {
                 })
                 .catch(err => console.log('Cholesterol data not available'));
 
-            getMostRecentObservation(client, '2085-9')
+            getMostRecentObservation(client, LOINC_CODES.HDL)
                 .then(hdl => {
                     if (hdl && hdl.valueQuantity) {
                         hdlInput.value = (hdl.valueQuantity.value / 38.67).toFixed(1);
@@ -241,7 +242,7 @@ export const preventCVD = {
                 })
                 .catch(err => console.log('HDL data not available'));
 
-            getMostRecentObservation(client, '33914-3')
+            getMostRecentObservation(client, LOINC_CODES.EGFR)
                 .then(egfr => {
                     if (egfr && egfr.valueQuantity) {
                         egfrInput.value = egfr.valueQuantity.value.toFixed(0);

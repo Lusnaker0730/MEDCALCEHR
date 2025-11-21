@@ -1,5 +1,6 @@
 // js/calculators/sirs.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const sirs = {
     id: 'sirs',
@@ -15,7 +16,7 @@ export const sirs = {
 
             <div class="sirs-container">
                 <div class="current-vitals">
-                    <h4>📊 Current Vital Signs</h4>
+                    <h4>?? Current Vital Signs</h4>
                     <div class="vitals-grid">
                         <div class="vital-item">
                             <label>Temperature:</label>
@@ -37,13 +38,13 @@ export const sirs = {
                 </div>
 
                 <div class="sirs-criteria-section">
-                    <h4>🔥 SIRS Criteria Assessment</h4>
-                    <div class="criteria-requirement">Need ≥2 criteria for SIRS diagnosis</div>
+                    <h4>?�� SIRS Criteria Assessment</h4>
+                    <div class="criteria-requirement">Need ?? criteria for SIRS diagnosis</div>
                     
                     <div class="sirs-criteria-grid">
                         <div class="criterion-card temperature">
                             <div class="criterion-header">
-                                <div class="criterion-icon">🌡️</div>
+                                <div class="criterion-icon">?���?/div>
                                 <div class="criterion-title">Temperature</div>
                                 <div class="criterion-status" id="temp-status">0</div>
                             </div>
@@ -62,7 +63,7 @@ export const sirs = {
 
                         <div class="criterion-card heart-rate">
                             <div class="criterion-header">
-                                <div class="criterion-icon">💓</div>
+                                <div class="criterion-icon">??</div>
                                 <div class="criterion-title">Heart Rate</div>
                                 <div class="criterion-status" id="hr-status">0</div>
                             </div>
@@ -81,12 +82,12 @@ export const sirs = {
 
                         <div class="criterion-card respiratory">
                             <div class="criterion-header">
-                                <div class="criterion-icon">🫁</div>
+                                <div class="criterion-icon">??</div>
                                 <div class="criterion-title">Respiratory Rate</div>
                                 <div class="criterion-status" id="rr-status">0</div>
                             </div>
                             <div class="criterion-details">
-                                <div class="criterion-range">&gt;20 breaths/min or PaCO₂ &lt;32 mmHg</div>
+                                <div class="criterion-range">&gt;20 breaths/min or PaCO??&lt;32 mmHg</div>
                                 <div class="criterion-explanation">Tachypnea or respiratory alkalosis</div>
                             </div>
                             <div class="sirs-toggle" data-criterion="respiratory">
@@ -100,12 +101,12 @@ export const sirs = {
 
                         <div class="criterion-card wbc">
                             <div class="criterion-header">
-                                <div class="criterion-icon">🩸</div>
+                                <div class="criterion-icon">?��</div>
                                 <div class="criterion-title">White Blood Cells</div>
                                 <div class="criterion-status" id="wbc-status">0</div>
                             </div>
                             <div class="criterion-details">
-                                <div class="criterion-range">&lt;4.0 or &gt;12.0 ×10³/μL or &gt;10% bands</div>
+                                <div class="criterion-range">&lt;4.0 or &gt;12.0 ?10³/μL or &gt;10% bands</div>
                                 <div class="criterion-explanation">Leukopenia, leukocytosis, or left shift</div>
                             </div>
                             <div class="sirs-toggle" data-criterion="wbc">
@@ -128,12 +129,12 @@ export const sirs = {
                 </div>
 
                 <div class="progression-criteria">
-                    <h4>🦠 Sepsis & Septic Shock Assessment</h4>
+                    <h4>?? Sepsis & Septic Shock Assessment</h4>
                     
                     <div class="progression-grid">
                         <div class="progression-card infection">
                             <div class="progression-header">
-                                <div class="progression-icon">🦠</div>
+                                <div class="progression-icon">??</div>
                                 <div class="progression-title">Infection Source</div>
                             </div>
                             <div class="progression-details">
@@ -151,7 +152,7 @@ export const sirs = {
 
                         <div class="progression-card hypotension">
                             <div class="progression-header">
-                                <div class="progression-icon">📉</div>
+                                <div class="progression-icon">??</div>
                                 <div class="progression-title">Persistent Hypotension</div>
                             </div>
                             <div class="progression-details">
@@ -172,7 +173,7 @@ export const sirs = {
 
             <div class="sirs-result-container">
                 <div class="diagnosis-display">
-                    <div class="diagnosis-icon" id="diagnosis-icon">🔍</div>
+                    <div class="diagnosis-icon" id="diagnosis-icon">??</div>
                     <div class="diagnosis-content">
                         <div class="diagnosis-title" id="diagnosis-title">Assessment Pending</div>
                         <div class="diagnosis-description" id="diagnosis-description">Complete the criteria assessment above</div>
@@ -180,28 +181,28 @@ export const sirs = {
                 </div>
 
                 <div class="severity-progression">
-                    <h4>📈 Severity Progression</h4>
+                    <h4>?? Severity Progression</h4>
                     <div class="progression-flow">
                         <div class="progression-step normal">
-                            <div class="step-icon">✅</div>
+                            <div class="step-icon">??/div>
                             <div class="step-title">Normal</div>
                             <div class="step-criteria">&lt;2 SIRS criteria</div>
                         </div>
-                        <div class="progression-arrow">→</div>
+                        <div class="progression-arrow">??/div>
                         <div class="progression-step sirs">
-                            <div class="step-icon">🔥</div>
+                            <div class="step-icon">?��</div>
                             <div class="step-title">SIRS</div>
-                            <div class="step-criteria">≥2 SIRS criteria</div>
+                            <div class="step-criteria">?? SIRS criteria</div>
                         </div>
-                        <div class="progression-arrow">→</div>
+                        <div class="progression-arrow">??/div>
                         <div class="progression-step sepsis">
-                            <div class="step-icon">🦠</div>
+                            <div class="step-icon">??</div>
                             <div class="step-title">Sepsis</div>
                             <div class="step-criteria">SIRS + Infection</div>
                         </div>
-                        <div class="progression-arrow">→</div>
+                        <div class="progression-arrow">??/div>
                         <div class="progression-step shock">
-                            <div class="step-icon">⚠️</div>
+                            <div class="step-icon">?��?</div>
                             <div class="step-title">Septic Shock</div>
                             <div class="step-criteria">Sepsis + Hypotension</div>
                         </div>
@@ -209,7 +210,7 @@ export const sirs = {
                 </div>
 
                 <div class="clinical-management">
-                    <h4>🏥 Clinical Management Guidelines</h4>
+                    <h4>?�� Clinical Management Guidelines</h4>
                     <div class="management-grid">
                         <div class="management-item normal-management">
                             <h5>Normal (&lt;2 SIRS)</h5>
@@ -220,7 +221,7 @@ export const sirs = {
                             </ul>
                         </div>
                         <div class="management-item sirs-management">
-                            <h5>SIRS (≥2 criteria)</h5>
+                            <h5>SIRS (?? criteria)</h5>
                             <ul>
                                 <li>Investigate underlying cause</li>
                                 <li>Enhanced monitoring</li>
@@ -264,7 +265,7 @@ export const sirs = {
 
     populateVitalSigns: function (client) {
         // Get temperature
-        getMostRecentObservation(client, '8310-5')
+        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE)
             .then(tempObs => {
                 if (tempObs && tempObs.valueQuantity) {
                     const temp = tempObs.valueQuantity.value;
@@ -287,7 +288,7 @@ export const sirs = {
             });
 
         // Get heart rate
-        getMostRecentObservation(client, '8867-4')
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE)
             .then(hrObs => {
                 if (hrObs && hrObs.valueQuantity) {
                     const hr = hrObs.valueQuantity.value;
@@ -308,7 +309,7 @@ export const sirs = {
             });
 
         // Get respiratory rate
-        getMostRecentObservation(client, '9279-1')
+        getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE)
             .then(rrObs => {
                 if (rrObs && rrObs.valueQuantity) {
                     const rr = rrObs.valueQuantity.value;
@@ -329,7 +330,7 @@ export const sirs = {
             });
 
         // Get WBC count
-        getMostRecentObservation(client, '6690-2')
+        getMostRecentObservation(client, LOINC_CODES.WBC)
             .then(wbcObs => {
                 if (wbcObs && wbcObs.valueQuantity && wbcObs.valueQuantity.value > 0) {
                     const wbc = wbcObs.valueQuantity.value;
@@ -339,17 +340,17 @@ export const sirs = {
                     let displayValue, displayUnit;
                     if (
                         unit.includes('10*3') ||
-                        unit.includes('×10³') ||
+                        unit.includes('?10³') ||
                         unit.includes('K/uL') ||
                         wbc < 100
                     ) {
                         // Already in thousands
                         displayValue = wbc.toFixed(1);
-                        displayUnit = '×10³/μL';
+                        displayUnit = '?10³/μL';
                     } else {
-                        // Convert from cells/μL to ×10³/μL
+                        // Convert from cells/μL to ?10³/μL
                         displayValue = (wbc / 1000).toFixed(1);
-                        displayUnit = '×10³/μL';
+                        displayUnit = '?10³/μL';
                     }
 
                     document.getElementById('current-wbc').textContent =
@@ -358,7 +359,7 @@ export const sirs = {
                     // Auto-check if abnormal (convert to cells/μL for comparison)
                     const wbcCells =
                         unit.includes('10*3') ||
-                        unit.includes('×10³') ||
+                        unit.includes('?10³') ||
                         unit.includes('K/uL') ||
                         wbc < 100
                             ? wbc * 1000
@@ -434,26 +435,26 @@ export const sirs = {
                 if (hasHypotension) {
                     diagnosis = 'Septic Shock';
                     diagnosisClass = 'shock';
-                    diagnosisIcon = '⚠️';
+                    diagnosisIcon = '?��?';
                     diagnosisDescription =
                         'Life-threatening condition requiring immediate intensive care';
                 } else {
                     diagnosis = 'Sepsis';
                     diagnosisClass = 'sepsis';
-                    diagnosisIcon = '🦠';
+                    diagnosisIcon = '??';
                     diagnosisDescription = 'SIRS with confirmed or suspected infection';
                 }
             } else {
                 diagnosis = 'SIRS';
                 diagnosisClass = 'sirs';
-                diagnosisIcon = '🔥';
+                diagnosisIcon = '?��';
                 diagnosisDescription =
                     'Systemic Inflammatory Response Syndrome - investigate underlying cause';
             }
         } else {
             diagnosis = 'Normal';
             diagnosisClass = 'normal';
-            diagnosisIcon = '✅';
+            diagnosisIcon = '??;
             diagnosisDescription = 'SIRS criteria not met - continue routine monitoring';
         }
 

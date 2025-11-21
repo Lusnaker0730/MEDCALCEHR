@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // js/calculators/ranson.js
 export const ransonScore = {
@@ -73,7 +74,7 @@ export const ransonScore = {
         }
 
         // Auto-populate WBC
-        getMostRecentObservation(client, '6690-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
             if (obs && obs.valueQuantity) {
                 const wbc = obs.valueQuantity.value * 1000; // Convert from K/uL to /mm³
                 const wbcCheckbox = root.querySelector('#ranson-wbc');
@@ -84,7 +85,7 @@ export const ransonScore = {
         });
 
         // Auto-populate glucose
-        getMostRecentObservation(client, '2345-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
             if (obs && obs.valueQuantity) {
                 let glucose = obs.valueQuantity.value;
                 // Convert if needed (mmol/L to mg/dL: multiply by 18.0182)
@@ -99,7 +100,7 @@ export const ransonScore = {
         });
 
         // Auto-populate AST
-        getMostRecentObservation(client, '1920-8').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
             if (obs && obs.valueQuantity) {
                 const ast = obs.valueQuantity.value;
                 const astCheckbox = root.querySelector('#ranson-ast');
@@ -110,7 +111,7 @@ export const ransonScore = {
         });
 
         // Auto-populate LDH
-        getMostRecentObservation(client, '2532-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
             if (obs && obs.valueQuantity) {
                 const ldh = obs.valueQuantity.value;
                 const ldhCheckbox = root.querySelector('#ranson-ldh');
@@ -121,7 +122,7 @@ export const ransonScore = {
         });
 
         // Auto-populate calcium
-        getMostRecentObservation(client, '17861-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
             if (obs && obs.valueQuantity) {
                 let calcium = obs.valueQuantity.value;
                 // Convert if needed (mmol/L to mg/dL: multiply by 4.008)

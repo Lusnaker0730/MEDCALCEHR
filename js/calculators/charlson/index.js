@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const charlson = {
     id: 'charlson',
@@ -254,7 +255,7 @@ export const charlson = {
                 }
             }
         });
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             // Creatinine
             if (obs && obs.valueQuantity && obs.valueQuantity.value > 3) {
                 const radio = container.querySelector('input[name="ckd"][value="2"]');

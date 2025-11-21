@@ -1,4 +1,5 @@
 import { getPatient, getPatientConditions, getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const stopBang = {
     id: 'stop-bang',
@@ -11,7 +12,7 @@ export const stopBang = {
             
             <div class="stop-bang-container">
                 <div class="patient-demographics">
-                    <h4>üìã Patient Demographics</h4>
+                    <h4>?? Patient Demographics</h4>
                     <div class="demographics-grid">
                         <div class="demo-item">
                             <label>Age:</label>
@@ -29,7 +30,7 @@ export const stopBang = {
                 </div>
                 
                 <div class="stop-bang-criteria">
-                    <h4>üîç STOP-BANG Assessment</h4>
+                    <h4>?? STOP-BANG Assessment</h4>
                     <div class="criteria-grid">
                         <div class="criterion-card snoring">
                             <div class="criterion-header">
@@ -175,7 +176,7 @@ export const stopBang = {
                 </div>
                 
                 <div class="risk-interpretation">
-                    <h4>üìä Risk Interpretation</h4>
+                    <h4>?? Risk Interpretation</h4>
                     <div class="risk-levels">
                         <div class="risk-item low-risk">
                             <div class="risk-score">0-2 points</div>
@@ -196,7 +197,7 @@ export const stopBang = {
                 </div>
                 
                 <div class="clinical-recommendations">
-                    <h4>üí° Clinical Recommendations</h4>
+                    <h4>?í° Clinical Recommendations</h4>
                     <div class="recommendations-grid">
                         <div class="recommendation-item low-risk-rec">
                             <h5>Low Risk (0-2 points)</h5>
@@ -230,7 +231,7 @@ export const stopBang = {
             </div>
             
             <div class="references-section">
-                <h4>üìö Reference & Validation</h4>
+                <h4>?? Reference & Validation</h4>
                 <div class="reference-content">
                     <div class="reference-citation">
                         <h5>Original STOP-BANG Study</h5>
@@ -244,7 +245,7 @@ export const stopBang = {
                         <div class="study-grid">
                             <div class="study-item">
                                 <h6>Study Population</h6>
-                                <p>2,467 preoperative patients aged ‚â•18 years without previously diagnosed OSA</p>
+                                <p>2,467 preoperative patients aged ??8 years without previously diagnosed OSA</p>
                             </div>
                             <div class="study-item">
                                 <h6>Validation Method</h6>
@@ -284,7 +285,7 @@ export const stopBang = {
                     </div>
                     
                     <div class="clinical-validation">
-                        <h5>üè• Clinical Impact & Validation</h5>
+                        <h5>?è• Clinical Impact & Validation</h5>
                         <div class="validation-points">
                             <div class="validation-item">
                                 <h6>Perioperative Screening</h6>
@@ -359,7 +360,7 @@ export const stopBang = {
             });
 
         // Get BMI from observations
-        getMostRecentObservation(client, '39156-5')
+        getMostRecentObservation(client, LOINC_CODES.BMI)
             .then(bmiObs => {
                 if (bmiObs && bmiObs.valueQuantity) {
                     const bmi = bmiObs.valueQuantity.value;

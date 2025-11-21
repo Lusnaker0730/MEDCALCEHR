@@ -4,6 +4,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const serumOsmolality = {
     id: 'serum-osmolality',
@@ -15,7 +16,7 @@ export const serumOsmolality = {
             <h3>${this.title}</h3>
             <p class="description">${this.description}</p>
             <div class="input-group">
-                <label for="osmo-na">Sodium (Na⁺) (mEq/L)</label>
+                <label for="osmo-na">Sodium (Na?? (mEq/L)</label>
                 <input type="number" id="osmo-na">
             </div>
             <div class="input-group">
@@ -29,18 +30,18 @@ export const serumOsmolality = {
             <div id="osmolality-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>📐 Formula</h4>
+                <h4>?? Formula</h4>
                 <div class="formula-box">
                     <div class="formula-title">Calculated Serum Osmolality (mOsm/kg) =</div>
                     <div class="formula-equation">
-                        <span class="formula-main">2 × Na⁺ + (Glucose/18) + (BUN/2.8)</span>
+                        <span class="formula-main">2 ? Na??+ (Glucose/18) + (BUN/2.8)</span>
                     </div>
                 </div>
                 
                 <div class="formula-explanation">
-                    <h5>📋 Formula Components</h5>
+                    <h5>?? Formula Components</h5>
                     <ul>
-                        <li><strong>2 × Na⁺:</strong> Sodium and its accompanying anions (mainly Cl⁻ and HCO₃⁻)</li>
+                        <li><strong>2 ? Na??</strong> Sodium and its accompanying anions (mainly Cl??and HCO?�⁻)</li>
                         <li><strong>Glucose/18:</strong> Glucose contribution (18 = molecular weight conversion factor)</li>
                         <li><strong>BUN/2.8:</strong> Blood urea nitrogen contribution (2.8 = conversion factor from BUN to urea)</li>
                         <li><strong>Purpose:</strong> Estimates the expected serum osmolality based on major osmotically active substances</li>
@@ -49,7 +50,7 @@ export const serumOsmolality = {
                 </div>
                 
                 <div class="normal-values">
-                    <h5>📊 Normal Values & Reference Ranges</h5>
+                    <h5>?? Normal Values & Reference Ranges</h5>
                     <div class="values-grid">
                         <div class="value-item normal-range">
                             <strong>Normal Osmolality:</strong><br>275-295 mOsm/kg
@@ -67,7 +68,7 @@ export const serumOsmolality = {
                 </div>
                 
                 <div class="osmolar-gap">
-                    <h5>🔍 Osmolar Gap</h5>
+                    <h5>?? Osmolar Gap</h5>
                     <div class="gap-explanation">
                         <div class="gap-formula">
                             <strong>Osmolar Gap = Measured Osmolality - Calculated Osmolality</strong>
@@ -86,7 +87,7 @@ export const serumOsmolality = {
                 </div>
                 
                 <div class="clinical-causes">
-                    <h5>🔍 Causes of Elevated Osmolar Gap</h5>
+                    <h5>?? Causes of Elevated Osmolar Gap</h5>
                     <div class="causes-grid">
                         <div class="cause-category">
                             <h6>Toxic Alcohols</h6>
@@ -119,28 +120,28 @@ export const serumOsmolality = {
                 </div>
                 
                 <div class="alternative-formulas">
-                    <h5>📝 Alternative Formulas</h5>
+                    <h5>?? Alternative Formulas</h5>
                     <div class="alt-formulas-grid">
                         <div class="alt-formula-item">
                             <h6>Simple Formula</h6>
-                            <div class="alt-equation">2 × Na⁺ + (Glucose/18) + (BUN/2.8)</div>
+                            <div class="alt-equation">2 ? Na??+ (Glucose/18) + (BUN/2.8)</div>
                             <p>Most commonly used formula (shown above)</p>
                         </div>
                         <div class="alt-formula-item">
                             <h6>With Ethanol</h6>
-                            <div class="alt-equation">2 × Na⁺ + (Glucose/18) + (BUN/2.8) + (Ethanol/4.6)</div>
+                            <div class="alt-equation">2 ? Na??+ (Glucose/18) + (BUN/2.8) + (Ethanol/4.6)</div>
                             <p>When ethanol level is known (4.6 = conversion factor)</p>
                         </div>
                         <div class="alt-formula-item">
                             <h6>Simplified</h6>
-                            <div class="alt-equation">2 × Na⁺ + 10</div>
+                            <div class="alt-equation">2 ? Na??+ 10</div>
                             <p>Quick approximation when glucose and BUN are normal</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="clinical-note">
-                    <h5>⚠️ Clinical Notes</h5>
+                    <h5>?��? Clinical Notes</h5>
                     <ul>
                         <li><strong>Osmolality vs. Osmolarity:</strong> Osmolality (mOsm/kg water) is preferred over osmolarity (mOsm/L solution)</li>
                         <li><strong>Temperature:</strong> Measured osmolality should be corrected to body temperature</li>
@@ -197,11 +198,11 @@ export const serumOsmolality = {
                 </div>
                 
                 <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">📊 Calculation Breakdown</h4>
+                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">?? Calculation Breakdown</h4>
                     <div style="font-size: 0.9em; line-height: 1.8;">
                         <div style="display: flex; justify-content: space-between; padding: 5px 0;">
-                            <span><strong>2 × Sodium:</strong></span>
-                            <span>2 × ${na} = ${(2 * na).toFixed(1)} mOsm/kg</span>
+                            <span><strong>2 ? Sodium:</strong></span>
+                            <span>2 ? ${na} = ${(2 * na).toFixed(1)} mOsm/kg</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 5px 0;">
                             <span><strong>Glucose/18:</strong></span>
@@ -219,14 +220,14 @@ export const serumOsmolality = {
                 </div>
                 
                 <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">🔍 Osmolar Gap Assessment</h4>
+                    <h4 style="margin: 0 0 10px 0; font-size: 1em;">?? Osmolar Gap Assessment</h4>
                     <p style="font-size: 0.9em; margin-bottom: 10px;">To calculate osmolar gap, compare this calculated value with the measured serum osmolality:</p>
                     <div style="background: white; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; margin: 10px 0;">
                         Osmolar Gap = Measured Osmolality - ${calculatedOsmolality.toFixed(1)} mOsm/kg
                     </div>
                     <div style="font-size: 0.85em;">
-                        <div style="padding: 5px 0;">✓ <strong>Normal gap:</strong> &lt; 10 mOsm/kg</div>
-                        <div style="padding: 5px 0;">⚠️ <strong>Elevated gap:</strong> &gt; 10 mOsm/kg (suggests unmeasured osmoles)</div>
+                        <div style="padding: 5px 0;">??<strong>Normal gap:</strong> &lt; 10 mOsm/kg</div>
+                        <div style="padding: 5px 0;">?��? <strong>Elevated gap:</strong> &gt; 10 mOsm/kg (suggests unmeasured osmoles)</div>
                     </div>
                 </div>
                 
@@ -242,7 +243,7 @@ export const serumOsmolality = {
         initializeUnitConversion(container, 'osmo-bun', calculateAndUpdate);
 
         // Auto-populate Sodium
-        getMostRecentObservation(client, '2951-2')
+        getMostRecentObservation(client, LOINC_CODES.SODIUM)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
@@ -254,7 +255,7 @@ export const serumOsmolality = {
             });
 
         // Auto-populate Glucose
-        getMostRecentObservation(client, '2345-7')
+        getMostRecentObservation(client, LOINC_CODES.GLUCOSE)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     const glucoseInput = container.querySelector('#osmo-glucose');
@@ -269,7 +270,7 @@ export const serumOsmolality = {
             });
 
         // Auto-populate BUN
-        getMostRecentObservation(client, '3094-0')
+        getMostRecentObservation(client, LOINC_CODES.BUN)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     const bunInput = container.querySelector('#osmo-bun');

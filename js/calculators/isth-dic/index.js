@@ -4,6 +4,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const isthDic = {
     id: 'isth-dic',
@@ -27,10 +28,10 @@ export const isthDic = {
                         <span>Enter value for auto-selection</span>
                     </div>
                     <div style="margin-bottom: 10px;">
-                        ${createUnitSelector('platelet-input', 'platelet', ['×10⁹/L', 'K/µL'], '×10⁹/L')}
+                        ${createUnitSelector('platelet-input', 'platelet', ['?10??L', 'K/µL'], '?10??L')}
                     </div>
                     <div class="radio-group vertical-group">
-                        <label><input type="radio" name="platelet" value="0"> ≥100</label>
+                        <label><input type="radio" name="platelet" value="0"> ??00</label>
                         <label><input type="radio" name="platelet" value="1"> 50 to &lt;100</label>
                         <label><input type="radio" name="platelet" value="2"> &lt;50</label>
                     </div>
@@ -59,7 +60,7 @@ export const isthDic = {
                     <div class="segmented-control multi">
                         <label><input type="radio" name="pt" value="0"> Prolongation &lt;3s</label>
                         <label><input type="radio" name="pt" value="1"> Prolongation 3 to &lt;6s</label>
-                        <label><input type="radio" name="pt" value="2"> Prolongation ≥6s</label>
+                        <label><input type="radio" name="pt" value="2"> Prolongation ??s</label>
                     </div>
                 </div>
                 <div class="input-row vertical">
@@ -70,7 +71,7 @@ export const isthDic = {
                         ${createUnitSelector('fibrinogen-input', 'fibrinogen', ['g/L', 'mg/dL'], 'g/L')}
                     </div>
                     <div class="segmented-control">
-                        <label><input type="radio" name="fibrinogen" value="0"> ≥1</label>
+                        <label><input type="radio" name="fibrinogen" value="0"> ??</label>
                         <label><input type="radio" name="fibrinogen" value="1"> &lt;1</label>
                     </div>
                 </div>
@@ -106,7 +107,7 @@ export const isthDic = {
             let interpretation = '';
             let scoreClass = '';
             if (score >= 5) {
-                interpretation = 'Score ≥5 is compatible with overt DIC. Repeat score daily.';
+                interpretation = 'Score ?? is compatible with overt DIC. Repeat score daily.';
                 scoreClass = 'high-risk';
             } else {
                 interpretation =
@@ -151,7 +152,7 @@ export const isthDic = {
 
         // Auto-selection from input fields with unit conversion
         const updatePlateletRadio = () => {
-            const value = getValueInStandardUnit(container, 'platelet-input', '×10⁹/L');
+            const value = getValueInStandardUnit(container, 'platelet-input', '?10??L');
             setRadioFromValue('platelet', value, [
                 { condition: v => v >= 100, value: '0' },
                 { condition: v => v >= 50 && v < 100, value: '1' },
@@ -217,7 +218,7 @@ export const isthDic = {
             }
         });
 
-        getMostRecentObservation(client, '5902-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.PT).then(obs => {
             // PT seconds
             if (obs && obs.valueQuantity) {
                 const value = obs.valueQuantity.value;

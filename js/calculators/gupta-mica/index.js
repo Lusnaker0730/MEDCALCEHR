@@ -1,11 +1,12 @@
 // js/calculators/gupta-mica.js
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const guptaMica = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
     description:
-        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] √ó 100 where x = -5.25 + sum of selected variables.',
+        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] ? 100 where x = -5.25 + sum of selected variables.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -16,7 +17,7 @@ export const guptaMica = {
             <div class="grace-container">
                 <div class="grace-section">
                     <h4 class="section-title">
-                        <span class="section-icon">üë§</span>
+                        <span class="section-icon">?ë§</span>
                         Patient Demographics
                     </h4>
                     <div class="grace-input-grid">
@@ -32,7 +33,7 @@ export const guptaMica = {
 
                 <div class="grace-section">
                     <h4 class="section-title">
-                        <span class="section-icon">üè•</span>
+                        <span class="section-icon">?è•</span>
                         Clinical Status
                     </h4>
                     <div class="grace-select-grid">
@@ -64,7 +65,7 @@ export const guptaMica = {
 
                 <div class="grace-section">
                     <h4 class="section-title">
-                        <span class="section-icon">üß™</span>
+                        <span class="section-icon">?ß™</span>
                         Laboratory Values
                     </h4>
                     <div class="grace-select-grid">
@@ -80,7 +81,7 @@ export const guptaMica = {
 
                 <div class="grace-section">
                     <h4 class="section-title">
-                        <span class="section-icon">üî™</span>
+                        <span class="section-icon">?î™</span>
                         Type of Procedure
                     </h4>
                     <div class="grace-select-grid">
@@ -122,7 +123,7 @@ export const guptaMica = {
             if (element) {
                 element.style.background = '#e6f7ff';
                 element.style.borderColor = '#91d5ff';
-                element.title = '‚úì Auto-populated from patient data';
+                element.title = '??Auto-populated from patient data';
             }
         };
 
@@ -148,7 +149,7 @@ export const guptaMica = {
             // Calculate x using the formula: x = -5.25 + sum of values
             let x = -5.25;
 
-            // Age contribution: Age √ó 0.02
+            // Age contribution: Age ? 0.02
             x += age * 0.02;
 
             // Functional status
@@ -157,7 +158,7 @@ export const guptaMica = {
             // ASA class
             x += asaClass;
 
-            // Creatinine: elevated ‚â•1.5 mg/dL adds 0.61
+            // Creatinine: elevated ??.5 mg/dL adds 0.61
             if (creat >= 1.5) {
                 x += 0.61;
             }
@@ -165,7 +166,7 @@ export const guptaMica = {
             // Type of procedure
             x += procedure;
 
-            // Calculate risk using formula: risk % = 1 / (1 + e^-x) √ó 100 (logistic regression)
+            // Calculate risk using formula: risk % = 1 / (1 + e^-x) ? 100 (logistic regression)
             const risk = (1 / (1 + Math.exp(-x))) * 100;
             const riskPercent = risk.toFixed(2);
 
@@ -193,7 +194,7 @@ export const guptaMica = {
                 <div class="severity-indicator ${riskLevel}">${riskLevel === 'high' ? 'High Risk' : riskLevel === 'medium' ? 'Intermediate Risk' : 'Low Risk'}</div>
                 
                 <div class="alert info">
-                    <strong>üìä Clinical Interpretation</strong>
+                    <strong>?? Clinical Interpretation</strong>
                     <p>${riskDescription}</p>
                 </div>
                 
@@ -201,10 +202,10 @@ export const guptaMica = {
                     <h4>Formula Components</h4>
                     <div class="data-table">
                         <table>
-                            <tr><td>Age Component (Age √ó 0.02)</td><td><strong>${(age * 0.02).toFixed(2)}</strong></td></tr>
+                            <tr><td>Age Component (Age ? 0.02)</td><td><strong>${(age * 0.02).toFixed(2)}</strong></td></tr>
                             <tr><td>Functional Status</td><td><strong>${functionalStatus.toFixed(2)}</strong></td></tr>
                             <tr><td>ASA Class</td><td><strong>${asaClass.toFixed(2)}</strong></td></tr>
-                            <tr><td>Creatinine (‚â•1.5 mg/dL)</td><td><strong>${creat >= 1.5 ? '0.61' : '0.00'}</strong></td></tr>
+                            <tr><td>Creatinine (??.5 mg/dL)</td><td><strong>${creat >= 1.5 ? '0.61' : '0.00'}</strong></td></tr>
                             <tr><td>Procedure Type</td><td><strong>${procedure.toFixed(2)}</strong></td></tr>
                             <tr><td><strong>X Value</strong></td><td><strong>${x.toFixed(2)}</strong></td></tr>
                         </table>
@@ -212,7 +213,7 @@ export const guptaMica = {
                 </div>
                 
                 <div class="formula-box">
-                    <strong>Formula:</strong> Cardiac risk, % = [1 / (1 + e<sup>-x</sup>)] √ó 100<br>
+                    <strong>Formula:</strong> Cardiac risk, % = [1 / (1 + e<sup>-x</sup>)] ? 100<br>
                     where x = -5.25 + sum of values (logistic regression)
                 </div>
             `;
@@ -230,7 +231,7 @@ export const guptaMica = {
 
         // Auto-populate creatinine
         if (client) {
-            getMostRecentObservation(client, '2160-0')
+            getMostRecentObservation(client, LOINC_CODES.CREATININE)
                 .then(obs => {
                     if (obs && obs.valueQuantity) {
                         let crValue = obs.valueQuantity.value;

@@ -1,5 +1,6 @@
 // js/calculators/ibw.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const ibw = {
     id: 'ibw',
@@ -47,18 +48,18 @@ export const ibw = {
             <div class="result-container" id="ibw-result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>üìê Formulas</h4>
+                <h4>?? Formulas</h4>
                 
                 <div class="formula-box">
                     <h5>Ideal Body Weight (IBW) - Devine Formula</h5>
                     <div class="formula-content">
                         <div class="formula-item">
                             <strong>For Males:</strong>
-                            <div class="formula-equation">IBW (kg) = 50 + 2.3 √ó (height in inches - 60)</div>
+                            <div class="formula-equation">IBW (kg) = 50 + 2.3 ? (height in inches - 60)</div>
                         </div>
                         <div class="formula-item">
                             <strong>For Females:</strong>
-                            <div class="formula-equation">IBW (kg) = 45.5 + 2.3 √ó (height in inches - 60)</div>
+                            <div class="formula-equation">IBW (kg) = 45.5 + 2.3 ? (height in inches - 60)</div>
                         </div>
                     </div>
                 </div>
@@ -67,7 +68,7 @@ export const ibw = {
                     <h5>Adjusted Body Weight (ABW)</h5>
                     <div class="formula-content">
                         <div class="formula-item">
-                            <div class="formula-equation">ABW (kg) = IBW + 0.4 √ó (Actual Weight - IBW)</div>
+                            <div class="formula-equation">ABW (kg) = IBW + 0.4 ? (Actual Weight - IBW)</div>
                             <div class="formula-note">
                                 <strong>Note:</strong> ABW is calculated only when actual weight exceeds IBW
                             </div>
@@ -76,7 +77,7 @@ export const ibw = {
                 </div>
 
                 <div class="formula-explanation">
-                    <h5>üìã Formula Components</h5>
+                    <h5>?? Formula Components</h5>
                     <ul>
                         <li><strong>Height conversion:</strong> 1 inch = 2.54 cm</li>
                         <li><strong>Base weight:</strong> 50 kg (male) or 45.5 kg (female) for 60 inches (152.4 cm)</li>
@@ -86,7 +87,7 @@ export const ibw = {
                 </div>
 
                 <div class="clinical-applications">
-                    <h5>üè• Clinical Applications</h5>
+                    <h5>?è• Clinical Applications</h5>
                     <div class="applications-grid">
                         <div class="application-item">
                             <h6>Ideal Body Weight (IBW)</h6>
@@ -110,7 +111,7 @@ export const ibw = {
                 </div>
 
                 <div class="clinical-note">
-                    <h5>‚ö†Ô∏è Important Clinical Notes</h5>
+                    <h5>?†Ô? Important Clinical Notes</h5>
                     <ul>
                         <li><strong>Limitations:</strong> IBW formulas are based on population averages and may not be appropriate for all individuals</li>
                         <li><strong>Height restriction:</strong> Devine formula is most accurate for heights > 152 cm (60 inches)</li>
@@ -123,7 +124,7 @@ export const ibw = {
                 </div>
 
                 <div class="reference-info">
-                    <h5>üìö References</h5>
+                    <h5>?? References</h5>
                     <p><strong>Devine BJ.</strong> Gentamicin therapy. <em>Drug Intell Clin Pharm.</em> 1974;8:650-655.</p>
                     <p><strong>Clinical Application:</strong> The Devine formula remains the most widely used method for calculating IBW in clinical practice, particularly for drug dosing and ventilator management.</p>
                 </div>
@@ -177,7 +178,7 @@ export const ibw = {
                         </div>
                         
                         <div class="alert info mt-20">
-                            <span class="alert-icon">‚ÑπÔ∏è</span>
+                            <span class="alert-icon">?πÔ?</span>
                             <div class="alert-content">
                                 <p>Actual weight is ${percentOver}% above IBW. Use ABW for drug dosing in obese patients.</p>
                             </div>
@@ -187,7 +188,7 @@ export const ibw = {
                     const percentUnder = (((ibw - actualWeight) / ibw) * 100).toFixed(0);
                     resultHTML += `
                         <div class="alert warning mt-20">
-                            <span class="alert-icon">‚ö†Ô∏è</span>
+                            <span class="alert-icon">?†Ô?</span>
                             <div class="alert-content">
                                 <p>Actual weight is ${percentUnder}% below IBW. Use actual body weight for drug dosing.</p>
                             </div>
@@ -196,7 +197,7 @@ export const ibw = {
                 } else if (actualWeight > 0) {
                     resultHTML += `
                         <div class="alert info mt-20">
-                            <span class="alert-icon">‚ÑπÔ∏è</span>
+                            <span class="alert-icon">?πÔ?</span>
                             <div class="alert-content">
                                 <p>Actual weight is at ideal body weight. Use IBW for drug dosing.</p>
                             </div>
@@ -225,13 +226,13 @@ export const ibw = {
         }
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '8302-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
                 heightInput.value = obs.valueQuantity.value.toFixed(1);
                 calculate();
             }
         });
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
                 actualWeightInput.value = obs.valueQuantity.value.toFixed(1);
                 calculate();

@@ -1,8 +1,9 @@
+import { LOINC_CODES } from '../../fhir-codes.js';
+
 export const regiscar = {
     id: 'regiscar',
     title: 'RegiSCAR Score for DRESS',
     description: 'Diagnoses Drug Reaction with Eosinophilia and Systemic Symptoms (DRESS).',
-
     generateHTML: () => `
         <div class="regiscar-container">
             <div class="calculator-header">
@@ -488,7 +489,7 @@ export const regiscar = {
         };
 
         // Auto-populate temperature
-        getObservation('8310-5').then(temp => {
+        getObservation(LOINC_CODES.TEMPERATURE).then(temp => {
             if (temp && temp.valueQuantity && temp.valueQuantity.value >= 38.5) {
                 const feverRadio = document.querySelector('input[name="fever"][value="0"]');
                 if (feverRadio) {
@@ -500,7 +501,7 @@ export const regiscar = {
         });
 
         // Auto-populate eosinophils
-        getObservation('26478-8').then(eos => {
+        getObservation(LOINC_CODES.EOSINOPHILS).then(eos => {
             if (eos && eos.valueQuantity) {
                 const value = eos.valueQuantity.value;
                 let radioValue = '0';

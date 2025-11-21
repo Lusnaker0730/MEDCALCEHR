@@ -281,7 +281,7 @@ export const ckdEpi = {
         });
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, '2160-0')
+        getMostRecentObservation(client, LOINC_CODES.CREATININE)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     const creatinineInput = container.querySelector('#ckd-epi-creatinine');

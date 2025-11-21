@@ -1,4 +1,5 @@
 import { getMostRecentObservation, getPatient } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const fourCMortalityCovid = {
     id: '4c-mortality-covid',
@@ -399,11 +400,11 @@ export const fourCMortalityCovid = {
             // }
 
             const observations = await Promise.all([
-                getMostRecentObservation(client, '9279-1'), // Resp rate
-                getMostRecentObservation(client, '59408-5'), // O2 sat on room air
-                getMostRecentObservation(client, '9269-2'), // GCS
-                getMostRecentObservation(client, '3094-0'), // Urea (mmol/L)
-                getMostRecentObservation(client, '1988-5') // CRP (mg/L)
+                getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE), // Resp rate
+                getMostRecentObservation(client, LOINC_CODES.OXYGEN_SATURATION), // O2 sat on room air
+                getMostRecentObservation(client, LOINC_CODES.GCS), // GCS
+                getMostRecentObservation(client, LOINC_CODES.UREA), // Urea (mmol/L)
+                getMostRecentObservation(client, LOINC_CODES.CRP) // CRP (mg/L)
             ]);
 
             if (observations[0]?.valueQuantity) {

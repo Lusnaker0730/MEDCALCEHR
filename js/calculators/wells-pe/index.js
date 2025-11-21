@@ -1,5 +1,6 @@
 // js/calculators/wells-pe.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const wellsPE = {
     id: 'wells-pe',
@@ -14,7 +15,7 @@ export const wellsPE = {
             </div>
             
             <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <div class="alert-title">Instructions</div>
                     <p>Check all criteria that apply to the patient. Score interpretation helps guide D-dimer testing and CT angiography decisions.</p>
@@ -23,7 +24,7 @@ export const wellsPE = {
             
             <div class="section">
                 <div class="section-title">
-                    <span class="section-title-icon">📋</span>
+                    <span class="section-title-icon">??</span>
                     <span>Clinical Criteria</span>
                 </div>
                 
@@ -42,7 +43,7 @@ export const wellsPE = {
                     </label>
                     <label class="checkbox-option">
                         <input type="checkbox" id="wells-immo" data-points="1.5">
-                        <span>Immobilization (≥3 days) or surgery in previous 4 weeks <strong>+1.5</strong></span>
+                        <span>Immobilization (?? days) or surgery in previous 4 weeks <strong>+1.5</strong></span>
                     </label>
                     <label class="checkbox-option">
                         <input type="checkbox" id="wells-prev" data-points="1.5">
@@ -63,7 +64,7 @@ export const wellsPE = {
 
             
             <div class="info-section mt-30">
-                <h4>📊 Score Interpretation</h4>
+                <h4>?? Score Interpretation</h4>
                 <div class="data-table">
                     <table>
                         <thead>
@@ -103,11 +104,11 @@ export const wellsPE = {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>≤4</td>
+                                <td>??</td>
                                 <td>PE Unlikely - Consider D-dimer</td>
                             </tr>
                             <tr>
-                                <td>≥5</td>
+                                <td>??</td>
                                 <td>PE Likely - Proceed to CTA</td>
                             </tr>
                         </tbody>
@@ -116,7 +117,7 @@ export const wellsPE = {
             </div>
             
             <div class="info-section mt-20">
-                <h4>📋 Evidence Appraisal</h4>
+                <h4>?? Evidence Appraisal</h4>
                 <div class="formula-box">
                     <p><strong>Original Wells Study:</strong> Performed on cohorts where PE prevalence was approximately 30%.</p>
                     <ul>
@@ -133,15 +134,15 @@ export const wellsPE = {
                 <div class="formula-box mt-15">
                     <p><strong>Christopher Study - Two-Tier Approach:</strong></p>
                     <ul>
-                        <li><strong>Score ≤4 ("PE unlikely"):</strong> D-dimer testing. Overall PE incidence: 12.1%</li>
-                        <li><strong>Score ≥5 ("PE likely"):</strong> Direct CTA. PE diagnosis rate: 20.4%</li>
+                        <li><strong>Score ?? ("PE unlikely"):</strong> D-dimer testing. Overall PE incidence: 12.1%</li>
+                        <li><strong>Score ?? ("PE likely"):</strong> Direct CTA. PE diagnosis rate: 20.4%</li>
                         <li><strong>Missed PE rate:</strong> 0.5% at 3-month follow-up in "PE unlikely" group with negative D-dimer</li>
                     </ul>
                 </div>
             </div>
             
             <div class="info-section mt-20">
-                <h4>📚 Reference</h4>
+                <h4>?? Reference</h4>
                 <p>Wells PS, Anderson DR, Rodger M, et al. Derivation of a simple clinical model to categorize patients probability of pulmonary embolism: increasing the models utility with the SimpliRED D-dimer. <em>Thromb Haemost</em>. 2000;83(3):416-420.</p>
             </div>
         `;
@@ -171,25 +172,25 @@ export const wellsPE = {
                 riskClass = 'low';
                 interpretation =
                     'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
-                twoTierModel = 'PE Unlikely (Score ≤4)';
+                twoTierModel = 'PE Unlikely (Score ??)';
             } else if (score <= 6) {
                 risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
                 riskClass = score <= 4 ? 'moderate' : 'high';
                 if (score <= 4) {
                     interpretation =
                         'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
-                    twoTierModel = 'PE Unlikely (Score ≤4)';
+                    twoTierModel = 'PE Unlikely (Score ??)';
                 } else {
                     interpretation =
                         'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
-                    twoTierModel = 'PE Likely (Score ≥5)';
+                    twoTierModel = 'PE Likely (Score ??)';
                 }
             } else {
                 risk = 'High Risk';
                 riskClass = 'high';
                 interpretation =
                     'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
-                twoTierModel = 'PE Likely (Score ≥5)';
+                twoTierModel = 'PE Likely (Score ??)';
             }
 
             const resultEl = container.querySelector('#wells-result');
@@ -214,7 +215,7 @@ export const wellsPE = {
                 </div>
                 
                 <div class="alert ${riskClass === 'high' ? 'warning' : 'info'} mt-20">
-                    <span class="alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
+                    <span class="alert-icon">${riskClass === 'high' ? '?��?' : '?��?'}</span>
                     <div class="alert-content">
                         <p>${interpretation}</p>
                     </div>
@@ -225,7 +226,7 @@ export const wellsPE = {
         };
 
         // Auto-populate heart rate checkbox if available
-        getMostRecentObservation(client, '8867-4').then(hrObs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(hrObs => {
             if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
                 const hrCheckbox = container.querySelector('#wells-hr');
                 if (hrCheckbox) {

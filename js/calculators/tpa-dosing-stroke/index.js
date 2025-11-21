@@ -1,5 +1,6 @@
 // js/calculators/tpa-dosing-stroke/index.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const tpaDosing = {
     id: 'tpa-dosing-stroke',
@@ -18,13 +19,13 @@ export const tpaDosing = {
             <div class="input-group">
                 <label for="symptom-onset">Time from symptom onset (hours):</label>
                 <input type="number" id="symptom-onset" placeholder="e.g., 2.5" step="0.1" min="0" max="4.5">
-                <small>Must be ≤ 4.5 hours for IV tPA eligibility</small>
+                <small>Must be ??4.5 hours for IV tPA eligibility</small>
             </div>
             
             <div id="tpa-stroke-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>📐 Formula & Dosing</h4>
+                <h4>?? Formula & Dosing</h4>
                 <div class="formula-box">
                     <div class="formula-title">tPA Total Dose (mg) =</div>
                     <div class="formula-equation">
@@ -33,46 +34,46 @@ export const tpaDosing = {
                 </div>
                 
                 <div class="dosing-protocol">
-                    <h5>💉 Administration Protocol</h5>
+                    <h5>?? Administration Protocol</h5>
                     <div class="protocol-steps">
                         <div class="protocol-step">
                             <h6>Step 1: Initial Bolus (10%)</h6>
                             <p><strong>Dose:</strong> 10% of total dose over 1 minute IV push</p>
-                            <p><strong>Formula:</strong> (0.9 × weight) × 0.1 mg</p>
+                            <p><strong>Formula:</strong> (0.9 ? weight) ? 0.1 mg</p>
                         </div>
                         <div class="protocol-step">
                             <h6>Step 2: Continuous Infusion (90%)</h6>
                             <p><strong>Dose:</strong> Remaining 90% over 60 minutes</p>
-                            <p><strong>Formula:</strong> (0.9 × weight) × 0.9 mg over 1 hour</p>
+                            <p><strong>Formula:</strong> (0.9 ? weight) ? 0.9 mg over 1 hour</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="eligibility-criteria">
-                    <h5>✅ Inclusion Criteria</h5>
+                    <h5>??Inclusion Criteria</h5>
                     <div class="criteria-grid">
                         <div class="criteria-category">
                             <h6>Time Window</h6>
                             <ul>
-                                <li>Symptom onset ≤ 4.5 hours</li>
-                                <li>Last known well time ≤ 4.5 hours</li>
+                                <li>Symptom onset ??4.5 hours</li>
+                                <li>Last known well time ??4.5 hours</li>
                                 <li>Wake-up stroke with DWI-FLAIR mismatch</li>
                             </ul>
                         </div>
                         <div class="criteria-category">
                             <h6>Clinical</h6>
                             <ul>
-                                <li>Age ≥ 18 years</li>
+                                <li>Age ??18 years</li>
                                 <li>Acute ischemic stroke</li>
                                 <li>Measurable neurologic deficit</li>
-                                <li>NIHSS typically ≥ 4</li>
+                                <li>NIHSS typically ??4</li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 
                 <div class="contraindications">
-                    <h5>❌ Major Contraindications</h5>
+                    <h5>??Major Contraindications</h5>
                     <div class="contraindications-grid">
                         <div class="contraindication-category">
                             <h6>Hemorrhage Risk</h6>
@@ -80,8 +81,8 @@ export const tpaDosing = {
                                 <li>ICH on CT/MRI</li>
                                 <li>SAH on CT/MRI</li>
                                 <li>Active internal bleeding</li>
-                                <li>Recent major surgery (≤ 14 days)</li>
-                                <li>Recent head trauma (≤ 3 months)</li>
+                                <li>Recent major surgery (??14 days)</li>
+                                <li>Recent head trauma (??3 months)</li>
                             </ul>
                         </div>
                         <div class="contraindication-category">
@@ -114,22 +115,22 @@ export const tpaDosing = {
                 </div>
                 
                 <div class="monitoring-guidelines">
-                    <h5>🔍 Post-Administration Monitoring</h5>
+                    <h5>?? Post-Administration Monitoring</h5>
                     <div class="monitoring-grid">
                         <div class="monitoring-item">
                             <h6>Neurologic Checks</h6>
                             <ul>
-                                <li>Every 15 min × 2 hours</li>
-                                <li>Every 30 min × 6 hours</li>
-                                <li>Every hour × 16 hours</li>
+                                <li>Every 15 min ? 2 hours</li>
+                                <li>Every 30 min ? 6 hours</li>
+                                <li>Every hour ? 16 hours</li>
                             </ul>
                         </div>
                         <div class="monitoring-item">
                             <h6>Blood Pressure</h6>
                             <ul>
-                                <li>Every 15 min × 2 hours</li>
-                                <li>Every 30 min × 6 hours</li>
-                                <li>Every hour × 16 hours</li>
+                                <li>Every 15 min ? 2 hours</li>
+                                <li>Every 30 min ? 6 hours</li>
+                                <li>Every hour ? 16 hours</li>
                                 <li>Keep < 180/105 mmHg</li>
                             </ul>
                         </div>
@@ -146,7 +147,7 @@ export const tpaDosing = {
                 </div>
                 
                 <div class="clinical-note">
-                    <h5>⚠️ Clinical Notes</h5>
+                    <h5>?��? Clinical Notes</h5>
                     <ul>
                         <li><strong>Weight limit:</strong> Maximum dose is 90 mg regardless of weight</li>
                         <li><strong>No anticoagulants:</strong> Avoid heparin, warfarin, or antiplatelet agents for 24 hours</li>
@@ -165,7 +166,7 @@ export const tpaDosing = {
         const symptomOnsetInput = document.getElementById('symptom-onset');
 
         // Try to get weight from patient data
-        getMostRecentObservation(client, '29463-7').then(weightObs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(weightObs => {
             if (weightObs) {
                 weightInput.value = weightObs.valueQuantity.value.toFixed(1);
             } else {
@@ -190,14 +191,14 @@ export const tpaDosing = {
 
                 if (symptomOnset > 0) {
                     if (symptomOnset <= 4.5) {
-                        eligibilityStatus = '✅ Within time window for IV tPA';
+                        eligibilityStatus = '??Within time window for IV tPA';
                         eligibilityClass = 'eligible';
                     } else {
-                        eligibilityStatus = '❌ Outside time window for IV tPA (> 4.5 hours)';
+                        eligibilityStatus = '??Outside time window for IV tPA (> 4.5 hours)';
                         eligibilityClass = 'not-eligible';
                     }
                 } else {
-                    eligibilityStatus = '⚠️ Please enter time from symptom onset';
+                    eligibilityStatus = '?��? Please enter time from symptom onset';
                     eligibilityClass = 'warning';
                 }
 
@@ -230,7 +231,7 @@ export const tpaDosing = {
                         </div>
                         
                         <div class="important-reminders">
-                            <h5>⚠️ Important Reminders</h5>
+                            <h5>?��? Important Reminders</h5>
                             <ul>
                                 <li>Verify all inclusion/exclusion criteria before administration</li>
                                 <li>Obtain informed consent when possible</li>

@@ -1,5 +1,6 @@
 // js/calculators/map.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const map = {
     id: 'map',
@@ -105,7 +106,7 @@ export const map = {
 
         // LOINC 85354-9 for Blood Pressure Panel
         if (client) {
-            getMostRecentObservation(client, '85354-9')
+            getMostRecentObservation(client, LOINC_CODES.BP_PANEL)
                 .then(bpPanel => {
                     if (bpPanel && bpPanel.component) {
                         const sbpComp = bpPanel.component.find(

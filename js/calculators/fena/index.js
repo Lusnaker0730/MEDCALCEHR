@@ -5,6 +5,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const fena = {
     id: 'fena',
@@ -33,13 +34,13 @@ export const fena = {
             <div id="fena-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>📐 Formula</h4>
+                <h4>?? Formula</h4>
                 
                 <div class="formula-box">
                     <h5>Fractional Excretion of Sodium (FENa)</h5>
                     <div class="formula-content">
                         <div class="formula-equation-large">
-                            FENa (%) = [(Urine Na × Serum Cr) / (Serum Na × Urine Cr)] × 100
+                            FENa (%) = [(Urine Na ? Serum Cr) / (Serum Na ? Urine Cr)] ? 100
                         </div>
                         <div class="formula-equation-fraction">
                             <div class="fraction-container">
@@ -48,14 +49,14 @@ export const fena = {
                                     <div class="fraction-line"></div>
                                     <div class="denominator">Urine Cr / Serum Cr</div>
                                 </div>
-                                <span class="multiply">× 100</span>
+                                <span class="multiply">? 100</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="formula-explanation">
-                    <h5>📋 Formula Components</h5>
+                    <h5>?? Formula Components</h5>
                     <ul>
                         <li><strong>Urine Sodium (UNa):</strong> Measured in mEq/L</li>
                         <li><strong>Serum Sodium (SNa):</strong> Measured in mEq/L</li>
@@ -65,7 +66,7 @@ export const fena = {
                 </div>
 
                 <div class="interpretation-guide">
-                    <h5>🔍 Interpretation</h5>
+                    <h5>?? Interpretation</h5>
                     <div class="interpretation-grid">
                         <div class="interpretation-item prerenal">
                             <div class="interpretation-header">
@@ -121,7 +122,7 @@ export const fena = {
                 </div>
 
                 <div class="clinical-note">
-                    <h5>⚠️ Important Clinical Notes & Limitations</h5>
+                    <h5>?��? Important Clinical Notes & Limitations</h5>
                     <ul>
                         <li><strong>Diuretic Use:</strong> FENa is unreliable in patients on diuretics (consider FEUrea instead)</li>
                         <li><strong>Chronic Kidney Disease:</strong> May have elevated baseline FENa (>1%)</li>
@@ -136,11 +137,11 @@ export const fena = {
                 </div>
 
                 <div class="alternative-indices">
-                    <h5>🔄 Alternative Indices</h5>
+                    <h5>?? Alternative Indices</h5>
                     <div class="alternative-grid">
                         <div class="alternative-item">
                             <h6>Fractional Excretion of Urea (FEUrea)</h6>
-                            <div class="formula-equation">FEUrea (%) = [(Urine Urea × Serum Cr) / (Serum Urea × Urine Cr)] × 100</div>
+                            <div class="formula-equation">FEUrea (%) = [(Urine Urea ? Serum Cr) / (Serum Urea ? Urine Cr)] ? 100</div>
                             <p><strong>Use when:</strong> Patient is on diuretics</p>
                             <p><strong>Interpretation:</strong> &lt;35% suggests prerenal, &gt;50% suggests intrinsic</p>
                         </div>
@@ -162,7 +163,7 @@ export const fena = {
                 </div>
 
                 <div class="reference-info">
-                    <h5>📚 Clinical Pearls</h5>
+                    <h5>?? Clinical Pearls</h5>
                     <ul>
                         <li><strong>Timing:</strong> Obtain samples early in AKI course for best accuracy</li>
                         <li><strong>Volume Status:</strong> Always assess clinical volume status alongside FENa</li>
@@ -226,7 +227,7 @@ export const fena = {
                     <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
                         <h4 style="margin: 0 0 10px 0; font-size: 1em;">Calculation:</h4>
                         <div style="font-size: 0.9em; line-height: 1.6;">
-                            <div><strong>Formula:</strong> [(UNa ÷ SNa) ÷ (UCr ÷ SCr)] × 100</div>
+                            <div><strong>Formula:</strong> [(UNa ÷ SNa) ÷ (UCr ÷ SCr)] ? 100</div>
                             <div style="margin-top: 10px;">
                                 <div>Urine Na: ${uNa} mEq/L</div>
                                 <div>Serum Na: ${sNa} mEq/L</div>
@@ -250,7 +251,7 @@ export const fena = {
                         <div style="margin-top: 8px; color: #555;">${details}</div>
                     </div>
                     
-                    ${fenaValue < 1 || fenaValue > 2 ? '' : '<div style="background: #fff3cd; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 0.9em;"><strong>⚠️ Note:</strong> FENa is unreliable in patients on diuretics. Consider FEUrea instead.</div>'}
+                    ${fenaValue < 1 || fenaValue > 2 ? '' : '<div style="background: #fff3cd; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 0.9em;"><strong>?��? Note:</strong> FENa is unreliable in patients on diuretics. Consider FEUrea instead.</div>'}
                 `;
                 resultEl.style.display = 'block';
             } else {
@@ -264,9 +265,9 @@ export const fena = {
 
         // Auto-populate from FHIR
         const uNaPromise = getMostRecentObservation(client, '2955-3');
-        const sNaPromise = getMostRecentObservation(client, '2951-2');
-        const uCrPromise = getMostRecentObservation(client, '2161-8');
-        const sCrPromise = getMostRecentObservation(client, '2160-0');
+        const sNaPromise = getMostRecentObservation(client, LOINC_CODES.SODIUM);
+        const uCrPromise = getMostRecentObservation(client, LOINC_CODES.URINE_CREATININE);
+        const sCrPromise = getMostRecentObservation(client, LOINC_CODES.CREATININE);
 
         Promise.all([uNaPromise, sNaPromise, uCrPromise, sCrPromise]).then(
             ([uNa, sNa, uCr, sCr]) => {

@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const serumAnionGap = {
     id: 'serum-anion-gap',
@@ -148,19 +149,19 @@ export const serumAnionGap = {
         };
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '2951-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
             if (obs && obs.valueQuantity) {
                 naInput.value = obs.valueQuantity.value.toFixed(0);
                 calculate();
             }
         });
-        getMostRecentObservation(client, '2075-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CHLORIDE).then(obs => {
             if (obs && obs.valueQuantity) {
                 clInput.value = obs.valueQuantity.value.toFixed(0);
                 calculate();
             }
         });
-        getMostRecentObservation(client, '1963-8').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.BICARBONATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 hco3Input.value = obs.valueQuantity.value.toFixed(0);
                 calculate();

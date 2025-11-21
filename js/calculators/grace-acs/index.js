@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const graceAcs = {
     id: 'grace-acs',
@@ -9,7 +10,7 @@ export const graceAcs = {
         return `
             <div class="calculator-header">
                 <h3 class="calculator-title">
-                    <span class="title-icon">🫀</span>
+                    <span class="title-icon">??</span>
                     ${this.title}
                 </h3>
                 <p class="calculator-description">${this.description}</p>
@@ -18,7 +19,7 @@ export const graceAcs = {
             <div class="grace-container">
                 <div class="grace-section">
                     <h4 class="section-title">
-                        <span class="section-icon">📊</span>
+                        <span class="section-icon">??</span>
                         Vital Signs & Demographics
                     </h4>
                     <div class="grace-input-grid">
@@ -143,7 +144,7 @@ export const graceAcs = {
         }
 
         // Auto-populate heart rate
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             const hrInput = root.querySelector('#grace-hr');
             if (obs && obs.valueQuantity && hrInput) {
                 hrInput.value = Math.round(obs.valueQuantity.value);
@@ -151,7 +152,7 @@ export const graceAcs = {
         });
 
         // Auto-populate systolic blood pressure
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             const sbpInput = root.querySelector('#grace-sbp');
             if (obs && obs.valueQuantity && sbpInput) {
                 sbpInput.value = Math.round(obs.valueQuantity.value);
@@ -159,7 +160,7 @@ export const graceAcs = {
         });
 
         // Auto-populate creatinine
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             const crInput = root.querySelector('#grace-creatinine');
             if (obs && obs.valueQuantity && crInput) {
                 let crValue = obs.valueQuantity.value;
@@ -263,21 +264,21 @@ export const graceAcs = {
             let inHospitalMortality = '<1%';
             let riskLevel = 'low';
             let riskColor = '#10b981';
-            let riskIcon = '✓';
+            let riskIcon = '??;
             let riskDescription = 'Low risk of in-hospital mortality';
 
             if (totalScore > 140) {
                 inHospitalMortality = '>3%';
                 riskLevel = 'high';
                 riskColor = '#ef4444';
-                riskIcon = '⚠';
+                riskIcon = '??;
                 riskDescription =
                     'High risk of in-hospital mortality - Consider intensive monitoring and aggressive intervention';
             } else if (totalScore > 118) {
                 inHospitalMortality = '1-3%';
                 riskLevel = 'intermediate';
                 riskColor = '#f59e0b';
-                riskIcon = '⚡';
+                riskIcon = '??;
                 riskDescription =
                     'Intermediate risk of in-hospital mortality - Close monitoring recommended';
             }
@@ -303,7 +304,7 @@ export const graceAcs = {
                     </div>
 
                     <div class="risk-interpretation" style="background: ${riskColor}15; border-color: ${riskColor}">
-                        <div class="interpretation-icon" style="color: ${riskColor}">ℹ️</div>
+                        <div class="interpretation-icon" style="color: ${riskColor}">?��?</div>
                         <div class="interpretation-text">
                             <strong>Clinical Interpretation:</strong><br>
                             ${riskDescription}

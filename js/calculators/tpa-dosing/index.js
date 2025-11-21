@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const tpaDosing = {
     id: 'tpa-dosing',
@@ -19,7 +20,7 @@ export const tpaDosing = {
     initialize: function (client, patient, container) {
         const weightEl = container.querySelector('#tpa-weight');
 
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             // Weight
             if (obs && obs.valueQuantity) {
                 weightEl.value = obs.valueQuantity.value.toFixed(1);

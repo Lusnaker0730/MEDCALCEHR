@@ -4,6 +4,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const phenytoinCorrection = {
     id: 'phenytoin-correction',
@@ -31,16 +32,16 @@ export const phenytoinCorrection = {
             <div id="phenytoin-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>📐 Formula</h4>
+                <h4>?? Formula</h4>
                 <div class="formula-box">
                     <div class="formula-title">Corrected Phenytoin Level (mcg/mL) =</div>
                     <div class="formula-equation">
-                        <span class="formula-main">Total Phenytoin / [((1-K) × Albumin/4.4) + K]</span>
+                        <span class="formula-main">Total Phenytoin / [((1-K) ? Albumin/4.4) + K]</span>
                     </div>
                 </div>
                 
                 <div class="formula-explanation">
-                    <h5>📋 Formula Components</h5>
+                    <h5>?? Formula Components</h5>
                     <ul>
                         <li><strong>Total Phenytoin:</strong> Measured serum phenytoin level (mcg/mL)</li>
                         <li><strong>Albumin:</strong> Serum albumin level (g/dL)</li>
@@ -55,7 +56,7 @@ export const phenytoinCorrection = {
                 </div>
                 
                 <div class="normal-values">
-                    <h5>📊 Therapeutic Ranges</h5>
+                    <h5>?? Therapeutic Ranges</h5>
                     <div class="values-grid">
                         <div class="value-item therapeutic-range">
                             <strong>Therapeutic Range:</strong><br>10-20 mcg/mL
@@ -70,12 +71,12 @@ export const phenytoinCorrection = {
                 </div>
                 
                 <div class="clinical-scenarios">
-                    <h5>🔍 Clinical Scenarios</h5>
+                    <h5>?? Clinical Scenarios</h5>
                     <div class="scenarios-grid">
                         <div class="scenario-category">
                             <h6>Normal Renal Function (K = 0.1)</h6>
                             <ul>
-                                <li>CrCl ≥ 10 mL/min</li>
+                                <li>CrCl ??10 mL/min</li>
                                 <li>Normal kidney function</li>
                                 <li>Standard protein binding</li>
                                 <li>Use K = 0.1 in formula</li>
@@ -94,7 +95,7 @@ export const phenytoinCorrection = {
                 </div>
                 
                 <div class="correction-rationale">
-                    <h5>🧬 Why Correction is Needed</h5>
+                    <h5>?�� Why Correction is Needed</h5>
                     <div class="rationale-grid">
                         <div class="rationale-item">
                             <h6>Protein Binding</h6>
@@ -112,7 +113,7 @@ export const phenytoinCorrection = {
                 </div>
                 
                 <div class="clinical-note">
-                    <h5>⚠️ Clinical Notes</h5>
+                    <h5>?��? Clinical Notes</h5>
                     <ul>
                         <li><strong>Free phenytoin levels:</strong> Direct measurement of free phenytoin (therapeutic range: 1-2 mcg/mL) is preferred when available</li>
                         <li><strong>Pregnancy:</strong> Protein binding changes during pregnancy; consider free levels</li>
@@ -176,10 +177,10 @@ export const phenytoinCorrection = {
                 </div>
                 
                 <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; font-size: 0.9em;">
-                    <strong>📊 Therapeutic Range:</strong> 10-20 mcg/mL
+                    <strong>?? Therapeutic Range:</strong> 10-20 mcg/mL
                 </div>
                 
-                ${correctedPhenytoin > 20 ? '<div style="background: #ffebee; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 0.9em;"><strong>⚠️ Note:</strong> Levels >20 mcg/mL may be associated with toxicity. Consider clinical correlation and dose adjustment.</div>' : ''}
+                ${correctedPhenytoin > 20 ? '<div style="background: #ffebee; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 0.9em;"><strong>?��? Note:</strong> Levels >20 mcg/mL may be associated with toxicity. Consider clinical correlation and dose adjustment.</div>' : ''}
             `;
             resultEl.style.display = 'block';
         };
@@ -196,7 +197,7 @@ export const phenytoinCorrection = {
             calculateAndUpdate();
         });
 
-        getMostRecentObservation(client, '1751-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
             // Albumin
             if (obs && obs.valueQuantity) {
                 const albuminInput = container.querySelector('#pheny-albumin');

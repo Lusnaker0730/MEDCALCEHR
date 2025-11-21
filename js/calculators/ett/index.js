@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const ett = {
     id: 'ett',
@@ -30,7 +31,7 @@ export const ett = {
             genderEl.value = patient.gender;
         }
 
-        getMostRecentObservation(client, '8302-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEIGHT).then(obs => {
             // Height
             if (obs && obs.valueQuantity) {
                 heightEl.value = obs.valueQuantity.value.toFixed(1);

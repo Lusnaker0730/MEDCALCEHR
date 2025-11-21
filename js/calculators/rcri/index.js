@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const rcri = {
     id: 'rcri',
@@ -46,14 +47,14 @@ export const rcri = {
                 <p>Lee, T. H., Marcantonio, E. R., Mangione, C. M., Thomas, E. J., Polanczyk, C. A., Cook, E. F., ... & Goldman, L. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.</p>
                 <p><strong>PMID:</strong> 10477528</p>
                 <p><strong>DOI:</strong> 10.1161/01.cir.100.10.1043</p>
-                <p><strong>Abstract:</strong> This prospective cohort study of 4,315 patients aged ≥50 years undergoing elective major noncardiac procedures developed and validated the Revised Cardiac Risk Index. Six independent predictors were identified: high-risk surgery, history of ischemic heart disease, history of congestive heart failure, history of cerebrovascular disease, preoperative insulin treatment, and preoperative serum creatinine >2.0 mg/dL. Major cardiac complication rates with 0, 1, 2, or ≥3 factors were 0.5%, 1.3%, 4%, and 9% respectively in the derivation cohort, and 0.4%, 0.9%, 7%, and 11% respectively in the validation cohort.</p>
+                <p><strong>Abstract:</strong> This prospective cohort study of 4,315 patients aged ??0 years undergoing elective major noncardiac procedures developed and validated the Revised Cardiac Risk Index. Six independent predictors were identified: high-risk surgery, history of ischemic heart disease, history of congestive heart failure, history of cerebrovascular disease, preoperative insulin treatment, and preoperative serum creatinine >2.0 mg/dL. Major cardiac complication rates with 0, 1, 2, or ?? factors were 0.5%, 1.3%, 4%, and 9% respectively in the derivation cohort, and 0.4%, 0.9%, 7%, and 11% respectively in the validation cohort.</p>
                 <img src="js/calculators/rcri/Lees-Revised-Cardiac-Risk-Index-RCRI_W640.jpg" alt="RCRI Risk Stratification Table" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
             </div>
         `;
     },
     initialize: function (client, patient, container) {
         // Auto-populate creatinine
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             if (obs && obs.valueQuantity) {
                 let crValue = obs.valueQuantity.value;
                 // Convert if needed (µmol/L to mg/dL: divide by 88.4)

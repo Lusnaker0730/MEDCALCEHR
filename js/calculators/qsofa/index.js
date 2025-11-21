@@ -1,11 +1,12 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // js/calculators/qsofa.js
 export const qsofaScore = {
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
     description:
-        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥2 is positive.',
+        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ?? is positive.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -14,16 +15,16 @@ export const qsofaScore = {
             </div>
             
             <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <div class="alert-title">Instructions</div>
-                    <p>Check all criteria that apply. A score ≥2 suggests higher risk of mortality or prolonged ICU stay.</p>
+                    <p>Check all criteria that apply. A score ?? suggests higher risk of mortality or prolonged ICU stay.</p>
                 </div>
             </div>
             
             <div class="section">
                 <div class="section-title">
-                    <span class="section-title-icon">📋</span>
+                    <span class="section-title-icon">??</span>
                     <span>qSOFA Criteria (check all that apply)</span>
                 </div>
                 
@@ -31,7 +32,7 @@ export const qsofaScore = {
                     <div class="checkbox-group">
                         <label class="checkbox-option">
                             <input type="checkbox" id="qsofa-rr" value="1">
-                            <span>Respiratory Rate ≥ 22/min</span>
+                            <span>Respiratory Rate ??22/min</span>
                         </label>
                         
                         <label class="checkbox-option">
@@ -41,7 +42,7 @@ export const qsofaScore = {
                         
                         <label class="checkbox-option">
                             <input type="checkbox" id="qsofa-sbp" value="1">
-                            <span>Systolic Blood Pressure ≤ 100 mmHg</span>
+                            <span>Systolic Blood Pressure ??100 mmHg</span>
                         </label>
                     </div>
                 </form>
@@ -50,18 +51,18 @@ export const qsofaScore = {
             <div class="result-container" id="qsofa-result" style="display:none;"></div>
             
             <div class="info-section mt-30">
-                <h4>📊 Interpretation</h4>
+                <h4>?? Interpretation</h4>
                 <div class="formula-box">
-                    <p><strong>qSOFA Score ≥ 2:</strong> Positive screen; suggests higher risk of poor outcomes in patients with suspected infection.</p>
+                    <p><strong>qSOFA Score ??2:</strong> Positive screen; suggests higher risk of poor outcomes in patients with suspected infection.</p>
                     <p><strong>qSOFA Score &lt; 2:</strong> Negative screen; lower risk but continue monitoring if infection suspected.</p>
                 </div>
                 <div class="formula-box mt-15">
                     <div class="formula-title">Next Steps for Positive qSOFA:</div>
-                    <p>• Calculate full SOFA score<br>
-                    • Measure serum lactate<br>
-                    • Obtain blood cultures<br>
-                    • Consider early antibiotic therapy<br>
-                    • Assess for organ dysfunction</p>
+                    <p>??Calculate full SOFA score<br>
+                    ??Measure serum lactate<br>
+                    ??Obtain blood cultures<br>
+                    ??Consider early antibiotic therapy<br>
+                    ??Assess for organ dysfunction</p>
                 </div>
             </div>
         `;
@@ -117,7 +118,7 @@ export const qsofaScore = {
                 </div>
                 
                 <div class="alert ${severityClass === 'high' ? 'warning' : 'info'} mt-20">
-                    <span class="alert-icon">${score >= 2 ? '⚠️' : 'ℹ️'}</span>
+                    <span class="alert-icon">${score >= 2 ? '?��?' : '?��?'}</span>
                     <div class="alert-content">
                         <p>${interpretation}</p>
                     </div>
@@ -128,7 +129,7 @@ export const qsofaScore = {
         };
 
         // Auto-populate respiratory rate
-        getMostRecentObservation(client, '9279-1').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 const rr = obs.valueQuantity.value;
                 const rrCheckbox = root.querySelector('#qsofa-rr');
@@ -139,7 +140,7 @@ export const qsofaScore = {
         });
 
         // Auto-populate systolic blood pressure
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             if (obs && obs.valueQuantity) {
                 const sbp = obs.valueQuantity.value;
                 const sbpCheckbox = root.querySelector('#qsofa-sbp');

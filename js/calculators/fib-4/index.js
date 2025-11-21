@@ -1,3 +1,4 @@
+import { LOINC_CODES } from '../../fhir-codes.js';
 // js/calculators/fib-4.js
 import {
     getMostRecentObservation,
@@ -195,7 +196,7 @@ export const fib4 = {
         initializeUnitConversion(container, 'fib4-plt', calculateAndUpdate);
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '1920-8').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
             // AST
             if (obs && obs.valueQuantity) {
                 astInput.value = obs.valueQuantity.value.toFixed(0);
@@ -203,7 +204,7 @@ export const fib4 = {
             calculateAndUpdate();
         });
 
-        getMostRecentObservation(client, '1742-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
             // ALT
             if (obs && obs.valueQuantity) {
                 altInput.value = obs.valueQuantity.value.toFixed(0);
@@ -211,7 +212,7 @@ export const fib4 = {
             calculateAndUpdate();
         });
 
-        getMostRecentObservation(client, '777-3').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
             // Platelets
             if (obs && obs.valueQuantity) {
                 const pltInput = container.querySelector('#fib4-plt');

@@ -1,5 +1,6 @@
 // js/calculators/free-water-deficit.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const freeWaterDeficit = {
     id: 'free-water-deficit',
@@ -177,13 +178,13 @@ export const freeWaterDeficit = {
         }
 
         // Load observations from FHIR
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs) {
                 weightInput.value = obs.valueQuantity.value.toFixed(1);
             }
             autoCalculate();
         });
-        getMostRecentObservation(client, '2951-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
             if (obs) {
                 sodiumInput.value = obs.valueQuantity.value.toFixed(0);
             }

@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // js/calculators/geneva-score.js
 export const genevaScore = {
@@ -60,7 +61,7 @@ export const genevaScore = {
         // Auto-populate heart rate
         const hrInput = root.querySelector('#geneva-hr');
         if (hrInput) {
-            getMostRecentObservation(client, '8867-4').then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     hrInput.value = Math.round(obs.valueQuantity.value);
                 }

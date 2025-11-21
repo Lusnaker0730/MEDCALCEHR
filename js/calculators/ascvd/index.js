@@ -1,5 +1,6 @@
 // js/calculators/ascvd.js
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const ascvd = {
     id: 'ascvd',
@@ -336,11 +337,11 @@ export const ascvd = {
 
         // Try to load FHIR data, but don't block if it fails
         if (client) {
-            getMostRecentObservation(client, '85354-9')
+            getMostRecentObservation(client, LOINC_CODES.BP_PANEL)
                 .then(bpPanel => {
                     if (bpPanel && bpPanel.component) {
                         const sbpComp = bpPanel.component.find(
-                            c => c.code.coding[0].code === '8480-6'
+                            c => c.code.coding[0].code === LOINC_CODES.SYSTOLIC_BP
                         );
                         if (sbpComp && sbpComp.valueQuantity) {
                             sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
@@ -349,7 +350,7 @@ export const ascvd = {
                 })
                 .catch(err => console.log('BP data not available'));
 
-            getMostRecentObservation(client, '2093-3')
+            getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL)
                 .then(obs => {
                     if (obs && obs.valueQuantity) {
                         tcInput.value = obs.valueQuantity.value.toFixed(0);
@@ -357,7 +358,7 @@ export const ascvd = {
                 })
                 .catch(err => console.log('TC data not available'));
 
-            getMostRecentObservation(client, '2085-9')
+            getMostRecentObservation(client, LOINC_CODES.HDL)
                 .then(obs => {
                     if (obs && obs.valueQuantity) {
                         hdlInput.value = obs.valueQuantity.value.toFixed(0);

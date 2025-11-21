@@ -1,5 +1,6 @@
 // js/calculators/ldl.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const ldl = {
     id: 'ldl',
@@ -44,7 +45,7 @@ export const ldl = {
             </div>
             <div id="ldl-result" class="result" style="display:none;"></div>
             <div class="formula-section">
-                <h4>📐 Formula (Friedewald Equation)</h4>
+                <h4>?? Formula (Friedewald Equation)</h4>
                 <div class="formula" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0; text-align: center;">
                     <div style="font-size: 1.2em; font-weight: bold;">
                     LDL = Total Cholesterol - HDL - (Triglycerides / 5)
@@ -55,36 +56,36 @@ export const ldl = {
                 </div>
                 
                 <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 15px;">
-                    <p style="margin: 0;"><strong>⚠️ Important Notes:</strong></p>
+                    <p style="margin: 0;"><strong>?��? Important Notes:</strong></p>
                     <ul style="margin: 10px 0 0 20px; padding: 0;">
-                        <li>This formula is <strong>not accurate</strong> when triglycerides ≥ 400 mg/dL (≥ 4.52 mmol/L)</li>
+                        <li>This formula is <strong>not accurate</strong> when triglycerides ??400 mg/dL (??4.52 mmol/L)</li>
                         <li>Fasting sample is required (9-12 hours)</li>
                         <li>Consider direct LDL measurement for high triglycerides</li>
                     </ul>
                 </div>
 
                 <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <h5 style="margin-top: 0;">🔄 Unit Conversions</h5>
+                    <h5 style="margin-top: 0;">?? Unit Conversions</h5>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <strong>Cholesterol (Total, HDL, LDL):</strong><br>
                             <span style="font-size: 0.9em; color: #666;">
                                 mg/dL ÷ 38.67 = mmol/L<br>
-                                mmol/L × 38.67 = mg/dL
+                                mmol/L ? 38.67 = mg/dL
                             </span>
                         </div>
                         <div>
                             <strong>Triglycerides:</strong><br>
                             <span style="font-size: 0.9em; color: #666;">
                                 mg/dL ÷ 88.57 = mmol/L<br>
-                                mmol/L × 88.57 = mg/dL
+                                mmol/L ? 88.57 = mg/dL
                             </span>
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
-                    <h5 style="margin-top: 0;">📊 LDL Cholesterol Goals</h5>
+                    <h5 style="margin-top: 0;">?? LDL Cholesterol Goals</h5>
                     <table style="width: 100%; border-collapse: collapse;">
                         <tr style="background: #f8f9fa;">
                             <th style="padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6;">Category</th>
@@ -92,29 +93,29 @@ export const ldl = {
                             <th style="padding: 8px; text-align: center; border-bottom: 2px solid #dee2e6;">mmol/L</th>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #28a745;">●</span> Optimal</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #28a745;">??/span> Optimal</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">&lt; 100</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">&lt; 2.59</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #5cb85c;">●</span> Near Optimal</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #5cb85c;">??/span> Near Optimal</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">100-129</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">2.59-3.34</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #ffc107;">●</span> Borderline High</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #ffc107;">??/span> Borderline High</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">130-159</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">3.37-4.12</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #fd7e14;">●</span> High</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #dee2e6;"><span style="color: #fd7e14;">??/span> High</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">160-189</td>
                             <td style="padding: 8px; text-align: center; border-bottom: 1px solid #dee2e6;">4.15-4.90</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px;"><span style="color: #dc3545;">●</span> Very High</td>
-                            <td style="padding: 8px; text-align: center;">≥ 190</td>
-                            <td style="padding: 8px; text-align: center;">≥ 4.92</td>
+                            <td style="padding: 8px;"><span style="color: #dc3545;">??/span> Very High</td>
+                            <td style="padding: 8px; text-align: center;">??190</td>
+                            <td style="padding: 8px; text-align: center;">??4.92</td>
                         </tr>
                     </table>
                 </div>
@@ -164,11 +165,11 @@ export const ldl = {
                 const unit = unitEl.value;
                 if (unit === 'mg/dL') {
                     const mmol = (value / CHOL_CONVERSION).toFixed(2);
-                    convertedEl.textContent = `≈ ${mmol} mmol/L`;
+                    convertedEl.textContent = `??${mmol} mmol/L`;
                     convertedEl.style.display = 'block';
                 } else {
                     const mgdl = (value * CHOL_CONVERSION).toFixed(1);
-                    convertedEl.textContent = `≈ ${mgdl} mg/dL`;
+                    convertedEl.textContent = `??${mgdl} mg/dL`;
                     convertedEl.style.display = 'block';
                 }
             } else {
@@ -183,11 +184,11 @@ export const ldl = {
                 const unit = trigUnit.value;
                 if (unit === 'mg/dL') {
                     const mmol = (value / TRIG_CONVERSION).toFixed(2);
-                    trigConverted.textContent = `≈ ${mmol} mmol/L`;
+                    trigConverted.textContent = `??${mmol} mmol/L`;
                     trigConverted.style.display = 'block';
                 } else {
                     const mgdl = (value * TRIG_CONVERSION).toFixed(1);
-                    trigConverted.textContent = `≈ ${mgdl} mg/dL`;
+                    trigConverted.textContent = `??${mgdl} mg/dL`;
                     trigConverted.style.display = 'block';
                 }
             } else {
@@ -211,8 +212,8 @@ export const ldl = {
                 if (trigMgDl >= 400) {
                     resultEl.innerHTML = `
                         <div style="padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px;">
-                            <p style="margin: 0; color: #856404;"><strong>⚠️ Warning:</strong></p>
-                            <p style="margin: 8px 0 0 0; color: #856404;">LDL cannot be calculated accurately when triglycerides are ≥ 400 mg/dL (≥ 4.52 mmol/L).</p>
+                            <p style="margin: 0; color: #856404;"><strong>?��? Warning:</strong></p>
+                            <p style="margin: 8px 0 0 0; color: #856404;">LDL cannot be calculated accurately when triglycerides are ??400 mg/dL (??4.52 mmol/L).</p>
                             <p style="margin: 8px 0 0 0; font-size: 0.9em; color: #856404;">Consider a direct LDL measurement.</p>
                         </div>
                     `;
@@ -265,7 +266,7 @@ export const ldl = {
                     <div style="margin-top: 10px; font-size: 0.85em; color: #666;">
                         <strong>LDL Categories:</strong><br>
                         &lt; 100: Optimal | 100-129: Near Optimal | 130-159: Borderline High<br>
-                        160-189: High | ≥ 190: Very High
+                        160-189: High | ??190: Very High
                     </div>
                 `;
                 resultEl.style.display = 'block';
@@ -285,9 +286,9 @@ export const ldl = {
         trigUnit.addEventListener('change', autoCalculate);
 
         // Load observations from FHIR
-        const totalCholPromise = getMostRecentObservation(client, '2093-3');
-        const hdlCholPromise = getMostRecentObservation(client, '2085-9');
-        const trigPromise = getMostRecentObservation(client, '2571-8');
+        const totalCholPromise = getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL);
+        const hdlCholPromise = getMostRecentObservation(client, LOINC_CODES.HDL);
+        const trigPromise = getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES);
 
         Promise.all([totalCholPromise, hdlCholPromise, trigPromise]).then(
             ([totalChol, hdl, trig]) => {

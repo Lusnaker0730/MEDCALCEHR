@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // js/calculators/mews/index.js
 export const mewsScore = {
@@ -14,7 +15,7 @@ export const mewsScore = {
             </div>
             
             <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <div class="alert-title">Instructions</div>
                     <p>Different hospitals and regions may use different modifications of the MEWS. Verify that your institution uses the same point assignments listed here.</p>
@@ -25,7 +26,7 @@ export const mewsScore = {
                 <!-- Systolic BP Section -->
                 <div class="section">
                     <div class="section-title">
-                        <span class="section-title-icon">🩺</span>
+                        <span class="section-title-icon">?��</span>
                         <span>Systolic BP (mmHg)</span>
                     </div>
                     
@@ -41,13 +42,13 @@ export const mewsScore = {
                         </label>
                         
                         <label class="radio-option">
-                            <input type="radio" name="sbp" value="2" data-label="71-80 or ≥200 mmHg">
-                            <span>71-80 or ≥200 mmHg <span class="badge-points">+2</span></span>
+                            <input type="radio" name="sbp" value="2" data-label="71-80 or ??00 mmHg">
+                            <span>71-80 or ??00 mmHg <span class="badge-points">+2</span></span>
                         </label>
                         
                         <label class="radio-option">
-                            <input type="radio" name="sbp" value="3" data-label="≤70 mmHg">
-                            <span>≤70 mmHg <span class="badge-points warning">+3</span></span>
+                            <input type="radio" name="sbp" value="3" data-label="??0 mmHg">
+                            <span>??0 mmHg <span class="badge-points warning">+3</span></span>
                         </label>
                     </div>
                 </div>
@@ -55,7 +56,7 @@ export const mewsScore = {
                 <!-- Heart Rate Section -->
                 <div class="section">
                     <div class="section-title">
-                        <span class="section-title-icon">❤️</span>
+                        <span class="section-title-icon">?��?</span>
                         <span>Heart Rate (beats per minute)</span>
                     </div>
                     
@@ -76,8 +77,8 @@ export const mewsScore = {
                         </label>
                         
                         <label class="radio-option">
-                            <input type="radio" name="hr" value="3" data-label="≥130 bpm">
-                            <span>≥130 bpm <span class="badge-points warning">+3</span></span>
+                            <input type="radio" name="hr" value="3" data-label="??30 bpm">
+                            <span>??30 bpm <span class="badge-points warning">+3</span></span>
                         </label>
                     </div>
                 </div>
@@ -85,7 +86,7 @@ export const mewsScore = {
                 <!-- Respiratory Rate Section -->
                 <div class="section">
                     <div class="section-title">
-                        <span class="section-title-icon">🫁</span>
+                        <span class="section-title-icon">??</span>
                         <span>Respiratory Rate (breaths per minute)</span>
                     </div>
                     
@@ -106,8 +107,8 @@ export const mewsScore = {
                         </label>
                         
                         <label class="radio-option">
-                            <input type="radio" name="rr" value="3" data-label="≥30 bpm">
-                            <span>≥30 bpm <span class="badge-points warning">+3</span></span>
+                            <input type="radio" name="rr" value="3" data-label="??0 bpm">
+                            <span>??0 bpm <span class="badge-points warning">+3</span></span>
                         </label>
                     </div>
                 </div>
@@ -115,7 +116,7 @@ export const mewsScore = {
                 <!-- Temperature Section -->
                 <div class="section">
                     <div class="section-title">
-                        <span class="section-title-icon">🌡️</span>
+                        <span class="section-title-icon">?���?/span>
                         <span>Temperature</span>
                     </div>
                     
@@ -126,8 +127,8 @@ export const mewsScore = {
                         </label>
                         
                         <label class="radio-option">
-                            <input type="radio" name="temp" value="2" data-label="<35°C (<95°F) or ≥38.5°C (≥101.3°F)">
-                            <span>&lt;35°C (&lt;95°F) or ≥38.5°C (≥101.3°F) <span class="badge-points">+2</span></span>
+                            <input type="radio" name="temp" value="2" data-label="<35°C (<95°F) or ??8.5°C (??01.3°F)">
+                            <span>&lt;35°C (&lt;95°F) or ??8.5°C (??01.3°F) <span class="badge-points">+2</span></span>
                         </label>
                     </div>
                 </div>
@@ -135,7 +136,7 @@ export const mewsScore = {
                 <!-- AVPU Section -->
                 <div class="section">
                     <div class="section-title">
-                        <span class="section-title-icon">🧠</span>
+                        <span class="section-title-icon">??</span>
                         <span>AVPU Scale (Level of Consciousness)</span>
                     </div>
                     
@@ -167,7 +168,7 @@ export const mewsScore = {
             
             <!-- Formula Section -->
             <div class="info-section mt-30">
-                <h4>📐 Formula</h4>
+                <h4>?? Formula</h4>
                 <div class="formula-box">
                     <div class="formula-title">MEWS Score Calculation</div>
                     <p class="formula-text">MEWS = Systolic BP points + Heart Rate points + Respiratory Rate points + Temperature points + AVPU points</p>
@@ -187,7 +188,7 @@ export const mewsScore = {
                         <tbody>
                             <tr>
                                 <td rowspan="4"><strong>Systolic BP</strong></td>
-                                <td>≤70 mmHg</td>
+                                <td>??0 mmHg</td>
                                 <td>+3</td>
                             </tr>
                             <tr>
@@ -204,7 +205,7 @@ export const mewsScore = {
                             </tr>
                             <tr>
                                 <td></td>
-                                <td>≥200 mmHg</td>
+                                <td>??00 mmHg</td>
                                 <td>+2</td>
                             </tr>
                             <tr>
@@ -231,7 +232,7 @@ export const mewsScore = {
                             </tr>
                             <tr>
                                 <td></td>
-                                <td>≥130 bpm</td>
+                                <td>??30 bpm</td>
                                 <td>+3</td>
                             </tr>
                             <tr>
@@ -253,7 +254,7 @@ export const mewsScore = {
                             </tr>
                             <tr>
                                 <td></td>
-                                <td>≥30 bpm</td>
+                                <td>??0 bpm</td>
                                 <td>+3</td>
                             </tr>
                             <tr>
@@ -267,7 +268,7 @@ export const mewsScore = {
                             </tr>
                             <tr>
                                 <td></td>
-                                <td>≥38.5°C (≥101.3°F)</td>
+                                <td>??8.5°C (??01.3°F)</td>
                                 <td>+2</td>
                             </tr>
                             <tr>
@@ -294,7 +295,7 @@ export const mewsScore = {
             
             <!-- Interpretation Section -->
             <div class="info-section mt-30">
-                <h4>📊 Interpretation</h4>
+                <h4>?? Interpretation</h4>
                 <div class="formula-box">
                     <div class="formula-title">Risk Stratification</div>
                     <table class="data-table">
@@ -322,7 +323,7 @@ export const mewsScore = {
                                 <td>Urgent call to doctor; consider ICU assessment</td>
                             </tr>
                             <tr>
-                                <td><strong>≥5</strong></td>
+                                <td><strong>??</strong></td>
                                 <td><span class="badge-risk high">High Risk</span></td>
                                 <td>Emergency call to doctor; immediate ICU assessment</td>
                             </tr>
@@ -331,10 +332,10 @@ export const mewsScore = {
                 </div>
                 
                 <div class="alert warning mt-15">
-                    <span class="alert-icon">⚠️</span>
+                    <span class="alert-icon">?��?</span>
                     <div class="alert-content">
                         <div class="alert-title">Clinical Note</div>
-                        <p><strong>A score ≥5</strong> is statistically linked to <strong>increased likelihood of death or admission to an intensive care unit</strong>.</p>
+                        <p><strong>A score ??</strong> is statistically linked to <strong>increased likelihood of death or admission to an intensive care unit</strong>.</p>
                         <p class="mt-10"><strong>For any single physiological parameter scored +3</strong>, consider <strong>higher level of care</strong> for the patient, even if the total score is &lt;5.</p>
                     </div>
                 </div>
@@ -352,7 +353,7 @@ export const mewsScore = {
             
             <!-- Clinical Pearls -->
             <div class="info-section mt-30">
-                <h4>💡 Clinical Pearls</h4>
+                <h4>?�� Clinical Pearls</h4>
                 <div class="formula-box">
                     <ul>
                         <li>MEWS is designed for early identification of patients at risk of clinical deterioration</li>
@@ -429,7 +430,7 @@ export const mewsScore = {
             if (hasThreePoints) {
                 threePointWarning = `
                     <div class="alert warning mt-15">
-                        <span class="alert-icon">⚠️</span>
+                        <span class="alert-icon">?��?</span>
                         <div class="alert-content">
                             <p><strong>Critical Parameter Alert:</strong> One or more parameters scored +3 points. Consider higher level of care regardless of total score.</p>
                         </div>
@@ -477,7 +478,7 @@ export const mewsScore = {
                 </div>
                 
                 <div class="alert ${severityClass === 'high' ? 'warning' : 'info'} mt-20">
-                    <span class="alert-icon">${score >= 5 ? '🚨' : score >= 4 ? '⚠️' : 'ℹ️'}</span>
+                    <span class="alert-icon">${score >= 5 ? '?��' : score >= 4 ? '?��?' : '?��?'}</span>
                     <div class="alert-content">
                         <div class="alert-title">${riskLevel}</div>
                         <p>${interpretation}</p>
@@ -497,7 +498,7 @@ export const mewsScore = {
         };
 
         // Auto-populate systolic blood pressure
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             if (obs && obs.valueQuantity) {
                 const sbp = obs.valueQuantity.value;
                 let sbpValue = '0';
@@ -522,7 +523,7 @@ export const mewsScore = {
         });
 
         // Auto-populate heart rate
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 const hr = obs.valueQuantity.value;
                 let hrValue = '0';
@@ -549,7 +550,7 @@ export const mewsScore = {
         });
 
         // Auto-populate respiratory rate
-        getMostRecentObservation(client, '9279-1').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 const rr = obs.valueQuantity.value;
                 let rrValue = '0';
@@ -574,7 +575,7 @@ export const mewsScore = {
         });
 
         // Auto-populate temperature
-        getMostRecentObservation(client, '8310-5').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
             if (obs && obs.valueQuantity) {
                 let temp = obs.valueQuantity.value;
                 const unit = obs.valueQuantity.unit || obs.valueQuantity.code;

@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // Point allocation functions based on GWTG-HF score algorithm
 const getPoints = {
@@ -272,25 +273,25 @@ export const gwtgHf = {
         if (patient && patient.birthDate) {
             fields.age.value = calculateAge(patient.birthDate);
         }
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             if (obs) {
                 fields.sbp.value = obs.valueQuantity.value.toFixed(0);
             }
             calculate();
         });
-        getMostRecentObservation(client, '3094-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
             if (obs) {
                 fields.bun.value = obs.valueQuantity.value.toFixed(0);
             }
             calculate();
         }); // BUN
-        getMostRecentObservation(client, '2951-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
             if (obs) {
                 fields.sodium.value = obs.valueQuantity.value.toFixed(0);
             }
             calculate();
         });
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             if (obs) {
                 fields.hr.value = obs.valueQuantity.value.toFixed(0);
             }

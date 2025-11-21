@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // HScore probability calculation using logistic regression formula
 const getProbability = score => {
@@ -36,7 +37,7 @@ export const hscore = {
                     </div>
                 </div>
                 <div class="input-row vertical">
-                    <div class="input-label">Number of cytopenias<span>Defined as hemoglobin ≤9.2 g/dL (≤5.71 mmol/L) and/or WBC ≤5,000/mm³ and/or platelets ≤110,000/mm³</span></div>
+                    <div class="input-label">Number of cytopenias<span>Defined as hemoglobin ??.2 g/dL (??.71 mmol/L) and/or WBC ??,000/mm³ and/or platelets ??10,000/mm³</span></div>
                     <div class="radio-group vertical-group">
                         <label><input type="radio" name="cytopenias" value="0"> 1 lineage</label>
                         <label><input type="radio" name="cytopenias" value="24"> 2 lineages</label>
@@ -62,13 +63,13 @@ export const hscore = {
                 <div class="input-row vertical">
                     <div class="input-label">Fibrinogen, mg/dL (g/L)</div>
                     <div class="radio-group vertical-group">
-                        <label><input type="radio" name="fibrinogen" value="0"> ≥250 (≥2.5)</label>
-                        <label><input type="radio" name="fibrinogen" value="30"> ≤250 (≤2.5)</label>
+                        <label><input type="radio" name="fibrinogen" value="0"> ??50 (??.5)</label>
+                        <label><input type="radio" name="fibrinogen" value="30"> ??50 (??.5)</label>
                     </div>
                 </div>
                  <div class="input-row">
                     <div class="input-label">AST, U/L</div>
-                    <div class="segmented-control"><label><input type="radio" name="ast" value="0"> &lt;30</label><label><input type="radio" name="ast" value="19"> ≥30</label></div>
+                    <div class="segmented-control"><label><input type="radio" name="ast" value="0"> &lt;30</label><label><input type="radio" name="ast" value="19"> ??0</label></div>
                 </div>
                 <div class="input-row">
                     <div class="input-label">Hemophagocytosis features on bone marrow aspirate</div>
@@ -79,7 +80,7 @@ export const hscore = {
             
             <div class="formula-section">
                 <h4 class="formula-title">
-                    <span class="formula-icon">📋</span>
+                    <span class="formula-icon">??</span>
                     FORMULA
                 </h4>
                 
@@ -109,7 +110,7 @@ export const hscore = {
                                 <td>&lt;101.1 (&lt;38.4): <span class="points-badge">0</span></td>
                             </tr>
                             <tr>
-                                <td>101.1–102.9 (38.4–39.4): <span class="points-badge">33</span></td>
+                                <td>101.1??02.9 (38.4??9.4): <span class="points-badge">33</span></td>
                             </tr>
                             <tr>
                                 <td>&gt;102.9 (&gt;39.4): <span class="points-badge">49</span></td>
@@ -142,7 +143,7 @@ export const hscore = {
                                 <td>3 lineages: <span class="points-badge">34</span></td>
                             </tr>
                             <tr>
-                                <td colspan="1" class="footnote-cell">**Defined as hemoglobin ≤9.2 g/dL and/or WBC ≤5,000/mm³ and/or platelets ≤110,000/mm³</td>
+                                <td colspan="1" class="footnote-cell">**Defined as hemoglobin ??.2 g/dL and/or WBC ??,000/mm³ and/or platelets ??10,000/mm³</td>
                             </tr>
                             
                             <tr>
@@ -152,7 +153,7 @@ export const hscore = {
                                 <td>&lt;2,000: <span class="points-badge">0</span></td>
                             </tr>
                             <tr>
-                                <td>2,000–6,000: <span class="points-badge">35</span></td>
+                                <td>2,000??,000: <span class="points-badge">35</span></td>
                             </tr>
                             <tr>
                                 <td>&gt;6,000: <span class="points-badge">50</span></td>
@@ -165,7 +166,7 @@ export const hscore = {
                                 <td>&lt;132.7 (&lt;1.5): <span class="points-badge">0</span></td>
                             </tr>
                             <tr>
-                                <td>132.7–354 (1.5–4): <span class="points-badge">44</span></td>
+                                <td>132.7??54 (1.5??): <span class="points-badge">44</span></td>
                             </tr>
                             <tr>
                                 <td>&gt;354 (&gt;4): <span class="points-badge">64</span></td>
@@ -175,7 +176,7 @@ export const hscore = {
                                 <td class="variable-name" rowspan="2">
                                     <strong>Fibrinogen, mg/dL (g/L)</strong>
                                 </td>
-                                <td>≥250 (≥2.5): <span class="points-badge">0</span></td>
+                                <td>??50 (??.5): <span class="points-badge">0</span></td>
                             </tr>
                             <tr>
                                 <td>&lt;250 (&lt;2.5): <span class="points-badge">30</span></td>
@@ -188,7 +189,7 @@ export const hscore = {
                                 <td>&lt;30: <span class="points-badge">0</span></td>
                             </tr>
                             <tr>
-                                <td>≥30: <span class="points-badge">19</span></td>
+                                <td>??0: <span class="points-badge">19</span></td>
                             </tr>
                             
                             <tr>
@@ -214,9 +215,9 @@ export const hscore = {
                                 Probability of hemophagocytic syndrome = 
                                 <span class="formula-fraction" style="display: inline-flex; vertical-align: middle; margin: 0 5px;">
                                     <span class="formula-numerator" style="border-bottom: 2px solid #2d3748; padding: 5px 10px;">1</span>
-                                    <span class="formula-denominator" style="padding: 5px 10px; font-size: 0.85em;">1 + e<sup>-(-4.3 + 0.03 × HScore)</sup></span>
+                                    <span class="formula-denominator" style="padding: 5px 10px; font-size: 0.85em;">1 + e<sup>-(-4.3 + 0.03 ? HScore)</sup></span>
                                 </span>
-                                × 100%
+                                ? 100%
                             </div>
                         </div>
                     </div>
@@ -233,20 +234,20 @@ export const hscore = {
                         </thead>
                         <tbody>
                             <tr><td>&lt;90</td><td>&lt;1%</td></tr>
-                            <tr><td>90–100</td><td>~1–3%</td></tr>
-                            <tr><td>101–110</td><td>~3–5%</td></tr>
-                            <tr><td>111–120</td><td>~5–9%</td></tr>
-                            <tr><td>121–130</td><td>~9–16%</td></tr>
-                            <tr><td>131–140</td><td>~16–25%</td></tr>
-                            <tr><td>141–150</td><td>~25–40%</td></tr>
-                            <tr><td>151–160</td><td>~40–52%</td></tr>
-                            <tr><td>161–170</td><td>~52–64%</td></tr>
-                            <tr><td>171–180</td><td>~64–74%</td></tr>
-                            <tr><td>181–190</td><td>~74–82%</td></tr>
-                            <tr><td>191–200</td><td>~82–88%</td></tr>
-                            <tr><td>201–210</td><td>~88–92%</td></tr>
-                            <tr><td>211–220</td><td>~92–95%</td></tr>
-                            <tr><td>221–230</td><td>~95–96%</td></tr>
+                            <tr><td>90??00</td><td>~1??%</td></tr>
+                            <tr><td>101??10</td><td>~3??%</td></tr>
+                            <tr><td>111??20</td><td>~5??%</td></tr>
+                            <tr><td>121??30</td><td>~9??6%</td></tr>
+                            <tr><td>131??40</td><td>~16??5%</td></tr>
+                            <tr><td>141??50</td><td>~25??0%</td></tr>
+                            <tr><td>151??60</td><td>~40??2%</td></tr>
+                            <tr><td>161??70</td><td>~52??4%</td></tr>
+                            <tr><td>171??80</td><td>~64??4%</td></tr>
+                            <tr><td>181??90</td><td>~74??2%</td></tr>
+                            <tr><td>191??00</td><td>~82??8%</td></tr>
+                            <tr><td>201??10</td><td>~88??2%</td></tr>
+                            <tr><td>211??20</td><td>~92??5%</td></tr>
+                            <tr><td>221??30</td><td>~95??6%</td></tr>
                             <tr><td>&gt;241</td><td>&gt;99%</td></tr>
                         </tbody>
                     </table>
@@ -320,8 +321,8 @@ export const hscore = {
 
         // Auto-populate data
         Promise.all([
-            getMostRecentObservation(client, '718-7'), // Hgb
-            getMostRecentObservation(client, '6690-2'), // WBC
+            getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN), // Hgb
+            getMostRecentObservation(client, LOINC_CODES.WBC), // WBC
             getMostRecentObservation(client, '26515-7') // Platelets
         ]).then(([hgb, wbc, platelets]) => {
             let cytopeniaCount = 0;
@@ -343,7 +344,7 @@ export const hscore = {
             calculate();
         });
 
-        getMostRecentObservation(client, '8310-5').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
             // Temp F
             if (obs) {
                 setRadioFromValue('temp', obs.valueQuantity.value, [
@@ -365,7 +366,7 @@ export const hscore = {
             }
             calculate();
         });
-        getMostRecentObservation(client, '2571-8').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
             // Triglycerides mg/dL
             if (obs) {
                 setRadioFromValue('trig', obs.valueQuantity.value, [
@@ -386,7 +387,7 @@ export const hscore = {
             }
             calculate();
         });
-        getMostRecentObservation(client, '1920-8').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
             // AST
             if (obs) {
                 setRadioFromValue('ast', obs.valueQuantity.value, [

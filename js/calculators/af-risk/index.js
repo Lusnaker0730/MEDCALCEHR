@@ -1,5 +1,6 @@
 // js/calculators/af-risk.js
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const afRisk = {
     id: 'af-risk',
@@ -131,9 +132,9 @@ export const afRisk = {
         if (age > 65) {
             container.querySelector('#hasbled-elderly').checked = true;
         }
-        getMostRecentObservation(client, '85354-9').then(bpPanel => {
+        getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
             if (bpPanel && bpPanel.component) {
-                const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === '8480-6');
+                const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === LOINC_CODES.SYSTOLIC_BP);
                 if (sbpComp && sbpComp.valueQuantity.value > 160) {
                     container.querySelector('#hasbled-htn').checked = true;
                     calculate();

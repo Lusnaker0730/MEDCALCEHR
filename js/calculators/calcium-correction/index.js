@@ -5,6 +5,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const calciumCorrection = {
     id: 'calcium-correction',
@@ -23,16 +24,16 @@ export const calciumCorrection = {
             <div id="ca-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>üìê Formula</h4>
+                <h4>?? Formula</h4>
                 <div class="formula-box">
                     <div class="formula-title">Corrected Calcium (mg/dL) =</div>
                     <div class="formula-equation">
-                        <span class="formula-main">Total Calcium + 0.8 √ó (4.0 - Albumin)</span>
+                        <span class="formula-main">Total Calcium + 0.8 ? (4.0 - Albumin)</span>
                     </div>
                 </div>
                 
                 <div class="formula-explanation">
-                    <h5>üìã Explanation</h5>
+                    <h5>?? Explanation</h5>
                     <ul>
                         <li><strong>Normal albumin reference:</strong> 4.0 g/dL</li>
                         <li><strong>Correction factor:</strong> 0.8 mg/dL per 1 g/dL decrease in albumin</li>
@@ -42,7 +43,7 @@ export const calciumCorrection = {
                 </div>
                 
                 <div class="normal-values">
-                    <h5>üìä Normal Values</h5>
+                    <h5>?? Normal Values</h5>
                     <div class="values-grid">
                         <div class="value-item">
                             <strong>Total Calcium:</strong> 8.5-10.5 mg/dL
@@ -57,7 +58,7 @@ export const calciumCorrection = {
                 </div>
                 
                 <div class="clinical-note">
-                    <h5>‚ö†Ô∏è Clinical Note</h5>
+                    <h5>?†Ô? Clinical Note</h5>
                     <p>This correction is most accurate when albumin is between 2.0-4.0 g/dL. For critically ill patients or those with severe hypoalbuminemia, consider measuring ionized calcium directly.</p>
                 </div>
             </div>
@@ -81,7 +82,7 @@ export const calciumCorrection = {
                         <div style="font-size: 0.95em; opacity: 0.9; margin-top: 5px;">(${correctedCalciumMmol.toFixed(2)} mmol/L)</div>
                     </div>
                     <div style="margin-top: 10px; padding: 10px; background: ${correctedCalcium < 8.5 ? '#fee' : correctedCalcium > 10.5 ? '#fef3cd' : '#e8f5e9'}; border-radius: 6px;">
-                        <strong>${correctedCalcium < 8.5 ? '‚ö†Ô∏è Low' : correctedCalcium > 10.5 ? '‚ö†Ô∏è High' : '‚úì Normal'}</strong>
+                        <strong>${correctedCalcium < 8.5 ? '?†Ô? Low' : correctedCalcium > 10.5 ? '?†Ô? High' : '??Normal'}</strong>
                         <div style="font-size: 0.9em; margin-top: 5px;">Normal range: 8.5-10.5 mg/dL (2.12-2.62 mmol/L)</div>
                     </div>
                 `;
@@ -96,7 +97,7 @@ export const calciumCorrection = {
         initializeUnitConversion(container, 'ca-albumin', calculateAndUpdate);
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, '17861-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
             if (obs && obs.valueQuantity) {
                 const input = container.querySelector('#ca-total');
                 if (input) {
@@ -106,7 +107,7 @@ export const calciumCorrection = {
             }
         });
 
-        getMostRecentObservation(client, '1751-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
             if (obs && obs.valueQuantity) {
                 const input = container.querySelector('#ca-albumin');
                 if (input) {

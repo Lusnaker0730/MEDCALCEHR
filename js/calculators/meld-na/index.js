@@ -1,6 +1,7 @@
 // js/calculators/meld-na.js
 import { getMostRecentObservation } from '../../utils.js';
 
+import { LOINC_CODES } from '../../fhir-codes.js';
 export const meldNa = {
     id: 'meld-na',
     title: 'MELD-Na (UNOS/OPTN)',
@@ -171,16 +172,16 @@ export const meldNa = {
 
         // LOINC: Bili: 1975-2, INR: 34714-6, Creat: 2160-0, Sodium: 2951-2
         const biliPromise = client
-            ? getMostRecentObservation(client, '1975-2')
+            ? getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
             : Promise.resolve(null);
         const inrPromise = client
-            ? getMostRecentObservation(client, '34714-6')
+            ? getMostRecentObservation(client, LOINC_CODES.INR_COAG)
             : Promise.resolve(null);
         const creatPromise = client
-            ? getMostRecentObservation(client, '2160-0')
+            ? getMostRecentObservation(client, LOINC_CODES.CREATININE)
             : Promise.resolve(null);
         const sodiumPromise = client
-            ? getMostRecentObservation(client, '2951-2')
+            ? getMostRecentObservation(client, LOINC_CODES.SODIUM)
             : Promise.resolve(null);
 
         Promise.all([biliPromise, inrPromise, creatPromise, sodiumPromise])

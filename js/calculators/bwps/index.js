@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const bwps = {
     id: 'bwps',
@@ -10,7 +11,7 @@ export const bwps = {
             <p class="description">${this.description}</p>
             <div class="instructions-box dark-blue">
                 <strong>INSTRUCTIONS</strong>
-                <p>Use in patients ≥18 years old with biochemical thyrotoxicosis.</p>
+                <p>Use in patients ??8 years old with biochemical thyrotoxicosis.</p>
             </div>
             <div class="form-container modern">
                 <div class="input-row">
@@ -22,7 +23,7 @@ export const bwps = {
                         <option value="15">101-101.9 (38.3-38.8)</option>
                         <option value="20">102-102.9 (38.9-39.2)</option>
                         <option value="25">103-103.9 (39.3-39.9)</option>
-                        <option value="30">≥104.0 (≥40.0)</option>
+                        <option value="30">??04.0 (??0.0)</option>
                     </select>
                 </div>
                  <div class="input-row">
@@ -50,7 +51,7 @@ export const bwps = {
                         <option value="10">110-119</option>
                         <option value="15">120-129</option>
                         <option value="20">130-139</option>
-                        <option value="25">≥140</option>
+                        <option value="25">??40</option>
                     </select>
                 </div>
                  <div class="input-row">
@@ -115,7 +116,7 @@ export const bwps = {
 
             let interpretation = '';
             if (score >= 45) {
-                interpretation = 'Score ≥45 is highly suggestive of thyroid storm.';
+                interpretation = 'Score ??5 is highly suggestive of thyroid storm.';
             } else if (score >= 25) {
                 interpretation = 'Score 25-44 suggests impending storm.';
             } else {
@@ -130,7 +131,7 @@ export const bwps = {
         };
 
         // Auto-populate data
-        getMostRecentObservation(client, '8310-5').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
             // Temperature F
             if (obs && obs.valueQuantity) {
                 const tempF = obs.valueQuantity.value;
@@ -153,7 +154,7 @@ export const bwps = {
             }
             calculate();
         });
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             // Heart Rate
             if (obs && obs.valueQuantity) {
                 const hr = obs.valueQuantity.value;

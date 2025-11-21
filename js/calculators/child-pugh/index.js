@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const childPugh = {
     id: 'child-pugh',
@@ -7,19 +8,19 @@ export const childPugh = {
     generateHTML: function () {
         return `
             <div class="calculator-header">
-                <h3>🫀 ${this.title}</h3>
+                <h3>?? ${this.title}</h3>
                 <p class="description">${this.description}</p>
             </div>
 
             <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <p><strong>About Child-Pugh Score:</strong> Assesses the prognosis of chronic liver disease, mainly cirrhosis. Uses five clinical measures to classify patients into three categories (A, B, C) with different survival rates and surgical risks.</p>
                 </div>
             </div>
 
                 <div class="lab-values-summary">
-                    <h4>🧪 Current Lab Values</h4>
+                    <h4>?�� Current Lab Values</h4>
                     <div class="lab-values-grid">
                         <div class="lab-value-item">
                             <div class="lab-label">Bilirubin (Total)</div>
@@ -40,7 +41,7 @@ export const childPugh = {
                     <!-- Laboratory Parameters -->
                     <div class="criteria-section">
                         <h4 class="section-title">
-                            <span class="section-icon">🔬</span>
+                            <span class="section-icon">?��</span>
                             Laboratory Parameters
                         </h4>
                         
@@ -111,7 +112,7 @@ export const childPugh = {
                     <!-- Clinical Parameters -->
                     <div class="criteria-section">
                         <h4 class="section-title">
-                            <span class="section-icon">🩺</span>
+                            <span class="section-icon">?��</span>
                             Clinical Parameters
                         </h4>
                         
@@ -164,7 +165,7 @@ export const childPugh = {
                 <!-- Results Section -->
                 <div class="results-section">
                     <div class="results-header">
-                        <h4>📊 Child-Pugh Score Assessment</h4>
+                        <h4>?? Child-Pugh Score Assessment</h4>
                     </div>
                     <div class="results-content">
                         <div class="result-main">
@@ -179,7 +180,7 @@ export const childPugh = {
                         </div>
                         
                         <div class="class-interpretation-guide">
-                            <h5>📋 Classification & Prognosis</h5>
+                            <h5>?? Classification & Prognosis</h5>
                             <div class="class-grid">
                                 <div class="class-item class-a" data-class="a">
                                     <div class="class-header">
@@ -259,7 +260,7 @@ export const childPugh = {
                         </div>
 
                         <div class="clinical-management">
-                            <h5>⚕️ Clinical Management Considerations</h5>
+                            <h5>?��? Clinical Management Considerations</h5>
                             <div class="management-grid" id="management-content">
                                 <div class="management-item">
                                     <h6>General Management</h6>
@@ -274,7 +275,7 @@ export const childPugh = {
                         </div>
 
                         <div class="clinical-notes">
-                            <h5>⚠️ Important Clinical Notes</h5>
+                            <h5>?��? Important Clinical Notes</h5>
                             <ul>
                                 <li><strong>Liver Transplant:</strong> Class B and C patients should be evaluated for transplantation</li>
                                 <li><strong>MELD Score:</strong> Consider using MELD score for transplant prioritization</li>
@@ -408,7 +409,7 @@ export const childPugh = {
         };
 
         // Fetch and set lab values
-        getMostRecentObservation(client, '1975-2')
+        getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
             .then(obs => {
                 // Bilirubin mg/dL
                 if (obs && obs.valueQuantity) {
@@ -434,7 +435,7 @@ export const childPugh = {
                 container.querySelector('#current-bilirubin').textContent = 'Not available';
             });
 
-        getMostRecentObservation(client, '1751-7')
+        getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
             .then(obs => {
                 // Albumin g/dL
                 if (obs && obs.valueQuantity) {
@@ -460,7 +461,7 @@ export const childPugh = {
                 container.querySelector('#current-albumin').textContent = 'Not available';
             });
 
-        getMostRecentObservation(client, '34714-6')
+        getMostRecentObservation(client, LOINC_CODES.INR_COAG)
             .then(obs => {
                 // INR
                 if (obs && obs.valueQuantity) {

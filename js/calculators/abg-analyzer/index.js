@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const abgAnalyzer = {
     id: 'abg-analyzer',
@@ -12,7 +13,7 @@ export const abgAnalyzer = {
             </div>
 
             <div class="alert warning">
-                <strong>⚠️ Important</strong>
+                <strong>?��? Important</strong>
                 <p>This analyzer should not substitute for clinical context. Sodium and chloride are required for anion gap calculation.</p>
             </div>
 
@@ -22,7 +23,7 @@ export const abgAnalyzer = {
             </div>
 
             <div class="section">
-                <div class="section-title">PCO₂</div>
+                <div class="section-title">PCO??/div>
                 <div class="input-with-unit">
                     <input type="number" id="abg-pco2" placeholder="e.g., 46">
                     <span>mm Hg</span>
@@ -30,7 +31,7 @@ export const abgAnalyzer = {
             </div>
 
             <div class="section">
-                <div class="section-title">HCO₃⁻</div>
+                <div class="section-title">HCO?�⁻</div>
                 <div class="input-with-unit">
                     <input type="number" id="abg-hco3" placeholder="e.g., 26">
                     <span>mEq/L</span>
@@ -89,7 +90,7 @@ export const abgAnalyzer = {
             </div>
 
             <div class="info-section">
-                <h4>📚 Reference</h4>
+                <h4>?? Reference</h4>
                 <p>Baillie, J K. (2008). Simple, easily memorised "rules of thumb" for the rapid assessment of physiological compensation for respiratory acid-base disorders. <em>Thorax</em>, 63(3), 289-290.</p>
             </div>
         `;
@@ -285,7 +286,7 @@ export const abgAnalyzer = {
             }
             interpret();
         }); // HCO3
-        getMostRecentObservation(client, '2951-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
             if (obs) {
                 fields.sodium.value = obs.valueQuantity.value.toFixed(0);
             }
@@ -297,7 +298,7 @@ export const abgAnalyzer = {
             }
             interpret();
         }); // Chloride
-        getMostRecentObservation(client, '1751-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
             if (obs) {
                 fields.albumin.value = obs.valueQuantity.value.toFixed(0);
             }

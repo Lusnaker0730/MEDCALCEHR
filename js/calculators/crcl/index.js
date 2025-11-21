@@ -5,6 +5,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const crcl = {
     id: 'crcl',
@@ -62,11 +63,11 @@ export const crcl = {
                 <h4>Cockcroft-Gault Formula</h4>
                 <div class="formula-item">
                     <strong>For Males:</strong>
-                    <div class="formula">CrCl = [(140 - Age) × Weight] / (72 × Serum Creatinine)</div>
+                    <div class="formula">CrCl = [(140 - Age) ? Weight] / (72 ? Serum Creatinine)</div>
                 </div>
                 <div class="formula-item">
                     <strong>For Females:</strong>
-                    <div class="formula">CrCl = [(140 - Age) × Weight × 0.85] / (72 × Serum Creatinine)</div>
+                    <div class="formula">CrCl = [(140 - Age) ? Weight ? 0.85] / (72 ? Serum Creatinine)</div>
                 </div>
                 <div class="formula-item">
                     <strong>Where:</strong>
@@ -80,10 +81,10 @@ export const crcl = {
                 <div class="formula-item">
                     <strong>Note:</strong>
                     <div class="formula">
-                        • This formula estimates creatinine clearance, not GFR<br>
-                        • For females, multiply result by 0.85<br>
-                        • Original formula published in 1976<br>
-                        • May overestimate clearance in elderly patients
+                        ??This formula estimates creatinine clearance, not GFR<br>
+                        ??For females, multiply result by 0.85<br>
+                        ??Original formula published in 1976<br>
+                        ??May overestimate clearance in elderly patients
                     </div>
                 </div>
             </div>
@@ -163,7 +164,7 @@ export const crcl = {
                     </div>
                     
                     <div class="alert ${alertType} mt-20">
-                        <span class="alert-icon">${alertType === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                        <span class="alert-icon">${alertType === 'warning' ? '?��?' : '?��?'}</span>
                         <div class="alert-content">
                             <p>${alertMsg}</p>
                         </div>
@@ -222,7 +223,7 @@ export const crcl = {
         });
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             // Weight
             if (obs && obs.valueQuantity) {
                 const weightInput = container.querySelector('#crcl-weight');
@@ -233,7 +234,7 @@ export const crcl = {
             calculateAndUpdate();
         });
 
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             // Serum Creatinine
             if (obs && obs.valueQuantity) {
                 const scrInput = container.querySelector('#crcl-scr');

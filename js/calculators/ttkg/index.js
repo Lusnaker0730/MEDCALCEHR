@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const ttkg = {
     id: 'ttkg',
@@ -44,19 +45,19 @@ export const ttkg = {
             </div>
             
             <div class="formula-section">
-                <h4>📐 Formula</h4>
+                <h4>?? Formula</h4>
                 <div class="formula-box">
                     <div class="formula-title">TTKG =</div>
                     <div class="formula-equation">
-                        <span class="formula-main">(Urine K⁺ × Serum Osmolality) / (Serum K⁺ × Urine Osmolality)</span>
+                        <span class="formula-main">(Urine K??? Serum Osmolality) / (Serum K??? Urine Osmolality)</span>
                     </div>
                 </div>
                 
                 <div class="formula-explanation">
-                    <h5>📋 Formula Components</h5>
+                    <h5>?? Formula Components</h5>
                     <ul>
-                        <li><strong>Urine K⁺:</strong> Urine potassium concentration (mEq/L)</li>
-                        <li><strong>Serum K⁺:</strong> Serum potassium concentration (mEq/L)</li>
+                        <li><strong>Urine K??</strong> Urine potassium concentration (mEq/L)</li>
+                        <li><strong>Serum K??</strong> Serum potassium concentration (mEq/L)</li>
                         <li><strong>Serum Osmolality:</strong> Serum osmolality (mOsm/kg)</li>
                         <li><strong>Urine Osmolality:</strong> Urine osmolality (mOsm/kg)</li>
                         <li><strong>Purpose:</strong> Estimates the potassium gradient across the cortical collecting duct</li>
@@ -65,13 +66,13 @@ export const ttkg = {
                 </div>
                 
                 <div class="normal-values">
-                    <h5>📊 Normal Values & Reference Ranges</h5>
+                    <h5>?? Normal Values & Reference Ranges</h5>
                     <div class="values-grid">
                         <div class="value-item normal-range">
                             <strong>Normal TTKG:</strong><br>8-9 (on normal diet)
                         </div>
                         <div class="value-item reference-k">
-                            <strong>Serum K⁺:</strong><br>3.5-5.2 mEq/L
+                            <strong>Serum K??</strong><br>3.5-5.2 mEq/L
                         </div>
                         <div class="value-item reference-osmo">
                             <strong>Serum Osmolality:</strong><br>275-295 mOsm/kg
@@ -80,21 +81,21 @@ export const ttkg = {
                 </div>
                 
                 <div class="clinical-interpretation">
-                    <h5>🔍 Clinical Interpretation</h5>
+                    <h5>?? Clinical Interpretation</h5>
                     <div class="interpretation-grid">
                         <div class="interpretation-category">
-                            <h6>Hypokalemia (K⁺ < 3.5 mEq/L)</h6>
+                            <h6>Hypokalemia (K??< 3.5 mEq/L)</h6>
                             <div class="interpretation-item">
                                 <strong>TTKG < 3:</strong>
                                 <p>Suggests non-renal potassium loss (GI losses, transcellular shift, poor intake)</p>
                             </div>
                             <div class="interpretation-item">
-                                <strong>TTKG ≥ 3:</strong>
+                                <strong>TTKG ??3:</strong>
                                 <p>Suggests renal potassium wasting (hyperaldosteronism, diuretics, Bartter/Gitelman syndrome)</p>
                             </div>
                         </div>
                         <div class="interpretation-category">
-                            <h6>Hyperkalemia (K⁺ > 5.2 mEq/L)</h6>
+                            <h6>Hyperkalemia (K??> 5.2 mEq/L)</h6>
                             <div class="interpretation-item">
                                 <strong>TTKG > 10:</strong>
                                 <p>Suggests high potassium intake or transcellular shift</p>
@@ -108,7 +109,7 @@ export const ttkg = {
                 </div>
                 
                 <div class="physiological-basis">
-                    <h5>🧬 Physiological Basis</h5>
+                    <h5>?�� Physiological Basis</h5>
                     <div class="physiology-grid">
                         <div class="physiology-item">
                             <h6>Cortical Collecting Duct</h6>
@@ -126,7 +127,7 @@ export const ttkg = {
                 </div>
                 
                 <div class="clinical-note">
-                    <h5>⚠️ Clinical Notes & Limitations</h5>
+                    <h5>?��? Clinical Notes & Limitations</h5>
                     <ul>
                         <li><strong>Prerequisites:</strong> TTKG is only valid when urine osmolality > serum osmolality (concentrated urine)</li>
                         <li><strong>Sodium delivery:</strong> Adequate sodium delivery to the distal nephron is required for accurate interpretation</li>
@@ -193,14 +194,14 @@ export const ttkg = {
         };
 
         // LOINC codes for observations
-        getMostRecentObservation(client, '2829-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
             // Urine potassium
             if (obs && obs.valueQuantity) {
                 urineKEl.value = obs.valueQuantity.value.toFixed(1);
             }
             calculate();
         });
-        getMostRecentObservation(client, '2823-3').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
             // Serum potassium
             if (obs && obs.valueQuantity) {
                 serumKEl.value = obs.valueQuantity.value.toFixed(1);

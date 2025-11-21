@@ -1,4 +1,5 @@
 import { getPatient, getMostRecentObservation, getPatientConditions } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const fourPeps = {
     id: '4peps',
@@ -11,7 +12,7 @@ export const fourPeps = {
         </div>
         
         <div class="alert info">
-            <strong>📋 Instructions</strong>
+            <strong>?? Instructions</strong>
             <p>The timing of vital sign values were not formally assessed by this study; we recommend using clinician judgment to assess which vital sign should be used for the 4PEPS score.</p>
         </div>
         <div class="section">
@@ -136,7 +137,7 @@ export const fourPeps = {
         </div>
         
         <div class="section">
-            <div class="section-title">O₂ saturation &lt;95%</div>
+            <div class="section-title">O??saturation &lt;95%</div>
             <div class="radio-group" data-name="o2_sat">
                 <label class="radio-option selected">
                     <input type="radio" name="o2_sat" value="0" checked>
@@ -188,7 +189,7 @@ export const fourPeps = {
                 <span class="value risk-badge" id="fourpeps-risk-level">Moderate CPP</span>
             </div>
             <div class="alert info" id="fourpeps-recommendation-alert">
-                <strong>💡 Recommendation</strong>
+                <strong>?�� Recommendation</strong>
                 <p id="fourpeps-recommendation">PE can be ruled out if D-dimer level &lt;0.5 µg/mL OR &lt;(age x 0.01) µg/mL</p>
             </div>
         </div>
@@ -198,8 +199,8 @@ export const fourPeps = {
         </div>
 
         <div class="info-section">
-            <h4>📚 Reference</h4>
-            <p>Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. <em>JAMA Cardiology</em>, 6(6), 669–677. <a href="https://doi.org/10.1001/jamacardio.2021.0064" target="_blank">doi:10.1001/jamacardio.2021.0064</a>.</p>
+            <h4>?? Reference</h4>
+            <p>Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. <em>JAMA Cardiology</em>, 6(6), 669??77. <a href="https://doi.org/10.1001/jamacardio.2021.0064" target="_blank">doi:10.1001/jamacardio.2021.0064</a>.</p>
         </div>
     `,
     initialize: async (client, patient, container) => {
@@ -314,8 +315,8 @@ export const fourPeps = {
 
             const [conditions, hrObs, o2Obs] = await Promise.all([
                 getPatientConditions(client, [...chronicRespCodes, ...vteCodes]),
-                getMostRecentObservation(client, '8867-4'), // Heart rate
-                getMostRecentObservation(client, '59408-5') // O2 Sat on Room Air
+                getMostRecentObservation(client, LOINC_CODES.HEART_RATE), // Heart rate
+                getMostRecentObservation(client, LOINC_CODES.OXYGEN_SATURATION) // O2 Sat on Room Air
             ]);
 
             if (conditions) {

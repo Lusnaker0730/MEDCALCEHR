@@ -1,5 +1,6 @@
 // js/calculators/curb-65.js
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const curb65 = {
     id: 'curb-65',
@@ -14,7 +15,7 @@ export const curb65 = {
             </div>
             
             <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <p>Check all criteria that apply. Score automatically calculates.</p>
                 </div>
@@ -35,15 +36,15 @@ export const curb65 = {
                     </label>
                     <label class="checkbox-option">
                         <input type="checkbox" id="curb-rr">
-                        <span><strong>R</strong>espiratory Rate ≥ 30 breaths/min <strong>+1</strong></span>
+                        <span><strong>R</strong>espiratory Rate ??30 breaths/min <strong>+1</strong></span>
                     </label>
                     <label class="checkbox-option">
                         <input type="checkbox" id="curb-bp">
-                        <span><strong>B</strong>lood Pressure (SBP < 90 or DBP ≤ 60 mmHg) <strong>+1</strong></span>
+                        <span><strong>B</strong>lood Pressure (SBP < 90 or DBP ??60 mmHg) <strong>+1</strong></span>
                     </label>
                     <label class="checkbox-option">
                         <input type="checkbox" id="curb-age">
-                        <span>Age ≥ <strong>65</strong> years <strong>+1</strong></span>
+                        <span>Age ??<strong>65</strong> years <strong>+1</strong></span>
                     </label>
                 </div>
             </div>
@@ -141,7 +142,7 @@ export const curb65 = {
                     <strong>${riskLevel}</strong>
                 </div>
                 <div class="alert ${alertClass}">
-                    <span class="alert-icon">${alertClass === 'success' ? '✓' : alertClass === 'warning' ? '⚠' : '⚠'}</span>
+                    <span class="alert-icon">${alertClass === 'success' ? '?? : alertClass === 'warning' ? '?? : '??}</span>
                     <div class="alert-content">
                         <p><strong>Recommendation:</strong></p>
                         <p>${recommendation}</p>
@@ -163,9 +164,9 @@ export const curb65 = {
             .then(response => {
                 if (response.entry && response.entry.length > 0) {
                     const vitals = response.entry[0].resource;
-                    const rrComp = vitals.component.find(c => c.code.coding[0].code === '9279-1');
-                    const sbpComp = vitals.component.find(c => c.code.coding[0].code === '8480-6');
-                    const dbpComp = vitals.component.find(c => c.code.coding[0].code === '8462-4');
+                    const rrComp = vitals.component.find(c => c.code.coding[0].code === LOINC_CODES.RESPIRATORY_RATE);
+                    const sbpComp = vitals.component.find(c => c.code.coding[0].code === LOINC_CODES.SYSTOLIC_BP);
+                    const dbpComp = vitals.component.find(c => c.code.coding[0].code === LOINC_CODES.DIASTOLIC_BP);
                     if (rrComp && rrComp.valueQuantity.value >= 30) {
                         container.querySelector('#curb-rr').checked = true;
                     }
@@ -180,7 +181,7 @@ export const curb65 = {
             });
 
         // Pre-fill BUN (LOINC: 6299-8 or 3094-0)
-        getMostRecentObservation(client, '3094-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
             if (obs && obs.valueQuantity.value > 19) {
                 container.querySelector('#curb-bun').checked = true;
                 calculate();

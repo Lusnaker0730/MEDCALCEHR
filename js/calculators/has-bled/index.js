@@ -4,6 +4,7 @@ import {
     getPatientConditions,
     getMedicationRequests
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const hasBled = {
     id: 'has-bled',
@@ -18,7 +19,7 @@ export const hasBled = {
         </div>
         
         <div class="alert info">
-            <span class="alert-icon">ℹ️</span>
+            <span class="alert-icon">?��?</span>
             <div class="alert-content">
                 <p>Select all risk factors that apply. Score automatically calculates.</p>
             </div>
@@ -61,7 +62,7 @@ export const hasBled = {
                 </label>
                 <label class="checkbox-option" data-id="alcohol">
                     <input type="checkbox" value="1">
-                    <span>Alcohol use (≥8 drinks/week) <strong>+1</strong></span>
+                    <span>Alcohol use (?? drinks/week) <strong>+1</strong></span>
                 </label>
             </div>
         </div>
@@ -139,7 +140,7 @@ export const hasBled = {
                     <strong>${interpretation.level}</strong>
                 </div>
                 <div class="alert ${interpretation.alertClass}">
-                    <span class="alert-icon">${interpretation.alertClass === 'success' ? '✓' : '⚠'}</span>
+                    <span class="alert-icon">${interpretation.alertClass === 'success' ? '?? : '??}</span>
                     <div class="alert-content">
                         <p><strong>Recommendation:</strong> ${score >= 3 ? 'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.' : 'Anticoagulation can be considered. Relatively low risk for major bleeding.'}</p>
                     </div>
@@ -216,12 +217,12 @@ export const hasBled = {
             }
 
             // Observations
-            const sbp = await getMostRecentObservation(client, '8480-6'); // SBP
+            const sbp = await getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP); // SBP
             if (sbp && sbp.valueQuantity.value > 160) {
                 setCheckbox('hypertension', true);
             }
 
-            const creatinine = await getMostRecentObservation(client, '2160-0'); // Creatinine
+            const creatinine = await getMostRecentObservation(client, LOINC_CODES.CREATININE); // Creatinine
             if (creatinine && creatinine.valueQuantity.value > 2.26) {
                 setCheckbox('renal', true);
             }

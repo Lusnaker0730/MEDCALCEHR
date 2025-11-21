@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const paduaVTE = {
     id: 'padua-vte',
@@ -37,7 +38,7 @@ export const paduaVTE = {
         }
 
         // Auto-populate BMI
-        getMostRecentObservation(client, '39156-5').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
             if (obs && obs.valueQuantity) {
                 const bmi = obs.valueQuantity.value;
                 const obesityCheckbox = root.querySelector('#padua-obesity');

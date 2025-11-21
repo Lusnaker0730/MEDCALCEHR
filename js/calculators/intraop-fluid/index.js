@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const intraopFluid = {
     id: 'intraop-fluid',
@@ -14,7 +15,7 @@ export const intraopFluid = {
             </div>
             <div class="instructions-box dark-blue">
                 <strong>INSTRUCTIONS</strong>
-                <p>Use in patients undergoing surgery who weigh ≥20 kg and do not have conditions that could otherwise result in fluid overload such as heart failure, COPD, or kidney failure on dialysis. This calculator provides a base hourly fluid requirement, fluid deficit, and hour-by-hour fluid requirement based on surgical needs.</p>
+                <p>Use in patients undergoing surgery who weigh ??0 kg and do not have conditions that could otherwise result in fluid overload such as heart failure, COPD, or kidney failure on dialysis. This calculator provides a base hourly fluid requirement, fluid deficit, and hour-by-hour fluid requirement based on surgical needs.</p>
             </div>
             <div class="form-container modern">
                 <div class="input-row">
@@ -38,45 +39,44 @@ export const intraopFluid = {
             </div>
             <div id="ifd-result" class="result-grid" style="display:none;"></div>
             <div class="formula-section" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196F3;">
-                <h4 style="margin-top: 0; color: #1976D2;">計算公式 (Formulas)</h4>
+                <h4 style="margin-top: 0; color: #1976D2;">計�??��? (Formulas)</h4>
                 
                 <div style="margin-bottom: 20px;">
-                    <strong style="color: #424242;">1. 每小時維持液體量 (Hourly Maintenance Fluid)</strong>
+                    <strong style="color: #424242;">1. 每�??�維?�液體�? (Hourly Maintenance Fluid)</strong>
                     <ul style="margin: 10px 0; line-height: 1.8;">
-                        <li>體重 > 20 kg: <code>維持量 = 體重 + 40 mL/hr</code></li>
-                        <li>體重 10-20 kg: <code>維持量 = 40 + (體重 - 10) × 2 mL/hr</code></li>
-                        <li>體重 ≤ 10 kg: <code>維持量 = 體重 × 4 mL/hr</code></li>
+                        <li>體�? > 20 kg: <code>維�???= 體�? + 40 mL/hr</code></li>
+                        <li>體�? 10-20 kg: <code>維�???= 40 + (體�? - 10) ? 2 mL/hr</code></li>
+                        <li>體�? ??10 kg: <code>維�???= 體�? ? 4 mL/hr</code></li>
                     </ul>
                 </div>
                 
                 <div style="margin-bottom: 20px;">
-                    <strong style="color: #424242;">2. NPO 液體缺失 (NPO Fluid Deficit)</strong>
+                    <strong style="color: #424242;">2. NPO 液�?缺失 (NPO Fluid Deficit)</strong>
                     <ul style="margin: 10px 0; line-height: 1.8;">
-                        <li><code>NPO 缺失 = 維持量 × NPO 時數</code></li>
+                        <li><code>NPO 缺失 = 維�???? NPO ?�數</code></li>
                     </ul>
                 </div>
                 
                 <div style="margin-bottom: 20px;">
-                    <strong style="color: #424242;">3. 創傷液體丟失率 (Trauma-Related Fluid Loss)</strong>
+                    <strong style="color: #424242;">3. ?�傷液�?丟失??(Trauma-Related Fluid Loss)</strong>
                     <ul style="margin: 10px 0; line-height: 1.8;">
-                        <li>輕微創傷: <code>4 mL/kg/hr</code></li>
-                        <li>中度創傷: <code>6 mL/kg/hr</code></li>
-                        <li>嚴重創傷: <code>8 mL/kg/hr</code></li>
-                        <li><code>創傷丟失量 = 創傷率 × 體重</code></li>
+                        <li>輕微?�傷: <code>4 mL/kg/hr</code></li>
+                        <li>中度?�傷: <code>6 mL/kg/hr</code></li>
+                        <li>?��??�傷: <code>8 mL/kg/hr</code></li>
+                        <li><code>?�傷丟失??= ?�傷??? 體�?</code></li>
                     </ul>
                 </div>
                 
                 <div style="margin-bottom: 0;">
-                    <strong style="color: #424242;">4. 逐時輸液量 (Hour-by-Hour Fluid Requirements)</strong>
+                    <strong style="color: #424242;">4. ?��?輸液??(Hour-by-Hour Fluid Requirements)</strong>
                     <ul style="margin: 10px 0; line-height: 1.8;">
-                        <li><strong>第1小時:</strong> <code>(NPO 缺失 ÷ 2) + 維持量 + 創傷丟失量</code></li>
-                        <li><strong>第2小時:</strong> <code>(NPO 缺失 ÷ 4) + 維持量 + 創傷丟失量</code></li>
-                        <li><strong>第3小時:</strong> <code>(NPO 缺失 ÷ 4) + 維持量 + 創傷丟失量</code></li>
-                        <li><strong>第4小時及以後:</strong> <code>維持量 + 創傷丟失量</code></li>
+                        <li><strong>�?小�?:</strong> <code>(NPO 缺失 ÷ 2) + 維�???+ ?�傷丟失??/code></li>
+                        <li><strong>�?小�?:</strong> <code>(NPO 缺失 ÷ 4) + 維�???+ ?�傷丟失??/code></li>
+                        <li><strong>�?小�?:</strong> <code>(NPO 缺失 ÷ 4) + 維�???+ ?�傷丟失??/code></li>
+                        <li><strong>�?小�??�以�?</strong> <code>維�???+ ?�傷丟失??/code></li>
                     </ul>
                     <p style="margin-top: 10px; font-size: 0.9em; color: #666; font-style: italic;">
-                        註: NPO 缺失在前3小時內補充完成（第1小時補充一半，第2、3小時各補充四分之一）
-                    </p>
+                        �? NPO 缺失?��?3小�??��??��??��?�?小�?補�?一?��?�???小�??��??��??��?一�?                    </p>
                 </div>
             </div>
         `;
@@ -133,7 +133,7 @@ export const intraopFluid = {
             resultEl.style.display = 'grid';
         };
 
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
                 fields.weight.value = obs.valueQuantity.value.toFixed(1);
             }

@@ -6,6 +6,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const mdrdGfr = {
     id: 'mdrd-gfr',
@@ -18,7 +19,7 @@ export const mdrdGfr = {
             </div>
             
             <div class="alert warning">
-                <span class="alert-icon">⚠️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <p><strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.</p>
                 </div>
@@ -77,7 +78,7 @@ export const mdrdGfr = {
                 <h4>MDRD Formula</h4>
                 <div class="formula-item">
                     <strong>Base Formula:</strong>
-                    <div class="formula">eGFR = 175 × (Scr)<sup>-1.154</sup> × (Age)<sup>-0.203</sup></div>
+                    <div class="formula">eGFR = 175 ? (Scr)<sup>-1.154</sup> ? (Age)<sup>-0.203</sup></div>
                 </div>
                 <div class="formula-item">
                     <strong>Gender Adjustment:</strong>
@@ -90,7 +91,7 @@ export const mdrdGfr = {
                 <div class="formula-item">
                     <strong>Complete Formula:</strong>
                     <div class="formula">
-                        eGFR = 175 × (Scr)<sup>-1.154</sup> × (Age)<sup>-0.203</sup> × [0.742 if female] × [1.212 if African American]
+                        eGFR = 175 ? (Scr)<sup>-1.154</sup> ? (Age)<sup>-0.203</sup> ? [0.742 if female] ? [1.212 if African American]
                     </div>
                 </div>
                 <div class="formula-item">
@@ -104,10 +105,10 @@ export const mdrdGfr = {
                 <div class="formula-item">
                     <strong>Important Notes:</strong>
                     <div class="formula">
-                        • MDRD formula is less accurate at higher GFR values (>60)<br>
-                        • CKD-EPI equation is now preferred for most patients<br>
-                        • Original study included patients with CKD<br>
-                        • Not validated for use in children, pregnancy, or acute kidney injury
+                        ??MDRD formula is less accurate at higher GFR values (>60)<br>
+                        ??CKD-EPI equation is now preferred for most patients<br>
+                        ??Original study included patients with CKD<br>
+                        ??Not validated for use in children, pregnancy, or acute kidney injury
                     </div>
                 </div>
             </div>
@@ -194,7 +195,7 @@ export const mdrdGfr = {
                     </div>
                     
                     <div class="alert ${alertType} mt-20">
-                        <span class="alert-icon">${alertType === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                        <span class="alert-icon">${alertType === 'warning' ? '?��?' : '?��?'}</span>
                         <div class="alert-content">
                             <p>${alertMsg}</p>
                         </div>
@@ -252,7 +253,7 @@ export const mdrdGfr = {
         });
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             if (obs && obs.valueQuantity) {
                 const creatinineInput = container.querySelector('#mdrd-creatinine');
                 if (creatinineInput) {

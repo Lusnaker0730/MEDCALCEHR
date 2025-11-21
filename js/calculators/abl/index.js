@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const abl = {
     id: 'abl',
@@ -51,10 +52,10 @@ export const abl = {
             <div id="abl-result" class="result-container"></div>
 
             <div class="info-section">
-                <h4>📐 Formulas</h4>
+                <h4>?? Formulas</h4>
                 <div class="formula-box">
                     <p><strong>Estimated Blood Volume (EBV):</strong></p>
-                    <p>EBV = Weight (kg) × Blood Volume (mL/kg)</p>
+                    <p>EBV = Weight (kg) ? Blood Volume (mL/kg)</p>
                     <ul style="margin: 10px 0; padding-left: 20px;">
                         <li>Adult man: 75 mL/kg</li>
                         <li>Adult woman: 65 mL/kg</li>
@@ -65,13 +66,13 @@ export const abl = {
                 </div>
                 <div class="formula-box">
                     <p><strong>Allowable Blood Loss (ABL):</strong></p>
-                    <p>ABL = EBV × (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub></p>
+                    <p>ABL = EBV ? (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub></p>
                     <p style="margin-top: 5px;">where Hgb<sub>average</sub> = (Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2</p>
                 </div>
             </div>
 
             <div class="info-section">
-                <h4>📚 Reference</h4>
+                <h4>?? Reference</h4>
                 <p>Gross, J. B. (1983). Estimating Allowable Blood Loss: Corrected for Dilution. <em>Anesthesiology</em>, 58(3), 277-280.</p>
             </div>
         `;
@@ -97,7 +98,7 @@ export const abl = {
             if (hgbInitial <= hgbFinal) {
                 resultEl.innerHTML = `
                     <div class="alert error">
-                        <strong>⚠️ Error</strong>
+                        <strong>?��? Error</strong>
                         <p>Initial hemoglobin must be greater than final hemoglobin.</p>
                     </div>
                 `;
@@ -129,14 +130,14 @@ export const abl = {
         };
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '29463-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             // Weight
             if (obs && obs.valueQuantity) {
                 weightEl.value = obs.valueQuantity.value.toFixed(1);
             }
             calculate();
         });
-        getMostRecentObservation(client, '718-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN).then(obs => {
             // Hemoglobin
             if (obs && obs.valueQuantity) {
                 hgbInitialEl.value = obs.valueQuantity.value.toFixed(1);

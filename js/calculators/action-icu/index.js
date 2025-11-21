@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const actionIcu = {
     id: 'action-icu',
@@ -240,7 +241,7 @@ export const actionIcu = {
             setRadioWithValue('age', patientAge, [v => v < 70, v => v >= 70]);
         }
 
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             // Serum Creatinine
             if (obs && obs.valueQuantity) {
                 setRadioWithValue('creatinine', obs.valueQuantity.value, [
@@ -250,7 +251,7 @@ export const actionIcu = {
             }
             calculate();
         });
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             // Heart Rate
             if (obs && obs.valueQuantity) {
                 setRadioWithValue('hr', obs.valueQuantity.value, [
@@ -261,7 +262,7 @@ export const actionIcu = {
             }
             calculate();
         });
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             // Systolic Blood Pressure
             if (obs && obs.valueQuantity) {
                 setRadioWithValue('sbp', obs.valueQuantity.value, [

@@ -1,5 +1,6 @@
 // js/calculators/perc.js
 import { calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const perc = {
     id: 'perc',
@@ -96,10 +97,10 @@ export const perc = {
                 if (response.entry && response.entry.length > 0) {
                     const vitals = response.entry[0].resource;
                     const hrComponent = vitals.component.find(
-                        c => c.code.coding[0].code === '8867-4'
+                        c => c.code.coding[0].code === LOINC_CODES.HEART_RATE
                     );
                     const o2Component = vitals.component.find(
-                        c => c.code.coding[0].code === '59408-5'
+                        c => c.code.coding[0].code === LOINC_CODES.OXYGEN_SATURATION
                     );
 
                     if (hrComponent && hrComponent.valueQuantity.value >= 100) {

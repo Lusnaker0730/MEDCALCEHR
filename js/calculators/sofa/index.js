@@ -1,5 +1,6 @@
 // js/calculators/sofa.js
 import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const sofa = {
     id: 'sofa',
@@ -408,7 +409,7 @@ export const sofa = {
 
     populateLabValues: function (client) {
         // Get platelets
-        getMostRecentObservation(client, '2160-0')
+        getMostRecentObservation(client, LOINC_CODES.CREATININE)
             .then(platelets => {
                 if (platelets && platelets.valueQuantity) {
                     const val = platelets.valueQuantity.value;
@@ -450,7 +451,7 @@ export const sofa = {
             });
 
         // Get creatinine
-        getMostRecentObservation(client, '2160-0')
+        getMostRecentObservation(client, LOINC_CODES.CREATININE)
             .then(creatinine => {
                 if (creatinine && creatinine.valueQuantity) {
                     const val = creatinine.valueQuantity.value;
@@ -492,7 +493,7 @@ export const sofa = {
             });
 
         // Get bilirubin
-        getMostRecentObservation(client, '1975-2')
+        getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
             .then(bilirubin => {
                 if (bilirubin && bilirubin.valueQuantity) {
                     const val = bilirubin.valueQuantity.value;

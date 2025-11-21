@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 const getPoints = {
     age: v => v * 0.08,
@@ -263,19 +264,19 @@ export const maggic = {
             }
         }
 
-        getMostRecentObservation(client, '39156-5').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
             if (obs) {
                 fields.bmi.value = obs.valueQuantity.value.toFixed(1);
             }
             calculate();
         }); // BMI
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             if (obs) {
                 fields.sbp.value = obs.valueQuantity.value.toFixed(0);
             }
             calculate();
         }); // SBP
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             if (obs) {
                 fields.creatinine.value = obs.valueQuantity.value.toFixed(0);
             }

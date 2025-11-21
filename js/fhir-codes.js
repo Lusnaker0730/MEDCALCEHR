@@ -29,11 +29,13 @@ export const LOINC_CODES = {
     WBC: '6690-2', // White blood cells
     PLATELETS: '777-3', // Platelets
     PLATELETS_ALT: '2160-0', // Platelets (alternative code)
+    EOSINOPHILS: '26478-8', // Eosinophils
 
     // Laboratory - Chemistry
     SODIUM: '2951-2', // Sodium
     POTASSIUM: '2823-3', // Potassium
     CHLORIDE: '2075-0', // Chloride
+    BICARBONATE: '1963-8', // Bicarbonate (serum)
     CO2: '2028-9', // Carbon dioxide
     BUN: '3094-0', // Blood urea nitrogen
     BUN_ALT: '6299-8', // BUN (alternative code)
@@ -86,6 +88,7 @@ export const LOINC_CODES = {
     // Laboratory - Coagulation
     PT: '5902-2', // Prothrombin time
     PTT: '14979-9', // Partial thromboplastin time
+    INR_COAG: '34714-6', // INR from coagulation panel
     FIBRINOGEN: '3255-7', // Fibrinogen
     D_DIMER: '48065-7', // D-dimer
 
@@ -93,6 +96,7 @@ export const LOINC_CODES = {
     PH: '2744-1', // pH
     PCO2: '2019-8', // pCO2
     PO2: '2703-7', // pO2
+    PaO2_FiO2: '50984-4', // PaO2/FiO2 ratio
     HCO3: '1960-4', // Bicarbonate
     BASE_EXCESS: '1925-7', // Base excess
     LACTATE: '2524-7', // Lactate
@@ -106,6 +110,8 @@ export const LOINC_CODES = {
     AMYLASE: '1798-8', // Amylase
     LIPASE: '3040-3', // Lipase
     LDH: '2532-0', // Lactate dehydrogenase
+    CULTURE: '3150-0', // Culture result
+    ETHANOL: '49765-1', // Ethanol concentration
     FERRITIN: '2276-4', // Ferritin
     VITAMIN_D: '1989-3', // Vitamin D 25-hydroxy
 

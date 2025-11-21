@@ -3,6 +3,7 @@ import {
     calculateAge,
     initializeSegmentedControls
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
@@ -195,7 +196,7 @@ export const apacheIi = {
             </div>
             
             <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
+                <span class="alert-icon">?��?</span>
                 <div class="alert-content">
                     <div class="alert-title">Instructions</div>
                     <p>Enter physiologic values from the first 24 hours of ICU admission. Use the worst value for each parameter.</p>
@@ -244,18 +245,18 @@ export const apacheIi = {
                     <div class="input-row"><label>Potassium</label><div class="input-with-unit"><input type="number" id="apache-ii-potassium" step="0.1" placeholder="Norm: 3.5 - 5.2"><span>mmol/L</span></div></div>
                     <div class="input-row"><label>Creatinine</label><div class="input-with-unit"><input type="number" id="apache-ii-creatinine" step="0.1" placeholder="Norm: 62 - 115"><span>μmol/L</span></div></div>
                     <div class="input-row"><label>Hematocrit</label><div class="input-with-unit"><input type="number" id="apache-ii-hct" step="0.1" placeholder="Norm: 36 - 51"><span>%</span></div></div>
-                    <div class="input-row"><label>White blood cell count</label><div class="input-with-unit"><input type="number" id="apache-ii-wbc" step="0.1" placeholder="Norm: 3.7 - 10.7"><span>x 10⁹ cells/L</span></div></div>
+                    <div class="input-row"><label>White blood cell count</label><div class="input-with-unit"><input type="number" id="apache-ii-wbc" step="0.1" placeholder="Norm: 3.7 - 10.7"><span>x 10??cells/L</span></div></div>
                     
                     <div class="section-subtitle">Acute renal failure</div>
                     <div class="help-text mb-10">Note: "acute renal failure" was not defined in the original study. Use clinical judgment to determine whether patient has acute kidney injury.</div>
                     <div class="radio-group">
                         <label class="radio-option">
                             <input type="radio" name="arf" value="1">
-                            <span>Yes - Double creatinine points <strong>×2</strong></span>
+                            <span>Yes - Double creatinine points <strong>?2</strong></span>
                         </label>
                         <label class="radio-option">
                             <input type="radio" name="arf" value="0" checked>
-                            <span>No <strong>×1</strong></span>
+                            <span>No <strong>?1</strong></span>
                         </label>
                     </div>
                 </div>
@@ -275,21 +276,21 @@ export const apacheIi = {
                     <div class="radio-group">
                         <label class="radio-option">
                             <input type="radio" name="oxy_method" value="fio2_pao2" checked>
-                            <span>FiO₂ and PaO₂ (if FiO₂ ≥ 0.5)</span>
+                            <span>FiO??and PaO??(if FiO????0.5)</span>
                         </label>
                         <label class="radio-option">
                             <input type="radio" name="oxy_method" value="pao2_only">
-                            <span>PaO₂ only (if FiO₂ &lt; 0.5)</span>
+                            <span>PaO??only (if FiO??&lt; 0.5)</span>
                         </label>
                     </div>
                     
                     <div class="input-row mt-15" id="fio2_pao2_inputs">
-                        <label for="apache-ii-fio2">FiO₂</label><input type="number" id="apache-ii-fio2" step="0.01" placeholder="e.g. 0.5" min="0" max="1">
-                        <label for="apache-ii-pao2">PaO₂</label><input type="number" id="apache-ii-pao2" placeholder="mmHg">
-                        <label for="apache-ii-paco2">PaCO₂</label><input type="number" id="apache-ii-paco2" placeholder="mmHg">
+                        <label for="apache-ii-fio2">FiO??/label><input type="number" id="apache-ii-fio2" step="0.01" placeholder="e.g. 0.5" min="0" max="1">
+                        <label for="apache-ii-pao2">PaO??/label><input type="number" id="apache-ii-pao2" placeholder="mmHg">
+                        <label for="apache-ii-paco2">PaCO??/label><input type="number" id="apache-ii-paco2" placeholder="mmHg">
                     </div>
                     <div class="input-row mt-15" id="pao2_only_inputs" style="display:none;">
-                        <label for="apache-ii-pao2-only">PaO₂</label><input type="number" id="apache-ii-pao2-only" placeholder="mmHg">
+                        <label for="apache-ii-pao2-only">PaO??/label><input type="number" id="apache-ii-pao2-only" placeholder="mmHg">
                     </div>
                 </div>
                 
@@ -298,7 +299,7 @@ export const apacheIi = {
             <div id="apache-ii-result" class="result-container" style="display:none;"></div>
             
             <div class="info-section mt-30">
-                <h4>📚 Reference</h4>
+                <h4>?? Reference</h4>
                 <p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>
                 <img src="js/calculators/apache-ii/APACHE2.png" alt="APACHE II Reference Image" class="reference-image" />
             </div>
@@ -311,52 +312,52 @@ export const apacheIi = {
         }
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, '8310-5').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-temp').value =
                     obs.valueQuantity.value.toFixed(1);
             }
         });
-        getMostRecentObservation(client, '8480-6').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-map').value =
                     obs.valueQuantity.value.toFixed(0);
             }
         });
-        getMostRecentObservation(client, '8867-4').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-hr').value = obs.valueQuantity.value.toFixed(0);
             }
         });
-        getMostRecentObservation(client, '9279-1').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-rr').value = obs.valueQuantity.value.toFixed(0);
             }
         });
-        getMostRecentObservation(client, '2703-7').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.PO2).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-ph').value = obs.valueQuantity.value.toFixed(2);
             }
         });
-        getMostRecentObservation(client, '2951-2').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-sodium').value =
                     obs.valueQuantity.value.toFixed(0);
             }
         });
-        getMostRecentObservation(client, '2823-3').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-potassium').value =
                     obs.valueQuantity.value.toFixed(1);
             }
         });
-        getMostRecentObservation(client, '2160-0').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-creatinine').value =
                     obs.valueQuantity.value.toFixed(2);
             }
         });
-        getMostRecentObservation(client, '4544-3').then(obs => {
+        getMostRecentObservation(client, LOINC_CODES.HEMATOCRIT).then(obs => {
             if (obs && obs.valueQuantity) {
                 container.querySelector('#apache-ii-hct').value =
                     obs.valueQuantity.value.toFixed(1);
@@ -472,7 +473,7 @@ export const apacheIi = {
                     </div>
                     
                     <div class="alert ${mortalityClass === 'high' ? 'warning' : 'info'} mt-20">
-                        <span class="alert-icon">${mortalityClass === 'high' ? '⚠️' : 'ℹ️'}</span>
+                        <span class="alert-icon">${mortalityClass === 'high' ? '?��?' : '?��?'}</span>
                         <div class="alert-content">
                             <p>The APACHE II score is used to predict ICU mortality. Higher scores correlate with increased mortality risk. Serial assessments may provide additional prognostic value.</p>
                         </div>
@@ -483,7 +484,7 @@ export const apacheIi = {
             } catch (e) {
                 resultEl.innerHTML = `
                     <div class="alert warning">
-                        <span class="alert-icon">⚠️</span>
+                        <span class="alert-icon">?��?</span>
                         <div class="alert-content">
                             <p>Please fill out all required fields to calculate the APACHE II score.</p>
                         </div>

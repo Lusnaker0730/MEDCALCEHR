@@ -5,6 +5,7 @@ import {
     initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const sodiumCorrection = {
     id: 'sodium-correction',
@@ -25,18 +26,18 @@ export const sodiumCorrection = {
             <div id="sodium-correction-result" class="result" style="display:none;"></div>
             
             <div class="formula-section">
-                <h4>📐 Formula</h4>
+                <h4>?? Formula</h4>
                 <div class="formula-box">
                     <div class="formula-title">Corrected Sodium (mEq/L) =</div>
                     <div class="formula-equation">
-                        <span class="formula-main">Measured Na⁺ + [Correction Factor × (Glucose - 100) / 100]</span>
+                        <span class="formula-main">Measured Na??+ [Correction Factor ? (Glucose - 100) / 100]</span>
                     </div>
                 </div>
                 
                 <div class="formula-explanation">
-                    <h5>📋 Formula Components</h5>
+                    <h5>?? Formula Components</h5>
                     <ul>
-                        <li><strong>Measured Na⁺:</strong> Laboratory-measured serum sodium (mEq/L)</li>
+                        <li><strong>Measured Na??</strong> Laboratory-measured serum sodium (mEq/L)</li>
                         <li><strong>Glucose:</strong> Serum glucose concentration (mg/dL)</li>
                         <li><strong>Correction Factor:</strong>
                             <ul style="margin-top: 8px; padding-left: 20px;">
@@ -50,7 +51,7 @@ export const sodiumCorrection = {
                 </div>
                 
                 <div class="normal-values">
-                    <h5>📊 Normal Values & Correction Factors</h5>
+                    <h5>?? Normal Values & Correction Factors</h5>
                     <div class="values-grid">
                         <div class="value-item normal-range">
                             <strong>Normal Sodium:</strong><br>136-145 mEq/L
@@ -65,12 +66,12 @@ export const sodiumCorrection = {
                 </div>
                 
                 <div class="correction-scenarios">
-                    <h5>🔍 Correction Factor Selection</h5>
+                    <h5>?? Correction Factor Selection</h5>
                     <div class="scenarios-grid">
                         <div class="scenario-category">
                             <h6>Standard Correction (1.6 mEq/L)</h6>
                             <ul>
-                                <li>Glucose ≤ 400 mg/dL</li>
+                                <li>Glucose ??400 mg/dL</li>
                                 <li>Most commonly used</li>
                                 <li>Based on Hillier et al. study</li>
                                 <li>Widely accepted in clinical practice</li>
@@ -89,7 +90,7 @@ export const sodiumCorrection = {
                 </div>
                 
                 <div class="physiological-basis">
-                    <h5>🧬 Physiological Basis</h5>
+                    <h5>?�� Physiological Basis</h5>
                     <div class="physiology-grid">
                         <div class="physiology-item">
                             <h6>Osmotic Effect</h6>
@@ -107,28 +108,28 @@ export const sodiumCorrection = {
                 </div>
                 
                 <div class="alternative-formulas">
-                    <h5>📝 Alternative Formulas</h5>
+                    <h5>?? Alternative Formulas</h5>
                     <div class="alt-formulas-grid">
                         <div class="alt-formula-item">
                             <h6>Hillier Formula (Standard)</h6>
-                            <div class="alt-equation">Na⁺ + 1.6 × [(Glucose - 100) / 100]</div>
+                            <div class="alt-equation">Na??+ 1.6 ? [(Glucose - 100) / 100]</div>
                             <p>Most widely used correction formula</p>
                         </div>
                         <div class="alt-formula-item">
                             <h6>Katz Formula</h6>
-                            <div class="alt-equation">Na⁺ + 2.4 × [(Glucose - 100) / 100]</div>
+                            <div class="alt-equation">Na??+ 2.4 ? [(Glucose - 100) / 100]</div>
                             <p>Alternative with higher correction factor</p>
                         </div>
                         <div class="alt-formula-item">
                             <h6>Simplified</h6>
-                            <div class="alt-equation">Na⁺ + 1.6 × (Glucose / 100 - 1)</div>
+                            <div class="alt-equation">Na??+ 1.6 ? (Glucose / 100 - 1)</div>
                             <p>Mathematically equivalent to Hillier formula</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="clinical-note">
-                    <h5>⚠️ Clinical Notes</h5>
+                    <h5>?��? Clinical Notes</h5>
                     <ul>
                         <li><strong>Timing:</strong> Correction should be calculated using simultaneous sodium and glucose measurements</li>
                         <li><strong>Treatment implications:</strong> Corrected sodium helps determine if sodium replacement is needed</li>
@@ -157,7 +158,7 @@ export const sodiumCorrection = {
 
                 if (glucoseMgDl > 400) {
                     note =
-                        '⚠️ For glucose > 400 mg/dL, consider using correction factor of 2.4 mEq/L';
+                        '?��? For glucose > 400 mg/dL, consider using correction factor of 2.4 mEq/L';
                     noteClass = 'warning-note';
                 }
 
@@ -211,8 +212,8 @@ export const sodiumCorrection = {
         initializeUnitConversion(container, 'glucose', calculateAndUpdate);
 
         // Auto-populate from FHIR data
-        const sodiumPromise = getMostRecentObservation(client, '2951-2');
-        const glucosePromise = getMostRecentObservation(client, '2345-7');
+        const sodiumPromise = getMostRecentObservation(client, LOINC_CODES.SODIUM);
+        const glucosePromise = getMostRecentObservation(client, LOINC_CODES.GLUCOSE);
 
         Promise.all([sodiumPromise, glucosePromise]).then(([sodiumObs, glucoseObs]) => {
             if (sodiumObs && sodiumObs.valueQuantity) {

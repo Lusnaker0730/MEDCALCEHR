@@ -1,4 +1,5 @@
 import { cdcData } from './cdc-data.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const growthChart = {
     id: 'growth-chart',
@@ -146,9 +147,9 @@ export const growthChart = {
             }
             
             const loincCodes = {
-                height: '8302-2',
-                weight: '29463-7',
-                head: '8287-5'
+                height: LOINC_CODES.HEIGHT,
+                weight: LOINC_CODES.WEIGHT,
+                head: LOINC_CODES.HEAD_CIRCUMFERENCE
             };
             const requests = Object.entries(loincCodes).map(([key, code]) =>
                 client.patient

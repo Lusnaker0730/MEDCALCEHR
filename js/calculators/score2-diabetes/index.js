@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 // Coefficients and baseline survival data from the official SCORE2-Diabetes calculator
 const score2DiabetesData = {
@@ -575,7 +576,7 @@ export const score2Diabetes = {
         }
 
         // Auto-populate lab values
-        getMostRecentObservation(client, '8480-6')
+        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     fields.sbp.value = obs.valueQuantity.value.toFixed(0);
@@ -590,7 +591,7 @@ export const score2Diabetes = {
                 fields.sbp.placeholder = 'Not available';
             });
 
-        getMostRecentObservation(client, '2093-3')
+        getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     fields.tchol.value = obs.valueQuantity.value.toFixed(0);
@@ -605,7 +606,7 @@ export const score2Diabetes = {
                 fields.tchol.placeholder = 'Not available';
             });
 
-        getMostRecentObservation(client, '2085-9')
+        getMostRecentObservation(client, LOINC_CODES.HDL)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     fields.hdl.value = obs.valueQuantity.value.toFixed(0);
@@ -620,7 +621,7 @@ export const score2Diabetes = {
                 fields.hdl.placeholder = 'Not available';
             });
 
-        getMostRecentObservation(client, '4548-4')
+        getMostRecentObservation(client, LOINC_CODES.HBA1C)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     fields.hba1c.value = obs.valueQuantity.value.toFixed(1);
@@ -635,7 +636,7 @@ export const score2Diabetes = {
                 fields.hba1c.placeholder = 'Not available';
             });
 
-        getMostRecentObservation(client, '33914-3')
+        getMostRecentObservation(client, LOINC_CODES.EGFR)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     fields.egfr.value = obs.valueQuantity.value.toFixed(0);
@@ -651,7 +652,7 @@ export const score2Diabetes = {
             });
 
         // Smoking status
-        getMostRecentObservation(client, '72166-2')
+        getMostRecentObservation(client, LOINC_CODES.SMOKING_STATUS)
             .then(obs => {
                 if (obs && obs.valueCodeableConcept) {
                     const smokingCode = obs.valueCodeableConcept.coding[0].code;

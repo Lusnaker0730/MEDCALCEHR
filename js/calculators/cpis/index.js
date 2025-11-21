@@ -1,6 +1,7 @@
 // js/calculators/cpis/index.js
 import { getMostRecentObservation, getPatientConditions } from '../../utils.js';
 
+import { LOINC_CODES } from '../../fhir-codes.js';
 export const cpis = {
     id: 'cpis',
     title: 'Clinical Pulmonary Infection Score (CPIS) for VAP',
@@ -233,7 +234,7 @@ export const cpis = {
         }
 
         // Temperature (LOINC: 8310-5 - Body temperature)
-        getMostRecentObservation(client, '8310-5')
+        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     let tempC = obs.valueQuantity.value;
@@ -254,7 +255,7 @@ export const cpis = {
             .catch(err => console.log('Temperature data not available'));
 
         // WBC Count (LOINC: 6690-2 - Leukocytes [#/volume] in Blood by Automated count)
-        getMostRecentObservation(client, '6690-2')
+        getMostRecentObservation(client, LOINC_CODES.WBC)
             .then(obs => {
                 if (obs && obs.valueQuantity) {
                     const wbc = obs.valueQuantity.value;
@@ -272,8 +273,8 @@ export const cpis = {
         // LOINC: 3150-0 - Inhaled oxygen concentration
 
         Promise.all([
-            getMostRecentObservation(client, '50984-4'),
-            getMostRecentObservation(client, '3150-0')
+            getMostRecentObservation(client, LOINC_CODES.PaO2_FiO2),
+            getMostRecentObservation(client, LOINC_CODES.CULTURE)
         ])
             .then(([pao2Obs, fio2Obs]) => {
                 if (pao2Obs && pao2Obs.valueQuantity && fio2Obs && fio2Obs.valueQuantity) {
