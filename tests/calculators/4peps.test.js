@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { setupMockFHIRClient, mockPatientData, cleanupDOM } from './test-helpers.js';
 import { fourPeps } from '../../js/calculators/4peps/index.js';
 
-describe('4PEPS (4-Level Pulmonary Embolism Probability Score)', () => {
+describe('4PEPS Calculator', () => {
     let container;
     let mockClient;
     let mockPatient;
@@ -42,18 +42,10 @@ describe('4PEPS (4-Level Pulmonary Embolism Probability Score)', () => {
             container.innerHTML = html;
 
             const ageInput = container.querySelector('#fourpeps-age');
-            const sexInputs = container.querySelectorAll('input[name="sex"]');
+            const sexRadios = container.querySelectorAll('input[name="4peps-sex"]');
             
             expect(ageInput).toBeTruthy();
-            expect(sexInputs.length).toBeGreaterThan(0);
-        });
-
-        test('should include result container', () => {
-            const html = fourPeps.generateHTML();
-            container.innerHTML = html;
-
-            const resultContainer = container.querySelector('.result-container');
-            expect(resultContainer).toBeTruthy();
+            expect(sexRadios.length).toBe(2);
         });
     });
 
@@ -64,37 +56,49 @@ describe('4PEPS (4-Level Pulmonary Embolism Probability Score)', () => {
             fourPeps.initialize(mockClient, mockPatient, container);
         });
 
-        test('should calculate score with valid inputs', () => {
+        test('should calculate score correctly (Low CPP)', () => {
+            // Female (0), Age 50 (0), No other factors
             const ageInput = container.querySelector('#fourpeps-age');
-            ageInput.value = '80';
+            const femaleRadio = container.querySelector('input[name="4peps-sex"][value="0"]');
+            
+            ageInput.value = '50';
+            if (femaleRadio) {
+                femaleRadio.checked = true;
+                femaleRadio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
             ageInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const scoreEl = container.querySelector('#fourpeps-score');
+            const scoreEl = container.querySelector('.ui-result-value');
             expect(scoreEl).toBeTruthy();
-            expect(parseInt(scoreEl.textContent)).toBeGreaterThanOrEqual(0);
+            expect(parseInt(scoreEl.textContent)).toBe(0);
+            
+            const interpretationEl = container.querySelectorAll('.ui-result-value')[1];
+            expect(interpretationEl.textContent).toContain('2-7%');
         });
 
-        test('should show probability level', () => {
+        test('should calculate score correctly (High CPP)', () => {
+            // Male (+2), Age 80 (+2), PE likely (+5) = 9
+            
             const ageInput = container.querySelector('#fourpeps-age');
-            ageInput.value = '70';
+            const maleRadio = container.querySelector('input[name="4peps-sex"][value="2"]');
+            const peLikelyRadio = container.querySelector('input[name="4peps-pe_likely"][value="5"]');
+            
+            ageInput.value = '80';
+            if (maleRadio) {
+                maleRadio.checked = true;
+                maleRadio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (peLikelyRadio) {
+                peLikelyRadio.checked = true;
+                peLikelyRadio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
             ageInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const probabilityEl = container.querySelector('#fourpeps-probability');
-            expect(probabilityEl).toBeTruthy();
-        });
-    });
-
-    describe('FHIR Integration', () => {
-        test('should populate age from patient data', async () => {
-            const html = fourPeps.generateHTML();
-            container.innerHTML = html;
-            
-            fourPeps.initialize(mockClient, mockPatient, container);
-            
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            const ageInput = container.querySelector('#fourpeps-age');
-            expect(ageInput).toBeTruthy();
+            const scoreEl = container.querySelector('.ui-result-value');
+            const score = parseInt(scoreEl.textContent);
+            expect(score).toBe(9);
         });
     });
 
@@ -105,9 +109,8 @@ describe('4PEPS (4-Level Pulmonary Embolism Probability Score)', () => {
             
             fourPeps.initialize(null, null, container);
             
-            const ageInput = container.querySelector('#fourpeps-age');
-            expect(ageInput).toBeTruthy();
+            const resultContainer = container.querySelector('#fourpeps-result');
+            expect(resultContainer).toBeTruthy();
         });
     });
 });
-

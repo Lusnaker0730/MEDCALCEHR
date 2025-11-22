@@ -1,14 +1,16 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { cleanupDOM } from './test-helpers.js';
+import { setupMockFHIRClient, mockPatientData, cleanupDOM } from './test-helpers.js';
 import { phenytoinCorrection } from '../../js/calculators/phenytoin-correction/index.js';
 
 describe('Phenytoin Correction Calculator', () => {
     let container;
+    let mockClient;
 
     beforeEach(() => {
         container = document.createElement('div');
         container.id = 'test-container';
         document.body.appendChild(container);
+        mockClient = setupMockFHIRClient();
     });
 
     afterEach(() => {
@@ -16,14 +18,12 @@ describe('Phenytoin Correction Calculator', () => {
     });
 
     describe('Module Structure', () => {
-        test('should export calculator object', () => {
+        test('should export calculator object with required properties', () => {
             expect(phenytoinCorrection).toBeDefined();
+            expect(phenytoinCorrection.id).toBe('phenytoin-correction');
+            expect(phenytoinCorrection.title).toBeDefined();
             expect(typeof phenytoinCorrection.generateHTML).toBe('function');
             expect(typeof phenytoinCorrection.initialize).toBe('function');
-        });
-
-        test('should have correct calculator ID', () => {
-            expect(phenytoinCorrection.id).toBe('phenytoin-correction');
         });
     });
 
@@ -35,40 +35,86 @@ describe('Phenytoin Correction Calculator', () => {
             expect(html.length).toBeGreaterThan(0);
         });
 
-        test('should include result container', () => {
+        test('should include required input fields', () => {
             const html = phenytoinCorrection.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
-            expect(resultContainer).toBeTruthy();
+            const totalInput = container.querySelector('#pheny-total');
+            const albuminInput = container.querySelector('#pheny-albumin');
+            const renalRadios = container.querySelectorAll('input[name="pheny-renal"]');
+            
+            expect(totalInput).toBeTruthy();
+            expect(albuminInput).toBeTruthy();
+            expect(renalRadios.length).toBe(2);
         });
     });
 
-    describe('FHIR Integration', () => {
-        test('should work without FHIR client', () => {
-            const html = phenytoinCorrection.generateHTML();
-            container.innerHTML = html;
-
-            expect(() => {
-                phenytoinCorrection.initialize(null, null, container);
-            }).not.toThrow();
-        });
-    });
-
-    describe('Basic Functionality', () => {
+    describe('Calculation Logic', () => {
         beforeEach(() => {
             const html = phenytoinCorrection.generateHTML();
             container.innerHTML = html;
+            phenytoinCorrection.initialize(mockClient, null, container);
+        });
+
+        test('should calculate corrected phenytoin correctly (Normal Renal)', () => {
+            // Total 8, Albumin 3.0, Normal Renal (K=0.1)
+            // Corrected = 8 / [((1-0.1) * 3.0 / 4.4) + 0.1]
+            // = 8 / [(0.9 * 0.6818) + 0.1]
+            // = 8 / [0.6136 + 0.1]
+            // = 8 / 0.7136
+            // = 11.21
+            
+            const totalInput = container.querySelector('#pheny-total');
+            const albuminInput = container.querySelector('#pheny-albumin');
+            
+            totalInput.value = '8.0';
+            albuminInput.value = '3.0';
+            
+            totalInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            const scoreEl = container.querySelector('.ui-result-value');
+            expect(scoreEl).toBeTruthy();
+            const result = parseFloat(scoreEl.textContent);
+            expect(result).toBeCloseTo(11.2, 1);
+        });
+
+        test('should calculate corrected phenytoin correctly (Renal Failure)', () => {
+            // Total 8, Albumin 3.0, Renal Failure (K=0.2)
+            // Corrected = 8 / [((1-0.2) * 3.0 / 4.4) + 0.2]
+            // = 8 / [(0.8 * 0.6818) + 0.2]
+            // = 8 / [0.545 + 0.2]
+            // = 8 / 0.745
+            // = 10.73
+            
+            const totalInput = container.querySelector('#pheny-total');
+            const albuminInput = container.querySelector('#pheny-albumin');
+            const renalYesRadio = container.querySelector('input[name="pheny-renal"][value="yes"]');
+            
+            totalInput.value = '8.0';
+            albuminInput.value = '3.0';
+            if (renalYesRadio) {
+                renalYesRadio.checked = true;
+                renalYesRadio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
+            totalInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            const scoreEl = container.querySelector('.ui-result-value');
+            expect(scoreEl).toBeTruthy();
+            const result = parseFloat(scoreEl.textContent);
+            expect(result).toBeCloseTo(10.7, 1);
+        });
+    });
+
+    describe('Initialization', () => {
+        test('should work without FHIR client', () => {
+            const html = phenytoinCorrection.generateHTML();
+            container.innerHTML = html;
+            
             phenytoinCorrection.initialize(null, null, container);
-        });
-
-        test('should initialize without errors', () => {
-            expect(container.innerHTML.length).toBeGreaterThan(0);
-        });
-
-        test('should have input fields', () => {
-            const inputs = container.querySelectorAll('input');
-            expect(inputs.length).toBeGreaterThan(0);
+            
+            const resultContainer = container.querySelector('#phenytoin-result');
+            expect(resultContainer).toBeTruthy();
         });
     });
 });

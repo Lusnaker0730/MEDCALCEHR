@@ -39,7 +39,7 @@ describe('Stop Bang Calculator', () => {
             const html = stopBang.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.stop-bang-result-container');
+            const resultContainer = container.querySelector('#stop-bang-result');
             expect(resultContainer).toBeTruthy();
         });
     });

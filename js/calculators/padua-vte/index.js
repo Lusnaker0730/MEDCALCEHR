@@ -1,93 +1,132 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const paduaVTE = {
     id: 'padua-vte',
     title: 'Padua Prediction Score for Risk of VTE',
     description: 'Determines anticoagulation need in hospitalized patients by risk of VTE.',
     generateHTML: function () {
+        const riskFactors = [
+            { id: 'padua-cancer', label: 'Active cancer', points: 3 },
+            { id: 'padua-prev-vte', label: 'Previous VTE (excluding superficial vein thrombosis)', points: 3 },
+            { id: 'padua-mobility', label: 'Reduced mobility (bedrest with bathroom privileges for ≥3 days)', points: 3 },
+            { id: 'padua-thromb', label: 'Known thrombophilic condition', points: 3 },
+            { id: 'padua-trauma', label: 'Recent (≤1 month) trauma and/or surgery', points: 2 },
+            { id: 'padua-age', label: 'Age ≥70 years', points: 1 },
+            { id: 'padua-heart-resp', label: 'Heart and/or respiratory failure', points: 1 },
+            { id: 'padua-mi-stroke', label: 'Acute MI or ischemic stroke', points: 1 },
+            { id: 'padua-infection', label: 'Acute infection and/or rheumatologic disorder', points: 1 },
+            { id: 'padua-obesity', label: 'Obesity (BMI ≥30 kg/m²)', points: 1 },
+            { id: 'padua-hormonal', label: 'Ongoing hormonal treatment', points: 1 }
+        ];
+
+        const inputs = uiBuilder.createSection({
+            title: 'Risk Factors',
+            content: riskFactors.map(factor => 
+                uiBuilder.createRadioGroup({
+                    name: factor.id,
+                    label: factor.label,
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: factor.points.toString(), label: `Yes (+${factor.points})` }
+                    ]
+                })
+            ).join('')
+        });
+
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="checklist">
-                <div class="check-item"><input type="checkbox" data-points="3"><label>Active cancer</label></div>
-                <div class="check-item"><input type="checkbox" data-points="3"><label>Previous VTE (excluding superficial vein thrombosis)</label></div>
-                <div class="check-item"><input type="checkbox" data-points="3"><label>Reduced mobility (bedrest with bathroom privileges for ≥3 days)</label></div>
-                <div class="check-item"><input type="checkbox" data-points="3"><label>Known thrombophilic condition</label></div>
-                <div class="check-item"><input type="checkbox" data-points="2"><label>Recent (≤1 month) trauma and/or surgery</label></div>
-                <div class="check-item"><input type="checkbox" id="padua-age" data-points="1"><label>Age ≥70 years</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Heart and/or respiratory failure</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Acute MI or ischemic stroke</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Acute infection and/or rheumatologic disorder</label></div>
-                <div class="check-item"><input type="checkbox" id="padua-obesity" data-points="1"><label>Obesity (BMI ≥30 kg/m²)</label></div>
-                <div class="check-item"><input type="checkbox" data-points="1"><label>Ongoing hormonal treatment</label></div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div id="padua-result" class="result" style="display:none;"></div>
+            
+            ${inputs}
+            
+            ${uiBuilder.createResultBox({ id: 'padua-result', title: 'Padua Score Result' })}
         `;
     },
     initialize: function (client, patient, container) {
-        const root = container || document;
+        uiBuilder.initializeComponents(container);
+
+        const setRadioValue = (name, value) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            }
+        };
+
+        const calculate = () => {
+            let score = 0;
+            const radios = container.querySelectorAll('input[type="radio"]:checked');
+            
+            radios.forEach(radio => {
+                score += parseInt(radio.value);
+            });
+
+            let alertClass = '';
+            let riskLevel = '';
+            let recommendation = '';
+            let type = '';
+
+            if (score >= 4) {
+                alertClass = 'ui-alert-danger';
+                riskLevel = 'High Risk for VTE';
+                recommendation = 'Pharmacologic prophylaxis is recommended.';
+                type = 'danger';
+            } else {
+                alertClass = 'ui-alert-success';
+                riskLevel = 'Low Risk for VTE';
+                recommendation = 'Pharmacologic prophylaxis may not be necessary.';
+                type = 'success';
+            }
+
+            const resultBox = container.querySelector('#padua-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total Score', 
+                    value: score, 
+                    unit: 'points',
+                    interpretation: riskLevel,
+                    alertClass: alertClass
+                })}
+                
+                ${uiBuilder.createAlert({
+                    type: type === 'danger' ? 'warning' : 'info',
+                    message: `<strong>Recommendation:</strong> ${recommendation}`,
+                    icon: type === 'danger' ? '⚠️' : '✓'
+                })}
+            `;
+            
+            resultBox.classList.add('show');
+        };
+
+        // Add event listeners
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
+        });
 
         // Auto-populate age
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
-            const ageCheckbox = root.querySelector('#padua-age');
-            if (age >= 70 && ageCheckbox) {
-                ageCheckbox.checked = true;
+            if (age >= 70) {
+                setRadioValue('padua-age', '1');
             }
         }
 
         // Auto-populate BMI
-        getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const bmi = obs.valueQuantity.value;
-                const obesityCheckbox = root.querySelector('#padua-obesity');
-                if (bmi >= 30 && obesityCheckbox) {
-                    obesityCheckbox.checked = true;
-                }
-            }
-        });
-
-        const calculate = () => {
-            const checkboxes = root.querySelectorAll('.check-item input[type="checkbox"]');
-            let score = 0;
-            checkboxes.forEach(box => {
-                if (box.checked) {
-                    score += parseInt(box.dataset.points);
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
+                if (obs?.valueQuantity?.value >= 30) {
+                    setRadioValue('padua-obesity', '1');
                 }
             });
+        }
 
-            const alertClass = score >= 4 ? 'danger' : 'success';
-            const riskLevel = score >= 4 ? 'High Risk for VTE' : 'Low Risk for VTE';
-            const recommendation =
-                score >= 4
-                    ? 'Pharmacologic prophylaxis is recommended.'
-                    : 'Pharmacologic prophylaxis may not be necessary.';
-
-            root.querySelector('#padua-result').innerHTML = `
-                <div class="result-header"><h4>Padua Score Result</h4></div>
-                <div class="result-score">
-                    <span class="score-value">${score}</span>
-                    <span class="score-label">points</span>
-                </div>
-                <div class="severity-indicator ${alertClass}">
-                    <strong>${riskLevel}</strong>
-                </div>
-                <div class="alert ${alertClass}">
-                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
-                    <div class="alert-content">
-                        <p><strong>Recommendation:</strong> ${recommendation}</p>
-                    </div>
-                </div>
-            `;
-            root.querySelector('#padua-result').style.display = 'block';
-        };
-
-        // Add event listeners
-        root.querySelectorAll('.check-item input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', calculate);
-        });
-
+        // Initial calculation
         calculate();
     }
 };

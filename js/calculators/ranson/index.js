@@ -1,195 +1,185 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
-// js/calculators/ranson.js
 export const ransonScore = {
     id: 'ranson-score',
     title: 'Ranson Score for Pancreatitis',
     description: 'Predicts severity and mortality of acute pancreatitis (for non-gallstone cases).',
     generateHTML: function () {
-        return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <form id="ranson-form">
-                <h4>At Admission or On Diagnosis</h4>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-age" value="1"><label for="ranson-age">Age > 55 years</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-wbc" value="1"><label for="ranson-wbc">WBC count > 16,000/mm³</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-glucose" value="1"><label for="ranson-glucose">Blood glucose > 200 mg/dL</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-ast" value="1"><label for="ranson-ast">Serum AST > 250 IU/L</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-ldh" value="1"><label for="ranson-ldh">Serum LDH > 350 IU/L</label>
-                </div>
+        const admissionCriteria = [
+            { id: 'ranson-age', label: 'Age > 55 years' },
+            { id: 'ranson-wbc', label: 'WBC count > 16,000/mm³' },
+            { id: 'ranson-glucose', label: 'Blood glucose > 200 mg/dL (>11 mmol/L)' },
+            { id: 'ranson-ast', label: 'Serum AST > 250 IU/L' },
+            { id: 'ranson-ldh', label: 'Serum LDH > 350 IU/L' }
+        ];
 
-                <h4>During Initial 48 Hours</h4>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-calcium" value="1"><label for="ranson-calcium">Serum calcium < 8.0 mg/dL</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-hct" value="1"><label for="ranson-hct">Hematocrit fall > 10%</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-paO2" value="1"><label for="ranson-paO2">PaO₂ < 60 mmHg</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-bun" value="1"><label for="ranson-bun">BUN increase > 5 mg/dL</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-base" value="1"><label for="ranson-base">Base deficit > 4 mEq/L</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="ranson-fluid" value="1"><label for="ranson-fluid">Fluid sequestration > 6 L</label>
-                </div>
-            </form>
-            <div id="ranson-result" class="result" style="display:none;"></div>
+        const hours48Criteria = [
+            { id: 'ranson-calcium', label: 'Serum calcium < 8.0 mg/dL (<2.0 mmol/L)' },
+            { id: 'ranson-hct', label: 'Hematocrit fall > 10%' },
+            { id: 'ranson-paO2', label: 'PaO₂ < 60 mmHg' },
+            { id: 'ranson-bun', label: 'BUN increase > 5 mg/dL (>1.8 mmol/L)' },
+            { id: 'ranson-base', label: 'Base deficit > 4 mEq/L' },
+            { id: 'ranson-fluid', label: 'Fluid sequestration > 6 L' }
+        ];
+
+        return `
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.'
+            })}
+
+            ${uiBuilder.createSection({
+                title: 'At Admission or Diagnosis',
+                icon: '🏥',
+                content: uiBuilder.createCheckboxGroup({
+                    name: 'ranson-admission',
+                    options: admissionCriteria.map(c => ({ ...c, value: '1' }))
+                })
+            })}
+
+            ${uiBuilder.createSection({
+                title: 'During Initial 48 Hours',
+                icon: '⏱️',
+                content: uiBuilder.createCheckboxGroup({
+                    name: 'ranson-48h',
+                    options: hours48Criteria.map(c => ({ ...c, value: '1' }))
+                })
+            })}
+
+            ${uiBuilder.createResultBox({ id: 'ranson-result', title: 'Ranson Score Result' })}
+
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: `
+                    <h4>📊 Mortality Estimation</h4>
+                    <div class="ui-data-table">
+                        <table>
+                            <thead>
+                                <tr><th>Score</th><th>Mortality</th><th>Severity</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>0-2</td><td>0-3%</td><td>Low Risk</td></tr>
+                                <tr><td>3-4</td><td>15-20%</td><td>Moderate Risk</td></tr>
+                                <tr><td>5-6</td><td>~40%</td><td>High Risk</td></tr>
+                                <tr><td>≥7</td><td>>50%</td><td>Very High Risk</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            })}
         `;
     },
     initialize: function (client, patient, container) {
-        // If only one parameter is passed (old style), use it as container
-        if (!container && typeof client === 'object' && client.nodeType === 1) {
-            container = client;
-        }
+        uiBuilder.initializeComponents(container);
 
-        // Use document if container is not a DOM element
-        const root = container || document;
-
-        const calculateBtn = root.querySelector('#calculate-ranson');
-        if (!calculateBtn) {
-            console.error('Calculate button not found');
-            return;
-        }
-
-        // Auto-populate age
-        const age = calculateAge(patient.birthDate);
-        const ageCheckbox = root.querySelector('#ranson-age');
-        if (age > 55 && ageCheckbox) {
-            ageCheckbox.checked = true;
-        }
-
-        // Auto-populate WBC
-        getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const wbc = obs.valueQuantity.value * 1000; // Convert from K/uL to /mm³
-                const wbcCheckbox = root.querySelector('#ranson-wbc');
-                if (wbc > 16000 && wbcCheckbox) {
-                    wbcCheckbox.checked = true;
-                }
-            }
-        });
-
-        // Auto-populate glucose
-        getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
-            if (obs && obs.valueQuantity) {
-                let glucose = obs.valueQuantity.value;
-                // Convert if needed (mmol/L to mg/dL: multiply by 18.0182)
-                if (obs.valueQuantity.unit === 'mmol/L') {
-                    glucose = glucose * 18.0182;
-                }
-                const glucoseCheckbox = root.querySelector('#ranson-glucose');
-                if (glucose > 200 && glucoseCheckbox) {
-                    glucoseCheckbox.checked = true;
-                }
-            }
-        });
-
-        // Auto-populate AST
-        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const ast = obs.valueQuantity.value;
-                const astCheckbox = root.querySelector('#ranson-ast');
-                if (ast > 250 && astCheckbox) {
-                    astCheckbox.checked = true;
-                }
-            }
-        });
-
-        // Auto-populate LDH
-        getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const ldh = obs.valueQuantity.value;
-                const ldhCheckbox = root.querySelector('#ranson-ldh');
-                if (ldh > 350 && ldhCheckbox) {
-                    ldhCheckbox.checked = true;
-                }
-            }
-        });
-
-        // Auto-populate calcium
-        getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
-            if (obs && obs.valueQuantity) {
-                let calcium = obs.valueQuantity.value;
-                // Convert if needed (mmol/L to mg/dL: multiply by 4.008)
-                if (obs.valueQuantity.unit === 'mmol/L') {
-                    calcium = calcium * 4.008;
-                }
-                const calciumCheckbox = root.querySelector('#ranson-calcium');
-                if (calcium < 8.0 && calciumCheckbox) {
-                    calciumCheckbox.checked = true;
-                }
-            }
-        });
+        const resultBox = container.querySelector('#ranson-result');
 
         const calculate = () => {
-            const inputs = root.querySelectorAll('#ranson-form input[type="checkbox"]:checked');
-            const score = inputs.length;
+            let score = 0;
+            container.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+                score += 1;
+            });
 
             let mortality = '';
             let severity = '';
-            let alertClass = '';
+            let alertType = 'info';
 
             if (score <= 2) {
-                mortality = '~0-3%';
+                mortality = '0-3%';
                 severity = 'Low Risk';
-                alertClass = 'success';
+                alertType = 'success';
             } else if (score <= 4) {
-                mortality = '~15-20%';
+                mortality = '15-20%';
                 severity = 'Moderate Risk';
-                alertClass = 'warning';
+                alertType = 'warning';
             } else if (score <= 6) {
                 mortality = '~40%';
                 severity = 'High Risk';
-                alertClass = 'danger';
+                alertType = 'danger';
             } else {
-                mortality = '>50% to 100%';
+                mortality = '>50%';
                 severity = 'Very High Risk';
-                alertClass = 'danger';
+                alertType = 'danger';
             }
 
-            const resultEl = root.querySelector('#ranson-result');
-            resultEl.innerHTML = `
-                <div class="result-header"><h4>Ranson Score Result</h4></div>
-                <div class="result-score">
-                    <span class="score-value">${score}</span>
-                    <span class="score-label">/ 11 points</span>
-                </div>
-                <div class="severity-indicator ${alertClass}">
-                    <strong>${severity}</strong>
-                </div>
-                <div class="result-item">
-                    <span class="label">Estimated Mortality:</span>
-                    <span class="value">${mortality}</span>
-                </div>
-                <div class="alert ${alertClass}">
-                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
-                    <div class="alert-content">
-                        <p><strong>Mortality by Score:</strong> 0-2: 0-3% | 3-4: 15-20% | 5-6: ~40% | ≥7: >50%</p>
-                    </div>
-                </div>
+            const resultContent = resultBox.querySelector('.ui-result-content');
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                    label: 'Total Ranson Score',
+                    value: score,
+                    unit: '/ 11 points',
+                    interpretation: severity,
+                    alertClass: `ui-alert-${alertType}`
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Estimated Mortality',
+                    value: mortality,
+                    alertClass: `ui-alert-${alertType}`
+                })}
             `;
-            resultEl.style.display = 'block';
+            resultBox.classList.add('show');
         };
 
-        // Add event listeners to all checkboxes
-        root.querySelectorAll('#ranson-form input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', calculate);
+        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', calculate);
         });
+
+        // Auto-populate
+        if (patient && patient.birthDate) {
+            const age = calculateAge(patient.birthDate);
+            if (age > 55) {
+                container.querySelector('#ranson-age').checked = true;
+            }
+        }
+
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
+                if (obs?.valueQuantity) {
+                    // WBC usually 10^3/uL. 16,000/mm3 = 16 10^3/uL.
+                    // Need to check unit or magnitude.
+                    // If value > 1000, assume cells/uL?
+                    // Standard FHIR often K/uL.
+                    let val = obs.valueQuantity.value;
+                    if (val > 1000) val = val / 1000; // Convert to K/uL if raw count
+                    if (val > 16) container.querySelector('#ranson-wbc').checked = true;
+                    calculate();
+                }
+            });
+            getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
+                if (obs?.valueQuantity) {
+                    let val = obs.valueQuantity.value;
+                    if (obs.valueQuantity.unit === 'mmol/L') val = val * 18.0182;
+                    if (val > 200) container.querySelector('#ranson-glucose').checked = true;
+                    calculate();
+                }
+            });
+            getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
+                if (obs?.valueQuantity) {
+                    if (obs.valueQuantity.value > 250) container.querySelector('#ranson-ast').checked = true;
+                    calculate();
+                }
+            });
+            getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
+                if (obs?.valueQuantity) {
+                    if (obs.valueQuantity.value > 350) container.querySelector('#ranson-ldh').checked = true;
+                    calculate();
+                }
+            });
+            getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
+                if (obs?.valueQuantity) {
+                    let val = obs.valueQuantity.value;
+                    if (obs.valueQuantity.unit === 'mmol/L') val = val * 4.008;
+                    if (val < 8.0) container.querySelector('#ranson-calcium').checked = true;
+                    calculate();
+                }
+            });
+        }
 
         calculate();
     }

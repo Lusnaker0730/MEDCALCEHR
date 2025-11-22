@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 // HScore probability calculation using logistic regression formula
 const getProbability = score => {
@@ -13,400 +14,249 @@ export const hscore = {
     description: 'Diagnoses reactive hemophagocytic syndrome.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="form-container modern ariscat-form">
-                <div class="input-row">
-                    <div class="input-label">Known underlying immunosuppression<span>HIV positive or receiving long-term immunosuppressive therapy (i.e., glucocorticoids, cycloSPORINE, azaTHIOprine)</span></div>
-                    <div class="segmented-control"><label><input type="radio" name="immuno" value="0"> No</label><label><input type="radio" name="immuno" value="18"> Yes</label></div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Temperature, °F (°C)</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="temp" value="0"> &lt;101.1 (&lt;38.4)</label>
-                        <label><input type="radio" name="temp" value="33"> 101.1-102.9 (38.4-39.4)</label>
-                        <label><input type="radio" name="temp" value="49"> &gt;102.9 (&gt;39.4)</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Organomegaly</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="organo" value="0"> No</label>
-                        <label><input type="radio" name="organo" value="23"> Hepatosplenomegaly or splenomegaly</label>
-                        <label><input type="radio" name="organo" value="38"> Hepatosplenomegaly and splenomegaly</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Number of cytopenias<span>Defined as hemoglobin ??.2 g/dL (??.71 mmol/L) and/or WBC ??,000/mm³ and/or platelets ??10,000/mm³</span></div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="cytopenias" value="0"> 1 lineage</label>
-                        <label><input type="radio" name="cytopenias" value="24"> 2 lineages</label>
-                        <label><input type="radio" name="cytopenias" value="34"> 3 lineages</label>
-                    </div>
-                </div>
-                 <div class="input-row vertical">
-                    <div class="input-label">Ferritin, ng/mL (or μg/L)</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="ferritin" value="0"> &lt;2,000</label>
-                        <label><input type="radio" name="ferritin" value="35"> 2,000-6,000</label>
-                        <label><input type="radio" name="ferritin" value="50"> &gt;6,000</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Triglycerides, mg/dL (mmol/L)</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="trig" value="0"> &lt;132.7 (&lt;1.5)</label>
-                        <label><input type="radio" name="trig" value="44"> 132.7-354 (1.5-4)</label>
-                        <label><input type="radio" name="trig" value="64"> &gt;354 (&gt;4)</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Fibrinogen, mg/dL (g/L)</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="fibrinogen" value="0"> ??50 (??.5)</label>
-                        <label><input type="radio" name="fibrinogen" value="30"> ??50 (??.5)</label>
-                    </div>
-                </div>
-                 <div class="input-row">
-                    <div class="input-label">AST, U/L</div>
-                    <div class="segmented-control"><label><input type="radio" name="ast" value="0"> &lt;30</label><label><input type="radio" name="ast" value="19"> ??0</label></div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Hemophagocytosis features on bone marrow aspirate</div>
-                    <div class="segmented-control"><label><input type="radio" name="bma" value="0"> No</label><label><input type="radio" name="bma" value="35"> Yes</label></div>
-                </div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-             <div id="hscore-result" class="ariscat-result-box" style="display:none;"></div>
-            
-            <div class="formula-section">
-                <h4 class="formula-title">
-                    <span class="formula-icon">??</span>
-                    FORMULA
-                </h4>
-                
-                <div class="formula-table-container">
-                    <table class="formula-table hscore-table">
-                        <thead>
-                            <tr>
-                                <th>Variable</th>
-                                <th>Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="variable-name" rowspan="2">
-                                    <strong>Known underlying immunosuppression</strong>
-                                </td>
-                                <td>No: <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>Yes: <span class="points-badge">18</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="3">
-                                    <strong>Temperature, °F (°C)</strong>
-                                </td>
-                                <td>&lt;101.1 (&lt;38.4): <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>101.1??02.9 (38.4??9.4): <span class="points-badge">33</span></td>
-                            </tr>
-                            <tr>
-                                <td>&gt;102.9 (&gt;39.4): <span class="points-badge">49</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="3">
-                                    <strong>Organomegaly</strong>
-                                </td>
-                                <td>No: <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>Hepatomegaly or splenomegaly: <span class="points-badge">23</span></td>
-                            </tr>
-                            <tr>
-                                <td>Hepatomegaly and splenomegaly: <span class="points-badge">38</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="4">
-                                    <strong>Number of cytopenias</strong>
-                                    <sup class="footnote-ref">**</sup>
-                                </td>
-                                <td>1 lineage: <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>2 lineages: <span class="points-badge">24</span></td>
-                            </tr>
-                            <tr>
-                                <td>3 lineages: <span class="points-badge">34</span></td>
-                            </tr>
-                            <tr>
-                                <td colspan="1" class="footnote-cell">**Defined as hemoglobin ??.2 g/dL and/or WBC ??,000/mm³ and/or platelets ??10,000/mm³</td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="3">
-                                    <strong>Ferritin, ng/mL (or μg/L)</strong>
-                                </td>
-                                <td>&lt;2,000: <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>2,000??,000: <span class="points-badge">35</span></td>
-                            </tr>
-                            <tr>
-                                <td>&gt;6,000: <span class="points-badge">50</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="3">
-                                    <strong>Triglycerides, mg/dL (mmol/L)</strong>
-                                </td>
-                                <td>&lt;132.7 (&lt;1.5): <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>132.7??54 (1.5??): <span class="points-badge">44</span></td>
-                            </tr>
-                            <tr>
-                                <td>&gt;354 (&gt;4): <span class="points-badge">64</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="2">
-                                    <strong>Fibrinogen, mg/dL (g/L)</strong>
-                                </td>
-                                <td>??50 (??.5): <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>&lt;250 (&lt;2.5): <span class="points-badge">30</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="2">
-                                    <strong>AST, U/L</strong>
-                                </td>
-                                <td>&lt;30: <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>??0: <span class="points-badge">19</span></td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="variable-name" rowspan="2">
-                                    <strong>Hemophagocytosis features on bone marrow aspirate</strong>
-                                </td>
-                                <td>No: <span class="points-badge">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>Yes: <span class="points-badge">35</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="formula-box" style="margin-top: 25px;">
-                    <div class="formula-content">
-                        <div class="formula-equation">
-                            <div style="font-size: 1.2em; margin-bottom: 15px;">
-                                <strong>HScore = Sum of Points</strong>
-                            </div>
-                            <div style="font-size: 1em; color: #4a5568;">
-                                Probability of hemophagocytic syndrome = 
-                                <span class="formula-fraction" style="display: inline-flex; vertical-align: middle; margin: 0 5px;">
-                                    <span class="formula-numerator" style="border-bottom: 2px solid #2d3748; padding: 5px 10px;">1</span>
-                                    <span class="formula-denominator" style="padding: 5px 10px; font-size: 0.85em;">1 + e<sup>-(-4.3 + 0.03 ? HScore)</sup></span>
-                                </span>
-                                ? 100%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="interpretation-table">
-                    <h5>Interpretation:</h5>
-                    <table class="simple-table">
-                        <thead>
-                            <tr>
-                                <th>HScore</th>
-                                <th>Probability of hemophagocytic syndrome</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>&lt;90</td><td>&lt;1%</td></tr>
-                            <tr><td>90??00</td><td>~1??%</td></tr>
-                            <tr><td>101??10</td><td>~3??%</td></tr>
-                            <tr><td>111??20</td><td>~5??%</td></tr>
-                            <tr><td>121??30</td><td>~9??6%</td></tr>
-                            <tr><td>131??40</td><td>~16??5%</td></tr>
-                            <tr><td>141??50</td><td>~25??0%</td></tr>
-                            <tr><td>151??60</td><td>~40??2%</td></tr>
-                            <tr><td>161??70</td><td>~52??4%</td></tr>
-                            <tr><td>171??80</td><td>~64??4%</td></tr>
-                            <tr><td>181??90</td><td>~74??2%</td></tr>
-                            <tr><td>191??00</td><td>~82??8%</td></tr>
-                            <tr><td>201??10</td><td>~88??2%</td></tr>
-                            <tr><td>211??20</td><td>~92??5%</td></tr>
-                            <tr><td>221??30</td><td>~95??6%</td></tr>
-                            <tr><td>&gt;241</td><td>&gt;99%</td></tr>
-                        </tbody>
-                    </table>
-                    <p class="interpretation-note">
-                        <em>Note: the best cutoff value for the HScore was 169, corresponding to a sensitivity of 93%.</em>
-                    </p>
-                </div>
-            </div>
+
+            ${uiBuilder.createSection({
+                title: 'Clinical Features',
+                content: `
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-immuno',
+                        label: 'Known underlying immunosuppression',
+                        helpText: 'HIV positive or receiving long-term immunosuppressive therapy',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '18', label: 'Yes (+18)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-temp',
+                        label: 'Temperature, °F (°C)',
+                        options: [
+                            { value: '0', label: '<101.1 (<38.4) (0)', checked: true },
+                            { value: '33', label: '101.1-102.9 (38.4-39.4) (+33)' },
+                            { value: '49', label: '>102.9 (>39.4) (+49)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-organo',
+                        label: 'Organomegaly',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '23', label: 'Hepatosplenomegaly or splenomegaly (+23)' },
+                            { value: '38', label: 'Hepatosplenomegaly and splenomegaly (+38)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-cytopenias',
+                        label: 'Number of cytopenias',
+                        helpText: 'Defined as hemoglobin ≤9.2 g/dL, WBC ≤5,000/mm³, and/or platelets ≤110,000/mm³',
+                        options: [
+                            { value: '0', label: '1 lineage (0)', checked: true },
+                            { value: '24', label: '2 lineages (+24)' },
+                            { value: '34', label: '3 lineages (+34)' }
+                        ]
+                    })}
+                `
+            })}
+
+            ${uiBuilder.createSection({
+                title: 'Laboratory Values',
+                content: `
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-ferritin',
+                        label: 'Ferritin, ng/mL (or μg/L)',
+                        options: [
+                            { value: '0', label: '<2,000 (0)', checked: true },
+                            { value: '35', label: '2,000-6,000 (+35)' },
+                            { value: '50', label: '>6,000 (+50)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-trig',
+                        label: 'Triglycerides, mg/dL (mmol/L)',
+                        options: [
+                            { value: '0', label: '<132.7 (<1.5) (0)', checked: true },
+                            { value: '44', label: '132.7-354 (1.5-4) (+44)' },
+                            { value: '64', label: '>354 (>4) (+64)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-fibrinogen',
+                        label: 'Fibrinogen, mg/dL (g/L)',
+                        options: [
+                            { value: '0', label: '>250 (>2.5) (0)', checked: true },
+                            { value: '30', label: '≤250 (≤2.5) (+30)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'hscore-ast',
+                        label: 'AST, U/L',
+                        options: [
+                            { value: '0', label: '<30 (0)', checked: true },
+                            { value: '19', label: '≥30 (+19)' }
+                        ]
+                    })}
+                `
+            })}
+
+            ${uiBuilder.createSection({
+                title: 'Bone Marrow',
+                content: uiBuilder.createRadioGroup({
+                    name: 'hscore-bma',
+                    label: 'Hemophagocytosis features on bone marrow aspirate',
+                    options: [
+                        { value: '0', label: 'No (0)', checked: true },
+                        { value: '35', label: 'Yes (+35)' }
+                    ]
+                })
+            })}
+
+            ${uiBuilder.createResultBox({ id: 'hscore-result', title: 'HScore Result' })}
         `;
     },
     initialize: function (client, patient, container) {
-        const resultEl = container.querySelector('#hscore-result');
+        uiBuilder.initializeComponents(container);
+
         const groups = [
-            'immuno',
-            'temp',
-            'organo',
-            'cytopenias',
-            'ferritin',
-            'trig',
-            'fibrinogen',
-            'ast',
-            'bma'
+            'hscore-immuno',
+            'hscore-temp',
+            'hscore-organo',
+            'hscore-cytopenias',
+            'hscore-ferritin',
+            'hscore-trig',
+            'hscore-fibrinogen',
+            'hscore-ast',
+            'hscore-bma'
         ];
 
         const calculate = () => {
             let score = 0;
-            const allAnswered = groups.every(group =>
-                container.querySelector(`input[name="${group}"]:checked`)
-            );
-
-            if (!allAnswered) {
-                resultEl.style.display = 'none';
-                return;
-            }
-
+            
             groups.forEach(group => {
-                score += parseInt(container.querySelector(`input[name="${group}"]:checked`).value);
+                const checked = container.querySelector(`input[name="${group}"]:checked`);
+                if (checked) score += parseInt(checked.value);
             });
 
             const probability = getProbability(score);
+            
+            const resultBox = container.querySelector('#hscore-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
-            resultEl.innerHTML = `
-                <div class="score-section">
-                    <div class="score-value">${score}</div>
-                    <div class="score-label">points</div>
-                    <div class="score-title">HScore</div>
-                </div>
-                <div class="interpretation-section">
-                    <div class="interp-title">&lt;${probability}%</div>
-                    <div class="interp-details">Probability of hemophagocytic syndrome</div>
-                </div>
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                    label: 'HScore',
+                    value: score,
+                    unit: 'points'
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Probability of Hemophagocytic Syndrome',
+                    value: probability,
+                    unit: '%'
+                })}
+                ${uiBuilder.createAlert({
+                    type: 'info',
+                    message: 'Best cutoff value was 169, corresponding to sensitivity of 93% and specificity of 86%.'
+                })}
             `;
-            resultEl.style.display = 'flex';
+            resultBox.classList.add('show');
         };
 
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
+        });
+
+        // Helper to set radio based on value ranges
         const setRadioFromValue = (groupName, value, ranges) => {
-            if (value === null) {
-                return;
-            }
-            const radioToSelect = ranges.find(range => range.condition(value));
-            if (radioToSelect) {
-                const radio = container.querySelector(
-                    `input[name="${groupName}"][value="${radioToSelect.value}"]`
-                );
+            if (value === null || value === undefined) return;
+            const range = ranges.find(r => r.condition(value));
+            if (range) {
+                const radio = container.querySelector(`input[name="${groupName}"][value="${range.value}"]`);
                 if (radio) {
                     radio.checked = true;
-                    radio.parentElement.classList.add('selected');
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
         };
 
-        // Auto-populate data
-        Promise.all([
-            getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN), // Hgb
-            getMostRecentObservation(client, LOINC_CODES.WBC), // WBC
-            getMostRecentObservation(client, '26515-7') // Platelets
-        ]).then(([hgb, wbc, platelets]) => {
-            let cytopeniaCount = 0;
-            if (hgb && hgb.valueQuantity.value < 9.2) {
-                cytopeniaCount++;
-            }
-            if (wbc && wbc.valueQuantity.value < 5) {
-                cytopeniaCount++;
-            } // Assuming x10^9/L -> x10^3/mm^3
-            if (platelets && platelets.valueQuantity.value < 110) {
-                cytopeniaCount++;
-            }
+        if (client) {
+            Promise.all([
+                getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN),
+                getMostRecentObservation(client, LOINC_CODES.WBC),
+                getMostRecentObservation(client, '26515-7') // Platelets
+            ]).then(([hgb, wbc, platelets]) => {
+                let cytopeniaCount = 0;
+                if (hgb && hgb.valueQuantity.value <= 9.2) cytopeniaCount++;
+                if (wbc && wbc.valueQuantity.value <= 5) cytopeniaCount++; // Assuming K/uL
+                if (platelets && platelets.valueQuantity.value <= 110) cytopeniaCount++; // Assuming K/uL
 
-            setRadioFromValue('cytopenias', cytopeniaCount, [
-                { condition: v => v <= 1, value: '0' },
-                { condition: v => v === 2, value: '24' },
-                { condition: v => v === 3, value: '34' }
-            ]);
-            calculate();
-        });
-
-        getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
-            // Temp F
-            if (obs) {
-                setRadioFromValue('temp', obs.valueQuantity.value, [
-                    { condition: v => v < 101.1, value: '0' },
-                    { condition: v => v <= 102.9, value: '33' },
-                    { condition: v => v > 102.9, value: '49' }
+                setRadioFromValue('hscore-cytopenias', cytopeniaCount, [
+                    { condition: v => v <= 1, value: '0' },
+                    { condition: v => v === 2, value: '24' },
+                    { condition: v => v >= 3, value: '34' }
                 ]);
-            }
-            calculate();
-        });
-        getMostRecentObservation(client, '2276-4').then(obs => {
-            // Ferritin
-            if (obs) {
-                setRadioFromValue('ferritin', obs.valueQuantity.value, [
-                    { condition: v => v < 2000, value: '0' },
-                    { condition: v => v <= 6000, value: '35' },
-                    { condition: v => v > 6000, value: '50' }
-                ]);
-            }
-            calculate();
-        });
-        getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
-            // Triglycerides mg/dL
-            if (obs) {
-                setRadioFromValue('trig', obs.valueQuantity.value, [
-                    { condition: v => v < 132.7, value: '0' },
-                    { condition: v => v <= 354, value: '44' },
-                    { condition: v => v > 354, value: '64' }
-                ]);
-            }
-            calculate();
-        });
-        getMostRecentObservation(client, '3255-7').then(obs => {
-            // Fibrinogen g/L -> mg/dL
-            if (obs) {
-                setRadioFromValue('fibrinogen', obs.valueQuantity.value * 100, [
-                    { condition: v => v >= 250, value: '0' },
-                    { condition: v => v < 250, value: '30' }
-                ]);
-            }
-            calculate();
-        });
-        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-            // AST
-            if (obs) {
-                setRadioFromValue('ast', obs.valueQuantity.value, [
-                    { condition: v => v < 30, value: '0' },
-                    { condition: v => v >= 30, value: '19' }
-                ]);
-            }
-            calculate();
-        });
-
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', event => {
-                const group = event.target.closest('.radio-group, .segmented-control');
-                group
-                    .querySelectorAll('label')
-                    .forEach(label => label.classList.remove('selected'));
-                event.target.parentElement.classList.add('selected');
-                calculate();
             });
-        });
+
+            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    let tempF = obs.valueQuantity.value;
+                    // Convert C to F if needed
+                    if (obs.valueQuantity.unit.includes('C')) {
+                        tempF = (tempF * 9/5) + 32;
+                    }
+                    setRadioFromValue('hscore-temp', tempF, [
+                        { condition: v => v < 101.1, value: '0' },
+                        { condition: v => v >= 101.1 && v <= 102.9, value: '33' },
+                        { condition: v => v > 102.9, value: '49' }
+                    ]);
+                }
+            });
+
+            getMostRecentObservation(client, '2276-4').then(obs => { // Ferritin
+                if (obs && obs.valueQuantity) {
+                    setRadioFromValue('hscore-ferritin', obs.valueQuantity.value, [
+                        { condition: v => v < 2000, value: '0' },
+                        { condition: v => v >= 2000 && v <= 6000, value: '35' },
+                        { condition: v => v > 6000, value: '50' }
+                    ]);
+                }
+            });
+
+            getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    setRadioFromValue('hscore-trig', obs.valueQuantity.value, [
+                        { condition: v => v < 132.7, value: '0' },
+                        { condition: v => v >= 132.7 && v <= 354, value: '44' },
+                        { condition: v => v > 354, value: '64' }
+                    ]);
+                }
+            });
+
+            getMostRecentObservation(client, '3255-7').then(obs => { // Fibrinogen
+                if (obs && obs.valueQuantity) {
+                    // Convert g/L to mg/dL if needed (x100)
+                    let val = obs.valueQuantity.value;
+                    if (obs.valueQuantity.unit === 'g/L') val *= 100;
+                    
+                    setRadioFromValue('hscore-fibrinogen', val, [
+                        { condition: v => v > 250, value: '0' },
+                        { condition: v => v <= 250, value: '30' }
+                    ]);
+                }
+            });
+
+            getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    setRadioFromValue('hscore-ast', obs.valueQuantity.value, [
+                        { condition: v => v < 30, value: '0' },
+                        { condition: v => v >= 30, value: '19' }
+                    ]);
+                }
+            });
+        }
+
+        calculate();
     }
 };

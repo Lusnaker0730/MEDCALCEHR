@@ -1,5 +1,5 @@
-// js/calculators/caprini.js
 import { calculateAge } from '../../utils.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const caprini = {
     id: 'caprini',
@@ -8,138 +8,172 @@ export const caprini = {
     generateHTML: function () {
         const riskFactors = {
             '1 Point': [
-                { id: 'age41', label: 'Age 41-60 years' },
-                { id: 'minor-surgery', label: 'Minor surgery planned' },
-                { id: 'major-surgery', label: 'Major open surgery (>45 min)' },
-                { id: 'laparoscopy', label: 'Laparoscopic surgery (>45 min)' },
-                { id: 'arthroscopy', label: 'Arthroscopic surgery' },
-                { id: 'bmi', label: 'BMI > 25 kg/m²' },
-                { id: 'swollen-legs', label: 'Swollen legs (current)' },
-                { id: 'varicose', label: 'Varicose veins' },
-                { id: 'sepsis', label: 'Sepsis (<1 month)' },
-                { id: 'pneumonia', label: 'Serious lung disease incl. pneumonia (<1 month)' },
-                { id: 'bed-rest', label: 'Confined to bed (>72 hours)' },
-                { id: 'cast', label: 'Immobilizing plaster cast' },
-                { id: 'central-venous', label: 'Central venous access' }
+                { id: 'caprini-age41', label: 'Age 41-60 years' },
+                { id: 'caprini-minor-surgery', label: 'Minor surgery planned' },
+                { id: 'caprini-major-surgery', label: 'Major open surgery (>45 min)' },
+                { id: 'caprini-laparoscopy', label: 'Laparoscopic surgery (>45 min)' },
+                { id: 'caprini-arthroscopy', label: 'Arthroscopic surgery' },
+                { id: 'caprini-bmi', label: 'BMI > 25 kg/m²' },
+                { id: 'caprini-swollen-legs', label: 'Swollen legs (current)' },
+                { id: 'caprini-varicose', label: 'Varicose veins' },
+                { id: 'caprini-sepsis', label: 'Sepsis (<1 month)' },
+                { id: 'caprini-pneumonia', label: 'Serious lung disease incl. pneumonia (<1 month)' },
+                { id: 'caprini-bed-rest', label: 'Confined to bed (>72 hours)' },
+                { id: 'caprini-cast', label: 'Immobilizing plaster cast' },
+                { id: 'caprini-central-venous', label: 'Central venous access' }
             ],
             '2 Points': [
-                { id: 'age61', label: 'Age 61-74 years' },
-                { id: 'malignancy', label: 'Malignancy (present or previous)' }
+                { id: 'caprini-age61', label: 'Age 61-74 years' },
+                { id: 'caprini-malignancy', label: 'Malignancy (present or previous)' }
             ],
             '3 Points': [
-                { id: 'age75', label: 'Age ≥ 75 years' },
-                { id: 'history-vte', label: 'History of VTE' },
-                { id: 'family-history-vte', label: 'Family history of VTE' },
-                {
-                    id: 'thrombophilia',
-                    label: 'Thrombophilia (e.g., Factor V Leiden, Prothrombin 20210A)'
-                }
+                { id: 'caprini-age75', label: 'Age ≥ 75 years' },
+                { id: 'caprini-history-vte', label: 'History of VTE' },
+                { id: 'caprini-family-history-vte', label: 'Family history of VTE' },
+                { id: 'caprini-thrombophilia', label: 'Thrombophilia (e.g., Factor V Leiden)' }
             ],
             '5 Points': [
-                { id: 'stroke-paralysis', label: 'Stroke with paralysis (<1 month)' },
-                { id: 'elective-hip-knee', label: 'Elective major lower extremity arthroplasty' },
-                { id: 'hip-pelvis-fracture', label: 'Hip, pelvis, or leg fracture (<1 month)' },
-                { id: 'spinal-cord-injury', label: 'Acute spinal cord injury (<1 month)' }
+                { id: 'caprini-stroke-paralysis', label: 'Stroke with paralysis (<1 month)' },
+                { id: 'caprini-elective-hip-knee', label: 'Elective major lower extremity arthroplasty' },
+                { id: 'caprini-hip-pelvis-fracture', label: 'Hip, pelvis, or leg fracture (<1 month)' },
+                { id: 'caprini-spinal-cord-injury', label: 'Acute spinal cord injury (<1 month)' }
             ]
         };
 
-        let html = `<h3>${this.title}</h3><p>${this.description}</p>`;
+        let sections = [];
+        
+        // Create Age Section manually to make it a single choice radio group
+        const ageOptions = [
+            { value: '0', label: 'Age < 41', checked: true },
+            { value: '1', label: 'Age 41-60 (+1)' },
+            { value: '2', label: 'Age 61-74 (+2)' },
+            { value: '3', label: 'Age ≥ 75 (+3)' }
+        ];
+        
+        sections.push(uiBuilder.createSection({
+            title: 'Age',
+            content: uiBuilder.createRadioGroup({
+                name: 'caprini-age',
+                options: ageOptions
+            })
+        }));
 
         for (const [points, factors] of Object.entries(riskFactors)) {
-            html += `<h4>${points}</h4><div class="checklist">`;
-            factors.forEach(factor => {
-                html += `<div class="check-item"><input type="checkbox" id="${factor.id}" data-points="${points.split(' ')[0]}"><label for="${factor.id}">${factor.label}</label></div>`;
-            });
-            html += '</div>';
+            // Skip age items as we handled them separately
+            const filteredFactors = factors.filter(f => !f.id.includes('age'));
+            
+            if (filteredFactors.length > 0) {
+                const sectionContent = filteredFactors.map(factor => 
+                    uiBuilder.createRadioGroup({
+                        name: factor.id,
+                        label: factor.label,
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: String(points.split(' ')[0]), label: `Yes (+${points.split(' ')[0]})` }
+                        ]
+                    })
+                ).join('');
+                
+                sections.push(uiBuilder.createSection({
+                    title: `${points} Risk Factors`,
+                    content: sectionContent
+                }));
+            }
         }
 
-        html += `
-            <div id="caprini-result" class="result" style="display:none;"></div>
+        return `
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+            
+            ${sections.join('')}
+            
+            ${uiBuilder.createResultBox({ id: 'caprini-result', title: 'Caprini Score Result' })}
         `;
-        return html;
     },
     initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
+
+        const setRadioValue = (name, value) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            }
+        };
+
         const calculate = () => {
             let score = 0;
-            container.querySelectorAll('.checklist input[type="checkbox"]').forEach(box => {
-                if (box.checked) {
-                    score += parseInt(box.dataset.points);
-                }
+            
+            // Sum all checked radio buttons
+            const radios = container.querySelectorAll('input[type="radio"]:checked');
+            radios.forEach(radio => {
+                score += parseInt(radio.value);
             });
-
-            // Handle mutually exclusive age points
-            if (container.querySelector('#age75')?.checked) {
-                if (container.querySelector('#age61')?.checked) {
-                    score -= 2;
-                }
-                if (container.querySelector('#age41')?.checked) {
-                    score -= 1;
-                }
-            } else if (container.querySelector('#age61')?.checked) {
-                if (container.querySelector('#age41')?.checked) {
-                    score -= 1;
-                }
-            }
 
             let riskCategory = '';
             let recommendation = '';
             let alertClass = '';
+            
             if (score === 0) {
                 riskCategory = 'Lowest Risk';
                 recommendation = 'Early ambulation.';
-                alertClass = 'success';
+                alertClass = 'ui-alert-success';
             } else if (score >= 1 && score <= 2) {
                 riskCategory = 'Low Risk';
-                recommendation =
-                    'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
-                alertClass = 'info';
+                recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                alertClass = 'ui-alert-info';
             } else if (score >= 3 && score <= 4) {
                 riskCategory = 'Moderate Risk';
-                recommendation =
-                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
-                alertClass = 'warning';
+                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                alertClass = 'ui-alert-warning';
             } else {
                 riskCategory = 'High Risk';
-                recommendation =
-                    'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
-                alertClass = 'danger';
+                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                alertClass = 'ui-alert-danger';
             }
 
-            const resultEl = container.querySelector('#caprini-result');
-            resultEl.innerHTML = `
-                <div class="result-header"><h4>Caprini Score Result</h4></div>
-                <div class="result-score">
-                    <span class="score-value">${score}</span>
-                    <span class="score-label">points</span>
-                </div>
-                <div class="severity-indicator ${alertClass}">
-                    <strong>${riskCategory}</strong>
-                </div>
-                <div class="alert ${alertClass}">
-                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
-                    <div class="alert-content">
-                        <p><strong>Recommended Prophylaxis:</strong> ${recommendation}</p>
+            const resultBox = container.querySelector('#caprini-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total Score', 
+                    value: score, 
+                    unit: 'points',
+                    interpretation: riskCategory,
+                    alertClass: alertClass
+                })}
+                
+                <div class="ui-alert ${alertClass} mt-10">
+                    <span class="ui-alert-icon">💊</span>
+                    <div class="ui-alert-content">
+                        <strong>Recommendation:</strong> ${recommendation}
                     </div>
                 </div>
             `;
-            resultEl.style.display = 'block';
+            
+            resultBox.classList.add('show');
         };
 
         // Pre-fill based on patient data
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             if (age >= 75) {
-                container.querySelector('#age75').checked = true;
+                setRadioValue('caprini-age', '3');
             } else if (age >= 61) {
-                container.querySelector('#age61').checked = true;
+                setRadioValue('caprini-age', '2');
             } else if (age >= 41) {
-                container.querySelector('#age41').checked = true;
+                setRadioValue('caprini-age', '1');
+            } else {
+                setRadioValue('caprini-age', '0');
             }
         }
 
         // Add event listeners
-        container.querySelectorAll('.checklist input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', calculate);
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
         });
 
         calculate();

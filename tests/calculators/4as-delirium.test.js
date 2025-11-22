@@ -56,7 +56,7 @@ describe('4 A\'s Test for Delirium Screening', () => {
             const html = fourAsDelirium.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container');
+            const resultContainer = container.querySelector('#four-as-result');
             expect(resultContainer).toBeTruthy();
         });
     });
@@ -69,9 +69,10 @@ describe('4 A\'s Test for Delirium Screening', () => {
         });
 
         test('should calculate score correctly with default values', () => {
-            const scoreEl = container.querySelector('#four-as-score');
-            expect(scoreEl).toBeTruthy();
-            expect(parseInt(scoreEl.textContent)).toBeGreaterThanOrEqual(0);
+            // Default selections should trigger calculation
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(resultValue).toBeTruthy();
+            expect(parseInt(resultValue.textContent)).toBeGreaterThanOrEqual(0);
         });
 
         test('should update score when inputs change', () => {
@@ -79,12 +80,12 @@ describe('4 A\'s Test for Delirium Screening', () => {
             alertnessRadio.checked = true;
             alertnessRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
-            const scoreEl = container.querySelector('#four-as-score');
-            expect(parseInt(scoreEl.textContent)).toBeGreaterThanOrEqual(4);
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(parseInt(resultValue.textContent)).toBeGreaterThanOrEqual(4);
         });
 
         test('should show appropriate interpretation', () => {
-            const interpretationEl = container.querySelector('#four-as-interpretation');
+            const interpretationEl = container.querySelector('.ui-result-interpretation');
             expect(interpretationEl).toBeTruthy();
             expect(interpretationEl.textContent.length).toBeGreaterThan(0);
         });
@@ -97,9 +98,8 @@ describe('4 A\'s Test for Delirium Screening', () => {
             
             fourAsDelirium.initialize(null, null, container);
             
-            const scoreEl = container.querySelector('#four-as-score');
-            expect(scoreEl).toBeTruthy();
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(resultValue).toBeTruthy();
         });
     });
 });
-

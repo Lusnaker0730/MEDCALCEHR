@@ -1,14 +1,18 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { cleanupDOM } from './test-helpers.js';
+import { setupMockFHIRClient, mockPatientData, cleanupDOM } from './test-helpers.js';
 import { freeWaterDeficit } from '../../js/calculators/free-water-deficit/index.js';
 
 describe('Free Water Deficit Calculator', () => {
     let container;
+    let mockClient;
+    let mockPatient;
 
     beforeEach(() => {
         container = document.createElement('div');
         container.id = 'test-container';
         document.body.appendChild(container);
+        mockClient = setupMockFHIRClient();
+        mockPatient = mockPatientData();
     });
 
     afterEach(() => {
@@ -16,14 +20,12 @@ describe('Free Water Deficit Calculator', () => {
     });
 
     describe('Module Structure', () => {
-        test('should export calculator object', () => {
+        test('should export calculator object with required properties', () => {
             expect(freeWaterDeficit).toBeDefined();
+            expect(freeWaterDeficit.id).toBe('free-water-deficit');
+            expect(freeWaterDeficit.title).toBeDefined();
             expect(typeof freeWaterDeficit.generateHTML).toBe('function');
             expect(typeof freeWaterDeficit.initialize).toBe('function');
-        });
-
-        test('should have correct calculator ID', () => {
-            expect(freeWaterDeficit.id).toBe('free-water-deficit');
         });
     });
 
@@ -35,40 +37,85 @@ describe('Free Water Deficit Calculator', () => {
             expect(html.length).toBeGreaterThan(0);
         });
 
-        test('should include result container', () => {
+        test('should include required input fields', () => {
             const html = freeWaterDeficit.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
-            expect(resultContainer).toBeTruthy();
+            const weightInput = container.querySelector('#fwd-weight');
+            const sodiumInput = container.querySelector('#fwd-sodium');
+            const genderRadios = container.querySelectorAll('input[name="fwd-gender"]');
+            
+            expect(weightInput).toBeTruthy();
+            expect(sodiumInput).toBeTruthy();
+            expect(genderRadios.length).toBeGreaterThan(1);
         });
     });
 
-    describe('FHIR Integration', () => {
-        test('should work without FHIR client', () => {
-            const html = freeWaterDeficit.generateHTML();
-            container.innerHTML = html;
-
-            expect(() => {
-                freeWaterDeficit.initialize(null, null, container);
-            }).not.toThrow();
-        });
-    });
-
-    describe('Basic Functionality', () => {
+    describe('Calculation Logic', () => {
         beforeEach(() => {
             const html = freeWaterDeficit.generateHTML();
             container.innerHTML = html;
+            freeWaterDeficit.initialize(mockClient, mockPatient, container);
+        });
+
+        test('should calculate deficit correctly for Adult Male', () => {
+            // Weight 70kg, Na 160
+            // TBW = 70 * 0.6 = 42 L
+            // Deficit = 42 * ((160/140) - 1) = 42 * (1.1428 - 1) = 42 * 0.1428 = 6.0 L
+            
+            const weightInput = container.querySelector('#fwd-weight');
+            const sodiumInput = container.querySelector('#fwd-sodium');
+            const maleRadio = container.querySelector('input[name="fwd-gender"][value="male"]');
+            
+            weightInput.value = '70';
+            sodiumInput.value = '160';
+            if (maleRadio) {
+                maleRadio.checked = true;
+                maleRadio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
+            weightInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            const scoreEl = container.querySelector('.ui-result-value');
+            expect(scoreEl).toBeTruthy();
+            const result = parseFloat(scoreEl.textContent);
+            expect(result).toBeCloseTo(6.0, 1);
+        });
+
+        test('should calculate deficit correctly for Adult Female', () => {
+            // Weight 70kg, Na 160, Female (Factor 0.5)
+            // TBW = 70 * 0.5 = 35 L
+            // Deficit = 35 * ((160/140) - 1) = 35 * 0.1428 = 5.0 L
+            
+            const weightInput = container.querySelector('#fwd-weight');
+            const sodiumInput = container.querySelector('#fwd-sodium');
+            const femaleRadio = container.querySelector('input[name="fwd-gender"][value="female"]');
+            
+            weightInput.value = '70';
+            sodiumInput.value = '160';
+            if (femaleRadio) {
+                femaleRadio.checked = true;
+                femaleRadio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            
+            weightInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            const scoreEl = container.querySelector('.ui-result-value');
+            expect(scoreEl).toBeTruthy();
+            const result = parseFloat(scoreEl.textContent);
+            expect(result).toBeCloseTo(5.0, 1);
+        });
+    });
+
+    describe('Initialization', () => {
+        test('should work without FHIR client', () => {
+            const html = freeWaterDeficit.generateHTML();
+            container.innerHTML = html;
+            
             freeWaterDeficit.initialize(null, null, container);
-        });
-
-        test('should initialize without errors', () => {
-            expect(container.innerHTML.length).toBeGreaterThan(0);
-        });
-
-        test('should have input fields', () => {
-            const inputs = container.querySelectorAll('input');
-            expect(inputs.length).toBeGreaterThan(0);
+            
+            const resultContainer = container.querySelector('#fwd-result');
+            expect(resultContainer).toBeTruthy();
         });
     });
 });

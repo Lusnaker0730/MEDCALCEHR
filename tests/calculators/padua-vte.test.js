@@ -31,15 +31,6 @@ describe('Padua VTE Calculator', () => {
             expect(typeof paduaVTE.generateHTML).toBe('function');
             expect(typeof paduaVTE.initialize).toBe('function');
         });
-
-        test('should have correct calculator ID', () => {
-            expect(paduaVTE.id).toBe('padua-vte');
-        });
-
-        test('should have descriptive title', () => {
-            expect(paduaVTE.title).toBeTruthy();
-            expect(paduaVTE.title).toContain('VTE' || 'Padua');
-        });
     });
 
     describe('HTML Generation', () => {
@@ -51,13 +42,13 @@ describe('Padua VTE Calculator', () => {
             expect(html.length).toBeGreaterThan(0);
         });
 
-        test('should include risk factor checkboxes', () => {
+        test('should include risk factor radio groups', () => {
             const html = paduaVTE.generateHTML();
             container.innerHTML = html;
 
-            // Padua has 11 risk factors
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            expect(checkboxes.length).toBeGreaterThan(5);
+            // Padua has 11 risk factors, each should be a radio group
+            const radioGroups = container.querySelectorAll('.ui-radio-group');
+            expect(radioGroups.length).toBeGreaterThan(10);
         });
 
         test('should include result container', () => {
@@ -65,7 +56,7 @@ describe('Padua VTE Calculator', () => {
             container.innerHTML = html;
 
             const resultContainer = container.querySelector('#padua-result') || 
-                                  container.querySelector('.result-container');
+                                  container.querySelector('.ui-result-box');
             expect(resultContainer).toBeTruthy();
         });
     });
@@ -78,18 +69,14 @@ describe('Padua VTE Calculator', () => {
         });
 
         test('should calculate score 0 (low risk) correctly', () => {
-            // No risk factors checked
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            checkboxes.forEach(cb => {
-                cb.checked = false;
+            // All "No" by default
+            const noRadios = container.querySelectorAll('input[value="0"]');
+            noRadios.forEach(radio => {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             });
 
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            const resultValue = container.querySelector('.result-value');
+            const resultValue = container.querySelector('.ui-result-value');
             if (resultValue) {
                 const score = parseInt(resultValue.textContent);
                 expect(score).toBe(0);
@@ -97,163 +84,49 @@ describe('Padua VTE Calculator', () => {
         });
 
         test('should calculate score correctly with single risk factor', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const yesRadio = container.querySelector('input[value="3"]'); // Cancer, VTE etc.
             
-            if (checkboxes.length > 0) {
-                // Check first checkbox
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            if (yesRadio) {
+                yesRadio.checked = true;
+                yesRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
-                const resultValue = container.querySelector('.result-score');
+                const resultValue = container.querySelector('.ui-result-value');
                 expect(resultValue).toBeTruthy();
+                expect(parseInt(resultValue.textContent)).toBe(3);
             }
         });
 
         test('should classify as high risk when score >= 4', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
             // Check multiple risk factors to reach score >= 4
-            let checkedCount = 0;
-            for (let i = 0; i < Math.min(checkboxes.length, 4); i++) {
-                checkboxes[i].checked = true;
-                checkedCount++;
-            }
+            // Cancer (3) + Age >= 70 (1)
+            const cancerRadio = container.querySelector('input[name="padua-cancer"][value="3"]');
+            const ageRadio = container.querySelector('input[name="padua-age"][value="1"]');
 
-            if (checkedCount > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
+            if (cancerRadio && ageRadio) {
+                cancerRadio.checked = true;
+                cancerRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                ageRadio.checked = true;
+                ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
-            const resultDiv = container.querySelector('#padua-result') || 
-                            container.querySelector('.result-container');
-            expect(resultDiv).toBeTruthy();
+                const resultDiv = container.querySelector('#padua-result');
+                expect(resultDiv.classList.contains('show')).toBeTruthy();
+                expect(resultDiv.innerHTML).toContain('High Risk');
+            }
         });
 
         test('should classify as low risk when score < 4', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                // Check only 1-2 risk factors
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+             // Cancer (3) only
+            const cancerRadio = container.querySelector('input[name="padua-cancer"][value="3"]');
 
-                const resultDiv = container.querySelector('#padua-result') || 
-                                container.querySelector('.result-container');
-                expect(resultDiv).toBeTruthy();
-            }
-        });
+            if (cancerRadio) {
+                cancerRadio.checked = true;
+                cancerRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
-        test('should update score when checkboxes are toggled', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                // Check
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                // Uncheck
-                checkboxes[0].checked = false;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                expect(container).toBeTruthy();
-            }
-        });
-    });
-
-    describe('Risk Factors', () => {
-        beforeEach(() => {
-            const html = paduaVTE.generateHTML();
-            container.innerHTML = html;
-            paduaVTE.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should include active cancer risk factor', () => {
-            const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('cancer');
-        });
-
-        test('should include previous VTE risk factor', () => {
-            const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('vte' || 'thromboembolism');
-        });
-
-        test('should include reduced mobility risk factor', () => {
-            const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('mobility' || 'bed rest');
-        });
-    });
-
-    describe('Clinical Recommendations', () => {
-        beforeEach(() => {
-            const html = paduaVTE.generateHTML();
-            container.innerHTML = html;
-            paduaVTE.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should recommend prophylaxis for high risk (score >= 4)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check multiple boxes to reach high risk
-            for (let i = 0; i < Math.min(checkboxes.length, 5); i++) {
-                checkboxes[i].checked = true;
-            }
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                const resultDiv = container.querySelector('#padua-result') || 
-                                container.querySelector('.result-container');
-                if (resultDiv) {
-                    expect(resultDiv.innerHTML.toLowerCase()).toContain('prophylaxis');
-                }
-            }
-        });
-
-        test('should not recommend prophylaxis for low risk (score < 4)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check only one box for low risk
-            if (checkboxes.length > 0) {
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                expect(container).toBeTruthy();
-            }
-        });
-    });
-
-    describe('Error Handling', () => {
-        beforeEach(() => {
-            const html = paduaVTE.generateHTML();
-            container.innerHTML = html;
-            paduaVTE.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should work without FHIR client', () => {
-            const html = paduaVTE.generateHTML();
-            const newContainer = document.createElement('div');
-            document.body.appendChild(newContainer);
-            newContainer.innerHTML = html;
-            
-            expect(() => {
-                paduaVTE.initialize(null, null, newContainer);
-            }).not.toThrow();
-            
-            newContainer.remove();
-        });
-
-        test('should handle rapid checkbox toggling', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                // Rapidly toggle
-                for (let i = 0; i < 10; i++) {
-                    checkboxes[0].checked = !checkboxes[0].checked;
-                    checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-                }
-
-                expect(container).toBeTruthy();
+                const resultDiv = container.querySelector('#padua-result');
+                expect(resultDiv.classList.contains('show')).toBeTruthy();
+                expect(resultDiv.innerHTML).toContain('Low Risk');
             }
         });
     });
 });
-

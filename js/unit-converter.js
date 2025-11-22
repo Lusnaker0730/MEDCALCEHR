@@ -53,6 +53,16 @@ export const UnitConverter = {
             'mg/dL': { 'mmol/L': null }, // Depends on molecular weight, handled separately
             'g/L': { 'mg/dL': 100, 'g/dL': 0.1 },
             'g/dL': { 'mg/dL': 1000, 'g/L': 10 }
+        },
+        // Cholesterol (TC, HDL, LDL)
+        cholesterol: {
+            'mg/dL': { 'mmol/L': 0.02586 },
+            'mmol/L': { 'mg/dL': 38.67 }
+        },
+        // Triglycerides
+        triglycerides: {
+            'mg/dL': { 'mmol/L': 0.01129 },
+            'mmol/L': { 'mg/dL': 88.57 }
         }
     },
 

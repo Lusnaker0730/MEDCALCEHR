@@ -1,125 +1,59 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
-// Point allocation functions based on GWTG-HF score algorithm
 const getPoints = {
     sbp: v => {
-        if (v < 90) {
-            return 28;
-        }
-        if (v < 100) {
-            return 23;
-        }
-        if (v < 110) {
-            return 18;
-        }
-        if (v < 120) {
-            return 14;
-        }
-        if (v < 130) {
-            return 9;
-        }
-        if (v < 140) {
-            return 5;
-        }
+        if (v < 90) return 28;
+        if (v < 100) return 23;
+        if (v < 110) return 18;
+        if (v < 120) return 14;
+        if (v < 130) return 9;
+        if (v < 140) return 5;
         return 0;
     },
     bun: v => {
-        if (v < 20) {
-            return 0;
-        }
-        if (v < 30) {
-            return 4;
-        }
-        if (v < 40) {
-            return 9;
-        }
-        if (v < 50) {
-            return 13;
-        }
-        if (v < 60) {
-            return 18;
-        }
-        if (v < 70) {
-            return 22;
-        }
+        if (v < 20) return 0;
+        if (v < 30) return 4;
+        if (v < 40) return 9;
+        if (v < 50) return 13;
+        if (v < 60) return 18;
+        if (v < 70) return 22;
         return 28;
     },
     sodium: v => {
-        if (v > 140) {
-            return 4;
-        }
-        if (v > 135) {
-            return 2;
-        }
+        if (v > 140) return 4;
+        if (v > 135) return 2;
         return 0;
     },
     age: v => {
-        if (v < 40) {
-            return 0;
-        }
-        if (v < 50) {
-            return 7;
-        }
-        if (v < 60) {
-            return 14;
-        }
-        if (v < 70) {
-            return 21;
-        }
-        if (v < 80) {
-            return 28;
-        }
+        if (v < 40) return 0;
+        if (v < 50) return 7;
+        if (v < 60) return 14;
+        if (v < 70) return 21;
+        if (v < 80) return 28;
         return 28;
     },
     hr: v => {
-        if (v < 70) {
-            return 0;
-        }
-        if (v < 80) {
-            return 1;
-        }
-        if (v < 90) {
-            return 3;
-        }
-        if (v < 100) {
-            return 5;
-        }
-        if (v < 110) {
-            return 6;
-        }
+        if (v < 70) return 0;
+        if (v < 80) return 1;
+        if (v < 90) return 3;
+        if (v < 100) return 5;
+        if (v < 110) return 6;
         return 8;
     }
 };
 
 const getMortality = score => {
-    if (score <= 32) {
-        return '<1%';
-    }
-    if (score <= 41) {
-        return '1-2%';
-    } // MDCalc combines some ranges
-    if (score <= 50) {
-        return '2-5%';
-    }
-    if (score <= 56) {
-        return '5-10%';
-    }
-    if (score <= 61) {
-        return '10-15%';
-    }
-    if (score <= 65) {
-        return '15-20%';
-    }
-    if (score <= 72) {
-        return '20-30%';
-    }
-    if (score <= 74) {
-        return '30-40%';
-    }
-    if (score <= 79) {
-        return '40-50%';
-    }
+    if (score <= 32) return '<1%';
+    if (score <= 41) return '1-2%';
+    if (score <= 50) return '2-5%';
+    if (score <= 56) return '5-10%';
+    if (score <= 61) return '10-15%';
+    if (score <= 65) return '15-20%';
+    if (score <= 72) return '20-30%';
+    if (score <= 74) return '30-40%';
+    if (score <= 79) return '40-50%';
     return '>50%';
 };
 
@@ -134,92 +68,67 @@ export const gwtgHf = {
                 <p class="description">${this.description}</p>
             </div>
 
-            <div class="alert warning">
-                <strong>⚠️ IMPORTANT</strong>
-                <p>This calculator includes inputs based on race, which may or may not provide better estimates, so we have decided to make race optional. For the same other inputs, this calculator estimates lower in-hospital mortality risk in Black patients.</p>
-            </div>
+            ${uiBuilder.createAlert({
+                type: 'warning',
+                message: '<strong>IMPORTANT:</strong> This calculator includes inputs based on race, which may or may not provide better estimates.'
+            })}
 
-            <div class="section">
-                <div class="section-title">Systolic BP</div>
-                <div class="input-with-unit">
-                    <input type="number" id="gwtg-sbp" placeholder="120">
-                    <span>mm Hg</span>
-                </div>
-            </div>
+            ${uiBuilder.createSection({
+                title: 'Clinical Parameters',
+                content: `
+                    ${uiBuilder.createInput({ id: 'gwtg-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number', placeholder: '120' })}
+                    ${uiBuilder.createInput({ id: 'gwtg-bun', label: 'BUN', unit: 'mg/dL', type: 'number', placeholder: '30' })}
+                    ${uiBuilder.createInput({ id: 'gwtg-sodium', label: 'Sodium', unit: 'mEq/L', type: 'number', placeholder: '140' })}
+                    ${uiBuilder.createInput({ id: 'gwtg-age', label: 'Age', unit: 'years', type: 'number', placeholder: '65' })}
+                    ${uiBuilder.createInput({ id: 'gwtg-hr', label: 'Heart Rate', unit: 'bpm', type: 'number', placeholder: '80' })}
+                `
+            })}
 
-            <div class="section">
-                <div class="section-title">BUN</div>
-                <div class="input-with-unit">
-                    <input type="number" id="gwtg-bun" placeholder="30">
-                    <span>mg/dL</span>
-                </div>
-            </div>
+            ${uiBuilder.createSection({
+                title: 'Risk Factors',
+                content: `
+                    ${uiBuilder.createRadioGroup({
+                        name: 'copd',
+                        label: 'COPD History',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '2', label: 'Yes (+2)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'race',
+                        label: 'Black Race',
+                        helpText: 'Race may/may not provide better estimates of in-hospital mortality; optional',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '-3', label: 'Yes (-3)' }
+                        ]
+                    })}
+                `
+            })}
 
-            <div class="section">
-                <div class="section-title">Sodium</div>
-                <div class="input-with-unit">
-                    <input type="number" id="gwtg-sodium" placeholder="140">
-                    <span>mEq/L</span>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Age</div>
-                <div class="input-with-unit">
-                    <input type="number" id="gwtg-age" placeholder="65">
-                    <span>years</span>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Heart rate</div>
-                <div class="input-with-unit">
-                    <input type="number" id="gwtg-hr" placeholder="80">
-                    <span>beats/min</span>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">COPD history</div>
-                <div class="radio-group">
-                    <label class="radio-option"><input type="radio" name="copd" value="0" checked><span class="radio-label">No <strong>0</strong></span></label>
-                    <label class="radio-option"><input type="radio" name="copd" value="2"><span class="radio-label">Yes <strong>+2</strong></span></label>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Black race</div>
-                <p class="help-text">Race may/may not provide better estimates of in-hospital mortality; optional</p>
-                <div class="radio-group">
-                    <label class="radio-option"><input type="radio" name="race" value="0" checked><span class="radio-label">No <strong>0</strong></span></label>
-                    <label class="radio-option"><input type="radio" name="race" value="-3"><span class="radio-label">Yes <strong>-3</strong></span></label>
-                </div>
-            </div>
-
-            <div id="gwtg-hf-result" class="result-container"></div>
+            ${uiBuilder.createResultBox({ id: 'gwtg-hf-result', title: 'GWTG-HF Score Result' })}
         `;
     },
     initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
+
         const fields = {
             sbp: container.querySelector('#gwtg-sbp'),
             bun: container.querySelector('#gwtg-bun'),
             sodium: container.querySelector('#gwtg-sodium'),
             age: container.querySelector('#gwtg-age'),
-            hr: container.querySelector('#gwtg-hr'),
-            copd: container.querySelector('input[name="copd"]:checked'),
-            race: container.querySelector('input[name="race"]:checked')
+            hr: container.querySelector('#gwtg-hr')
         };
-        const resultEl = container.querySelector('#gwtg-hf-result');
 
         const calculate = () => {
-            fields.copd = container.querySelector('input[name="copd"]:checked');
-            fields.race = container.querySelector('input[name="race"]:checked');
-            const allFilled = ['sbp', 'bun', 'sodium', 'age', 'hr', 'copd'].every(
-                key => fields[key] && fields[key].value !== ''
-            );
+            const copd = container.querySelector('input[name="copd"]:checked');
+            const race = container.querySelector('input[name="race"]:checked');
+            
+            const allFilled = Object.values(fields).every(el => el && el.value !== '') && copd;
 
             if (!allFilled) {
-                resultEl.classList.remove('show');
+                container.querySelector('#gwtg-hf-result').classList.remove('show');
                 return;
             }
 
@@ -229,102 +138,67 @@ export const gwtgHf = {
             score += getPoints.sodium(parseFloat(fields.sodium.value));
             score += getPoints.age(parseFloat(fields.age.value));
             score += getPoints.hr(parseFloat(fields.hr.value));
-            score += parseInt(fields.copd.value);
-            if (fields.race) {
-                // Race is optional
-                score += parseInt(fields.race.value);
+            score += parseInt(copd.value);
+            if (race) {
+                score += parseInt(race.value);
             }
 
             const mortality = getMortality(score);
 
-            let riskLevel = 'low';
-            if (
-                mortality.includes('>50%') ||
-                mortality.includes('40-50') ||
-                mortality.includes('30-40')
-            ) {
-                riskLevel = 'high';
-            } else if (
-                mortality.includes('20-30') ||
-                mortality.includes('15-20') ||
-                mortality.includes('10-15')
-            ) {
-                riskLevel = 'medium';
+            let riskLevel = 'Low Risk';
+            let alertType = 'success';
+            
+            if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
+                riskLevel = 'High Risk';
+                alertType = 'danger';
+            } else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
+                riskLevel = 'Moderate Risk';
+                alertType = 'warning';
             }
 
-            resultEl.innerHTML = `
-                <div class="result-header">
-                    <h3>GWTG-HF Score</h3>
-                </div>
-                <div class="result-score" style="font-size: 4rem; font-weight: bold; color: #667eea;">${score}</div>
-                <div class="result-label">points</div>
-                
-                <div class="result-item">
-                    <span class="result-label">In-hospital mortality:</span>
-                    <span class="result-value" style="font-size: 2rem; font-weight: bold; color: #667eea;">${mortality}</span>
-                </div>
-                
-                <div class="severity-indicator ${riskLevel}">${riskLevel === 'high' ? 'High Risk' : riskLevel === 'medium' ? 'Moderate Risk' : 'Low Risk'}</div>
+            const resultBox = container.querySelector('#gwtg-hf-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                    label: 'GWTG-HF Score',
+                    value: score,
+                    unit: 'points',
+                    interpretation: riskLevel,
+                    alertClass: `ui-alert-${alertType}`
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'In-hospital Mortality',
+                    value: mortality,
+                    alertClass: `ui-alert-${alertType}`
+                })}
             `;
-            resultEl.classList.add('show');
+            resultBox.classList.add('show');
         };
 
-        // Auto-populate data
         if (patient && patient.birthDate) {
             fields.age.value = calculateAge(patient.birthDate);
         }
         getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-            if (obs) {
-                fields.sbp.value = obs.valueQuantity.value.toFixed(0);
-            }
+            if (obs && obs.valueQuantity) fields.sbp.value = obs.valueQuantity.value.toFixed(0);
             calculate();
         });
         getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-            if (obs) {
-                fields.bun.value = obs.valueQuantity.value.toFixed(0);
-            }
+            if (obs && obs.valueQuantity) fields.bun.value = obs.valueQuantity.value.toFixed(0);
             calculate();
-        }); // BUN
+        });
         getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-            if (obs) {
-                fields.sodium.value = obs.valueQuantity.value.toFixed(0);
-            }
+            if (obs && obs.valueQuantity) fields.sodium.value = obs.valueQuantity.value.toFixed(0);
             calculate();
         });
         getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-            if (obs) {
-                fields.hr.value = obs.valueQuantity.value.toFixed(0);
-            }
+            if (obs && obs.valueQuantity) fields.hr.value = obs.valueQuantity.value.toFixed(0);
             calculate();
         });
 
-        // Add visual feedback for radio options
-        container.querySelectorAll('.radio-option').forEach(option => {
-            option.addEventListener('click', () => {
-                const input = option.querySelector('input[type="radio"]');
-                if (input) {
-                    input.checked = true;
-                    const radioGroup = option.closest('.radio-group');
-                    radioGroup.querySelectorAll('.radio-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    option.classList.add('selected');
-                    calculate();
-                }
-            });
-        });
-
-        // Add event listeners for number inputs
-        container.querySelectorAll('input[type="number"]').forEach(input => {
+        container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
-        });
-
-        // Initial visual feedback
-        container.querySelectorAll('.radio-group').forEach(group => {
-            const checkedInput = group.querySelector('input[type="radio"]:checked');
-            if (checkedInput) {
-                checkedInput.closest('.radio-option').classList.add('selected');
-            }
+            input.addEventListener('change', calculate);
         });
 
         calculate();

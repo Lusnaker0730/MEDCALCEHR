@@ -94,7 +94,7 @@ describe('MELD-Na Calculator', () => {
             
             creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const resultValue = container.querySelector('.score-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             const meldScore = parseFloat(resultValue.textContent);
@@ -120,7 +120,7 @@ describe('MELD-Na Calculator', () => {
             creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
             sodiumInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const resultValue = container.querySelector('.score-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             const meldScore = parseFloat(resultValue.textContent);
@@ -180,7 +180,7 @@ describe('MELD-Na Calculator', () => {
             creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             // Should use minimum values (creat 1.0, bili 1.0, INR 1.0)
-            const resultValue = container.querySelector('.score-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             const meldScore = parseFloat(resultValue.textContent);
@@ -204,14 +204,14 @@ describe('MELD-Na Calculator', () => {
             creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
             sodiumInput.dispatchEvent(new Event('input', { bubbles: true }));
             
-            const resultValue1 = container.querySelector('.score-value');
+            const resultValue1 = container.querySelector('.ui-result-value');
             const meldScore1 = parseFloat(resultValue1.textContent);
 
             // Second calculation with low sodium
             sodiumInput.value = '125';
             sodiumInput.dispatchEvent(new Event('input', { bubbles: true }));
             
-            const resultValue2 = container.querySelector('.score-value');
+            const resultValue2 = container.querySelector('.ui-result-value');
             const meldScore2 = parseFloat(resultValue2.textContent);
 
             // Low sodium should result in higher or equal score (MELD-Na adjustment)

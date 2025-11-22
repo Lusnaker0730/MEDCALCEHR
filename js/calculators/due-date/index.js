@@ -1,146 +1,122 @@
+import { uiBuilder } from '../../ui-builder.js';
+
 export const dueDate = {
     id: 'due-date',
     title: 'Pregnancy Due Dates Calculator',
+    description: 'Calculates pregnancy dates from last period, gestational age, or date of conception.',
+    
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>Calculates pregnancy dates from last period, gestational age, or date of conception.</p>
-            <div class="form-group">
-                <label for="lmp-date" style="font-size: 20px; font-weight: 600; display: block; margin-bottom: 12px;">First Day of Last Menstrual Period (LMP):</label>
-                <input type="text" id="lmp-date" placeholder="YYYY-MM-DD (e.g., 2025-10-08)" style="font-size: 54px; padding: 20px; width: 100%; box-sizing: border-box; border: 2px solid #d1d5db; border-radius: 10px; font-weight: 600; letter-spacing: 2px;">
-                <small style="display: block; margin-top: 12px; color: #6b7280; font-size: 18px;">
-                    📅 Enter date in format: YYYY-MM-DD (Year-Month-Day)
-                </small>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div id="due-date-result" class="result" style="display:none;"></div>
+
+            ${uiBuilder.createSection({
+                title: 'First Day of Last Menstrual Period (LMP)',
+                content: uiBuilder.createInput({
+                    id: 'lmp-date',
+                    label: 'LMP Date',
+                    type: 'date',
+                    placeholder: 'YYYY-MM-DD'
+                })
+            })}
+
+            ${uiBuilder.createResultBox({ id: 'due-date-result', title: 'Pregnancy Dating' })}
+            
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: `
+                    <strong>Important Notes:</strong>
+                    <ul style="margin-top: 5px; padding-left: 20px;">
+                        <li>Calculation assumes a 28-day cycle.</li>
+                        <li>Actual due date may vary by ±2 weeks.</li>
+                        <li>Ultrasound is more accurate for dating in the first trimester.</li>
+                    </ul>
+                `
+            })}
         `;
     },
+
     initialize: function (client, patient, container) {
-        // Set default date to today
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayString = `${year}-${month}-${day}`;
+        uiBuilder.initializeComponents(container);
 
         const lmpInput = container.querySelector('#lmp-date');
-        lmpInput.value = todayString;
-
-        // Add input validation and formatting
-        lmpInput.addEventListener('input', e => {
-            let value = e.target.value.replace(/[^\d-]/g, ''); // Only allow digits and dashes
-
-            // Auto-format as user types
-            if (value.length >= 4 && value[4] !== '-') {
-                value = value.slice(0, 4) + '-' + value.slice(4);
-            }
-            if (value.length >= 7 && value[7] !== '-') {
-                value = value.slice(0, 7) + '-' + value.slice(7);
-            }
-
-            // Limit length to YYYY-MM-DD format
-            if (value.length > 10) {
-                value = value.slice(0, 10);
-            }
-
-            e.target.value = value;
-        });
+        
+        // Set default to today
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        lmpInput.value = todayStr;
 
         const calculate = () => {
-            const lmpDateString = lmpInput.value.trim();
+            const lmpDateString = lmpInput.value;
+            if (!lmpDateString) return;
 
-            // Validate date format
-            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-            if (!dateRegex.test(lmpDateString)) {
-                container.querySelector('#due-date-result').style.display = 'none';
-                return;
-            }
-
-            // Parse and validate date
             const [year, month, day] = lmpDateString.split('-').map(Number);
             const lmpDate = new Date(year, month - 1, day);
 
-            // Check if date is valid
-            if (
-                isNaN(lmpDate.getTime()) ||
-                lmpDate.getFullYear() !== year ||
-                lmpDate.getMonth() !== month - 1 ||
-                lmpDate.getDate() !== day
-            ) {
-                container.querySelector('#due-date-result').style.display = 'none';
+             if (isNaN(lmpDate.getTime())) {
+                container.querySelector('#due-date-result').classList.remove('show');
                 return;
             }
 
-            // Calculate Estimated Due Date (EDD) by adding 280 days (40 weeks)
+            // EDD = LMP + 280 days
             const edd = new Date(lmpDate.getTime());
             edd.setDate(edd.getDate() + 280);
 
-            // Calculate Gestational Age
-            const todayForCalc = new Date();
-            const differenceInTime = todayForCalc.getTime() - lmpDate.getTime();
-            const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-            const gestationalWeeks = Math.floor(differenceInDays / 7);
-            const gestationalDays = differenceInDays % 7;
+            // GA
+            const now = new Date();
+            const diffTime = now.getTime() - lmpDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            const weeks = Math.floor(diffDays / 7);
+            const days = diffDays % 7;
 
-            // Format dates for display
-            const formatDate = date => {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const weekday = [
-                    'Sunday',
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                    'Saturday'
-                ][date.getDay()];
-                return `${year}-${month}-${day} (${weekday})`;
-            };
+            const resultBox = container.querySelector('#due-date-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
-            const resultEl = container.querySelector('#due-date-result');
+            // Format EDD
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const eddStr = edd.toLocaleDateString(undefined, options);
 
-            let gestationalAgeText = '';
-            if (differenceInDays < 0) {
-                gestationalAgeText =
-                    '<p style="color: #ef4444; font-weight: 600;">⚠️ LMP date is in the future. Please check the date.</p>';
-            } else if (differenceInDays > 294) {
-                // More than 42 weeks
-                gestationalAgeText = `<p style="color: #ef4444; font-weight: 600;">Current Gestational Age: ${gestationalWeeks} weeks, ${gestationalDays} days</p>
-                <p style="color: #ef4444;">⚠️ Post-term pregnancy (>42 weeks). Please consult healthcare provider.</p>`;
+            let alertType = 'info';
+            let statusMessage = '';
+            
+            if (diffDays < 0) {
+                statusMessage = 'LMP is in the future.';
+                alertType = 'danger';
+            } else if (diffDays > 294) { // > 42 weeks
+                statusMessage = 'Post-term pregnancy (>42 weeks).';
+                alertType = 'danger';
             } else {
-                gestationalAgeText = `<p><strong>Current Gestational Age:</strong> ${gestationalWeeks} weeks, ${gestationalDays} days</p>`;
+                statusMessage = 'Normal pregnancy duration.';
+                alertType = 'success';
             }
 
-            resultEl.innerHTML = `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 10px 0; color: white;">📅 Estimated Due Date (EDD)</h4>
-                    <p style="font-size: 1.5em; font-weight: 700; margin: 0; color: white;">${formatDate(edd)}</p>
-                </div>
-                <div style="background: #f3f4f6; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                    <h5 style="margin: 0 0 10px 0; color: #374151;">📊 Pregnancy Information</h5>
-                    <p><strong>LMP Date:</strong> ${formatDate(lmpDate)}</p>
-                    ${gestationalAgeText}
-                    <p><strong>Days until due date:</strong> ${Math.max(0, Math.floor((edd.getTime() - todayForCalc.getTime()) / (1000 * 3600 * 24)))} days</p>
-                </div>
-                <div style="background: #fef3c7; padding: 15px; border-radius: 10px; border-left: 4px solid #f59e0b;">
-                    <h5 style="margin: 0 0 10px 0; color: #92400e;">ℹ️ Important Notes</h5>
-                    <ul style="margin: 5px 0; padding-left: 20px; color: #78350f;">
-                        <li>This calculation assumes a 28-day menstrual cycle</li>
-                        <li>Actual due date may vary by ±2 weeks</li>
-                        <li>Ultrasound dating is more accurate, especially in first trimester</li>
-                        <li>Full term is considered 37-42 weeks</li>
-                    </ul>
-                </div>
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                    label: 'Estimated Due Date (EDD)',
+                    value: eddStr,
+                    unit: '',
+                    alertClass: 'ui-alert-success'
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Gestational Age',
+                    value: `${weeks} weeks, ${days} days`,
+                    unit: '',
+                    alertClass: `ui-alert-${alertType}`
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Days Remaining',
+                    value: Math.max(0, 280 - diffDays),
+                    unit: 'days'
+                })}
+                ${diffDays < 0 || diffDays > 294 ? uiBuilder.createAlert({ type: alertType, message: statusMessage }) : ''}
             `;
-            container.querySelector('#due-date-result').style.display = 'block';
+            resultBox.classList.add('show');
         };
 
-        // Add event listener for auto-calculation
         lmpInput.addEventListener('input', calculate);
-
-        // Initial calculation
         calculate();
     }
 };

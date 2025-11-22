@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const abl = {
     id: 'abl',
@@ -13,96 +14,67 @@ export const abl = {
                 <p class="description">${this.description}</p>
             </div>
 
-            <div class="section">
-                <div class="section-title">Patient Category</div>
-                <select id="abl-age-category" class="form-select">
-                    <option value="75">Adult man</option>
-                    <option value="65">Adult woman</option>
-                    <option value="80">Infant</option>
-                    <option value="85">Neonate</option>
-                    <option value="96">Premature neonate</option>
-                </select>
-                <small class="help-text">Blood volume (mL/kg) varies by age and sex</small>
-            </div>
+            ${uiBuilder.createSection({
+                title: 'Patient Category',
+                content: `
+                    ${uiBuilder.createSelect({
+                        id: 'abl-age-category',
+                        label: 'Category',
+                        options: [
+                            { value: '75', label: 'Adult man (75 mL/kg)' },
+                            { value: '65', label: 'Adult woman (65 mL/kg)' },
+                            { value: '80', label: 'Infant (80 mL/kg)' },
+                            { value: '85', label: 'Neonate (85 mL/kg)' },
+                            { value: '96', label: 'Premature neonate (96 mL/kg)' }
+                        ],
+                        helpText: 'Blood volume (mL/kg) varies by age and sex'
+                    })}
+                `
+            })}
 
-            <div class="section">
-                <div class="section-title">Weight</div>
-                <div class="input-with-unit">
-                    <input type="number" id="abl-weight" placeholder="e.g., 70">
-                    <span>kg</span>
-                </div>
-            </div>
+            ${uiBuilder.createSection({
+                title: 'Parameters',
+                content: `
+                    ${uiBuilder.createInput({ id: 'abl-weight', label: 'Weight', unit: 'kg', type: 'number', placeholder: 'e.g., 70' })}
+                    ${uiBuilder.createInput({ id: 'abl-hgb-initial', label: 'Initial Hemoglobin', unit: 'g/dL', type: 'number', step: '0.1', placeholder: 'e.g., 14' })}
+                    ${uiBuilder.createInput({ id: 'abl-hgb-final', label: 'Target/Allowable Hemoglobin', unit: 'g/dL', type: 'number', step: '0.1', placeholder: 'e.g., 7' })}
+                `
+            })}
 
-            <div class="section">
-                <div class="section-title">Hemoglobin (initial)</div>
-                <div class="input-with-unit">
-                    <input type="number" id="abl-hgb-initial" placeholder="e.g., 14" step="0.1">
-                    <span>g/dL</span>
-                </div>
-            </div>
+            ${uiBuilder.createResultBox({ id: 'abl-result', title: 'ABL Results' })}
 
-            <div class="section">
-                <div class="section-title">Hemoglobin (final/target)</div>
-                <div class="input-with-unit">
-                    <input type="number" id="abl-hgb-final" placeholder="e.g., 7" step="0.1">
-                    <span>g/dL</span>
-                </div>
-            </div>
-
-            <div id="abl-result" class="result-container"></div>
-
-            <div class="info-section">
-                <h4>?? Formulas</h4>
-                <div class="formula-box">
-                    <p><strong>Estimated Blood Volume (EBV):</strong></p>
-                    <p>EBV = Weight (kg) ? Blood Volume (mL/kg)</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Adult man: 75 mL/kg</li>
-                        <li>Adult woman: 65 mL/kg</li>
-                        <li>Infant: 80 mL/kg</li>
-                        <li>Neonate: 85 mL/kg</li>
-                        <li>Premature neonate: 96 mL/kg</li>
-                    </ul>
-                </div>
-                <div class="formula-box">
-                    <p><strong>Allowable Blood Loss (ABL):</strong></p>
-                    <p>ABL = EBV ? (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub></p>
-                    <p style="margin-top: 5px;">where Hgb<sub>average</sub> = (Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2</p>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <h4>?? Reference</h4>
-                <p>Gross, J. B. (1983). Estimating Allowable Blood Loss: Corrected for Dilution. <em>Anesthesiology</em>, 58(3), 277-280.</p>
-            </div>
+            ${uiBuilder.createFormulaSection({
+                items: [
+                    { label: 'Estimated Blood Volume (EBV)', content: 'Weight (kg) Ã— Blood Volume (mL/kg)' },
+                    { label: 'Allowable Blood Loss (ABL)', content: 'EBV Ã— (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub>' },
+                    { label: 'Average Hgb', content: '(Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2' }
+                ]
+            })}
         `;
     },
     initialize: function (client, patient, container) {
-        const weightEl = container.querySelector('#abl-weight');
-        const hgbInitialEl = container.querySelector('#abl-hgb-initial');
-        const hgbFinalEl = container.querySelector('#abl-hgb-final');
-        const ageCategoryEl = container.querySelector('#abl-age-category');
-        const resultEl = container.querySelector('#abl-result');
+        uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const weight = parseFloat(weightEl.value);
-            const hgbInitial = parseFloat(hgbInitialEl.value);
-            const hgbFinal = parseFloat(hgbFinalEl.value);
-            const avgBloodVolume = parseFloat(ageCategoryEl.value);
+            const weight = parseFloat(container.querySelector('#abl-weight').value);
+            const hgbInitial = parseFloat(container.querySelector('#abl-hgb-initial').value);
+            const hgbFinal = parseFloat(container.querySelector('#abl-hgb-final').value);
+            const avgBloodVolume = parseFloat(container.querySelector('#abl-age-category').value);
+
+            const resultBox = container.querySelector('#abl-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
             if (isNaN(weight) || isNaN(hgbInitial) || isNaN(hgbFinal) || isNaN(avgBloodVolume)) {
-                resultEl.classList.remove('show');
+                resultBox.classList.remove('show');
                 return;
             }
 
             if (hgbInitial <= hgbFinal) {
-                resultEl.innerHTML = `
-                    <div class="alert error">
-                        <strong>? ï? Error</strong>
-                        <p>Initial hemoglobin must be greater than final hemoglobin.</p>
-                    </div>
-                `;
-                resultEl.classList.add('show');
+                resultContent.innerHTML = uiBuilder.createAlert({
+                    type: 'danger',
+                    message: 'Initial hemoglobin must be greater than final hemoglobin.'
+                });
+                resultBox.classList.add('show');
                 return;
             }
 
@@ -110,59 +82,57 @@ export const abl = {
             const hgbAvg = (hgbInitial + hgbFinal) / 2;
             const ablValue = (ebv * (hgbInitial - hgbFinal)) / hgbAvg;
 
-            resultEl.innerHTML = `
-                <div class="result-header">ABL Results</div>
-                <div class="result-score">
-                    <span style="font-size: 3.5rem; font-weight: bold; color: #667eea;">${ablValue.toFixed(1)}</span>
-                    <span style="font-size: 1.2rem; color: #718096; margin-left: 10px;">mL</span>
-                </div>
-                <div class="result-label">Maximum Allowable Blood Loss</div>
-                <div class="result-item" style="margin-top: 20px;">
-                    <span class="label">Estimated Blood Volume (EBV)</span>
-                    <span class="value">${ebv.toFixed(0)} mL</span>
-                </div>
-                <div class="result-item">
-                    <span class="label">Average Hemoglobin</span>
-                    <span class="value">${hgbAvg.toFixed(1)} g/dL</span>
-                </div>
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                    label: 'Maximum Allowable Blood Loss',
+                    value: ablValue.toFixed(0),
+                    unit: 'mL',
+                    alertClass: 'ui-alert-info'
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Estimated Blood Volume (EBV)',
+                    value: ebv.toFixed(0),
+                    unit: 'mL'
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Average Hemoglobin',
+                    value: hgbAvg.toFixed(1),
+                    unit: 'g/dL'
+                })}
             `;
-            resultEl.classList.add('show');
+            resultBox.classList.add('show');
         };
 
         // Auto-populate from FHIR
         getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-            // Weight
             if (obs && obs.valueQuantity) {
-                weightEl.value = obs.valueQuantity.value.toFixed(1);
+                const weightInput = container.querySelector('#abl-weight');
+                weightInput.value = obs.valueQuantity.value.toFixed(1);
+                weightInput.dispatchEvent(new Event('input'));
             }
-            calculate();
         });
         getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN).then(obs => {
-            // Hemoglobin
             if (obs && obs.valueQuantity) {
-                hgbInitialEl.value = obs.valueQuantity.value.toFixed(1);
+                const hgbInput = container.querySelector('#abl-hgb-initial');
+                hgbInput.value = obs.valueQuantity.value.toFixed(1);
+                hgbInput.dispatchEvent(new Event('input'));
             }
-            calculate();
         });
 
         // Pre-select category based on patient data
         if (patient) {
             const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
+            const categorySelect = container.querySelector('#abl-age-category');
             if (age > 18) {
-                // Adult
-                ageCategoryEl.value = patient.gender === 'male' ? '75' : '65';
+                categorySelect.value = patient.gender === 'male' ? '75' : '65';
             }
-            // Note: More complex logic would be needed to differentiate infant, neonate, etc.
-            // This is a simple approximation.
+            categorySelect.dispatchEvent(new Event('change'));
         }
 
         // Add event listeners for auto-calculation
-        weightEl.addEventListener('input', calculate);
-        hgbInitialEl.addEventListener('input', calculate);
-        hgbFinalEl.addEventListener('input', calculate);
-        ageCategoryEl.addEventListener('change', calculate);
-
-        // Initial calculation
-        calculate();
+        container.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('input', calculate);
+            el.addEventListener('change', calculate);
+        });
     }
 };

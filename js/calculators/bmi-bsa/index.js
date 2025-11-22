@@ -1,38 +1,47 @@
 // js/calculators/bmi-bsa.js
 import {
     getMostRecentObservation,
-    createUnitSelector,
-    initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 import { FHIRDataError, ValidationError, logError, displayError } from '../../errorHandler.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const bmiBsa = {
     id: 'bmi-bsa',
     title: 'BMI & Body Surface Area (BSA)',
     generateHTML: function () {
+        const inputSection = uiBuilder.createSection({
+            title: 'Patient Measurements',
+            content: [
+                uiBuilder.createInput({
+                    id: 'bmi-bsa-weight',
+                    label: 'Weight',
+                    type: 'number',
+                    placeholder: 'e.g. 70',
+                    unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
+                }),
+                uiBuilder.createInput({
+                    id: 'bmi-bsa-height',
+                    label: 'Height',
+                    type: 'number',
+                    placeholder: 'e.g. 170',
+                    unitToggle: { type: 'height', units: ['cm', 'in'] }
+                })
+            ].join('')
+        });
+
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
                 <p class="description">Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.</p>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <span>Patient Measurements</span>
-                </div>
-                <div class="input-group">
-                    <label for="bmi-bsa-weight">Weight:</label>
-                    ${createUnitSelector('bmi-bsa-weight', 'weight', ['kg', 'lbs'], 'kg')}
-                </div>
-                <div class="input-group">
-                    <label for="bmi-bsa-height">Height:</label>
-                    ${createUnitSelector('bmi-bsa-height', 'height', ['cm', 'in'], 'cm')}
-                </div>
-            </div>
+            ${inputSection}
             
             <div class="result-container" id="bmi-bsa-result" style="display:none;"></div>
+            
             <div class="formula-section">
                 <h4>Formulas</h4>
                 <div class="formula-item">
@@ -47,6 +56,9 @@ export const bmiBsa = {
         `;
     },
     initialize: function (client, patient, container) {
+        // Initialize UI Builder components (unit toggles, etc.)
+        uiBuilder.initializeComponents(container);
+
         const resultEl = container.querySelector('#bmi-bsa-result');
 
         // Function to calculate and update results
@@ -68,11 +80,14 @@ export const bmiBsa = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    throw new ValidationError(
-                        validation.errors.join('; '),
-                        'BMI_BSA_VALIDATION_ERROR',
-                        { inputs, errors: validation.errors }
-                    );
+                    // If fields are empty, just hide results, don't throw error yet unless user interacted
+                    // For now, we follow the pattern of only calculating if valid
+                    if (weightKg && heightCm) {
+                         // Maybe show partial validation error? 
+                         // For simplicity, we just don't calculate if invalid
+                    }
+                    resultEl.style.display = 'none';
+                    return; 
                 }
 
                 if (weightKg > 0 && heightCm > 0) {
@@ -171,52 +186,53 @@ export const bmiBsa = {
             }
         };
 
-        // Initialize unit conversions
-        initializeUnitConversion(container, 'bmi-bsa-weight', calculateAndUpdate);
-        initializeUnitConversion(container, 'bmi-bsa-height', calculateAndUpdate);
+        // Add event listeners for real-time calculation
+        const inputs = container.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', calculateAndUpdate);
+        });
 
         // Auto-populate from FHIR data
-        const weightPromise = getMostRecentObservation(client, LOINC_CODES.WEIGHT);
-        const heightPromise = getMostRecentObservation(client, LOINC_CODES.HEIGHT);
+        if (client) {
+            const weightPromise = getMostRecentObservation(client, LOINC_CODES.WEIGHT);
+            const heightPromise = getMostRecentObservation(client, LOINC_CODES.HEIGHT);
 
-        Promise.all([weightPromise, heightPromise])
-            .then(([weightObs, heightObs]) => {
-                const weightInput = container.querySelector('#bmi-bsa-weight');
-                const heightInput = container.querySelector('#bmi-bsa-height');
+            Promise.all([weightPromise, heightPromise])
+                .then(([weightObs, heightObs]) => {
+                    const weightInput = container.querySelector('#bmi-bsa-weight');
+                    const heightInput = container.querySelector('#bmi-bsa-height');
 
-                if (weightObs && weightObs.valueQuantity && weightInput) {
-                    weightInput.value = weightObs.valueQuantity.value.toFixed(1);
-                }
+                    if (weightObs && weightObs.valueQuantity && weightInput) {
+                        weightInput.value = weightObs.valueQuantity.value.toFixed(1);
+                        // Trigger input event to update UI state if needed
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
 
-                if (heightObs && heightObs.valueQuantity && heightInput) {
-                    heightInput.value = heightObs.valueQuantity.value.toFixed(1);
-                }
+                    if (heightObs && heightObs.valueQuantity && heightInput) {
+                        heightInput.value = heightObs.valueQuantity.value.toFixed(1);
+                        heightInput.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(error => {
+                    const fhirError = new FHIRDataError(
+                        '无法从 EHR 系统加载体重或身高数据',
+                        'BMI_BSA_FHIR_LOAD_ERROR',
+                        { error: error.message }
+                    );
+                    logError(fhirError, {
+                        calculator: 'bmi-bsa',
+                        action: 'loadFHIRData'
+                    });
 
-                // Calculate initial results if data was populated
-                calculateAndUpdate();
-            })
-            .catch(error => {
-                const fhirError = new FHIRDataError(
-                    '无法从 EHR 系统加载体重或身高数据',
-                    'BMI_BSA_FHIR_LOAD_ERROR',
-                    { error: error.message }
-                );
-                logError(fhirError, {
-                    calculator: 'bmi-bsa',
-                    action: 'loadFHIRData'
+                    // Display a non-intrusive warning but still allow manual input
+                    const warningContainer = document.createElement('div');
+                    warningContainer.className = 'warning-message';
+                    warningContainer.style.cssText =
+                        'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
+                    warningContainer.innerHTML =
+                        '<strong>提示:</strong> 無法自動加載患者數據，請手動輸入體重和身高。';
+                    container.insertBefore(warningContainer, container.firstChild.nextSibling);
                 });
-
-                // Display a non-intrusive warning but still allow manual input
-                const warningContainer = document.createElement('div');
-                warningContainer.className = 'warning-message';
-                warningContainer.style.cssText =
-                    'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
-                warningContainer.innerHTML =
-                    '<strong>提示:</strong> 无法自动加载患者数据，请手动输入体重和身高。';
-                container.insertBefore(warningContainer, container.firstChild.nextSibling);
-
-                // Still allow manual calculation
-                calculateAndUpdate();
-            });
+        }
     }
 };

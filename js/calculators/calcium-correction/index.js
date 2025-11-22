@@ -1,123 +1,144 @@
-// js/calculators/calcium-correction.js
 import {
-    getMostRecentObservation,
-    createUnitSelector,
-    initializeUnitConversion,
-    getValueInStandardUnit
+    getMostRecentObservation
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 
 export const calciumCorrection = {
     id: 'calcium-correction',
     title: 'Calcium Correction for Albumin',
+    description: 'Calculates corrected calcium for patients with hypoalbuminemia.',
     generateHTML: function () {
+        const inputs = uiBuilder.createSection({
+            title: 'Lab Values',
+            content: [
+                uiBuilder.createInput({
+                    id: 'ca-total',
+                    label: 'Total Calcium',
+                    type: 'number',
+                    unitToggle: { type: 'calcium', units: ['mg/dL', 'mmol/L'] }
+                }),
+                uiBuilder.createInput({
+                    id: 'ca-albumin',
+                    label: 'Albumin',
+                    type: 'number',
+                    unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'] }
+                })
+            ].join('')
+        });
+
+        const formulaSection = uiBuilder.createFormulaSection({
+            items: [
+                { label: 'Corrected Calcium (mg/dL)', formula: 'Total Calcium + 0.8 √ó (4.0 - Albumin)' },
+                { label: 'Note', formula: 'Normal albumin reference: 4.0 g/dL' }
+            ]
+        });
+
         return `
-            <h3>${this.title}</h3>
-            <div class="input-group">
-                <label for="ca-total">Total Calcium:</label>
-                ${createUnitSelector('ca-total', 'calcium', ['mg/dL', 'mmol/L'], 'mg/dL')}
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div class="input-group">
-                <label for="ca-albumin">Albumin:</label>
-                ${createUnitSelector('ca-albumin', 'albumin', ['g/dL', 'g/L'], 'g/dL')}
-            </div>
-            <div id="ca-result" class="result" style="display:none;"></div>
             
-            <div class="formula-section">
-                <h4>?? Formula</h4>
-                <div class="formula-box">
-                    <div class="formula-title">Corrected Calcium (mg/dL) =</div>
-                    <div class="formula-equation">
-                        <span class="formula-main">Total Calcium + 0.8 ? (4.0 - Albumin)</span>
-                    </div>
+            <div class="alert info">
+                <span class="alert-icon">‚ÑπÔ∏è</span>
+                <div class="alert-content">
+                    <p>Use this calculator when albumin levels are abnormal (< 4.0 g/dL). 40-50% of total blood calcium is bound to plasma proteins, primarily albumin.</p>
                 </div>
-                
-                <div class="formula-explanation">
-                    <h5>?? Explanation</h5>
-                    <ul>
-                        <li><strong>Normal albumin reference:</strong> 4.0 g/dL</li>
-                        <li><strong>Correction factor:</strong> 0.8 mg/dL per 1 g/dL decrease in albumin</li>
-                        <li><strong>Purpose:</strong> Adjusts total calcium for low albumin levels</li>
-                        <li><strong>Clinical significance:</strong> Helps identify true hypocalcemia vs. low total calcium due to hypoalbuminemia</li>
-                    </ul>
-                </div>
-                
-                <div class="normal-values">
-                    <h5>?? Normal Values</h5>
-                    <div class="values-grid">
-                        <div class="value-item">
-                            <strong>Total Calcium:</strong> 8.5-10.5 mg/dL
-                        </div>
-                        <div class="value-item">
-                            <strong>Albumin:</strong> 3.5-5.0 g/dL
-                        </div>
-                        <div class="value-item">
-                            <strong>Corrected Calcium:</strong> 8.5-10.5 mg/dL
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="clinical-note">
-                    <h5>?†Ô? Clinical Note</h5>
-                    <p>This correction is most accurate when albumin is between 2.0-4.0 g/dL. For critically ill patients or those with severe hypoalbuminemia, consider measuring ionized calcium directly.</p>
+            </div>
+            
+            ${inputs}
+            
+            ${uiBuilder.createResultBox({ id: 'ca-result', title: 'Corrected Calcium' })}
+            
+            ${formulaSection}
+            
+            <div class="alert warning mt-20">
+                <span class="alert-icon">‚ö†Ô∏è</span>
+                <div class="alert-content">
+                    <p><strong>Clinical Note:</strong> This correction is an estimation. For critically ill patients or precise assessment, measurement of ionized calcium is preferred.</p>
                 </div>
             </div>
         `;
     },
     initialize: function (client, patient, container) {
-        // Initialize unit conversion with auto-calculation
+        uiBuilder.initializeComponents(container);
+
         const calculateAndUpdate = () => {
-            const totalCalciumMgDl = getValueInStandardUnit(container, 'ca-total', 'mg/dL');
-            const albuminGdl = getValueInStandardUnit(container, 'ca-albumin', 'g/dL');
-            const resultEl = container.querySelector('#ca-result');
+            const calciumInput = container.querySelector('#ca-total');
+            const albuminInput = container.querySelector('#ca-albumin');
+            
+            const totalCalciumMgDl = UnitConverter.getStandardValue(calciumInput, 'mg/dL');
+            const albuminGdl = UnitConverter.getStandardValue(albuminInput, 'g/dL');
+            
+            const resultBox = container.querySelector('#ca-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
             if (totalCalciumMgDl > 0 && albuminGdl > 0) {
                 const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
                 const correctedCalciumMmol = correctedCalcium * 0.2495;
 
-                resultEl.innerHTML = `
-                    <div style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px;">
-                        <div style="font-size: 1.1em; margin-bottom: 8px;">Corrected Calcium:</div>
-                        <div style="font-size: 1.8em; font-weight: bold;">${correctedCalcium.toFixed(2)} mg/dL</div>
-                        <div style="font-size: 0.95em; opacity: 0.9; margin-top: 5px;">(${correctedCalciumMmol.toFixed(2)} mmol/L)</div>
-                    </div>
-                    <div style="margin-top: 10px; padding: 10px; background: ${correctedCalcium < 8.5 ? '#fee' : correctedCalcium > 10.5 ? '#fef3cd' : '#e8f5e9'}; border-radius: 6px;">
-                        <strong>${correctedCalcium < 8.5 ? '?†Ô? Low' : correctedCalcium > 10.5 ? '?†Ô? High' : '??Normal'}</strong>
-                        <div style="font-size: 0.9em; margin-top: 5px;">Normal range: 8.5-10.5 mg/dL (2.12-2.62 mmol/L)</div>
+                let alertClass = 'ui-alert-success';
+                let interpretation = 'Normal Range';
+                
+                if (correctedCalcium < 8.5) {
+                    alertClass = 'ui-alert-warning'; // Hypocalcemia
+                    interpretation = 'Hypocalcemia (< 8.5 mg/dL)';
+                } else if (correctedCalcium > 10.5) {
+                    alertClass = 'ui-alert-danger'; // Hypercalcemia
+                    interpretation = 'Hypercalcemia (> 10.5 mg/dL)';
+                }
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({ 
+                        label: 'Corrected Calcium', 
+                        value: correctedCalcium.toFixed(2), 
+                        unit: 'mg/dL',
+                        interpretation: interpretation,
+                        alertClass: alertClass
+                    })}
+                    <div style="text-align: center; margin-top: 5px; color: #666;">
+                        (${correctedCalciumMmol.toFixed(2)} mmol/L)
                     </div>
                 `;
-                resultEl.style.display = 'block';
+                
+                resultBox.classList.add('show');
             } else {
-                resultEl.style.display = 'none';
+                resultBox.classList.remove('show');
             }
         };
 
-        // Initialize unit conversions with callback
-        initializeUnitConversion(container, 'ca-total', calculateAndUpdate);
-        initializeUnitConversion(container, 'ca-albumin', calculateAndUpdate);
+        // Event listeners for inputs
+        const inputs = container.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', calculateAndUpdate);
+        });
+
+        // Helper to set value safely
+        const setInputValue = (id, val) => {
+            const input = container.querySelector(id);
+            if (input && val) {
+                input.value = val;
+                input.dispatchEvent(new Event('input')); // Trigger calculation
+            }
+        };
 
         // Auto-populate from FHIR data
-        getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const input = container.querySelector('#ca-total');
-                if (input) {
-                    input.value = obs.valueQuantity.value.toFixed(1);
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
+                if (obs?.valueQuantity) {
+                    setInputValue('#ca-total', obs.valueQuantity.value.toFixed(1));
                 }
-                calculateAndUpdate();
-            }
-        });
+            });
 
-        getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const input = container.querySelector('#ca-albumin');
-                if (input) {
-                    input.value = obs.valueQuantity.value.toFixed(1);
+            getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
+                if (obs?.valueQuantity) {
+                    setInputValue('#ca-albumin', obs.valueQuantity.value.toFixed(1));
                 }
-                calculateAndUpdate();
-            }
-        });
-
-        // Initial calculation
+            });
+        }
+        
         calculateAndUpdate();
     }
 };

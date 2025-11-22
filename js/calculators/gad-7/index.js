@@ -1,4 +1,4 @@
-// js/calculators/gad-7.js
+import { uiBuilder } from '../../ui-builder.js';
 
 export const gad7 = {
     id: 'gad-7',
@@ -15,7 +15,22 @@ export const gad7 = {
             'Feeling afraid as if something awful might happen'
         ];
 
-        let html = `
+        const sections = questions.map((q, index) => 
+            uiBuilder.createSection({
+                title: `${index + 1}. ${q}`,
+                content: uiBuilder.createRadioGroup({
+                    name: `gad7-q${index}`,
+                    options: [
+                        { value: '0', label: 'Not at all (+0)', checked: true },
+                        { value: '1', label: 'Several days (+1)' },
+                        { value: '2', label: 'More than half the days (+2)' },
+                        { value: '3', label: 'Nearly every day (+3)' }
+                    ]
+                })
+            })
+        ).join('');
+
+        return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
@@ -27,92 +42,70 @@ export const gad7 = {
                     <p><strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by the following problems?</p>
                 </div>
             </div>
+            
+            ${sections}
+            
+            ${uiBuilder.createResultBox({ id: 'gad7-result', title: 'GAD-7 Result' })}
         `;
-
-        questions.forEach((q, index) => {
-            html += `
-                <div class="section">
-                    <div class="section-title"><span>${index + 1}. ${q}</span></div>
-                    <div class="radio-group">
-                        <label class="radio-option"><input type="radio" name="gad7-q${index}" value="0" checked><span>Not at all <strong>+0</strong></span></label>
-                        <label class="radio-option"><input type="radio" name="gad7-q${index}" value="1"><span>Several days <strong>+1</strong></span></label>
-                        <label class="radio-option"><input type="radio" name="gad7-q${index}" value="2"><span>More than half the days <strong>+2</strong></span></label>
-                        <label class="radio-option"><input type="radio" name="gad7-q${index}" value="3"><span>Nearly every day <strong>+3</strong></span></label>
-                    </div>
-                </div>
-            `;
-        });
-
-        html += '<div id="gad7-result" class="result-container"></div>';
-        return html;
     },
     initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
+
         const calculate = () => {
             let score = 0;
-            for (let i = 0; i < 7; i++) {
-                const checked = container.querySelector(`input[name="gad7-q${i}"]:checked`);
-                if (checked) {
-                    score += parseInt(checked.value);
-                }
-            }
+            const radios = container.querySelectorAll('input[type="radio"]:checked');
+            radios.forEach(radio => {
+                score += parseInt(radio.value);
+            });
 
             let severity = '';
             let alertClass = '';
             let recommendation = '';
+            
             if (score <= 4) {
                 severity = 'Minimal anxiety';
-                alertClass = 'success';
+                alertClass = 'ui-alert-success';
                 recommendation = 'Monitor, may not require treatment.';
             } else if (score <= 9) {
                 severity = 'Mild anxiety';
-                alertClass = 'info';
+                alertClass = 'ui-alert-info';
                 recommendation = 'Watchful waiting, reassessment in 4 weeks.';
             } else if (score <= 14) {
                 severity = 'Moderate anxiety';
-                alertClass = 'warning';
+                alertClass = 'ui-alert-warning';
                 recommendation = 'Active treatment with counseling and/or pharmacotherapy.';
             } else {
                 severity = 'Severe anxiety';
-                alertClass = 'danger';
-                recommendation =
-                    'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+                alertClass = 'ui-alert-danger';
+                recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
             }
 
-            const resultEl = container.querySelector('#gad7-result');
-            resultEl.innerHTML = `
-                <div class="result-header"><h4>GAD-7 Result</h4></div>
-                <div class="result-score">
-                    <span class="score-value">${score}</span>
-                    <span class="score-label">/ 21 points</span>
-                </div>
-                <div class="severity-indicator ${alertClass}">
-                    <strong>${severity}</strong>
-                </div>
-                <div class="alert ${alertClass}">
-                    <span class="alert-icon">${alertClass === 'success' ? '✓' : '⚠'}</span>
-                    <div class="alert-content">
-                        <p><strong>Recommendation:</strong> ${recommendation}</p>
+            const resultBox = container.querySelector('#gad7-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total Score', 
+                    value: score, 
+                    unit: '/ 21 points',
+                    interpretation: severity,
+                    alertClass: alertClass
+                })}
+                
+                <div class="ui-alert ${alertClass} mt-10">
+                    <span class="ui-alert-icon">🩺</span>
+                    <div class="ui-alert-content">
+                        <strong>Recommendation:</strong> ${recommendation}
                     </div>
                 </div>
             `;
-            resultEl.style.display = 'block';
+            
+            resultBox.classList.add('show');
         };
 
-        container.querySelectorAll('.radio-option').forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
-            radio.addEventListener('change', () => {
-                const name = radio.name;
-                container.querySelectorAll(`input[name="${name}"]`).forEach(r => {
-                    r.closest('.radio-option').classList.remove('selected');
-                });
-                if (radio.checked) {
-                    option.classList.add('selected');
-                }
-                calculate();
-            });
-            if (radio.checked) {
-                option.classList.add('selected');
-            }
+        // Add event listeners
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
         });
 
         calculate();

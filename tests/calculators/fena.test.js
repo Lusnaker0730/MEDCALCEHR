@@ -37,10 +37,10 @@ describe('FENa (Fractional Excretion of Sodium) Calculator', () => {
             const html = fena.generateHTML();
             container.innerHTML = html;
 
-            const urineNa = container.querySelector('#urine-na');
-            const serumNa = container.querySelector('#serum-na');
-            const urineCreat = container.querySelector('#urine-creat');
-            const serumCreat = container.querySelector('#serum-creat');
+            const urineNa = container.querySelector('#fena-urine-na');
+            const serumNa = container.querySelector('#fena-serum-na');
+            const urineCreat = container.querySelector('#fena-urine-creat');
+            const serumCreat = container.querySelector('#fena-serum-creat');
 
             expect(urineNa).toBeTruthy();
             expect(serumNa).toBeTruthy();
@@ -66,38 +66,63 @@ describe('FENa (Fractional Excretion of Sodium) Calculator', () => {
 
         test('should calculate prerenal AKI (FENa < 1%)', () => {
             // FENa = (20 × 1.0) / (140 × 100) × 100 = 0.14%
-            container.querySelector('#urine-na').value = '20';
-            container.querySelector('#serum-na').value = '140';
-            container.querySelector('#urine-creat').value = '100';
-            container.querySelector('#serum-creat').value = '1.0';
+            const urineNa = container.querySelector('#fena-urine-na');
+            const serumNa = container.querySelector('#fena-serum-na');
+            const urineCreat = container.querySelector('#fena-urine-creat');
+            const serumCreat = container.querySelector('#fena-serum-creat');
 
-            container.querySelector('#urine-na').dispatchEvent(new Event('input', { bubbles: true }));
+            urineNa.value = '20';
+            serumNa.value = '140';
+            urineCreat.value = '100';
+            serumCreat.value = '1.0';
+
+            urineNa.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#fena-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
+            
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(resultValue.textContent).toContain('0.14');
+            
+            const interpretation = container.querySelector('.ui-result-interpretation');
+            expect(interpretation.textContent).toContain('Prerenal');
         });
 
         test('should calculate intrinsic renal disease (FENa > 2%)', () => {
-            // FENa = (80 × 1.0) / (140 × 50) × 100 = 1.14%
-            container.querySelector('#urine-na').value = '80';
-            container.querySelector('#serum-na').value = '140';
-            container.querySelector('#urine-creat').value = '50';
-            container.querySelector('#serum-creat').value = '1.0';
+            // FENa = (80 × 1.0) / (140 × 50) × 100 = 1.14% -> Wait, (80 * 1) / (140 * 50) = 80 / 7000 = 0.0114 * 100 = 1.14% (Indeterminate)
+            // Let's use values for > 2%
+            // UNa = 100, SNa = 140, UCr = 20, SCr = 1.0 -> (100*1)/(140*20) = 100/2800 = 0.0357 * 100 = 3.57%
+            
+            const urineNa = container.querySelector('#fena-urine-na');
+            const serumNa = container.querySelector('#fena-serum-na');
+            const urineCreat = container.querySelector('#fena-urine-creat');
+            const serumCreat = container.querySelector('#fena-serum-creat');
 
-            container.querySelector('#urine-na').dispatchEvent(new Event('input', { bubbles: true }));
+            urineNa.value = '100';
+            serumNa.value = '140';
+            urineCreat.value = '20';
+            serumCreat.value = '1.0';
+
+            urineNa.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#fena-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
+            
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(parseFloat(resultValue.textContent)).toBeGreaterThan(2);
+            
+            const interpretation = container.querySelector('.ui-result-interpretation');
+            expect(interpretation.textContent).toContain('Intrinsic');
         });
 
         test('should not calculate with missing inputs', () => {
-            container.querySelector('#urine-na').value = '20';
-            container.querySelector('#serum-na').value = '';
+            container.querySelector('#fena-urine-na').value = '20';
+            container.querySelector('#fena-serum-na').value = '';
 
-            container.querySelector('#urine-na').dispatchEvent(new Event('input', { bubbles: true }));
+            container.querySelector('#fena-urine-na').dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#fena-result');
-            expect(result.style.display).toBe('none');
+            expect(result.classList.contains('show')).toBe(false);
         });
     });
 
@@ -112,4 +137,3 @@ describe('FENa (Fractional Excretion of Sodium) Calculator', () => {
         });
     });
 });
-

@@ -31,7 +31,7 @@ describe('Ethanol Concentration Calculator', () => {
 
         test('should include result container', () => {
             container.innerHTML = ethanolConcentration.generateHTML();
-            const resultContainer = container.querySelector('.result-container');
+            const resultContainer = container.querySelector('#ethanol-result');
             expect(resultContainer).toBeTruthy();
         });
     });

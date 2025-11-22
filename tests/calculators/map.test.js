@@ -73,10 +73,10 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#map-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
             
-            const mapValue = container.querySelector('.result-score-value');
-            expect(mapValue.textContent).toBe('93.3'); // (120 + 2*80) / 3 = 93.3
+            const mapValue = container.querySelector('.ui-result-value');
+            expect(mapValue.textContent).toContain('93.3'); // (120 + 2*80) / 3 = 93.3
         });
 
         test('should calculate correctly with elevated BP (160/90)', () => {
@@ -87,8 +87,8 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             dbpInput.value = '90';
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const mapValue = container.querySelector('.result-score-value');
-            expect(mapValue.textContent).toBe('113.3'); // (160 + 2*90) / 3 = 113.3
+            const mapValue = container.querySelector('.ui-result-value');
+            expect(mapValue.textContent).toContain('113.3'); // (160 + 2*90) / 3 = 113.3
         });
 
         test('should calculate correctly with low BP (100/60)', () => {
@@ -99,8 +99,8 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             dbpInput.value = '60';
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const mapValue = container.querySelector('.result-score-value');
-            expect(mapValue.textContent).toBe('73.3'); // (100 + 2*60) / 3 = 73.3
+            const mapValue = container.querySelector('.ui-result-value');
+            expect(mapValue.textContent).toContain('73.3'); // (100 + 2*60) / 3 = 73.3
         });
 
         test('should show error when SBP < DBP', () => {
@@ -113,7 +113,7 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
 
             const result = container.querySelector('#map-result');
             expect(result.innerHTML).toContain('Error');
-            expect(result.innerHTML).toContain('Systolic BP must be ≥ Diastolic BP');
+            expect(result.innerHTML).toContain('Systolic BP must be greater than or equal to Diastolic BP');
         });
 
         test('should not calculate with missing inputs', () => {
@@ -125,7 +125,7 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#map-result');
-            expect(result.style.display).toBe('none');
+            expect(result.classList.contains('show')).toBe(false);
         });
 
         test('should not calculate with negative values', () => {
@@ -137,7 +137,7 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#map-result');
-            expect(result.style.display).toBe('none');
+            expect(result.classList.contains('show')).toBe(false);
         });
     });
 
@@ -157,9 +157,9 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             // MAP = 40 + (90-40)/3 = 56.7
-            const severityIndicator = container.querySelector('.severity-indicator');
+            const severityIndicator = container.querySelector('.ui-result-interpretation');
             expect(severityIndicator).toBeTruthy();
-            expect(severityIndicator.classList.contains('high')).toBe(true);
+            expect(severityIndicator.classList.contains('ui-alert-danger')).toBe(true);
             expect(severityIndicator.textContent).toContain('Critically Low');
         });
 
@@ -171,9 +171,9 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             dbpInput.value = '80';
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const severityIndicator = container.querySelector('.severity-indicator');
+            const severityIndicator = container.querySelector('.ui-result-interpretation');
             expect(severityIndicator).toBeTruthy();
-            expect(severityIndicator.classList.contains('low')).toBe(true);
+            expect(severityIndicator.classList.contains('ui-alert-success')).toBe(true);
             expect(severityIndicator.textContent).toContain('Normal');
         });
 
@@ -186,9 +186,9 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             // MAP = 100 + (180-100)/3 = 126.7
-            const severityIndicator = container.querySelector('.severity-indicator');
+            const severityIndicator = container.querySelector('.ui-result-interpretation');
             expect(severityIndicator).toBeTruthy();
-            expect(severityIndicator.classList.contains('high')).toBe(true);
+            expect(severityIndicator.classList.contains('ui-alert-danger')).toBe(true);
             expect(severityIndicator.textContent).toContain('Elevated');
         });
     });
@@ -225,7 +225,7 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#map-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
         });
 
         test('should update result on DBP input change', () => {
@@ -237,8 +237,7 @@ describe('MAP (Mean Arterial Pressure) Calculator', () => {
             dbpInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#map-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
         });
     });
 });
-

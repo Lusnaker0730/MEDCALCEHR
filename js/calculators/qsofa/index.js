@@ -1,176 +1,148 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
-// js/calculators/qsofa.js
 export const qsofaScore = {
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
     description:
-        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ?? is positive.',
+        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ‚â• 2 is positive.',
     generateHTML: function () {
+        const criteria = [
+            { id: 'qsofa-rr', label: 'Respiratory Rate ‚â• 22/min', points: 1 },
+            { id: 'qsofa-ams', label: 'Altered Mental Status (GCS < 15)', points: 1 },
+            { id: 'qsofa-sbp', label: 'Systolic Blood Pressure ‚â§ 100 mmHg', points: 1 }
+        ];
+
+        const criteriaSection = uiBuilder.createSection({
+            title: 'qSOFA Criteria',
+            subtitle: 'Check all that apply',
+            icon: 'üìã',
+            content: criteria.map(item => 
+                uiBuilder.createCheckbox({
+                    id: item.id,
+                    label: item.label,
+                    value: item.points.toString()
+                })
+            ).join('')
+        });
+
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
             </div>
             
-            <div class="alert info">
-                <span class="alert-icon">?πÔ?</span>
-                <div class="alert-content">
-                    <div class="alert-title">Instructions</div>
-                    <p>Check all criteria that apply. A score ?? suggests higher risk of mortality or prolonged ICU stay.</p>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: 'Check all criteria that apply. A score ‚â• 2 suggests higher risk of mortality or prolonged ICU stay.'
+            })}
             
-            <div class="section">
-                <div class="section-title">
-                    <span class="section-title-icon">??</span>
-                    <span>qSOFA Criteria (check all that apply)</span>
-                </div>
-                
-                <form id="qsofa-form">
-                    <div class="checkbox-group">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="qsofa-rr" value="1">
-                            <span>Respiratory Rate ??22/min</span>
-                        </label>
-                        
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="qsofa-ams" value="1">
-                            <span>Altered Mental Status (GCS < 15)</span>
-                        </label>
-                        
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="qsofa-sbp" value="1">
-                            <span>Systolic Blood Pressure ??100 mmHg</span>
-                        </label>
-                    </div>
-                </form>
-            </div>
+            ${criteriaSection}
             
-            <div class="result-container" id="qsofa-result" style="display:none;"></div>
+            ${uiBuilder.createResultBox({ id: 'qsofa-result', title: 'qSOFA Score Results' })}
             
-            <div class="info-section mt-30">
-                <h4>?? Interpretation</h4>
-                <div class="formula-box">
-                    <p><strong>qSOFA Score ??2:</strong> Positive screen; suggests higher risk of poor outcomes in patients with suspected infection.</p>
-                    <p><strong>qSOFA Score &lt; 2:</strong> Negative screen; lower risk but continue monitoring if infection suspected.</p>
-                </div>
-                <div class="formula-box mt-15">
-                    <div class="formula-title">Next Steps for Positive qSOFA:</div>
-                    <p>??Calculate full SOFA score<br>
-                    ??Measure serum lactate<br>
-                    ??Obtain blood cultures<br>
-                    ??Consider early antibiotic therapy<br>
-                    ??Assess for organ dysfunction</p>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: `
+                    <h4>üìä Interpretation</h4>
+                    <ul style="margin-top: 5px; padding-left: 20px;">
+                        <li><strong>Score ‚â• 2:</strong> Positive screen; higher risk of poor outcomes.</li>
+                        <li><strong>Score < 2:</strong> Negative screen; lower risk but continue monitoring.</li>
+                    </ul>
+                    <h4 style="margin-top: 15px;">Next Steps for Positive qSOFA:</h4>
+                    <ul style="margin-top: 5px; padding-left: 20px;">
+                        <li>Calculate full SOFA score</li>
+                        <li>Measure serum lactate</li>
+                        <li>Obtain blood cultures</li>
+                        <li>Consider early antibiotic therapy</li>
+                        <li>Assess for organ dysfunction</li>
+                    </ul>
+                `
+            })}
         `;
     },
     initialize: function (client, patient, container) {
-        // If only one parameter is passed (old style), use it as container
-        if (!container && typeof client === 'object' && client.nodeType === 1) {
-            container = client;
-        }
+        uiBuilder.initializeComponents(container);
 
-        // Use document if container is not a DOM element
-        const root = container || document;
-
-        // Calculate function
         const calculate = () => {
-            const inputs = root.querySelectorAll('#qsofa-form input[type="checkbox"]:checked');
-            const score = inputs.length;
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            let score = 0;
+            checkboxes.forEach(box => {
+                if (box.checked) {
+                    score += parseInt(box.value);
+                }
+            });
 
+            let riskLevel = '';
             let interpretation = '';
-            let riskBadgeClass = '';
-            let severityClass = '';
+            let alertClass = '';
 
             if (score >= 2) {
-                interpretation =
-                    'Positive qSOFA: Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
-                riskBadgeClass = 'high';
-                severityClass = 'high';
+                riskLevel = 'Positive Screen';
+                interpretation = 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
+                alertClass = 'ui-alert-danger';
             } else if (score === 1) {
-                interpretation =
-                    'Intermediate qSOFA: Monitor closely. Consider early intervention if clinical suspicion is high.';
-                riskBadgeClass = 'moderate';
-                severityClass = 'moderate';
+                riskLevel = 'Intermediate';
+                interpretation = 'Monitor closely. Consider early intervention if clinical suspicion is high.';
+                alertClass = 'ui-alert-warning';
             } else {
-                interpretation =
-                    'Negative qSOFA: Lower risk, but continue to monitor if infection is suspected.';
-                riskBadgeClass = 'low';
-                severityClass = 'low';
+                riskLevel = 'Negative Screen';
+                interpretation = 'Lower risk, but continue to monitor if infection is suspected.';
+                alertClass = 'ui-alert-success';
             }
 
-            const resultEl = root.querySelector('#qsofa-result');
-            resultEl.innerHTML = `
-                <div class="result-header">
-                    <h4>qSOFA Score Results</h4>
-                </div>
+            const resultBox = container.querySelector('#qsofa-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total qSOFA Score', 
+                    value: score, 
+                    unit: '/ 3 points',
+                    interpretation: riskLevel,
+                    alertClass: alertClass
+                })}
                 
-                <div class="result-score">
-                    <span class="result-score-value">${score}</span>
-                    <span class="result-score-unit">/ 3 points</span>
-                </div>
-                
-                <div class="risk-badge ${riskBadgeClass} mt-15">
-                    ${score >= 2 ? 'Positive Screen' : score === 1 ? 'Intermediate' : 'Negative Screen'}
-                </div>
-                
-                <div class="alert ${severityClass === 'high' ? 'warning' : 'info'} mt-20">
-                    <span class="alert-icon">${score >= 2 ? '?†Ô?' : '?πÔ?'}</span>
-                    <div class="alert-content">
-                        <p>${interpretation}</p>
+                <div class="ui-alert ${alertClass} mt-10">
+                    <span class="ui-alert-icon">${alertClass.includes('danger') ? 'üö®' : '‚ÑπÔ∏è'}</span>
+                    <div class="ui-alert-content">
+                        <strong>Interpretation:</strong> ${interpretation}
                     </div>
                 </div>
             `;
-            resultEl.style.display = 'block';
-            resultEl.classList.add('show');
+            
+            resultBox.classList.add('show');
         };
 
-        // Auto-populate respiratory rate
-        getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const rr = obs.valueQuantity.value;
-                const rrCheckbox = root.querySelector('#qsofa-rr');
-                if (rr >= 22 && rrCheckbox) {
-                    rrCheckbox.checked = true;
-                }
-            }
+        // Add event listeners
+        container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
         });
 
-        // Auto-populate systolic blood pressure
-        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const sbp = obs.valueQuantity.value;
-                const sbpCheckbox = root.querySelector('#qsofa-sbp');
-                if (sbp <= 100 && sbpCheckbox) {
-                    sbpCheckbox.checked = true;
+        // Auto-populate
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
+                if (obs?.valueQuantity?.value >= 22) {
+                    const box = container.querySelector('#qsofa-rr');
+                    if (box) {
+                        box.checked = true;
+                        calculate();
+                    }
                 }
-            }
-        });
-
-        // Add visual feedback and auto-calculate for checkboxes
-        const checkboxOptions = root.querySelectorAll('.checkbox-option');
-        checkboxOptions.forEach(option => {
-            const checkbox = option.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    option.classList.add('checked');
-                } else {
-                    option.classList.remove('checked');
-                }
-                // Auto-calculate
-                calculate();
             });
 
-            // Initialize state
-            if (checkbox.checked) {
-                option.classList.add('checked');
-            }
-        });
+            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
+                if (obs?.valueQuantity?.value <= 100) {
+                    const box = container.querySelector('#qsofa-sbp');
+                    if (box) {
+                        box.checked = true;
+                        calculate();
+                    }
+                }
+            });
+        }
 
-        // Initial calculation
         calculate();
     }
 };

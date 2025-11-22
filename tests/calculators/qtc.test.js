@@ -88,7 +88,7 @@ describe('QTc (Corrected QT Interval) Calculator', () => {
             qtInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#qtc-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
         });
 
         test('should calculate QTc with elevated heart rate', () => {
@@ -104,7 +104,7 @@ describe('QTc (Corrected QT Interval) Calculator', () => {
             qtInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#qtc-result');
-            expect(result.style.display).not.toBe('none');
+            expect(result.classList.contains('show')).toBe(true);
         });
 
         test('should not calculate with missing QT interval', () => {
@@ -114,7 +114,7 @@ describe('QTc (Corrected QT Interval) Calculator', () => {
             hrInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#qtc-result');
-            expect(result.style.display).toBe('none');
+            expect(result.classList.contains('show')).toBe(false);
         });
 
         test('should not calculate with missing heart rate', () => {
@@ -124,7 +124,7 @@ describe('QTc (Corrected QT Interval) Calculator', () => {
             qtInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#qtc-result');
-            expect(result.style.display).toBe('none');
+            expect(result.classList.contains('show')).toBe(false);
         });
 
         test('should not calculate with zero heart rate', () => {
@@ -137,7 +137,7 @@ describe('QTc (Corrected QT Interval) Calculator', () => {
             qtInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             const result = container.querySelector('#qtc-result');
-            expect(result.style.display).toBe('none');
+            expect(result.classList.contains('show')).toBe(false);
         });
     });
 
@@ -189,4 +189,3 @@ describe('QTc (Corrected QT Interval) Calculator', () => {
         });
     });
 });
-

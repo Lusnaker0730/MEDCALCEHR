@@ -1,128 +1,90 @@
-// js/calculators/qtc.js
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const qtc = {
     id: 'qtc',
     title: 'Corrected QT Interval (QTc)',
+    description: 'Calculates corrected QT interval using various formulas to assess risk of arrhythmias.',
     generateHTML: function () {
+        const inputSection = uiBuilder.createSection({
+            title: 'Measurements',
+            content: [
+                uiBuilder.createInput({
+                    id: 'qtc-qt',
+                    label: 'QT Interval',
+                    type: 'number',
+                    placeholder: 'e.g., 400',
+                    unit: 'ms'
+                }),
+                uiBuilder.createInput({
+                    id: 'qtc-hr',
+                    label: 'Heart Rate',
+                    type: 'number',
+                    placeholder: 'loading...',
+                    unit: 'bpm'
+                })
+            ].join('')
+        });
+
+        const formulaSection = uiBuilder.createSection({
+            title: 'Correction Formula',
+            content: uiBuilder.createRadioGroup({
+                name: 'qtc-formula',
+                options: [
+                    { value: 'bazett', label: 'Bazett (most common)', checked: true },
+                    { value: 'fridericia', label: 'Fridericia (better at extreme HR)' },
+                    { value: 'hodges', label: 'Hodges (linear correction)' },
+                    { value: 'framingham', label: 'Framingham' }
+                ]
+            })
+        });
+
+        const formulaRefSection = uiBuilder.createFormulaSection({
+            items: [
+                { label: 'Bazett', formula: 'QTc = QT / √RR' },
+                { label: 'Fridericia', formula: 'QTc = QT / ∛RR' },
+                { label: 'Hodges', formula: 'QTc = QT + 1.75 × (HR - 60)' },
+                { label: 'Framingham', formula: 'QTc = QT + 154 × (1 - RR)' },
+                { label: 'Note', formula: 'RR = 60 / Heart Rate (in seconds)' }
+            ]
+        });
+
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
-                <p class="description">Calculates corrected QT interval using various formulas to assess risk of arrhythmias.</p>
+                <p class="description">${this.description}</p>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <span>Measurements</span>
-                </div>
-                <div class="input-row">
-                    <label for="qtc-qt">QT Interval</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="qtc-qt" placeholder="e.g., 400">
-                        <span>ms</span>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <label for="qtc-hr">Heart Rate</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="qtc-hr" placeholder="loading...">
-                        <span>bpm</span>
-                    </div>
-                </div>
-            </div>
+            ${inputSection}
+            ${formulaSection}
             
-            <div class="section">
-                <div class="section-title">
-                    <span>Correction Formula</span>
-                </div>
-                <div class="radio-group">
-                    <label class="radio-option">
-                        <input type="radio" name="qtc-formula" value="bazett" checked>
-                        <span>Bazett (most common)</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="qtc-formula" value="fridericia">
-                        <span>Fridericia (better at extreme HR)</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="qtc-formula" value="hodges">
-                        <span>Hodges (linear correction)</span>
-                    </label>
-                    <label class="radio-option">
-                        <input type="radio" name="qtc-formula" value="framingham">
-                        <span>Framingham</span>
-                    </label>
-                </div>
-            </div>
+            ${uiBuilder.createResultBox({ id: 'qtc-result', title: 'QTc Results' })}
             
-            <div class="result-container" id="qtc-result" style="display:none;"></div>
+            ${formulaRefSection}
             
-            <div class="formula-reference" style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
-                <h4 style="margin-top: 0;">Formulas</h4>
-                <p style="margin-bottom: 10px;"><strong>Note:</strong> RR interval = 60 / Heart Rate (in seconds)</p>
-                
-                <div style="margin-bottom: 15px;">
-                    <strong>Bazett Formula:</strong>
-                    <div style="margin-left: 20px; margin-top: 5px;">
-                        QTc = QT / √RR
-                    </div>
-                    <div style="margin-left: 20px; font-size: 0.9em; color: #666;">
-                        Most commonly used; overcorrects at high HR and undercorrects at low HR
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <strong>Fridericia Formula:</strong>
-                    <div style="margin-left: 20px; margin-top: 5px;">
-                        QTc = QT / ∛RR
-                    </div>
-                    <div style="margin-left: 20px; font-size: 0.9em; color: #666;">
-                        More accurate at extremes of heart rate
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <strong>Hodges Formula:</strong>
-                    <div style="margin-left: 20px; margin-top: 5px;">
-                        QTc = QT + 1.75 × (HR - 60)
-                    </div>
-                    <div style="margin-left: 20px; font-size: 0.9em; color: #666;">
-                        Linear correction based on heart rate
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 0;">
-                    <strong>Framingham Formula:</strong>
-                    <div style="margin-left: 20px; margin-top: 5px;">
-                        QTc = QT + 154 × (1 - RR)
-                    </div>
-                    <div style="margin-left: 20px; font-size: 0.9em; color: #666;">
-                        Derived from the Framingham Heart Study
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-                    <strong>Normal Values:</strong>
-                    <ul style="margin: 5px 0 0 20px;">
-                        <li>Men: QTc &lt; 450 ms</li>
-                        <li>Women: QTc &lt; 460 ms</li>
-                        <li>Prolonged: &gt; 500 ms (increased risk of arrhythmias)</li>
-                    </ul>
-                </div>
+            <div class="info-section mt-20">
+                <h4>📚 Normal Values</h4>
+                <ul style="margin-top: 5px; padding-left: 20px;">
+                    <li>Men: QTc &lt; 450 ms</li>
+                    <li>Women: QTc &lt; 460 ms</li>
+                    <li>Prolonged: &gt; 500 ms (increased risk of arrhythmias)</li>
+                </ul>
             </div>
         `;
     },
-    initialize: function (client) {
-        const container = document.querySelector('#calculator-container') || document.body;
+    initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
 
-        // Calculate function
         const calculate = () => {
-            const qt = parseFloat(container.querySelector('#qtc-qt').value);
-            const hr = parseFloat(container.querySelector('#qtc-hr').value);
+            const qtInput = container.querySelector('#qtc-qt');
+            const hrInput = container.querySelector('#qtc-hr');
+            const qt = parseFloat(qtInput.value);
+            const hr = parseFloat(hrInput.value);
             const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
             const formula = formulaRadio ? formulaRadio.value : 'bazett';
-            const resultEl = container.querySelector('#qtc-result');
+            const resultBox = container.querySelector('#qtc-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
             if (qt > 0 && hr > 0) {
                 const rr = 60 / hr;
@@ -149,78 +111,60 @@ export const qtc = {
                 }
 
                 // Determine risk level
-                let riskClass = 'low';
+                let alertClass = 'ui-alert-success';
                 let riskText = 'Normal';
+                let interpretation = 'Normal: Men <450ms, Women <460ms';
+
                 if (qtcValue > 500) {
-                    riskClass = 'high';
-                    riskText = 'Prolonged - Increased arrhythmia risk';
+                    alertClass = 'ui-alert-danger';
+                    riskText = 'Prolonged';
+                    interpretation = 'QTc >500ms significantly increases risk of Torsades de Pointes and sudden cardiac death.';
                 } else if (qtcValue > 460) {
-                    riskClass = 'moderate';
-                    riskText = 'Borderline prolonged';
+                    alertClass = 'ui-alert-warning';
+                    riskText = 'Borderline';
+                    interpretation = 'Borderline prolonged QTc.';
                 }
 
-                resultEl.innerHTML = `
-                    <div class="result-header">
-                        <h4>QTc Results (${formulaName})</h4>
-                    </div>
+                // Update title dynamically
+                resultBox.querySelector('.ui-result-header').textContent = `QTc Results (${formulaName})`;
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({ 
+                        label: 'Corrected QT Interval', 
+                        value: qtcValue.toFixed(0), 
+                        unit: 'ms',
+                        interpretation: riskText,
+                        alertClass: alertClass
+                    })}
                     
-                    <div class="result-score">
-                        <span class="result-score-value">${qtcValue.toFixed(0)}</span>
-                        <span class="result-score-unit">ms</span>
-                    </div>
-                    
-                    <div class="severity-indicator ${riskClass} mt-20">
-                        <span class="severity-indicator-text">${riskText}</span>
-                    </div>
-                    
-                    <div class="alert ${riskClass === 'high' ? 'warning' : 'info'} mt-20">
-                        <span class="alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
-                        <div class="alert-content">
-                            <p>${riskClass === 'high' ? 'QTc >500ms significantly increases risk of Torsades de Pointes and sudden cardiac death.' : 'Normal: Men <450ms, Women <460ms'}</p>
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
+                        <div class="ui-alert-content">
+                            <p>${interpretation}</p>
                         </div>
                     </div>
                 `;
-                resultEl.style.display = 'block';
-                resultEl.classList.add('show');
+                resultBox.classList.add('show');
+            } else {
+                resultBox.classList.remove('show');
             }
         };
 
         // Auto-populate heart rate from FHIR
-        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-            if (obs && obs.valueQuantity) {
-                container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
-                calculate();
-            }
-        });
-
-        // Add visual feedback for radio options
-        const radioOptions = container.querySelectorAll('.radio-option');
-        radioOptions.forEach(option => {
-            option.addEventListener('click', function () {
-                const radio = this.querySelector('input[type="radio"]');
-                const group = radio.name;
-
-                container.querySelectorAll(`input[name="${group}"]`).forEach(r => {
-                    r.parentElement.classList.remove('selected');
-                });
-
-                this.classList.add('selected');
-                radio.checked = true;
-                calculate();
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
+                if (obs?.valueQuantity) {
+                    container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
+                    container.querySelector('#qtc-hr').dispatchEvent(new Event('input'));
+                }
             });
-        });
+        }
 
-        // Initialize selected state
-        radioOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
-            if (radio.checked) {
-                option.classList.add('selected');
-            }
+        // Add event listeners
+        container.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculate);
+            input.addEventListener('change', calculate);
         });
-
-        // Auto-calculate on input changes
-        container.querySelector('#qtc-qt').addEventListener('input', calculate);
-        container.querySelector('#qtc-hr').addEventListener('input', calculate);
 
         // Initial calculation
         calculate();

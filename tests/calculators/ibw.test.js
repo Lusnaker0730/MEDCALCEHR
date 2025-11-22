@@ -92,7 +92,7 @@ describe('IBW Calculator', () => {
             heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
             // Allow time for calculation
-            const resultValue = container.querySelector('.result-item-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             // The result should be approximately 77-78 kg
@@ -114,7 +114,7 @@ describe('IBW Calculator', () => {
             femaleRadio.checked = true;
             heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const resultValue = container.querySelector('.result-item-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             // The result should be approximately 56-57 kg
@@ -131,7 +131,7 @@ describe('IBW Calculator', () => {
             maleRadio.checked = true;
             heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const resultValue = container.querySelector('.result-item-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             const ibwValue = parseFloat(resultValue.textContent);
@@ -146,7 +146,7 @@ describe('IBW Calculator', () => {
             femaleRadio.checked = true;
             heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-            const resultValue = container.querySelector('.result-item-value');
+            const resultValue = container.querySelector('.ui-result-value');
             expect(resultValue).toBeTruthy();
             
             const ibwValue = parseFloat(resultValue.textContent);

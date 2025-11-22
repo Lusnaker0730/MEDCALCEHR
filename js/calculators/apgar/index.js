@@ -1,106 +1,138 @@
+import { uiBuilder } from '../../ui-builder.js';
+
 export const apgarScore = {
-    id: 'apgar-score',
+    id: 'apgar',
     title: 'APGAR Score',
     description: 'Assesses neonates 1 and 5 minutes after birth.',
     generateHTML: function () {
+        const criteria = [
+            {
+                id: 'appearance',
+                title: 'Appearance (Skin Color)',
+                options: [
+                    { value: '2', label: 'Normal color all over (hands and feet are pink)' },
+                    { value: '1', label: 'Normal color (but hands and feet are blue)', checked: true },
+                    { value: '0', label: 'Blue-gray or pale all over' }
+                ]
+            },
+            {
+                id: 'pulse',
+                title: 'Pulse (Heart Rate)',
+                options: [
+                    { value: '2', label: '> 100 bpm', checked: true },
+                    { value: '1', label: '< 100 bpm' },
+                    { value: '0', label: 'Absent (no pulse)' }
+                ]
+            },
+            {
+                id: 'grimace',
+                title: 'Grimace (Reflex Irritability)',
+                options: [
+                    { value: '2', label: 'Pulling away, sneezes, coughs, or cries with stimulation', checked: true },
+                    { value: '1', label: 'Facial movement only (grimace) with stimulation' },
+                    { value: '0', label: 'Absent (no response to stimulation)' }
+                ]
+            },
+            {
+                id: 'activity',
+                title: 'Activity (Muscle Tone)',
+                options: [
+                    { value: '2', label: 'Active, spontaneous movement', checked: true },
+                    { value: '1', label: 'Arms and legs flexed with little movement' },
+                    { value: '0', label: 'No movement, "floppy" tone' }
+                ]
+            },
+            {
+                id: 'respiration',
+                title: 'Respiration (Breathing Rate & Effort)',
+                options: [
+                    { value: '2', label: 'Normal rate and effort, good cry', checked: true },
+                    { value: '1', label: 'Slow or irregular breathing, weak cry' },
+                    { value: '0', label: 'Absent (no breathing)' }
+                ]
+            }
+        ];
+
+        const sectionsHTML = criteria.map(item => 
+            uiBuilder.createSection({
+                title: item.title,
+                content: uiBuilder.createRadioGroup({
+                    name: `apgar-${item.id}`,
+                    options: item.options
+                })
+            })
+        ).join('');
+
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <div class="form-container modern ariscat-form">
-                <div class="input-row vertical">
-                    <div class="input-label">Activity/muscle tone</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="activity" value="2"> Active</label>
-                        <label><input type="radio" name="activity" value="1"> Some extremity flexion</label>
-                        <label><input type="radio" name="activity" value="0"> Limp</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Pulse</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="pulse" value="2"> ≥100 BPM</label>
-                        <label><input type="radio" name="pulse" value="1"> &lt;100 BPM</label>
-                        <label><input type="radio" name="pulse" value="0"> Absent</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Grimace</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="grimace" value="2"> Sneeze/cough</label>
-                        <label><input type="radio" name="grimace" value="1"> Grimace</label>
-                        <label><input type="radio" name="grimace" value="0"> None</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Appearance/color</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="appearance" value="2"> All pink</label>
-                        <label><input type="radio" name="appearance" value="1"> Blue extremities, pink body</label>
-                        <label><input type="radio" name="appearance" value="0"> Blue/pale</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Respirations</div>
-                    <div class="radio-group vertical-group">
-                        <label><input type="radio" name="respirations" value="2"> Good/crying</label>
-                        <label><input type="radio" name="respirations" value="1"> Irregular/slow</label>
-                        <label><input type="radio" name="respirations" value="0"> Absent</label>
-                    </div>
-                </div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div id="apgar-result" class="ariscat-result-box" style="display:none;"></div>
+            
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: 'Score is usually recorded at 1 and 5 minutes after birth.'
+            })}
+            
+            ${sectionsHTML}
+            
+            ${uiBuilder.createResultBox({ id: 'apgar-result', title: 'APGAR Score Result' })}
         `;
     },
     initialize: function (client, patient, container) {
-        const resultEl = container.querySelector('#apgar-result');
+        uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const groups = ['activity', 'pulse', 'grimace', 'appearance', 'respirations'];
+            const criteria = ['apgar-appearance', 'apgar-pulse', 'apgar-grimace', 'apgar-activity', 'apgar-respiration'];
             let score = 0;
-            const allAnswered = groups.every(groupName =>
-                container.querySelector(`input[name="${groupName}"]:checked`)
-            );
+            let allSelected = true;
 
-            if (!allAnswered) {
-                resultEl.style.display = 'none';
-                return;
-            }
-
-            groups.forEach(groupName => {
-                score += parseInt(
-                    container.querySelector(`input[name="${groupName}"]:checked`).value
-                );
+            criteria.forEach(name => {
+                const checked = container.querySelector(`input[name="${name}"]:checked`);
+                if (checked) {
+                    score += parseInt(checked.value);
+                } else {
+                    allSelected = false;
+                }
             });
+
+            if (!allSelected) return;
 
             let interpretation = '';
-            if (score < 7) {
-                interpretation =
-                    'Scores <7 suggest potential need for medical intervention, like suction, drying, warming, and stimulating the neonate. Supplemental oxygen may be indicated as well.';
+            let alertClass = '';
+
+            if (score >= 7) {
+                interpretation = 'Reassuring (Normal)';
+                alertClass = 'ui-alert-success';
+            } else if (score >= 4) {
+                interpretation = 'Moderately Abnormal (May need intervention)';
+                alertClass = 'ui-alert-warning';
             } else {
-                interpretation = 'A score of 7-10 is generally considered normal and reassuring.';
+                interpretation = 'Low (Immediate medical intervention required)';
+                alertClass = 'ui-alert-danger';
             }
 
-            resultEl.innerHTML = `
-                <div class="score-section" style="justify-content: center;">
-                    <div class="score-value">${score}</div>
-                    <div class="score-label">points</div>
-                </div>
-                <div class="interpretation-section">
-                    <div class="interp-details">${interpretation}</div>
-                </div>
+            const resultBox = container.querySelector('#apgar-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total APGAR Score', 
+                    value: score, 
+                    unit: '/ 10 points',
+                    interpretation: interpretation,
+                    alertClass: alertClass
+                })}
             `;
-            resultEl.style.display = 'flex';
+            
+            resultBox.classList.add('show');
         };
 
+        // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', event => {
-                const group = event.target.closest('.radio-group');
-                group
-                    .querySelectorAll('label')
-                    .forEach(label => label.classList.remove('selected'));
-                event.target.parentElement.classList.add('selected');
-                calculate();
-            });
+            radio.addEventListener('change', calculate);
         });
+
+        calculate();
     }
 };

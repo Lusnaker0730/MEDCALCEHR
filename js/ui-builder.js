@@ -51,6 +51,131 @@ export class UIBuilder {
                 margin: 15px 0 10px 0;
             }
 
+            /* Result Box */
+            .ui-result-box {
+                margin-top: 20px;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                background: #ffffff;
+                display: none;
+            }
+
+            .ui-result-box.show {
+                display: block;
+                animation: slideDown 0.3s ease-out;
+            }
+
+            .ui-result-header {
+                padding: 15px 20px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #e9ecef;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .ui-result-content {
+                padding: 20px;
+            }
+
+            .ui-result-score {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            .ui-result-value {
+                font-size: 2.5em;
+                font-weight: 700;
+                color: #2c3e50;
+                line-height: 1;
+            }
+
+            .ui-result-unit {
+                font-size: 1em;
+                color: #7f8c8d;
+                margin-left: 5px;
+            }
+
+            .ui-result-interpretation {
+                text-align: center;
+                font-size: 1.1em;
+                margin-top: 10px;
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 8px;
+            }
+
+            /* Alerts */
+            .ui-alert {
+                display: flex;
+                gap: 12px;
+                padding: 15px;
+                border-radius: 8px;
+                margin-top: 15px;
+                border-left: 4px solid transparent;
+            }
+
+            .ui-alert-info {
+                background: #e8f4f8;
+                border-left-color: #3498db;
+                color: #2980b9;
+            }
+
+            .ui-alert-warning {
+                background: #fef9e7;
+                border-left-color: #f1c40f;
+                color: #f39c12;
+            }
+
+            .ui-alert-danger {
+                background: #fdedec;
+                border-left-color: #e74c3c;
+                color: #c0392b;
+            }
+
+            .ui-alert-icon {
+                font-size: 1.2em;
+            }
+
+            /* Formula Section */
+            .ui-formula-section {
+                margin-top: 25px;
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 12px;
+                border: 1px solid #e9ecef;
+            }
+
+            .ui-formula-title {
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 12px;
+                font-size: 0.95em;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .ui-formula-item {
+                margin-bottom: 10px;
+                font-size: 0.9em;
+                color: #34495e;
+            }
+
+            .ui-formula-math {
+                font-family: 'Courier New', monospace;
+                background: #ffffff;
+                padding: 8px 12px;
+                border-radius: 6px;
+                border: 1px solid #e9ecef;
+                margin-top: 4px;
+                display: block;
+            }
+
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
             /* Input Group */
             .ui-input-group {
                 margin-bottom: 15px;
@@ -597,6 +722,100 @@ export class UIBuilder {
                 </div>
             </div>
         `;
+    }
+
+    /**
+     * Create a result box container
+     * @param {Object} options - { id, title, content }
+     */
+    createResultBox({ id, title = 'Results' }) {
+        return `
+            <div id="${id}" class="ui-result-box">
+                <div class="ui-result-header">${title}</div>
+                <div class="ui-result-content"></div>
+            </div>
+        `;
+    }
+
+    /**
+     * Helper to create result item HTML
+     */
+    createResultItem({ label, value, unit = '', interpretation = '', alertClass = '' }) {
+        let html = `
+            <div class="ui-result-score">
+                ${label ? `<div class="ui-section-subtitle" style="text-align:center; margin-top:0;">${label}</div>` : ''}
+                <div class="ui-result-value">${value}<span class="ui-result-unit">${unit}</span></div>
+            </div>
+        `;
+
+        if (interpretation) {
+            html += `<div class="ui-result-interpretation ${alertClass}">${interpretation}</div>`;
+        }
+
+        return html;
+    }
+
+    /**
+     * Helper to create alert HTML
+     */
+    createAlert({ type = 'info', message, icon }) {
+        const icons = {
+            info: 'ℹ️',
+            warning: '⚠️',
+            danger: '🚫',
+            success: '✅'
+        };
+        const alertIcon = icon || icons[type] || icons.info;
+        
+        return `
+            <div class="ui-alert ui-alert-${type}">
+                <span class="ui-alert-icon">${alertIcon}</span>
+                <div class="ui-alert-content">${message}</div>
+            </div>
+        `;
+    }
+
+    /**
+     * Create a formula section
+     * @param {Object} options - { items: [{ label, formula, notes }] }
+     */
+    createFormulaSection({ items = [] }) {
+        const itemsHTML = items.map(item => {
+            const label = item.label || item.title || 'Formula';
+            const formulaContent = Array.isArray(item.formulas) 
+                ? item.formulas.map(f => `<div>${f}</div>`).join('')
+                : item.formula || '';
+            
+            const notesHTML = item.notes ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>` : '';
+
+            return `
+            <div class="ui-formula-item">
+                <strong>${label}:</strong>
+                <div class="ui-formula-math">${formulaContent}</div>
+                ${notesHTML}
+            </div>
+        `}).join('');
+
+        return `
+            <div class="ui-formula-section">
+                <div class="ui-formula-title">Formulas</div>
+                ${itemsHTML}
+            </div>
+        `;
+    }
+
+    /**
+     * Helper to set radio group value programmatically
+     * @param {string} name - The name of the radio group
+     * @param {string} value - The value to select
+     */
+    setRadioValue(name, value) {
+        const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+        if (radio) {
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change', { bubbles: true }));
+            // Trigger visual update if needed (handled by initializeComponents listeners usually)
+        }
     }
 
     /**

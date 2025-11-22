@@ -41,8 +41,8 @@ describe('4C Mortality Score for COVID-19', () => {
             const html = fourCMortalityCovid.generateHTML();
             container.innerHTML = html;
 
-            const ageInputs = container.querySelectorAll('input[name="age"]');
-            const sexInputs = container.querySelectorAll('input[name="sex"]');
+            const ageInputs = container.querySelectorAll('input[name="4c-age"]');
+            const sexInputs = container.querySelectorAll('input[name="4c-sex"]');
             
             expect(ageInputs.length).toBeGreaterThan(0);
             expect(sexInputs.length).toBeGreaterThan(0);
@@ -52,8 +52,8 @@ describe('4C Mortality Score for COVID-19', () => {
             const html = fourCMortalityCovid.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container') || container.querySelector('[id*="result"]') || container.querySelector('[class*="result"]');
-            expect(resultContainer || container.innerHTML.length > 0).toBeTruthy();
+            const resultContainer = container.querySelector('#four-c-result');
+            expect(resultContainer).toBeTruthy();
         });
     });
 
@@ -65,18 +65,18 @@ describe('4C Mortality Score for COVID-19', () => {
         });
 
         test('should calculate score correctly', () => {
-            const ageRadio = container.querySelector('input[name="4c-age"]');
+            const ageRadio = container.querySelector('input[name="4c-age"][value="0"]');
             if (ageRadio) {
                 ageRadio.checked = true;
                 ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
             }
 
-            const scoreEl = container.querySelector('#score') || container.querySelector('#total-score') || container.querySelector('.result-score');
-            expect(scoreEl).toBeTruthy();
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(resultValue).toBeTruthy();
         });
 
         test('should show mortality risk', () => {
-            const riskEl = container.querySelector('#four-c-mortality') || container.querySelector('#four-c-risk') || container.querySelector('.result-item-value');
+            const riskEl = container.querySelector('.ui-result-interpretation');
             expect(riskEl).toBeTruthy();
         });
     });
@@ -90,9 +90,9 @@ describe('4C Mortality Score for COVID-19', () => {
             
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            // Just verify initialization succeeded
-            const ageInputs = container.querySelectorAll('input[name="age"]');
-            expect(ageInputs.length).toBeGreaterThan(0);
+            // Check if a radio is checked
+            const checkedRadio = container.querySelector('input[name="4c-age"]:checked');
+            expect(checkedRadio).toBeTruthy();
         });
     });
 
@@ -103,9 +103,8 @@ describe('4C Mortality Score for COVID-19', () => {
             
             fourCMortalityCovid.initialize(null, null, container);
             
-            const resultContainer = container.querySelector('.result-container');
+            const resultContainer = container.querySelector('#four-c-result');
             expect(resultContainer).toBeTruthy();
         });
     });
 });
-

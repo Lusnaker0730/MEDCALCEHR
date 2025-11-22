@@ -1,8 +1,37 @@
+import { uiBuilder } from '../../ui-builder.js';
+
 export const wellsDVT = {
     id: 'wells-dvt',
     title: "Wells' Criteria for DVT",
     description: 'Calculates risk of deep vein thrombosis (DVT) based on clinical criteria.',
     generateHTML: function () {
+        const criteria = [
+            { id: 'dvt-cancer', label: 'Active cancer (treatment or palliation within 6 months)', points: 1 },
+            { id: 'dvt-paralysis', label: 'Paralysis, paresis, or recent plaster immobilization of the lower extremities', points: 1 },
+            { id: 'dvt-bedridden', label: 'Recently bedridden > 3 days or major surgery within 12 weeks requiring general or regional anesthesia', points: 1 },
+            { id: 'dvt-tenderness', label: 'Localized tenderness along the deep venous system', points: 1 },
+            { id: 'dvt-swelling', label: 'Entire leg swollen', points: 1 },
+            { id: 'dvt-calf', label: 'Calf swelling at least 3 cm larger than asymptomatic side', points: 1 },
+            { id: 'dvt-pitting', label: 'Pitting edema confined to the symptomatic leg', points: 1 },
+            { id: 'dvt-collateral', label: 'Collateral superficial veins (nonvaricose)', points: 1 },
+            { id: 'dvt-previous', label: 'Previously documented DVT', points: 1 },
+            { id: 'dvt-alternative', label: 'Alternative diagnosis at least as likely as DVT', points: -2 }
+        ];
+
+        const inputs = uiBuilder.createSection({
+            title: 'Clinical Criteria',
+            content: criteria.map(item => 
+                uiBuilder.createRadioGroup({
+                    name: item.id,
+                    label: item.label,
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: item.points.toString(), label: `Yes (${item.points > 0 ? '+' : ''}${item.points})` }
+                    ]
+                })
+            ).join('')
+        });
+
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -12,94 +41,13 @@ export const wellsDVT = {
             <div class="alert info">
                 <span class="alert-icon">ℹ️</span>
                 <div class="alert-content">
-                    <div class="alert-title">Instructions</div>
-                    <p>Check all criteria that apply to the patient. Score ranges from -2 to +9 points.</p>
+                    <p><strong>Instructions:</strong> Select all criteria that apply to the patient. Score ranges from -2 to +9 points.</p>
                 </div>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <span class="section-title-icon">📋</span>
-                    <span>Clinical Criteria</span>
-                </div>
-                
-                <div class="checkbox-group">
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-cancer" data-points="1">
-                        <span>Active cancer (treatment or palliation within 6 months) <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-paralysis" data-points="1">
-                        <span>Paralysis, paresis, or recent plaster immobilization of the lower extremities <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-bedridden" data-points="1">
-                        <span>Recently bedridden > 3 days or major surgery within 12 weeks requiring general or regional anesthesia <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-tenderness" data-points="1">
-                        <span>Localized tenderness along the deep venous system <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-swelling" data-points="1">
-                        <span>Entire leg swollen <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-calf" data-points="1">
-                        <span>Calf swelling at least 3 cm larger than asymptomatic side <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-pitting" data-points="1">
-                        <span>Pitting edema confined to the symptomatic leg <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-collateral" data-points="1">
-                        <span>Collateral superficial veins (nonvaricose) <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-previous" data-points="1">
-                        <span>Previously documented DVT <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="dvt-alternative" data-points="-2">
-                        <span>Alternative diagnosis at least as likely as DVT <strong>-2</strong></span>
-                    </label>
-                </div>
-            </div>
+            ${inputs}
             
-            <div class="result-container" id="wells-dvt-result" style="display:none;"></div>
-            
-            <div class="info-section mt-30">
-                <h4>📊 Interpretation</h4>
-                <div class="data-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Score</th>
-                                <th>Risk Category</th>
-                                <th>Clinical Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>≥3</td>
-                                <td><span class="risk-badge high">High Risk</span></td>
-                                <td>DVT likely - Consider imaging</td>
-                            </tr>
-                            <tr>
-                                <td>1-2</td>
-                                <td><span class="risk-badge moderate">Moderate Risk</span></td>
-                                <td>Consider D-dimer and/or imaging</td>
-                            </tr>
-                            <tr>
-                                <td>≤0</td>
-                                <td><span class="risk-badge low">Low Risk</span></td>
-                                <td>DVT unlikely - Consider D-dimer</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            ${uiBuilder.createResultBox({ id: 'wells-dvt-result', title: "Wells' DVT Score Results" })}
             
             <div class="info-section mt-20">
                 <h4>📚 Reference</h4>
@@ -107,84 +55,62 @@ export const wellsDVT = {
             </div>
         `;
     },
-    initialize: function () {
-        const container = document.querySelector('#calculator-container') || document.body;
+    initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
 
-        // Calculate function
         const calculate = () => {
-            const checkboxes = container.querySelectorAll(
-                '.checkbox-option input[type="checkbox"]'
-            );
             let score = 0;
-            checkboxes.forEach(box => {
-                if (box.checked) {
-                    score += parseInt(box.dataset.points);
-                }
+            const radios = container.querySelectorAll('input[type="radio"]:checked');
+            radios.forEach(radio => {
+                score += parseInt(radio.value);
             });
 
             let risk = '';
-            let riskClass = '';
+            let alertClass = '';
             let interpretation = '';
 
             if (score >= 3) {
                 risk = 'High Risk';
-                riskClass = 'high';
-                interpretation =
-                    'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
+                alertClass = 'ui-alert-danger';
+                interpretation = 'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
             } else if (score >= 1) {
                 risk = 'Moderate Risk';
-                riskClass = 'moderate';
-                interpretation =
-                    'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
+                alertClass = 'ui-alert-warning';
+                interpretation = 'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
             } else {
                 risk = 'Low Risk';
-                riskClass = 'low';
-                interpretation =
-                    'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
+                alertClass = 'ui-alert-success';
+                interpretation = 'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
             }
 
-            const resultEl = container.querySelector('#wells-dvt-result');
-            resultEl.innerHTML = `
-                <div class="result-header">
-                    <h4>Wells' DVT Score Results</h4>
-                </div>
+            const resultBox = container.querySelector('#wells-dvt-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total Score', 
+                    value: score, 
+                    unit: 'points',
+                    interpretation: risk,
+                    alertClass: alertClass
+                })}
                 
-                <div class="result-score">
-                    <span class="result-score-value">${score}</span>
-                    <span class="result-score-unit">points</span>
-                </div>
-                
-                <div class="risk-badge ${riskClass} mt-15">
-                    ${risk}
-                </div>
-                
-                <div class="alert ${riskClass === 'high' ? 'warning' : 'info'} mt-20">
-                    <span class="alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
-                    <div class="alert-content">
-                        <p>${interpretation}</p>
+                <div class="ui-alert ${alertClass} mt-10">
+                    <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
+                    <div class="ui-alert-content">
+                        <strong>Recommendation:</strong> ${interpretation}
                     </div>
                 </div>
             `;
-            resultEl.style.display = 'block';
-            resultEl.classList.add('show');
+            
+            resultBox.classList.add('show');
         };
 
-        // Add visual feedback and auto-calculate
-        const checkboxOptions = container.querySelectorAll('.checkbox-option');
-        checkboxOptions.forEach(option => {
-            const checkbox = option.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    option.classList.add('selected');
-                } else {
-                    option.classList.remove('selected');
-                }
-                // Auto-calculate
-                calculate();
-            });
+        // Add event listeners
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
         });
 
-        // Initial calculation
         calculate();
     }
 };

@@ -1,316 +1,115 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const childPugh = {
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
     description: 'Estimates cirrhosis severity.',
     generateHTML: function () {
+        const labSection = uiBuilder.createSection({
+            title: 'Laboratory Parameters',
+            content: [
+                uiBuilder.createRadioGroup({
+                    name: 'bilirubin',
+                    label: 'Bilirubin (Total)',
+                    options: [
+                        { value: '1', label: '< 2 mg/dL (< 34.2 μmol/L) (+1)' },
+                        { value: '2', label: '2-3 mg/dL (34.2-51.3 μmol/L) (+2)' },
+                        { value: '3', label: '> 3 mg/dL (> 51.3 μmol/L) (+3)' }
+                    ]
+                }),
+                uiBuilder.createRadioGroup({
+                    name: 'albumin',
+                    label: 'Albumin',
+                    options: [
+                        { value: '1', label: '> 3.5 g/dL (> 35 g/L) (+1)' },
+                        { value: '2', label: '2.8-3.5 g/dL (28-35 g/L) (+2)' },
+                        { value: '3', label: '< 2.8 g/dL (< 28 g/L) (+3)' }
+                    ]
+                }),
+                uiBuilder.createRadioGroup({
+                    name: 'inr',
+                    label: 'INR',
+                    options: [
+                        { value: '1', label: '< 1.7 (+1)' },
+                        { value: '2', label: '1.7-2.3 (+2)' },
+                        { value: '3', label: '> 2.3 (+3)' }
+                    ]
+                })
+            ].join('')
+        });
+
+        const clinicalSection = uiBuilder.createSection({
+            title: 'Clinical Parameters',
+            content: [
+                uiBuilder.createRadioGroup({
+                    name: 'ascites',
+                    label: 'Ascites',
+                    helpText: 'Fluid accumulation in peritoneal cavity',
+                    options: [
+                        { value: '1', label: 'Absent (+1)' },
+                        { value: '2', label: 'Slight (controlled with diuretics) (+2)' },
+                        { value: '3', label: 'Moderate (despite diuretic therapy) (+3)' }
+                    ]
+                }),
+                uiBuilder.createRadioGroup({
+                    name: 'encephalopathy',
+                    label: 'Hepatic Encephalopathy',
+                    helpText: 'Neuropsychiatric abnormalities',
+                    options: [
+                        { value: '1', label: 'No Encephalopathy (+1)' },
+                        { value: '2', label: 'Grade 1-2 (mild confusion, asterixis) (+2)' },
+                        { value: '3', label: 'Grade 3-4 (severe confusion, coma) (+3)' }
+                    ]
+                })
+            ].join('')
+        });
+
         return `
             <div class="calculator-header">
-                <h3>?? ${this.title}</h3>
+                <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
             </div>
 
             <div class="alert info">
-                <span class="alert-icon">?��?</span>
+                <span class="alert-icon">ℹ️</span>
                 <div class="alert-content">
                     <p><strong>About Child-Pugh Score:</strong> Assesses the prognosis of chronic liver disease, mainly cirrhosis. Uses five clinical measures to classify patients into three categories (A, B, C) with different survival rates and surgical risks.</p>
                 </div>
             </div>
 
-                <div class="lab-values-summary">
-                    <h4>?�� Current Lab Values</h4>
-                    <div class="lab-values-grid">
-                        <div class="lab-value-item">
-                            <div class="lab-label">Bilirubin (Total)</div>
-                            <div class="lab-value" id="current-bilirubin">Loading...</div>
-                        </div>
-                        <div class="lab-value-item">
-                            <div class="lab-label">Albumin</div>
-                            <div class="lab-value" id="current-albumin">Loading...</div>
-                        </div>
-                        <div class="lab-value-item">
-                            <div class="lab-label">INR</div>
-                            <div class="lab-value" id="current-inr">Loading...</div>
-                        </div>
+            <div class="lab-values-summary" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em;">
+                <h4 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">📋 Current Lab Values</h4>
+                <div class="lab-values-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div class="lab-value-item">
+                        <div class="lab-label" style="color: #7f8c8d;">Bilirubin (Total)</div>
+                        <div class="lab-value" id="current-bilirubin" style="font-weight: 600;">Loading...</div>
                     </div>
-                </div>
-
-                <div class="criteria-sections">
-                    <!-- Laboratory Parameters -->
-                    <div class="criteria-section">
-                        <h4 class="section-title">
-                            <span class="section-icon">?��</span>
-                            Laboratory Parameters
-                        </h4>
-                        
-                        <div class="criterion-card">
-                            <div class="criterion-header">
-                                <div class="criterion-title">Bilirubin (Total)</div>
-                                <div class="criterion-points" data-points="bilirubin">0 pts</div>
-                            </div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="bilirubin" value="1">
-                                    <span>&lt;2 mg/dL (&lt;34.2 μmol/L) <strong>+1</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="bilirubin" value="2">
-                                    <span>2-3 mg/dL (34.2-51.3 μmol/L) <strong>+2</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="bilirubin" value="3">
-                                    <span>&gt;3 mg/dL (&gt;51.3 μmol/L) <strong>+3</strong></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="criterion-card">
-                            <div class="criterion-header">
-                                <div class="criterion-title">Albumin</div>
-                                <div class="criterion-points" data-points="albumin">0 pts</div>
-                            </div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="albumin" value="1">
-                                    <span>&gt;3.5 g/dL (&gt;35 g/L) <strong>+1</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="albumin" value="2">
-                                    <span>2.8-3.5 g/dL (28-35 g/L) <strong>+2</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="albumin" value="3">
-                                    <span>&lt;2.8 g/dL (&lt;28 g/L) <strong>+3</strong></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="criterion-card">
-                            <div class="criterion-header">
-                                <div class="criterion-title">INR (International Normalized Ratio)</div>
-                                <div class="criterion-points" data-points="inr">0 pts</div>
-                            </div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="inr" value="1">
-                                    <span>&lt;1.7 <strong>+1</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="inr" value="2">
-                                    <span>1.7-2.3 <strong>+2</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="inr" value="3">
-                                    <span>&gt;2.3 <strong>+3</strong></span>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="lab-value-item">
+                        <div class="lab-label" style="color: #7f8c8d;">Albumin</div>
+                        <div class="lab-value" id="current-albumin" style="font-weight: 600;">Loading...</div>
                     </div>
-
-                    <!-- Clinical Parameters -->
-                    <div class="criteria-section">
-                        <h4 class="section-title">
-                            <span class="section-icon">?��</span>
-                            Clinical Parameters
-                        </h4>
-                        
-                        <div class="criterion-card">
-                            <div class="criterion-header">
-                                <div class="criterion-title">Ascites</div>
-                                <div class="criterion-subtitle">Fluid accumulation in peritoneal cavity</div>
-                                <div class="criterion-points" data-points="ascites">0 pts</div>
-                            </div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="ascites" value="1">
-                                    <span>Absent <strong>+1</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="ascites" value="2">
-                                    <span>Slight (controlled with diuretics) <strong>+2</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="ascites" value="3">
-                                    <span>Moderate (despite diuretic therapy) <strong>+3</strong></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="criterion-card">
-                            <div class="criterion-header">
-                                <div class="criterion-title">Hepatic Encephalopathy</div>
-                                <div class="criterion-subtitle">Neuropsychiatric abnormalities</div>
-                                <div class="criterion-points" data-points="encephalopathy">0 pts</div>
-                            </div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="encephalopathy" value="1">
-                                    <span>No Encephalopathy <strong>+1</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="encephalopathy" value="2">
-                                    <span>Grade 1-2 (mild confusion, asterixis) <strong>+2</strong></span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="encephalopathy" value="3">
-                                    <span>Grade 3-4 (severe confusion, coma) <strong>+3</strong></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Results Section -->
-                <div class="results-section">
-                    <div class="results-header">
-                        <h4>?? Child-Pugh Score Assessment</h4>
-                    </div>
-                    <div class="results-content">
-                        <div class="result-main">
-                            <div class="result-value-container">
-                                <div class="result-score-display" id="result-score">0</div>
-                                <div class="result-label">Total Points</div>
-                            </div>
-                            <div class="result-interpretation-container">
-                                <div class="result-classification" id="result-classification">-</div>
-                                <div class="result-prognosis" id="result-prognosis">Please complete all criteria</div>
-                            </div>
-                        </div>
-                        
-                        <div class="class-interpretation-guide">
-                            <h5>?? Classification & Prognosis</h5>
-                            <div class="class-grid">
-                                <div class="class-item class-a" data-class="a">
-                                    <div class="class-header">
-                                        <div class="class-name">Child Class A</div>
-                                        <div class="class-score">5-6 points</div>
-                                    </div>
-                                    <div class="class-details">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Life Expectancy:</span>
-                                            <span class="detail-value">15-20 years</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Surgical Mortality:</span>
-                                            <span class="detail-value">10%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">1-year Survival:</span>
-                                            <span class="detail-value">100%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">2-year Survival:</span>
-                                            <span class="detail-value">85%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="class-item class-b" data-class="b">
-                                    <div class="class-header">
-                                        <div class="class-name">Child Class B</div>
-                                        <div class="class-score">7-9 points</div>
-                                    </div>
-                                    <div class="class-details">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Life Expectancy:</span>
-                                            <span class="detail-value">4-14 years</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Surgical Mortality:</span>
-                                            <span class="detail-value">30%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">1-year Survival:</span>
-                                            <span class="detail-value">80%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">2-year Survival:</span>
-                                            <span class="detail-value">60%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="class-item class-c" data-class="c">
-                                    <div class="class-header">
-                                        <div class="class-name">Child Class C</div>
-                                        <div class="class-score">10-15 points</div>
-                                    </div>
-                                    <div class="class-details">
-                                        <div class="detail-item">
-                                            <span class="detail-label">Life Expectancy:</span>
-                                            <span class="detail-value">1-3 years</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">Surgical Mortality:</span>
-                                            <span class="detail-value">82%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">1-year Survival:</span>
-                                            <span class="detail-value">45%</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <span class="detail-label">2-year Survival:</span>
-                                            <span class="detail-value">35%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="clinical-management">
-                            <h5>?��? Clinical Management Considerations</h5>
-                            <div class="management-grid" id="management-content">
-                                <div class="management-item">
-                                    <h6>General Management</h6>
-                                    <ul>
-                                        <li>Treat underlying cause of cirrhosis</li>
-                                        <li>Avoid hepatotoxic medications</li>
-                                        <li>Nutritional support</li>
-                                        <li>Monitor for complications</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="clinical-notes">
-                            <h5>?��? Important Clinical Notes</h5>
-                            <ul>
-                                <li><strong>Liver Transplant:</strong> Class B and C patients should be evaluated for transplantation</li>
-                                <li><strong>MELD Score:</strong> Consider using MELD score for transplant prioritization</li>
-                                <li><strong>Surgical Risk:</strong> Elective surgery contraindicated in Class C patients</li>
-                                <li><strong>Complications:</strong> Monitor for variceal bleeding, SBP, HRS, HCC</li>
-                                <li><strong>Limitations:</strong> Subjective assessment of ascites and encephalopathy</li>
-                                <li><strong>Updates:</strong> Reassess score regularly as clinical status changes</li>
-                            </ul>
-                        </div>
+                    <div class="lab-value-item">
+                        <div class="lab-label" style="color: #7f8c8d;">INR</div>
+                        <div class="lab-value" id="current-inr" style="font-weight: 600;">Loading...</div>
                     </div>
                 </div>
             </div>
+
+            ${labSection}
+            ${clinicalSection}
+
+            ${uiBuilder.createResultBox({ id: 'child-pugh-result', title: 'Child-Pugh Score Assessment' })}
         `;
     },
     initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
+
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
-        const updateToggleState = input => {
-            const group = input.closest('.radio-group');
-            if (group) {
-                group.querySelectorAll('.radio-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                input.closest('.radio-option').classList.add('selected');
-            }
-        };
-
         const updatePointsDisplay = (name, value) => {
-            const pointsEl = container.querySelector(`[data-points="${name}"]`);
-            if (pointsEl) {
-                const points = parseInt(value);
-                pointsEl.textContent = `${points} pt${points > 1 ? 's' : ''}`;
-                pointsEl.style.color =
-                    points === 1 ? '#059669' : points === 2 ? '#d97706' : '#dc2626';
-            }
+            // Not needed in new UI as points are in labels, but keeping for potential extension
         };
 
         const calculate = () => {
@@ -324,60 +123,51 @@ export const childPugh = {
                 if (selected) {
                     const value = parseInt(selected.value);
                     score += value;
-                    updatePointsDisplay(group, value);
                 }
             });
 
-            const resultScoreEl = container.querySelector('#result-score');
-            const resultClassificationEl = container.querySelector('#result-classification');
-            const resultPrognosisEl = container.querySelector('#result-prognosis');
-            const resultMain = container.querySelector('.result-main');
+            const resultBox = container.querySelector('#child-pugh-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
             if (!allAnswered) {
-                resultScoreEl.textContent = '0';
-                resultClassificationEl.textContent = '-';
-                resultPrognosisEl.textContent = 'Please complete all criteria';
-                resultMain.className = 'result-main';
-                container
-                    .querySelectorAll('.class-item')
-                    .forEach(item => item.classList.remove('active'));
+                // Optional: show partial score or waiting message
+                resultBox.classList.remove('show');
                 return;
             }
 
-            resultScoreEl.textContent = score;
-
             let classification = '';
-            let classType = '';
             let prognosis = '';
+            let alertClass = 'ui-alert-info';
 
             if (score <= 6) {
                 classification = 'Child Class A';
-                classType = 'a';
-                prognosis = 'Well-compensated disease - Good prognosis';
-                resultMain.className = 'result-main class-a';
+                prognosis = 'Well-compensated disease - Good prognosis\nLife Expectancy: 15-20 years\nSurgical Mortality: 10%';
+                alertClass = 'ui-alert-success';
             } else if (score <= 9) {
                 classification = 'Child Class B';
-                classType = 'b';
-                prognosis = 'Significant functional compromise - Moderate prognosis';
-                resultMain.className = 'result-main class-b';
+                prognosis = 'Significant functional compromise - Moderate prognosis\nLife Expectancy: 4-14 years\nSurgical Mortality: 30%';
+                alertClass = 'ui-alert-warning';
             } else {
                 classification = 'Child Class C';
-                classType = 'c';
-                prognosis = 'Decompensated disease - Poor prognosis';
-                resultMain.className = 'result-main class-c';
+                prognosis = 'Decompensated disease - Poor prognosis\nLife Expectancy: 1-3 years\nSurgical Mortality: 82%';
+                alertClass = 'ui-alert-danger';
             }
 
-            resultClassificationEl.textContent = classification;
-            resultPrognosisEl.textContent = prognosis;
-
-            // Highlight corresponding class item
-            container.querySelectorAll('.class-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            const activeItem = container.querySelector(`.class-item[data-class="${classType}"]`);
-            if (activeItem) {
-                activeItem.classList.add('active');
-            }
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total Points', 
+                    value: score, 
+                    unit: 'points' 
+                })}
+                ${uiBuilder.createResultItem({ 
+                    label: 'Classification', 
+                    value: classification, 
+                    interpretation: prognosis.replace(/\n/g, '<br>'), 
+                    alertClass: alertClass 
+                })}
+            `;
+            
+            resultBox.classList.add('show');
         };
 
         const setRadioFromValue = (groupName, value, ranges, displayValue, unit) => {
@@ -403,100 +193,92 @@ export const childPugh = {
                 );
                 if (radio) {
                     radio.checked = true;
-                    updateToggleState(radio);
+                    // Trigger change event to update UI (if needed) and recalculate
+                    radio.dispatchEvent(new Event('change'));
                 }
             }
         };
 
         // Fetch and set lab values
-        getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
-            .then(obs => {
-                // Bilirubin mg/dL
-                if (obs && obs.valueQuantity) {
-                    const value = obs.valueQuantity.value;
-                    setRadioFromValue(
-                        'bilirubin',
-                        value,
-                        [
-                            { condition: v => v < 2, value: '1' },
-                            { condition: v => v >= 2 && v <= 3, value: '2' },
-                            { condition: v => v > 3, value: '3' }
-                        ],
-                        value.toFixed(1),
-                        'mg/dL'
-                    );
-                } else {
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
+                .then(obs => {
+                    if (obs && obs.valueQuantity) {
+                        const value = obs.valueQuantity.value;
+                        setRadioFromValue(
+                            'bilirubin',
+                            value,
+                            [
+                                { condition: v => v < 2, value: '1' },
+                                { condition: v => v >= 2 && v <= 3, value: '2' },
+                                { condition: v => v > 3, value: '3' }
+                            ],
+                            value.toFixed(1),
+                            'mg/dL'
+                        );
+                    } else {
+                        container.querySelector('#current-bilirubin').textContent = 'Not available';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching bilirubin:', error);
                     container.querySelector('#current-bilirubin').textContent = 'Not available';
-                }
-                calculate();
-            })
-            .catch(error => {
-                console.error('Error fetching bilirubin:', error);
-                container.querySelector('#current-bilirubin').textContent = 'Not available';
-            });
+                });
 
-        getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
-            .then(obs => {
-                // Albumin g/dL
-                if (obs && obs.valueQuantity) {
-                    const valueGdL = obs.valueQuantity.value / 10; // Convert g/L to g/dL
-                    setRadioFromValue(
-                        'albumin',
-                        valueGdL,
-                        [
-                            { condition: v => v > 3.5, value: '1' },
-                            { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
-                            { condition: v => v < 2.8, value: '3' }
-                        ],
-                        valueGdL.toFixed(1),
-                        'g/dL'
-                    );
-                } else {
+            getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
+                .then(obs => {
+                    if (obs && obs.valueQuantity) {
+                        const valueGdL = obs.valueQuantity.value / 10; // Convert g/L to g/dL if needed, assuming input might be different
+                        // Note: utils usually handles standard units, but logic kept from original
+                        setRadioFromValue(
+                            'albumin',
+                            valueGdL,
+                            [
+                                { condition: v => v > 3.5, value: '1' },
+                                { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
+                                { condition: v => v < 2.8, value: '3' }
+                            ],
+                            valueGdL.toFixed(1),
+                            'g/dL'
+                        );
+                    } else {
+                        container.querySelector('#current-albumin').textContent = 'Not available';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching albumin:', error);
                     container.querySelector('#current-albumin').textContent = 'Not available';
-                }
-                calculate();
-            })
-            .catch(error => {
-                console.error('Error fetching albumin:', error);
-                container.querySelector('#current-albumin').textContent = 'Not available';
-            });
+                });
 
-        getMostRecentObservation(client, LOINC_CODES.INR_COAG)
-            .then(obs => {
-                // INR
-                if (obs && obs.valueQuantity) {
-                    const value = obs.valueQuantity.value;
-                    setRadioFromValue(
-                        'inr',
-                        value,
-                        [
-                            { condition: v => v < 1.7, value: '1' },
-                            { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
-                            { condition: v => v > 2.3, value: '3' }
-                        ],
-                        value.toFixed(2),
-                        ''
-                    );
-                } else {
+            getMostRecentObservation(client, LOINC_CODES.INR_COAG)
+                .then(obs => {
+                    if (obs && obs.valueQuantity) {
+                        const value = obs.valueQuantity.value;
+                        setRadioFromValue(
+                            'inr',
+                            value,
+                            [
+                                { condition: v => v < 1.7, value: '1' },
+                                { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
+                                { condition: v => v > 2.3, value: '3' }
+                            ],
+                            value.toFixed(2),
+                            ''
+                        );
+                    } else {
+                        container.querySelector('#current-inr').textContent = 'Not available';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching INR:', error);
                     container.querySelector('#current-inr').textContent = 'Not available';
-                }
-                calculate();
-            })
-            .catch(error => {
-                console.error('Error fetching INR:', error);
-                container.querySelector('#current-inr').textContent = 'Not available';
-            });
+                });
+        }
 
         // Event listeners for all radio buttons
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', e => {
-                updateToggleState(e.target);
+        container.addEventListener('change', (e) => {
+            if (e.target.type === 'radio') {
                 calculate();
-            });
-
-            // Initialize toggle states
-            if (radio.checked) {
-                updateToggleState(radio);
             }
         });
 

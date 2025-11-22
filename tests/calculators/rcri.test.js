@@ -55,17 +55,16 @@ describe('RCRI Calculator', () => {
             const html = rcri.generateHTML();
             container.innerHTML = html;
 
-            // RCRI has 6 risk factors
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            expect(checkboxes.length).toBe(6);
+            // RCRI has 6 risk factors (now radio groups)
+            const radioGroups = container.querySelectorAll('.ui-radio-group');
+            expect(radioGroups.length).toBe(6);
         });
 
         test('should include result container', () => {
             const html = rcri.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('#rcri-result') || 
-                                  container.querySelector('.result-container');
+            const resultContainer = container.querySelector('#rcri-result');
             expect(resultContainer).toBeTruthy();
         });
     });
@@ -78,18 +77,14 @@ describe('RCRI Calculator', () => {
         });
 
         test('should calculate Class I (0 points) correctly', () => {
-            // No risk factors checked
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            checkboxes.forEach(cb => {
-                cb.checked = false;
+            // Ensure all "No" selected
+            const noRadios = container.querySelectorAll('input[value="0"]');
+            noRadios.forEach(radio => {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             });
 
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            const resultValue = container.querySelector('.result-value');
+            const resultValue = container.querySelector('.ui-result-value');
             if (resultValue) {
                 const score = parseInt(resultValue.textContent);
                 expect(score).toBe(0);
@@ -97,14 +92,13 @@ describe('RCRI Calculator', () => {
         });
 
         test('should calculate Class II (1 point) correctly', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const yesRadio = container.querySelector('input[value="1"]');
             
-            if (checkboxes.length > 0) {
-                // Check exactly one risk factor
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            if (yesRadio) {
+                yesRadio.checked = true;
+                yesRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
-                const resultValue = container.querySelector('.result-value');
+                const resultValue = container.querySelector('.ui-result-value');
                 if (resultValue) {
                     const score = parseInt(resultValue.textContent);
                     expect(score).toBe(1);
@@ -113,15 +107,15 @@ describe('RCRI Calculator', () => {
         });
 
         test('should calculate Class III (2 points) correctly', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length >= 2) {
-                // Check two risk factors
-                checkboxes[0].checked = true;
-                checkboxes[1].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            // Select two Yes
+            const yesRadios = container.querySelectorAll('input[value="1"]');
+            if (yesRadios.length >= 2) {
+                yesRadios[0].checked = true;
+                yesRadios[0].dispatchEvent(new Event('change', { bubbles: true }));
+                yesRadios[1].checked = true;
+                yesRadios[1].dispatchEvent(new Event('change', { bubbles: true }));
 
-                const resultValue = container.querySelector('.result-value');
+                const resultValue = container.querySelector('.ui-result-value');
                 if (resultValue) {
                     const score = parseInt(resultValue.textContent);
                     expect(score).toBe(2);
@@ -130,36 +124,20 @@ describe('RCRI Calculator', () => {
         });
 
         test('should calculate Class IV (>= 3 points) correctly', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length >= 3) {
-                // Check three or more risk factors
-                checkboxes[0].checked = true;
-                checkboxes[1].checked = true;
-                checkboxes[2].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            const yesRadios = container.querySelectorAll('input[value="1"]');
+            if (yesRadios.length >= 3) {
+                yesRadios[0].checked = true;
+                yesRadios[0].dispatchEvent(new Event('change', { bubbles: true }));
+                yesRadios[1].checked = true;
+                yesRadios[1].dispatchEvent(new Event('change', { bubbles: true }));
+                yesRadios[2].checked = true;
+                yesRadios[2].dispatchEvent(new Event('change', { bubbles: true }));
 
-                const resultValue = container.querySelector('.result-value');
+                const resultValue = container.querySelector('.ui-result-value');
                 if (resultValue) {
                     const score = parseInt(resultValue.textContent);
                     expect(score).toBeGreaterThanOrEqual(3);
                 }
-            }
-        });
-
-        test('should update score when checkboxes are toggled', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                // Check
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                // Uncheck
-                checkboxes[0].checked = false;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                expect(container).toBeTruthy();
             }
         });
     });
@@ -202,47 +180,6 @@ describe('RCRI Calculator', () => {
         });
     });
 
-    describe('Risk Classification', () => {
-        beforeEach(() => {
-            const html = rcri.generateHTML();
-            container.innerHTML = html;
-            rcri.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should classify Class I as low risk (0.4% cardiac event rate)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-            });
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                const resultDiv = container.querySelector('#rcri-result') || 
-                                container.querySelector('.result-container');
-                expect(resultDiv).toBeTruthy();
-            }
-        });
-
-        test('should classify Class IV as high risk (>11% cardiac event rate)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check all risk factors
-            checkboxes.forEach(cb => {
-                cb.checked = true;
-            });
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                const resultDiv = container.querySelector('#rcri-result') || 
-                                container.querySelector('.result-container');
-                expect(resultDiv).toBeTruthy();
-            }
-        });
-    });
-
     describe('Clinical Recommendations', () => {
         beforeEach(() => {
             const html = rcri.generateHTML();
@@ -251,41 +188,14 @@ describe('RCRI Calculator', () => {
         });
 
         test('should show appropriate risk percentage for each class', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const yesRadio = container.querySelector('input[value="1"]');
             
-            if (checkboxes.length > 0) {
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            if (yesRadio) {
+                yesRadio.checked = true;
+                yesRadio.dispatchEvent(new Event('change', { bubbles: true }));
 
-                const resultDiv = container.querySelector('#rcri-result') || 
-                                container.querySelector('.result-container');
-                if (resultDiv) {
-                    expect(resultDiv.innerHTML).toContain('%');
-                }
-            }
-        });
-    });
-
-    describe('User Interaction', () => {
-        beforeEach(() => {
-            const html = rcri.generateHTML();
-            container.innerHTML = html;
-            rcri.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should highlight checked risk factors', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                // Parent element might get a class
-                const parent = checkboxes[0].closest('.checkbox-option');
-                if (parent) {
-                    expect(parent.classList.contains('checked') || 
-                           checkboxes[0].checked).toBe(true);
-                }
+                const resultDiv = container.querySelector('#rcri-result');
+                expect(resultDiv.innerHTML).toContain('%');
             }
         });
     });
@@ -309,42 +219,5 @@ describe('RCRI Calculator', () => {
             
             newContainer.remove();
         });
-
-        test('should handle rapid checkbox toggling', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                // Rapidly toggle
-                for (let i = 0; i < 10; i++) {
-                    checkboxes[0].checked = !checkboxes[0].checked;
-                    checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-                }
-
-                expect(container).toBeTruthy();
-            }
-        });
-
-        test('should handle all checkboxes being checked and unchecked', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check all
-            checkboxes.forEach(cb => {
-                cb.checked = true;
-            });
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            // Uncheck all
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-            });
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            expect(container).toBeTruthy();
-        });
     });
 });
-

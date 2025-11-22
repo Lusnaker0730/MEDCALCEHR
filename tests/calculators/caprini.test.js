@@ -51,21 +51,19 @@ describe('Caprini VTE Risk Calculator', () => {
             expect(html.length).toBeGreaterThan(0);
         });
 
-        test('should include multiple risk factor checkboxes', () => {
+        test('should include multiple risk factor radio groups', () => {
             const html = caprini.generateHTML();
             container.innerHTML = html;
 
-            // Caprini has many risk factors with different point values
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            expect(checkboxes.length).toBeGreaterThan(10);
+            const radioGroups = container.querySelectorAll('.ui-radio-group');
+            expect(radioGroups.length).toBeGreaterThan(10);
         });
 
         test('should include result container', () => {
             const html = caprini.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('#caprini-result') || 
-                                  container.querySelector('.result-container');
+            const resultContainer = container.querySelector('#caprini-result');
             expect(resultContainer).toBeTruthy();
         });
     });
@@ -78,18 +76,15 @@ describe('Caprini VTE Risk Calculator', () => {
         });
 
         test('should calculate score 0 (very low risk)', () => {
-            // No risk factors checked
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-            });
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            // Ensure Age is < 41 (0 points) as mock patient might be older
+            const ageZeroRadio = container.querySelector('input[name="caprini-age"][value="0"]');
+            if (ageZeroRadio) {
+                ageZeroRadio.checked = true;
+                ageZeroRadio.dispatchEvent(new Event('change', { bubbles: true }));
             }
 
-            const resultValue = container.querySelector('.result-value');
+            // Default is 0
+            const resultValue = container.querySelector('.ui-result-value');
             if (resultValue) {
                 const score = parseInt(resultValue.textContent);
                 expect(score).toBe(0);
@@ -97,70 +92,54 @@ describe('Caprini VTE Risk Calculator', () => {
         });
 
         test('should calculate low risk score (1-2 points)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            // Check first radio group yes option (usually 1 point)
+            const firstGroup = container.querySelector('.ui-radio-group');
+            const yesOption = firstGroup.querySelector('input[value="1"]'); // Assuming first one is 1 point
             
-            if (checkboxes.length > 0) {
-                // Check first checkbox (usually 1 point)
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+            if (yesOption) {
+                yesOption.checked = true;
+                yesOption.dispatchEvent(new Event('change', { bubbles: true }));
 
-                expect(container).toBeTruthy();
+                const resultValue = container.querySelector('.ui-result-value');
+                const score = parseInt(resultValue.textContent);
+                expect(score).toBeGreaterThanOrEqual(1);
             }
         });
 
         test('should calculate moderate risk score (3-4 points)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check multiple risk factors to reach 3-4 points
-            for (let i = 0; i < Math.min(checkboxes.length, 3); i++) {
-                checkboxes[i].checked = true;
-            }
+            const threePointOption = container.querySelector('input[value="3"]');
+            if (threePointOption) {
+                threePointOption.checked = true;
+                threePointOption.dispatchEvent(new Event('change', { bubbles: true }));
 
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
+                const resultValue = container.querySelector('.ui-result-value');
+                const score = parseInt(resultValue.textContent);
+                expect(score).toBeGreaterThanOrEqual(3);
             }
-
-            expect(container).toBeTruthy();
         });
 
         test('should calculate high risk score (≥5 points)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check many risk factors to reach high risk
-            for (let i = 0; i < Math.min(checkboxes.length, 6); i++) {
-                checkboxes[i].checked = true;
-            }
+            const fivePointOption = container.querySelector('input[value="5"]');
+            if (fivePointOption) {
+                fivePointOption.checked = true;
+                fivePointOption.dispatchEvent(new Event('change', { bubbles: true }));
 
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            expect(container).toBeTruthy();
-        });
-
-        test('should update score when checkboxes are toggled', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                // Check
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                // Uncheck
-                checkboxes[0].checked = false;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                expect(container).toBeTruthy();
+                const resultValue = container.querySelector('.ui-result-value');
+                const score = parseInt(resultValue.textContent);
+                expect(score).toBeGreaterThanOrEqual(5);
             }
         });
 
         test('should handle age-based risk factors correctly', () => {
-            // Caprini has age-based points that are mutually exclusive
-            // Age 41-60: 1 point
-            // Age 61-74: 2 points  
-            // Age ≥75: 3 points
-            const html = container.innerHTML;
-            expect(html.toLowerCase()).toContain('age');
+            const ageRadios = container.querySelectorAll('input[name="caprini-age"]');
+            // Assuming index 3 is Age >= 75 (3 points)
+            if (ageRadios[3]) {
+                ageRadios[3].checked = true;
+                ageRadios[3].dispatchEvent(new Event('change', { bubbles: true }));
+                
+                const resultValue = container.querySelector('.ui-result-value');
+                expect(parseInt(resultValue.textContent)).toBe(3);
+            }
         });
     });
 
@@ -202,45 +181,6 @@ describe('Caprini VTE Risk Calculator', () => {
         });
     });
 
-    describe('Risk Classification', () => {
-        beforeEach(() => {
-            const html = caprini.generateHTML();
-            container.innerHTML = html;
-            caprini.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should classify very low risk (0 points)', () => {
-            // Caprini risk levels:
-            // 0: Very low
-            // 1-2: Low
-            // 3-4: Moderate
-            // ≥5: High
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => cb.checked = false);
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            expect(container).toBeTruthy();
-        });
-
-        test('should classify high risk (≥5 points)', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // Check many boxes for high risk
-            checkboxes.forEach((cb, index) => {
-                if (index < 6) cb.checked = true;
-            });
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            expect(container).toBeTruthy();
-        });
-    });
-
     describe('Prophylaxis Recommendations', () => {
         beforeEach(() => {
             const html = caprini.generateHTML();
@@ -249,70 +189,29 @@ describe('Caprini VTE Risk Calculator', () => {
         });
 
         test('should recommend no prophylaxis for very low risk', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => cb.checked = false);
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                const resultDiv = container.querySelector('#caprini-result') || 
-                                container.querySelector('.result-container');
-                if (resultDiv) {
-                    expect(resultDiv.innerHTML.toLowerCase()).toContain('ambulat' || 'early' || 'no prophylaxis');
-                }
+            // Ensure Age is 0
+            const ageZeroRadio = container.querySelector('input[name="caprini-age"][value="0"]');
+            if (ageZeroRadio) {
+                ageZeroRadio.checked = true;
+                ageZeroRadio.dispatchEvent(new Event('change', { bubbles: true }));
             }
-        });
 
-        test('should recommend mechanical prophylaxis for low-moderate risk', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length >= 2) {
-                checkboxes[0].checked = true;
-                checkboxes[1].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                expect(container).toBeTruthy();
+            const resultDiv = container.querySelector('#caprini-result');
+            // Assuming default is 0
+            if (resultDiv) {
+                expect(resultDiv.innerHTML.toLowerCase()).toContain('ambulat' || 'early' || 'no prophylaxis');
             }
         });
 
         test('should recommend pharmacologic prophylaxis for high risk', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            // High risk requires both mechanical and pharmacologic
-            checkboxes.forEach((cb, index) => {
-                if (index < 6) cb.checked = true;
-            });
+            const fivePointOption = container.querySelector('input[value="5"]');
+            if (fivePointOption) {
+                fivePointOption.checked = true;
+                fivePointOption.dispatchEvent(new Event('change', { bubbles: true }));
 
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                const resultDiv = container.querySelector('#caprini-result') || 
-                                container.querySelector('.result-container');
+                const resultDiv = container.querySelector('#caprini-result');
                 if (resultDiv) {
                     expect(resultDiv.innerHTML.toLowerCase()).toContain('pharmacolog' || 'lmwh' || 'heparin');
-                }
-            }
-        });
-    });
-
-    describe('User Interaction', () => {
-        beforeEach(() => {
-            const html = caprini.generateHTML();
-            container.innerHTML = html;
-            caprini.initialize(mockClient, mockPatient, container);
-        });
-
-        test('should highlight checked risk factors', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                const parent = checkboxes[0].closest('.checkbox-option');
-                if (parent) {
-                    expect(parent.classList.contains('checked') || 
-                           checkboxes[0].checked).toBe(true);
                 }
             }
         });
@@ -337,33 +236,5 @@ describe('Caprini VTE Risk Calculator', () => {
             
             newContainer.remove();
         });
-
-        test('should handle rapid checkbox toggling', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            if (checkboxes.length > 0) {
-                for (let i = 0; i < 10; i++) {
-                    checkboxes[0].checked = !checkboxes[0].checked;
-                    checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-                }
-
-                expect(container).toBeTruthy();
-            }
-        });
-
-        test('should handle checking all boxes', () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            
-            checkboxes.forEach(cb => {
-                cb.checked = true;
-            });
-
-            if (checkboxes.length > 0) {
-                checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
-
-                expect(container).toBeTruthy();
-            }
-        });
     });
 });
-

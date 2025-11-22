@@ -1,14 +1,16 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { cleanupDOM } from './test-helpers.js';
+import { setupMockFHIRClient, mockPatientData, cleanupDOM } from './test-helpers.js';
 import { serumAnionGap } from '../../js/calculators/serum-anion-gap/index.js';
 
 describe('Serum Anion Gap Calculator', () => {
     let container;
+    let mockClient;
 
     beforeEach(() => {
         container = document.createElement('div');
         container.id = 'test-container';
         document.body.appendChild(container);
+        mockClient = setupMockFHIRClient();
     });
 
     afterEach(() => {
@@ -16,14 +18,12 @@ describe('Serum Anion Gap Calculator', () => {
     });
 
     describe('Module Structure', () => {
-        test('should export calculator object', () => {
+        test('should export calculator object with required properties', () => {
             expect(serumAnionGap).toBeDefined();
+            expect(serumAnionGap.id).toBe('serum-anion-gap');
+            expect(serumAnionGap.title).toBeDefined();
             expect(typeof serumAnionGap.generateHTML).toBe('function');
             expect(typeof serumAnionGap.initialize).toBe('function');
-        });
-
-        test('should have correct calculator ID', () => {
-            expect(serumAnionGap.id).toBe('serum-anion-gap');
         });
     });
 
@@ -35,40 +35,57 @@ describe('Serum Anion Gap Calculator', () => {
             expect(html.length).toBeGreaterThan(0);
         });
 
-        test('should include result container', () => {
+        test('should include required input fields', () => {
             const html = serumAnionGap.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
-            expect(resultContainer).toBeTruthy();
+            const naInput = container.querySelector('#sag-na');
+            const clInput = container.querySelector('#sag-cl');
+            const hco3Input = container.querySelector('#sag-hco3');
+            
+            expect(naInput).toBeTruthy();
+            expect(clInput).toBeTruthy();
+            expect(hco3Input).toBeTruthy();
         });
     });
 
-    describe('FHIR Integration', () => {
-        test('should work without FHIR client', () => {
-            const html = serumAnionGap.generateHTML();
-            container.innerHTML = html;
-
-            expect(() => {
-                serumAnionGap.initialize(null, null, container);
-            }).not.toThrow();
-        });
-    });
-
-    describe('Basic Functionality', () => {
+    describe('Calculation Logic', () => {
         beforeEach(() => {
             const html = serumAnionGap.generateHTML();
             container.innerHTML = html;
+            serumAnionGap.initialize(mockClient, null, container);
+        });
+
+        test('should calculate anion gap correctly', () => {
+            // Na 140, Cl 100, HCO3 24
+            // Gap = 140 - (100 + 24) = 140 - 124 = 16
+            
+            const naInput = container.querySelector('#sag-na');
+            const clInput = container.querySelector('#sag-cl');
+            const hco3Input = container.querySelector('#sag-hco3');
+            
+            naInput.value = '140';
+            clInput.value = '100';
+            hco3Input.value = '24';
+            
+            naInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            const scoreEl = container.querySelector('.ui-result-value');
+            expect(scoreEl).toBeTruthy();
+            const result = parseFloat(scoreEl.textContent);
+            expect(result).toBeCloseTo(16.0, 1);
+        });
+    });
+
+    describe('Initialization', () => {
+        test('should work without FHIR client', () => {
+            const html = serumAnionGap.generateHTML();
+            container.innerHTML = html;
+            
             serumAnionGap.initialize(null, null, container);
-        });
-
-        test('should initialize without errors', () => {
-            expect(container.innerHTML.length).toBeGreaterThan(0);
-        });
-
-        test('should have input fields', () => {
-            const inputs = container.querySelectorAll('input');
-            expect(inputs.length).toBeGreaterThan(0);
+            
+            const resultContainer = container.querySelector('#sag-result');
+            expect(resultContainer).toBeTruthy();
         });
     });
 });

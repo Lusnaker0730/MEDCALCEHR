@@ -23,7 +23,7 @@ describe('Apgar Calculator', () => {
         });
 
         test('should have correct calculator ID', () => {
-            expect(apgarScore.id).toBe('apgar-score');
+            expect(apgarScore.id).toBe('apgar');
         });
     });
 
@@ -39,7 +39,7 @@ describe('Apgar Calculator', () => {
             const html = apgarScore.generateHTML();
             container.innerHTML = html;
 
-            const resultContainer = container.querySelector('.result-container, .result, [id$="-result"]');
+            const resultContainer = container.querySelector('.ui-result-box');
             expect(resultContainer).toBeTruthy();
         });
     });
@@ -69,6 +69,22 @@ describe('Apgar Calculator', () => {
         test('should have input fields', () => {
             const inputs = container.querySelectorAll('input');
             expect(inputs.length).toBeGreaterThan(0);
+        });
+        
+        test('should calculate score', () => {
+            // Select all '2' options (Total 10)
+            const sections = ['appearance', 'pulse', 'grimace', 'activity', 'respiration'];
+            sections.forEach(section => {
+                const radio = container.querySelector(`input[name="apgar-${section}"][value="2"]`);
+                if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+            
+            const resultValue = container.querySelector('.ui-result-value');
+            expect(resultValue).toBeTruthy();
+            expect(resultValue.textContent).toContain('10');
         });
     });
 });

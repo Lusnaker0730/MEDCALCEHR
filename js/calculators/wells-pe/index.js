@@ -1,6 +1,6 @@
-// js/calculators/wells-pe.js
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const wellsPE = {
     id: 'wells-pe',
@@ -8,6 +8,30 @@ export const wellsPE = {
     description:
         'Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.',
     generateHTML: function () {
+        const criteria = [
+            { id: 'wells-dvt', label: 'Clinical signs and symptoms of DVT', points: 3 },
+            { id: 'wells-alt', label: 'PE is #1 diagnosis OR equally likely', points: 3 },
+            { id: 'wells-hr', label: 'Heart rate > 100 bpm', points: 1.5 },
+            { id: 'wells-immo', label: 'Immobilization (at least 3 days) or surgery in previous 4 weeks', points: 1.5 },
+            { id: 'wells-prev', label: 'Previous, objectively diagnosed PE or DVT', points: 1.5 },
+            { id: 'wells-hemo', label: 'Hemoptysis', points: 1 },
+            { id: 'wells-mal', label: 'Malignancy (with treatment within 6 months, or palliative)', points: 1 }
+        ];
+
+        const inputs = uiBuilder.createSection({
+            title: 'Clinical Criteria',
+            content: criteria.map(item => 
+                uiBuilder.createRadioGroup({
+                    name: item.id,
+                    label: item.label,
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: item.points.toString(), label: `Yes (+${item.points})` }
+                    ]
+                })
+            ).join('')
+        });
+
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -15,242 +39,113 @@ export const wellsPE = {
             </div>
             
             <div class="alert info">
-                <span class="alert-icon">?πÔ?</span>
+                <span class="alert-icon">‚ÑπÔ∏è</span>
                 <div class="alert-content">
                     <div class="alert-title">Instructions</div>
                     <p>Check all criteria that apply to the patient. Score interpretation helps guide D-dimer testing and CT angiography decisions.</p>
                 </div>
             </div>
             
-            <div class="section">
-                <div class="section-title">
-                    <span class="section-title-icon">??</span>
-                    <span>Clinical Criteria</span>
-                </div>
-                
-                <div class="checkbox-group">
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-dvt" data-points="3">
-                        <span>Clinical signs and symptoms of DVT <strong>+3</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-alt" data-points="3">
-                        <span>PE is #1 diagnosis OR equally likely <strong>+3</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-hr" data-points="1.5">
-                        <span>Heart rate > 100 bpm <strong>+1.5</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-immo" data-points="1.5">
-                        <span>Immobilization (?? days) or surgery in previous 4 weeks <strong>+1.5</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-prev" data-points="1.5">
-                        <span>Previous, objectively diagnosed PE or DVT <strong>+1.5</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-hemo" data-points="1">
-                        <span>Hemoptysis <strong>+1</strong></span>
-                    </label>
-                    <label class="checkbox-option">
-                        <input type="checkbox" id="wells-mal" data-points="1">
-                        <span>Malignancy (with treatment within 6 months, or palliative) <strong>+1</strong></span>
-                    </label>
-                </div>
-            </div>
+            ${inputs}
             
-            <div class="result-container" id="wells-result" style="display:none;"></div>
-
-            
-            <div class="info-section mt-30">
-                <h4>?? Score Interpretation</h4>
-                <div class="data-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th colspan="2">Three-Tier Model</th>
-                            </tr>
-                            <tr>
-                                <th>Score</th>
-                                <th>Risk Category</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>0 - 1</td>
-                                <td><span class="risk-badge low">Low Risk</span></td>
-                            </tr>
-                            <tr>
-                                <td>2 - 6</td>
-                                <td><span class="risk-badge moderate">Moderate Risk</span></td>
-                            </tr>
-                            <tr>
-                                <td>&gt;6</td>
-                                <td><span class="risk-badge high">High Risk</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <table class="mt-20">
-                        <thead>
-                            <tr>
-                                <th colspan="2">Two-Tier Model</th>
-                            </tr>
-                            <tr>
-                                <th>Score</th>
-                                <th>Clinical Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>??</td>
-                                <td>PE Unlikely - Consider D-dimer</td>
-                            </tr>
-                            <tr>
-                                <td>??</td>
-                                <td>PE Likely - Proceed to CTA</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            ${uiBuilder.createResultBox({ id: 'wells-result', title: "Wells' PE Score Results" })}
             
             <div class="info-section mt-20">
-                <h4>?? Evidence Appraisal</h4>
-                <div class="formula-box">
-                    <p><strong>Original Wells Study:</strong> Performed on cohorts where PE prevalence was approximately 30%.</p>
-                    <ul>
-                        <li><strong>Geneva Study:</strong> Validated with 12%-29% PE prevalence</li>
-                        <li><strong>Largest Study Results:</strong>
-                            <ul>
-                                <li>Moderate score (2-6): 16.2% PE prevalence</li>
-                                <li>High score (&gt;6): 37.5% PE prevalence</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="formula-box mt-15">
-                    <p><strong>Christopher Study - Two-Tier Approach:</strong></p>
-                    <ul>
-                        <li><strong>Score ?? ("PE unlikely"):</strong> D-dimer testing. Overall PE incidence: 12.1%</li>
-                        <li><strong>Score ?? ("PE likely"):</strong> Direct CTA. PE diagnosis rate: 20.4%</li>
-                        <li><strong>Missed PE rate:</strong> 0.5% at 3-month follow-up in "PE unlikely" group with negative D-dimer</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="info-section mt-20">
-                <h4>?? Reference</h4>
+                <h4>üìö Reference</h4>
                 <p>Wells PS, Anderson DR, Rodger M, et al. Derivation of a simple clinical model to categorize patients probability of pulmonary embolism: increasing the models utility with the SimpliRED D-dimer. <em>Thromb Haemost</em>. 2000;83(3):416-420.</p>
             </div>
         `;
     },
-    initialize: function (client) {
-        const container = document.querySelector('#calculator-container') || document.body;
+    initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
 
-        // Calculate function
+        const setRadioValue = (name, value) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            }
+        };
+
         const calculate = () => {
-            const checkboxes = container.querySelectorAll(
-                '.checkbox-option input[type="checkbox"]'
-            );
             let score = 0;
-            checkboxes.forEach(box => {
-                if (box.checked) {
-                    score += parseFloat(box.dataset.points);
-                }
+            const radios = container.querySelectorAll('input[type="radio"]:checked');
+            radios.forEach(radio => {
+                score += parseFloat(radio.value);
             });
 
             let risk = '';
             let riskClass = '';
             let interpretation = '';
             let twoTierModel = '';
+            let alertClass = '';
 
             if (score <= 1) {
                 risk = 'Low Risk';
                 riskClass = 'low';
-                interpretation =
-                    'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
-                twoTierModel = 'PE Unlikely (Score ??)';
+                alertClass = 'ui-alert-success';
+                interpretation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
+                twoTierModel = 'PE Unlikely (Score < 2)';
             } else if (score <= 6) {
                 risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
                 riskClass = score <= 4 ? 'moderate' : 'high';
+                alertClass = score <= 4 ? 'ui-alert-warning' : 'ui-alert-danger';
+                
                 if (score <= 4) {
-                    interpretation =
-                        'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
-                    twoTierModel = 'PE Unlikely (Score ??)';
+                    interpretation = 'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
+                    twoTierModel = 'PE Unlikely (Score ‚â§ 4)';
                 } else {
-                    interpretation =
-                        'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
-                    twoTierModel = 'PE Likely (Score ??)';
+                    interpretation = 'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
+                    twoTierModel = 'PE Likely (Score > 4)';
                 }
             } else {
                 risk = 'High Risk';
                 riskClass = 'high';
-                interpretation =
-                    'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
-                twoTierModel = 'PE Likely (Score ??)';
+                alertClass = 'ui-alert-danger';
+                interpretation = 'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
+                twoTierModel = 'PE Likely (Score > 4)';
             }
 
-            const resultEl = container.querySelector('#wells-result');
-            resultEl.innerHTML = `
-                <div class="result-header">
-                    <h4>Wells' PE Score Results</h4>
+            const resultBox = container.querySelector('#wells-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total Score', 
+                    value: score, 
+                    unit: 'points',
+                    interpretation: risk,
+                    alertClass: alertClass
+                })}
+                
+                <div class="result-item" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                    <span class="result-item-label" style="font-weight: 600; color: #555;">Two-Tier Model:</span>
+                    <span class="result-item-value" style="font-weight: bold; margin-left: 5px;">${twoTierModel}</span>
                 </div>
                 
-                <div class="result-score">
-                    <span class="result-score-value">${score}</span>
-                    <span class="result-score-unit">points</span>
-                </div>
-                
-                <div class="result-item">
-                    <span class="result-item-label">Three-Tier Model</span>
-                    <span class="result-item-value"><span class="risk-badge ${riskClass}">${risk}</span></span>
-                </div>
-                
-                <div class="result-item">
-                    <span class="result-item-label">Two-Tier Model</span>
-                    <span class="result-item-value">${twoTierModel}</span>
-                </div>
-                
-                <div class="alert ${riskClass === 'high' ? 'warning' : 'info'} mt-20">
-                    <span class="alert-icon">${riskClass === 'high' ? '?†Ô?' : '?πÔ?'}</span>
-                    <div class="alert-content">
+                <div class="ui-alert ${alertClass} mt-20">
+                    <span class="ui-alert-icon">${riskClass === 'high' ? '‚ö†Ô∏è' : '‚ÑπÔ∏è'}</span>
+                    <div class="ui-alert-content">
                         <p>${interpretation}</p>
                     </div>
                 </div>
             `;
-            resultEl.style.display = 'block';
-            resultEl.classList.add('show');
+            
+            resultBox.classList.add('show');
         };
 
-        // Auto-populate heart rate checkbox if available
-        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(hrObs => {
-            if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
-                const hrCheckbox = container.querySelector('#wells-hr');
-                if (hrCheckbox) {
-                    hrCheckbox.checked = true;
-                    hrCheckbox.parentElement.classList.add('selected');
-                    // Recalculate after populating
-                    calculate();
+        // Auto-populate heart rate if available
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(hrObs => {
+                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
+                    setRadioValue('wells-hr', '1.5');
                 }
-            }
-        });
-
-        // Add visual feedback and auto-calculate
-        const checkboxOptions = container.querySelectorAll('.checkbox-option');
-        checkboxOptions.forEach(option => {
-            const checkbox = option.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    option.classList.add('selected');
-                } else {
-                    option.classList.remove('selected');
-                }
-                // Auto-calculate
-                calculate();
             });
+        }
+
+        // Add event listeners
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
         });
 
         // Initial calculation

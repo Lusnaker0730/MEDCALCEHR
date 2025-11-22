@@ -1,5 +1,5 @@
-// js/calculators/ariscat.js
 import { calculateAge } from '../../utils.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const ariscat = {
     id: 'ariscat',
@@ -8,142 +8,159 @@ export const ariscat = {
         'Predicts risk of pulmonary complications after surgery, including respiratory failure.',
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p>${this.description}</p>
-            <div class="form-container modern ariscat-form">
-                <div class="input-row">
-                    <div class="input-label">Age, years</div>
-                    <div class="segmented-control multi" data-ariscat-group="age">
-                        <label><input type="radio" name="age" value="0"> &le;50</label>
-                        <label><input type="radio" name="age" value="3"> 51-80</label>
-                        <label><input type="radio" name="age" value="16"> >80</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Preoperative SpO₂</div>
-                    <div class="segmented-control multi" data-ariscat-group="spo2">
-                        <label><input type="radio" name="spo2" value="0"> &ge;96%</label>
-                        <label><input type="radio" name="spo2" value="8"> 91-95%</label>
-                        <label><input type="radio" name="spo2" value="24"> &le;90%</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">
-                        Respiratory infection in the last month
-                        <span>Either upper or lower (i.e., URI, bronchitis, pneumonia), with fever and antibiotic treatment</span>
-                    </div>
-                    <div class="segmented-control" data-ariscat-group="resp">
-                        <label><input type="radio" name="resp" value="0"> No</label>
-                        <label><input type="radio" name="resp" value="17"> Yes</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Preoperative anemia (Hgb &le;10 g/dL)</div>
-                    <div class="segmented-control" data-ariscat-group="anemia">
-                        <label><input type="radio" name="anemia" value="0"> No</label>
-                        <label><input type="radio" name="anemia" value="11"> Yes</label>
-                    </div>
-                </div>
-                <div class="input-row vertical">
-                    <div class="input-label">Surgical incision</div>
-                    <div class="radio-group vertical-group" data-ariscat-group="site">
-                        <label><input type="radio" name="site" value="0"> Peripheral</label>
-                        <label><input type="radio" name="site" value="15"> Upper abdominal</label>
-                        <label><input type="radio" name="site" value="24"> Intrathoracic</label>
-                    </div>
-                </div>
-                 <div class="input-row vertical">
-                    <div class="input-label">Duration of surgery</div>
-                    <div class="radio-group vertical-group" data-ariscat-group="duration">
-                        <label><input type="radio" name="duration" value="0"> <2 hrs</label>
-                        <label><input type="radio" name="duration" value="16"> 2-3 hrs</label>
-                        <label><input type="radio" name="duration" value="23"> >3 hrs</label>
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-label">Emergency procedure?</div>
-                    <div class="segmented-control" data-ariscat-group="emergency">
-                        <label><input type="radio" name="emergency" value="0"> No</label>
-                        <label><input type="radio" name="emergency" value="8"> Yes</label>
-                    </div>
-                </div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
-            <div id="ariscat-result" class="ariscat-result-box" style="display:none;"></div>
+
+            ${uiBuilder.createSection({
+                title: 'Patient Factors',
+                content: `
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-age',
+                        label: 'Age, years',
+                        options: [
+                            { value: '0', label: '≤50 (0)', checked: true },
+                            { value: '3', label: '51-80 (+3)' },
+                            { value: '16', label: '>80 (+16)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-spo2',
+                        label: 'Preoperative SpO₂',
+                        options: [
+                            { value: '0', label: '≥96% (0)', checked: true },
+                            { value: '8', label: '91-95% (+8)' },
+                            { value: '24', label: '≤90% (+24)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-resp',
+                        label: 'Respiratory infection in the last month',
+                        helpText: 'Either upper or lower (i.e., URI, bronchitis, pneumonia), with fever and antibiotic treatment',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '17', label: 'Yes (+17)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-anemia',
+                        label: 'Preoperative anemia (Hgb ≤10 g/dL)',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '11', label: 'Yes (+11)' }
+                        ]
+                    })}
+                `
+            })}
+
+            ${uiBuilder.createSection({
+                title: 'Surgical Factors',
+                content: `
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-site',
+                        label: 'Surgical incision',
+                        options: [
+                            { value: '0', label: 'Peripheral (0)', checked: true },
+                            { value: '15', label: 'Upper abdominal (+15)' },
+                            { value: '24', label: 'Intrathoracic (+24)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-duration',
+                        label: 'Duration of surgery',
+                        options: [
+                            { value: '0', label: '<2 hrs (0)', checked: true },
+                            { value: '16', label: '2-3 hrs (+16)' },
+                            { value: '23', label: '>3 hrs (+23)' }
+                        ]
+                    })}
+                    ${uiBuilder.createRadioGroup({
+                        name: 'ariscat-emergency',
+                        label: 'Emergency procedure?',
+                        options: [
+                            { value: '0', label: 'No (0)', checked: true },
+                            { value: '8', label: 'Yes (+8)' }
+                        ]
+                    })}
+                `
+            })}
+
+            ${uiBuilder.createResultBox({ id: 'ariscat-result', title: 'ARISCAT Score Result' })}
         `;
     },
     initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
+
         const calculate = () => {
-            const groups = ['age', 'spo2', 'resp', 'anemia', 'site', 'duration', 'emergency'];
+            const groups = ['ariscat-age', 'ariscat-spo2', 'ariscat-resp', 'ariscat-anemia', 'ariscat-site', 'ariscat-duration', 'ariscat-emergency'];
             let score = 0;
-            let allAnswered = true;
 
             groups.forEach(groupName => {
                 const checkedRadio = container.querySelector(`input[name="${groupName}"]:checked`);
                 if (checkedRadio) {
                     score += parseInt(checkedRadio.value);
-                } else {
-                    allAnswered = false;
                 }
             });
 
-            if (allAnswered) {
-                let riskCategory = '';
-                let riskInfo = '';
-                if (score < 26) {
-                    riskCategory = 'Low risk';
-                    riskInfo = '1.6% risk of in-hospital post-op pulmonary complications';
-                } else if (score <= 44) {
-                    riskCategory = 'Intermediate risk';
-                    riskInfo = '13.3% risk of in-hospital post-op pulmonary complications';
-                } else {
-                    riskCategory = 'High risk';
-                    riskInfo = '42.1% risk of in-hospital post-op pulmonary complications';
-                }
+            let riskCategory = '';
+            let riskInfo = '';
+            let alertType = 'success';
 
-                const resultEl = container.querySelector('#ariscat-result');
-                resultEl.innerHTML = `
-                    <div class="score-section">
-                        <div class="score-value">${score}</div>
-                        <div class="score-label">points</div>
-                        <div class="score-title">ARISCAT Score</div>
-                    </div>
-                    <div class="interpretation-section">
-                        <div class="interp-title">${riskCategory}</div>
-                        <div class="interp-details">${riskInfo} (composite including respiratory failure, respiratory infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis)</div>
-                    </div>
-                `;
-                resultEl.style.display = 'flex';
+            if (score < 26) {
+                riskCategory = 'Low risk';
+                riskInfo = '1.6%';
+                alertType = 'success';
+            } else if (score <= 44) {
+                riskCategory = 'Intermediate risk';
+                riskInfo = '13.3%';
+                alertType = 'warning';
             } else {
-                container.querySelector('#ariscat-result').style.display = 'none';
+                riskCategory = 'High risk';
+                riskInfo = '42.1%';
+                alertType = 'danger';
             }
+
+            const resultBox = container.querySelector('#ariscat-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                    label: 'ARISCAT Score',
+                    value: score,
+                    unit: 'points',
+                    interpretation: riskCategory,
+                    alertClass: `ui-alert-${alertType}`
+                })}
+                ${uiBuilder.createResultItem({
+                    label: 'Pulmonary Complication Risk',
+                    value: riskInfo,
+                    alertClass: `ui-alert-${alertType}`
+                })}
+                ${uiBuilder.createAlert({
+                    type: alertType,
+                    message: 'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
+                })}
+            `;
+            resultBox.classList.add('show');
         };
 
         if (patient && patient.birthDate) {
-        const patientAge = calculateAge(patient.birthDate);
-        const ageRadios = container.querySelectorAll('input[name="age"]');
-        if (patientAge <= 50) {
-            ageRadios[0].checked = true;
-        } else if (patientAge <= 80) {
-            ageRadios[1].checked = true;
-        } else {
-            ageRadios[2].checked = true;
-        }
-        ageRadios.forEach(r => {
-            if (r.checked) {
-                r.parentElement.classList.add('selected');
+            const patientAge = calculateAge(patient.birthDate);
+            let ageValue = '0';
+            if (patientAge > 80) ageValue = '16';
+            else if (patientAge > 50) ageValue = '3';
+            
+            const ageRadio = container.querySelector(`input[name="ariscat-age"][value="${ageValue}"]`);
+            if (ageRadio) {
+                ageRadio.checked = true;
             }
-        });
         }
 
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', event => {
-                const group = event.target.closest('.segmented-control, .radio-group');
-                group
-                    .querySelectorAll('label')
-                    .forEach(label => label.classList.remove('selected'));
-                event.target.parentElement.classList.add('selected');
+        container.addEventListener('change', (e) => {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'radio') {
                 calculate();
-            });
+            }
         });
 
         calculate();

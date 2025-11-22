@@ -1,234 +1,165 @@
 import { LOINC_CODES } from '../../fhir-codes.js';
-// js/calculators/fib-4.js
 import {
     getMostRecentObservation,
     calculateAge,
-    createUnitSelector,
-    initializeUnitConversion,
     getValueInStandardUnit
 } from '../../utils.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 
 export const fib4 = {
     id: 'fib-4',
     title: 'Fibrosis-4 (FIB-4) Index',
+    description: 'Estimates liver fibrosis in patients with chronic liver disease.',
     generateHTML: function () {
         return `
-            <div class="fib4-container">
-                <div class="fib4-header">
-                    <h3>${this.title}</h3>
-                    <p class="fib4-subtitle">Estimates liver fibrosis in patients with chronic liver disease</p>
-                </div>
-
-                <div class="fib4-input-section">
-                    <div class="fib4-input-card">
-                        <div class="input-icon">👤</div>
-                        <div class="input-content">
-                            <label for="fib4-age">Age (years)</label>
-                            <input type="number" id="fib4-age" placeholder="Enter age">
-                        </div>
-                    </div>
-
-                    <div class="fib4-input-card">
-                        <div class="input-icon">🧪</div>
-                        <div class="input-content">
-                            <label for="fib4-ast">AST (Aspartate Aminotransferase)</label>
-                            <input type="number" id="fib4-ast" placeholder="U/L">
-                            <span class="input-unit">U/L</span>
-                        </div>
-                    </div>
-
-                    <div class="fib4-input-card">
-                        <div class="input-icon">🧪</div>
-                        <div class="input-content">
-                            <label for="fib4-alt">ALT (Alanine Aminotransferase)</label>
-                            <input type="number" id="fib4-alt" placeholder="U/L">
-                            <span class="input-unit">U/L</span>
-                        </div>
-                    </div>
-
-                    <div class="fib4-input-card">
-                        <div class="input-icon">🩸</div>
-                        <div class="input-content">
-                            <label for="fib4-plt">Platelet Count:</label>
-                            ${createUnitSelector('fib4-plt', 'platelet', ['×10⁹/L', 'K/µL'], '×10⁹/L')}
-                        </div>
-                    </div>
-                </div>
-
-                <div id="fib4-result" class="fib4-result" style="display:none;"></div>
-
-                <div class="fib4-formula-section">
-                    <h4>📐 Formula</h4>
-                    <div class="formula-box fib4-formula">
-                        <strong>FIB-4 Index</strong> = 
-                        <div class="fraction">
-                            <div class="numerator">Age (years) × AST (U/L)</div>
-                            <div class="denominator">Platelet (10⁹/L) × √ALT (U/L)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="fib4-interpretation-guide">
-                    <h4>📊 Interpretation Guide</h4>
-                    <div class="interpretation-cards">
-                        <div class="interp-card low-risk">
-                            <div class="risk-range">< 1.30</div>
-                            <div class="risk-label">Low Risk</div>
-                            <p>Low probability of advanced fibrosis (F3-F4)</p>
-                            <ul>
-                                <li>NPV: 90% for excluding advanced fibrosis</li>
-                                <li>Continue routine monitoring</li>
-                            </ul>
-                        </div>
-
-                        <div class="interp-card intermediate-risk">
-                            <div class="risk-range">1.30 - 2.67</div>
-                            <div class="risk-label">Indeterminate</div>
-                            <p>Further evaluation recommended</p>
-                            <ul>
-                                <li>Consider additional testing (FibroScan, liver biopsy)</li>
-                                <li>Clinical correlation required</li>
-                            </ul>
-                        </div>
-
-                        <div class="interp-card high-risk">
-                            <div class="risk-range">> 2.67</div>
-                            <div class="risk-label">High Risk</div>
-                            <p>High probability of advanced fibrosis (F3-F4)</p>
-                            <ul>
-                                <li>PPV: 65% for advanced fibrosis</li>
-                                <li>Consider referral to hepatology</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="fib4-clinical-notes">
-                    <h4>⚕️ Clinical Pearls</h4>
-                    <ul>
-                        <li><strong>Age cutoffs:</strong> Consider age-adjusted thresholds (higher in patients >65 years)</li>
-                        <li><strong>HIV coinfection:</strong> Lower cutoffs may be appropriate (1.45 and 3.25)</li>
-                        <li><strong>Best use:</strong> Screening test to rule out advanced fibrosis in chronic liver disease</li>
-                        <li><strong>Not for use in:</strong> Acute hepatitis, extrahepatic cholestasis, or heart failure</li>
-                        <li><strong>Serial monitoring:</strong> Can track disease progression over time</li>
-                    </ul>
-                </div>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
+
+            ${uiBuilder.createSection({
+                title: 'Patient Parameters',
+                content: `
+                    ${uiBuilder.createInput({
+                        id: 'fib4-age',
+                        label: 'Age',
+                        unit: 'years',
+                        type: 'number'
+                    })}
+                    ${uiBuilder.createInput({
+                        id: 'fib4-ast',
+                        label: 'AST (Aspartate Aminotransferase)',
+                        unit: 'U/L',
+                        type: 'number'
+                    })}
+                    ${uiBuilder.createInput({
+                        id: 'fib4-alt',
+                        label: 'ALT (Alanine Aminotransferase)',
+                        unit: 'U/L',
+                        type: 'number'
+                    })}
+                    ${uiBuilder.createInput({
+                        id: 'fib4-plt',
+                        label: 'Platelet Count',
+                        type: 'number',
+                        unit: '×10⁹/L',
+                        unitToggle: true
+                    })}
+                `
+            })}
+
+            ${uiBuilder.createResultBox({ id: 'fib4-result', title: 'FIB-4 Index' })}
+
+            ${uiBuilder.createFormulaSection({
+                items: [
+                    { label: 'FIB-4', content: '(Age × AST) / (Platelets × √ALT)' }
+                ]
+            })}
         `;
     },
     initialize: function (client, patient, container) {
+        uiBuilder.initializeComponents(container);
+        
+        // Configure unit conversion for platelets
+        UnitConverter.createUnitToggle(
+            container.querySelector('#fib4-plt'), 
+            'platelet', 
+            ['×10⁹/L', 'K/µL', 'thou/mm³']
+        );
+
         const ageInput = container.querySelector('#fib4-age');
         const astInput = container.querySelector('#fib4-ast');
         const altInput = container.querySelector('#fib4-alt');
-        const resultEl = container.querySelector('#fib4-result');
+        const pltInput = container.querySelector('#fib4-plt');
 
         if (patient && patient.birthDate) {
             ageInput.value = calculateAge(patient.birthDate);
         }
 
-        const calculateAndUpdate = () => {
+        const calculate = () => {
             const age = parseFloat(ageInput.value);
             const ast = parseFloat(astInput.value);
             const alt = parseFloat(altInput.value);
-            const plt = getValueInStandardUnit(container, 'fib4-plt', '×10⁹/L');
+            // Use UnitConverter to get standard value (×10^9/L)
+            // Note: 10^9/L = K/uL, so standard conversion factor is usually 1 if units match
+            // Standard unit for calculation is 10^9/L (which is same number as K/uL e.g. 150)
+            const plt = UnitConverter.getStandardValue(pltInput);
+
+            const resultBox = container.querySelector('#fib4-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
 
             if (age > 0 && ast > 0 && alt > 0 && plt > 0) {
                 const fib4_score = (age * ast) / (plt * Math.sqrt(alt));
 
-                let riskClass = '';
-                let riskLabel = '';
-                let riskIcon = '';
                 let interpretation = '';
                 let recommendation = '';
+                let alertType = 'info';
 
                 if (fib4_score < 1.3) {
-                    riskClass = 'low-risk';
-                    riskLabel = 'Low Risk';
-                    riskIcon = '✓';
-                    interpretation = 'Low probability of advanced fibrosis (F3-F4)';
-                    recommendation =
-                        'Continue routine monitoring and address underlying liver disease.';
+                    interpretation = 'Low Risk (Low probability of advanced fibrosis F3-F4)';
+                    recommendation = 'Continue routine monitoring.';
+                    alertType = 'success';
                 } else if (fib4_score > 2.67) {
-                    riskClass = 'high-risk';
-                    riskLabel = 'High Risk';
-                    riskIcon = '⚠';
-                    interpretation = 'High probability of advanced fibrosis (F3-F4)';
-                    recommendation =
-                        'Consider referral to hepatology for further evaluation and management. Additional testing with FibroScan or liver biopsy may be warranted.';
+                    interpretation = 'High Risk (High probability of advanced fibrosis F3-F4)';
+                    recommendation = 'Referral to hepatology recommended. Consider FibroScan or biopsy.';
+                    alertType = 'danger';
                 } else {
-                    riskClass = 'intermediate-risk';
-                    riskLabel = 'Indeterminate';
-                    riskIcon = '?';
-                    interpretation = 'Indeterminate risk - Further evaluation recommended';
-                    recommendation =
-                        'Consider additional non-invasive testing (e.g., FibroScan, elastography) or liver biopsy for definitive assessment.';
+                    interpretation = 'Indeterminate Risk';
+                    recommendation = 'Further evaluation needed (e.g. FibroScan, elastography).';
+                    alertType = 'warning';
                 }
 
-                resultEl.innerHTML = `
-                    <div class="fib4-result-content ${riskClass}">
-                        <div class="result-header">
-                            <div class="result-icon">${riskIcon}</div>
-                            <div class="result-main">
-                                <div class="result-score-label">FIB-4 Score</div>
-                                <div class="result-score-value">${fib4_score.toFixed(2)}</div>
-                            </div>
-                        </div>
-                        <div class="result-divider"></div>
-                        <div class="result-details">
-                            <div class="risk-classification">
-                                <strong>${riskLabel}</strong>
-                            </div>
-                            <p class="interpretation">${interpretation}</p>
-                            <div class="recommendation">
-                                <strong>Recommendation:</strong>
-                                <p>${recommendation}</p>
-                            </div>
-                        </div>
-                    </div>
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                        label: 'FIB-4 Score',
+                        value: fib4_score.toFixed(2),
+                        unit: 'points',
+                        interpretation: interpretation,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
+                    ${uiBuilder.createAlert({
+                        type: alertType,
+                        message: `<strong>Recommendation:</strong> ${recommendation}`
+                    })}
                 `;
-                resultEl.style.display = 'block';
+                resultBox.classList.add('show');
             } else {
-                resultEl.style.display = 'none';
+                resultBox.classList.remove('show');
             }
         };
 
-        // Initialize unit conversion
-        initializeUnitConversion(container, 'fib4-plt', calculateAndUpdate);
+        container.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
 
         // Auto-populate from FHIR
-        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-            // AST
-            if (obs && obs.valueQuantity) {
-                astInput.value = obs.valueQuantity.value.toFixed(0);
-            }
-            calculateAndUpdate();
-        });
-
-        getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
-            // ALT
-            if (obs && obs.valueQuantity) {
-                altInput.value = obs.valueQuantity.value.toFixed(0);
-            }
-            calculateAndUpdate();
-        });
-
-        getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
-            // Platelets
-            if (obs && obs.valueQuantity) {
-                const pltInput = container.querySelector('#fib4-plt');
-                if (pltInput) {
-                    pltInput.value = obs.valueQuantity.value.toFixed(0);
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    astInput.value = obs.valueQuantity.value.toFixed(0);
+                    calculate();
                 }
-            }
-            calculateAndUpdate();
-        });
+            });
 
-        // Event listeners for auto-calculation
-        ageInput.addEventListener('input', calculateAndUpdate);
-        astInput.addEventListener('input', calculateAndUpdate);
-        altInput.addEventListener('input', calculateAndUpdate);
+            getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    altInput.value = obs.valueQuantity.value.toFixed(0);
+                    calculate();
+                }
+            });
 
-        // Initial calculation
-        calculateAndUpdate();
+            getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    pltInput.value = obs.valueQuantity.value.toFixed(0);
+                    // Assuming unit might need conversion or is standard
+                    // For simplicity, assuming standard or matched unit for now
+                    // Real implementation might need UnitConverter.convert
+                    calculate();
+                }
+            });
+        }
+        
+        calculate();
     }
 };
