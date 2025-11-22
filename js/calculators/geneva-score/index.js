@@ -1,161 +1,286 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { fhirFeedback } from '../../fhir-feedback.js';
 
-// js/calculators/geneva-score.js
+// js/calculators/geneva-score.js - REFACTORED with UI Builder
 export const genevaScore = {
     id: 'geneva-score',
     title: 'Revised Geneva Score (Simplified)',
     description: 'Estimates the pre-test probability of pulmonary embolism (PE).',
+    
     generateHTML: function () {
         return `
-            <h3>${this.title}</h3>
-            <p class="description">${this.description}</p>
-            <form id="geneva-form">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-age" value="1"><label for="geneva-age">Age > 65 years</label>
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+            
+            ${uiBuilder.createSection({
+                title: '🩺 Clinical Assessment',
+                icon: '📋',
+                content: uiBuilder.createCheckboxGroup({
+                    name: 'geneva-risk',
+                    label: 'Risk Factors (Select all that apply)',
+                    options: [
+                        { 
+                            id: 'geneva-age',
+                            value: '1', 
+                            label: 'Age > 65 years',
+                            description: 'Patient is older than 65'
+                        },
+                        { 
+                            id: 'geneva-prev-dvt',
+                            value: '1', 
+                            label: 'Previous DVT or PE',
+                            description: 'History of deep vein thrombosis or pulmonary embolism'
+                        },
+                        { 
+                            id: 'geneva-surgery',
+                            value: '1', 
+                            label: 'Surgery or fracture within 1 month',
+                            description: 'Recent surgery or bone fracture'
+                        },
+                        { 
+                            id: 'geneva-malignancy',
+                            value: '1', 
+                            label: 'Active malignancy',
+                            description: 'Current cancer diagnosis or treatment'
+                        }
+                    ]
+                })
+            })}
+            
+            ${uiBuilder.createSection({
+                title: '🔍 Clinical Signs',
+                icon: '⚕️',
+                content: uiBuilder.createCheckboxGroup({
+                    name: 'geneva-signs',
+                    label: 'Physical Examination Findings',
+                    options: [
+                        { 
+                            id: 'geneva-limb-pain',
+                            value: '1', 
+                            label: 'Unilateral lower limb pain',
+                            description: 'Pain in one leg only'
+                        },
+                        { 
+                            id: 'geneva-hemoptysis',
+                            value: '1', 
+                            label: 'Hemoptysis',
+                            description: 'Coughing up blood'
+                        },
+                        { 
+                            id: 'geneva-palpation',
+                            value: '1', 
+                            label: 'Pain on deep vein palpation AND unilateral edema',
+                            description: 'Tenderness when pressing deep veins plus swelling in one leg'
+                        }
+                    ]
+                })
+            })}
+            
+            ${uiBuilder.createSection({
+                title: '💓 Vital Signs',
+                icon: '🩺',
+                content: uiBuilder.createInput({
+                    id: 'geneva-hr',
+                    label: 'Heart Rate',
+                    type: 'number',
+                    placeholder: 'Enter heart rate',
+                    unit: 'bpm',
+                    min: 30,
+                    max: 250,
+                    required: true,
+                    helpText: '< 75 bpm: 0 points | 75-94 bpm: 1 point | ≥ 95 bpm: 2 points'
+                })
+            })}
+            
+            <div class="result-container" id="geneva-result" style="display:none;"></div>
+            
+            <div class="formula-section">
+                <h4>📊 Scoring System</h4>
+                <div class="scoring-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Risk Factor</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Age > 65 years</td><td>1</td></tr>
+                            <tr><td>Previous DVT or PE</td><td>1</td></tr>
+                            <tr><td>Surgery or fracture within 1 month</td><td>1</td></tr>
+                            <tr><td>Active malignancy</td><td>1</td></tr>
+                            <tr><td>Unilateral lower limb pain</td><td>1</td></tr>
+                            <tr><td>Hemoptysis</td><td>1</td></tr>
+                            <tr><td>Pain on palpation + unilateral edema</td><td>1</td></tr>
+                            <tr><td>Heart rate 75-94 bpm</td><td>1</td></tr>
+                            <tr><td>Heart rate ≥ 95 bpm</td><td>2</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-prev-dvt" value="1"><label for="geneva-prev-dvt">Previous DVT or PE</label>
+                
+                <h4>🎯 Risk Stratification</h4>
+                <div class="risk-interpretation">
+                    <div class="risk-level low">
+                        <strong>Score 0-1:</strong> Low Risk (8% PE prevalence)
+                    </div>
+                    <div class="risk-level intermediate">
+                        <strong>Score 2-4:</strong> Intermediate Risk (28% PE prevalence)
+                    </div>
+                    <div class="risk-level high">
+                        <strong>Score ≥5:</strong> High Risk (74% PE prevalence)
+                    </div>
                 </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-surgery" value="1"><label for="geneva-surgery">Surgery or fracture within 1 month</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-malignancy" value="1"><label for="geneva-malignancy">Active malignancy</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-limb-pain" value="1"><label for="geneva-limb-pain">Unilateral lower limb pain</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-hemoptysis" value="1"><label for="geneva-hemoptysis">Hemoptysis</label>
-                </div>
-                <div class="input-group">
-                    <label for="geneva-hr">Heart Rate (bpm):</label>
-                    <input type="number" id="geneva-hr" placeholder="e.g., 85">
-                </div>
-                 <div class="checkbox-group">
-                    <input type="checkbox" id="geneva-palpation" value="1"><label for="geneva-palpation">Pain on deep vein palpation AND unilateral edema</label>
-                </div>
-            </form>
-            <div id="geneva-result" class="result" style="display:none;"></div>
+            </div>
         `;
     },
+    
     initialize: function (client, patient, container) {
-        // If only one parameter is passed (old style), use it as container
+        // Handle old-style initialization
         if (!container && typeof client === 'object' && client.nodeType === 1) {
             container = client;
         }
-
-        // Use document if container is not a DOM element
         const root = container || document;
-
-        // Auto-populate age
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
-            const ageCheckbox = root.querySelector('#geneva-age');
-            if (age > 65 && ageCheckbox) {
-                ageCheckbox.checked = true;
-            }
-        }
-
-        // Auto-populate heart rate
+        
+        // Initialize UI components
+        uiBuilder.initializeComponents(root);
+        
+        // Get form elements
         const hrInput = root.querySelector('#geneva-hr');
-        if (hrInput) {
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    hrInput.value = Math.round(obs.valueQuantity.value);
-                }
-            });
-        }
-
+        const checkboxes = root.querySelectorAll('input[type="checkbox"]');
+        const resultEl = root.querySelector('#geneva-result');
+        
+        // Calculate function
         const calculate = () => {
             let score = 0;
-            const checkboxes = root.querySelectorAll('#geneva-form input[type="checkbox"]:checked');
-            checkboxes.forEach(box => {
+            
+            // Sum checkbox values
+            const checkedBoxes = root.querySelectorAll('input[type="checkbox"]:checked');
+            checkedBoxes.forEach(box => {
                 score += parseInt(box.value, 10);
             });
-
-            const hrInput = root.querySelector('#geneva-hr');
-            const hr = parseInt(hrInput.value, 10);
-            if (hr >= 75 && hr <= 94) {
-                score += 1;
-            } else if (hr >= 95) {
-                score += 2;
+            
+            // Add heart rate score
+            const hr = parseInt(hrInput?.value, 10);
+            if (!isNaN(hr)) {
+                if (hr >= 75 && hr <= 94) {
+                    score += 1;
+                } else if (hr >= 95) {
+                    score += 2;
+                }
             }
-
-            const resultEl = root.querySelector('#geneva-result');
-            if (isNaN(hr)) {
-                resultEl.style.display = 'none';
+            
+            // Display result if heart rate is valid
+            if (!hrInput || isNaN(hr)) {
+                if (resultEl) resultEl.style.display = 'none';
                 return;
             }
-
-            let probability = '';
-            let riskLevel = '';
-            let bgColor = '';
-
-            // Using three-level classification
+            
+            // Determine risk level
+            let riskLevel, riskClass, prevalence, recommendation;
+            
             if (score <= 1) {
-                probability = 'Low Clinical Probability';
                 riskLevel = 'Low Risk';
-                bgColor = '#28a745';
+                riskClass = 'low-risk';
+                prevalence = '8%';
+                recommendation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
             } else if (score <= 4) {
-                probability = 'Intermediate Clinical Probability';
                 riskLevel = 'Intermediate Risk';
-                bgColor = '#ffc107';
+                riskClass = 'moderate-risk';
+                prevalence = '28%';
+                recommendation = 'Consider imaging (CT pulmonary angiography) or age-adjusted D-dimer.';
             } else {
-                probability = 'High Clinical Probability';
                 riskLevel = 'High Risk';
-                bgColor = '#dc3545';
+                riskClass = 'high-risk';
+                prevalence = '74%';
+                recommendation = 'PE is likely. Proceed directly to CT pulmonary angiography.';
             }
+            
+            // Display result
             resultEl.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <h3 style="margin: 0 0 10px 0; color: #333;">Revised Geneva Score</h3>
-                    <div style="font-size: 3em; font-weight: bold; color: ${bgColor}; margin: 15px 0;">
-                        ${score}
-                    </div>
-                    <div style="display: inline-block; padding: 8px 16px; background: ${bgColor}; color: white; border-radius: 20px; font-weight: 600; margin: 10px 0;">
-                        ${riskLevel}
-                    </div>
-                    <p style="font-size: 1.1em; margin: 15px 0 0 0; color: #495057;">
-                        ${probability}
-                    </p>
+                <div class="result-header">
+                    <h4>📊 Revised Geneva Score</h4>
                 </div>
-                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #666;">
-                    <strong>PE Risk by Score:</strong><br>
-                    0-1: Low (8% prevalence)<br>
-                    2-4: Intermediate (28% prevalence)<br>
-                    ≥5: High (74% prevalence)
+                <div class="result-score">
+                    <div class="score-value">${score}</div>
+                    <div class="score-label">Total Points</div>
+                </div>
+                <div class="alert ${riskClass}">
+                    <div class="alert-title">${riskLevel}</div>
+                    <div class="alert-content">
+                        <p><strong>PE Prevalence:</strong> ${prevalence}</p>
+                        <p><strong>Recommendation:</strong> ${recommendation}</p>
+                    </div>
+                </div>
+                <div class="result-details">
+                    <h5>Score Breakdown:</h5>
+                    <ul>
+                        <li>Risk factors: ${checkedBoxes.length} point${checkedBoxes.length !== 1 ? 's' : ''}</li>
+                        <li>Heart rate (${hr} bpm): ${hr >= 95 ? 2 : hr >= 75 ? 1 : 0} point${hr >= 95 || (hr >= 75 && hr < 95) ? 's' : ''}</li>
+                    </ul>
                 </div>
             `;
             resultEl.style.display = 'block';
-            resultEl.style.backgroundColor =
-                score <= 1 ? '#d4edda' : score <= 4 ? '#fff3cd' : '#f8d7da';
-            resultEl.style.borderColor =
-                score <= 1 ? '#c3e6cb' : score <= 4 ? '#ffc107' : '#f5c6cb';
         };
-
-        // Add event listeners for auto-calculation
-        const checkboxes = root.querySelectorAll('#geneva-form input[type="checkbox"]');
+        
+        // Bind events
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', calculate);
         });
-
+        
         if (hrInput) {
             hrInput.addEventListener('input', calculate);
         }
-
-        // Auto-populate patient age if available
-        if (patient && patient.birthDate) {
-            const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
-            if (age > 65) {
+        
+        // Load FHIR data with feedback
+        if (client && patient) {
+            // Auto-populate age checkbox
+            if (patient.birthDate) {
+                const age = calculateAge(patient.birthDate);
                 const ageCheckbox = root.querySelector('#geneva-age');
-                if (ageCheckbox) {
+                if (age > 65 && ageCheckbox) {
                     ageCheckbox.checked = true;
+                    ageCheckbox.parentElement.classList.add('selected');
+                    fhirFeedback.addFieldFeedback(
+                        ageCheckbox,
+                        `✓ Age (${age} years) pre-filled from patient record`,
+                        'success'
+                    );
                 }
             }
+            
+            // Load heart rate with feedback
+            if (hrInput) {
+                fhirFeedback.trackDataLoading(root, [
+                    {
+                        inputId: 'geneva-hr',
+                        label: 'Heart Rate',
+                        promise: getMostRecentObservation(client, LOINC_CODES.HEART_RATE),
+                        setValue: (input, obs) => {
+                            if (obs?.valueQuantity) {
+                                input.value = Math.round(obs.valueQuantity.value);
+                            }
+                        }
+                    }
+                ]).then(() => {
+                    calculate();
+                });
+            }
+        } else {
+            // No FHIR data available
+            if (hrInput) {
+                fhirFeedback.showInfo(
+                    hrInput,
+                    'No EHR connection. Please enter heart rate manually.'
+                );
+            }
         }
-
+        
         // Initial calculation
         calculate();
     }
 };
+
