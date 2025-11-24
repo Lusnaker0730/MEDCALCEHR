@@ -1,17 +1,18 @@
-// js/errorHandler.js
-
 /**
- * 自定义计算器错误类
- * @extends Error
+ * Custom Calculator Error Class
  */
 export class CalculatorError extends Error {
+    code: string;
+    details: Record<string, any>;
+    timestamp: Date;
+
     /**
-     * 创建计算器错误实例
-     * @param {string} message - 错误消息
-     * @param {string} code - 错误代码
-     * @param {Object} details - 错误详情
+     * Create a calculator error instance
+     * @param message - Error message
+     * @param code - Error code
+     * @param details - Error details
      */
-    constructor(message, code, details = {}) {
+    constructor(message: string, code: string, details: Record<string, any> = {}) {
         super(message);
         this.name = 'CalculatorError';
         this.code = code;
@@ -21,37 +22,46 @@ export class CalculatorError extends Error {
 }
 
 /**
- * FHIR 数据错误类
- * @extends CalculatorError
+ * FHIR Data Error Class
  */
 export class FHIRDataError extends CalculatorError {
-    constructor(message, details = {}) {
+    constructor(message: string, details: Record<string, any> = {}) {
         super(message, 'FHIR_DATA_ERROR', details);
         this.name = 'FHIRDataError';
     }
 }
 
 /**
- * 输入验证错误类
- * @extends CalculatorError
+ * Input Validation Error Class
  */
 export class ValidationError extends CalculatorError {
-    constructor(message, details = {}) {
+    constructor(message: string, details: Record<string, any> = {}) {
         super(message, 'VALIDATION_ERROR', details);
         this.name = 'ValidationError';
     }
 }
 
+export interface ErrorLog {
+    name: string;
+    message: string;
+    code: string;
+    timestamp: string;
+    context: Record<string, any>;
+    userAgent: string;
+    url: string;
+    stack?: string;
+}
+
 /**
- * 记录错误到控制台和可选的日志服务
- * @param {Error} error - 错误对象
- * @param {Object} context - 错误上下文信息
+ * Log error to console and optional logging service
+ * @param error - Error object
+ * @param context - Error context information
  */
-export function logError(error, context = {}) {
-    const errorLog = {
+export function logError(error: Error | CalculatorError, context: Record<string, any> = {}): ErrorLog {
+    const errorLog: ErrorLog = {
         name: error.name || 'Error',
         message: error.message,
-        code: error.code || 'UNKNOWN_ERROR',
+        code: (error as any).code || 'UNKNOWN_ERROR',
         timestamp: new Date().toISOString(),
         context: context,
         userAgent: navigator.userAgent,
@@ -59,7 +69,7 @@ export function logError(error, context = {}) {
         stack: error.stack
     };
 
-    // 在开发环境中详细记录
+    // Log detailed info in development environment
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.group('🚨 Error Logged');
         console.error('Error:', error);
@@ -67,23 +77,23 @@ export function logError(error, context = {}) {
         console.log('Full Log:', errorLog);
         console.groupEnd();
     } else {
-        // 生产环境仅记录简要信息
+        // Log brief info in production
         console.error(`[${errorLog.code}] ${errorLog.message}`);
     }
 
-    // 可选: 发送到日志服务 (如 Sentry, LogRocket 等)
+    // Optional: Send to logging service (e.g., Sentry, LogRocket)
     // sendToLoggingService(errorLog);
 
     return errorLog;
 }
 
 /**
- * 显示用户友好的错误消息
- * @param {HTMLElement} container - 显示错误的容器元素
- * @param {Error} error - 错误对象
- * @param {string} userMessage - 用户友好的错误消息
+ * Display user-friendly error message
+ * @param container - Container element to display error
+ * @param error - Error object
+ * @param userMessage - User-friendly error message
  */
-export function displayError(container, error, userMessage = null) {
+export function displayError(container: HTMLElement | null, error: Error, userMessage: string | null = null): void {
     if (!container) {
         console.error('displayError: container element is null');
         return;
@@ -105,9 +115,8 @@ export function displayError(container, error, userMessage = null) {
             <div style="color: #555; font-size: 0.9em;">
                 ${message}
             </div>
-            ${
-                window.location.hostname === 'localhost'
-                    ? `
+            ${window.location.hostname === 'localhost'
+            ? `
                 <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
                     <summary style="cursor: pointer;">技术详情</summary>
                     <pre style="margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 3px; overflow-x: auto;">
@@ -115,18 +124,18 @@ ${error.stack || error.message}
                     </pre>
                 </details>
             `
-                    : ''
-            }
+            : ''
+        }
         </div>
     `;
 }
 
 /**
- * 获取用户友好的错误消息
- * @param {Error} error - 错误对象
- * @returns {string} 用户友好的错误消息
+ * Get user-friendly error message
+ * @param error - Error object
+ * @returns User-friendly error message
  */
-function getUserFriendlyMessage(error) {
+function getUserFriendlyMessage(error: Error): string {
     if (error instanceof FHIRDataError) {
         return '无法从电子病历系统获取患者数据。请检查连接或手动输入数据。';
     }
@@ -139,48 +148,48 @@ function getUserFriendlyMessage(error) {
         return error.message;
     }
 
-    // 通用错误消息
+    // Generic error message
     return '计算器遇到错误，请刷新页面重试或联系技术支持。';
 }
 
 /**
- * 包装异步函数，自动捕获和记录错误
- * @param {Function} fn - 要包装的异步函数
- * @param {Object} context - 错误上下文
- * @returns {Function} 包装后的函数
+ * Wrap async function to automatically catch and log errors
+ * @param fn - Async function to wrap
+ * @param context - Error context
+ * @returns Wrapped function
  */
-export function withErrorHandling(fn, context = {}) {
-    return async function (...args) {
+export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(fn: T, context: Record<string, any> = {}): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+    return async function (this: any, ...args: Parameters<T>): Promise<ReturnType<T>> {
         try {
             return await fn.apply(this, args);
         } catch (error) {
-            logError(error, context);
+            logError(error as Error, context);
             throw error;
         }
     };
 }
 
 /**
- * 尝试执行函数，失败时返回默认值
- * @param {Function} fn - 要执行的函数
- * @param {*} defaultValue - 失败时的默认值
- * @param {Object} context - 错误上下文
- * @returns {*} 函数执行结果或默认值
+ * Try to execute function, return default value on failure
+ * @param fn - Function to execute
+ * @param defaultValue - Default value on failure
+ * @param context - Error context
+ * @returns Function result or default value
  */
-export function tryOrDefault(fn, defaultValue, context = {}) {
+export function tryOrDefault<T>(fn: () => T, defaultValue: T, context: Record<string, any> = {}): T {
     try {
         return fn();
     } catch (error) {
-        logError(error, { ...context, defaultValue });
+        logError(error as Error, { ...context, defaultValue });
         return defaultValue;
     }
 }
 
 /**
- * 全局错误处理器
+ * Global error handler setup
  */
-export function setupGlobalErrorHandler() {
-    window.addEventListener('error', event => {
+export function setupGlobalErrorHandler(): void {
+    window.addEventListener('error', (event: ErrorEvent) => {
         logError(event.error, {
             type: 'uncaught_error',
             filename: event.filename,
@@ -189,7 +198,7 @@ export function setupGlobalErrorHandler() {
         });
     });
 
-    window.addEventListener('unhandledrejection', event => {
+    window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
         logError(event.reason, {
             type: 'unhandled_promise_rejection',
             promise: event.promise
@@ -197,7 +206,7 @@ export function setupGlobalErrorHandler() {
     });
 }
 
-// 在应用启动时设置全局错误处理
+// Set up global error handling on app start
 if (typeof window !== 'undefined') {
     setupGlobalErrorHandler();
 }

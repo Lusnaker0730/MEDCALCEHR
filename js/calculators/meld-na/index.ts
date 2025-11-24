@@ -1,13 +1,15 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
+import { getMostRecentObservation } from '../../utils';
+import { LOINC_CODES } from '../../fhir-codes';
+import { uiBuilder } from '../../ui-builder';
+import { UnitConverter } from '../../unit-converter';
+import { Calculator } from '../../types/calculator';
+import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
-export const meldNa = {
+export const meldNa: Calculator = {
     id: 'meld-na',
     title: 'MELD-Na (UNOS/OPTN)',
     description: 'Quantifies end-stage liver disease for transplant planning with sodium.',
-    generateHTML: function () {
+    generateHTML: function (): string {
         const inputs = uiBuilder.createSection({
             title: 'Laboratory Values',
             content: [
@@ -82,24 +84,24 @@ export const meldNa = {
             </div>
         `;
     },
-    initialize: function (client, patient, container) {
+    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const calculateAndUpdate = () => {
-            const biliInput = container.querySelector('#meld-na-bili');
-            const inrInput = container.querySelector('#meld-na-inr');
-            const creatInput = container.querySelector('#meld-na-creat');
-            const sodiumInput = container.querySelector('#meld-na-sodium');
-            const dialysisCheckbox = container.querySelector('#meld-na-dialysis');
-            
+            const biliInput = container.querySelector('#meld-na-bili') as HTMLInputElement;
+            const inrInput = container.querySelector('#meld-na-inr') as HTMLInputElement;
+            const creatInput = container.querySelector('#meld-na-creat') as HTMLInputElement;
+            const sodiumInput = container.querySelector('#meld-na-sodium') as HTMLInputElement;
+            const dialysisCheckbox = container.querySelector('#meld-na-dialysis') as HTMLInputElement;
+
             const bili = UnitConverter.getStandardValue(biliInput, 'mg/dL');
             const inr = parseFloat(inrInput.value);
             const creat = UnitConverter.getStandardValue(creatInput, 'mg/dL');
             const sodium = parseFloat(sodiumInput.value);
             const onDialysis = dialysisCheckbox.checked;
 
-            const resultBox = container.querySelector('#meld-na-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#meld-na-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             // Check if all values are valid
             if (bili === null || isNaN(bili) || isNaN(inr) || creat === null || isNaN(creat) || isNaN(sodium)) {
@@ -141,7 +143,7 @@ export const meldNa = {
             let riskCategory = '';
             let mortalityRate = '';
             let alertClass = '';
-            
+
             if (meldNaScore < 17) {
                 riskCategory = 'Low Risk';
                 mortalityRate = '<2%';
@@ -169,13 +171,13 @@ export const meldNa = {
             }
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'MELD-Na Score', 
-                    value: meldNaScore, 
-                    unit: 'points',
-                    interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'MELD-Na Score',
+                value: meldNaScore,
+                unit: 'points',
+                interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
+                alertClass: alertClass
+            })}
                 
                 <div style="margin-top: 15px; font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">
                     <strong>Calculation Breakdown:</strong><br>
@@ -185,13 +187,13 @@ export const meldNa = {
                     • Adjusted Creatinine: ${adjustedCreat.toFixed(1)} mg/dL ${onDialysis ? '(capped for dialysis)' : ''}
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
         // Helper to safely set value
-        const setInputValue = (id, val) => {
-            const input = container.querySelector(id);
+        const setInputValue = (id: string, val: string) => {
+            const input = container.querySelector(id) as HTMLInputElement;
             if (input && val) {
                 input.value = val;
                 input.dispatchEvent(new Event('input'));
@@ -200,16 +202,16 @@ export const meldNa = {
 
         // Auto-populate from FHIR data
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setInputValue('#meld-na-bili', obs.valueQuantity.value.toFixed(1));
             });
-            getMostRecentObservation(client, LOINC_CODES.INR_COAG).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.INR_COAG).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setInputValue('#meld-na-inr', obs.valueQuantity.value.toFixed(2));
             });
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.CREATININE).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setInputValue('#meld-na-creat', obs.valueQuantity.value.toFixed(1));
             });
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.SODIUM).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setInputValue('#meld-na-sodium', obs.valueQuantity.value.toFixed(0));
             });
         }
@@ -220,7 +222,7 @@ export const meldNa = {
             const eventType = input.type === 'checkbox' ? 'change' : 'input';
             input.addEventListener(eventType, calculateAndUpdate);
         });
-        
+
         // Initial calculation
         calculateAndUpdate();
     }

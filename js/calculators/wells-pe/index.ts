@@ -1,13 +1,15 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
+import { getMostRecentObservation } from '../../utils';
+import { LOINC_CODES } from '../../fhir-codes';
+import { uiBuilder } from '../../ui-builder';
+import { Calculator } from '../../types/calculator';
+import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
-export const wellsPE = {
+export const wellsPE: Calculator = {
     id: 'wells-pe',
     title: "Wells' Criteria for Pulmonary Embolism",
     description:
         'Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.',
-    generateHTML: function () {
+    generateHTML: function (): string {
         const criteria = [
             { id: 'wells-dvt', label: 'Clinical signs and symptoms of DVT', points: 3 },
             { id: 'wells-alt', label: 'PE is #1 diagnosis OR equally likely', points: 3 },
@@ -20,7 +22,7 @@ export const wellsPE = {
 
         const inputs = uiBuilder.createSection({
             title: 'Clinical Criteria',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -56,11 +58,11 @@ export const wellsPE = {
             </div>
         `;
     },
-    initialize: function (client, patient, container) {
+    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const setRadioValue = (name, value) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -71,7 +73,7 @@ export const wellsPE = {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
             radios.forEach(radio => {
-                score += parseFloat(radio.value);
+                score += parseFloat((radio as HTMLInputElement).value);
             });
 
             let risk = '';
@@ -90,7 +92,7 @@ export const wellsPE = {
                 risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
                 riskClass = score <= 4 ? 'moderate' : 'high';
                 alertClass = score <= 4 ? 'ui-alert-warning' : 'ui-alert-danger';
-                
+
                 if (score <= 4) {
                     interpretation = 'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
                     twoTierModel = 'PE Unlikely (Score ≤ 4)';
@@ -106,17 +108,17 @@ export const wellsPE = {
                 twoTierModel = 'PE Likely (Score > 4)';
             }
 
-            const resultBox = container.querySelector('#wells-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#wells-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: 'points',
-                    interpretation: risk,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: risk,
+                alertClass: alertClass
+            })}
                 
                 <div class="result-item" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                     <span class="result-item-label" style="font-weight: 600; color: #555;">Two-Tier Model:</span>
@@ -130,13 +132,13 @@ export const wellsPE = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
         // Auto-populate heart rate if available
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(hrObs => {
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then((hrObs: Observation | null) => {
                 if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
                     setRadioValue('wells-hr', '1.5');
                 }

@@ -1,12 +1,13 @@
-// js/fhir-codes.js
-// Centralized management of LOINC and SNOMED CT codes
+/**
+ * Centralized management of LOINC and SNOMED CT codes
+ */
 
 /**
  * LOINC Codes Registry
  * Standard codes for laboratory and clinical observations
  * Reference: https://loinc.org/
  */
-export const LOINC_CODES = {
+export const LOINC_CODES: Record<string, string> = {
     // Vital Signs
     SYSTOLIC_BP: '8480-6', // Systolic blood pressure
     DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
@@ -133,7 +134,7 @@ export const LOINC_CODES = {
  * Standard codes for clinical conditions and procedures
  * Reference: https://www.snomed.org/
  */
-export const SNOMED_CODES = {
+export const SNOMED_CODES: Record<string, string> = {
     // Cardiovascular Conditions
     HYPERTENSION: '38341003',
     CORONARY_ARTERY_DISEASE: '53741008',
@@ -220,69 +221,69 @@ export const SNOMED_CODES = {
 
 /**
  * Get LOINC code by common name
- * @param {string} name - Common name of the observation
- * @returns {string|null} - LOINC code or null if not found
+ * @param name - Common name of the observation
+ * @returns LOINC code or null if not found
  */
-export function getLoincCode(name) {
+export function getLoincCode(name: string): string | null {
     const upperName = name.toUpperCase().replace(/[- ]/g, '_');
     return LOINC_CODES[upperName] || null;
 }
 
 /**
  * Get SNOMED code by condition name
- * @param {string} name - Common name of the condition
- * @returns {string|null} - SNOMED code or null if not found
+ * @param name - Common name of the condition
+ * @returns SNOMED code or null if not found
  */
-export function getSnomedCode(name) {
+export function getSnomedCode(name: string): string | null {
     const upperName = name.toUpperCase().replace(/[- ]/g, '_');
     return SNOMED_CODES[upperName] || null;
 }
 
 /**
  * Get descriptive name for a LOINC code
- * @param {string} code - LOINC code
- * @returns {string|null} - Descriptive name or null if not found
+ * @param code - LOINC code
+ * @returns Descriptive name or null if not found
  */
-export function getLoincName(code) {
+export function getLoincName(code: string): string | null {
     const entry = Object.entries(LOINC_CODES).find(([, value]) => value === code);
     return entry ? entry[0].replace(/_/g, ' ').toLowerCase() : null;
 }
 
 /**
  * Get descriptive name for a SNOMED code
- * @param {string} code - SNOMED code
- * @returns {string|null} - Descriptive name or null if not found
+ * @param code - SNOMED code
+ * @returns Descriptive name or null if not found
  */
-export function getSnomedName(code) {
+export function getSnomedName(code: string): string | null {
     const entry = Object.entries(SNOMED_CODES).find(([, value]) => value === code);
     return entry ? entry[0].replace(/_/g, ' ').toLowerCase() : null;
 }
 
 /**
  * Validate if a code is a valid LOINC code format
- * @param {string} code - Code to validate
- * @returns {boolean} - True if valid LOINC format
+ * @param code - Code to validate
+ * @returns True if valid LOINC format
  */
-export function isValidLoincCode(code) {
+export function isValidLoincCode(code: string): boolean {
     // LOINC codes are typically 4-5 digits followed by a dash and 1 digit
     return /^\d{4,5}-\d$/.test(code);
 }
 
 /**
  * Validate if a code is a valid SNOMED CT code format
- * @param {string} code - Code to validate
- * @returns {boolean} - True if valid SNOMED format
+ * @param code - Code to validate
+ * @returns True if valid SNOMED format
  */
-export function isValidSnomedCode(code) {
+export function isValidSnomedCode(code: string): boolean {
     // SNOMED codes are typically 6-18 digit numbers
     return /^\d{6,18}$/.test(code);
 }
 
 /**
  * Get all vital signs LOINC codes
- * @returns {Object} - Object containing vital signs codes
+ * @returns Object containing vital signs codes
  */
-export function getVitalSignsCodes() {
+export function getVitalSignsCodes(): Record<string, string> {
     return {
         systolicBP: LOINC_CODES.SYSTOLIC_BP,
         diastolicBP: LOINC_CODES.DIASTOLIC_BP,
@@ -295,11 +296,11 @@ export function getVitalSignsCodes() {
 
 /**
  * Get all laboratory codes by category
- * @param {string} category - Category name (e.g., 'hematology', 'chemistry')
- * @returns {Object} - Object containing codes for that category
+ * @param category - Category name (e.g., 'hematology', 'chemistry')
+ * @returns Object containing codes for that category
  */
-export function getLabCodesByCategory(category) {
-    const categories = {
+export function getLabCodesByCategory(category: string): Record<string, string> | null {
+    const categories: Record<string, Record<string, string>> = {
         hematology: {
             hemoglobin: LOINC_CODES.HEMOGLOBIN,
             hematocrit: LOINC_CODES.HEMATOCRIT,

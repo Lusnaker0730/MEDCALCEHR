@@ -2,19 +2,6 @@
   "name": "medcalc-ehr",
   "version": "1.0.0",
   "type": "module",
-  "description": "92 Clinical Calculators for Healthcare Professionals on FHIR",
-  "main": "index.html",
-  "scripts": {
-    "start": "npx http-server -p 8000 -c-1",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "lint": "eslint js/**/*.js",
-    "lint:fix": "eslint js/**/*.js --fix",
-    "format": "prettier --write \"js/**/*.js\" \"*.html\"",
-    "format:check": "prettier --check \"js/**/*.js\" \"*.html\"",
-    "validate": "npm run lint && npm run format:check && npm run test"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Lusnaker0730/MEDCALCEHR.git"
@@ -36,6 +23,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
+    "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^9.3.4",
     "eslint": "^8.56.0",
     "http-server": "^14.1.1",

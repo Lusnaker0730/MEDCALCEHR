@@ -1,17 +1,18 @@
-// js/calculators/ckd-epi.js
 import {
     getMostRecentObservation,
     calculateAge,
-} from '../../utils.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
+} from '../../utils';
+import { LOINC_CODES } from '../../fhir-codes';
+import { uiBuilder } from '../../ui-builder';
+import { UnitConverter } from '../../unit-converter';
+import { Calculator } from '../../types/calculator';
+import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
-export const ckdEpi = {
+export const ckdEpi: Calculator = {
     id: 'ckd-epi',
     title: 'CKD-EPI GFR (2021 Refit)',
     description: 'Estimates GFR using the CKD-EPI 2021 race-free equation, the recommended method for assessing kidney function.',
-    generateHTML: function () {
+    generateHTML: function (): string {
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -19,76 +20,77 @@ export const ckdEpi = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Patient Information',
-                icon: '👤',
-                content: `
+            title: 'Patient Information',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'ckd-epi-gender',
-                        label: 'Gender',
-                        options: [
-                            { value: 'male', label: 'Male', checked: true },
-                            { value: 'female', label: 'Female' }
-                        ]
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'ckd-epi-age',
-                        label: 'Age',
-                        type: 'number',
-                        unit: 'years',
-                        placeholder: 'Enter age'
-                    })}
-                `
+                name: 'ckd-epi-gender',
+                label: 'Gender',
+                options: [
+                    { value: 'male', label: 'Male', checked: true },
+                    { value: 'female', label: 'Female' }
+                ]
             })}
+                    ${uiBuilder.createInput({
+                id: 'ckd-epi-age',
+                label: 'Age',
+                type: 'number',
+                unit: 'years',
+                placeholder: 'Enter age'
+            })}
+                `
+        })}
             
             ${uiBuilder.createSection({
-                title: 'Lab Values',
-                icon: '🧪',
-                content: uiBuilder.createInput({
-                    id: 'ckd-epi-creatinine',
-                    label: 'Serum Creatinine',
-                    type: 'number',
-                    placeholder: 'Enter creatinine',
-                    unitToggle: {
-                        type: 'creatinine',
-                        units: ['mg/dL', 'µmol/L'],
-                        defaultUnit: 'mg/dL'
-                    }
-                })
-            })}
+            title: 'Lab Values',
+            icon: '🧪',
+            content: uiBuilder.createInput({
+                id: 'ckd-epi-creatinine',
+                label: 'Serum Creatinine',
+                type: 'number',
+                placeholder: 'Enter creatinine',
+                unitToggle: {
+                    type: 'creatinine',
+                    units: ['mg/dL', 'µmol/L'],
+                    defaultUnit: 'mg/dL'
+                }
+            })
+        })}
             
             ${uiBuilder.createResultBox({ id: 'ckd-epi-result', title: 'eGFR Results (CKD-EPI 2021)' })}
 
             ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Female', formula: '142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012' },
-                    { label: 'Male', formula: '142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup>' }
-                ]
-            })}
+            items: [
+                { label: 'Female', formula: '142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012' },
+                { label: 'Male', formula: '142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup>' }
+            ]
+        })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Note:</h4>
                     <p>Scr = serum creatinine (mg/dL)</p>
                 `
-            })}
+        })}
         `;
     },
-    initialize: function (client, patient, container) {
+    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const ageInput = container.querySelector('#ckd-epi-age');
-        const creatinineInput = container.querySelector('#ckd-epi-creatinine');
-        const resultBox = container.querySelector('#ckd-epi-result');
+        const ageInput = container.querySelector('#ckd-epi-age') as HTMLInputElement;
+        const creatinineInput = container.querySelector('#ckd-epi-creatinine') as HTMLInputElement;
+        const resultBox = container.querySelector('#ckd-epi-result') as HTMLElement;
 
         const calculateAndUpdate = () => {
             const age = parseFloat(ageInput.value);
-            const gender = container.querySelector('input[name="ckd-epi-gender"]:checked')?.value || 'male';
-            
+            const genderRadio = container.querySelector('input[name="ckd-epi-gender"]:checked') as HTMLInputElement;
+            const gender = genderRadio?.value || 'male';
+
             // Get creatinine in mg/dL using UnitConverter
             const creatinineMgDl = UnitConverter.getStandardValue(creatinineInput, 'creatinine');
 
-            if (isNaN(age) || isNaN(creatinineMgDl) || age <= 0 || creatinineMgDl <= 0) {
+            if (isNaN(age) || creatinineMgDl === null || isNaN(creatinineMgDl) || age <= 0 || creatinineMgDl <= 0) {
                 resultBox.classList.remove('show');
                 return;
             }
@@ -138,19 +140,19 @@ export const ckdEpi = {
                 alertType = 'danger';
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'eGFR',
-                    value: gfr.toFixed(0),
-                    unit: 'mL/min/1.73m²',
-                    interpretation: stage,
-                    alertClass: severityClass
-                })}
+                label: 'eGFR',
+                value: gfr.toFixed(0),
+                unit: 'mL/min/1.73m²',
+                interpretation: stage,
+                alertClass: severityClass
+            })}
                 ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
+                type: alertType,
+                message: alertMsg
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -164,11 +166,11 @@ export const ckdEpi = {
         // Auto-populate
         if (patient) {
             if (patient.birthDate) {
-                ageInput.value = calculateAge(patient.birthDate);
+                ageInput.value = calculateAge(patient.birthDate).toString();
             }
             if (patient.gender) {
                 const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-                const genderRadio = container.querySelector(`input[name="ckd-epi-gender"][value="${genderValue}"]`);
+                const genderRadio = container.querySelector(`input[name="ckd-epi-gender"][value="${genderValue}"]`) as HTMLInputElement;
                 if (genderRadio) {
                     genderRadio.checked = true;
                     genderRadio.dispatchEvent(new Event('change'));
@@ -177,27 +179,21 @@ export const ckdEpi = {
         }
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.CREATININE).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL'; // Default if missing
-                    
+
                     // Determine if we need to switch the unit selector
                     // If unit looks like umol/L, switch toggle to µmol/L
                     if (unit.toLowerCase().includes('mol')) {
-                        const unitSelect = container.querySelector('.unit-toggle');
-                        // Find the button with data-unit="µmol/L" and click it or set state manually
-                        // Since we don't have easy access to toggle logic from here without simulating click,
-                        // we'll just rely on converting value to current unit or updating input value directly if unit matches.
-                        // But UnitConverter handles input enhancement. 
-                        // Let's just set value and let user switch unit if needed, or try to match.
-                        // For simplicity, we'll stick to mg/dL standard for now or add logic to switch unit toggle if supported.
-                        
                         // Actually, let's just convert to current unit (default mg/dL)
                         const converted = UnitConverter.convert(val, 'µmol/L', 'mg/dL', 'creatinine');
-                        creatinineInput.value = converted.toFixed(2);
+                        if (converted !== null) {
+                            creatinineInput.value = converted.toFixed(2);
+                        }
                     } else {
-                         creatinineInput.value = val.toFixed(2);
+                        creatinineInput.value = val.toFixed(2);
                     }
                     calculateAndUpdate();
                 }

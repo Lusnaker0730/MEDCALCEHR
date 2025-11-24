@@ -1,24 +1,25 @@
-// js/utils.js
+// js/utils.ts
+
+import { FHIRClient, Observation, Patient, Condition, MedicationRequest } from './types/fhir';
 
 /**
  * Gets the most recent FHIR Observation for a given LOINC code.
- * @param {Object} client The FHIR client instance.
- * @param {string} code The LOINC code for the observation.
- * @returns {Promise<Object|null>} A promise that resolves to the Observation resource or null.
+ * @param client The FHIR client instance.
+ * @param code The LOINC code for the observation.
+ * @returns A promise that resolves to the Observation resource or null.
  */
-export function getMostRecentObservation(client, code) {
+export function getMostRecentObservation(client: FHIRClient, code: string): Promise<Observation | null> {
     if (!client || !client.patient) {
         return Promise.resolve(null);
     }
-    return client.patient
-        .request(`Observation?code=${code}&_sort=-date&_count=1`)
-        .then(response => {
+    return client.request(`Observation?code=${code}&_sort=-date&_count=1`)
+        .then((response: any) => {
             if (response.entry && response.entry.length > 0) {
-                return response.entry[0].resource;
+                return response.entry[0].resource as Observation;
             }
             return null;
         })
-        .catch(error => {
+        .catch((error: any) => {
             console.error('Error fetching observation:', error);
             return null;
         });
@@ -26,10 +27,10 @@ export function getMostRecentObservation(client, code) {
 
 /**
  * Calculates age based on a birthdate string.
- * @param {string} birthDate The birthdate in 'YYYY-MM-DD' format.
- * @returns {number} The calculated age in years.
+ * @param birthDate The birthdate in 'YYYY-MM-DD' format.
+ * @returns The calculated age in years.
  */
-export function calculateAge(birthDate) {
+export function calculateAge(birthDate: string): number {
     const today = new Date();
     const birthDateObj = new Date(birthDate);
     let age = today.getFullYear() - birthDateObj.getFullYear();
@@ -42,44 +43,46 @@ export function calculateAge(birthDate) {
 
 /**
  * Fetches patient data and displays it in a designated div.
- * @param {Object} client The FHIR client instance.
- * @param {HTMLElement} patientInfoDiv The div element to display patient info in.
- * @returns {Promise<Object>} A promise that resolves to the patient resource.
+ * @param client The FHIR client instance.
+ * @param patientInfoDiv The div element to display patient info in.
+ * @returns A promise that resolves to the patient resource.
  */
-export function displayPatientInfo(client, patientInfoDiv) {
-    const renderPatient = patient => {
-        const name = patient.name[0];
+export function displayPatientInfo(client: FHIRClient, patientInfoDiv: HTMLElement): Promise<Patient | null> {
+    const renderPatient = (patient: Patient) => {
+        const name = patient.name ? patient.name[0] : { text: 'Unknown', given: [], family: '' };
         // 優先使用 text 字段（台灣格式），如果沒有則使用 given 和 family
         const formattedName = name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
-        const age = calculateAge(patient.birthDate);
+        const age = patient.birthDate ? calculateAge(patient.birthDate) : 'Unknown';
         patientInfoDiv.innerHTML = `
             <p><strong>Name:</strong> ${formattedName}</p>
-            <p><strong>Birth Date:</strong> ${patient.birthDate} (Age: ${age})</p>
-            <p><strong>Gender:</strong> ${patient.gender}</p>
+            <p><strong>Birth Date:</strong> ${patient.birthDate || 'Unknown'} (Age: ${age})</p>
+            <p><strong>Gender:</strong> ${patient.gender || 'Unknown'}</p>
         `;
     };
 
     // First, try to display data from session storage for a faster UI response.
-    const cachedPatient = sessionStorage.getItem('patientData');
+    const cachedPatientStr = sessionStorage.getItem('patientData');
+    const cachedPatient = cachedPatientStr ? JSON.parse(cachedPatientStr) : null;
+
     if (cachedPatient) {
-        renderPatient(JSON.parse(cachedPatient));
+        renderPatient(cachedPatient);
     }
 
-    if (!client?.patient?.id) {
+    if (!client || !client.patient || !client.patient.id) {
         if (!cachedPatient) {
             patientInfoDiv.innerHTML =
                 '<p>No patient data available. Please launch from the EHR.</p>';
         }
-        return Promise.resolve(JSON.parse(cachedPatient));
+        return Promise.resolve(cachedPatient);
     }
 
     return client.patient.read().then(
-        patient => {
+        (patient: Patient) => {
             sessionStorage.setItem('patientData', JSON.stringify(patient));
             renderPatient(patient);
             return patient;
         },
-        error => {
+        (error: any) => {
             console.error(error);
             if (!cachedPatient) {
                 patientInfoDiv.innerText = 'Error fetching patient data.';
@@ -91,24 +94,23 @@ export function displayPatientInfo(client, patientInfoDiv) {
 
 /**
  * Gets patient's conditions for a given set of SNOMED codes.
- * @param {Object} client The FHIR client instance.
- * @param {Array<string>} codes Array of SNOMED codes for the conditions.
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
+ * @param client The FHIR client instance.
+ * @param codes Array of SNOMED codes for the conditions.
+ * @returns A promise that resolves to an array of Condition resources.
  */
-export function getPatientConditions(client, codes) {
+export function getPatientConditions(client: FHIRClient, codes: string[]): Promise<Condition[]> {
     if (!client || !client.patient) {
         return Promise.resolve([]);
     }
     const codeString = codes.join(',');
-    return client.patient
-        .request(`Condition?clinical-status=active&code=${codeString}`)
-        .then(response => {
+    return client.request(`Condition?clinical-status=active&code=${codeString}`)
+        .then((response: any) => {
             if (response.entry) {
-                return response.entry.map(e => e.resource);
+                return response.entry.map((e: any) => e.resource as Condition);
             }
             return [];
         })
-        .catch(error => {
+        .catch((error: any) => {
             console.error('Error fetching patient conditions:', error);
             return [];
         });
@@ -116,16 +118,16 @@ export function getPatientConditions(client, codes) {
 
 /**
  * Fetches the patient resource.
- * @param {Object} client - The FHIR client instance.
- * @returns {Promise<Object|null>} A promise that resolves to the patient resource or null.
+ * @param client - The FHIR client instance.
+ * @returns A promise that resolves to the patient resource or null.
  */
-export function getPatient(client) {
+export function getPatient(client: FHIRClient): Promise<Patient | null> {
     if (!client || !client.patient) {
         return Promise.resolve(null);
     }
     return client.patient.read()
-        .then(patient => patient || null)
-        .catch(error => {
+        .then((patient: Patient) => patient || null)
+        .catch((error: any) => {
             console.error('Error fetching patient:', error);
             return null;
         });
@@ -133,36 +135,22 @@ export function getPatient(client) {
 
 /**
  * Fetches the most recent observation for a given LOINC code.
- * @param {Object} client - The FHIR client instance.
- * @param {string} code - The LOINC code for the observation.
- * @returns {Promise<Object|null>} A promise that resolves to the observation resource or null.
+ * @param client - The FHIR client instance.
+ * @param code - The LOINC code for the observation.
+ * @returns A promise that resolves to the observation resource or null.
  */
-export function getObservation(client, code) {
-    if (!client || !client.patient) {
-        return Promise.resolve(null);
-    }
-    return client.patient
-        .request(`Observation?code=${code}&_sort=-date&_count=1`)
-        .then(response => {
-            if (response.entry && response.entry.length > 0) {
-                return response.entry[0].resource;
-            }
-            return null;
-        })
-        .catch(error => {
-            console.error('Error fetching observation:', error);
-            return null;
-        });
+export function getObservation(client: FHIRClient, code: string): Promise<Observation | null> {
+    return getMostRecentObservation(client, code);
 }
 
 /**
  * Converts a lab value from mg/dL to mmol/L.
- * @param {number} value - The lab value in mg/dL.
- * @param {string} type - The type of lab ('cholesterol', 'hdl', 'glucose').
- * @returns {number} The lab value in mmol/L.
+ * @param value - The lab value in mg/dL.
+ * @param type - The type of lab ('cholesterol', 'hdl', 'glucose').
+ * @returns The lab value in mmol/L.
  */
-export function convertToMmolL(value, type) {
-    const conversionFactors = {
+export function convertToMmolL(value: number, type: 'cholesterol' | 'hdl' | 'glucose'): number {
+    const conversionFactors: { [key: string]: number } = {
         cholesterol: 0.02586,
         hdl: 0.02586,
         glucose: 0.0555
@@ -172,12 +160,12 @@ export function convertToMmolL(value, type) {
 
 /**
  * Converts a lab value from mmol/L to mg/dL.
- * @param {number} value - The lab value in mmol/L.
- * @param {string} type - The type of lab ('cholesterol', 'hdl', 'glucose').
- * @returns {number} The lab value in mg/dL.
+ * @param value - The lab value in mmol/L.
+ * @param type - The type of lab ('cholesterol', 'hdl', 'glucose').
+ * @returns The lab value in mg/dL.
  */
-export function convertToMgDl(value, type) {
-    const conversionFactors = {
+export function convertToMgDl(value: number, type: 'cholesterol' | 'hdl' | 'glucose'): number {
+    const conversionFactors: { [key: string]: number } = {
         cholesterol: 38.67,
         hdl: 38.67,
         glucose: 18.018
@@ -185,18 +173,18 @@ export function convertToMgDl(value, type) {
     return value * (conversionFactors[type] || 1);
 }
 
-export async function getMedicationRequests(client, rxnormCodes) {
+export async function getMedicationRequests(client: FHIRClient, rxnormCodes: string[]): Promise<MedicationRequest[]> {
     if (!client) {
-        return null;
+        return [];
     }
     try {
         const query = new URLSearchParams({
             code: `http://www.nlm.nih.gov/research/umls/rxnorm|${rxnormCodes.join(',')}`,
-            patient: client.patient.id,
+            patient: client.patient.id || '',
             status: 'active'
         });
         const response = await client.request(`MedicationRequest?${query}`);
-        return response.entry ? response.entry.map(e => e.resource) : [];
+        return response.entry ? response.entry.map((e: any) => e.resource as MedicationRequest) : [];
     } catch (error) {
         console.error('Error fetching medication requests:', error);
         return [];
@@ -208,8 +196,11 @@ export async function getMedicationRequests(client, rxnormCodes) {
  * Supports automatic unit conversion for common lab values and measurements
  */
 
+type ConversionMap = { [key: string]: { [key: string]: number | ((v: number) => number) } };
+type UnitConversionDatabase = { [key: string]: ConversionMap };
+
 // Comprehensive conversion factor database
-export const UNIT_CONVERSIONS = {
+export const UNIT_CONVERSIONS: UnitConversionDatabase = {
     // Cholesterol (Total, LDL, HDL)
     cholesterol: {
         'mg/dL': { 'mmol/L': 0.02586 },
@@ -263,102 +254,55 @@ export const UNIT_CONVERSIONS = {
 
     // Weight
     weight: {
-        kg: { lbs: 2.20462, lb: 2.20462 },
-        lbs: { kg: 0.453592 },
-        lb: { kg: 0.453592 }
+        'kg': { 'lbs': 2.20462 },
+        'lbs': { 'kg': 0.453592 }
     },
 
     // Height
     height: {
-        cm: { in: 0.393701, inches: 0.393701 },
-        in: { cm: 2.54 },
-        inches: { cm: 2.54 },
-        m: { cm: 100, in: 39.3701 },
-        ft: { cm: 30.48 }
+        'cm': { 'in': 0.393701, 'm': 0.01 },
+        'in': { 'cm': 2.54, 'm': 0.0254 },
+        'm': { 'cm': 100, 'in': 39.3701 }
     },
 
     // Temperature
     temperature: {
-        C: { F: v => (v * 9) / 5 + 32 },
-        F: { C: v => ((v - 32) * 5) / 9 },
-        '°C': { '°F': v => (v * 9) / 5 + 32 },
-        '°F': { '°C': v => ((v - 32) * 5) / 9 }
-    },
-
-    // Urea/BUN
-    bun: {
-        'mg/dL': { 'mmol/L': 0.357 },
-        'mmol/L': { 'mg/dL': 2.801 }
-    },
-
-    // Sodium, Potassium (same for both)
-    electrolyte: {
-        'mEq/L': { 'mmol/L': 1 },
-        'mmol/L': { 'mEq/L': 1 }
-    },
-
-    // Platelet count
-    platelet: {
-        '×10⁹/L': { '×10³/µL': 1, 'K/µL': 1 },
-        '×10³/µL': { '×10⁹/L': 1 },
-        'K/µL': { '×10⁹/L': 1 }
-    },
-
-    // White blood cell count
-    wbc: {
-        '×10⁹/L': { '×10³/µL': 1, 'K/µL': 1 },
-        '×10³/µL': { '×10⁹/L': 1 },
-        'K/µL': { '×10⁹/L': 1 }
-    },
-
-    // INR (no conversion, but included for completeness)
-    inr: {
-        ratio: { ratio: 1 }
-    },
-
-    // D-dimer
-    ddimer: {
-        'mg/L': { 'µg/mL': 1, 'ng/mL': 1000 },
-        'µg/mL': { 'mg/L': 1 },
-        'ng/mL': { 'mg/L': 0.001 }
+        'C': { 'F': (v: number) => (v * 9 / 5) + 32 },
+        'F': { 'C': (v: number) => (v - 32) * 5 / 9 }
     },
 
     // Fibrinogen
     fibrinogen: {
-        'g/L': { 'mg/dL': 100 },
-        'mg/dL': { 'g/L': 0.01 }
+        'mg/dL': { 'g/L': 0.01 },
+        'g/L': { 'mg/dL': 100 }
     }
 };
 
 /**
- * Convert a value from one unit to another
- * @param {number} value - The value to convert
- * @param {string} fromUnit - The source unit
- * @param {string} toUnit - The target unit
- * @param {string} measurementType - The type of measurement (e.g., 'glucose', 'cholesterol')
- * @returns {number|null} The converted value, or null if conversion not possible
+ * Convert a value between units
+ * @param value - The value to convert
+ * @param fromUnit - The source unit
+ * @param toUnit - The target unit
+ * @param measurementType - The type of measurement (e.g., 'cholesterol', 'weight')
+ * @returns The converted value or null if conversion not found
  */
-export function convertUnit(value, fromUnit, toUnit, measurementType) {
-    if (fromUnit === toUnit) {
-        return value;
+export function convertUnit(value: number, fromUnit: string, toUnit: string, measurementType: string): number | null {
+    if (fromUnit === toUnit) return value;
+
+    const typeConversions = UNIT_CONVERSIONS[measurementType];
+    if (!typeConversions) return null;
+
+    const fromConversions = typeConversions[fromUnit];
+    if (!fromConversions) return null;
+
+    const factor = fromConversions[toUnit];
+    if (factor === undefined) return null;
+
+    if (typeof factor === 'function') {
+        return factor(value);
     }
 
-    const conversionData = UNIT_CONVERSIONS[measurementType];
-    if (!conversionData) {
-        return null;
-    }
-
-    const conversion = conversionData[fromUnit]?.[toUnit];
-    if (!conversion) {
-        return null;
-    }
-
-    // Handle function-based conversions (e.g., temperature)
-    if (typeof conversion === 'function') {
-        return conversion(value);
-    }
-
-    return value * conversion;
+    return value * factor;
 }
 
 /**

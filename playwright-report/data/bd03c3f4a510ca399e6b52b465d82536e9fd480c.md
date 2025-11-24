@@ -1,0 +1,123 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - link "← Back to Calculator List" [ref=e3]:
+    - /url: index.html
+  - heading "APACHE II Score" [level=1] [ref=e4]
+  - generic [ref=e5]: Failed to initialize SMART on FHIR client.
+  - separator
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - heading "APACHE II" [level=3] [ref=e9]
+      - paragraph [ref=e10]: Calculates APACHE II score for ICU mortality.
+    - generic [ref=e11]:
+      - generic [ref=e12]: ℹ️
+      - paragraph [ref=e14]: Enter physiologic values from the first 24 hours of ICU admission. Use the worst value for each parameter.
+    - generic [ref=e15]:
+      - generic [ref=e16]: Chronic Health Status
+      - generic [ref=e17]: History of severe organ insufficiency or immunocompromised
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - radio "Yes - Non-operative or emergency postoperative (+5)" [checked]
+          - generic [ref=e21] [cursor=pointer]: Yes - Non-operative or emergency postoperative (+5)
+        - generic [ref=e22]:
+          - radio "Yes - Elective postoperative (+2)"
+          - generic [ref=e23] [cursor=pointer]: Yes - Elective postoperative (+2)
+        - generic [ref=e24]:
+          - radio "No (0)"
+          - generic [ref=e25] [cursor=pointer]: No (0)
+    - generic [ref=e26]:
+      - generic [ref=e27]: Demographics & Vital Signs
+      - generic [ref=e28]:
+        - generic [ref=e29]: Age
+        - generic [ref=e30]:
+          - spinbutton "Age" [ref=e31]: "30"
+          - generic [ref=e32]: years
+      - generic [ref=e33]:
+        - generic [ref=e34]: Temperature
+        - spinbutton "Temperature" [ref=e36]: "37"
+      - generic [ref=e37]:
+        - generic [ref=e38]: Mean Arterial Pressure
+        - generic [ref=e39]:
+          - spinbutton "Mean Arterial Pressure" [ref=e40]: "90"
+          - generic [ref=e41]: mmHg
+      - generic [ref=e42]:
+        - generic [ref=e43]: Heart Rate
+        - generic [ref=e44]:
+          - spinbutton "Heart Rate" [ref=e45]: "80"
+          - generic [ref=e46]: bpm
+      - generic [ref=e47]:
+        - generic [ref=e48]: Respiratory Rate
+        - generic [ref=e49]:
+          - spinbutton "Respiratory Rate" [ref=e50]: "15"
+          - generic [ref=e51]: breaths/min
+    - generic [ref=e52]:
+      - generic [ref=e53]: Laboratory Values
+      - generic [ref=e54]:
+        - generic [ref=e55]: Arterial pH
+        - spinbutton "Arterial pH" [ref=e57]: "7.4"
+      - generic [ref=e58]:
+        - generic [ref=e59]: Sodium
+        - spinbutton "Sodium" [ref=e61]: "140"
+      - generic [ref=e62]:
+        - generic [ref=e63]: Potassium
+        - spinbutton "Potassium" [ref=e65]: "4.0"
+      - generic [ref=e66]:
+        - generic [ref=e67]: Creatinine
+        - spinbutton "Creatinine" [ref=e69]: "1.0"
+      - generic [ref=e70]:
+        - generic [ref=e71]: Hematocrit
+        - generic [ref=e72]:
+          - spinbutton "Hematocrit" [ref=e73]: "40"
+          - generic [ref=e74]: "%"
+      - generic [ref=e75]:
+        - generic [ref=e76]: WBC Count
+        - generic [ref=e77]:
+          - spinbutton "WBC Count" [ref=e78]: "10"
+          - generic [ref=e79]: x 10⁹/L
+      - generic [ref=e80]:
+        - generic [ref=e81]: Acute Renal Failure
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - radio "Yes (Double Points)"
+            - generic [ref=e84] [cursor=pointer]: Yes (Double Points)
+          - generic [ref=e85]:
+            - radio "No" [checked]
+            - generic [ref=e86] [cursor=pointer]: "No"
+        - generic [ref=e87]: Double creatinine points if ARF is present
+    - generic [ref=e88]:
+      - generic [ref=e89]: Neurological Assessment
+      - generic [ref=e90]:
+        - generic [ref=e91]: Glasgow Coma Scale
+        - generic [ref=e92]:
+          - spinbutton "Glasgow Coma Scale" [active] [ref=e93]: "15"
+          - generic [ref=e94]: points
+    - generic [ref=e95]:
+      - generic [ref=e96]: Oxygenation
+      - generic [ref=e97]:
+        - generic [ref=e98]: Measurement Method
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - radio "FiO₂ ≥ 0.5 (uses A-a gradient)" [checked]
+            - generic [ref=e101] [cursor=pointer]: FiO₂ ≥ 0.5 (uses A-a gradient)
+          - generic [ref=e102]:
+            - radio "FiO₂ < 0.5 (uses PaO₂ only)"
+            - generic [ref=e103] [cursor=pointer]: FiO₂ < 0.5 (uses PaO₂ only)
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - generic [ref=e106]: FiO₂
+          - spinbutton "FiO₂" [ref=e108]
+        - generic [ref=e109]:
+          - generic [ref=e110]: PaO₂
+          - spinbutton "PaO₂" [ref=e112]
+        - generic [ref=e113]:
+          - generic [ref=e114]: PaCO₂
+          - spinbutton "PaCO₂" [ref=e116]
+    - generic [ref=e117]:
+      - heading "📚 Reference" [level=4] [ref=e118]
+      - paragraph [ref=e119]:
+        - text: "Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system."
+        - emphasis [ref=e120]: Critical care medicine
+        - text: ", 13(10), 818-829."
+```

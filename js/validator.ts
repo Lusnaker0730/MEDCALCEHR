@@ -1,61 +1,66 @@
-// js/validator.js
-import { ValidationError } from './errorHandler.js';
+import { ValidationError } from './errorHandler';
 
 /**
- * 验证规则类型定义
- * @typedef {Object} ValidationRule
- * @property {boolean} [required] - 是否必需
- * @property {number} [min] - 最小值
- * @property {number} [max] - 最大值
- * @property {RegExp} [pattern] - 正则表达式模式
- * @property {Function} [custom] - 自定义验证函数
- * @property {string} [message] - 自定义错误消息
+ * Validation Rule Type Definition
  */
+export interface ValidationRule {
+    required?: boolean;
+    min?: number;
+    max?: number;
+    pattern?: RegExp;
+    custom?: (value: any, input: any) => boolean | string;
+    message?: string;
+}
+
+export interface ValidationResult {
+    isValid: boolean;
+    errors: string[];
+}
 
 /**
- * 验证计算器输入
- * @param {Object} input - 输入值对象
- * @param {Object<string, ValidationRule>} schema - 验证规则
- * @returns {{isValid: boolean, errors: Array<string>}} 验证结果
+ * Validate calculator input
+ * @param input - Input value object
+ * @param schema - Validation rules
+ * @returns Validation result
  */
-export function validateCalculatorInput(input, schema) {
-    const errors = [];
+export function validateCalculatorInput(input: Record<string, any>, schema: Record<string, ValidationRule>): ValidationResult {
+    const errors: string[] = [];
 
     Object.keys(schema).forEach(key => {
         const value = input[key];
         const rule = schema[key];
 
-        // 必需字段验证
+        // Required field validation
         if (rule.required && (value === null || value === undefined || value === '')) {
             errors.push(rule.message || `${key} 是必需的`);
             return;
         }
 
-        // 如果值为空且非必需，跳过后续验证
+        // If value is empty and not required, skip further validation
         if (value === null || value === undefined || value === '') {
             return;
         }
 
-        // 最小值验证
+        // Min value validation
         if (rule.min !== undefined && Number(value) < rule.min) {
             errors.push(rule.message || `${key} 必须大于等于 ${rule.min}`);
         }
 
-        // 最大值验证
+        // Max value validation
         if (rule.max !== undefined && Number(value) > rule.max) {
             errors.push(rule.message || `${key} 必须小于等于 ${rule.max}`);
         }
 
-        // 正则表达式验证
+        // Regex pattern validation
         if (rule.pattern && !rule.pattern.test(String(value))) {
             errors.push(rule.message || `${key} 格式不正确`);
         }
 
-        // 自定义验证函数
+        // Custom validation function
         if (rule.custom && typeof rule.custom === 'function') {
             const customResult = rule.custom(value, input);
             if (customResult !== true) {
-                errors.push(customResult || rule.message || `${key} 验证失败`);
+                errors.push((customResult as string) || rule.message || `${key} 验证失败`);
             }
         }
     });
@@ -67,10 +72,10 @@ export function validateCalculatorInput(input, schema) {
 }
 
 /**
- * 常用验证规则模板
+ * Common Validation Rules Templates
  */
-export const ValidationRules = {
-    // 年龄验证
+export const ValidationRules: Record<string, ValidationRule | Record<string, ValidationRule>> = {
+    // Age validation
     age: {
         required: true,
         min: 0,
@@ -78,7 +83,7 @@ export const ValidationRules = {
         message: '年龄必须在 0-150 岁之间'
     },
 
-    // 体温验证 (°C)
+    // Temperature validation (°C)
     temperature: {
         required: true,
         min: 20,
@@ -86,7 +91,7 @@ export const ValidationRules = {
         message: '体温必须在 20-45°C 之间'
     },
 
-    // 血压验证
+    // Blood Pressure validation
     bloodPressure: {
         systolic: {
             required: true,
@@ -102,7 +107,7 @@ export const ValidationRules = {
         }
     },
 
-    // 心率验证
+    // Heart Rate validation
     heartRate: {
         required: true,
         min: 20,
@@ -110,7 +115,7 @@ export const ValidationRules = {
         message: '心率必须在 20-250 bpm 之间'
     },
 
-    // pH 验证
+    // pH validation
     pH: {
         required: true,
         min: 6.5,
@@ -118,7 +123,7 @@ export const ValidationRules = {
         message: 'pH 必须在 6.5-8.0 之间'
     },
 
-    // 体重验证 (kg)
+    // Weight validation (kg)
     weight: {
         required: true,
         min: 0.5,
@@ -126,7 +131,7 @@ export const ValidationRules = {
         message: '体重必须在 0.5-500 kg 之间'
     },
 
-    // 身高验证 (cm)
+    // Height validation (cm)
     height: {
         required: true,
         min: 30,
@@ -134,7 +139,7 @@ export const ValidationRules = {
         message: '身高必须在 30-250 cm 之间'
     },
 
-    // GCS 验证
+    // GCS validation
     gcs: {
         required: true,
         min: 3,
@@ -142,7 +147,7 @@ export const ValidationRules = {
         message: 'GCS 评分必须在 3-15 之间'
     },
 
-    // 血糖验证 (mg/dL)
+    // Glucose validation (mg/dL)
     glucose: {
         required: true,
         min: 20,
@@ -150,7 +155,7 @@ export const ValidationRules = {
         message: '血糖必须在 20-800 mg/dL 之间'
     },
 
-    // 肌酐验证 (mg/dL)
+    // Creatinine validation (mg/dL)
     creatinine: {
         required: true,
         min: 0.1,
@@ -158,7 +163,7 @@ export const ValidationRules = {
         message: '肌酐必须在 0.1-20 mg/dL 之间'
     },
 
-    // 钠离子验证 (mEq/L)
+    // Sodium validation (mEq/L)
     sodium: {
         required: true,
         min: 100,
@@ -166,7 +171,7 @@ export const ValidationRules = {
         message: '钠离子必须在 100-200 mEq/L 之间'
     },
 
-    // 钾离子验证 (mEq/L)
+    // Potassium validation (mEq/L)
     potassium: {
         required: true,
         min: 1.5,
@@ -176,12 +181,12 @@ export const ValidationRules = {
 };
 
 /**
- * 验证并抛出错误（如果验证失败）
- * @param {Object} input - 输入值
- * @param {Object} schema - 验证规则
- * @throws {ValidationError} 如果验证失败
+ * Validate and throw error if validation fails
+ * @param input - Input values
+ * @param schema - Validation rules
+ * @throws ValidationError if validation fails
  */
-export function validateOrThrow(input, schema) {
+export function validateOrThrow(input: Record<string, any>, schema: Record<string, ValidationRule>): void {
     const result = validateCalculatorInput(input, schema);
     if (!result.isValid) {
         throw new ValidationError(result.errors.join('; '), { input, errors: result.errors });
@@ -189,12 +194,12 @@ export function validateOrThrow(input, schema) {
 }
 
 /**
- * 创建输入字段的实时验证
- * @param {HTMLInputElement} inputElement - 输入元素
- * @param {ValidationRule} rule - 验证规则
- * @param {Function} onError - 错误回调函数
+ * Setup live validation for an input element
+ * @param inputElement - Input element
+ * @param rule - Validation rule
+ * @param onError - Error callback function
  */
-export function setupLiveValidation(inputElement, rule, onError = null) {
+export function setupLiveValidation(inputElement: HTMLInputElement | null, rule: ValidationRule, onError: ((errors: string[]) => void) | null = null): void {
     if (!inputElement) {
         return;
     }
@@ -207,8 +212,8 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
             inputElement.classList.add('invalid');
             inputElement.setAttribute('aria-invalid', 'true');
 
-            // 显示错误消息
-            let errorSpan = inputElement.nextElementSibling;
+            // Display error message
+            let errorSpan = inputElement.nextElementSibling as HTMLElement;
             if (!errorSpan || !errorSpan.classList.contains('error-text')) {
                 errorSpan = document.createElement('span');
                 errorSpan.className = 'error-text';
@@ -216,7 +221,7 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
                 errorSpan.style.fontSize = '0.85em';
                 errorSpan.style.marginTop = '4px';
                 errorSpan.style.display = 'block';
-                inputElement.parentNode.insertBefore(errorSpan, inputElement.nextSibling);
+                inputElement.parentNode?.insertBefore(errorSpan, inputElement.nextSibling);
             }
             errorSpan.textContent = result.errors[0];
 
@@ -227,8 +232,8 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
             inputElement.classList.remove('invalid');
             inputElement.removeAttribute('aria-invalid');
 
-            // 移除错误消息
-            const errorSpan = inputElement.nextElementSibling;
+            // Remove error message
+            const errorSpan = inputElement.nextElementSibling as HTMLElement;
             if (errorSpan && errorSpan.classList.contains('error-text')) {
                 errorSpan.remove();
             }
@@ -237,9 +242,9 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
 
     inputElement.addEventListener('blur', validate);
     inputElement.addEventListener('input', () => {
-        // 移除错误状态但不立即验证
+        // Remove error state but don't validate immediately
         inputElement.classList.remove('invalid');
-        const errorSpan = inputElement.nextElementSibling;
+        const errorSpan = inputElement.nextElementSibling as HTMLElement;
         if (errorSpan && errorSpan.classList.contains('error-text')) {
             errorSpan.remove();
         }
@@ -247,17 +252,17 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
 }
 
 /**
- * 为表单中的所有输入设置验证
- * @param {HTMLFormElement} formElement - 表单元素
- * @param {Object} schema - 验证规则
+ * Setup validation for all inputs in a form
+ * @param formElement - Form element
+ * @param schema - Validation rules
  */
-export function setupFormValidation(formElement, schema) {
+export function setupFormValidation(formElement: HTMLFormElement | null, schema: Record<string, ValidationRule>): void {
     if (!formElement) {
         return;
     }
 
     Object.keys(schema).forEach(key => {
-        const inputElement = formElement.querySelector(`#${key}`);
+        const inputElement = formElement.querySelector(`#${key}`) as HTMLInputElement;
         if (inputElement) {
             setupLiveValidation(inputElement, schema[key]);
         }

@@ -1,10 +1,9 @@
-// js/calculators/index.js
+// js/calculators/index.ts
 
-// This is a static list of metadata, not imported modules.
-// This prevents a syntax error in one calculator from breaking the entire app.
+import { CalculatorMetadata, Calculator } from '../types/calculator';
 
 // Calculator categories
-export const categories = {
+export const categories: { [key: string]: string } = {
     cardiovascular: '心血管',
     renal: '腎臟功能',
     'critical-care': '重症醫學',
@@ -21,7 +20,7 @@ export const categories = {
     general: '一般醫學'
 };
 
-export const calculatorModules = [
+export const calculatorModules: CalculatorMetadata[] = [
     { id: '2helps2b', title: '2HELPS2B Score for Seizure Risk', category: 'neurology' },
     { id: '4as-delirium', title: '4 A\'s Test for Delirium', category: 'neurology' },
     { id: '4c-mortality-covid', title: '4C Mortality Score for COVID-19', category: 'infection' },
@@ -112,15 +111,17 @@ export const calculatorModules = [
 
 /**
  * Dynamically load a calculator module
- * @param {string} calculatorId - The calculator ID
- * @returns {Promise<Object>} The calculator module
+ * @param calculatorId - The calculator ID
+ * @returns The calculator module
  */
-export async function loadCalculator(calculatorId) {
+export async function loadCalculator(calculatorId: string): Promise<Calculator> {
     try {
         // Use CACHE_VERSION if available for cache busting
-        const version = window.CACHE_VERSION || Date.now();
-        const module = await import(`/js/calculators/${calculatorId}/index.js?v=${version}`);
-        
+        const version = (window as any).CACHE_VERSION || Date.now();
+        // Import relative to this file. When compiled to dist/js/calculators/index.js,
+        // this should look for ./<id>/index.js which corresponds to dist/js/calculators/<id>/index.js
+        const module = await import(`./${calculatorId}/index.js?v=${version}`);
+
         // Return the calculator object (usually the first export)
         return module.default || Object.values(module)[0];
     } catch (error) {
@@ -131,28 +132,28 @@ export async function loadCalculator(calculatorId) {
 
 /**
  * Check if a calculator module exists
- * @param {string} calculatorId - The calculator ID
- * @returns {boolean} Whether the calculator exists
+ * @param calculatorId - The calculator ID
+ * @returns Whether the calculator exists
  */
-export function calculatorExists(calculatorId) {
+export function calculatorExists(calculatorId: string): boolean {
     return calculatorModules.some(calc => calc.id === calculatorId);
 }
 
 /**
  * Get calculator metadata by ID
- * @param {string} calculatorId - The calculator ID
- * @returns {Object|null} Calculator metadata or null
+ * @param calculatorId - The calculator ID
+ * @returns Calculator metadata or null
  */
-export function getCalculatorMetadata(calculatorId) {
+export function getCalculatorMetadata(calculatorId: string): CalculatorMetadata | null {
     return calculatorModules.find(calc => calc.id === calculatorId) || null;
 }
 
 /**
  * Get calculators by category
- * @param {string} category - The category name
- * @returns {Array} Array of calculator metadata
+ * @param category - The category name
+ * @returns Array of calculator metadata
  */
-export function getCalculatorsByCategory(category) {
+export function getCalculatorsByCategory(category: string): CalculatorMetadata[] {
     if (category === 'all' || !category) {
         return calculatorModules;
     }

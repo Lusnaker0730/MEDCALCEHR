@@ -1,60 +1,63 @@
 import {
     getMostRecentObservation,
     calculateAge
-} from '../../utils.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
+} from '../../utils';
+import { LOINC_CODES } from '../../fhir-codes';
+import { UnitConverter } from '../../unit-converter';
+import { uiBuilder } from '../../ui-builder';
+import { Calculator } from '../../types/calculator';
+import { FHIRClient, Observation, Patient } from '../../types/fhir';
 
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
-    temp: v => {
+    temp: (v: number): number => {
         if (v >= 41 || v <= 29.9) return 4;
         if (v >= 39 || v <= 31.9) return 3;
         if (v <= 33.9) return 2;
         if (v >= 38.5 || v <= 35.9) return 1;
         return 0;
     },
-    map: v => {
+    map: (v: number): number => {
         if (v >= 160 || v <= 49) return 4;
         if (v >= 130) return 3;
         if (v >= 110 || v <= 69) return 2;
         return 0;
     },
-    ph: v => {
+    ph: (v: number): number => {
         if (v >= 7.7 || v < 7.15) return 4;
         if (v >= 7.6 || v < 7.25) return 3;
         if (v < 7.33) return 2;
         if (v >= 7.5) return 1;
         return 0;
     },
-    hr: v => {
+    hr: (v: number): number => {
         if (v >= 180 || v <= 39) return 4;
         if (v >= 140 || v <= 54) return 3;
         if (v >= 110 || v <= 69) return 2;
         return 0;
     },
-    rr: v => {
+    rr: (v: number): number => {
         if (v >= 50 || v <= 5) return 4;
         if (v >= 35) return 3;
         if (v <= 9) return 2;
         if (v >= 25 || v <= 11) return 1;
         return 0;
     },
-    sodium: v => {
+    sodium: (v: number): number => {
         if (v >= 180 || v <= 110) return 4;
         if (v >= 160 || v <= 119) return 3;
         if (v >= 155 || v <= 129) return 2;
         if (v >= 150) return 1;
         return 0;
     },
-    potassium: v => {
+    potassium: (v: number): number => {
         if (v >= 7 || v < 2.5) return 4;
         if (v >= 6) return 3;
         if (v <= 2.9) return 2;
         if (v >= 5.5 || v <= 3.4) return 1;
         return 0;
     },
-    creatinine: (v, arf) => {
+    creatinine: (v: number, arf: boolean): number => {
         // arf is boolean for acute renal failure
         let score = 0;
         const v_mgdl = v / 88.4; // convert umol/L to mg/dL
@@ -63,20 +66,22 @@ const getPoints = {
         else if (v_mgdl >= 1.5 || v_mgdl < 0.6) score = 2;
         return arf ? score * 2 : score;
     },
-    hct: v => {
+    hct: (v: number): number => {
         if (v >= 60 || v < 20) return 4;
         if (v >= 50 || v < 30) return 2;
         return 0;
     },
-    wbc: v => {
+    wbc: (v: number): number => {
         if (v >= 40 || v < 1) return 4;
         if (v >= 20 || v < 3) return 2;
         if (v >= 15) return 1;
         return 0;
     },
-    gcs: v => 15 - v,
-    oxygenation: (fio2, pao2, paco2) => {
+    gcs: (v: number): number => 15 - v,
+    oxygenation: (fio2: number, pao2: number, paco2: number | null): number => {
         if (fio2 >= 0.5) {
+            // Need paco2 for A-a gradient
+            if (paco2 === null) return 0; // Should not happen if logic is correct
             const A_a_gradient = fio2 * 713 - paco2 / 0.8 - pao2;
             if (A_a_gradient >= 500) return 4;
             if (A_a_gradient >= 350) return 3;
@@ -89,7 +94,7 @@ const getPoints = {
             return 0;
         }
     },
-    age: v => {
+    age: (v: number): number => {
         if (v >= 75) return 6;
         if (v >= 65) return 5;
         if (v >= 55) return 3;
@@ -98,11 +103,12 @@ const getPoints = {
     }
 };
 
-export const apacheIi = {
+export const apacheIi: Calculator = {
     id: 'apache-ii',
     title: 'APACHE II',
     description: 'Calculates APACHE II score for ICU mortality.',
-    generateHTML: function () {
+    category: 'critical-care',
+    generateHTML: function (): string {
         const chronicHealthSection = uiBuilder.createSection({
             title: 'Chronic Health Status',
             subtitle: 'History of severe organ insufficiency or immunocompromised',
@@ -120,22 +126,45 @@ export const apacheIi = {
             title: 'Demographics & Vital Signs',
             content: [
                 uiBuilder.createInput({ id: 'apache-ii-age', label: 'Age', unit: 'years' }),
-                uiBuilder.createInput({ id: 'apache-ii-temp', label: 'Temperature', unit: '°C', step: 0.1, placeholder: '36.1 - 37.8' }),
-                uiBuilder.createInput({ id: 'apache-ii-map', label: 'Mean Arterial Pressure', unit: 'mmHg', placeholder: '70 - 100' }),
-                uiBuilder.createInput({ id: 'apache-ii-hr', label: 'Heart Rate', unit: 'bpm', placeholder: '60 - 100' }),
-                uiBuilder.createInput({ id: 'apache-ii-rr', label: 'Respiratory Rate', unit: 'breaths/min', placeholder: '12 - 20' })
+                uiBuilder.createInput({
+                    id: 'apache-ii-temp',
+                    label: 'Temperature',
+                    unitToggle: { type: 'temperature', units: ['°C', '°F'] },
+                    step: 0.1,
+                    placeholder: '36.0 - 38.4'
+                }),
+                uiBuilder.createInput({ id: 'apache-ii-map', label: 'Mean Arterial Pressure', unit: 'mmHg', placeholder: '70 - 109' }),
+                uiBuilder.createInput({ id: 'apache-ii-hr', label: 'Heart Rate', unit: 'bpm', placeholder: '70 - 109' }),
+                uiBuilder.createInput({ id: 'apache-ii-rr', label: 'Respiratory Rate', unit: 'breaths/min', placeholder: '12 - 24' })
             ].join('')
         });
 
         const labsSection = uiBuilder.createSection({
             title: 'Laboratory Values',
             content: [
-                uiBuilder.createInput({ id: 'apache-ii-ph', label: 'Arterial pH', step: 0.01, placeholder: '7.38 - 7.44' }),
-                uiBuilder.createInput({ id: 'apache-ii-sodium', label: 'Sodium', unit: 'mmol/L', placeholder: '136 - 145' }),
-                uiBuilder.createInput({ id: 'apache-ii-potassium', label: 'Potassium', unit: 'mmol/L', step: 0.1, placeholder: '3.5 - 5.2' }),
-                uiBuilder.createInput({ id: 'apache-ii-creatinine', label: 'Creatinine', unit: 'μmol/L', step: 0.1, placeholder: '62 - 115' }),
-                uiBuilder.createInput({ id: 'apache-ii-hct', label: 'Hematocrit', unit: '%', step: 0.1, placeholder: '36 - 51' }),
-                uiBuilder.createInput({ id: 'apache-ii-wbc', label: 'WBC Count', unit: 'x 10⁹/L', step: 0.1, placeholder: '3.7 - 10.7' }),
+                uiBuilder.createInput({ id: 'apache-ii-ph', label: 'Arterial pH', step: 0.01, placeholder: '7.33 - 7.49' }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-sodium',
+                    label: 'Sodium',
+                    unitToggle: { type: 'electrolytes', units: ['mEq/L', 'mmol/L'] },
+                    placeholder: '130 - 149'
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-potassium',
+                    label: 'Potassium',
+                    unitToggle: { type: 'electrolytes', units: ['mEq/L', 'mmol/L'] },
+                    step: 0.1,
+                    placeholder: '3.5 - 5.4'
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-creatinine',
+                    label: 'Creatinine',
+                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'] },
+                    step: 0.1,
+                    placeholder: '0.6 - 1.4'
+                }),
+                uiBuilder.createInput({ id: 'apache-ii-hct', label: 'Hematocrit', unit: '%', step: 0.1, placeholder: '30 - 45.9' }),
+                uiBuilder.createInput({ id: 'apache-ii-wbc', label: 'WBC Count', unit: 'x 10⁹/L', step: 0.1, placeholder: '3 - 14.9' }),
                 uiBuilder.createRadioGroup({
                     name: 'arf',
                     label: 'Acute Renal Failure',
@@ -150,10 +179,10 @@ export const apacheIi = {
 
         const neuroSection = uiBuilder.createSection({
             title: 'Neurological Assessment',
-            content: uiBuilder.createInput({ 
-                id: 'apache-ii-gcs', 
-                label: 'Glasgow Coma Scale', 
-                unit: 'points', 
+            content: uiBuilder.createInput({
+                id: 'apache-ii-gcs',
+                label: 'Glasgow Coma Scale',
+                unit: 'points',
                 placeholder: '3 - 15',
                 min: 3,
                 max: 15
@@ -173,11 +202,11 @@ export const apacheIi = {
                 }),
                 '<div id="fio2_pao2_inputs">',
                 uiBuilder.createInput({ id: 'apache-ii-fio2', label: 'FiO₂', step: 0.01, placeholder: 'e.g. 0.5', min: 0, max: 1 }),
-                uiBuilder.createInput({ id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg' }),
-                uiBuilder.createInput({ id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg' }),
+                uiBuilder.createInput({ id: 'apache-ii-pao2', label: 'PaO₂', unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'] } }),
+                uiBuilder.createInput({ id: 'apache-ii-paco2', label: 'PaCO₂', unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'] } }),
                 '</div>',
                 '<div id="pao2_only_inputs" style="display:none;">',
-                uiBuilder.createInput({ id: 'apache-ii-pao2-only', label: 'PaO₂', unit: 'mmHg' }),
+                uiBuilder.createInput({ id: 'apache-ii-pao2-only', label: 'PaO₂', unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'] } }),
                 '</div>'
             ].join('')
         });
@@ -209,92 +238,103 @@ export const apacheIi = {
             </div>
         `;
     },
-    initialize: function (client, patient, container) {
+    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const ageInput = container.querySelector('#apache-ii-age');
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate);
+        const ageInput = container.querySelector('#apache-ii-age') as HTMLInputElement;
+        if (patient && patient.birthDate && ageInput) {
+            ageInput.value = calculateAge(patient.birthDate).toString();
         }
 
         // Helper to safely set value if element exists
-        const setValue = (id, value) => {
-            const el = container.querySelector(id);
+        const setValue = (id: string, value: string) => {
+            const el = container.querySelector(id) as HTMLInputElement;
             if (el) el.value = value;
         };
 
         // Auto-populate from FHIR
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-temp', obs.valueQuantity.value.toFixed(1));
             });
-            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-map', obs.valueQuantity.value.toFixed(0));
             });
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-hr', obs.valueQuantity.value.toFixed(0));
             });
-            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-rr', obs.valueQuantity.value.toFixed(0));
             });
-            getMostRecentObservation(client, LOINC_CODES.PO2).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.PO2).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-ph', obs.valueQuantity.value.toFixed(2));
             });
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.SODIUM).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-sodium', obs.valueQuantity.value.toFixed(0));
             });
-            getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-potassium', obs.valueQuantity.value.toFixed(1));
             });
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.CREATININE).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-creatinine', obs.valueQuantity.value.toFixed(2));
             });
-            getMostRecentObservation(client, LOINC_CODES.HEMATOCRIT).then(obs => {
+            getMostRecentObservation(client, LOINC_CODES.HEMATOCRIT).then((obs: Observation | null) => {
                 if (obs?.valueQuantity) setValue('#apache-ii-hct', obs.valueQuantity.value.toFixed(1));
             });
-            getMostRecentObservation(client, '6764-2').then(obs => { // WBC
+            getMostRecentObservation(client, '6764-2').then((obs: Observation | null) => { // WBC
                 if (obs?.valueQuantity) setValue('#apache-ii-wbc', obs.valueQuantity.value.toFixed(1));
             });
-            getMostRecentObservation(client, '8478-0').then(obs => { // GCS
+            getMostRecentObservation(client, '8478-0').then((obs: Observation | null) => { // GCS
                 if (obs?.valueQuantity) setValue('#apache-ii-gcs', obs.valueQuantity.value.toFixed(0));
             });
         }
 
         // Calculate function
         const calculate = () => {
-            const arf = container.querySelector('input[name="arf"]:checked')?.value === '1';
-            const chronic = container.querySelector('input[name="chronic"]:checked')?.value === '5';
-            const oxyMethod = container.querySelector('input[name="oxy_method"]:checked')?.value;
+            const arfInput = container.querySelector('input[name="arf"]:checked') as HTMLInputElement;
+            const arf = arfInput?.value === '1';
 
-            const getValue = (id) => parseFloat(container.querySelector(id)?.value) || 0;
+            const chronicInput = container.querySelector('input[name="chronic"]:checked') as HTMLInputElement;
+            const chronic = chronicInput?.value === '5';
+
+            const oxyMethodInput = container.querySelector('input[name="oxy_method"]:checked') as HTMLInputElement;
+            const oxyMethod = oxyMethodInput?.value;
+
+            const getValue = (id: string): number => {
+                const el = container.querySelector(id) as HTMLInputElement;
+                return parseFloat(el?.value) || 0;
+            };
+            const getStandardValue = (id: string, unit: string): number => {
+                const el = container.querySelector(id) as HTMLInputElement;
+                return UnitConverter.getStandardValue(el, unit) || 0;
+            };
 
             const values = {
-                temp: getValue('#apache-ii-temp'),
+                temp: getStandardValue('#apache-ii-temp', '°C'),
                 map: getValue('#apache-ii-map'),
                 hr: getValue('#apache-ii-hr'),
                 rr: getValue('#apache-ii-rr'),
                 ph: getValue('#apache-ii-ph'),
-                sodium: getValue('#apache-ii-sodium'),
-                potassium: getValue('#apache-ii-potassium'),
-                creatinine: getValue('#apache-ii-creatinine'),
+                sodium: getStandardValue('#apache-ii-sodium', 'mmol/L'),
+                potassium: getStandardValue('#apache-ii-potassium', 'mmol/L'),
+                creatinine: getStandardValue('#apache-ii-creatinine', 'µmol/L'),
                 hct: getValue('#apache-ii-hct'),
                 wbc: getValue('#apache-ii-wbc'),
                 gcs: getValue('#apache-ii-gcs'),
                 age: getValue('#apache-ii-age'),
                 fio2: getValue('#apache-ii-fio2'),
-                pao2: getValue('#apache-ii-pao2'),
-                paco2: getValue('#apache-ii-paco2'),
-                pao2_only: getValue('#apache-ii-pao2-only')
+                pao2: getStandardValue('#apache-ii-pao2', 'mmHg'),
+                paco2: getStandardValue('#apache-ii-paco2', 'mmHg'),
+                pao2_only: getStandardValue('#apache-ii-pao2-only', 'mmHg')
             };
 
-            const resultBox = container.querySelector('#apache-ii-result');
-            const resultHeader = resultBox.querySelector('.ui-result-header');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#apache-ii-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             try {
                 // Check required fields (simple check: must not be 0 unless 0 is valid, but most vitals aren't 0)
                 // For simplicity, we'll calculate if most fields are present
-                
+
                 let aps = 0;
                 aps += getPoints.temp(values.temp);
                 aps += getPoints.map(values.map);
@@ -340,20 +380,20 @@ export const apacheIi = {
                 }
 
                 resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({ label: 'Total Score', value: score, unit: 'points' })}
-                    ${uiBuilder.createResultItem({ 
-                        label: 'Predicted ICU Mortality', 
-                        value: mortality.toFixed(1), 
-                        unit: '%', 
-                        interpretation: riskLevel, 
-                        alertClass: mortalityClass 
-                    })}
+                    ${uiBuilder.createResultItem({ label: 'Total Score', value: score.toString(), unit: 'points' })}
+                    ${uiBuilder.createResultItem({
+                    label: 'Predicted ICU Mortality',
+                    value: mortality.toFixed(1),
+                    unit: '%',
+                    interpretation: riskLevel,
+                    alertClass: mortalityClass
+                })}
                     
                     <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
                         <strong>Breakdown:</strong> APS ${aps} + Age ${agePoints} + Chronic Health ${chronicPoints}
                     </div>
                 `;
-                
+
                 resultBox.classList.add('show');
             } catch (e) {
                 console.error(e);
@@ -362,21 +402,24 @@ export const apacheIi = {
 
         // Attach event listeners
         container.addEventListener('change', (e) => {
-            if (e.target.type === 'radio' || e.target.type === 'checkbox') calculate();
+            const target = e.target as HTMLInputElement;
+            if (target.type === 'radio' || target.type === 'checkbox') calculate();
         });
-        
+
         container.addEventListener('input', (e) => {
-            if (e.target.type === 'number') calculate();
+            const target = e.target as HTMLInputElement;
+            if (target.type === 'number') calculate();
         });
 
         // Handle oxygen method switching
         const oxyMethodInputs = container.querySelectorAll('input[name="oxy_method"]');
-        const fio2Inputs = container.querySelector('#fio2_pao2_inputs');
-        const pao2OnlyInputs = container.querySelector('#pao2_only_inputs');
+        const fio2Inputs = container.querySelector('#fio2_pao2_inputs') as HTMLElement;
+        const pao2OnlyInputs = container.querySelector('#pao2_only_inputs') as HTMLElement;
 
         oxyMethodInputs.forEach(input => {
             input.addEventListener('change', () => {
-                if (input.value === 'fio2_pao2') {
+                const target = input as HTMLInputElement;
+                if (target.value === 'fio2_pao2') {
                     fio2Inputs.style.display = 'block';
                     pao2OnlyInputs.style.display = 'none';
                 } else {
@@ -391,3 +434,5 @@ export const apacheIi = {
         calculate();
     }
 };
+
+export default apacheIi;
