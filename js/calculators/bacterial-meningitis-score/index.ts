@@ -1,0 +1,185 @@
+import { getPatientConditions, getObservation } from '../../utils';
+import { uiBuilder } from '../../ui-builder';
+import { Calculator } from '../../types/calculator';
+import { FHIRClient, Patient, Observation, Condition } from '../../types/fhir';
+
+export const bacterialMeningitisScore: Calculator = {
+    id: 'bacterial-meningitis-score',
+    title: 'Bacterial Meningitis Score for Children',
+    description: 'Rules out bacterial meningitis in children aged 29 days to 19 years.',
+
+    generateHTML: () => `
+        <div class="calculator-header">
+            <h3>Bacterial Meningitis Score for Children</h3>
+            <p class="description">Rules out bacterial meningitis in children aged 29 days to 19 years.</p>
+        </div>
+
+        ${uiBuilder.createAlert({
+        type: 'info',
+        message: `
+                <strong>INSTRUCTIONS:</strong> Use in patients aged <strong>29 days to 19 years</strong> with CSF WBC ≥10 cells/μL.<br><br>
+                <strong>Do not use if:</strong> Patient is critically ill, recently received antibiotics, has a VP shunt or recent neurosurgery, is immunosuppressed, or has other bacterial infection requiring antibiotics (including Lyme disease).
+            `
+    })}
+        
+        ${uiBuilder.createSection({
+        title: 'Clinical Criteria',
+        content: `
+                ${uiBuilder.createRadioGroup({
+            name: 'gram_stain',
+            label: 'CSF Gram stain positive',
+            helpText: 'Cerebrospinal fluid microscopy',
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '2', label: 'Yes (+2)' }
+            ]
+        })}
+                
+                ${uiBuilder.createRadioGroup({
+            name: 'csf_anc',
+            label: 'CSF ANC ≥1,000 cells/μL',
+            helpText: 'Absolute neutrophil count in CSF',
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '1', label: 'Yes (+1)' }
+            ]
+        })}
+                
+                ${uiBuilder.createRadioGroup({
+            name: 'csf_protein',
+            label: 'CSF protein ≥80 mg/dL (800 mg/L)',
+            helpText: 'Protein concentration in CSF',
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '1', label: 'Yes (+1)' }
+            ]
+        })}
+                
+                ${uiBuilder.createRadioGroup({
+            name: 'blood_anc',
+            label: 'Peripheral blood ANC ≥10,000 cells/μL',
+            helpText: 'Absolute neutrophil count in blood',
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '1', label: 'Yes (+1)' }
+            ]
+        })}
+                
+                ${uiBuilder.createRadioGroup({
+            name: 'seizure',
+            label: 'Seizure at (or prior to) initial presentation',
+            helpText: 'Any seizure activity documented',
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '1', label: 'Yes (+1)' }
+            ]
+        })}
+            `
+    })}
+        
+        ${uiBuilder.createResultBox({ id: 'bms-result-box', title: 'Bacterial Meningitis Score' })}
+    `,
+
+    initialize: (client: FHIRClient, patient: Patient, container: HTMLElement): void => {
+        uiBuilder.initializeComponents(container);
+
+        const calculate = () => {
+            const score = Array.from(
+                container.querySelectorAll('input[type="radio"]:checked')
+            ).reduce((acc, input) => {
+                return acc + parseInt((input as HTMLInputElement).value);
+            }, 0);
+
+            const resultBox = container.querySelector('#bms-result-box') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
+
+            let interpretation = '';
+            let alertType = 'success';
+
+            if (score === 0) {
+                interpretation = 'Very low risk for bacterial meningitis.';
+                alertType = 'success';
+            } else {
+                interpretation = 'NOT very low risk for bacterial meningitis.';
+                alertType = 'danger';
+            }
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: score === 0 ? 'Very Low Risk' : 'Not Low Risk',
+                alertClass: `ui-alert-${alertType}`
+            })}
+                ${uiBuilder.createAlert({
+                type: alertType,
+                message: `<strong>Interpretation:</strong> ${interpretation}`
+            })}
+            `;
+            resultBox.classList.add('show');
+        };
+
+        container.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', calculate);
+        });
+
+        // --- FHIR Integration ---
+        const setRadio = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+
+        if (client) {
+            // CSF Gram Stain (LOINC: 664-3) - checking for positive result
+            getObservation(client, '664-3').then((obs: Observation | null) => {
+                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
+                    // Assuming positive if a code indicating presence is found (example SNOMED code)
+                    const isPositive = obs.valueCodeableConcept.coding.some(
+                        c => c.code === '260348003'
+                    );
+                    if (isPositive) {
+                        setRadio('gram_stain', '2');
+                    }
+                }
+            });
+
+            // CSF ANC (LOINC: 26485-3)
+            getObservation(client, '26485-3').then((obs: Observation | null) => {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 1000) {
+                    setRadio('csf_anc', '1');
+                }
+            });
+
+            // CSF Protein (LOINC: 3137-7)
+            getObservation(client, '3137-7').then((obs: Observation | null) => {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 80) {
+                    setRadio('csf_protein', '1');
+                }
+            });
+
+            // Peripheral Blood ANC (LOINC: 751-8)
+            getObservation(client, '751-8').then((obs: Observation | null) => {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 10000) {
+                    setRadio('blood_anc', '1');
+                }
+            });
+
+            // Seizure (SNOMED: 91175000)
+            getPatientConditions(client, ['91175000'])
+                .then((conditions: Condition[]) => {
+                    if (conditions.length > 0) {
+                        setRadio('seizure', '1');
+                    }
+                })
+                .finally(() => {
+                    // setTimeout(calculate, 500); // Calculate after all FHIR data has populated
+                });
+        }
+
+        calculate();
+    }
+};

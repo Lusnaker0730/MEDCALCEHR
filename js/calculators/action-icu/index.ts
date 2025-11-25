@@ -1,0 +1,245 @@
+import { getMostRecentObservation, calculateAge } from '../../utils';
+import { LOINC_CODES } from '../../fhir-codes';
+import { uiBuilder } from '../../ui-builder';
+import { Calculator } from '../../types/calculator';
+import { FHIRClient, Patient, Observation } from '../../types/fhir';
+
+export const actionIcu: Calculator = {
+    id: 'action-icu',
+    title: 'ACTION ICU Score for Intensive Care in NSTEMI',
+    description:
+        'Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI.',
+    generateHTML: function (): string {
+        return `
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+
+            ${uiBuilder.createAlert({
+            type: 'info',
+            message: '<strong>📋 NSTEMI Risk Assessment</strong><br>For initially hemodynamically stable adults with NSTEMI'
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Age, years',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-age',
+                options: [
+                    { value: '0', label: '&lt;70 (0)', checked: true },
+                    { value: '1', label: '≥70 (+1)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Serum creatinine, mg/dL',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-creatinine',
+                options: [
+                    { value: '0', label: '&lt;1.1 (0)', checked: true },
+                    { value: '1', label: '≥1.1 (+1)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Heart rate, bpm',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-hr',
+                options: [
+                    { value: '0', label: '&lt;85 (0)', checked: true },
+                    { value: '1', label: '85-100 (+1)' },
+                    { value: '3', label: '≥100 (+3)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Systolic blood pressure, mmHg',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-sbp',
+                options: [
+                    { value: '0', label: '≥145 (0)', checked: true },
+                    { value: '1', label: '125-145 (+1)' },
+                    { value: '3', label: '&lt;125 (+3)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Ratio of initial troponin to upper limit of normal',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-troponin',
+                options: [
+                    { value: '0', label: '&lt;12 (0)', checked: true },
+                    { value: '2', label: '≥12 (+2)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Signs or symptoms of heart failure',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-hf',
+                options: [
+                    { value: '0', label: 'No (0)', checked: true },
+                    { value: '5', label: 'Yes (+5)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'ST segment depression on EKG',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-st',
+                options: [
+                    { value: '0', label: 'No (0)', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createSection({
+            title: 'Prior revascularization',
+            content: uiBuilder.createRadioGroup({
+                name: 'action-revasc',
+                options: [
+                    { value: '0', label: 'Yes (0)' },
+                    { value: '1', label: 'No (+1)', checked: true }
+                ]
+            })
+        })}
+
+            ${uiBuilder.createResultBox({ id: 'action-icu-result', title: 'ACTION ICU Score' })}
+
+            <div class="chart-container" style="margin-top: 20px; text-align: center;">
+                 <!-- Images are currently missing in source but keeping placeholder structure if needed -->
+            </div>
+
+            ${uiBuilder.createAlert({
+            type: 'info',
+            message: `
+                    <h4>📚 Reference</h4>
+                    <p>Fanaroff, A. C., et al. (2018). Risk Score to Predict Need for Intensive Care in Initially Hemodynamically Stable Adults With Non–ST‐Segment–Elevation Myocardial Infarction. <em>Journal of the American Heart Association</em>, 7(11).</p>
+                `
+        })}
+        `;
+    },
+    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+        uiBuilder.initializeComponents(container);
+
+        const riskMap = [
+            3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0,
+            81.7, 86.6, 90.6
+        ]; // Index is score, value is risk %
+
+        const calculate = () => {
+            const groups = ['action-age', 'action-creatinine', 'action-hr', 'action-sbp', 'action-troponin', 'action-hf', 'action-st', 'action-revasc'];
+            let score = 0;
+
+            groups.forEach(groupName => {
+                const checkedRadio = container.querySelector(`input[name="${groupName}"]:checked`) as HTMLInputElement;
+                if (checkedRadio) {
+                    score += parseInt(checkedRadio.value);
+                }
+            });
+
+            const riskPercent = score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
+
+            let riskLevel = 'Low Risk';
+            let alertType = 'success';
+            if (riskPercent >= 20) {
+                riskLevel = 'High Risk';
+                alertType = 'danger';
+            } else if (riskPercent >= 10) {
+                riskLevel = 'Moderate Risk';
+                alertType = 'warning';
+            }
+
+            const resultBox = container.querySelector('#action-icu-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
+                ${uiBuilder.createResultItem({
+                label: 'ICU Risk',
+                value: riskPercent.toFixed(1),
+                unit: '%',
+                alertClass: `ui-alert-${alertType}`
+            })}
+                ${uiBuilder.createAlert({
+                type: alertType,
+                message: `
+                        <strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).
+                    `
+            })}
+            `;
+            resultBox.classList.add('show');
+        };
+
+        // Helper to set radio value based on condition
+        const setRadioWithValue = (name: string, value: number, conditions: ((v: number) => boolean)[]) => {
+            if (value === null) return;
+
+            for (const [radioIndex, condition] of conditions.entries()) {
+                if (condition(value)) {
+                    const radios = container.querySelectorAll(`input[name="${name}"]`);
+                    if (radios[radioIndex]) {
+                        (radios[radioIndex] as HTMLInputElement).checked = true;
+                        radios[radioIndex].dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    break;
+                }
+            }
+        };
+
+        if (patient && patient.birthDate) {
+            const patientAge = calculateAge(patient.birthDate);
+            setRadioWithValue('action-age', patientAge, [v => v < 70, v => v >= 70]);
+        }
+
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.CREATININE).then((obs: Observation | null) => {
+                if (obs && obs.valueQuantity) {
+                    setRadioWithValue('action-creatinine', obs.valueQuantity.value, [
+                        v => v < 1.1,
+                        v => v >= 1.1
+                    ]);
+                }
+            });
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then((obs: Observation | null) => {
+                if (obs && obs.valueQuantity) {
+                    setRadioWithValue('action-hr', obs.valueQuantity.value, [
+                        v => v < 85,
+                        v => v >= 85 && v <= 100,
+                        v => v > 100
+                    ]);
+                }
+            });
+            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then((obs: Observation | null) => {
+                if (obs && obs.valueQuantity) {
+                    setRadioWithValue('action-sbp', obs.valueQuantity.value, [
+                        v => v >= 145,
+                        v => v >= 125 && v < 145,
+                        v => v < 125
+                    ]);
+                }
+            });
+        }
+
+        container.addEventListener('change', (e) => {
+            if ((e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type === 'radio') {
+                calculate();
+            }
+        });
+
+        calculate();
+    }
+};
