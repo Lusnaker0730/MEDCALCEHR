@@ -1,6 +1,6 @@
-import { getMostRecentObservation, getPatientConditions, calculateAge } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { getMostRecentObservation, getPatientConditions, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation, Condition } from '../../types/fhir';
 
@@ -71,7 +71,7 @@ export const fourPeps: Calculator = {
             </div>
         `;
     },
-    initialize: async (client: FHIRClient, patient: Patient, container: HTMLElement): Promise<void> => {
+    initialize: async (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): Promise<void> => {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
@@ -98,7 +98,7 @@ export const fourPeps: Calculator = {
             let probability = '';
             let riskLevel = '';
             let recommendation = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score <= 3) {
                 probability = '2-7%';
@@ -172,22 +172,22 @@ export const fourPeps: Calculator = {
                 ]);
 
                 if (conditions) {
-                    if (conditions.some((c: Condition) => c.code?.coding && chronicRespCodes.includes(c.code.coding[0].code))) {
+                    if (conditions.some((c: Condition) => c.code?.coding && c.code.coding[0].code && chronicRespCodes.includes(c.code.coding[0].code))) {
                         const radio = container.querySelector('input[name="4peps-resp_disease"][value="-1"]') as HTMLInputElement;
                         if (radio) radio.checked = true;
                     }
-                    if (conditions.some((c: Condition) => c.code?.coding && vteCodes.includes(c.code.coding[0].code))) {
+                    if (conditions.some((c: Condition) => c.code?.coding && c.code.coding[0].code && vteCodes.includes(c.code.coding[0].code))) {
                         const radio = container.querySelector('input[name="4peps-vte"][value="2"]') as HTMLInputElement;
                         if (radio) radio.checked = true;
                     }
                 }
 
-                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value < 80) {
+                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value && hrObs.valueQuantity.value < 80) {
                     const radio = container.querySelector('input[name="4peps-hr"][value="-1"]') as HTMLInputElement;
                     if (radio) radio.checked = true;
                 }
 
-                if (o2Obs && o2Obs.valueQuantity && o2Obs.valueQuantity.value < 95) {
+                if (o2Obs && o2Obs.valueQuantity && o2Obs.valueQuantity.value && o2Obs.valueQuantity.value < 95) {
                     const radio = container.querySelector('input[name="4peps-o2_sat"][value="3"]') as HTMLInputElement;
                     if (radio) radio.checked = true;
                 }

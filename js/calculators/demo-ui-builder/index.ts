@@ -1,7 +1,4 @@
-import { FHIRClient, Patient } from '../../types/fhir';
-// js/calculators/demo-ui-builder/index.js
-// Demonstration calculator using the new UI Builder system
-
+import { FHIRClient, Patient, Observation } from '../../types/fhir';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { fhirFeedback } from '../../fhir-feedback.js';
@@ -12,7 +9,7 @@ export const demoUiBuilder = {
     id: 'demo-ui-builder',
     title: '🎨 UI Builder Demo Calculator',
     description: 'Demonstration of the unified UI component system with all available components',
-    
+
     generateHTML: function (): string {
         return `
             <div class="calculator-header">
@@ -21,150 +18,150 @@ export const demoUiBuilder = {
             </div>
             
             ${uiBuilder.createSection({
-                title: '👤 Patient Demographics',
-                icon: '📋',
-                content: uiBuilder.createRadioGroup({
-                    name: 'demo-gender',
-                    label: 'Gender',
-                    required: true,
-                    options: [
-                        { value: 'male', label: '👨 Male', checked: true },
-                        { value: 'female', label: '👩 Female' }
-                    ],
-                    helpText: 'Select patient gender'
-                }) + uiBuilder.createInput({
-                    id: 'demo-age',
-                    label: 'Age',
-                    type: 'number',
-                    min: 0,
-                    max: 120,
-                    unit: 'years',
-                    placeholder: 'Enter age',
-                    required: true,
-                    helpText: 'Patient age in years'
-                })
-            })}
+            title: '👤 Patient Demographics',
+            icon: '📋',
+            content: uiBuilder.createRadioGroup({
+                name: 'demo-gender',
+                label: 'Gender',
+                required: true,
+                options: [
+                    { value: 'male', label: '👨 Male', checked: true },
+                    { value: 'female', label: '👩 Female' }
+                ],
+                helpText: 'Select patient gender'
+            }) + uiBuilder.createInput({
+                id: 'demo-age',
+                label: 'Age',
+                type: 'number',
+                min: 0,
+                max: 120,
+                unit: 'years',
+                placeholder: 'Enter age',
+                required: true,
+                helpText: 'Patient age in years'
+            })
+        })}
             
             ${uiBuilder.createSection({
-                title: '📏 Measurements with Unit Conversion',
-                icon: '⚖️',
-                content: uiBuilder.createInput({
-                    id: 'demo-weight',
-                    label: 'Weight',
-                    type: 'number',
-                    placeholder: 'Enter weight',
-                    unitToggle: {
-                        type: 'weight',
-                        units: ['kg', 'lbs'],
-                        default: 'kg'
+            title: '📏 Measurements with Unit Conversion',
+            icon: '⚖️',
+            content: uiBuilder.createInput({
+                id: 'demo-weight',
+                label: 'Weight',
+                type: 'number',
+                placeholder: 'Enter weight',
+                unitToggle: {
+                    type: 'weight',
+                    units: ['kg', 'lbs'],
+                    default: 'kg'
+                },
+                helpText: 'Click unit button to switch between kg and lbs'
+            }) + uiBuilder.createInput({
+                id: 'demo-height',
+                label: 'Height',
+                type: 'number',
+                placeholder: 'Enter height',
+                unitToggle: {
+                    type: 'height',
+                    units: ['cm', 'in', 'ft'],
+                    default: 'cm'
+                },
+                helpText: 'Click unit button to cycle through cm, inches, and feet'
+            }) + uiBuilder.createInput({
+                id: 'demo-temp',
+                label: 'Temperature',
+                type: 'number',
+                placeholder: 'Enter temperature',
+                step: '0.1',
+                unitToggle: {
+                    type: 'temperature',
+                    units: ['C', 'F'],
+                    default: 'C'
+                },
+                helpText: 'Toggle between Celsius and Fahrenheit'
+            })
+        })}
+            
+            ${uiBuilder.createSection({
+            title: '🏥 Clinical Parameters',
+            icon: '💉',
+            content: uiBuilder.createSelect({
+                id: 'demo-race',
+                label: 'Race',
+                options: [
+                    { value: '', label: '-- Select --', selected: true },
+                    { value: 'white', label: 'White/Caucasian' },
+                    { value: 'black', label: 'Black/African American' },
+                    { value: 'asian', label: 'Asian' },
+                    { value: 'hispanic', label: 'Hispanic/Latino' },
+                    { value: 'other', label: 'Other' }
+                ],
+                helpText: 'Select patient race for eGFR calculation'
+            }) + uiBuilder.createRange({
+                id: 'demo-severity',
+                label: 'Severity Score',
+                min: 0,
+                max: 10,
+                step: 1,
+                defaultValue: 5,
+                unit: '/10',
+                showValue: true
+            })
+        })}
+            
+            ${uiBuilder.createSection({
+            title: '✅ Risk Factors (Checkboxes)',
+            icon: '⚠️',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'demo-risk',
+                label: 'Select all that apply:',
+                options: [
+                    {
+                        value: 'diabetes',
+                        label: 'Diabetes Mellitus',
+                        description: 'History of type 1 or type 2 diabetes'
                     },
-                    helpText: 'Click unit button to switch between kg and lbs'
-                }) + uiBuilder.createInput({
-                    id: 'demo-height',
-                    label: 'Height',
-                    type: 'number',
-                    placeholder: 'Enter height',
-                    unitToggle: {
-                        type: 'height',
-                        units: ['cm', 'in', 'ft'],
-                        default: 'cm'
+                    {
+                        value: 'hypertension',
+                        label: 'Hypertension',
+                        description: 'Blood pressure consistently > 140/90 mmHg'
                     },
-                    helpText: 'Click unit button to cycle through cm, inches, and feet'
-                }) + uiBuilder.createInput({
-                    id: 'demo-temp',
-                    label: 'Temperature',
-                    type: 'number',
-                    placeholder: 'Enter temperature',
-                    step: '0.1',
-                    unitToggle: {
-                        type: 'temperature',
-                        units: ['C', 'F'],
-                        default: 'C'
+                    {
+                        value: 'smoking',
+                        label: 'Current Smoker',
+                        description: 'Active tobacco use'
                     },
-                    helpText: 'Toggle between Celsius and Fahrenheit'
-                })
-            })}
+                    {
+                        value: 'ckd',
+                        label: 'Chronic Kidney Disease',
+                        description: 'eGFR < 60 mL/min/1.73m²'
+                    },
+                    {
+                        value: 'chf',
+                        label: 'Congestive Heart Failure',
+                        description: 'History of heart failure'
+                    }
+                ],
+                helpText: 'Check all applicable risk factors'
+            })
+        })}
             
             ${uiBuilder.createSection({
-                title: '🏥 Clinical Parameters',
-                icon: '💉',
-                content: uiBuilder.createSelect({
-                    id: 'demo-race',
-                    label: 'Race',
-                    options: [
-                        { value: '', label: '-- Select --', selected: true },
-                        { value: 'white', label: 'White/Caucasian' },
-                        { value: 'black', label: 'Black/African American' },
-                        { value: 'asian', label: 'Asian' },
-                        { value: 'hispanic', label: 'Hispanic/Latino' },
-                        { value: 'other', label: 'Other' }
-                    ],
-                    helpText: 'Select patient race for eGFR calculation'
-                }) + uiBuilder.createRange({
-                    id: 'demo-severity',
-                    label: 'Severity Score',
-                    min: 0,
-                    max: 10,
-                    step: 1,
-                    defaultValue: 5,
-                    unit: '/10',
-                    showValue: true
-                })
-            })}
-            
-            ${uiBuilder.createSection({
-                title: '✅ Risk Factors (Checkboxes)',
-                icon: '⚠️',
-                content: uiBuilder.createCheckboxGroup({
-                    name: 'demo-risk',
-                    label: 'Select all that apply:',
-                    options: [
-                        { 
-                            value: 'diabetes', 
-                            label: 'Diabetes Mellitus',
-                            description: 'History of type 1 or type 2 diabetes'
-                        },
-                        { 
-                            value: 'hypertension', 
-                            label: 'Hypertension',
-                            description: 'Blood pressure consistently > 140/90 mmHg'
-                        },
-                        { 
-                            value: 'smoking', 
-                            label: 'Current Smoker',
-                            description: 'Active tobacco use'
-                        },
-                        { 
-                            value: 'ckd', 
-                            label: 'Chronic Kidney Disease',
-                            description: 'eGFR < 60 mL/min/1.73m²'
-                        },
-                        { 
-                            value: 'chf', 
-                            label: 'Congestive Heart Failure',
-                            description: 'History of heart failure'
-                        }
-                    ],
-                    helpText: 'Check all applicable risk factors'
-                })
-            })}
-            
-            ${uiBuilder.createSection({
-                title: '🎯 Severity Assessment (Radio)',
-                icon: '📊',
-                content: uiBuilder.createRadioGroup({
-                    name: 'demo-asa',
-                    label: 'ASA Physical Status Classification',
-                    options: [
-                        { value: '1', label: 'ASA I - Healthy patient' },
-                        { value: '2', label: 'ASA II - Mild systemic disease', checked: true },
-                        { value: '3', label: 'ASA III - Severe systemic disease' },
-                        { value: '4', label: 'ASA IV - Life-threatening disease' },
-                        { value: '5', label: 'ASA V - Moribund patient' }
-                    ],
-                    helpText: 'American Society of Anesthesiologists classification'
-                })
-            })}
+            title: '🎯 Severity Assessment (Radio)',
+            icon: '📊',
+            content: uiBuilder.createRadioGroup({
+                name: 'demo-asa',
+                label: 'ASA Physical Status Classification',
+                options: [
+                    { value: '1', label: 'ASA I - Healthy patient' },
+                    { value: '2', label: 'ASA II - Mild systemic disease', checked: true },
+                    { value: '3', label: 'ASA III - Severe systemic disease' },
+                    { value: '4', label: 'ASA IV - Life-threatening disease' },
+                    { value: '5', label: 'ASA V - Moribund patient' }
+                ],
+                helpText: 'American Society of Anesthesiologists classification'
+            })
+        })}
             
             <div class="result-container" id="demo-result" style="display:none;"></div>
             
@@ -190,24 +187,24 @@ export const demoUiBuilder = {
             </div>
         `;
     },
-    
+
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         const resultEl = container.querySelector('#demo-result');
-        
+
         // ✨ Initialize all UI components (REQUIRED)
         uiBuilder.initializeComponents(container);
-        
+
         // Get all form elements
-        const weightInput = container.querySelector('#demo-weight');
-        const heightInput = container.querySelector('#demo-height');
-        const tempInput = container.querySelector('#demo-temp');
-        const ageInput = container.querySelector('#demo-age');
+        const weightInput = container.querySelector('#demo-weight') as HTMLInputElement;
+        const heightInput = container.querySelector('#demo-height') as HTMLInputElement;
+        const tempInput = container.querySelector('#demo-temp') as HTMLInputElement;
+        const ageInput = container.querySelector('#demo-age') as HTMLInputElement;
         const genderRadios = container.querySelectorAll('input[name="demo-gender"]');
         const riskCheckboxes = container.querySelectorAll('input[name="demo-risk"]');
         const asaRadios = container.querySelectorAll('input[name="demo-asa"]');
-        const raceSelect = container.querySelector('#demo-race');
-        const severitySlider = container.querySelector('#demo-severity');
-        
+        const raceSelect = container.querySelector('#demo-race') as HTMLSelectElement;
+        const severitySlider = container.querySelector('#demo-severity') as HTMLInputElement;
+
         // Calculation function
         const calculate = () => {
             // Get values using UnitConverter for proper unit handling
@@ -215,32 +212,32 @@ export const demoUiBuilder = {
             const height = UnitConverter.getStandardValue(heightInput, 'cm');
             const temp = UnitConverter.getStandardValue(tempInput, 'C');
             const age = parseFloat(ageInput.value);
-            
+
             // Get selected gender
-            const gender = container.querySelector('input[name="demo-gender"]:checked')?.value;
-            
+            const gender = (container.querySelector('input[name="demo-gender"]:checked') as HTMLInputElement)?.value;
+
             // Get selected race
             const race = raceSelect.value;
-            
+
             // Get severity
             const severity = severitySlider.value;
-            
+
             // Count selected risk factors
-            const riskCount = Array.from(riskCheckboxes).filter(cb => cb.checked).length;
+            const riskCount = Array.from(riskCheckboxes).filter(cb => (cb as HTMLInputElement).checked).length;
             const riskFactors = Array.from(riskCheckboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.parentElement.querySelector('.checkbox-label').textContent.trim());
-            
+                .filter(cb => (cb as HTMLInputElement).checked)
+                .map(cb => (cb.parentElement?.querySelector('.checkbox-label') as HTMLElement)?.textContent?.trim() || '');
+
             // Get ASA classification
-            const asa = container.querySelector('input[name="demo-asa"]:checked')?.value;
-            
+            const asa = (container.querySelector('input[name="demo-asa"]:checked') as HTMLInputElement)?.value;
+
             // Calculate BMI if weight and height available
-            let bmi = null;
+            let bmi: number | null = null;
             if (weight && height) {
                 const heightM = height / 100;
                 bmi = weight / (heightM * heightM);
             }
-            
+
             // Generate result
             if (weight || height || age) {
                 let resultHTML = `
@@ -248,7 +245,7 @@ export const demoUiBuilder = {
                         <h4>📊 Demo Results</h4>
                     </div>
                 `;
-                
+
                 // Demographics
                 resultHTML += `
                     <div class="result-section">
@@ -258,7 +255,7 @@ export const demoUiBuilder = {
                         ${race ? `<div class="result-item"><span class="label">Race:</span><span class="value">${raceSelect.options[raceSelect.selectedIndex].text}</span></div>` : ''}
                     </div>
                 `;
-                
+
                 // Measurements
                 if (weight || height || temp) {
                     resultHTML += `
@@ -266,12 +263,12 @@ export const demoUiBuilder = {
                             <h5>Measurements</h5>
                             ${weight ? `<div class="result-item"><span class="label">Weight:</span><span class="value">${weight.toFixed(1)} kg (${(weight * 2.20462).toFixed(1)} lbs)</span></div>` : ''}
                             ${height ? `<div class="result-item"><span class="label">Height:</span><span class="value">${height.toFixed(1)} cm (${(height * 0.393701).toFixed(1)} in)</span></div>` : ''}
-                            ${temp ? `<div class="result-item"><span class="label">Temperature:</span><span class="value">${temp.toFixed(1)}°C (${(temp * 9/5 + 32).toFixed(1)}°F)</span></div>` : ''}
+                            ${temp ? `<div class="result-item"><span class="label">Temperature:</span><span class="value">${temp.toFixed(1)}°C (${(temp * 9 / 5 + 32).toFixed(1)}°F)</span></div>` : ''}
                             ${bmi ? `<div class="result-item highlight"><span class="label">BMI:</span><span class="value">${bmi.toFixed(1)} kg/m²</span></div>` : ''}
                         </div>
                     `;
                 }
-                
+
                 // Risk factors
                 resultHTML += `
                     <div class="result-section">
@@ -282,11 +279,11 @@ export const demoUiBuilder = {
                         <div class="result-item"><span class="label">Severity Score:</span><span class="value">${severity}/10</span></div>
                     </div>
                 `;
-                
+
                 // Overall assessment
                 const riskLevel = riskCount >= 3 ? 'High' : riskCount >= 1 ? 'Moderate' : 'Low';
                 const riskClass = riskCount >= 3 ? 'high-risk' : riskCount >= 1 ? 'moderate-risk' : 'low-risk';
-                
+
                 resultHTML += `
                     <div class="result-section">
                         <h5>Overall Assessment</h5>
@@ -296,12 +293,14 @@ export const demoUiBuilder = {
                         </div>
                     </div>
                 `;
-                
-                resultEl.innerHTML = resultHTML;
-                resultEl.style.display = 'block';
+
+                if (resultEl) {
+                    resultEl.innerHTML = resultHTML;
+                    (resultEl as HTMLElement).style.display = 'block';
+                }
             }
         };
-        
+
         // Bind events to all inputs
         if (weightInput) weightInput.addEventListener('input', calculate);
         if (heightInput) heightInput.addEventListener('input', calculate);
@@ -309,11 +308,11 @@ export const demoUiBuilder = {
         if (ageInput) ageInput.addEventListener('input', calculate);
         if (severitySlider) severitySlider.addEventListener('input', calculate);
         if (raceSelect) raceSelect.addEventListener('change', calculate);
-        
+
         genderRadios.forEach(radio => radio.addEventListener('change', calculate));
         riskCheckboxes.forEach(checkbox => checkbox.addEventListener('change', calculate));
         asaRadios.forEach(radio => radio.addEventListener('change', calculate));
-        
+
         // Load FHIR data if available with feedback
         if (client && patient) {
             // Use the trackDataLoading helper for automatic feedback
@@ -322,7 +321,7 @@ export const demoUiBuilder = {
                     inputId: 'demo-weight',
                     label: 'Weight',
                     promise: getMostRecentObservation(client, LOINC_CODES.WEIGHT),
-                    setValue: (input, obs) => {
+                    setValue: (input: HTMLInputElement, obs: Observation) => {
                         if (obs?.valueQuantity) {
                             input.value = obs.valueQuantity.value.toFixed(1);
                         }
@@ -332,7 +331,7 @@ export const demoUiBuilder = {
                     inputId: 'demo-height',
                     label: 'Height',
                     promise: getMostRecentObservation(client, LOINC_CODES.HEIGHT),
-                    setValue: (input, obs) => {
+                    setValue: (input: HTMLInputElement, obs: Observation) => {
                         if (obs?.valueQuantity) {
                             input.value = obs.valueQuantity.value.toFixed(1);
                         }
@@ -342,7 +341,7 @@ export const demoUiBuilder = {
                     inputId: 'demo-temp',
                     label: 'Temperature',
                     promise: getMostRecentObservation(client, LOINC_CODES.TEMPERATURE),
-                    setValue: (input, obs) => {
+                    setValue: (input: HTMLInputElement, obs: Observation) => {
                         if (obs?.valueQuantity) {
                             input.value = obs.valueQuantity.value.toFixed(1);
                         }
@@ -350,27 +349,26 @@ export const demoUiBuilder = {
                 }
             ]).then(() => {
                 // Auto-populate age from birthDate
-                const ageInput = container.querySelector('#demo-age');
+                const ageInput = container.querySelector('#demo-age') as HTMLInputElement;
                 if (patient.birthDate && ageInput) {
                     const birthDate = new Date(patient.birthDate);
-                    const age = Math.floor((new Date() - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-                    ageInput.value = age;
+                    const age = Math.floor((new Date().getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+                    ageInput.value = age.toString();
                     fhirFeedback.showSuccess(ageInput, 'Age', `${age} years`);
                 }
-                
+
                 // Auto-select gender
                 if (patient.gender) {
                     const genderValue = patient.gender.toLowerCase();
-                    const genderRadio = container.querySelector(`input[name="demo-gender"][value="${genderValue}"]`);
+                    const genderRadio = container.querySelector(`input[name="demo-gender"][value="${genderValue}"]`) as HTMLInputElement;
                     if (genderRadio) {
                         genderRadio.checked = true;
-                        genderRadio.parentElement.classList.add('selected');
+                        genderRadio.parentElement?.classList.add('selected');
                     }
                 }
-                
+
                 calculate();
             });
         }
     }
 };
-

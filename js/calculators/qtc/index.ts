@@ -79,19 +79,19 @@ export const qtc = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const qtInput = container.querySelector('#qtc-qt');
-            const hrInput = container.querySelector('#qtc-hr');
+            const qtInput = container.querySelector('#qtc-qt') as HTMLInputElement;
+            const hrInput = container.querySelector('#qtc-hr') as HTMLInputElement;
             const qt = parseFloat(qtInput.value);
             const hr = parseFloat(hrInput.value);
-            const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
+            const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked') as HTMLInputElement;
             const formula = formulaRadio ? formulaRadio.value : 'bazett';
-            const resultBox = container.querySelector('#qtc-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#qtc-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             if (qt > 0 && hr > 0) {
                 const rr = 60 / hr;
-                let qtcValue;
-                let formulaName;
+                let qtcValue = 0;
+                let formulaName = '';
 
                 switch (formula) {
                     case 'bazett':
@@ -128,16 +128,17 @@ export const qtc = {
                 }
 
                 // Update title dynamically
-                resultBox.querySelector('.ui-result-header').textContent = `QTc Results (${formulaName})`;
+                const header = resultBox.querySelector('.ui-result-header');
+                if (header) header.textContent = `QTc Results (${formulaName})`;
 
                 resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({ 
-                        label: 'Corrected QT Interval', 
-                        value: qtcValue.toFixed(0), 
-                        unit: 'ms',
-                        interpretation: riskText,
-                        alertClass: alertClass
-                    })}
+                    ${uiBuilder.createResultItem({
+                    label: 'Corrected QT Interval',
+                    value: qtcValue.toFixed(0),
+                    unit: 'ms',
+                    interpretation: riskText,
+                    alertClass: alertClass
+                })}
                     
                     <div class="ui-alert ${alertClass} mt-10">
                         <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
@@ -156,8 +157,8 @@ export const qtc = {
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
                 if (obs?.valueQuantity) {
-                    container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
-                    container.querySelector('#qtc-hr').dispatchEvent(new Event('input'));
+                    (container.querySelector('#qtc-hr') as HTMLInputElement).value = obs.valueQuantity.value.toFixed(0);
+                    container.querySelector('#qtc-hr')?.dispatchEvent(new Event('input'));
                 }
             });
         }

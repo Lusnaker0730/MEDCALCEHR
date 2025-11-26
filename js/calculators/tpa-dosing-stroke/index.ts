@@ -15,32 +15,32 @@ export const tpaDosing = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-                title: 'Patient & Event Details',
-                content: `
+            title: 'Patient & Event Details',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'weight',
-                        label: 'Weight',
-                        type: 'number',
-                        unit: 'kg',
-                        placeholder: 'Enter weight',
-                        min: 0
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'symptom-onset',
-                        label: 'Time from symptom onset',
-                        type: 'number',
-                        unit: 'hours',
-                        placeholder: 'e.g., 2.5',
-                        min: 0,
-                        max: 4.5,
-                        helpText: 'Must be ≤ 4.5 hours for IV tPA eligibility'
-                    })}
-                `
+                id: 'weight',
+                label: 'Weight',
+                type: 'number',
+                unit: 'kg',
+                placeholder: 'Enter weight',
+                min: 0
             })}
+                    ${uiBuilder.createInput({
+                id: 'symptom-onset',
+                label: 'Time from symptom onset',
+                type: 'number',
+                unit: 'hours',
+                placeholder: 'e.g., 2.5',
+                min: 0,
+                max: 4.5,
+                helpText: 'Must be ≤ 4.5 hours for IV tPA eligibility'
+            })}
+                `
+        })}
             ${uiBuilder.createResultBox({ id: 'tpa-stroke-result', title: 'Dosing & Eligibility' })}
             ${uiBuilder.createAlert({
-                type: 'warning',
-                message: `
+            type: 'warning',
+            message: `
                     <h4>Important Reminders</h4>
                     <ul>
                         <li>Verify all inclusion/exclusion criteria before administration</li>
@@ -49,23 +49,26 @@ export const tpaDosing = {
                         <li>Have reversal agents available (cryoprecipitate, aminocaproic acid)</li>
                     </ul>
                 `
-            })}
+        })}
             ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Total Dose', formula: '0.9 mg/kg (Max 90 mg)' },
-                    { label: 'Bolus', formula: '10% of Total Dose (over 1 min)' },
-                    { label: 'Infusion', formula: '90% of Total Dose (over 60 min)' }
-                ],
-                notes: 'Maximum dose is 90 mg regardless of weight.'
-            })}
+            items: [
+                { label: 'Total Dose', formula: '0.9 mg/kg (Max 90 mg)' },
+                { label: 'Bolus', formula: '10% of Total Dose (over 1 min)' },
+                { label: 'Infusion', formula: '90% of Total Dose (over 60 min)' }
+            ]
+        })}
+            ${uiBuilder.createAlert({
+            type: 'info',
+            message: '<strong>Note:</strong> Maximum dose is 90 mg regardless of weight.'
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const weightInput = container.querySelector('#weight');
-        const symptomOnsetInput = container.querySelector('#symptom-onset');
-        const resultBox = container.querySelector('#tpa-stroke-result');
+        const weightInput = container.querySelector('#weight') as HTMLInputElement;
+        const symptomOnsetInput = container.querySelector('#symptom-onset') as HTMLInputElement;
+        const resultBox = container.querySelector('#tpa-stroke-result') as HTMLElement;
 
         const calculate = () => {
             const weight = parseFloat(weightInput.value);
@@ -82,7 +85,7 @@ export const tpaDosing = {
             const infusionRate = infusion; // mg/hour
 
             let eligibilityHtml = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (!isNaN(symptomOnset)) {
                 if (symptomOnset <= 4.5) {
@@ -98,33 +101,33 @@ export const tpaDosing = {
                     alertType = 'danger';
                 }
             } else {
-                 eligibilityHtml = uiBuilder.createAlert({
+                eligibilityHtml = uiBuilder.createAlert({
                     type: 'warning',
                     message: '<strong>Note:</strong> Please enter time from symptom onset to check eligibility.'
                 });
             }
 
-            resultBox.querySelector('.ui-result-content').innerHTML = `
+            (resultBox.querySelector('.ui-result-content') as HTMLElement).innerHTML = `
                 ${eligibilityHtml}
                 ${uiBuilder.createResultItem({
-                    label: 'Total Dose',
-                    value: totalDose.toFixed(1),
-                    unit: 'mg',
-                    interpretation: '0.9 mg/kg, max 90 mg'
-                })}
+                label: 'Total Dose',
+                value: totalDose.toFixed(1),
+                unit: 'mg',
+                interpretation: '0.9 mg/kg, max 90 mg'
+            })}
                 <hr>
                 ${uiBuilder.createResultItem({
-                    label: 'Step 1: IV Bolus',
-                    value: bolus.toFixed(1),
-                    unit: 'mg',
-                    interpretation: 'IV push over 1 minute'
-                })}
+                label: 'Step 1: IV Bolus',
+                value: bolus.toFixed(1),
+                unit: 'mg',
+                interpretation: 'IV push over 1 minute'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Step 2: Continuous Infusion',
-                    value: infusion.toFixed(1),
-                    unit: 'mg',
-                    interpretation: `Rate: ${infusionRate.toFixed(1)} mg/hr over 60 minutes`
-                })}
+                label: 'Step 2: Continuous Infusion',
+                value: infusion.toFixed(1),
+                unit: 'mg',
+                interpretation: `Rate: ${infusionRate.toFixed(1)} mg/hr over 60 minutes`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -132,12 +135,14 @@ export const tpaDosing = {
         weightInput.addEventListener('input', calculate);
         symptomOnsetInput.addEventListener('input', calculate);
 
-        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(weightObs => {
-            if (weightObs?.valueQuantity) {
-                weightInput.value = weightObs.valueQuantity.value.toFixed(1);
-                calculate();
-            }
-        });
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(weightObs => {
+                if (weightObs?.valueQuantity) {
+                    weightInput.value = weightObs.valueQuantity.value.toFixed(1);
+                    calculate();
+                }
+            });
+        }
 
         calculate();
     }

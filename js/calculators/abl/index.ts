@@ -1,6 +1,6 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -47,14 +47,14 @@ export const abl: Calculator = {
 
             ${uiBuilder.createFormulaSection({
             items: [
-                { label: 'Estimated Blood Volume (EBV)', content: 'Weight (kg) × Blood Volume (mL/kg)' },
-                { label: 'Allowable Blood Loss (ABL)', content: 'EBV × (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub>' },
-                { label: 'Average Hgb', content: '(Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2' }
+                { label: 'Estimated Blood Volume (EBV)', formula: 'Weight (kg) × Blood Volume (mL/kg)' },
+                { label: 'Allowable Blood Loss (ABL)', formula: 'EBV × (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub>' },
+                { label: 'Average Hgb', formula: '(Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2' }
             ]
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
@@ -110,27 +110,33 @@ export const abl: Calculator = {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then((obs: Observation | null) => {
                 if (obs && obs.valueQuantity) {
                     const weightInput = container.querySelector('#abl-weight') as HTMLInputElement;
-                    weightInput.value = obs.valueQuantity.value.toFixed(1);
-                    weightInput.dispatchEvent(new Event('input'));
+                    if (weightInput) {
+                        weightInput.value = obs.valueQuantity.value.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN).then((obs: Observation | null) => {
                 if (obs && obs.valueQuantity) {
                     const hgbInput = container.querySelector('#abl-hgb-initial') as HTMLInputElement;
-                    hgbInput.value = obs.valueQuantity.value.toFixed(1);
-                    hgbInput.dispatchEvent(new Event('input'));
+                    if (hgbInput) {
+                        hgbInput.value = obs.valueQuantity.value.toFixed(1);
+                        hgbInput.dispatchEvent(new Event('input'));
+                    }
                 }
             });
         }
 
         // Pre-select category based on patient data
-        if (patient) {
+        if (patient && patient.birthDate) {
             const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
             const categorySelect = container.querySelector('#abl-age-category') as HTMLSelectElement;
-            if (age > 18) {
-                categorySelect.value = patient.gender === 'male' ? '75' : '65';
+            if (categorySelect) {
+                if (age > 18) {
+                    categorySelect.value = patient.gender === 'male' ? '75' : '65';
+                }
+                categorySelect.dispatchEvent(new Event('change'));
             }
-            categorySelect.dispatchEvent(new Event('change'));
         }
 
         // Add event listeners for auto-calculation

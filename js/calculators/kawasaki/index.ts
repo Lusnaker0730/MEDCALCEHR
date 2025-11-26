@@ -1,4 +1,4 @@
-import { uiBuilder } from '../../ui-builder';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient } from '../../types/fhir';
 
@@ -74,7 +74,7 @@ export const kawasaki: Calculator = {
             ${uiBuilder.createResultBox({ id: 'kawasaki-result', title: 'Diagnostic Result' })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
@@ -99,7 +99,7 @@ export const kawasaki: Calculator = {
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             let interpretation = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (!fever) {
                 interpretation = 'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';

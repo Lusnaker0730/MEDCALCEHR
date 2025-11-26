@@ -24,7 +24,7 @@ export const perc = {
             title: 'PERC Criteria',
             subtitle: 'Check if present',
             icon: '📋',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createCheckbox({
                     id: item.id,
                     label: item.label,
@@ -40,9 +40,9 @@ export const perc = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'warning',
-                message: '<strong>Important:</strong> PERC is only valid when pre-test probability for PE is ≤15%.'
-            })}
+            type: 'warning',
+            message: '<strong>Important:</strong> PERC is only valid when pre-test probability for PE is ≤15%.'
+        })}
             
             ${criteriaSection}
             
@@ -53,7 +53,7 @@ export const perc = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const criteriaMet = [];
+            const criteriaMet: string[] = [];
             container.querySelectorAll('input[type="checkbox"]:checked').forEach(box => {
                 criteriaMet.push(box.id);
             });
@@ -72,16 +72,16 @@ export const perc = {
                 alertClass = 'ui-alert-danger';
             }
 
-            const resultBox = container.querySelector('#perc-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#perc-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Status', 
-                    value: resultTitle, 
-                    unit: '',
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Status',
+                value: resultTitle,
+                unit: '',
+                alertClass: alertClass
+            })}
                 ${criteriaMet.length > 0 ? uiBuilder.createResultItem({ label: 'Criteria Met', value: `${criteriaMet.length} / 8` }) : ''}
                 
                 <div class="ui-alert ${alertClass} mt-10">
@@ -91,7 +91,7 @@ export const perc = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -104,7 +104,7 @@ export const perc = {
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             if (age >= 50) {
-                const box = container.querySelector('#age50');
+                const box = container.querySelector('#age50') as HTMLInputElement;
                 if (box) box.checked = true;
             }
         }
@@ -112,22 +112,22 @@ export const perc = {
         // Pre-fill heart rate and O2 saturation
         if (client && patient && patient.id) {
             client.request(`Observation?patient=${patient.id}&code=85353-1&_sort=-date&_count=1`)
-                .then(response => {
+                .then((response: any) => {
                     if (response.entry && response.entry.length > 0) {
                         const vitals = response.entry[0].resource;
                         const hrComponent = vitals.component.find(
-                            c => c.code.coding[0].code === LOINC_CODES.HEART_RATE
+                            (c: any) => c.code.coding[0].code === LOINC_CODES.HEART_RATE
                         );
                         const o2Component = vitals.component.find(
-                            c => c.code.coding[0].code === LOINC_CODES.OXYGEN_SATURATION
+                            (c: any) => c.code.coding[0].code === LOINC_CODES.OXYGEN_SATURATION
                         );
 
                         if (hrComponent && hrComponent.valueQuantity.value >= 100) {
-                            const box = container.querySelector('#hr100');
+                            const box = container.querySelector('#hr100') as HTMLInputElement;
                             if (box) box.checked = true;
                         }
                         if (o2Component && o2Component.valueQuantity.value < 95) {
-                            const box = container.querySelector('#o2sat');
+                            const box = container.querySelector('#o2sat') as HTMLInputElement;
                             if (box) box.checked = true;
                         }
                         calculate();

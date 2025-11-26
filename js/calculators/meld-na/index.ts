@@ -44,6 +44,7 @@ export const meldNa: Calculator = {
                 }),
                 uiBuilder.createCheckbox({
                     id: 'meld-na-dialysis',
+                    value: '1',
                     label: 'Patient on dialysis twice in the last week'
                 })
             ].join('')

@@ -135,7 +135,7 @@ export const hepScore: Calculator = {
 
             let interpretation = '';
             let probability = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score <= -1) {
                 interpretation = 'Scores ≤ -1 suggest a lower probability of HIT.';

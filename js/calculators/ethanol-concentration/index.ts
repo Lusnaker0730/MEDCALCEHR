@@ -76,8 +76,8 @@ export const ethanolConcentration: Calculator = {
                 { label: 'Grams of Alcohol', formula: 'Volume (mL) × (ABV% / 100) × 0.789' },
                 { label: 'Concentration (mg/dL)', formula: '(Grams × 1000) / (Weight (kg) × Vd × 10)' }
             ],
-            notes: 'Vd (Volume of Distribution): Male 0.68 L/kg, Female 0.55 L/kg. Ethanol density: 0.789 g/mL.'
         })}
+            <p class="notes">Vd (Volume of Distribution): Male 0.68 L/kg, Female 0.55 L/kg. Ethanol density: 0.789 g/mL.</p>
         `;
     },
     initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {

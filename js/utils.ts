@@ -313,7 +313,7 @@ export function convertUnit(value: number, fromUnit: string, toUnit: string, mea
  * @param {string} defaultUnit - Default unit to display
  * @returns {string} HTML string for unit selector
  */
-export function createUnitSelector(inputId, measurementType, units, defaultUnit = units[0]) {
+export function createUnitSelector(inputId: string, measurementType: string, units: string[], defaultUnit: string = units[0]): string {
     const unitOptions = units
         .map(
             unit =>
@@ -338,16 +338,17 @@ export function createUnitSelector(inputId, measurementType, units, defaultUnit 
  * @param {string} inputId - ID of the input field
  * @param {Function} onChangeCallback - Callback function when value changes
  */
-export function initializeUnitConversion(container, inputId, onChangeCallback) {
-    const input = container.querySelector(`#${inputId}`);
-    const unitSelect = container.querySelector(`#${inputId}-unit`);
-    const convertedDisplay = container.querySelector(`#${inputId}-converted`);
+export function initializeUnitConversion(container: HTMLElement, inputId: string, onChangeCallback?: () => void): () => void {
+    const input = container.querySelector(`#${inputId}`) as HTMLInputElement;
+    const unitSelect = container.querySelector(`#${inputId}-unit`) as HTMLSelectElement;
+    const convertedDisplay = container.querySelector(`#${inputId}-converted`) as HTMLElement;
 
     if (!input || !unitSelect) {
-        return;
+        return () => { };
     }
 
     const measurementType = unitSelect.dataset.measurement;
+    if (!measurementType) return () => { };
 
     const updateConversion = () => {
         const value = parseFloat(input.value);
@@ -394,9 +395,9 @@ export function initializeUnitConversion(container, inputId, onChangeCallback) {
  * @param {string} standardUnit - The standard unit to convert to
  * @returns {number|null} Value in standard unit, or null if invalid
  */
-export function getValueInStandardUnit(container, inputId, standardUnit) {
-    const input = container.querySelector(`#${inputId}`);
-    const unitSelect = container.querySelector(`#${inputId}-unit`);
+export function getValueInStandardUnit(container: HTMLElement, inputId: string, standardUnit: string): number | null {
+    const input = container.querySelector(`#${inputId}`) as HTMLInputElement;
+    const unitSelect = container.querySelector(`#${inputId}-unit`) as HTMLSelectElement;
 
     if (!input || !unitSelect) {
         return null;
@@ -405,6 +406,7 @@ export function getValueInStandardUnit(container, inputId, standardUnit) {
     const value = parseFloat(input.value);
     const currentUnit = unitSelect.value;
     const measurementType = unitSelect.dataset.measurement;
+    if (!measurementType) return null;
 
     if (isNaN(value)) {
         return null;
@@ -422,7 +424,7 @@ export function getValueInStandardUnit(container, inputId, standardUnit) {
  * Adds 'selected' class to the label when its radio button is checked
  * @param {HTMLElement} container - Container element that contains segmented controls
  */
-export function initializeSegmentedControls(container) {
+export function initializeSegmentedControls(container: HTMLElement): void {
     // Handle all segmented controls in the container
     container.querySelectorAll('.segmented-control, .radio-group').forEach(control => {
         const labels = control.querySelectorAll('label');
@@ -430,9 +432,10 @@ export function initializeSegmentedControls(container) {
 
         // Function to update selected state
         const updateSelectedState = () => {
-            radioInputs.forEach(input => {
-                const label = input.parentElement;
-                if (input.checked) {
+            radioInputs.forEach((input: Element) => {
+                const radioInput = input as HTMLInputElement;
+                const label = radioInput.parentElement as HTMLElement;
+                if (radioInput.checked) {
                     label.classList.add('selected');
                 } else {
                     label.classList.remove('selected');

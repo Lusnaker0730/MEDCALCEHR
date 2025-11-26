@@ -1,7 +1,7 @@
-import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation, Condition } from '../../types/fhir';
 
@@ -87,7 +87,7 @@ export const maggic: Calculator = {
                 unitToggle: {
                     type: 'creatinine',
                     units: ['mg/dL', 'µmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 },
                 helpText: 'Uses mg/dL for calculation (conversion applied if needed)'
             })}
@@ -161,7 +161,7 @@ export const maggic: Calculator = {
             ${uiBuilder.createResultBox({ id: 'maggic-result', title: 'MAGGIC Risk Score' })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const fields = {
@@ -192,7 +192,7 @@ export const maggic: Calculator = {
                 }
             });
 
-            if (isNaN(age) || isNaN(ef) || isNaN(sbp) || isNaN(bmi) || isNaN(creatinine) || !allRadiosChecked) {
+            if (isNaN(age) || isNaN(ef) || isNaN(sbp) || isNaN(bmi) || creatinine === null || !allRadiosChecked) {
                 resultBox.classList.remove('show');
                 return;
             }

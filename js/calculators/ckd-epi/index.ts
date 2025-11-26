@@ -52,7 +52,7 @@ export const ckdEpi: Calculator = {
                 unitToggle: {
                     type: 'creatinine',
                     units: ['mg/dL', 'µmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })
         })}
@@ -108,7 +108,7 @@ export const ckdEpi: Calculator = {
             // Determine stage and severity
             let stage = '';
             let severityClass = 'low';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
             let alertMsg = '';
 
             if (gfr >= 90) {

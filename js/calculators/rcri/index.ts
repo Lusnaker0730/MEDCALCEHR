@@ -20,7 +20,7 @@ export const rcri = {
 
         const inputs = uiBuilder.createSection({
             title: 'RCRI Factors',
-            content: riskFactors.map(factor => 
+            content: riskFactors.map(factor =>
                 uiBuilder.createRadioGroup({
                     name: factor.id,
                     label: factor.label,
@@ -52,8 +52,8 @@ export const rcri = {
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const setRadioValue = (name, value) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -63,15 +63,15 @@ export const rcri = {
         const calculate = () => {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
-            
+
             radios.forEach(radio => {
-                score += parseInt(radio.value);
+                score += parseInt((radio as HTMLInputElement).value);
             });
 
             let risk = '';
             let complicationsRate = '';
             let alertClass = '';
-            
+
             if (score === 0) {
                 risk = 'Class I (Low Risk)';
                 complicationsRate = '0.4%';
@@ -90,17 +90,17 @@ export const rcri = {
                 alertClass = 'ui-alert-danger';
             }
 
-            const resultBox = container.querySelector('#rcri-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#rcri-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: '/ 6 points',
-                    interpretation: risk,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: '/ 6 points',
+                interpretation: risk,
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ${alertClass} mt-10">
                     <span class="ui-alert-icon">📊</span>
@@ -109,7 +109,7 @@ export const rcri = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 

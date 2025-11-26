@@ -25,7 +25,7 @@ export const sirs = {
         const sirsSection = uiBuilder.createSection({
             title: 'SIRS Criteria Assessment',
             subtitle: 'Need ≥ 2 criteria for SIRS diagnosis',
-            content: sirsCriteria.map(item => 
+            content: sirsCriteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -39,7 +39,7 @@ export const sirs = {
 
         const sepsisSection = uiBuilder.createSection({
             title: 'Sepsis & Shock Assessment',
-            content: sepsisCriteria.map(item => 
+            content: sepsisCriteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -76,8 +76,8 @@ export const sirs = {
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const setRadioValue = (name, value) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -87,14 +87,14 @@ export const sirs = {
         const calculate = () => {
             let sirsCount = 0;
             const sirsIds = ['sirs-temp', 'sirs-hr', 'sirs-rr', 'sirs-wbc'];
-            
+
             sirsIds.forEach(id => {
-                const checked = container.querySelector(`input[name="${id}"]:checked`);
+                const checked = container.querySelector(`input[name="${id}"]:checked`) as HTMLInputElement;
                 if (checked) sirsCount += parseInt(checked.value);
             });
 
-            const hasInfection = container.querySelector('input[name="sepsis-infection"]:checked').value === '1';
-            const hasHypotension = container.querySelector('input[name="shock-hypotension"]:checked').value === '1';
+            const hasInfection = (container.querySelector('input[name="sepsis-infection"]:checked') as HTMLInputElement).value === '1';
+            const hasHypotension = (container.querySelector('input[name="shock-hypotension"]:checked') as HTMLInputElement).value === '1';
 
             let diagnosis = '';
             let description = '';
@@ -127,17 +127,17 @@ export const sirs = {
                 recommendations = 'Continue routine monitoring; Address underlying conditions; Reassess if clinical change.';
             }
 
-            const resultBox = container.querySelector('#sirs-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#sirs-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Diagnosis', 
-                    value: diagnosis, 
-                    unit: '',
-                    interpretation: description,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Diagnosis',
+                value: diagnosis,
+                unit: '',
+                interpretation: description,
+                alertClass: alertClass
+            })}
                 
                 <div class="result-item" style="margin-top: 10px;">
                     <span class="label" style="color: #666;">SIRS Criteria Met:</span>
@@ -151,7 +151,7 @@ export const sirs = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -169,7 +169,7 @@ export const sirs = {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || '°C';
                     if (el) el.textContent = `${val.toFixed(1)} ${unit}`;
-                    
+
                     // Check criteria (assuming Celsius for simplicity in logic, real app needs unit conversion)
                     if (val < 36 || val > 38) {
                         setRadioValue('sirs-temp', '1');
@@ -213,7 +213,7 @@ export const sirs = {
                 if (obs?.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'cells/μL';
-                    
+
                     // Simple display logic
                     if (el) el.textContent = `${val} ${unit}`;
 
@@ -224,7 +224,7 @@ export const sirs = {
                     if (unit.includes('10*3') || unit.includes('K')) {
                         wbc = val * 1000;
                     }
-                    
+
                     if (wbc < 4000 || wbc > 12000) {
                         setRadioValue('sirs-wbc', '1');
                     }

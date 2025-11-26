@@ -19,44 +19,44 @@ export const serumAnionGap = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Electrolytes',
-                icon: '🧪',
-                content: `
+            title: 'Electrolytes',
+            icon: '🧪',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'sag-na',
-                        label: 'Sodium (Na⁺)',
-                        type: 'number',
-                        placeholder: 'e.g., 140',
-                        unit: 'mEq/L'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'sag-cl',
-                        label: 'Chloride (Cl⁻)',
-                        type: 'number',
-                        placeholder: 'e.g., 100',
-                        unit: 'mEq/L'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'sag-hco3',
-                        label: 'Bicarbonate (HCO₃⁻)',
-                        type: 'number',
-                        placeholder: 'e.g., 24',
-                        unit: 'mEq/L'
-                    })}
-                `
+                id: 'sag-na',
+                label: 'Sodium (Na⁺)',
+                type: 'number',
+                placeholder: 'e.g., 140',
+                unit: 'mEq/L'
             })}
+                    ${uiBuilder.createInput({
+                id: 'sag-cl',
+                label: 'Chloride (Cl⁻)',
+                type: 'number',
+                placeholder: 'e.g., 100',
+                unit: 'mEq/L'
+            })}
+                    ${uiBuilder.createInput({
+                id: 'sag-hco3',
+                label: 'Bicarbonate (HCO₃⁻)',
+                type: 'number',
+                placeholder: 'e.g., 24',
+                unit: 'mEq/L'
+            })}
+                `
+        })}
             
             ${uiBuilder.createResultBox({ id: 'sag-result', title: 'Anion Gap Result' })}
             
             ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Anion Gap', formula: 'Na⁺ - (Cl⁻ + HCO₃⁻)' }
-                ]
-            })}
+            items: [
+                { label: 'Anion Gap', formula: 'Na⁺ - (Cl⁻ + HCO₃⁻)' }
+            ]
+        })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Interpretation:</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li><strong>Normal Range:</strong> 6-12 mEq/L</li>
@@ -65,16 +65,16 @@ export const serumAnionGap = {
                     </ul>
                     <p class="mt-10"><strong>Note:</strong> For every 1 g/dL decrease in albumin below 4 g/dL, add 2.5 mEq/L to the anion gap (corrected gap).</p>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const naInput = container.querySelector('#sag-na');
-        const clInput = container.querySelector('#sag-cl');
-        const hco3Input = container.querySelector('#sag-hco3');
-        const resultBox = container.querySelector('#sag-result');
+        const naInput = container.querySelector('#sag-na') as HTMLInputElement;
+        const clInput = container.querySelector('#sag-cl') as HTMLInputElement;
+        const hco3Input = container.querySelector('#sag-hco3') as HTMLInputElement;
+        const resultBox = container.querySelector('#sag-result') as HTMLElement;
 
         const calculate = () => {
             const na = parseFloat(naInput.value);
@@ -90,7 +90,7 @@ export const serumAnionGap = {
 
             let interpretation = '';
             let alertClass = 'ui-alert-success';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
             let alertMsg = '';
 
             if (anionGap > 12) {
@@ -110,19 +110,19 @@ export const serumAnionGap = {
                 alertMsg = 'Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Serum Anion Gap',
-                    value: anionGap.toFixed(1),
-                    unit: 'mEq/L',
-                    interpretation: interpretation,
-                    alertClass: alertClass
-                })}
+                label: 'Serum Anion Gap',
+                value: anionGap.toFixed(1),
+                unit: 'mEq/L',
+                interpretation: interpretation,
+                alertClass: alertClass
+            })}
                 ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
+                type: alertType,
+                message: alertMsg
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -153,7 +153,7 @@ export const serumAnionGap = {
                 }
             });
         }
-        
+
         calculate();
     }
 };

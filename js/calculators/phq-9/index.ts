@@ -19,7 +19,7 @@ export const phq9 = {
             'Thoughts that you would be better off dead or of hurting yourself in some way'
         ];
 
-        const sections = questions.map((q, i) => 
+        const sections = questions.map((q, i) =>
             uiBuilder.createSection({
                 title: `${i + 1}. ${q}`,
                 content: uiBuilder.createRadioGroup({
@@ -59,13 +59,13 @@ export const phq9 = {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
             radios.forEach(radio => {
-                score += parseInt(radio.value);
+                score += parseInt((radio as HTMLInputElement).value);
             });
 
             let severity = '';
             let alertClass = '';
             let recommendation = '';
-            
+
             if (score <= 4) {
                 severity = 'Minimal depression';
                 alertClass = 'ui-alert-success';
@@ -88,17 +88,17 @@ export const phq9 = {
                 recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
             }
 
-            const resultBox = container.querySelector('#phq9-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#phq9-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: '/ 27 points',
-                    interpretation: severity,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: '/ 27 points',
+                interpretation: severity,
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ${alertClass} mt-10">
                     <span class="ui-alert-icon">🧠</span>
@@ -107,7 +107,7 @@ export const phq9 = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 

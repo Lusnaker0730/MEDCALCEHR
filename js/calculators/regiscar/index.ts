@@ -2,6 +2,7 @@ import { FHIRClient, Patient } from '../../types/fhir';
 import { Calculator } from '../../types/calculator';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { getMostRecentObservation } from '../../utils.js';
 
 export const regiscar = {
     id: 'regiscar',
@@ -14,129 +15,129 @@ export const regiscar = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Note:</strong> DRESS is a severe drug hypersensitivity reaction. RegiSCAR helps standardize diagnosis.'
-            })}
+            type: 'info',
+            message: '<strong>Note:</strong> DRESS is a severe drug hypersensitivity reaction. RegiSCAR helps standardize diagnosis.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical Features',
-                icon: '🌡️',
-                content: `
+            title: 'Clinical Features',
+            icon: '🌡️',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-fever',
-                        label: 'Fever (≥38.5 °C)',
-                        options: [
-                            { value: '-1', label: 'No / Unknown (-1)', checked: true },
-                            { value: '0', label: 'Yes (0)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-lymph-nodes',
-                        label: 'Enlarged lymph nodes (≥2 sites, >1 cm)',
-                        options: [
-                            { value: '0', label: 'No / Unknown (0)', checked: true },
-                            { value: '1', label: 'Yes (+1)' }
-                        ]
-                    })}
-                `
+                name: 'regiscar-fever',
+                label: 'Fever (≥38.5 °C)',
+                options: [
+                    { value: '-1', label: 'No / Unknown (-1)', checked: true },
+                    { value: '0', label: 'Yes (0)' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'regiscar-lymph-nodes',
+                label: 'Enlarged lymph nodes (≥2 sites, >1 cm)',
+                options: [
+                    { value: '0', label: 'No / Unknown (0)', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Laboratory Findings',
-                icon: '🔬',
-                content: `
+            title: 'Laboratory Findings',
+            icon: '🔬',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-lymphocytes',
-                        label: 'Atypical lymphocytes',
-                        options: [
-                            { value: '0', label: 'No / Unknown (0)', checked: true },
-                            { value: '1', label: 'Yes (+1)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-eosinophilia',
-                        label: 'Eosinophilia',
-                        options: [
-                            { value: '0', label: '0-699 cells or <10% (0)', checked: true },
-                            { value: '1', label: '700-1,499 cells or 10-19.9% (+1)' },
-                            { value: '2', label: '≥1,500 cells or ≥20% (+2)' }
-                        ]
-                    })}
-                `
+                name: 'regiscar-lymphocytes',
+                label: 'Atypical lymphocytes',
+                options: [
+                    { value: '0', label: 'No / Unknown (0)', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'regiscar-eosinophilia',
+                label: 'Eosinophilia',
+                options: [
+                    { value: '0', label: '0-699 cells or <10% (0)', checked: true },
+                    { value: '1', label: '700-1,499 cells or 10-19.9% (+1)' },
+                    { value: '2', label: '≥1,500 cells or ≥20% (+2)' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Skin Manifestations',
-                icon: '🩹',
-                content: `
+            title: 'Skin Manifestations',
+            icon: '🩹',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-rash',
-                        label: 'Skin rash extent >50%',
-                        options: [
-                            { value: '0', label: 'No / Unknown (0)', checked: true },
-                            { value: '1', label: 'Yes (+1)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-skin-features',
-                        label: 'Skin features suggesting DRESS',
-                        helpText: 'At least 2 of: edema, infiltration, purpura, scaling',
-                        options: [
-                            { value: '0', label: 'Unknown (0)', checked: true },
-                            { value: '-1', label: 'No (-1)' },
-                            { value: '1', label: 'Yes (+1)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-biopsy',
-                        label: 'Biopsy suggesting DRESS',
-                        options: [
-                            { value: '-1', label: 'No (-1)' },
-                            { value: '0', label: 'Yes / Unknown (0)', checked: true }
-                        ]
-                    })}
-                `
+                name: 'regiscar-rash',
+                label: 'Skin rash extent >50%',
+                options: [
+                    { value: '0', label: 'No / Unknown (0)', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'regiscar-skin-features',
+                label: 'Skin features suggesting DRESS',
+                helpText: 'At least 2 of: edema, infiltration, purpura, scaling',
+                options: [
+                    { value: '0', label: 'Unknown (0)', checked: true },
+                    { value: '-1', label: 'No (-1)' },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'regiscar-biopsy',
+                label: 'Biopsy suggesting DRESS',
+                options: [
+                    { value: '-1', label: 'No (-1)' },
+                    { value: '0', label: 'Yes / Unknown (0)', checked: true }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Organ Involvement & Course',
-                icon: '🫀',
-                content: `
+            title: 'Organ Involvement & Course',
+            icon: '🫀',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-organ',
-                        label: 'Internal organ involved',
-                        helpText: 'Liver, kidney, lung, heart, pancreas, etc.',
-                        options: [
-                            { value: '0', label: 'None (0)', checked: true },
-                            { value: '1', label: '1 organ (+1)' },
-                            { value: '2', label: '≥2 organs (+2)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-resolution',
-                        label: 'Resolution in ≥15 days',
-                        options: [
-                            { value: '-1', label: 'No / Unknown (-1)', checked: true },
-                            { value: '0', label: 'Yes (0)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'regiscar-alternative',
-                        label: 'Alternative diagnoses excluded',
-                        helpText: 'By ≥3 biological investigations',
-                        options: [
-                            { value: '0', label: 'No / Unknown (0)', checked: true },
-                            { value: '1', label: 'Yes (+1)' }
-                        ]
-                    })}
-                `
+                name: 'regiscar-organ',
+                label: 'Internal organ involved',
+                helpText: 'Liver, kidney, lung, heart, pancreas, etc.',
+                options: [
+                    { value: '0', label: 'None (0)', checked: true },
+                    { value: '1', label: '1 organ (+1)' },
+                    { value: '2', label: '≥2 organs (+2)' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'regiscar-resolution',
+                label: 'Resolution in ≥15 days',
+                options: [
+                    { value: '-1', label: 'No / Unknown (-1)', checked: true },
+                    { value: '0', label: 'Yes (0)' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'regiscar-alternative',
+                label: 'Alternative diagnoses excluded',
+                helpText: 'By ≥3 biological investigations',
+                options: [
+                    { value: '0', label: 'No / Unknown (0)', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createResultBox({ id: 'regiscar-result', title: 'RegiSCAR Assessment' })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Score Interpretation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -152,13 +153,13 @@ export const regiscar = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const resultBox = container.querySelector('#regiscar-result');
+        const resultBox = container.querySelector('#regiscar-result') as HTMLElement;
 
         const calculate = () => {
             const groups = [
@@ -169,14 +170,14 @@ export const regiscar = {
 
             let score = 0;
             groups.forEach(g => {
-                const checked = container.querySelector(`input[name="${g}"]:checked`);
+                const checked = container.querySelector(`input[name="${g}"]:checked`) as HTMLInputElement;
                 if (checked) {
                     score += parseInt(checked.value);
                 }
             });
 
             let diagnosis = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score < 2) {
                 diagnosis = 'No case';
@@ -192,45 +193,41 @@ export const regiscar = {
                 alertType = 'danger';
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'RegiSCAR Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: diagnosis,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'RegiSCAR Score',
+                value: score,
+                unit: 'points',
+                interpretation: diagnosis,
+                alertClass: `ui-alert-${alertType}`
+            })}
             `;
             resultBox.classList.add('show');
         };
 
         container.addEventListener('change', (e) => {
-            if (e.target.type === 'radio') calculate();
+            if ((e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type === 'radio') calculate();
         });
 
         // Auto-populate
-        const getObservation = code => {
-            if (!client || !client.patient) return Promise.resolve(null);
-            return client.patient.request(`Observation?code=${code}&_sort=-date&_count=1`)
-                .then(r => (r.entry && r.entry[0] ? r.entry[0].resource : null));
-        };
-
-        getObservation(LOINC_CODES.TEMPERATURE).then(temp => {
-            if (temp?.valueQuantity?.value >= 38.5) {
-                uiBuilder.setRadioValue('regiscar-fever', '0'); // Yes is 0
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(temp => {
+                if (temp?.valueQuantity?.value && temp.valueQuantity.value >= 38.5) {
+                    uiBuilder.setRadioValue('regiscar-fever', '0'); // Yes is 0
                     calculate();
-            }
-        });
+                }
+            });
 
-        getObservation(LOINC_CODES.EOSINOPHILS).then(eos => {
-            if (eos?.valueQuantity) {
-                const val = eos.valueQuantity.value;
-                if (val >= 1500) uiBuilder.setRadioValue('regiscar-eosinophilia', '2');
-                else if (val >= 700) uiBuilder.setRadioValue('regiscar-eosinophilia', '1');
+            getMostRecentObservation(client, LOINC_CODES.EOSINOPHILS).then(eos => {
+                if (eos?.valueQuantity) {
+                    const val = eos.valueQuantity.value;
+                    if (val >= 1500) uiBuilder.setRadioValue('regiscar-eosinophilia', '2');
+                    else if (val >= 700) uiBuilder.setRadioValue('regiscar-eosinophilia', '1');
                     calculate();
-            }
-        });
+                }
+            });
+        }
 
         calculate();
     }

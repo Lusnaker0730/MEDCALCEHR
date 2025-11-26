@@ -89,7 +89,7 @@ export const fena: Calculator = {
             const uCrMgDl = UnitConverter.getStandardValue(uCrInput, 'mg/dL');
             const sCrMgDl = UnitConverter.getStandardValue(sCrInput, 'mg/dL');
 
-            if (uNa > 0 && sNa > 0 && uCrMgDl > 0 && sCrMgDl > 0) {
+            if (uNa > 0 && sNa > 0 && uCrMgDl !== null && sCrMgDl !== null && uCrMgDl > 0 && sCrMgDl > 0) {
                 const fenaValue = (uNa / sNa / (uCrMgDl / sCrMgDl)) * 100;
 
                 let interpretation = '';

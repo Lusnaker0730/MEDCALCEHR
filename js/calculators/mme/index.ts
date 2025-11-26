@@ -1,4 +1,4 @@
-import { uiBuilder } from '../../ui-builder';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient } from '../../types/fhir';
 
@@ -73,7 +73,7 @@ export const mme: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const conversionFactors: Record<string, number> = {
@@ -118,7 +118,7 @@ export const mme: Calculator = {
             });
 
             let riskLevel = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
             let recommendation = '';
 
             if (totalMME < 50) {

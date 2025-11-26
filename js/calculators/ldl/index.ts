@@ -1,7 +1,7 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -32,7 +32,7 @@ export const ldl: Calculator = {
                 unitToggle: {
                     type: 'cholesterol',
                     units: ['mg/dL', 'mmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -44,7 +44,7 @@ export const ldl: Calculator = {
                 unitToggle: {
                     type: 'cholesterol',
                     units: ['mg/dL', 'mmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -56,7 +56,7 @@ export const ldl: Calculator = {
                 unitToggle: {
                     type: 'triglycerides',
                     units: ['mg/dL', 'mmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })}
                 `
@@ -65,8 +65,8 @@ export const ldl: Calculator = {
             ${uiBuilder.createFormulaSection({
             items: [
                 {
-                    title: 'Friedewald Equation',
-                    formulas: ['LDL = Total Cholesterol - HDL - (Triglycerides / 5)'],
+                    label: 'Friedewald Equation',
+                    formula: 'LDL = Total Cholesterol - HDL - (Triglycerides / 5)',
                     notes: '(All values in mg/dL)'
                 }
             ]
@@ -100,7 +100,7 @@ export const ldl: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const tcInput = container.querySelector('#ldl-tc') as HTMLInputElement;
@@ -113,7 +113,7 @@ export const ldl: Calculator = {
             const hdlVal = UnitConverter.getStandardValue(hdlInput, 'mg/dL');
             const trigVal = UnitConverter.getStandardValue(trigInput, 'mg/dL');
 
-            if (isNaN(tcVal) || isNaN(hdlVal) || isNaN(trigVal)) {
+            if (tcVal === null || hdlVal === null || trigVal === null) {
                 resultBox.classList.remove('show');
                 return;
             }
@@ -132,7 +132,7 @@ export const ldl: Calculator = {
             const ldlMmol = UnitConverter.convert(ldlVal, 'mg/dL', 'mmol/L', 'cholesterol');
 
             let riskCategory = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (ldlVal < 100) {
                 riskCategory = 'Optimal';
@@ -162,7 +162,7 @@ export const ldl: Calculator = {
             })}
                 ${uiBuilder.createResultItem({
                 label: 'Calculated LDL (mmol/L)',
-                value: ldlMmol.toFixed(2),
+                value: ldlMmol !== null ? ldlMmol.toFixed(2) : 'N/A',
                 unit: 'mmol/L'
             })}
             `;

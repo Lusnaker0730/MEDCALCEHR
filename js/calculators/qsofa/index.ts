@@ -20,7 +20,7 @@ export const qsofaScore = {
             title: 'qSOFA Criteria',
             subtitle: 'Check all that apply',
             icon: '📋',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createCheckbox({
                     id: item.id,
                     label: item.label,
@@ -36,17 +36,17 @@ export const qsofaScore = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.'
-            })}
+            type: 'info',
+            message: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.'
+        })}
             
             ${criteriaSection}
             
             ${uiBuilder.createResultBox({ id: 'qsofa-result', title: 'qSOFA Score Results' })}
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Interpretation</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
@@ -61,7 +61,7 @@ export const qsofaScore = {
                         <li>Assess for organ dysfunction</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
@@ -71,8 +71,8 @@ export const qsofaScore = {
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
             let score = 0;
             checkboxes.forEach(box => {
-                if (box.checked) {
-                    score += parseInt(box.value);
+                if ((box as HTMLInputElement).checked) {
+                    score += parseInt((box as HTMLInputElement).value);
                 }
             });
 
@@ -94,17 +94,17 @@ export const qsofaScore = {
                 alertClass = 'ui-alert-success';
             }
 
-            const resultBox = container.querySelector('#qsofa-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#qsofa-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total qSOFA Score', 
-                    value: score, 
-                    unit: '/ 3 points',
-                    interpretation: riskLevel,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total qSOFA Score',
+                value: score,
+                unit: '/ 3 points',
+                interpretation: riskLevel,
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ${alertClass} mt-10">
                     <span class="ui-alert-icon">${alertClass.includes('danger') ? '🚨' : 'ℹ️'}</span>
@@ -113,7 +113,7 @@ export const qsofaScore = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -125,8 +125,8 @@ export const qsofaScore = {
         // Auto-populate
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-                if (obs?.valueQuantity?.value >= 22) {
-                    const box = container.querySelector('#qsofa-rr');
+                if (obs?.valueQuantity?.value && obs.valueQuantity.value >= 22) {
+                    const box = container.querySelector('#qsofa-rr') as HTMLInputElement;
                     if (box) {
                         box.checked = true;
                         calculate();
@@ -135,8 +135,8 @@ export const qsofaScore = {
             });
 
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity?.value <= 100) {
-                    const box = container.querySelector('#qsofa-sbp');
+                if (obs?.valueQuantity?.value && obs.valueQuantity.value <= 100) {
+                    const box = container.querySelector('#qsofa-sbp') as HTMLInputElement;
                     if (box) {
                         box.checked = true;
                         calculate();

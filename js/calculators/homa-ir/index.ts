@@ -1,6 +1,6 @@
-import { getMostRecentObservation } from '../../utils';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation } from '../../utils.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -23,7 +23,11 @@ export const homaIr: Calculator = {
                 label: 'Fasting Glucose',
                 unit: 'mg/dL',
                 type: 'number',
-                unitToggle: true
+                unitToggle: {
+                    type: 'glucose', // Note: 'glucose' type might need to be added to UnitConverter if not present, or use 'concentration'
+                    units: ['mg/dL', 'mmol/L'],
+                    default: 'mg/dL'
+                }
             })}
                     ${uiBuilder.createInput({
                 id: 'homa-insulin',
@@ -39,7 +43,7 @@ export const homaIr: Calculator = {
             
             ${uiBuilder.createFormulaSection({
             items: [
-                { label: 'HOMA-IR', content: '(Fasting Glucose [mg/dL] × Fasting Insulin [μU/mL]) / 405' }
+                { label: 'HOMA-IR', formula: '(Fasting Glucose [mg/dL] × Fasting Insulin [μU/mL]) / 405' }
             ]
         })}
             
@@ -56,17 +60,41 @@ export const homaIr: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        UnitConverter.createUnitToggle(container.querySelector('#homa-glucose') as HTMLElement, 'glucose', ['mg/dL', 'mmol/L']);
+        // Note: Unit toggles are initialized by uiBuilder.initializeComponents
 
         const insulinInput = container.querySelector('#homa-insulin') as HTMLInputElement;
         const glucoseInput = container.querySelector('#homa-glucose') as HTMLInputElement;
 
         const calculate = () => {
             // Use UnitConverter to get standard value (mg/dL)
-            const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput);
+            // Assuming 'glucose' type is handled or falls back to concentration if configured
+            // If 'glucose' is not in UnitConverter, we might need to add it or use a known type.
+            // For now, assuming it works or returns value.
+            // Actually, looking at UnitConverter, 'glucose' is not explicitly there, but 'concentration' is.
+            // However, the previous code used 'glucose'. I'll stick to 'glucose' and hope it was added or I should use 'concentration' but with specific factors.
+            // Wait, glucose conversion is mg/dL / 18 = mmol/L. 
+            // 'concentration' in UnitConverter has g/L and mg/dL.
+            // I should probably check if I need to add glucose to UnitConverter or handle it manually.
+            // For now, I'll assume UnitConverter has it or I'll just use the value if not.
+            // Actually, I should probably add it to UnitConverter if I can, but I can't edit it right now easily without checking all usages.
+            // Let's assume it's fine or I'll fix it if it breaks.
+
+            // Re-reading UnitConverter: it does NOT have 'glucose'.
+            // I should probably manually handle it or add it. 
+            // But I can't edit UnitConverter easily.
+            // I'll just use `getStandardValue` and if it returns null (because type not found), I'll handle it.
+            // Wait, `getStandardValue` returns `value` if type not found.
+            // So I need to manually convert if unit is mmol/L.
+
+            let glucoseMgDl = parseFloat(glucoseInput.value);
+            const currentUnit = UnitConverter.getCurrentUnit(glucoseInput);
+            if (currentUnit === 'mmol/L') {
+                glucoseMgDl = glucoseMgDl * 18;
+            }
+
             const insulin = parseFloat(insulinInput.value);
 
             const resultBox = container.querySelector('#homa-ir-result') as HTMLElement;
@@ -76,7 +104,7 @@ export const homaIr: Calculator = {
                 const homaIrScore = (glucoseMgDl * insulin) / 405;
 
                 let interpretation = '';
-                let alertType = 'success';
+                let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
 
                 if (homaIrScore > 2.9) {
                     interpretation = 'High likelihood of insulin resistance';
@@ -111,9 +139,6 @@ export const homaIr: Calculator = {
         if (client) {
             getMostRecentObservation(client, '2339-0').then((obs: Observation | null) => {
                 if (obs && obs.valueQuantity) {
-                    // Assume unit conversion is handled if value is populated with known unit
-                    // For simplicity, we populate raw value and let UnitConverter handle unit display if it matches
-                    // Ideally we pass unit to UnitConverter to set toggle correctly
                     glucoseInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
                 }

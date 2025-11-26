@@ -1,6 +1,6 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -102,7 +102,7 @@ export const abgAnalyzer: Calculator = {
             </div>
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const fields = {
@@ -136,7 +136,7 @@ export const abgAnalyzer: Calculator = {
 
             let primaryDisorder = '';
             let anionGapInfo = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             // Primary Disorder
             if (vals.ph < 7.35) {

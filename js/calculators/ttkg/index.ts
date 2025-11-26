@@ -15,50 +15,50 @@ export const ttkg = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-                title: 'Lab Values',
-                content: `
+            title: 'Lab Values',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'ttkg-urine-k',
-                        label: 'Urine Potassium',
-                        type: 'number',
-                        unit: 'mEq/L'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'ttkg-serum-k',
-                        label: 'Serum Potassium',
-                        type: 'number',
-                        unit: 'mEq/L',
-                        placeholder: 'Norm: 3.5 - 5.2'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'ttkg-urine-osmo',
-                        label: 'Urine Osmolality',
-                        type: 'number',
-                        unit: 'mOsm/kg',
-                        placeholder: 'Norm: 500 - 800'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'ttkg-serum-osmo',
-                        label: 'Serum Osmolality',
-                        type: 'number',
-                        unit: 'mOsm/kg',
-                        placeholder: 'Norm: 275 - 295'
-                    })}
-                `
+                id: 'ttkg-urine-k',
+                label: 'Urine Potassium',
+                type: 'number',
+                unit: 'mEq/L'
             })}
+                    ${uiBuilder.createInput({
+                id: 'ttkg-serum-k',
+                label: 'Serum Potassium',
+                type: 'number',
+                unit: 'mEq/L',
+                placeholder: 'Norm: 3.5 - 5.2'
+            })}
+                    ${uiBuilder.createInput({
+                id: 'ttkg-urine-osmo',
+                label: 'Urine Osmolality',
+                type: 'number',
+                unit: 'mOsm/kg',
+                placeholder: 'Norm: 500 - 800'
+            })}
+                    ${uiBuilder.createInput({
+                id: 'ttkg-serum-osmo',
+                label: 'Serum Osmolality',
+                type: 'number',
+                unit: 'mOsm/kg',
+                placeholder: 'Norm: 275 - 295'
+            })}
+                `
+        })}
             ${uiBuilder.createResultBox({ id: 'ttkg-result', title: 'Result' })}
             ${uiBuilder.createFormulaSection({
-                items: [
-                    {
-                        label: 'TTKG Formula',
-                        formula: 'TTKG = (Urine K × Serum Osmolality) / (Serum K × Urine Osmolality)'
-                    }
-                ],
-                notes: 'Valid only when Urine Osmolality > Serum Osmolality.'
-            })}
+            items: [
+                {
+                    label: 'TTKG Formula',
+                    formula: 'TTKG = (Urine K × Serum Osmolality) / (Serum K × Urine Osmolality)'
+                }
+            ]
+        })}
+            <p class="text-sm text-gray-600 mt-2">Valid only when Urine Osmolality > Serum Osmolality.</p>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Clinical Interpretation</h4>
                     <ul>
                         <li><strong>Hypokalemia (K < 3.5):</strong>
@@ -75,17 +75,17 @@ export const ttkg = {
                         </li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const urineKEl = container.querySelector('#ttkg-urine-k');
-        const serumKEl = container.querySelector('#ttkg-serum-k');
-        const urineOsmoEl = container.querySelector('#ttkg-urine-osmo');
-        const serumOsmoEl = container.querySelector('#ttkg-serum-osmo');
-        const resultBox = container.querySelector('#ttkg-result');
+        const urineKEl = container.querySelector('#ttkg-urine-k') as HTMLInputElement;
+        const serumKEl = container.querySelector('#ttkg-serum-k') as HTMLInputElement;
+        const urineOsmoEl = container.querySelector('#ttkg-urine-osmo') as HTMLInputElement;
+        const serumOsmoEl = container.querySelector('#ttkg-serum-osmo') as HTMLInputElement;
+        const resultBox = container.querySelector('#ttkg-result') as HTMLElement;
 
         const calculate = () => {
             const urineK = parseFloat(urineKEl.value);
@@ -99,7 +99,7 @@ export const ttkg = {
             }
 
             if (serumK === 0 || urineOsmo === 0) {
-                resultBox.querySelector('.ui-result-content').innerHTML = uiBuilder.createAlert({
+                (resultBox.querySelector('.ui-result-content') as HTMLElement).innerHTML = uiBuilder.createAlert({
                     type: 'danger',
                     message: 'Serum potassium and Urine osmolality cannot be zero.'
                 });
@@ -129,21 +129,21 @@ export const ttkg = {
                     alertType = 'warning';
                 }
             } else {
-                 interpretation = 'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
+                interpretation = 'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
             }
 
-             if (urineOsmo <= serumOsmo) {
+            if (urineOsmo <= serumOsmo) {
                 interpretation = `<strong>Warning:</strong> TTKG is not valid when Urine Osmolality (${urineOsmo}) ≤ Serum Osmolality (${serumOsmo}).`;
                 alertType = 'warning';
             }
 
-            resultBox.querySelector('.ui-result-content').innerHTML = `
+            (resultBox.querySelector('.ui-result-content') as HTMLElement).innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'TTKG',
-                    value: ttkgValue.toFixed(2),
-                    interpretation: interpretation,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'TTKG',
+                value: ttkgValue.toFixed(2),
+                interpretation: interpretation,
+                alertClass: `ui-alert-${alertType}`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -153,22 +153,24 @@ export const ttkg = {
         });
 
         // FHIR auto-population
-        getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
-            if (obs?.valueQuantity) urineKEl.value = obs.valueQuantity.value.toFixed(1);
-            calculate();
-        });
-        getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
-            if (obs?.valueQuantity) serumKEl.value = obs.valueQuantity.value.toFixed(1);
-            calculate();
-        });
-        getMostRecentObservation(client, '2697-2').then(obs => { // Urine Osmolality
-            if (obs?.valueQuantity) urineOsmoEl.value = obs.valueQuantity.value.toFixed(1);
-            calculate();
-        });
-        getMostRecentObservation(client, '2695-6').then(obs => { // Serum Osmolality
-            if (obs?.valueQuantity) serumOsmoEl.value = obs.valueQuantity.value.toFixed(1);
-            calculate();
-        });
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
+                if (obs?.valueQuantity) urineKEl.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
+            });
+            getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
+                if (obs?.valueQuantity) serumKEl.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
+            });
+            getMostRecentObservation(client, '2697-2').then(obs => { // Urine Osmolality
+                if (obs?.valueQuantity) urineOsmoEl.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
+            });
+            getMostRecentObservation(client, '2695-6').then(obs => { // Serum Osmolality
+                if (obs?.valueQuantity) serumOsmoEl.value = obs.valueQuantity.value.toFixed(1);
+                calculate();
+            });
+        }
 
         calculate();
     }

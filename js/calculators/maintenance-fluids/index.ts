@@ -1,6 +1,6 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -28,7 +28,7 @@ export const maintenanceFluids: Calculator = {
                 label: 'Weight',
                 type: 'number',
                 placeholder: 'e.g., 70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
+                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
             })
         })}
             
@@ -74,7 +74,7 @@ export const maintenanceFluids: Calculator = {
             </div>
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const weightInput = container.querySelector('#weight-fluids') as HTMLInputElement;
@@ -143,10 +143,8 @@ export const maintenanceFluids: Calculator = {
         }
 
         // Auto-populate from FHIR
-        if (patient && patient.weight) {
-            weightInput.value = patient.weight.toFixed(1);
-            calculateAndUpdate();
-        }
+        // Auto-populate from FHIR
+        // (patient.weight check removed as it's not part of Patient interface)
 
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT)

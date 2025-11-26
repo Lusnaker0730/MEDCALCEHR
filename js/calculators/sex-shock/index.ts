@@ -14,136 +14,136 @@ export const sexShock = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'warning',
-                message: '<strong>Validation Notice:</strong> Use caution in patients who have not undergone PCI.'
-            })}
+            type: 'warning',
+            message: '<strong>Validation Notice:</strong> Use caution in patients who have not undergone PCI.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Patient Characteristics',
-                icon: '👤',
-                content: `
+            title: 'Patient Characteristics',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-age',
-                        label: 'Age > 70 years',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-sex',
-                        label: 'Sex',
-                        options: [
-                            { value: '0', label: 'Male', checked: true },
-                            { value: '1', label: 'Female' }
-                        ]
-                    })}
-                `
+                name: 'sex-shock-age',
+                label: 'Age > 70 years',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-sex',
+                label: 'Sex',
+                options: [
+                    { value: '0', label: 'Male', checked: true },
+                    { value: '1', label: 'Female' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical Presentation',
-                icon: '🏥',
-                content: `
+            title: 'Clinical Presentation',
+            icon: '🏥',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-arrest',
-                        label: 'Cardiac Arrest at Presentation',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-killip',
-                        label: 'Killip Class III (Acute Pulmonary Edema)',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-hr',
-                        label: 'Heart Rate > 90 bpm',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-bp',
-                        label: 'Low BP (SBP < 125) & Pulse Pressure < 45 mmHg',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                `
+                name: 'sex-shock-arrest',
+                label: 'Cardiac Arrest at Presentation',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-killip',
+                label: 'Killip Class III (Acute Pulmonary Edema)',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-hr',
+                label: 'Heart Rate > 90 bpm',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-bp',
+                label: 'Low BP (SBP < 125) & Pulse Pressure < 45 mmHg',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Angiographic & ECG Findings',
-                icon: '💓',
-                content: `
+            title: 'Angiographic & ECG Findings',
+            icon: '💓',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-pci',
-                        label: 'PCI Not Performed',
-                        options: [
-                            { value: '0', label: 'PCI Done', checked: true },
-                            { value: '1', label: 'No PCI' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-timi',
-                        label: 'Post-PCI TIMI Flow < 3',
-                        options: [
-                            { value: '0', label: 'No (TIMI 3)', checked: true },
-                            { value: '1', label: 'Yes (< 3)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-left-main',
-                        label: 'Left Main Culprit Lesion',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-st',
-                        label: 'ST-Elevation on ECG',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-lvef',
-                        label: 'Left Ventricular EF',
-                        options: [
-                            { value: '55', label: '> 50%' },
-                            { value: '42.5', label: '35-50%' },
-                            { value: '30', label: '< 35%', checked: true }
-                        ]
-                    })}
-                `
+                name: 'sex-shock-pci',
+                label: 'PCI Not Performed',
+                options: [
+                    { value: '0', label: 'PCI Done', checked: true },
+                    { value: '1', label: 'No PCI' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-timi',
+                label: 'Post-PCI TIMI Flow < 3',
+                options: [
+                    { value: '0', label: 'No (TIMI 3)', checked: true },
+                    { value: '1', label: 'Yes (< 3)' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-left-main',
+                label: 'Left Main Culprit Lesion',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-st',
+                label: 'ST-Elevation on ECG',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'sex-shock-lvef',
+                label: 'Left Ventricular EF',
+                options: [
+                    { value: '55', label: '> 50%' },
+                    { value: '42.5', label: '35-50%' },
+                    { value: '30', label: '< 35%', checked: true }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Laboratory Values',
-                icon: '🧪',
-                content: `
+            title: 'Laboratory Values',
+            icon: '🧪',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'sex-shock-glycemia',
-                        label: 'Glucose > 10 mmol/L (> 180 mg/dL)',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createInput({ id: 'sex-shock-creatinine', label: 'Creatinine', unit: 'mg/dL', type: 'number', step: '0.1' })}
-                    ${uiBuilder.createInput({ id: 'sex-shock-crp', label: 'C-Reactive Protein', unit: 'mg/L', type: 'number', step: '0.1' })}
-                `
+                name: 'sex-shock-glycemia',
+                label: 'Glucose > 10 mmol/L (> 180 mg/dL)',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes' }
+                ]
             })}
+                    ${uiBuilder.createInput({ id: 'sex-shock-creatinine', label: 'Creatinine', unit: 'mg/dL', type: 'number', step: 0.1 })}
+                    ${uiBuilder.createInput({ id: 'sex-shock-crp', label: 'C-Reactive Protein', unit: 'mg/L', type: 'number', step: 0.1 })}
+                `
+        })}
 
             ${uiBuilder.createResultBox({ id: 'sex-shock-result', title: 'In-Hospital Cardiogenic Shock Risk' })}
         `;
@@ -152,8 +152,8 @@ export const sexShock = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const getVal = name => parseInt(container.querySelector(`input[name="sex-shock-${name}"]:checked`).value);
-            
+            const getVal = (name: string) => parseInt((container.querySelector(`input[name="sex-shock-${name}"]:checked`) as HTMLInputElement).value);
+
             const age = getVal('age');
             const sex = getVal('sex'); // 0=Male, 1=Female
             const arrest = getVal('arrest');
@@ -164,10 +164,10 @@ export const sexShock = {
             const timi = getVal('timi');
             const leftMain = getVal('left-main');
             const st = getVal('st');
-            const lvef = parseFloat(container.querySelector('input[name="sex-shock-lvef"]:checked').value);
+            const lvef = parseFloat((container.querySelector('input[name="sex-shock-lvef"]:checked') as HTMLInputElement).value);
             const glycemia = getVal('glycemia');
-            const creatinine = parseFloat(container.querySelector('#sex-shock-creatinine').value) || 0;
-            const crp = parseFloat(container.querySelector('#sex-shock-crp').value) || 0;
+            const creatinine = parseFloat((container.querySelector('#sex-shock-creatinine') as HTMLInputElement).value) || 0;
+            const crp = parseFloat((container.querySelector('#sex-shock-crp') as HTMLInputElement).value) || 0;
 
             const isFemale = sex === 1;
 
@@ -186,11 +186,11 @@ export const sexShock = {
             let Y = coeffs.intercept;
             if (crp > 0) Y += coeffs.crp * Math.log2(crp + 1);
             if (creatinine > 0) Y += coeffs.creatinine * Math.log2(creatinine * 88.4); // Convert to umol/L
-            
+
             Y += coeffs.st * st;
             if (lvef === 55) Y += coeffs.lvefLess50; // >50% (Protective)
             else if (lvef === 42.5) Y += coeffs.lvef35to50; // 35-50%
-            
+
             Y += coeffs.age * age;
             Y += coeffs.arrest * arrest;
             Y += coeffs.killip * killip;
@@ -203,7 +203,7 @@ export const sexShock = {
             const risk = (1 / (1 + Math.exp(-Y))) * 100;
 
             let riskLevel = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (risk < 5) {
                 riskLevel = 'Low Risk';
@@ -219,15 +219,15 @@ export const sexShock = {
                 alertType = 'danger';
             }
 
-            const resultBox = container.querySelector('#sex-shock-result');
-            resultBox.querySelector('.ui-result-content').innerHTML = `
+            const resultBox = container.querySelector('#sex-shock-result') as HTMLElement;
+            (resultBox.querySelector('.ui-result-content') as HTMLElement).innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'In-Hospital Cardiogenic Shock Risk',
-                    value: risk.toFixed(1),
-                    unit: '%',
-                    interpretation: riskLevel,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'In-Hospital Cardiogenic Shock Risk',
+                value: risk.toFixed(1),
+                unit: '%',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -245,11 +245,15 @@ export const sexShock = {
         }
 
         // Populate from FHIR (simplified)
-        getObservation(client, '8867-4').then(obs => { // HR
-            if (obs?.valueQuantity?.value > 90) uiBuilder.setRadioValue('sex-shock-hr', '1');
-            calculate();
-        });
-        
+        if (client) {
+            getObservation(client, '8867-4').then(obs => { // HR
+                if (obs && obs.valueQuantity && obs.valueQuantity.value > 90) {
+                    uiBuilder.setRadioValue('sex-shock-hr', '1');
+                }
+                calculate();
+            });
+        }
+
         calculate();
     }
 };

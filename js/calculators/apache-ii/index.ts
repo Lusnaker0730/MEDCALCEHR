@@ -332,9 +332,6 @@ export const apacheIi: Calculator = {
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             try {
-                // Check required fields (simple check: must not be 0 unless 0 is valid, but most vitals aren't 0)
-                // For simplicity, we'll calculate if most fields are present
-
                 let aps = 0;
                 aps += getPoints.temp(values.temp);
                 aps += getPoints.map(values.map);

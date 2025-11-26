@@ -20,6 +20,7 @@ export const ascvd: Calculator = {
             type: 'warning',
             message: uiBuilder.createCheckbox({
                 id: 'known-ascvd',
+                value: '1',
                 label: '<strong>Known Clinical ASCVD?</strong> (e.g., history of MI, stroke, PAD)'
             })
         })}
@@ -99,7 +100,7 @@ export const ascvd: Calculator = {
                         <h5>Select Therapy Options:</h5>
                         
                         <div class="therapy-group" style="margin-bottom: 15px;">
-                            ${uiBuilder.createCheckbox({ id: 'statin-therapy', label: 'Statin Therapy', checked: true })}
+                            ${uiBuilder.createCheckbox({ id: 'statin-therapy', value: '1', label: 'Statin Therapy', checked: true })}
                             <div class="therapy-details" id="statin-details" style="margin-left: 25px;">
                                 ${uiBuilder.createSelect({
                 id: 'statin-intensity',
@@ -114,16 +115,16 @@ export const ascvd: Calculator = {
                         </div>
                         
                         <div class="therapy-group" style="margin-bottom: 15px;">
-                            ${uiBuilder.createCheckbox({ id: 'lifestyle-mods', label: 'Lifestyle Modifications' })}
+                            ${uiBuilder.createCheckbox({ id: 'lifestyle-mods', value: '1', label: 'Lifestyle Modifications' })}
                             <div class="therapy-details" id="lifestyle-details" style="display:none; margin-left: 25px;">
-                                ${uiBuilder.createCheckbox({ id: 'smoking-cessation', label: 'Smoking Cessation' })}
-                                ${uiBuilder.createCheckbox({ id: 'bp-control', label: 'BP Control (target <130/80)' })}
-                                ${uiBuilder.createCheckbox({ id: 'weight-loss', label: 'Weight Loss (if BMI ≥25)' })}
+                                ${uiBuilder.createCheckbox({ id: 'smoking-cessation', value: '1', label: 'Smoking Cessation' })}
+                                ${uiBuilder.createCheckbox({ id: 'bp-control', value: '1', label: 'BP Control (target <130/80)' })}
+                                ${uiBuilder.createCheckbox({ id: 'weight-loss', value: '1', label: 'Weight Loss (if BMI ≥25)' })}
                             </div>
                         </div>
                         
                         <div class="therapy-group" style="margin-bottom: 15px;">
-                            ${uiBuilder.createCheckbox({ id: 'additional-therapy', label: 'Additional Therapies' })}
+                            ${uiBuilder.createCheckbox({ id: 'additional-therapy', value: '1', label: 'Additional Therapies' })}
                             <div class="therapy-details" id="additional-details" style="display:none; margin-left: 25px;">
                                 ${uiBuilder.createSelect({
                 id: 'additional-options',
@@ -348,7 +349,7 @@ export const ascvd: Calculator = {
 
             let riskCategory = '';
             let recommendation = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (riskPercent < 5) {
                 riskCategory = 'Low Risk';

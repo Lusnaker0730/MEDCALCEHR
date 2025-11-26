@@ -85,7 +85,7 @@ export const sofa = {
             }
         ];
 
-        const sectionsHTML = sections.map(s => 
+        const sectionsHTML = sections.map(s =>
             uiBuilder.createSection({
                 title: s.title,
                 subtitle: s.subtitle,
@@ -126,8 +126,8 @@ export const sofa = {
         uiBuilder.initializeComponents(container);
 
         // Helper to set radio value
-        const setRadioValue = (name, value) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -138,7 +138,7 @@ export const sofa = {
             let totalScore = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
             radios.forEach(radio => {
-                totalScore += parseInt(radio.value);
+                totalScore += parseInt((radio as HTMLInputElement).value);
             });
 
             let mortalityRisk = '';
@@ -163,17 +163,17 @@ export const sofa = {
                 alertClass = 'ui-alert-danger';
             }
 
-            const resultBox = container.querySelector('#sofa-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#sofa-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total SOFA Score', 
-                    value: totalScore, 
-                    unit: 'points',
-                    interpretation: `${mortalityRisk} (ICU Mortality: ${mortalityPercentage})`,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total SOFA Score',
+                value: totalScore,
+                unit: 'points',
+                interpretation: `${mortalityRisk} (ICU Mortality: ${mortalityPercentage})`,
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ui-alert-info mt-10">
                     <span class="ui-alert-icon">ℹ️</span>
@@ -182,7 +182,7 @@ export const sofa = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -199,7 +199,7 @@ export const sofa = {
                 if (obs?.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     if (el) el.textContent = `${val.toFixed(0)} ×10³/μL`;
-                    
+
                     let radioValue = '0';
                     if (val < 20) radioValue = '4';
                     else if (val < 50) radioValue = '3';
@@ -217,7 +217,7 @@ export const sofa = {
                 if (obs?.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
-                    
+
                     let radioValue = '0';
                     if (val >= 5.0) radioValue = '4';
                     else if (val >= 3.5) radioValue = '3';
@@ -235,7 +235,7 @@ export const sofa = {
                 if (obs?.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
-                    
+
                     let radioValue = '0';
                     if (val >= 12.0) radioValue = '4';
                     else if (val >= 6.0) radioValue = '3';

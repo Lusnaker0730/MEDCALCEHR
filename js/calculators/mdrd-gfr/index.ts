@@ -1,10 +1,10 @@
 import {
     getMostRecentObservation,
     calculateAge
-} from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+} from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -49,7 +49,7 @@ export const mdrdGfr: Calculator = {
                     id: 'mdrd-creatinine',
                     label: 'Serum Creatinine',
                     type: 'number',
-                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'] }
+                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 })
             ].join('')
         });
@@ -103,7 +103,7 @@ export const mdrdGfr: Calculator = {
             </div>
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const ageInput = container.querySelector('#mdrd-age') as HTMLInputElement;
@@ -139,7 +139,7 @@ export const mdrdGfr: Calculator = {
                 // Determine CKD stage and severity
                 let stage = '';
                 let severityClass = 'low';
-                let alertType = 'info';
+                let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
                 let alertMsg = '';
 
                 if (gfr >= 90) {

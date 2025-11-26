@@ -32,33 +32,33 @@ export const ransonScore = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.'
-            })}
+            type: 'info',
+            message: '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'At Admission or Diagnosis',
-                icon: '🏥',
-                content: uiBuilder.createCheckboxGroup({
-                    name: 'ranson-admission',
-                    options: admissionCriteria.map(c => ({ ...c, value: '1' }))
-                })
-            })}
+            title: 'At Admission or Diagnosis',
+            icon: '🏥',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'ranson-admission',
+                options: admissionCriteria.map(c => ({ ...c, value: '1' }))
+            })
+        })}
 
             ${uiBuilder.createSection({
-                title: 'During Initial 48 Hours',
-                icon: '⏱️',
-                content: uiBuilder.createCheckboxGroup({
-                    name: 'ranson-48h',
-                    options: hours48Criteria.map(c => ({ ...c, value: '1' }))
-                })
-            })}
+            title: 'During Initial 48 Hours',
+            icon: '⏱️',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'ranson-48h',
+                options: hours48Criteria.map(c => ({ ...c, value: '1' }))
+            })
+        })}
 
             ${uiBuilder.createResultBox({ id: 'ranson-result', title: 'Ranson Score Result' })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Mortality Estimation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -74,13 +74,13 @@ export const ransonScore = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const resultBox = container.querySelector('#ranson-result');
+        const resultBox = container.querySelector('#ranson-result') as HTMLElement;
 
         const calculate = () => {
             let score = 0;
@@ -90,7 +90,7 @@ export const ransonScore = {
 
             let mortality = '';
             let severity = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score <= 2) {
                 mortality = '0-3%';
@@ -110,20 +110,20 @@ export const ransonScore = {
                 alertType = 'danger';
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Total Ranson Score',
-                    value: score,
-                    unit: '/ 11 points',
-                    interpretation: severity,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Total Ranson Score',
+                value: score,
+                unit: '/ 11 points',
+                interpretation: severity,
+                alertClass: `ui-alert-${alertType}`
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Estimated Mortality',
-                    value: mortality,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Estimated Mortality',
+                value: mortality,
+                alertClass: `ui-alert-${alertType}`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -136,7 +136,7 @@ export const ransonScore = {
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             if (age > 55) {
-                container.querySelector('#ranson-age').checked = true;
+                (container.querySelector('#ranson-age') as HTMLInputElement).checked = true;
             }
         }
 
@@ -149,7 +149,7 @@ export const ransonScore = {
                     // Standard FHIR often K/uL.
                     let val = obs.valueQuantity.value;
                     if (val > 1000) val = val / 1000; // Convert to K/uL if raw count
-                    if (val > 16) container.querySelector('#ranson-wbc').checked = true;
+                    if (val > 16) (container.querySelector('#ranson-wbc') as HTMLInputElement).checked = true;
                     calculate();
                 }
             });
@@ -157,19 +157,19 @@ export const ransonScore = {
                 if (obs?.valueQuantity) {
                     let val = obs.valueQuantity.value;
                     if (obs.valueQuantity.unit === 'mmol/L') val = val * 18.0182;
-                    if (val > 200) container.querySelector('#ranson-glucose').checked = true;
+                    if (val > 200) (container.querySelector('#ranson-glucose') as HTMLInputElement).checked = true;
                     calculate();
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
                 if (obs?.valueQuantity) {
-                    if (obs.valueQuantity.value > 250) container.querySelector('#ranson-ast').checked = true;
+                    if (obs.valueQuantity.value > 250) (container.querySelector('#ranson-ast') as HTMLInputElement).checked = true;
                     calculate();
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
                 if (obs?.valueQuantity) {
-                    if (obs.valueQuantity.value > 350) container.querySelector('#ranson-ldh').checked = true;
+                    if (obs.valueQuantity.value > 350) (container.querySelector('#ranson-ldh') as HTMLInputElement).checked = true;
                     calculate();
                 }
             });
@@ -177,7 +177,7 @@ export const ransonScore = {
                 if (obs?.valueQuantity) {
                     let val = obs.valueQuantity.value;
                     if (obs.valueQuantity.unit === 'mmol/L') val = val * 4.008;
-                    if (val < 8.0) container.querySelector('#ranson-calcium').checked = true;
+                    if (val < 8.0) (container.querySelector('#ranson-calcium') as HTMLInputElement).checked = true;
                     calculate();
                 }
             });

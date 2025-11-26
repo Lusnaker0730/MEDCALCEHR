@@ -88,7 +88,7 @@ export const genevaScore: Calculator = {
 
             // Add heart rate score
             const hrInput = container.querySelector('#geneva-hr') as HTMLInputElement;
-            const hr = parseInt(hrInput?.value, 10);
+            const hr = parseInt(hrInput ? hrInput.value : '0', 10);
             if (!isNaN(hr)) {
                 if (hr >= 75 && hr <= 94) {
                     score += 1;

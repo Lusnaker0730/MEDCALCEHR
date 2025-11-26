@@ -1,6 +1,6 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -47,8 +47,7 @@ export const ibw: Calculator = {
                 { label: 'IBW (Male)', formula: '50 + 2.3 × (height in inches - 60)' },
                 { label: 'IBW (Female)', formula: '45.5 + 2.3 × (height in inches - 60)' },
                 { label: 'ABW', formula: 'IBW + 0.4 × (Actual Weight - IBW)' }
-            ],
-            notes: 'ABW is calculated only when actual weight exceeds IBW.'
+            ]
         })}
             ${uiBuilder.createAlert({
             type: 'info',
@@ -62,7 +61,7 @@ export const ibw: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const heightInput = container.querySelector('#ibw-height') as HTMLInputElement;

@@ -22,7 +22,7 @@ export const wellsDVT = {
 
         const inputs = uiBuilder.createSection({
             title: 'Clinical Criteria',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -64,7 +64,7 @@ export const wellsDVT = {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
             radios.forEach(radio => {
-                score += parseInt(radio.value);
+                score += parseInt((radio as HTMLInputElement).value);
             });
 
             let risk = '';
@@ -85,17 +85,17 @@ export const wellsDVT = {
                 interpretation = 'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
             }
 
-            const resultBox = container.querySelector('#wells-dvt-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#wells-dvt-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: 'points',
-                    interpretation: risk,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: risk,
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ${alertClass} mt-10">
                     <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
@@ -104,7 +104,7 @@ export const wellsDVT = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 

@@ -1,9 +1,9 @@
 import {
     getMostRecentObservation,
-} from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+} from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -30,7 +30,7 @@ export const freeWaterDeficit: Calculator = {
                 unitToggle: {
                     type: 'weight',
                     units: ['kg', 'lbs'],
-                    defaultUnit: 'kg'
+                    default: 'kg'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -41,7 +41,7 @@ export const freeWaterDeficit: Calculator = {
                 unitToggle: {
                     type: 'sodium', // Assuming custom type or generic, sodium is just mEq/L usually
                     units: ['mEq/L', 'mmol/L'],
-                    defaultUnit: 'mEq/L'
+                    default: 'mEq/L'
                 }
             })}
                     ${uiBuilder.createRadioGroup({
@@ -83,7 +83,7 @@ export const freeWaterDeficit: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const weightInput = container.querySelector('#fwd-weight') as HTMLInputElement;
@@ -95,7 +95,7 @@ export const freeWaterDeficit: Calculator = {
             const sodium = parseFloat(sodiumInput.value);
             const genderType = (container.querySelector('input[name="fwd-gender"]:checked') as HTMLInputElement)?.value || 'male';
 
-            if (isNaN(weightKg) || isNaN(sodium) || weightKg <= 0 || sodium <= 0) {
+            if (weightKg === null || isNaN(sodium) || weightKg <= 0 || sodium <= 0) {
                 resultBox.classList.remove('show');
                 return;
             }
@@ -114,7 +114,7 @@ export const freeWaterDeficit: Calculator = {
             const deficit = totalBodyWater * ((sodium / 140) - 1);
 
             let status = '';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
             let alertMsg = '';
 
             if (sodium <= 140) {

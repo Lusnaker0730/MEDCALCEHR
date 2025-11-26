@@ -24,7 +24,7 @@ export const pecarn = {
             },
             { id: 'pecarn-hematoma', label: 'Non-frontal scalp hematoma', value: 'hematoma' }
         ];
-        
+
         const criteriaOver2 = [
             {
                 id: 'pecarn-gcs-not-15-over2',
@@ -49,44 +49,44 @@ export const pecarn = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Patient Age',
-                icon: '👶',
-                content: uiBuilder.createRadioGroup({
-                    name: 'pecarn-age',
-                    options: [
-                        { value: 'under2', label: '< 2 years', checked: true },
-                        { value: 'over2', label: '≥ 2 years' }
-                    ]
-                })
-            })}
+            title: 'Patient Age',
+            icon: '👶',
+            content: uiBuilder.createRadioGroup({
+                name: 'pecarn-age',
+                options: [
+                    { value: 'under2', label: '< 2 years', checked: true },
+                    { value: 'over2', label: '≥ 2 years' }
+                ]
+            })
+        })}
 
             <div id="pecarn-group-under2">
                 ${uiBuilder.createSection({
-                    title: 'Criteria for Children < 2 Years',
-                    icon: '📋',
-                    content: uiBuilder.createCheckboxGroup({
-                        name: 'pecarn-criteria-under2',
-                        options: criteriaUnder2
-                    })
-                })}
+            title: 'Criteria for Children < 2 Years',
+            icon: '📋',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'pecarn-criteria-under2',
+                options: criteriaUnder2
+            })
+        })}
             </div>
 
             <div id="pecarn-group-over2" style="display:none;">
                 ${uiBuilder.createSection({
-                    title: 'Criteria for Children ≥ 2 Years',
-                    icon: '📋',
-                    content: uiBuilder.createCheckboxGroup({
-                        name: 'pecarn-criteria-over2',
-                        options: criteriaOver2
-                    })
-                })}
+            title: 'Criteria for Children ≥ 2 Years',
+            icon: '📋',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'pecarn-criteria-over2',
+                options: criteriaOver2
+            })
+        })}
             </div>
 
             ${uiBuilder.createResultBox({ id: 'pecarn-result', title: 'PECARN Assessment' })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Risk Interpretation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -101,17 +101,17 @@ export const pecarn = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const groupUnder2 = container.querySelector('#pecarn-group-under2');
-        const groupOver2 = container.querySelector('#pecarn-group-over2');
-        const resultBox = container.querySelector('#pecarn-result');
+        const groupUnder2 = container.querySelector('#pecarn-group-under2') as HTMLElement;
+        const groupOver2 = container.querySelector('#pecarn-group-over2') as HTMLElement;
+        const resultBox = container.querySelector('#pecarn-result') as HTMLElement;
 
-        const setAgeGroup = (isUnder2) => {
+        const setAgeGroup = (isUnder2: boolean) => {
             if (isUnder2) {
                 groupUnder2.style.display = 'block';
                 groupOver2.style.display = 'none';
@@ -123,18 +123,18 @@ export const pecarn = {
         };
 
         const calculate = () => {
-            const isUnder2 = container.querySelector('input[name="pecarn-age"][value="under2"]').checked;
-            
+            const isUnder2 = (container.querySelector('input[name="pecarn-age"][value="under2"]') as HTMLInputElement).checked;
+
             let recommendation = '';
             let risk = '';
             let alertType = 'info';
             let detail = '';
 
             if (isUnder2) {
-                const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-under2"]:checked')).map(cb => cb.value);
+                const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-under2"]:checked')).map(cb => (cb as HTMLInputElement).value);
                 const hasGCS = criteria.includes('gcs');
                 const hasFracture = criteria.includes('fracture');
-                
+
                 if (hasGCS || hasFracture) {
                     recommendation = 'CT Recommended';
                     risk = '13-16% risk of ciTBI';
@@ -150,7 +150,7 @@ export const pecarn = {
                     alertType = 'success';
                 }
             } else {
-                const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-over2"]:checked')).map(cb => cb.value);
+                const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-over2"]:checked')).map(cb => (cb as HTMLInputElement).value);
                 const hasGCS = criteria.includes('gcs');
                 const hasBasilar = criteria.includes('basilar');
 
@@ -170,14 +170,14 @@ export const pecarn = {
                 }
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Recommendation',
-                    value: recommendation,
-                    interpretation: risk,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Recommendation',
+                value: recommendation,
+                interpretation: risk,
+                alertClass: `ui-alert-${alertType}`
+            })}
                 ${detail ? uiBuilder.createAlert({ type: 'info', message: detail }) : ''}
             `;
             resultBox.classList.add('show');
@@ -186,8 +186,8 @@ export const pecarn = {
         // Event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', () => {
-                if (radio.name === 'pecarn-age') {
-                    setAgeGroup(radio.value === 'under2');
+                if ((radio as HTMLInputElement).name === 'pecarn-age') {
+                    setAgeGroup((radio as HTMLInputElement).value === 'under2');
                 }
                 calculate();
             });

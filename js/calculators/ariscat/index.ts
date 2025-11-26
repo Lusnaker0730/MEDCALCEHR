@@ -107,7 +107,7 @@ export const ariscat: Calculator = {
 
             let riskCategory = '';
             let riskInfo = '';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
 
             if (score < 26) {
                 riskCategory = 'Low risk';

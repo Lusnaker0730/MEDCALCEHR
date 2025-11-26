@@ -40,51 +40,51 @@ export const steroidConversion = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-                title: 'Conversion',
-                content: `
+            title: 'Conversion',
+            content: `
                     <div class="conversion-row" style="display: flex; gap: 1rem; align-items: flex-end;">
                         <div style="flex: 1;">
                             ${uiBuilder.createInput({
-                                id: 'steroid-from-dose',
-                                label: 'Dose',
-                                type: 'number',
-                                placeholder: 'Enter dose',
-                                min: 0
-                            })}
+                id: 'steroid-from-dose',
+                label: 'Dose',
+                type: 'number',
+                placeholder: 'Enter dose',
+                min: 0
+            })}
                         </div>
                         <div style="flex: 1;">
                             ${uiBuilder.createSelect({
-                                id: 'steroid-from-type',
-                                label: 'Steroid',
-                                options: steroidOptions
-                            })}
+                id: 'steroid-from-type',
+                label: 'Steroid',
+                options: steroidOptions
+            })}
                         </div>
                     </div>
                     <div style="text-align: center; margin: 1rem 0; font-weight: bold;">IS EQUIVALENT TO</div>
                      <div class="conversion-row" style="display: flex; gap: 1rem; align-items: flex-end;">
                         <div style="flex: 1;">
                             ${uiBuilder.createInput({
-                                id: 'steroid-to-dose',
-                                label: 'Equivalent Dose',
-                                type: 'text', // Readonly usually
-                                placeholder: 'Result',
-                                min: 0
-                            })}
+                id: 'steroid-to-dose',
+                label: 'Equivalent Dose',
+                type: 'text', // Readonly usually
+                placeholder: 'Result',
+                min: 0
+            })}
                         </div>
                         <div style="flex: 1;">
                             ${uiBuilder.createSelect({
-                                id: 'steroid-to-type',
-                                label: 'Steroid',
-                                options: steroidOptions
-                            })}
+                id: 'steroid-to-type',
+                label: 'Steroid',
+                options: steroidOptions
+            })}
                         </div>
                     </div>
                 `
-            })}
+        })}
             
             ${uiBuilder.createSection({
-                title: 'Steroid Equivalence Table',
-                content: `
+            title: 'Steroid Equivalence Table',
+            content: `
                     <div class="ui-data-table" style="overflow-x: auto;">
                         <table class="steroid-equivalence-table" style="width: 100%; border-collapse: collapse;">
                             <thead>
@@ -102,11 +102,11 @@ export const steroidConversion = {
                         <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
                     </p>
                 `
-            })}
+        })}
 
              ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Relative Potency Information</h4>
                     <ul>
                         <li><strong>Highest Potency:</strong> Dexamethasone (0.75 mg)</li>
@@ -121,17 +121,17 @@ export const steroidConversion = {
                          <li><strong>Dexamethasone</strong> longest half-life (36-54 hrs) - useful once daily dosing</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const fromDoseEl = container.querySelector('#steroid-from-dose');
-        const fromTypeEl = container.querySelector('#steroid-from-type');
-        const toDoseEl = container.querySelector('#steroid-to-dose');
-        const toTypeEl = container.querySelector('#steroid-to-type');
-        
+        const fromDoseEl = container.querySelector('#steroid-from-dose') as HTMLInputElement;
+        const fromTypeEl = container.querySelector('#steroid-from-type') as HTMLSelectElement;
+        const toDoseEl = container.querySelector('#steroid-to-dose') as HTMLInputElement;
+        const toTypeEl = container.querySelector('#steroid-to-type') as HTMLSelectElement;
+
         // Make result readonly
         toDoseEl.readOnly = true;
 

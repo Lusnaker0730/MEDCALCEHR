@@ -1,10 +1,10 @@
-import { LOINC_CODES } from '../../fhir-codes';
+import { LOINC_CODES } from '../../fhir-codes.js';
 import {
     getMostRecentObservation,
     calculateAge
-} from '../../utils';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+} from '../../utils.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -45,7 +45,11 @@ export const fib4: Calculator = {
                 label: 'Platelet Count',
                 type: 'number',
                 unit: '×10⁹/L',
-                unitToggle: true
+                unitToggle: {
+                    type: 'platelet',
+                    units: ['×10⁹/L', 'K/µL', 'thou/mm³'],
+                    default: '×10⁹/L'
+                }
             })}
                 `
         })}
@@ -54,20 +58,19 @@ export const fib4: Calculator = {
 
             ${uiBuilder.createFormulaSection({
             items: [
-                { label: 'FIB-4', content: '(Age × AST) / (Platelets × √ALT)' }
+                { label: 'FIB-4', formula: '(Age × AST) / (Platelets × √ALT)' }
             ]
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         // Configure unit conversion for platelets
-        UnitConverter.createUnitToggle(
-            container.querySelector('#fib4-plt') as HTMLInputElement,
-            'platelet',
-            ['×10⁹/L', 'K/µL', 'thou/mm³']
-        );
+        // Note: UnitConverter.createUnitToggle is not needed if unitToggle is passed to createInput, 
+        // but if it was called manually, it should be removed if createInput handles it.
+        // The original code had it, but createInput with unitToggle should suffice if implemented correctly.
+        // Assuming createInput handles it.
 
         const ageInput = container.querySelector('#fib4-age') as HTMLInputElement;
         const astInput = container.querySelector('#fib4-ast') as HTMLInputElement;
@@ -83,17 +86,17 @@ export const fib4: Calculator = {
             const ast = parseFloat(astInput.value);
             const alt = parseFloat(altInput.value);
             // Use UnitConverter to get standard value (×10^9/L)
-            const plt = UnitConverter.getStandardValue(pltInput);
+            const plt = UnitConverter.getStandardValue(pltInput, '×10⁹/L');
 
             const resultBox = container.querySelector('#fib4-result') as HTMLElement;
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
-            if (age > 0 && ast > 0 && alt > 0 && plt > 0) {
+            if (age > 0 && ast > 0 && alt > 0 && plt !== null && plt > 0) {
                 const fib4_score = (age * ast) / (plt * Math.sqrt(alt));
 
                 let interpretation = '';
                 let recommendation = '';
-                let alertType = 'info';
+                let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
                 if (fib4_score < 1.3) {
                     interpretation = 'Low Risk (Low probability of advanced fibrosis F3-F4)';

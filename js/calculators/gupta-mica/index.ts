@@ -1,6 +1,6 @@
-import { calculateAge, getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { calculateAge, getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -96,7 +96,7 @@ export const guptaMica: Calculator = {
             ${uiBuilder.createResultBox({ id: 'mica-result', title: 'Gupta MICA Risk Assessment' })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const ageInput = container.querySelector('#mica-age') as HTMLInputElement;
@@ -132,7 +132,7 @@ export const guptaMica: Calculator = {
 
             let riskLevel = 'Low Risk';
             let riskDescription = 'Low risk of postoperative MI or cardiac arrest';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
 
             if (risk > 5) {
                 riskLevel = 'High Risk';

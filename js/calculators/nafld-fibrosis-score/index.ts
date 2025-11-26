@@ -1,7 +1,7 @@
-import { getMostRecentObservation, calculateAge } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -51,7 +51,7 @@ export const nafldFibrosisScore: Calculator = {
                 unitToggle: {
                     type: 'platelet',
                     units: ['×10⁹/L', 'K/µL'],
-                    defaultUnit: '×10⁹/L'
+                    default: '×10⁹/L'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -63,7 +63,7 @@ export const nafldFibrosisScore: Calculator = {
                 unitToggle: {
                     type: 'concentration',
                     units: ['g/dL', 'g/L'],
-                    defaultUnit: 'g/dL'
+                    default: 'g/dL'
                 }
             })}
                 `
@@ -100,7 +100,7 @@ export const nafldFibrosisScore: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const ageInput = container.querySelector('#nafld-age') as HTMLInputElement;
@@ -118,9 +118,11 @@ export const nafldFibrosisScore: Calculator = {
             const alt = parseFloat(altInput.value);
             const platelet = UnitConverter.getStandardValue(plateletInput, '×10⁹/L');
             const albumin = UnitConverter.getStandardValue(albuminInput, 'g/dL');
-            const diabetes = parseInt((container.querySelector('input[name="nafld-diabetes"]:checked') as HTMLInputElement).value);
 
-            if (isNaN(age) || isNaN(bmi) || isNaN(ast) || isNaN(alt) || isNaN(platelet) || isNaN(albumin) || alt === 0) {
+            const diabetesRadio = container.querySelector('input[name="nafld-diabetes"]:checked') as HTMLInputElement;
+            const diabetes = diabetesRadio ? parseInt(diabetesRadio.value) : 0;
+
+            if (isNaN(age) || isNaN(bmi) || isNaN(ast) || isNaN(alt) || platelet === null || albumin === null || alt === 0) {
                 resultBox.classList.remove('show');
                 return;
             }
@@ -136,7 +138,7 @@ export const nafldFibrosisScore: Calculator = {
 
             let stage = '';
             let interpretation = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score < -1.455) {
                 stage = 'F0-F2';

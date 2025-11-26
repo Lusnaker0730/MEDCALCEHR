@@ -19,7 +19,7 @@ export const timiNstemi = {
             { id: 'timi-marker', label: 'Positive Cardiac Marker', icon: '🧪', help: 'Elevated Troponin or CK-MB' }
         ];
 
-        const sections = criteria.map(item => 
+        const sections = criteria.map(item =>
             uiBuilder.createSection({
                 title: item.label,
                 icon: item.icon,
@@ -45,8 +45,8 @@ export const timiNstemi = {
             ${uiBuilder.createResultBox({ id: 'timi-result', title: 'TIMI Risk Score' })}
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Risk Stratification (14-day events)</h4>
                     <table class="ui-data-table">
                         <thead>
@@ -59,18 +59,18 @@ export const timiNstemi = {
                         </tbody>
                     </table>
                 `
-            })}
+        })}
         `;
     },
 
-    initialize: (client, patient, container) => {
+    initialize: (client: FHIRClient | null, patient: Patient | null, container: HTMLElement) => {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
             radios.forEach(radio => {
-                score += parseInt(radio.value);
+                score += parseInt((radio as HTMLInputElement).value);
             });
 
             let risk = '';
@@ -95,23 +95,23 @@ export const timiNstemi = {
                 recommendation = 'Early invasive strategy; urgent cardiology consultation; aggressive antiplatelet therapy; consider GP IIb/IIIa inhibitors.';
             }
 
-            const resultBox = container.querySelector('#timi-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#timi-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: '/ 7 points',
-                    interpretation: risk,
-                    alertClass: alertClass
-                })}
-                ${uiBuilder.createResultItem({ 
-                    label: '14-Day Event Rate', 
-                    value: eventRate, 
-                    unit: '',
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: '/ 7 points',
+                interpretation: risk,
+                alertClass: alertClass
+            })}
+                ${uiBuilder.createResultItem({
+                label: '14-Day Event Rate',
+                value: eventRate,
+                unit: '',
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ${alertClass} mt-10">
                     <span class="ui-alert-icon">💡</span>
@@ -120,7 +120,7 @@ export const timiNstemi = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -130,8 +130,8 @@ export const timiNstemi = {
         });
 
         // Helper to set radio value
-        const setRadioValue = (name, value) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -159,8 +159,8 @@ export const timiNstemi = {
             // In a real app, we would need robust checking for all 5 risk factors.
             // For now, we just do a basic check if we can find smoking.
             getObservation(client, '72166-2').then(obs => {
-                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding.some(c => 
-                    ['449868002', '428041000124106'].includes(c.code))) {
+                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding?.some(c =>
+                    ['449868002', '428041000124106'].includes(c.code || ''))) {
                     // If smoker, we might increment a counter, but we can't fully determine ">=3 risk factors" easily without checking everything.
                     // Leaving this as a placeholder for future expansion.
                 }

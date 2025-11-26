@@ -82,7 +82,7 @@ export const dueDate: Calculator = {
             const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const eddStr = edd.toLocaleDateString(undefined, options);
 
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
             let statusMessage = '';
 
             if (diffDays < 0) {

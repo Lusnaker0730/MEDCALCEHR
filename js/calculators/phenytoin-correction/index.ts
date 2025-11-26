@@ -19,53 +19,53 @@ export const phenytoinCorrection = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Lab Values & Clinical Status',
-                icon: '🧪',
-                content: `
+            title: 'Lab Values & Clinical Status',
+            icon: '🧪',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'pheny-total',
-                        label: 'Total Phenytoin Level',
-                        type: 'number',
-                        step: '0.1',
-                        placeholder: 'e.g., 8.0',
-                        unit: 'mcg/mL'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'pheny-albumin',
-                        label: 'Serum Albumin',
-                        type: 'number',
-                        step: '0.1',
-                        placeholder: 'e.g., 3.0',
-                        unitToggle: {
-                            type: 'albumin',
-                            units: ['g/dL', 'g/L'],
-                            defaultUnit: 'g/dL'
-                        }
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'pheny-renal',
-                        label: 'Renal Status (CrCl < 10 mL/min)',
-                        options: [
-                            { value: 'no', label: 'No (Normal Function)', checked: true },
-                            { value: 'yes', label: 'Yes (Renal Failure)' }
-                        ],
-                        helpText: 'Select Yes if CrCl < 10 mL/min, ESRD, or on dialysis.'
-                    })}
-                `
+                id: 'pheny-total',
+                label: 'Total Phenytoin Level',
+                type: 'number',
+                step: 0.1,
+                placeholder: 'e.g., 8.0',
+                unit: 'mcg/mL'
             })}
+                    ${uiBuilder.createInput({
+                id: 'pheny-albumin',
+                label: 'Serum Albumin',
+                type: 'number',
+                step: 0.1,
+                placeholder: 'e.g., 3.0',
+                unitToggle: {
+                    type: 'albumin',
+                    units: ['g/dL', 'g/L'],
+                    default: 'g/dL'
+                }
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'pheny-renal',
+                label: 'Renal Status (CrCl < 10 mL/min)',
+                options: [
+                    { value: 'no', label: 'No (Normal Function)', checked: true },
+                    { value: 'yes', label: 'Yes (Renal Failure)' }
+                ],
+                helpText: 'Select Yes if CrCl < 10 mL/min, ESRD, or on dialysis.'
+            })}
+                `
+        })}
             
             ${uiBuilder.createResultBox({ id: 'phenytoin-result', title: 'Corrected Phenytoin Level' })}
             
             ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Corrected Level', formula: 'Total Phenytoin / [((1-K) × Albumin/4.4) + K]' },
-                    { label: 'K', formula: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)' }
-                ]
-            })}
+            items: [
+                { label: 'Corrected Level', formula: 'Total Phenytoin / [((1-K) × Albumin/4.4) + K]' },
+                { label: 'K', formula: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)' }
+            ]
+        })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Therapeutic Range:</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li>10-20 mcg/mL</li>
@@ -73,22 +73,22 @@ export const phenytoinCorrection = {
                         <li><10 mcg/mL: Subtherapeutic</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const totalEl = container.querySelector('#pheny-total');
-        const albuminEl = container.querySelector('#pheny-albumin');
-        const resultEl = container.querySelector('#phenytoin-result');
+        const totalEl = container.querySelector('#pheny-total') as HTMLInputElement;
+        const albuminEl = container.querySelector('#pheny-albumin') as HTMLInputElement;
+        const resultEl = container.querySelector('#phenytoin-result') as HTMLElement;
 
         const calculateAndUpdate = () => {
             const totalPhenytoin = parseFloat(totalEl.value);
             const albuminGdl = UnitConverter.getStandardValue(albuminEl, 'g/dL');
-            const hasRenalFailure = container.querySelector('input[name="pheny-renal"]:checked')?.value === 'yes';
+            const hasRenalFailure = (container.querySelector('input[name="pheny-renal"]:checked') as HTMLInputElement)?.value === 'yes';
 
-            if (isNaN(totalPhenytoin) || isNaN(albuminGdl) || totalPhenytoin <= 0 || albuminGdl <= 0) {
+            if (isNaN(totalPhenytoin) || albuminGdl === null || isNaN(albuminGdl) || totalPhenytoin <= 0 || albuminGdl <= 0) {
                 resultEl.classList.remove('show');
                 return;
             }
@@ -99,7 +99,7 @@ export const phenytoinCorrection = {
             // Determine therapeutic status
             let status = '';
             let statusClass = 'ui-alert-success';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
             let alertMsg = 'Within therapeutic range.';
 
             if (correctedPhenytoin < 10) {
@@ -114,24 +114,24 @@ export const phenytoinCorrection = {
                 alertMsg = 'Level is above therapeutic range. Monitor for toxicity.';
             }
 
-            const resultContent = resultEl.querySelector('.ui-result-content');
+            const resultContent = resultEl.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Corrected Phenytoin',
-                    value: correctedPhenytoin.toFixed(1),
-                    unit: 'mcg/mL',
-                    interpretation: status,
-                    alertClass: statusClass
-                })}
+                label: 'Corrected Phenytoin',
+                value: correctedPhenytoin.toFixed(1),
+                unit: 'mcg/mL',
+                interpretation: status,
+                alertClass: statusClass
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Measured Total',
-                    value: totalPhenytoin.toFixed(1),
-                    unit: 'mcg/mL'
-                })}
+                label: 'Measured Total',
+                value: totalPhenytoin.toFixed(1),
+                unit: 'mcg/mL'
+            })}
                 ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
+                type: alertType,
+                message: alertMsg
+            })}
             `;
             resultEl.classList.add('show');
         };
@@ -154,19 +154,19 @@ export const phenytoinCorrection = {
                 if (obs && obs.valueQuantity) {
                     // Assuming g/dL logic or unit conversion handled if we had direct value input helper
                     // For now just set value, assume g/dL if not converted
-                     // If unit is g/L, divide by 10
+                    // If unit is g/L, divide by 10
                     let val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'g/dL';
-                    
+
                     // Simplified conversion check, ideally UnitConverter handles this if input logic matches
                     // But we need to set the input value for the user. 
                     // If user toggle is g/dL, we should provide g/dL.
                     // If unit is g/L, we can convert to g/dL for default
                     if (unit.includes('L') && !unit.includes('dL')) { // simple check for g/L
-                         // Assuming standard is g/dL for calculator input default
-                         // Let's just put raw value and let user toggle unit?
-                         // Or convert to g/dL since default is g/dL
-                         val = val / 10;
+                        // Assuming standard is g/dL for calculator input default
+                        // Let's just put raw value and let user toggle unit?
+                        // Or convert to g/dL since default is g/dL
+                        val = val / 10;
                     }
                     albuminEl.value = val.toFixed(1);
                     // Trigger input event
@@ -175,7 +175,7 @@ export const phenytoinCorrection = {
                 calculateAndUpdate();
             });
         }
-        
+
         calculateAndUpdate();
     }
 };

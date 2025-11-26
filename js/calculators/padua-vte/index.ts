@@ -25,7 +25,7 @@ export const paduaVTE = {
 
         const inputs = uiBuilder.createSection({
             title: 'Risk Factors',
-            content: riskFactors.map(factor => 
+            content: riskFactors.map(factor =>
                 uiBuilder.createRadioGroup({
                     name: factor.id,
                     label: factor.label,
@@ -51,8 +51,8 @@ export const paduaVTE = {
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const setRadioValue = (name, value) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -62,15 +62,15 @@ export const paduaVTE = {
         const calculate = () => {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
-            
+
             radios.forEach(radio => {
-                score += parseInt(radio.value);
+                score += parseInt((radio as HTMLInputElement).value);
             });
 
             let alertClass = '';
             let riskLevel = '';
             let recommendation = '';
-            let type = '';
+            let type: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score >= 4) {
                 alertClass = 'ui-alert-danger';
@@ -84,25 +84,25 @@ export const paduaVTE = {
                 type = 'success';
             }
 
-            const resultBox = container.querySelector('#padua-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#padua-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: 'points',
-                    interpretation: riskLevel,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: alertClass
+            })}
                 
                 ${uiBuilder.createAlert({
-                    type: type === 'danger' ? 'warning' : 'info',
-                    message: `<strong>Recommendation:</strong> ${recommendation}`,
-                    icon: type === 'danger' ? '⚠️' : '✓'
-                })}
+                type: type === 'danger' ? 'warning' : 'info',
+                message: `<strong>Recommendation:</strong> ${recommendation}`,
+                icon: type === 'danger' ? '⚠️' : '✓'
+            })}
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -122,7 +122,7 @@ export const paduaVTE = {
         // Auto-populate BMI
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
-                if (obs?.valueQuantity?.value >= 30) {
+                if (obs?.valueQuantity?.value && obs.valueQuantity.value >= 30) {
                     setRadioValue('padua-obesity', '1');
                 }
             });

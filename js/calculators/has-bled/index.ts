@@ -3,9 +3,9 @@ import {
     getMostRecentObservation,
     getPatientConditions,
     getMedicationRequests
-} from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+} from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation, Condition, MedicationRequest } from '../../types/fhir';
 
@@ -59,7 +59,7 @@ export const hasBled: Calculator = {
             ${uiBuilder.createResultBox({ id: 'has-bled-result', title: 'HAS-BLED Score Result' })}
         `;
     },
-    initialize: async function (client: FHIRClient, patient: Patient, container: HTMLElement): Promise<void> {
+    initialize: async function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): Promise<void> {
         uiBuilder.initializeComponents(container);
 
         const setRadioValue = (name: string, value: string) => {
@@ -79,7 +79,7 @@ export const hasBled: Calculator = {
 
             let risk = '';
             let level = '';
-            let alertClass = '';
+            let alertClass: 'ui-alert-success' | 'ui-alert-warning' | 'ui-alert-danger' = 'ui-alert-success';
             let recommendation = '';
 
             if (score === 0) {
@@ -163,12 +163,12 @@ export const hasBled: Calculator = {
                 }
 
                 // Conditions
-                const conditions = await getPatientConditions(client);
+                const conditions = await getPatientConditions(client, []);
                 if (conditions) {
                     // Basic mapping check (simplified for brevity)
                     // In real scenario, we'd check codes more robustly
                     const checkCondition = (codes: string[], targetId: string) => {
-                        if (conditions.some((c: Condition) => c.code && c.code.coding && codes.includes(c.code.coding[0].code))) {
+                        if (conditions.some((c: Condition) => c.code && c.code.coding && codes.includes(c.code.coding[0].code || ''))) {
                             setRadioValue(targetId, '1');
                         }
                     };
@@ -182,12 +182,12 @@ export const hasBled: Calculator = {
 
                 // Observations
                 const sbp = await getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP);
-                if (sbp && sbp.valueQuantity && sbp.valueQuantity.value > 160) {
+                if (sbp && sbp.valueQuantity && sbp.valueQuantity.value && sbp.valueQuantity.value > 160) {
                     setRadioValue('hasbled-hypertension', '1');
                 }
 
                 const creatinine = await getMostRecentObservation(client, LOINC_CODES.CREATININE);
-                if (creatinine && creatinine.valueQuantity && creatinine.valueQuantity.value > 2.26) {
+                if (creatinine && creatinine.valueQuantity && creatinine.valueQuantity.value && creatinine.valueQuantity.value > 2.26) {
                     setRadioValue('hasbled-renal', '1');
                 }
 

@@ -1,7 +1,7 @@
-import { getMostRecentObservation, calculateAge } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -43,7 +43,7 @@ export const sixMwd: Calculator = {
                 unitToggle: {
                     type: 'height',
                     units: ['cm', 'in'],
-                    defaultUnit: 'cm'
+                    default: 'cm'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -54,7 +54,7 @@ export const sixMwd: Calculator = {
                 unitToggle: {
                     type: 'weight',
                     units: ['kg', 'lbs'],
-                    defaultUnit: 'kg'
+                    default: 'kg'
                 }
             })}
                 `
@@ -85,7 +85,7 @@ export const sixMwd: Calculator = {
             </div>
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const ageEl = container.querySelector('#mwd6-age') as HTMLInputElement;
@@ -103,7 +103,7 @@ export const sixMwd: Calculator = {
             const weightKg = UnitConverter.getStandardValue(weightEl, 'kg');
             const actualDistance = parseInt(distanceEl.value);
 
-            if (isNaN(age) || !genderRadio || isNaN(heightCm) || isNaN(weightKg)) {
+            if (isNaN(age) || !genderRadio || heightCm === null || isNaN(heightCm) || weightKg === null || isNaN(weightKg)) {
                 resultBox.classList.remove('show');
                 return;
             }

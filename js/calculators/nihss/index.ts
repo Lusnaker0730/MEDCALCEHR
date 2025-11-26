@@ -158,7 +158,7 @@ export const nihss = {
             }
         ];
 
-        const formContent = sections.map(section => 
+        const formContent = sections.map(section =>
             uiBuilder.createSection({
                 title: section.title,
                 content: uiBuilder.createRadioGroup({
@@ -206,7 +206,7 @@ export const nihss = {
             let allSelected = true;
 
             groups.forEach(groupName => {
-                const checked = container.querySelector(`input[name="${groupName}"]:checked`);
+                const checked = container.querySelector(`input[name="${groupName}"]:checked`) as HTMLInputElement;
                 if (checked) {
                     score += parseInt(checked.value);
                 } else {
@@ -242,24 +242,24 @@ export const nihss = {
                 interpretation = 'Severe stroke. Critical care and aggressive intervention needed.';
             }
 
-            const resultBox = container.querySelector('#nihss-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultBox = container.querySelector('#nihss-result') as HTMLElement;
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: '/ 42 points',
-                    interpretation: severity,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: '/ 42 points',
+                interpretation: severity,
+                alertClass: alertClass
+            })}
                 
                 <div class="ui-alert ${alertClass} mt-10">
                     <span class="ui-alert-icon">${score >= 16 ? '⚠️' : 'ℹ️'}</span>
                     <div class="ui-alert-content">${interpretation}</div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 

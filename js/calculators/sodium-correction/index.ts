@@ -19,72 +19,72 @@ export const sodiumCorrection = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Lab Values',
-                icon: '🧪',
-                content: `
+            title: 'Lab Values',
+            icon: '🧪',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'measured-sodium',
-                        label: 'Measured Sodium (mEq/L)',
-                        type: 'number',
-                        placeholder: 'e.g., 135',
-                        unit: 'mEq/L'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'glucose',
-                        label: 'Serum Glucose',
-                        type: 'number',
-                        placeholder: 'e.g., 400',
-                        unitToggle: {
-                            type: 'glucose',
-                            units: ['mg/dL', 'mmol/L'],
-                            defaultUnit: 'mg/dL'
-                        }
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'correction-factor',
-                        label: 'Correction Factor',
-                        options: [
-                            { value: '1.6', label: '1.6 (Standard, Hillier)', checked: true },
-                            { value: '2.4', label: '2.4 (Katz, suggested for Glucose > 400 mg/dL)' }
-                        ],
-                        helpText: 'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
-                    })}
-                `
+                id: 'measured-sodium',
+                label: 'Measured Sodium (mEq/L)',
+                type: 'number',
+                placeholder: 'e.g., 135',
+                unit: 'mEq/L'
             })}
+                    ${uiBuilder.createInput({
+                id: 'glucose',
+                label: 'Serum Glucose',
+                type: 'number',
+                placeholder: 'e.g., 400',
+                unitToggle: {
+                    type: 'glucose',
+                    units: ['mg/dL', 'mmol/L'],
+                    default: 'mg/dL'
+                }
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'correction-factor',
+                label: 'Correction Factor',
+                options: [
+                    { value: '1.6', label: '1.6 (Standard, Hillier)', checked: true },
+                    { value: '2.4', label: '2.4 (Katz, suggested for Glucose > 400 mg/dL)' }
+                ],
+                helpText: 'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
+            })}
+                `
+        })}
             
             ${uiBuilder.createResultBox({ id: 'sodium-correction-result', title: 'Corrected Sodium' })}
             
             ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Corrected Na', formula: 'Measured Na + [Correction Factor × (Glucose - 100) / 100]' }
-                ]
-            })}
+            items: [
+                { label: 'Corrected Na', formula: 'Measured Na + [Correction Factor × (Glucose - 100) / 100]' }
+            ]
+        })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Normal Values:</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li>Normal Sodium: 136-145 mEq/L</li>
                         <li>Normal Glucose: 70-100 mg/dL</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const sodiumInput = container.querySelector('#measured-sodium');
-        const glucoseInput = container.querySelector('#glucose');
-        const resultBox = container.querySelector('#sodium-correction-result');
+        const sodiumInput = container.querySelector('#measured-sodium') as HTMLInputElement;
+        const glucoseInput = container.querySelector('#glucose') as HTMLInputElement;
+        const resultBox = container.querySelector('#sodium-correction-result') as HTMLElement;
 
         const calculateAndUpdate = () => {
             const measuredSodium = parseFloat(sodiumInput.value);
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
-            const correctionFactor = parseFloat(container.querySelector('input[name="correction-factor"]:checked').value);
+            const correctionFactor = parseFloat((container.querySelector('input[name="correction-factor"]:checked') as HTMLInputElement).value);
 
-            if (isNaN(measuredSodium) || isNaN(glucoseMgDl) || measuredSodium <= 0 || glucoseMgDl <= 0) {
+            if (isNaN(measuredSodium) || glucoseMgDl === null || isNaN(glucoseMgDl) || measuredSodium <= 0 || glucoseMgDl <= 0) {
                 resultBox.classList.remove('show');
                 return;
             }
@@ -92,7 +92,7 @@ export const sodiumCorrection = {
             const correctedSodium = measuredSodium + correctionFactor * ((glucoseMgDl - 100) / 100);
 
             let status = '';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
             if (correctedSodium < 136) {
                 status = 'Low (Hyponatremia)';
                 alertType = 'info';
@@ -104,34 +104,34 @@ export const sodiumCorrection = {
                 alertType = 'success';
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Corrected Sodium',
-                    value: correctedSodium.toFixed(1),
-                    unit: 'mEq/L',
-                    interpretation: status,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Corrected Sodium',
+                value: correctedSodium.toFixed(1),
+                unit: 'mEq/L',
+                interpretation: status,
+                alertClass: `ui-alert-${alertType}`
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Measured Sodium',
-                    value: measuredSodium,
-                    unit: 'mEq/L'
-                })}
+                label: 'Measured Sodium',
+                value: measuredSodium,
+                unit: 'mEq/L'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Correction',
-                    value: `+${(correctedSodium - measuredSodium).toFixed(1)}`,
-                    unit: 'mEq/L'
-                })}
+                label: 'Correction',
+                value: `+${(correctedSodium - measuredSodium).toFixed(1)}`,
+                unit: 'mEq/L'
+            })}
             `;
-            
+
             if (correctionFactor === 1.6 && glucoseMgDl > 400) {
                 resultContent.innerHTML += uiBuilder.createAlert({
                     type: 'warning',
                     message: 'Glucose > 400 mg/dL. Consider using correction factor of 2.4.'
                 });
             }
-            
+
             resultBox.classList.add('show');
         };
 

@@ -1,6 +1,6 @@
-import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
+import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation, Condition } from '../../types/fhir';
 
@@ -23,15 +23,27 @@ export const charlson: Calculator = {
             })
         });
 
+        const createConditionToggle = (id: string, title: string, subtitle: string, points: number): string => {
+            return uiBuilder.createRadioGroup({
+                name: id,
+                label: title,
+                helpText: subtitle,
+                options: [
+                    { value: '0', label: 'No (+0)', checked: true },
+                    { value: String(points), label: `Yes (+${points})` }
+                ]
+            });
+        };
+
         const conditionsContent = [
-            this.createConditionToggle('mi', 'Myocardial infarction', 'History of definite or probable MI', 1),
-            this.createConditionToggle('chf', 'CHF', 'Exertional or paroxysmal nocturnal dyspnea', 1),
-            this.createConditionToggle('pvd', 'Peripheral vascular disease', 'Intermittent claudication, past bypass, gangrene, or aneurysm', 1),
-            this.createConditionToggle('cva', 'CVA or TIA', 'History of a cerebrovascular accident', 1),
-            this.createConditionToggle('dementia', 'Dementia', 'Chronic cognitive deficit', 1),
-            this.createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
-            this.createConditionToggle('ctd', 'Connective tissue disease', '', 1),
-            this.createConditionToggle('pud', 'Peptic ulcer disease', 'Any history of treatment for ulcer disease', 1),
+            createConditionToggle('mi', 'Myocardial infarction', 'History of definite or probable MI', 1),
+            createConditionToggle('chf', 'CHF', 'Exertional or paroxysmal nocturnal dyspnea', 1),
+            createConditionToggle('pvd', 'Peripheral vascular disease', 'Intermittent claudication, past bypass, gangrene, or aneurysm', 1),
+            createConditionToggle('cva', 'CVA or TIA', 'History of a cerebrovascular accident', 1),
+            createConditionToggle('dementia', 'Dementia', 'Chronic cognitive deficit', 1),
+            createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
+            createConditionToggle('ctd', 'Connective tissue disease', '', 1),
+            createConditionToggle('pud', 'Peptic ulcer disease', 'Any history of treatment for ulcer disease', 1),
 
             uiBuilder.createRadioGroup({
                 name: 'liver',
@@ -55,8 +67,8 @@ export const charlson: Calculator = {
                 ]
             }),
 
-            this.createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
-            this.createConditionToggle('ckd', 'Moderate to severe CKD', 'Severe on dialysis, uremia, or creatinine >3 mg/dL', 2),
+            createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
+            createConditionToggle('ckd', 'Moderate to severe CKD', 'Severe on dialysis, uremia, or creatinine >3 mg/dL', 2),
 
             uiBuilder.createRadioGroup({
                 name: 'tumor',
@@ -68,9 +80,9 @@ export const charlson: Calculator = {
                 ]
             }),
 
-            this.createConditionToggle('leukemia', 'Leukemia', '', 2),
-            this.createConditionToggle('lymphoma', 'Lymphoma', '', 2),
-            this.createConditionToggle('aids', 'AIDS', 'Not just HIV positive, but "full-blown" AIDS', 6)
+            createConditionToggle('leukemia', 'Leukemia', '', 2),
+            createConditionToggle('lymphoma', 'Lymphoma', '', 2),
+            createConditionToggle('aids', 'AIDS', 'Not just HIV positive, but "full-blown" AIDS', 6)
         ].join('');
 
         const conditionsSection = uiBuilder.createSection({
@@ -99,18 +111,8 @@ export const charlson: Calculator = {
             </div>
         `;
     },
-    createConditionToggle: function (id: string, title: string, subtitle: string, points: number): string {
-        return uiBuilder.createRadioGroup({
-            name: id,
-            label: title,
-            helpText: subtitle,
-            options: [
-                { value: '0', label: 'No (+0)', checked: true },
-                { value: String(points), label: `Yes (+${points})` }
-            ]
-        });
-    },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
@@ -174,7 +176,7 @@ export const charlson: Calculator = {
 
             for (const [key, { codes, value }] of Object.entries(conditionMap)) {
                 getPatientConditions(client, codes).then((conditions: Condition[]) => {
-                    if (conditions.length > 0) {
+                    if (conditions && conditions.length > 0) {
                         const radio = container.querySelector(`input[name="${key}"][value="${value}"]`) as HTMLInputElement;
                         if (radio) {
                             radio.checked = true;
@@ -188,7 +190,7 @@ export const charlson: Calculator = {
             // ... (keeping same logic as before, just dispatching change event)
             getPatientConditions(client, ['K70.3', 'K74', 'I85']).then((conditions: Condition[]) => {
                 // Moderate/Severe Liver
-                if (conditions.length > 0) {
+                if (conditions && conditions.length > 0) {
                     const radio = container.querySelector('input[name="liver"][value="3"]') as HTMLInputElement;
                     if (radio) {
                         radio.checked = true;
@@ -197,7 +199,7 @@ export const charlson: Calculator = {
                 } else {
                     getPatientConditions(client, ['K73', 'B18']).then((conditions: Condition[]) => {
                         // Mild Liver
-                        if (conditions.length > 0) {
+                        if (conditions && conditions.length > 0) {
                             const radio = container.querySelector('input[name="liver"][value="1"]') as HTMLInputElement;
                             if (radio) {
                                 radio.checked = true;
@@ -213,7 +215,7 @@ export const charlson: Calculator = {
                 'E11.2', 'E11.3', 'E11.4', 'E11.5'
             ]).then((conditions: Condition[]) => {
                 // Diabetes w/ end-organ damage
-                if (conditions.length > 0) {
+                if (conditions && conditions.length > 0) {
                     const radio = container.querySelector('input[name="diabetes"][value="2"]') as HTMLInputElement;
                     if (radio) {
                         radio.checked = true;
@@ -222,7 +224,7 @@ export const charlson: Calculator = {
                 } else {
                     getPatientConditions(client, ['E10', 'E11']).then((conditions: Condition[]) => {
                         // Uncomplicated Diabetes
-                        if (conditions.length > 0) {
+                        if (conditions && conditions.length > 0) {
                             const radio = container.querySelector('input[name="diabetes"][value="1"]') as HTMLInputElement;
                             if (radio) {
                                 radio.checked = true;
@@ -235,10 +237,10 @@ export const charlson: Calculator = {
 
             getPatientConditions(client, ['C00-C75', 'C76-C80']).then((conditions: Condition[]) => {
                 // Solid tumor
-                if (conditions.length > 0) {
+                if (conditions && conditions.length > 0) {
                     const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
                     const isMetastatic = conditions.some(c =>
-                        c.code.coding && metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
+                        c.code && c.code.coding && metastaticCodes.includes(c.code.coding[0].code?.substring(0, 3) || '')
                     );
                     const value = isMetastatic ? 6 : 2;
                     const radio = container.querySelector(`input[name="tumor"][value="${value}"]`) as HTMLInputElement;
@@ -251,7 +253,7 @@ export const charlson: Calculator = {
 
             // Check for CKD via labs or conditions
             getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then((conditions: Condition[]) => {
-                if (conditions.length > 0) {
+                if (conditions && conditions.length > 0) {
                     const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement;
                     if (radio) {
                         radio.checked = true;
@@ -261,7 +263,7 @@ export const charlson: Calculator = {
             });
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then((obs: Observation | null) => {
                 // Creatinine
-                if (obs && obs.valueQuantity && obs.valueQuantity.value > 3) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value && obs.valueQuantity.value > 3) {
                     const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement;
                     if (radio) {
                         radio.checked = true;

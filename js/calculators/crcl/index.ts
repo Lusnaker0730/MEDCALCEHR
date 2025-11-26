@@ -1,10 +1,10 @@
 import {
     getMostRecentObservation,
     calculateAge,
-} from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+} from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -46,7 +46,7 @@ export const crcl: Calculator = {
                 unitToggle: {
                     type: 'weight',
                     units: ['kg', 'lbs'],
-                    defaultUnit: 'kg'
+                    default: 'kg'
                 }
             })}
                 `
@@ -63,7 +63,7 @@ export const crcl: Calculator = {
                 unitToggle: {
                     type: 'creatinine',
                     units: ['mg/dL', 'µmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })
         })}
@@ -89,7 +89,7 @@ export const crcl: Calculator = {
         })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const ageInput = container.querySelector('#crcl-age') as HTMLInputElement;
@@ -103,7 +103,7 @@ export const crcl: Calculator = {
             const scrMgDl = UnitConverter.getStandardValue(scrInput, 'mg/dL');
             const gender = (container.querySelector('input[name="crcl-gender"]:checked') as HTMLInputElement)?.value || 'male';
 
-            if (isNaN(age) || isNaN(weightKg) || isNaN(scrMgDl) || age <= 0 || weightKg <= 0 || scrMgDl <= 0) {
+            if (isNaN(age) || weightKg === null || scrMgDl === null || age <= 0 || weightKg <= 0 || scrMgDl <= 0) {
                 resultBox.classList.remove('show');
                 return;
             }
@@ -115,7 +115,7 @@ export const crcl: Calculator = {
 
             let category = '';
             let severityClass = 'ui-alert-success';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
             let alertMsg = '';
 
             if (crcl >= 90) {

@@ -148,7 +148,7 @@ export const actionIcu: Calculator = {
             const riskPercent = score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
 
             let riskLevel = 'Low Risk';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
             if (riskPercent >= 20) {
                 riskLevel = 'High Risk';
                 alertType = 'danger';

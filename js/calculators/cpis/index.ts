@@ -124,7 +124,7 @@ export const cpis: Calculator = {
 
             let interpretation = '';
             let detail = '';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
             let management = '';
 
             if (score < 6) {

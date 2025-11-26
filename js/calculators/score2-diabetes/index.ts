@@ -34,59 +34,59 @@ export const score2Diabetes = {
                 <p class="description">${this.description}</p>
                     </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Instructions:</strong> Select risk region and enter patient details. Validated for European populations aged 40-69.'
-            })}
+            type: 'info',
+            message: '<strong>Instructions:</strong> Select risk region and enter patient details. Validated for European populations aged 40-69.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Geographic Risk Region',
-                icon: '🌍',
-                content: uiBuilder.createRadioGroup({
-                    name: 'score2d-region',
-                    options: [
-                        { value: 'low', label: 'Low Risk (e.g., France, Spain, Italy)' },
-                        { value: 'moderate', label: 'Moderate Risk (e.g., Germany, UK)' },
-                        { value: 'high', label: 'High Risk (e.g., Poland, Hungary)' },
-                        { value: 'very_high', label: 'Very High Risk (e.g., Romania, Turkey)' }
-                    ]
-                })
-            })}
+            title: 'Geographic Risk Region',
+            icon: '🌍',
+            content: uiBuilder.createRadioGroup({
+                name: 'score2d-region',
+                options: [
+                    { value: 'low', label: 'Low Risk (e.g., France, Spain, Italy)' },
+                    { value: 'moderate', label: 'Moderate Risk (e.g., Germany, UK)' },
+                    { value: 'high', label: 'High Risk (e.g., Poland, Hungary)' },
+                    { value: 'very_high', label: 'Very High Risk (e.g., Romania, Turkey)' }
+                ]
+            })
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Demographics & History',
-                icon: '👤',
-                content: `
+            title: 'Demographics & History',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'score2d-sex',
-                        label: 'Gender',
-                        options: [
-                            { value: 'male', label: 'Male' },
-                            { value: 'female', label: 'Female' }
-                        ]
-                    })}
+                name: 'score2d-sex',
+                label: 'Gender',
+                options: [
+                    { value: 'male', label: 'Male' },
+                    { value: 'female', label: 'Female' }
+                ]
+            })}
                     ${uiBuilder.createInput({ id: 'score2d-age', label: 'Age', unit: 'years', type: 'number', min: 40, max: 69 })}
                     ${uiBuilder.createRadioGroup({
-                        name: 'score2d-smoking',
-                        label: 'Smoking Status',
-                        options: [
-                            { value: '0', label: 'Non-smoker', checked: true },
-                            { value: '1', label: 'Current Smoker' }
-                        ]
-                    })}
-                `
+                name: 'score2d-smoking',
+                label: 'Smoking Status',
+                options: [
+                    { value: '0', label: 'Non-smoker', checked: true },
+                    { value: '1', label: 'Current Smoker' }
+                ]
             })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical & Lab Values',
-                icon: '🧪',
-                content: `
+            title: 'Clinical & Lab Values',
+            icon: '🧪',
+            content: `
                     ${uiBuilder.createInput({ id: 'score2d-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'score2d-tchol', label: 'Total Cholesterol', unit: 'mg/dL', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'score2d-hdl', label: 'HDL Cholesterol', unit: 'mg/dL', type: 'number' })}
-                    ${uiBuilder.createInput({ id: 'score2d-hba1c', label: 'HbA1c', unit: '%', type: 'number', step: '0.1' })}
+                    ${uiBuilder.createInput({ id: 'score2d-hba1c', label: 'HbA1c', unit: '%', type: 'number', step: 0.1 })}
                     ${uiBuilder.createInput({ id: 'score2d-egfr', label: 'eGFR', unit: 'mL/min', type: 'number' })}
                 `
-            })}
+        })}
 
             ${uiBuilder.createResultBox({ id: 'score2d-result', title: '10-Year CVD Risk' })}
         `;
@@ -95,17 +95,17 @@ export const score2Diabetes = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const region = container.querySelector('input[name="score2d-region"]:checked')?.value;
-            const sex = container.querySelector('input[name="score2d-sex"]:checked')?.value;
-            const age = parseFloat(container.querySelector('#score2d-age').value);
-            const smoking = parseInt(container.querySelector('input[name="score2d-smoking"]:checked').value);
-            const sbp = parseFloat(container.querySelector('#score2d-sbp').value);
-            const tchol = parseFloat(container.querySelector('#score2d-tchol').value);
-            const hdl = parseFloat(container.querySelector('#score2d-hdl').value);
-            const hba1c = parseFloat(container.querySelector('#score2d-hba1c').value);
-            const egfr = parseFloat(container.querySelector('#score2d-egfr').value);
+            const region = (container.querySelector('input[name="score2d-region"]:checked') as HTMLInputElement)?.value;
+            const sex = (container.querySelector('input[name="score2d-sex"]:checked') as HTMLInputElement)?.value;
+            const age = parseFloat((container.querySelector('#score2d-age') as HTMLInputElement).value);
+            const smoking = parseInt((container.querySelector('input[name="score2d-smoking"]:checked') as HTMLInputElement).value);
+            const sbp = parseFloat((container.querySelector('#score2d-sbp') as HTMLInputElement).value);
+            const tchol = parseFloat((container.querySelector('#score2d-tchol') as HTMLInputElement).value);
+            const hdl = parseFloat((container.querySelector('#score2d-hdl') as HTMLInputElement).value);
+            const hba1c = parseFloat((container.querySelector('#score2d-hba1c') as HTMLInputElement).value);
+            const egfr = parseFloat((container.querySelector('#score2d-egfr') as HTMLInputElement).value);
 
-            const resultBox = container.querySelector('#score2d-result');
+            const resultBox = container.querySelector('#score2d-result') as HTMLElement;
 
             if (!region || !sex || isNaN(age) || isNaN(sbp) || isNaN(tchol) || isNaN(hdl) || isNaN(hba1c) || isNaN(egfr)) {
                 resultBox.classList.remove('show');
@@ -113,7 +113,7 @@ export const score2Diabetes = {
             }
 
             if (age < 40 || age > 69) {
-                const resultContent = resultBox.querySelector('.ui-result-content');
+                const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
                 resultContent.innerHTML = uiBuilder.createAlert({
                     type: 'warning',
                     message: 'Score valid only for ages 40-69.'
@@ -122,7 +122,7 @@ export const score2Diabetes = {
                 return;
             }
 
-            const coeffs = score2DiabetesData[region][sex];
+            const coeffs = score2DiabetesData[region as keyof typeof score2DiabetesData][sex as 'male' | 'female'];
 
             // Conversions
             const tchol_mmol = tchol / 38.67;
@@ -130,12 +130,12 @@ export const score2Diabetes = {
             const hba1c_mmol = hba1c * 10.93 - 23.5;
 
             const ind_x = coeffs.age * age +
-                          coeffs.sbp * sbp +
+                coeffs.sbp * sbp +
                 coeffs.tchol * tchol_mmol +
                 coeffs.hdl * hdl_mmol +
                 coeffs.hba1c * hba1c_mmol +
-                          coeffs.egfr * egfr +
-                          coeffs.smoking * smoking;
+                coeffs.egfr * egfr +
+                coeffs.smoking * smoking;
 
             const risk = 100 * (1 - Math.pow(coeffs.s010, Math.exp(ind_x - coeffs.mean_x)));
 
@@ -156,15 +156,15 @@ export const score2Diabetes = {
                 alertType = 'danger';
             }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: '10-Year CVD Risk',
-                    value: risk.toFixed(1),
-                    unit: '%',
-                    interpretation: riskCategory,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: '10-Year CVD Risk',
+                value: risk.toFixed(1),
+                unit: '%',
+                interpretation: riskCategory,
+                alertClass: `ui-alert-${alertType}`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -174,7 +174,7 @@ export const score2Diabetes = {
 
         // Auto-populate
         if (patient && patient.birthDate) {
-            container.querySelector('#score2d-age').value = calculateAge(patient.birthDate);
+            (container.querySelector('#score2d-age') as HTMLInputElement).value = calculateAge(patient.birthDate).toString();
         }
         if (patient && patient.gender) {
             uiBuilder.setRadioValue('score2d-sex', patient.gender);
@@ -182,23 +182,23 @@ export const score2Diabetes = {
 
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#score2d-sbp').value = obs.valueQuantity.value.toFixed(0);
+                if (obs?.valueQuantity) (container.querySelector('#score2d-sbp') as HTMLInputElement).value = obs.valueQuantity.value.toFixed(0);
                 calculate();
             });
             getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#score2d-tchol').value = obs.valueQuantity.value.toFixed(0);
+                if (obs?.valueQuantity) (container.querySelector('#score2d-tchol') as HTMLInputElement).value = obs.valueQuantity.value.toFixed(0);
                 calculate();
             });
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#score2d-hdl').value = obs.valueQuantity.value.toFixed(0);
+                if (obs?.valueQuantity) (container.querySelector('#score2d-hdl') as HTMLInputElement).value = obs.valueQuantity.value.toFixed(0);
                 calculate();
             });
             getMostRecentObservation(client, LOINC_CODES.HBA1C).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#score2d-hba1c').value = obs.valueQuantity.value.toFixed(1);
+                if (obs?.valueQuantity) (container.querySelector('#score2d-hba1c') as HTMLInputElement).value = obs.valueQuantity.value.toFixed(1);
                 calculate();
             });
             getMostRecentObservation(client, LOINC_CODES.EGFR).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#score2d-egfr').value = obs.valueQuantity.value.toFixed(0);
+                if (obs?.valueQuantity) (container.querySelector('#score2d-egfr') as HTMLInputElement).value = obs.valueQuantity.value.toFixed(0);
                 calculate();
             });
         }

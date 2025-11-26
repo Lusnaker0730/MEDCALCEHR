@@ -94,7 +94,7 @@ export const bacterialMeningitisScore: Calculator = {
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             let interpretation = '';
-            let alertType = 'success';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'success';
 
             if (score === 0) {
                 interpretation = 'Very low risk for bacterial meningitis.';

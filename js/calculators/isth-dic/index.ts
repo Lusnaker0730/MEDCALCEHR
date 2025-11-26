@@ -1,7 +1,7 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -30,7 +30,11 @@ export const isthDic: Calculator = {
                 label: 'Platelet count',
                 type: 'number',
                 unit: '×10⁹/L',
-                unitToggle: true
+                unitToggle: {
+                    type: 'platelet',
+                    units: ['×10⁹/L', 'K/µL'],
+                    default: '×10⁹/L'
+                }
             })}
                         ${uiBuilder.createRadioGroup({
                 name: 'isth-platelet',
@@ -48,7 +52,11 @@ export const isthDic: Calculator = {
                 label: 'D-dimer level',
                 type: 'number',
                 unit: 'mg/L',
-                unitToggle: true
+                unitToggle: {
+                    type: 'ddimer',
+                    units: ['mg/L', 'µg/mL', 'ng/mL'],
+                    default: 'mg/L'
+                }
             })}
                         ${uiBuilder.createRadioGroup({
                 name: 'isth-fibrin_marker',
@@ -84,7 +92,11 @@ export const isthDic: Calculator = {
                 label: 'Fibrinogen level',
                 type: 'number',
                 unit: 'g/L',
-                unitToggle: true
+                unitToggle: {
+                    type: 'fibrinogen',
+                    units: ['g/L', 'mg/dL'],
+                    default: 'g/L'
+                }
             })}
                         ${uiBuilder.createRadioGroup({
                 name: 'isth-fibrinogen',
@@ -100,13 +112,10 @@ export const isthDic: Calculator = {
             ${uiBuilder.createResultBox({ id: 'isth-dic-result', title: 'ISTH DIC Score' })}
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        // Initialize unit converters
-        UnitConverter.createUnitToggle(container.querySelector('#isth-platelet-input') as HTMLElement, 'platelet', ['×10⁹/L', 'K/µL']);
-        UnitConverter.createUnitToggle(container.querySelector('#isth-ddimer-input') as HTMLElement, 'ddimer', ['mg/L', 'µg/mL', 'ng/mL']);
-        UnitConverter.createUnitToggle(container.querySelector('#isth-fibrinogen-input') as HTMLElement, 'fibrinogen', ['g/L', 'mg/dL']);
+        // Note: Unit toggles are initialized by uiBuilder.initializeComponents based on unitToggle config in createInput
 
         const calculate = () => {
             const groups = ['isth-platelet', 'isth-fibrin_marker', 'isth-pt', 'isth-fibrinogen'];
@@ -121,7 +130,7 @@ export const isthDic: Calculator = {
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
             let interpretation = '';
-            let alertType = 'info';
+            let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
 
             if (score >= 5) {
                 interpretation = 'Compatible with overt DIC. Repeat score daily.';
@@ -163,7 +172,7 @@ export const isthDic: Calculator = {
         // Event listeners for inputs to auto-select radios
         const plateletInput = container.querySelector('#isth-platelet-input') as HTMLInputElement;
         plateletInput.addEventListener('input', function () {
-            const value = UnitConverter.getStandardValue(this); // Standard is 10^9/L
+            const value = UnitConverter.getStandardValue(this as HTMLInputElement, '×10⁹/L'); // Standard is 10^9/L
             setRadioFromValue('isth-platelet', value, [
                 { condition: v => v >= 100, value: '0' },
                 { condition: v => v >= 50 && v < 100, value: '1' },
@@ -173,7 +182,7 @@ export const isthDic: Calculator = {
 
         const ddimerInput = container.querySelector('#isth-ddimer-input') as HTMLInputElement;
         ddimerInput.addEventListener('input', function () {
-            const value = UnitConverter.getStandardValue(this); // Standard is mg/L
+            const value = UnitConverter.getStandardValue(this as HTMLInputElement, 'mg/L'); // Standard is mg/L
             setRadioFromValue('isth-fibrin_marker', value, [
                 { condition: v => v < 0.5, value: '0' },
                 { condition: v => v >= 0.5 && v <= 5, value: '2' },
@@ -183,7 +192,7 @@ export const isthDic: Calculator = {
 
         const ptInput = container.querySelector('#isth-pt-input') as HTMLInputElement;
         ptInput.addEventListener('input', function () {
-            const value = parseFloat(this.value);
+            const value = parseFloat((this as HTMLInputElement).value);
             if (!isNaN(value)) {
                 const prolongation = value - 12; // Assuming normal PT is 12s
                 setRadioFromValue('isth-pt', prolongation, [
@@ -196,7 +205,7 @@ export const isthDic: Calculator = {
 
         const fibrinogenInput = container.querySelector('#isth-fibrinogen-input') as HTMLInputElement;
         fibrinogenInput.addEventListener('input', function () {
-            const value = UnitConverter.getStandardValue(this); // Standard is g/L
+            const value = UnitConverter.getStandardValue(this as HTMLInputElement, 'g/L'); // Standard is g/L
             setRadioFromValue('isth-fibrinogen', value, [
                 { condition: v => v >= 1, value: '0' },
                 { condition: v => v < 1, value: '1' }

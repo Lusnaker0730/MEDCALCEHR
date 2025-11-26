@@ -13,7 +13,7 @@ export interface InputOptions {
     helpText?: string;
     min?: number;
     max?: number;
-    step?: number;
+    step?: number | string;
     defaultValue?: string | number;
 }
 

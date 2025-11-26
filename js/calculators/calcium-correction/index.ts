@@ -1,7 +1,7 @@
-import { getMostRecentObservation } from '../../utils';
-import { LOINC_CODES } from '../../fhir-codes';
-import { uiBuilder } from '../../ui-builder';
-import { UnitConverter } from '../../unit-converter';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { Calculator } from '../../types/calculator';
 import { FHIRClient, Patient, Observation } from '../../types/fhir';
 
@@ -17,13 +17,13 @@ export const calciumCorrection: Calculator = {
                     id: 'ca-total',
                     label: 'Total Calcium',
                     type: 'number',
-                    unitToggle: { type: 'calcium', units: ['mg/dL', 'mmol/L'] }
+                    unitToggle: { type: 'calcium', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' }
                 }),
                 uiBuilder.createInput({
                     id: 'ca-albumin',
                     label: 'Albumin',
                     type: 'number',
-                    unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'] }
+                    unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' }
                 })
             ].join('')
         });
@@ -62,7 +62,7 @@ export const calciumCorrection: Calculator = {
             </div>
         `;
     },
-    initialize: function (client: FHIRClient, patient: Patient, container: HTMLElement): void {
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const calculateAndUpdate = () => {
@@ -75,7 +75,7 @@ export const calciumCorrection: Calculator = {
             const resultBox = container.querySelector('#ca-result') as HTMLElement;
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
 
-            if (totalCalciumMgDl > 0 && albuminGdl > 0) {
+            if (totalCalciumMgDl !== null && !isNaN(totalCalciumMgDl) && totalCalciumMgDl > 0 && albuminGdl !== null && !isNaN(albuminGdl) && albuminGdl > 0) {
                 const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
                 const correctedCalciumMmol = correctedCalcium * 0.2495;
 
