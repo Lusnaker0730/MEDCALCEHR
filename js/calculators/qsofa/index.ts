@@ -1,0 +1,150 @@
+import { FHIRClient, Patient } from '../../types/fhir';
+import { Calculator } from '../../types/calculator';
+import { getMostRecentObservation } from '../../utils.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+
+export const qsofaScore = {
+    id: 'qsofa',
+    title: 'qSOFA Score for Sepsis',
+    description:
+        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
+    generateHTML: function (): string {
+        const criteria = [
+            { id: 'qsofa-rr', label: 'Respiratory Rate ≥ 22/min', points: 1 },
+            { id: 'qsofa-ams', label: 'Altered Mental Status (GCS < 15)', points: 1 },
+            { id: 'qsofa-sbp', label: 'Systolic Blood Pressure ≤ 100 mmHg', points: 1 }
+        ];
+
+        const criteriaSection = uiBuilder.createSection({
+            title: 'qSOFA Criteria',
+            subtitle: 'Check all that apply',
+            icon: '📋',
+            content: criteria.map(item => 
+                uiBuilder.createCheckbox({
+                    id: item.id,
+                    label: item.label,
+                    value: item.points.toString()
+                })
+            ).join('')
+        });
+
+        return `
+            <div class="calculator-header">
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
+            </div>
+            
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.'
+            })}
+            
+            ${criteriaSection}
+            
+            ${uiBuilder.createResultBox({ id: 'qsofa-result', title: 'qSOFA Score Results' })}
+            
+            ${uiBuilder.createAlert({
+                type: 'info',
+                message: `
+                    <h4>📊 Interpretation</h4>
+                    <ul style="margin-top: 5px; padding-left: 20px;">
+                        <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
+                        <li><strong>Score < 2:</strong> Negative screen; lower risk but continue monitoring.</li>
+                    </ul>
+                    <h4 style="margin-top: 15px;">Next Steps for Positive qSOFA:</h4>
+                    <ul style="margin-top: 5px; padding-left: 20px;">
+                        <li>Calculate full SOFA score</li>
+                        <li>Measure serum lactate</li>
+                        <li>Obtain blood cultures</li>
+                        <li>Consider early antibiotic therapy</li>
+                        <li>Assess for organ dysfunction</li>
+                    </ul>
+                `
+            })}
+        `;
+    },
+    initialize: function (client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
+        uiBuilder.initializeComponents(container);
+
+        const calculate = () => {
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            let score = 0;
+            checkboxes.forEach(box => {
+                if (box.checked) {
+                    score += parseInt(box.value);
+                }
+            });
+
+            let riskLevel = '';
+            let interpretation = '';
+            let alertClass = '';
+
+            if (score >= 2) {
+                riskLevel = 'Positive Screen';
+                interpretation = 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
+                alertClass = 'ui-alert-danger';
+            } else if (score === 1) {
+                riskLevel = 'Intermediate';
+                interpretation = 'Monitor closely. Consider early intervention if clinical suspicion is high.';
+                alertClass = 'ui-alert-warning';
+            } else {
+                riskLevel = 'Negative Screen';
+                interpretation = 'Lower risk, but continue to monitor if infection is suspected.';
+                alertClass = 'ui-alert-success';
+            }
+
+            const resultBox = container.querySelector('#qsofa-result');
+            const resultContent = resultBox.querySelector('.ui-result-content');
+
+            resultContent.innerHTML = `
+                ${uiBuilder.createResultItem({ 
+                    label: 'Total qSOFA Score', 
+                    value: score, 
+                    unit: '/ 3 points',
+                    interpretation: riskLevel,
+                    alertClass: alertClass
+                })}
+                
+                <div class="ui-alert ${alertClass} mt-10">
+                    <span class="ui-alert-icon">${alertClass.includes('danger') ? '🚨' : 'ℹ️'}</span>
+                    <div class="ui-alert-content">
+                        <strong>Interpretation:</strong> ${interpretation}
+                    </div>
+                </div>
+            `;
+            
+            resultBox.classList.add('show');
+        };
+
+        // Add event listeners
+        container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', calculate);
+        });
+
+        // Auto-populate
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
+                if (obs?.valueQuantity?.value >= 22) {
+                    const box = container.querySelector('#qsofa-rr');
+                    if (box) {
+                        box.checked = true;
+                        calculate();
+                    }
+                }
+            });
+
+            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
+                if (obs?.valueQuantity?.value <= 100) {
+                    const box = container.querySelector('#qsofa-sbp');
+                    if (box) {
+                        box.checked = true;
+                        calculate();
+                    }
+                }
+            });
+        }
+
+        calculate();
+    }
+};
