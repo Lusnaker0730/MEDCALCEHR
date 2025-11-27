@@ -1,0 +1,193 @@
+/* UI Builder Specific Styles */
+
+.builder-container {
+    display: flex;
+    gap: 20px;
+    height: calc(100vh - 40px);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-left {
+    flex: 1;
+    min-width: 400px;
+}
+
+.panel-right {
+    flex: 1;
+    border-left: 1px solid #eee;
+    background: #f9f9f9;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.tab:hover {
+    color: #007bff;
+    background: #f5f5f5;
+}
+
+.tab.active {
+    border-bottom-color: #007bff;
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box; /* Important for width: 100% */
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Lists */
+.item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list-item {
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-item:hover {
+    background: #f0f8ff;
+    border-color: #b8daff;
+}
+
+.list-item.active {
+    border-color: #007bff;
+    background: #e6f2ff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 16px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.btn-success {
+    background: #28a745;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-danger {
+    background: #dc3545;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+/* Preview Area */
+#preview-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Editors */
+#input-editor, #calc-editor, #output-editor {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+#input-editor h4, #calc-editor h4, #output-editor h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}

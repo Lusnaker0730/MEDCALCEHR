@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Builder</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/ui-builder.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .builder-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        .panel {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .panel-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-right {
+            flex: 1;
+            border-left: 1px solid #eee;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .section-header h3 {
+            margin: 0;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            background: #f0f0f0;
+        }
+
+        .list-item.active {
+            border-color: #007bff;
+            background: #e6f2ff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .preview-area {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="builder-container">
+        <!-- Left Panel: Editor -->
+        <div class="panel panel-left">
+            <div class="section-header">
+                <h3>Calculator Builder</h3>
+                <div>
+                    <button id="btn-export" class="btn btn-success">Export JSON</button>
+                    <button id="btn-preview" class="btn">Update Preview</button>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="meta">Meta</div>
+                <div class="tab" data-tab="inputs">Inputs</div>
+                <div class="tab" data-tab="calcs">Calculations</div>
+                <div class="tab" data-tab="outputs">Outputs</div>
+            </div>
+
+            <div id="tab-meta" class="tab-content">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" id="meta-id" value="my-calc">
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="meta-title" value="My Calculator">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="meta-desc">A custom calculator.</textarea>
+                </div>
+            </div>
+
+            <div id="tab-inputs" class="tab-content" style="display:none;">
+                <button id="btn-add-input" class="btn btn-secondary" style="margin-bottom: 10px;">+ Add Input</button>
+                <div id="inputs-list" class="item-list"></div>
+
+                <div id="input-editor"
+                    style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; display: none;">
+                    <h4>Edit Input</h4>
+                    <div class="form-group">
+                        <label>ID</label>
+                        <input type="text" id="input-id">
+                    </div>
+                    <div class="form-group">
+                        <label>Label</label>
+                        <input type="text" id="input-label">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="input-type">
+                            <option value="number">Number</option>
+                            <option value="text">Text</option>
+                            <option value="radio">Radio</option>
+                            <option value="checkbox">Checkbox</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Unit Type</label>
+                        <select id="input-unit-type">
+                            <option value="">None</option>
+                            <option value="weight">Weight</option>
+                            <option value="height">Height</option>
+                            <option value="temperature">Temperature</option>
+                        </select>
+                    </div>
+                    <button id="btn-save-input" class="btn">Save Input</button>
+                    <button id="btn-delete-input" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+
+            <div id="tab-calcs" class="tab-content" style="display:none;">
+                <button id="btn-add-calc" class="btn btn-secondary" style="margin-bottom: 10px;">+ Add
+                    Calculation</button>
+                <div id="calcs-list" class="item-list"></div>
+
+                <div id="calc-editor"
+                    style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; display: none;">
+                    <h4>Edit Calculation</h4>
+                    <div class="form-group">
+                        <label>Result Variable Name</label>
+                        <input type="text" id="calc-var">
+                    </div>
+                    <div class="form-group">
+                        <label>Expression (JS)</label>
+                        <input type="text" id="calc-expr" placeholder="e.g. weight / (height/100 * height/100)">
+                        <small>Use input IDs as variable names.</small>
+                    </div>
+                    <button id="btn-save-calc" class="btn">Save Calculation</button>
+                    <button id="btn-delete-calc" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+
+            <div id="tab-outputs" class="tab-content" style="display:none;">
+                <button id="btn-add-output" class="btn btn-secondary" style="margin-bottom: 10px;">+ Add Output</button>
+                <div id="outputs-list" class="item-list"></div>
+
+                <div id="output-editor"
+                    style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; display: none;">
+                    <h4>Edit Output</h4>
+                    <div class="form-group">
+                        <label>Label</label>
+                        <input type="text" id="output-label">
+                    </div>
+                    <div class="form-group">
+                        <label>Value Variable</label>
+                        <input type="text" id="output-var">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="output-unit">
+                    </div>
+                    <button id="btn-save-output" class="btn">Save Output</button>
+                    <button id="btn-delete-output" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Preview -->
+        <div class="panel panel-right">
+            <div class="section-header">
+                <h3>Preview</h3>
+
+                .list-item.active {
+                border-color: #007bff;
+                background: #e6f2ff;
+                }
+
+                .form-group {
+                margin-bottom: 15px;
+                }
+
+                .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+                }
+
+                .form-group input,
+                .form-group select,
+                .form-group textarea {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                }
+
+                .btn {
+                padding: 8px 15px;
+                background: #007bff;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                }
+
+                .btn-secondary {
+                background: #6c757d;
+                }
+
+                .btn-success {
+                background: #28a745;
+                }
+
+                .btn-danger {
+                background: #dc3545;
+                }
+
+                .preview-area {
+                margin-top: 20px;
+                padding: 20px;
+                border: 1px dashed #ccc;
+                border-radius: 4px;
+                }
+
+                .tabs {
+                display: flex;
+                border-bottom: 1px solid #ddd;
+                margin-bottom: 15px;
+                }
+
+                .tab {
+                padding: 10px 20px;
+                cursor: pointer;
+                border-bottom: 2px solid transparent;
+                }
+
+                .tab.active {
+                border-bottom-color: #007bff;
+                font-weight: bold;
+                }
+                </style>
+                </head>
+
+                <body>
+                    <div class="builder-container">
+                        <!-- Left Panel: Editor -->
+                        <div class="panel panel-left">
+                            <div class="section-header">
+                                <h3>Calculator Builder</h3>
+                                <div>
+                                    <button id="btn-export" class="btn btn-success">Export JSON</button>
+                                    <button id="btn-preview" class="btn">Update Preview</button>
+                                </div>
+                            </div>
+
+                            <div class="tabs">
+                                <div class="tab active" data-tab="meta">Meta</div>
+                                <div class="tab" data-tab="inputs">Inputs</div>
+                                <div class="tab" data-tab="calcs">Calculations</div>
+                                <div class="tab" data-tab="outputs">Outputs</div>
+                            </div>
+
+                            <div id="tab-meta" class="tab-content">
+                                <div class="form-group">
+                                    <label>ID</label>
+                                    <input type="text" id="meta-id" value="my-calc">
+                                </div>
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" id="meta-title" value="My Calculator">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea id="meta-desc">A custom calculator.</textarea>
+                                </div>
+                            </div>
+
+                            <div id="tab-inputs" class="tab-content" style="display:none;">
+                                <button id="btn-add-input" class="btn btn-secondary" style="margin-bottom: 10px;">+ Add
+                                    Input</button>
+                                <div id="inputs-list" class="item-list"></div>
+
+                                <div id="input-editor"
+                                    style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; display: none;">
+                                    <h4>Edit Input</h4>
+                                    <div class="form-group">
+                                        <label>ID</label>
+                                        <input type="text" id="input-id">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Label</label>
+                                        <input type="text" id="input-label">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select id="input-type">
+                                            <option value="number">Number</option>
+                                            <option value="text">Text</option>
+                                            <option value="radio">Radio</option>
+                                            <option value="checkbox">Checkbox</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Unit Type</label>
+                                        <select id="input-unit-type">
+                                            <option value="">None</option>
+                                            <option value="weight">Weight</option>
+                                            <option value="height">Height</option>
+                                            <option value="temperature">Temperature</option>
+                                        </select>
+                                    </div>
+                                    <button id="btn-save-input" class="btn">Save Input</button>
+                                    <button id="btn-delete-input" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+
+                            <div id="tab-calcs" class="tab-content" style="display:none;">
+                                <button id="btn-add-calc" class="btn btn-secondary" style="margin-bottom: 10px;">+ Add
+                                    Calculation</button>
+                                <div id="calcs-list" class="item-list"></div>
+
+                                <div id="calc-editor"
+                                    style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; display: none;">
+                                    <h4>Edit Calculation</h4>
+                                    <div class="form-group">
+                                        <label>Result Variable Name</label>
+                                        <input type="text" id="calc-var">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Expression (JS)</label>
+                                        <input type="text" id="calc-expr"
+                                            placeholder="e.g. weight / (height/100 * height/100)">
+                                        <small>Use input IDs as variable names.</small>
+                                    </div>
+                                    <button id="btn-save-calc" class="btn">Save Calculation</button>
+                                    <button id="btn-delete-calc" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+
+                            <div id="tab-outputs" class="tab-content" style="display:none;">
+                                <button id="btn-add-output" class="btn btn-secondary" style="margin-bottom: 10px;">+ Add
+                                    Output</button>
+                                <div id="outputs-list" class="item-list"></div>
+
+                                <div id="output-editor"
+                                    style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; display: none;">
+                                    <h4>Edit Output</h4>
+                                    <div class="form-group">
+                                        <label>Label</label>
+                                        <input type="text" id="output-label">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Value Variable</label>
+                                        <input type="text" id="output-var">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Unit</label>
+                                        <input type="text" id="output-unit">
+                                    </div>
+                                    <button id="btn-save-output" class="btn">Save Output</button>
+                                    <button id="btn-delete-output" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Preview -->
+                        <div class="panel panel-right">
+                            <div class="section-header">
+                                <h3>Preview</h3>
+                            </div>
+                            <div id="preview-container"></div>
+                        </div>
+                    </div>
+
+                    <script src="js/builder-standalone.js"></script>
+
+                </body>
+
+</html>
