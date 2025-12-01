@@ -1,4 +1,5 @@
 // js/utils.js
+import { escapeHTML } from './security.js';
 
 /**
  * Gets the most recent FHIR Observation for a given LOINC code.
@@ -49,13 +50,19 @@ export function calculateAge(birthDate) {
 export function displayPatientInfo(client, patientInfoDiv) {
     const renderPatient = patient => {
         const name = patient.name[0];
-        // 優先使用 text 字段（台灣格式），如果沒有則使用 given 和 family
+        // 優先使用 text 字段(台灣格式),如果沒有則使用 given 和 family
         const formattedName = name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
         const age = calculateAge(patient.birthDate);
+
+        // Use escapeHTML to prevent XSS attacks from FHIR data
+        const safeName = escapeHTML(formattedName);
+        const safeBirthDate = escapeHTML(patient.birthDate);
+        const safeGender = escapeHTML(patient.gender);
+
         patientInfoDiv.innerHTML = `
-            <p><strong>Name:</strong> ${formattedName}</p>
-            <p><strong>Birth Date:</strong> ${patient.birthDate} (Age: ${age})</p>
-            <p><strong>Gender:</strong> ${patient.gender}</p>
+            <p><strong>Name:</strong> ${safeName}</p>
+            <p><strong>Birth Date:</strong> ${safeBirthDate} (Age: ${age})</p>
+            <p><strong>Gender:</strong> ${safeGender}</p>
         `;
     };
 

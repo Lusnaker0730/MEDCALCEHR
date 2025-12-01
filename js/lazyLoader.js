@@ -163,15 +163,16 @@ export class ImageLazyLoader {
             img.classList.add('loaded');
             img.removeAttribute('data-src');
 
-            // Trigger any callbacks
+            // Trigger custom event instead of eval() for security
+            // This prevents XSS attacks through data-onload attribute
             if (img.dataset.onload) {
-                try {
-                    eval(img.dataset.onload);
-                } catch (e) {
-                    console.error('Error in image onload callback:', e);
-                }
+                const event = new CustomEvent('imageLoaded', {
+                    detail: { img, callback: img.dataset.onload }
+                });
+                img.dispatchEvent(event);
             }
         };
+
 
         tempImg.onerror = () => {
             img.classList.add('error');
