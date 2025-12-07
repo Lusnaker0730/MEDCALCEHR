@@ -1,9 +1,9 @@
 /**
- * 計算器測試輔助工具
+ * Calculator Test Helpers
  */
 
 /**
- * 創建模擬的 FHIR 客戶端
+ * Create a mock FHIR client
  */
 export function createMockFHIRClient(patientData = {}, observations = {}) {
     return {
@@ -17,7 +17,7 @@ export function createMockFHIRClient(patientData = {}, observations = {}) {
                 gender: patientData.gender || 'male'
             }),
             request: jest.fn((query) => {
-                // 解析查詢以返回適當的觀察數據
+                // Parse query to return appropriate observation details
                 const codeMatch = query.match(/code=([^&]+)/);
                 if (codeMatch && observations[codeMatch[1]]) {
                     return Promise.resolve({
@@ -85,7 +85,7 @@ export function cleanupDOM() {
 }
 
 /**
- * 創建模擬的容器元素
+ * Create mock container element
  */
 export function createMockContainer(innerHTML = '') {
     const container = document.createElement('div');
@@ -95,7 +95,7 @@ export function createMockContainer(innerHTML = '') {
 }
 
 /**
- * 清理測試容器
+ * Clean up test container
  */
 export function cleanupContainer(container) {
     if (container && container.parentNode) {
@@ -104,7 +104,7 @@ export function cleanupContainer(container) {
 }
 
 /**
- * 模擬用戶輸入
+ * Mock user input
  */
 export function setInputValue(container, inputId, value) {
     const input = container.querySelector(`#${inputId}`);
@@ -117,7 +117,7 @@ export function setInputValue(container, inputId, value) {
 }
 
 /**
- * 模擬選擇選項
+ * Mock option selection
  */
 export function selectOption(container, selectId, value) {
     const select = container.querySelector(`#${selectId}`);
@@ -129,7 +129,7 @@ export function selectOption(container, selectId, value) {
 }
 
 /**
- * 模擬單選按鈕選擇
+ * Mock radio button selection
  */
 export function selectRadio(container, name, value) {
     const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -141,7 +141,7 @@ export function selectRadio(container, name, value) {
 }
 
 /**
- * 模擬按鈕點擊
+ * Mock button click
  */
 export function clickButton(container, selector) {
     const button = container.querySelector(selector);
@@ -152,7 +152,7 @@ export function clickButton(container, selector) {
 }
 
 /**
- * 獲取結果文本
+ * Get result text
  */
 export function getResultText(container, selector) {
     const element = container.querySelector(selector);
@@ -160,7 +160,7 @@ export function getResultText(container, selector) {
 }
 
 /**
- * 驗證計算器基本結構
+ * Validate basic calculator structure
  */
 export function validateCalculatorStructure(calculator) {
     expect(calculator).toBeDefined();
@@ -171,7 +171,7 @@ export function validateCalculatorStructure(calculator) {
 }
 
 /**
- * 創建觀察資源
+ * Create observation resource
  */
 export function createObservation(code, value, unit) {
     return {
@@ -188,14 +188,14 @@ export function createObservation(code, value, unit) {
 }
 
 /**
- * 等待異步操作
+ * Wait for async operation
  */
 export function waitFor(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
- * 驗證輸入驗證錯誤
+ * Validate input error
  */
 export function expectValidationError(container, inputId) {
     const input = container.querySelector(`#${inputId}`);
@@ -204,7 +204,7 @@ export function expectValidationError(container, inputId) {
 }
 
 /**
- * 驗證沒有驗證錯誤
+ * Validate no input error
  */
 export function expectNoValidationError(container, inputId) {
     const input = container.querySelector(`#${inputId}`);

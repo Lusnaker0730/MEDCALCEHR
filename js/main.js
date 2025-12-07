@@ -1,11 +1,10 @@
 // js/main.js
 import { displayPatientInfo } from '/js/utils.js';
 import { calculatorModules, categories } from '/js/calculators/index.js';
-import { i18n } from '/js/i18n.js';
 import { favoritesManager } from '/js/favorites.js';
 
 /**
- * 排序計算器列表
+ * Sort calculator list
  */
 function sortCalculators(calculators, sortType) {
     const sorted = [...calculators];
@@ -18,7 +17,7 @@ function sortCalculators(calculators, sortType) {
         case 'recently-added':
             return sorted.reverse();
         case 'most-used':
-            // 根據使用統計排序
+            // Sort by usage stats
             const usage = favoritesManager.getUsage();
             return sorted.sort((a, b) => {
                 const countA = usage[a.id] || 0;
@@ -31,12 +30,12 @@ function sortCalculators(calculators, sortType) {
 }
 
 /**
- * 過濾計算器列表
+ * Filter calculator list
  */
 function filterCalculators(calculators, filterType, category, searchTerm = '') {
     let filtered = [...calculators];
 
-    // 按特殊過濾器篩選
+    // Filter by special filters
     switch (filterType) {
         case 'favorites':
             const favorites = favoritesManager.getFavorites();
@@ -47,19 +46,19 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
             filtered = recent
                 .map(id => calculators.find(calc => calc.id === id))
                 .filter(calc => calc !== undefined);
-            return filtered; // 最近使用保持原順序
+            return filtered; // Keep order for recent
         case 'all':
         default:
-            // 不做特殊過濾
+            // No special filter
             break;
     }
 
-    // 按分類篩選
+    // Filter by category
     if (category && category !== 'all') {
         filtered = filtered.filter(calc => calc.category === category);
     }
 
-    // 按搜尋詞篩選
+    // Filter by search term
     if (searchTerm) {
         const term = searchTerm.toLowerCase();
         filtered = filtered.filter(calc =>
@@ -72,13 +71,13 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
 }
 
 /**
- * 渲染計算器列表
+ * Render calculator list
  */
 function renderCalculatorList(calculators, container) {
     container.innerHTML = '';
 
     if (calculators.length === 0) {
-        container.innerHTML = `<p class="no-results">${i18n.t('search.noResults')}</p>`;
+        container.innerHTML = `<p class="no-results">No calculators found matching your criteria.</p>`;
         return;
     }
 
@@ -87,7 +86,7 @@ function renderCalculatorList(calculators, container) {
         link.href = `calculator.html?name=${calc.id}`;
         link.className = 'list-item';
 
-        // 內容區域
+        // Content area
         const contentDiv = document.createElement('div');
         contentDiv.className = 'list-item-content';
 
@@ -96,16 +95,16 @@ function renderCalculatorList(calculators, container) {
         title.textContent = calc.title;
         contentDiv.appendChild(title);
 
-        // 分類標籤
+        // Category badge
         if (calc.category) {
             const categoryBadge = document.createElement('span');
             categoryBadge.className = 'category-badge';
-            categoryBadge.textContent = i18n.t(`category.${calc.category}`);
+            categoryBadge.textContent = categories[calc.category] || calc.category;
             categoryBadge.setAttribute('data-category', calc.category);
             contentDiv.appendChild(categoryBadge);
         }
 
-        // 描述（如果有）
+        // Description (if any)
         if (calc.description) {
             const description = document.createElement('span');
             description.className = 'list-item-description';
@@ -115,22 +114,22 @@ function renderCalculatorList(calculators, container) {
 
         link.appendChild(contentDiv);
 
-        // 收藏按鈕
+        // Favorite button
         const favoriteBtn = document.createElement('button');
         favoriteBtn.className = 'favorite-btn';
         favoriteBtn.setAttribute('data-calculator-id', calc.id);
         favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
         favoriteBtn.title = favoritesManager.isFavorite(calc.id)
-            ? i18n.t('favorites.remove')
-            : i18n.t('favorites.add');
-        
-        // 阻止點擊收藏按鈕時觸發連結
+            ? 'Remove from Favorites'
+            : 'Add to Favorites';
+
+        // Prevent clicking favorite button from triggering link
         favoriteBtn.addEventListener('click', e => {
             e.preventDefault();
             e.stopPropagation();
             const isFavorite = favoritesManager.toggleFavorite(calc.id);
             favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
-            favoriteBtn.title = isFavorite ? i18n.t('favorites.remove') : i18n.t('favorites.add');
+            favoriteBtn.title = isFavorite ? 'Remove from Favorites' : 'Add to Favorites';
         });
 
         link.appendChild(favoriteBtn);
@@ -139,58 +138,57 @@ function renderCalculatorList(calculators, container) {
 }
 
 /**
- * 更新統計顯示
+ * Update stats display
  */
 function updateStats(total, showing) {
     const statsEl = document.getElementById('calculator-stats');
     if (statsEl) {
-        statsEl.textContent = i18n.t('stats.showing') + ` ${showing} / ${total} ` + i18n.t('stats.results');
+        statsEl.textContent = `Showing ${showing} / ${total} results`;
     }
 }
 
 /**
- * 主程式
+ * Main program
  */
 window.onload = () => {
-    // 獲取DOM元素
+    // Get DOM elements
     const patientInfoDiv = document.getElementById('patient-info');
     const calculatorListDiv = document.getElementById('calculator-list');
     const searchBar = document.getElementById('search-bar');
     const sortSelect = document.getElementById('sort-select');
     const categorySelect = document.getElementById('category-select');
     const filterBtns = document.querySelectorAll('.filter-btn');
-    const languageToggle = document.getElementById('language-toggle');
 
-    // 狀態變數
+    // State variables
     let currentSortType = 'a-z';
     let currentFilterType = 'all';
     let currentCategory = 'all';
 
     /**
-     * 更新顯示
+     * Update display
      */
     function updateDisplay() {
         const searchTerm = searchBar.value;
-        
-        // 過濾和排序
+
+        // Filter and sort
         let filtered = filterCalculators(
             calculatorModules,
             currentFilterType,
             currentCategory,
             searchTerm
         );
-        
+
         const sorted = sortCalculators(filtered, currentSortType);
-        
-        // 渲染
+
+        // Render
         renderCalculatorList(sorted, calculatorListDiv);
-        
-        // 更新統計
+
+        // Update stats
         updateStats(calculatorModules.length, sorted.length);
     }
 
     /**
-     * 更新過濾按鈕狀態
+     * Update filter button states
      */
     function updateFilterButtons() {
         filterBtns.forEach(btn => {
@@ -200,8 +198,8 @@ window.onload = () => {
             } else {
                 btn.classList.remove('active');
             }
-            
-            // 更新計數
+
+            // Update counts
             if (filterType === 'favorites') {
                 const count = favoritesManager.getFavoritesCount();
                 btn.querySelector('.filter-count')?.remove();
@@ -224,7 +222,7 @@ window.onload = () => {
         });
     }
 
-    // ========== 初始化 FHIR ==========
+    // ========== Initialize FHIR ==========
     displayPatientInfo(null, patientInfoDiv);
 
     FHIR.oauth2
@@ -236,19 +234,19 @@ window.onload = () => {
             console.log('FHIR client not ready, patient info will be loaded from cache if available.');
         });
 
-    // ========== 初始化分類選擇器 ==========
+    // ========== Initialize Category Selector ==========
     if (categorySelect) {
-        // 添加全部選項
+        // Add All option
         const allOption = document.createElement('option');
         allOption.value = 'all';
-        allOption.textContent = i18n.t('category.all');
+        allOption.textContent = 'All Categories';
         categorySelect.appendChild(allOption);
 
-        // 添加分類選項
+        // Add category options
         Object.keys(categories).forEach(categoryKey => {
             const option = document.createElement('option');
             option.value = categoryKey;
-            option.textContent = i18n.t(`category.${categoryKey}`);
+            option.textContent = categories[categoryKey];
             categorySelect.appendChild(option);
         });
 
@@ -258,7 +256,7 @@ window.onload = () => {
         });
     }
 
-    // ========== 初始化過濾按鈕 ==========
+    // ========== Initialize Filter Buttons ==========
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             currentFilterType = btn.getAttribute('data-filter');
@@ -267,45 +265,25 @@ window.onload = () => {
         });
     });
 
-    // ========== 搜尋功能 ==========
+    // ========== Search Function ==========
     searchBar.addEventListener('input', updateDisplay);
 
-    // ========== 排序功能 ==========
+    // ========== Sort Function ==========
     sortSelect.addEventListener('change', e => {
         currentSortType = e.target.value;
         updateDisplay();
     });
 
-    // ========== 語言切換 ==========
-    if (languageToggle) {
-        languageToggle.addEventListener('click', () => {
-            const currentLocale = i18n.getLocale();
-            const newLocale = currentLocale === 'zh-TW' ? 'en-US' : 'zh-TW';
-            i18n.setLocale(newLocale);
-            languageToggle.textContent = newLocale === 'zh-TW' ? 'EN' : '中';
-            
-            // 重新渲染
-            updateDisplay();
-            updateFilterButtons();
-        });
-
-        // 設定初始語言按鈕
-        languageToggle.textContent = i18n.getLocale() === 'zh-TW' ? 'EN' : '中';
-    }
-
-    // ========== 監聽收藏變更 ==========
+    // ========== Listen for Favorite Changes ==========
     favoritesManager.addListener((type) => {
         updateFilterButtons();
-        // 如果當前顯示收藏，更新列表
+        // If currently showing favorites/recent, update list
         if (currentFilterType === 'favorites' || currentFilterType === 'recent') {
             updateDisplay();
         }
     });
 
-    // ========== 初始渲染 ==========
+    // ========== Initial Render ==========
     updateDisplay();
     updateFilterButtons();
-
-    // ========== i18n 翻譯頁面 ==========
-    i18n.translatePage();
 };

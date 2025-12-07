@@ -50,7 +50,7 @@ export function calculateAge(birthDate) {
 export function displayPatientInfo(client, patientInfoDiv) {
     const renderPatient = patient => {
         const name = patient.name[0];
-        // 優先使用 text 字段(台灣格式),如果沒有則使用 given 和 family
+        // Prioritize text field (Taiwanese format), if missing use given and family names
         const formattedName = name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
         const age = calculateAge(patient.birthDate);
 

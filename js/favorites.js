@@ -1,45 +1,45 @@
-// js/favorites.js - 收藏與最近使用管理系統
+// js/favorites.js - Favorites and Recent Usage Management System
 
 /**
- * 收藏與最近使用管理類別
+ * Favorites and Recent Usage Manager Class
  */
 export class FavoritesManager {
     constructor() {
         this.storageKey = 'calculator-favorites';
         this.recentKey = 'calculator-recent';
         this.usageKey = 'calculator-usage';
-        this.maxRecent = 10; // 最多保留10個最近使用記錄
+        this.maxRecent = 10; // Maximum number of recent items to keep
         this.listeners = [];
     }
 
-    // ========== 收藏功能 ==========
+    // ========== Favorites Functionality ==========
 
     /**
-     * 切換收藏狀態
-     * @param {string} calculatorId - 計算器ID
-     * @returns {boolean} 切換後的收藏狀態
+     * Toggle favorite status
+     * @param {string} calculatorId - Calculator ID
+     * @returns {boolean} New favorite status
      */
     toggleFavorite(calculatorId) {
         const favorites = this.getFavorites();
         const index = favorites.indexOf(calculatorId);
-        
+
         if (index > -1) {
-            // 已收藏，移除
+            // Already favorited, remove it
             favorites.splice(index, 1);
         } else {
-            // 未收藏，添加
+            // Not favorited, add it
             favorites.push(calculatorId);
         }
-        
+
         this.saveFavorites(favorites);
         this.notifyListeners('favorites', calculatorId);
-        
-        return index === -1; // 返回新狀態（true = 已收藏）
+
+        return index === -1; // Return new status (true = favorited)
     }
 
     /**
-     * 添加到收藏
-     * @param {string} calculatorId - 計算器ID
+     * Add to favorites
+     * @param {string} calculatorId - Calculator ID
      */
     addFavorite(calculatorId) {
         const favorites = this.getFavorites();
@@ -51,8 +51,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 從收藏移除
-     * @param {string} calculatorId - 計算器ID
+     * Remove from favorites
+     * @param {string} calculatorId - Calculator ID
      */
     removeFavorite(calculatorId) {
         const favorites = this.getFavorites();
@@ -62,17 +62,17 @@ export class FavoritesManager {
     }
 
     /**
-     * 檢查是否已收藏
-     * @param {string} calculatorId - 計算器ID
-     * @returns {boolean} 是否已收藏
+     * Check if is favorite
+     * @param {string} calculatorId - Calculator ID
+     * @returns {boolean} Whether it is in favorites
      */
     isFavorite(calculatorId) {
         return this.getFavorites().includes(calculatorId);
     }
 
     /**
-     * 獲取所有收藏
-     * @returns {Array<string>} 收藏的計算器ID列表
+     * Get all favorites
+     * @returns {Array<string>} List of favorite calculator IDs
      */
     getFavorites() {
         try {
@@ -85,8 +85,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 儲存收藏列表
-     * @param {Array<string>} favorites - 收藏的計算器ID列表
+     * Save favorites list
+     * @param {Array<string>} favorites - List of favorite calculator IDs
      */
     saveFavorites(favorites) {
         try {
@@ -97,39 +97,39 @@ export class FavoritesManager {
     }
 
     /**
-     * 獲取收藏數量
-     * @returns {number} 收藏數量
+     * Get favorites count
+     * @returns {number} Count of favorites
      */
     getFavoritesCount() {
         return this.getFavorites().length;
     }
 
-    // ========== 最近使用功能 ==========
+    // ========== Recent Usage Functionality ==========
 
     /**
-     * 添加到最近使用
-     * @param {string} calculatorId - 計算器ID
+     * Add to recent usage
+     * @param {string} calculatorId - Calculator ID
      */
     addToRecent(calculatorId) {
         let recent = this.getRecent();
-        
-        // 移除重複項目
+
+        // Remove duplicates
         recent = recent.filter(id => id !== calculatorId);
-        
-        // 添加到最前面
+
+        // Add to front
         recent.unshift(calculatorId);
-        
-        // 只保留最近 N 個
+
+        // Keep only N most recent
         recent = recent.slice(0, this.maxRecent);
-        
+
         this.saveRecent(recent);
         this.notifyListeners('recent', calculatorId);
     }
 
     /**
-     * 獲取最近使用列表
-     * @param {number} limit - 限制數量（可選）
-     * @returns {Array<string>} 最近使用的計算器ID列表
+     * Get recent usage list
+     * @param {number} limit - Limit number (optional)
+     * @returns {Array<string>} List of recent calculator IDs
      */
     getRecent(limit = null) {
         try {
@@ -143,8 +143,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 儲存最近使用列表
-     * @param {Array<string>} recent - 最近使用的計算器ID列表
+     * Save recent usage list
+     * @param {Array<string>} recent - List of recent calculator IDs
      */
     saveRecent(recent) {
         try {
@@ -155,18 +155,18 @@ export class FavoritesManager {
     }
 
     /**
-     * 清空最近使用
+     * Clear recent usage
      */
     clearRecent() {
         this.saveRecent([]);
         this.notifyListeners('recent', null);
     }
 
-    // ========== 使用統計功能 ==========
+    // ========== Usage Statistics Functionality ==========
 
     /**
-     * 記錄計算器使用次數
-     * @param {string} calculatorId - 計算器ID
+     * Track calculator usage count
+     * @param {string} calculatorId - Calculator ID
      */
     trackUsage(calculatorId) {
         const usage = this.getUsage();
@@ -175,8 +175,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 獲取使用統計
-     * @returns {Object} 使用統計對象
+     * Get usage statistics
+     * @returns {Object} Usage statistics object
      */
     getUsage() {
         try {
@@ -189,8 +189,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 儲存使用統計
-     * @param {Object} usage - 使用統計對象
+     * Save usage statistics
+     * @param {Object} usage - Usage statistics object
      */
     saveUsage(usage) {
         try {
@@ -201,9 +201,9 @@ export class FavoritesManager {
     }
 
     /**
-     * 獲取計算器使用次數
-     * @param {string} calculatorId - 計算器ID
-     * @returns {number} 使用次數
+     * Get specific calculator usage count
+     * @param {string} calculatorId - Calculator ID
+     * @returns {number} Usage count
      */
     getUsageCount(calculatorId) {
         const usage = this.getUsage();
@@ -211,9 +211,9 @@ export class FavoritesManager {
     }
 
     /**
-     * 獲取最常使用的計算器列表
-     * @param {number} limit - 限制數量
-     * @returns {Array<{id: string, count: number}>} 最常使用的計算器列表
+     * Get most used calculators
+     * @param {number} limit - Limit number
+     * @returns {Array<{id: string, count: number}>} List of most used calculators
      */
     getMostUsed(limit = 10) {
         const usage = this.getUsage();
@@ -223,28 +223,28 @@ export class FavoritesManager {
             .slice(0, limit);
     }
 
-    // ========== 監聽器功能 ==========
+    // ========== Listener Functionality ==========
 
     /**
-     * 添加變更監聽器
-     * @param {Function} callback - 回調函數
+     * Add change listener
+     * @param {Function} callback - Callback function
      */
     addListener(callback) {
         this.listeners.push(callback);
     }
 
     /**
-     * 移除監聽器
-     * @param {Function} callback - 回調函數
+     * Remove listener
+     * @param {Function} callback - Callback function
      */
     removeListener(callback) {
         this.listeners = this.listeners.filter(cb => cb !== callback);
     }
 
     /**
-     * 通知所有監聽器
-     * @param {string} type - 變更類型（'favorites' 或 'recent'）
-     * @param {string} calculatorId - 計算器ID
+     * Notify all listeners
+     * @param {string} type - Change type ('favorites' or 'recent')
+     * @param {string} calculatorId - Calculator ID
      */
     notifyListeners(type, calculatorId) {
         this.listeners.forEach(callback => {
@@ -255,16 +255,16 @@ export class FavoritesManager {
             }
         });
 
-        // 觸發全域事件
+        // Trigger global event
         window.dispatchEvent(new CustomEvent('favoriteschange', {
             detail: { type, calculatorId }
         }));
     }
 
-    // ========== 資料管理 ==========
+    // ========== Data Management ==========
 
     /**
-     * 清空所有資料
+     * Clear all data
      */
     clearAll() {
         localStorage.removeItem(this.storageKey);
@@ -274,8 +274,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 匯出資料
-     * @returns {Object} 包含所有資料的對象
+     * Export data
+     * @returns {Object} Object containing all data
      */
     exportData() {
         return {
@@ -287,9 +287,9 @@ export class FavoritesManager {
     }
 
     /**
-     * 匯入資料
-     * @param {Object} data - 要匯入的資料
-     * @returns {boolean} 是否成功
+     * Import data
+     * @param {Object} data - Data to import
+     * @returns {boolean} Success status
      */
     importData(data) {
         try {
@@ -305,8 +305,8 @@ export class FavoritesManager {
     }
 
     /**
-     * 獲取統計摘要
-     * @returns {Object} 統計摘要
+     * Get stats summary
+     * @returns {Object} Stats summary
      */
     getStatsSummary() {
         return {
@@ -318,7 +318,7 @@ export class FavoritesManager {
     }
 }
 
-// 創建全域實例
+// Create global instance
 export const favoritesManager = new FavoritesManager();
 
 export default favoritesManager;

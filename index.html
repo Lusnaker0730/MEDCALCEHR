@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-TW">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -39,61 +39,57 @@
         <div class="container">
             <div class="sticky-header">
                 <div class="header-top">
-                    <h1 data-i18n="app.title">CGMH EHRCALC on FHIR</h1>
-                    <button id="language-toggle" class="language-toggle" title="切換語言 / Switch Language">
-                        EN
-                    </button>
+                    <h1>CGMH EHRCALC on FHIR</h1>
                 </div>
-                <div id="patient-info" data-i18n="patient.loading">Loading patient data...</div>
+                <div id="patient-info">Loading patient data...</div>
                 <hr />
                 <div class="calculators-header">
-                    <h2 data-i18n="nav.calculators">Available Calculators</h2>
+                    <h2>Available Calculators</h2>
                     
-                    <!-- 過濾按鈕組 -->
+                    <!-- Filter Buttons -->
                     <div class="filter-buttons">
                         <button class="filter-btn active" data-filter="all">
-                            <span data-i18n="filter.all">全部</span>
+                            <span>All</span>
                         </button>
                         <button class="filter-btn" data-filter="favorites">
-                            <span data-i18n="filter.favorites">⭐ 我的收藏</span>
+                            <span>⭐ Favorites</span>
                         </button>
                         <button class="filter-btn" data-filter="recent">
-                            <span data-i18n="filter.recent">🕒 最近使用</span>
+                            <span>🕒 Recent</span>
                         </button>
                     </div>
 
-                    <!-- 搜尋和過濾控制列 -->
+                    <!-- Search and Filter Controls -->
                     <div class="controls-row">
                         <div class="search-container">
                             <input
                                 type="search"
                                 id="search-bar"
-                                data-i18n="search.placeholder"
                                 placeholder="Search for a calculator..."
                             />
                         </div>
                         
                         <div class="category-container">
-                            <label for="category-select" data-i18n="filter.label">分類：</label>
+                            <label for="category-select">Category:</label>
                             <select id="category-select">
                                 <!-- Options will be dynamically added -->
                             </select>
                         </div>
                         
                         <div class="sort-container">
-                            <label for="sort-select" data-i18n="sort.label">排序：</label>
+                            <label for="sort-select">Sort:</label>
                             <select id="sort-select">
-                                <option value="a-z" data-i18n="sort.az">A → Z</option>
-                                <option value="z-a" data-i18n="sort.za">Z → A</option>
-                                <option value="recently-added" data-i18n="sort.recentlyAdded">最近新增</option>
-                                <option value="most-used" data-i18n="sort.mostUsed">最常使用</option>
+                                <option value="a-z">A → Z</option>
+                                <option value="z-a">Z → A</option>
+                                <option value="recently-added">Date Added</option>
+                                <option value="most-used">Most Used</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- 統計顯示 -->
+                    <!-- Statistics -->
                     <div id="calculator-stats" class="calculator-stats">
-                        顯示 92 / 92 個結果
+                        Showing 92 / 92 results
                     </div>
                 </div>
             </div>

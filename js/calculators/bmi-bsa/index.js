@@ -83,11 +83,11 @@ export const bmiBsa = {
                     // If fields are empty, just hide results, don't throw error yet unless user interacted
                     // For now, we follow the pattern of only calculating if valid
                     if (weightKg && heightCm) {
-                         // Maybe show partial validation error? 
-                         // For simplicity, we just don't calculate if invalid
+                        // Maybe show partial validation error? 
+                        // For simplicity, we just don't calculate if invalid
                     }
                     resultEl.style.display = 'none';
-                    return; 
+                    return;
                 }
 
                 if (weightKg > 0 && heightCm > 0) {
@@ -98,7 +98,7 @@ export const bmiBsa = {
                     // Validate calculation results
                     if (isNaN(bmi) || isNaN(bsa) || !isFinite(bmi) || !isFinite(bsa)) {
                         throw new ValidationError(
-                            '计算结果无效，请检查输入值',
+                            'Invalid calculation result, please check input values',
                             'BMI_BSA_CALCULATION_ERROR',
                             { weightKg, heightCm, bmi, bsa }
                         );
@@ -215,7 +215,7 @@ export const bmiBsa = {
                 })
                 .catch(error => {
                     const fhirError = new FHIRDataError(
-                        '无法从 EHR 系统加载体重或身高数据',
+                        'Unable to load weight or height data from EHR system',
                         'BMI_BSA_FHIR_LOAD_ERROR',
                         { error: error.message }
                     );
@@ -230,7 +230,7 @@ export const bmiBsa = {
                     warningContainer.style.cssText =
                         'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
                     warningContainer.innerHTML =
-                        '<strong>提示:</strong> 無法自動加載患者數據，請手動輸入體重和身高。';
+                        '<strong>Note:</strong> Unable to automatically load patient data. Please manually enter weight and height.';
                     container.insertBefore(warningContainer, container.firstChild.nextSibling);
                 });
         }

@@ -5,20 +5,20 @@
 
 // Calculator categories
 export const categories = {
-    cardiovascular: '心血管',
-    renal: '腎臟功能',
-    'critical-care': '重症醫學',
-    pediatric: '兒科',
-    'drug-conversion': '藥物換算',
-    infection: '感染評估',
-    neurology: '神經科',
-    respiratory: '呼吸系統',
-    metabolic: '代謝疾病',
-    hematology: '血液科',
-    gastroenterology: '消化系統',
-    obstetrics: '產科',
-    psychiatry: '精神科',
-    general: '一般醫學'
+    cardiovascular: 'Cardiovascular',
+    renal: 'Renal',
+    'critical-care': 'Critical Care',
+    pediatric: 'Pediatric',
+    'drug-conversion': 'Drug Conversion',
+    infection: 'Infection',
+    neurology: 'Neurology',
+    respiratory: 'Respiratory',
+    metabolic: 'Metabolic',
+    hematology: 'Hematology',
+    gastroenterology: 'Gastroenterology',
+    obstetrics: 'Obstetrics',
+    psychiatry: 'Psychiatry',
+    general: 'General Medicine'
 };
 
 export const calculatorModules = [
@@ -120,7 +120,7 @@ export async function loadCalculator(calculatorId) {
         // Use CACHE_VERSION if available for cache busting
         const version = window.CACHE_VERSION || Date.now();
         const module = await import(`/js/calculators/${calculatorId}/index.js?v=${version}`);
-        
+
         // Return the calculator object (usually the first export)
         return module.default || Object.values(module)[0];
     } catch (error) {

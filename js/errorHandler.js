@@ -1,15 +1,15 @@
 // js/errorHandler.js
 
 /**
- * 自定义计算器错误类
+ * Custom Calculator Error Class
  * @extends Error
  */
 export class CalculatorError extends Error {
     /**
-     * 创建计算器错误实例
-     * @param {string} message - 错误消息
-     * @param {string} code - 错误代码
-     * @param {Object} details - 错误详情
+     * Create calculator error instance
+     * @param {string} message - Error message
+     * @param {string} code - Error code
+     * @param {Object} details - Error details
      */
     constructor(message, code, details = {}) {
         super(message);
@@ -21,7 +21,7 @@ export class CalculatorError extends Error {
 }
 
 /**
- * FHIR 数据错误类
+ * FHIR Data Error Class
  * @extends CalculatorError
  */
 export class FHIRDataError extends CalculatorError {
@@ -32,7 +32,7 @@ export class FHIRDataError extends CalculatorError {
 }
 
 /**
- * 输入验证错误类
+ * Input Validation Error Class
  * @extends CalculatorError
  */
 export class ValidationError extends CalculatorError {
@@ -43,9 +43,9 @@ export class ValidationError extends CalculatorError {
 }
 
 /**
- * 记录错误到控制台和可选的日志服务
- * @param {Error} error - 错误对象
- * @param {Object} context - 错误上下文信息
+ * Log error to console and optional logging service
+ * @param {Error} error - Error object
+ * @param {Object} context - Error context information
  */
 export function logError(error, context = {}) {
     const errorLog = {
@@ -59,7 +59,7 @@ export function logError(error, context = {}) {
         stack: error.stack
     };
 
-    // 在开发环境中详细记录
+    // Log details in development environment
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.group('🚨 Error Logged');
         console.error('Error:', error);
@@ -67,21 +67,21 @@ export function logError(error, context = {}) {
         console.log('Full Log:', errorLog);
         console.groupEnd();
     } else {
-        // 生产环境仅记录简要信息
+        // Log brief info in production
         console.error(`[${errorLog.code}] ${errorLog.message}`);
     }
 
-    // 可选: 发送到日志服务 (如 Sentry, LogRocket 等)
+    // Optional: Send to logging service (e.g. Sentry, LogRocket, etc.)
     // sendToLoggingService(errorLog);
 
     return errorLog;
 }
 
 /**
- * 显示用户友好的错误消息
- * @param {HTMLElement} container - 显示错误的容器元素
- * @param {Error} error - 错误对象
- * @param {string} userMessage - 用户友好的错误消息
+ * Display user-friendly error message
+ * @param {HTMLElement} container - Container element to display error
+ * @param {Error} error - Error object
+ * @param {string} userMessage - User-friendly error message
  */
 export function displayError(container, error, userMessage = null) {
     if (!container) {
@@ -100,54 +100,53 @@ export function displayError(container, error, userMessage = null) {
             margin: 15px 0;
         ">
             <div style="font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
-                ⚠️ 错误
+                ⚠️ Error
             </div>
             <div style="color: #555; font-size: 0.9em;">
                 ${message}
             </div>
-            ${
-                window.location.hostname === 'localhost'
-                    ? `
+            ${window.location.hostname === 'localhost'
+            ? `
                 <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
-                    <summary style="cursor: pointer;">技术详情</summary>
+                    <summary style="cursor: pointer;">Technical Details</summary>
                     <pre style="margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 3px; overflow-x: auto;">
 ${error.stack || error.message}
                     </pre>
                 </details>
             `
-                    : ''
-            }
+            : ''
+        }
         </div>
     `;
 }
 
 /**
- * 获取用户友好的错误消息
- * @param {Error} error - 错误对象
- * @returns {string} 用户友好的错误消息
+ * Get user-friendly error message
+ * @param {Error} error - Error object
+ * @returns {string} User-friendly error message
  */
 function getUserFriendlyMessage(error) {
     if (error instanceof FHIRDataError) {
-        return '无法从电子病历系统获取患者数据。请检查连接或手动输入数据。';
+        return 'Unable to retrieve patient data from EHR system. Please check connection or enter data manually.';
     }
 
     if (error instanceof ValidationError) {
-        return `输入验证失败: ${error.message}`;
+        return `Input validation failed: ${error.message}`;
     }
 
     if (error instanceof CalculatorError) {
         return error.message;
     }
 
-    // 通用错误消息
-    return '计算器遇到错误，请刷新页面重试或联系技术支持。';
+    // Generic error message
+    return 'Calculator encountered an error. Please refresh the page and try again or contact support.';
 }
 
 /**
- * 包装异步函数，自动捕获和记录错误
- * @param {Function} fn - 要包装的异步函数
- * @param {Object} context - 错误上下文
- * @returns {Function} 包装后的函数
+ * Wrap async function to automatically catch and log errors
+ * @param {Function} fn - Async function to wrap
+ * @param {Object} context - Error context
+ * @returns {Function} Wrapped function
  */
 export function withErrorHandling(fn, context = {}) {
     return async function (...args) {
@@ -161,11 +160,11 @@ export function withErrorHandling(fn, context = {}) {
 }
 
 /**
- * 尝试执行函数，失败时返回默认值
- * @param {Function} fn - 要执行的函数
- * @param {*} defaultValue - 失败时的默认值
- * @param {Object} context - 错误上下文
- * @returns {*} 函数执行结果或默认值
+ * Try to execute function, return default value on failure
+ * @param {Function} fn - Function to execute
+ * @param {*} defaultValue - Default value on failure
+ * @param {Object} context - Error context
+ * @returns {*} Function result or default value
  */
 export function tryOrDefault(fn, defaultValue, context = {}) {
     try {
@@ -177,7 +176,7 @@ export function tryOrDefault(fn, defaultValue, context = {}) {
 }
 
 /**
- * 全局错误处理器
+ * Global error handler
  */
 export function setupGlobalErrorHandler() {
     window.addEventListener('error', event => {
@@ -197,7 +196,7 @@ export function setupGlobalErrorHandler() {
     });
 }
 
-// 在应用启动时设置全局错误处理
+// Setup global error handling on app start
 if (typeof window !== 'undefined') {
     setupGlobalErrorHandler();
 }
