@@ -524,7 +524,7 @@ export class UIBuilder {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const unitHTML = unit ? `<span class="ui-input-unit">${unit}</span>` : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        
+
         let attrs = `id="${id}" type="${type}" placeholder="${placeholder}"`;
         if (min !== undefined) attrs += ` min="${min}"`;
         if (max !== undefined) attrs += ` max="${max}"`;
@@ -560,7 +560,7 @@ export class UIBuilder {
     }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        
+
         const optionsHTML = options.map(opt => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
@@ -601,13 +601,13 @@ export class UIBuilder {
         helpText = ''
     }) {
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        
+
         const optionsHTML = options.map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
             const id = opt.id || `${name}-${index}`;
             const descHTML = opt.description ? `<div class="checkbox-description">${opt.description}</div>` : '';
-            
+
             return `
                 <div class="ui-checkbox-option">
                     <input type="checkbox" 
@@ -676,7 +676,7 @@ export class UIBuilder {
     }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        
+
         const optionsHTML = options.map(opt => {
             const selected = opt.selected ? 'selected' : '';
             return `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
@@ -766,7 +766,7 @@ export class UIBuilder {
             success: '✅'
         };
         const alertIcon = icon || icons[type] || icons.info;
-        
+
         return `
             <div class="ui-alert ui-alert-${type}">
                 <span class="ui-alert-icon">${alertIcon}</span>
@@ -782,10 +782,11 @@ export class UIBuilder {
     createFormulaSection({ items = [] }) {
         const itemsHTML = items.map(item => {
             const label = item.label || item.title || 'Formula';
-            const formulaContent = Array.isArray(item.formulas) 
+            const formulaText = item.formula || item.content || '';
+            const formulaContent = Array.isArray(item.formulas)
                 ? item.formulas.map(f => `<div>${f}</div>`).join('')
-                : item.formula || '';
-            
+                : formulaText;
+
             const notesHTML = item.notes ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>` : '';
 
             return `
@@ -829,8 +830,9 @@ export class UIBuilder {
         inputsWithToggle.forEach(wrapper => {
             const input = wrapper.querySelector('.ui-input');
             const config = JSON.parse(wrapper.dataset.unitToggle);
-            
-            if (input && config) {
+
+            // Ensure config is a proper object with units before attempting to enhance
+            if (input && config && typeof config === 'object' && Array.isArray(config.units)) {
                 UnitConverter.enhanceInput(
                     input,
                     config.type,

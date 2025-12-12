@@ -25,7 +25,7 @@ const STATIC_RESOURCES = [
     '/js/calculators/index.js',
     '/js/utils.js',
     '/js/errorHandler.js',
-    '/js/i18n.js',
+
     '/js/favorites.js',
     '/js/cache-manager.js'
 ];
@@ -36,7 +36,7 @@ const STATIC_RESOURCES = [
  */
 self.addEventListener('install', (event) => {
     console.log('[Service Worker] Installing...');
-    
+
     event.waitUntil(
         caches.open(CACHE_NAMES.static)
             .then((cache) => {
@@ -59,7 +59,7 @@ self.addEventListener('install', (event) => {
  */
 self.addEventListener('activate', (event) => {
     console.log('[Service Worker] Activating...');
-    
+
     event.waitUntil(
         caches.keys()
             .then((cacheNames) => {
@@ -125,17 +125,17 @@ async function cacheFirst(request, cacheName) {
     try {
         const cache = await caches.open(cacheName);
         const cached = await cache.match(request);
-        
+
         if (cached) {
             return cached;
         }
-        
+
         const response = await fetch(request);
-        
+
         if (response.ok) {
             cache.put(request, response.clone());
         }
-        
+
         return response;
     } catch (error) {
         console.error('[Service Worker] Cache First failed:', error);
@@ -150,30 +150,30 @@ async function cacheFirst(request, cacheName) {
 async function networkFirst(request, cacheName, timeout = 3000) {
     try {
         const cache = await caches.open(cacheName);
-        
+
         // Try network with timeout
         const networkPromise = fetch(request);
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Network timeout')), timeout)
         );
-        
+
         try {
             const response = await Promise.race([networkPromise, timeoutPromise]);
-            
+
             if (response.ok) {
                 cache.put(request, response.clone());
             }
-            
+
             return response;
         } catch (networkError) {
             // Network failed or timed out, try cache
             const cached = await cache.match(request);
-            
+
             if (cached) {
                 console.log('[Service Worker] Serving from cache due to network failure');
                 return cached;
             }
-            
+
             throw networkError;
         }
     } catch (error) {
@@ -190,7 +190,7 @@ async function staleWhileRevalidate(request, cacheName) {
     try {
         const cache = await caches.open(cacheName);
         const cached = await cache.match(request);
-        
+
         // Fetch fresh version in background
         const fetchPromise = fetch(request).then((response) => {
             if (response.ok) {
@@ -198,25 +198,25 @@ async function staleWhileRevalidate(request, cacheName) {
             }
             return response;
         });
-        
+
         // Return cached version immediately if available
         if (cached) {
             return cached;
         }
-        
+
         // Otherwise wait for network
         return await fetchPromise;
     } catch (error) {
         console.error('[Service Worker] Stale While Revalidate failed:', error);
-        
+
         // Try cache as last resort
         const cache = await caches.open(cacheName);
         const cached = await cache.match(request);
-        
+
         if (cached) {
             return cached;
         }
-        
+
         return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
     }
 }
@@ -226,9 +226,9 @@ async function staleWhileRevalidate(request, cacheName) {
  */
 function isStaticResource(url) {
     return url.pathname.match(/\.(css|js|woff2?|ttf|eot)$/) ||
-           url.pathname === '/' ||
-           url.pathname === '/index.html' ||
-           url.pathname === '/calculator.html';
+        url.pathname === '/' ||
+        url.pathname === '/index.html' ||
+        url.pathname === '/calculator.html';
 }
 
 /**
@@ -236,7 +236,7 @@ function isStaticResource(url) {
  */
 function isCalculatorModule(url) {
     return url.pathname.includes('/js/calculators/') &&
-           url.pathname.endsWith('/index.js');
+        url.pathname.endsWith('/index.js');
 }
 
 /**
@@ -244,9 +244,9 @@ function isCalculatorModule(url) {
  */
 function isFHIRRequest(url) {
     return url.hostname.includes('fhir') ||
-           url.pathname.includes('/fhir/') ||
-           url.pathname.includes('/Patient') ||
-           url.pathname.includes('/Observation');
+        url.pathname.includes('/fhir/') ||
+        url.pathname.includes('/Patient') ||
+        url.pathname.includes('/Observation');
 }
 
 /**
@@ -264,7 +264,7 @@ self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
-    
+
     if (event.data && event.data.type === 'CLEAR_CACHE') {
         event.waitUntil(
             caches.keys().then((cacheNames) => {
@@ -276,7 +276,7 @@ self.addEventListener('message', (event) => {
             })
         );
     }
-    
+
     if (event.data && event.data.type === 'GET_CACHE_STATS') {
         event.waitUntil(
             getCacheStats().then((stats) => {
@@ -291,7 +291,7 @@ self.addEventListener('message', (event) => {
  */
 async function getCacheStats() {
     const stats = {};
-    
+
     for (const [name, cacheName] of Object.entries(CACHE_NAMES)) {
         try {
             const cache = await caches.open(cacheName);
@@ -301,7 +301,7 @@ async function getCacheStats() {
             stats[name] = 0;
         }
     }
-    
+
     return stats;
 }
 
@@ -329,14 +329,14 @@ async function syncFHIRData() {
  */
 self.addEventListener('push', (event) => {
     const data = event.data ? event.data.json() : {};
-    
+
     const options = {
         body: data.body || 'New notification',
         icon: '/icons/icon-192.png',
         badge: '/icons/badge-72.png',
         data: data
     };
-    
+
     event.waitUntil(
         self.registration.showNotification(data.title || 'MedCalc EHR', options)
     );
@@ -347,7 +347,7 @@ self.addEventListener('push', (event) => {
  */
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-    
+
     event.waitUntil(
         clients.openWindow(event.notification.data.url || '/')
     );

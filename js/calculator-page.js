@@ -2,7 +2,7 @@
 import { displayPatientInfo } from '/js/utils.js';
 import { loadCalculator, getCalculatorMetadata } from '/js/calculators/index.js';
 import { favoritesManager } from '/js/favorites.js';
-import { i18n } from '/js/i18n.js';
+
 
 // Cache version - increment this when you update calculators to force reload
 window.CACHE_VERSION = '1.0.4';

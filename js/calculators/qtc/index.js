@@ -1,6 +1,8 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const qtc = {
     id: 'qtc',
@@ -59,7 +61,10 @@ export const qtc = {
             ${inputSection}
             ${formulaSection}
             
-            ${uiBuilder.createResultBox({ id: 'qtc-result', title: 'QTc Results' })}
+            <div id="qtc-result" class="ui-result-box">
+                <div class="ui-result-header">QTc Results</div>
+                <div class="ui-result-content"></div>
+            </div>
             
             ${formulaRefSection}
             
@@ -76,17 +81,48 @@ export const qtc = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        const resultBox = container.querySelector('#qtc-result');
+        const resultContent = resultBox.querySelector('.ui-result-content');
+
         const calculate = () => {
+            // Clear previous errors
+            const existingError = container.querySelector('#qtc-error');
+            if (existingError) existingError.remove();
+
             const qtInput = container.querySelector('#qtc-qt');
             const hrInput = container.querySelector('#qtc-hr');
             const qt = parseFloat(qtInput.value);
             const hr = parseFloat(hrInput.value);
             const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
             const formula = formulaRadio ? formulaRadio.value : 'bazett';
-            const resultBox = container.querySelector('#qtc-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
 
-            if (qt > 0 && hr > 0) {
+            try {
+                // Validate inputs
+                const inputs = { qtInterval: qt, heartRate: hr };
+                const schema = {
+                    qtInterval: ValidationRules.qtInterval,
+                    heartRate: ValidationRules.heartRate
+                };
+
+                const validation = validateCalculatorInput(inputs, schema);
+
+                if (!validation.isValid) {
+                    const hasInput = (qtInput.value || hrInput.value);
+
+                    if (hasInput) {
+                        const valuesPresent = !isNaN(qt) && !isNaN(hr);
+                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
+                            let errorContainer = document.createElement('div');
+                            errorContainer.id = 'qtc-error';
+                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        }
+                    }
+
+                    resultBox.classList.remove('show');
+                    return;
+                }
+
                 const rr = 60 / hr;
                 let qtcValue;
                 let formulaName;
@@ -110,6 +146,8 @@ export const qtc = {
                         break;
                 }
 
+                if (!isFinite(qtcValue) || isNaN(qtcValue)) throw new Error("Calculation Error");
+
                 // Determine risk level
                 let alertClass = 'ui-alert-success';
                 let riskText = 'Normal';
@@ -129,13 +167,13 @@ export const qtc = {
                 resultBox.querySelector('.ui-result-header').textContent = `QTc Results (${formulaName})`;
 
                 resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({ 
-                        label: 'Corrected QT Interval', 
-                        value: qtcValue.toFixed(0), 
-                        unit: 'ms',
-                        interpretation: riskText,
-                        alertClass: alertClass
-                    })}
+                    ${uiBuilder.createResultItem({
+                    label: 'Corrected QT Interval',
+                    value: qtcValue.toFixed(0),
+                    unit: 'ms',
+                    interpretation: riskText,
+                    alertClass: alertClass
+                })}
                     
                     <div class="ui-alert ${alertClass} mt-10">
                         <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
@@ -145,7 +183,18 @@ export const qtc = {
                     </div>
                 `;
                 resultBox.classList.add('show');
-            } else {
+            } catch (error) {
+                logError(error, { calculator: 'qtc', action: 'calculate' });
+                // Only show system errors, validation handled above
+                if (error.name !== 'ValidationError') {
+                    let errorContainer = container.querySelector('#qtc-error');
+                    if (!errorContainer) {
+                        errorContainer = document.createElement('div');
+                        errorContainer.id = 'qtc-error';
+                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                    }
+                    displayError(errorContainer, error);
+                }
                 resultBox.classList.remove('show');
             }
         };
@@ -153,7 +202,7 @@ export const qtc = {
         // Auto-populate heart rate from FHIR
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs?.valueQuantity) {
+                if (obs && obs.valueQuantity) {
                     container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
                     container.querySelector('#qtc-hr').dispatchEvent(new Event('input'));
                 }

@@ -1,6 +1,8 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const map = {
     id: 'map',
@@ -42,7 +44,10 @@ export const map = {
             
             ${inputs}
             
-            ${uiBuilder.createResultBox({ id: 'map-result', title: 'MAP Results' })}
+            <div id="map-result" class="ui-result-box">
+                <div class="ui-result-header">MAP Results</div>
+                <div class="ui-result-content"></div>
+            </div>
             
             ${formulaSection}
             
@@ -59,68 +64,118 @@ export const map = {
 
         const sbpInput = container.querySelector('#map-sbp');
         const dbpInput = container.querySelector('#map-dbp');
+        const resultBox = container.querySelector('#map-result');
+        const resultContent = resultBox.querySelector('.ui-result-content');
 
         const calculateAndUpdate = () => {
+            // Clear previous errors
+            const existingError = container.querySelector('#map-error');
+            if (existingError) existingError.remove();
+
             const sbp = parseFloat(sbpInput.value);
             const dbp = parseFloat(dbpInput.value);
 
-            const resultBox = container.querySelector('#map-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+            try {
+                // Validate inputs
+                const inputs = {
+                    bloodPressure: { systolic: sbp, diastolic: dbp }
+                };
 
-            if (!sbp || !dbp || isNaN(sbp) || isNaN(dbp) || sbp < 0 || dbp < 0) {
-                resultBox.classList.remove('show');
-                return;
-            }
+                // validator.js bloodPressure rule expects nested objects if checking 'bloodPressure' key?
+                // Actually validateCalculatorInput takes a flat object usually.
+                // Let's check validator.js: "bloodPressure" rule has "systolic" and "diastolic" sub-rules.
+                // validateCalculatorInput iterates keys. 
+                // If I pass key as "systolic", I need a rule "systolic".
+                // But validationRules has "bloodPressure".
+                // I should extract the rules or construct a schema matching my inputs.
 
-            if (sbp < dbp) {
-                resultContent.innerHTML = uiBuilder.createAlert({
-                    type: 'danger',
-                    message: 'Error: Systolic BP must be greater than or equal to Diastolic BP'
-                });
-                resultBox.classList.add('show');
-                return;
-            }
+                // Let's manually construct schema or use sub-parts
+                const schema = {
+                    systolic: ValidationRules.bloodPressure.systolic,
+                    diastolic: ValidationRules.bloodPressure.diastolic
+                };
 
-            const mapCalc = dbp + (sbp - dbp) / 3;
+                const flatInputs = {
+                    systolic: sbp,
+                    diastolic: dbp
+                };
 
-            let severity = '';
-            let interpretation = '';
-            let alertClass = '';
+                const validation = validateCalculatorInput(flatInputs, schema);
 
-            if (mapCalc < 60) {
-                severity = 'Critically Low (Shock Risk)';
-                interpretation = 'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.';
-                alertClass = 'ui-alert-danger';
-            } else if (mapCalc < 70) {
-                severity = 'Below Normal';
-                interpretation = 'Borderline low MAP. Monitor closely.';
-                alertClass = 'ui-alert-warning';
-            } else if (mapCalc <= 100) {
-                severity = 'Normal';
-                interpretation = 'Normal MAP (70-100 mmHg) indicates adequate organ perfusion.';
-                alertClass = 'ui-alert-success';
-            } else {
-                severity = 'Elevated (Hypertension)';
-                interpretation = 'Sustained MAP >100 mmHg requires management.';
-                alertClass = 'ui-alert-danger';
-            }
+                if (!validation.isValid) {
+                    const hasInput = (sbpInput.value || dbpInput.value);
+                    if (hasInput) {
+                        const valuesPresent = !isNaN(sbp) && !isNaN(dbp);
+                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
+                            let errorContainer = document.createElement('div');
+                            errorContainer.id = 'map-error';
+                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        }
+                    }
+                    resultBox.classList.remove('show');
+                    return;
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Mean Arterial Pressure', 
-                    value: mapCalc.toFixed(1), 
+                if (sbp < dbp) {
+                    throw new ValidationError('收缩压必须大于舒张压', { input: { sbp, dbp } });
+                }
+
+                const mapCalc = dbp + (sbp - dbp) / 3;
+
+                if (!isFinite(mapCalc) || isNaN(mapCalc)) throw new Error("Calculation Error");
+
+                let severity = '';
+                let interpretation = '';
+                let alertClass = '';
+
+                if (mapCalc < 60) {
+                    severity = 'Critically Low (Shock Risk)';
+                    interpretation = 'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.';
+                    alertClass = 'ui-alert-danger';
+                } else if (mapCalc < 70) {
+                    severity = 'Below Normal';
+                    interpretation = 'Borderline low MAP. Monitor closely.';
+                    alertClass = 'ui-alert-warning';
+                } else if (mapCalc <= 100) {
+                    severity = 'Normal';
+                    interpretation = 'Normal MAP (70-100 mmHg) indicates adequate organ perfusion.';
+                    alertClass = 'ui-alert-success';
+                } else {
+                    severity = 'Elevated (Hypertension)';
+                    interpretation = 'Sustained MAP >100 mmHg requires management.';
+                    alertClass = 'ui-alert-danger';
+                }
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Mean Arterial Pressure',
+                    value: mapCalc.toFixed(1),
                     unit: 'mmHg',
                     interpretation: severity,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass.replace('ui-alert-', '') === 'success' ? 'ui-alert-info' : alertClass} mt-10">
-                    <span class="ui-alert-icon">${mapCalc < 60 ? '⚠️' : 'ℹ️'}</span>
-                    <div class="ui-alert-content">${interpretation}</div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                    
+                    <div class="ui-alert ${alertClass.replace('ui-alert-', '') === 'success' ? 'ui-alert-info' : alertClass} mt-10">
+                        <span class="ui-alert-icon">${mapCalc < 60 ? '⚠️' : 'ℹ️'}</span>
+                        <div class="ui-alert-content">${interpretation}</div>
+                    </div>
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                logError(error, { calculator: 'map', action: 'calculate' });
+                // Only show system errors, validation handled above
+                // Note: sbp < dbp is a VALIDATION_ERROR here so displayError handles it nicely
+                let errorContainer = container.querySelector('#map-error');
+                if (!errorContainer) {
+                    errorContainer = document.createElement('div');
+                    errorContainer.id = 'map-error';
+                    resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                }
+                displayError(errorContainer, error);
+                resultBox.classList.remove('show');
+            }
         };
 
         // Add event listeners for automatic calculation on input change

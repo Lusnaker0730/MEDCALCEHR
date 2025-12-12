@@ -1,8 +1,8 @@
 // js/calculators/bmi-bsa.js
 import {
-    getMostRecentObservation,
-    getValueInStandardUnit
+    getMostRecentObservation
 } from '../../utils.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { FHIRDataError, ValidationError, logError, displayError } from '../../errorHandler.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -60,13 +60,19 @@ export const bmiBsa = {
         uiBuilder.initializeComponents(container);
 
         const resultEl = container.querySelector('#bmi-bsa-result');
+        const weightInput = container.querySelector('#bmi-bsa-weight');
+        const heightInput = container.querySelector('#bmi-bsa-height');
 
         // Function to calculate and update results
         const calculateAndUpdate = () => {
+            // Clear any previous errors first
+            const existingError = container.querySelector('#bmi-bsa-error');
+            if (existingError) existingError.remove();
+
             try {
                 // Get values in standard units (kg and cm)
-                const weightKg = getValueInStandardUnit(container, 'bmi-bsa-weight', 'kg');
-                const heightCm = getValueInStandardUnit(container, 'bmi-bsa-height', 'cm');
+                const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
+                const heightCm = UnitConverter.getStandardValue(heightInput, 'cm');
 
                 // Validate input
                 const inputs = {
@@ -80,11 +86,27 @@ export const bmiBsa = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    // If fields are empty, just hide results, don't throw error yet unless user interacted
-                    // For now, we follow the pattern of only calculating if valid
-                    if (weightKg && heightCm) {
-                        // Maybe show partial validation error? 
-                        // For simplicity, we just don't calculate if invalid
+                    // If fields are empty, just hide results without error (standard behavior)
+                    // But if fields have values (user typed something invalid), show error
+                    if (weightInput.value || heightInput.value) {
+                        // Only show error if the user has actually entered something that is invalid
+                        // Filter out "required" errors if the field is just empty/partial
+                        const meaningfulErrors = validation.errors.filter(msg => {
+                            // This is a heuristic: if message says "required" but field is empty, ignore it for live typing
+                            // But validateCalculatorInput returns all errors.
+                            // Let's simplified: If we have values but they are invalid (e.g. negative), show error.
+                            return true;
+                        });
+
+                        if (meaningfulErrors.length > 0 && (weightKg !== null || heightCm !== null)) {
+                            // Create error container if needed
+                            let errorContainer = document.createElement('div');
+                            errorContainer.id = 'bmi-bsa-error';
+                            resultEl.parentNode.insertBefore(errorContainer, resultEl.nextSibling);
+
+                            // Join errors or take the first one
+                            displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                        }
                     }
                     resultEl.style.display = 'none';
                     return;
@@ -156,14 +178,8 @@ export const bmiBsa = {
 
                     resultEl.style.display = 'block';
                     resultEl.classList.add('show');
-
-                    // Clear any previous errors
-                    const errorContainer = container.querySelector('#bmi-bsa-error');
-                    if (errorContainer) {
-                        errorContainer.remove();
-                    }
                 } else {
-                    // Hide result if inputs are invalid
+                    // Hide result if inputs are invalid (0 or negative that slipped through)
                     resultEl.style.display = 'none';
                 }
             } catch (error) {
@@ -199,9 +215,6 @@ export const bmiBsa = {
 
             Promise.all([weightPromise, heightPromise])
                 .then(([weightObs, heightObs]) => {
-                    const weightInput = container.querySelector('#bmi-bsa-weight');
-                    const heightInput = container.querySelector('#bmi-bsa-height');
-
                     if (weightObs && weightObs.valueQuantity && weightInput) {
                         weightInput.value = weightObs.valueQuantity.value.toFixed(1);
                         // Trigger input event to update UI state if needed

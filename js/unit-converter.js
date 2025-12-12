@@ -22,20 +22,20 @@ export const UnitConverter = {
         },
         // Temperature
         temperature: {
-            'C': { 
-                'F': (val) => (val * 9/5) + 32,
+            'C': {
+                'F': (val) => (val * 9 / 5) + 32,
                 'K': (val) => val + 273.15
             },
-            'F': { 
-                'C': (val) => (val - 32) * 5/9,
-                'K': (val) => (val - 32) * 5/9 + 273.15
+            'F': {
+                'C': (val) => (val - 32) * 5 / 9,
+                'K': (val) => (val - 32) * 5 / 9 + 273.15
             },
-            'K': { 
+            'K': {
                 'C': (val) => val - 273.15,
-                'F': (val) => (val - 273.15) * 9/5 + 32
+                'F': (val) => (val - 273.15) * 9 / 5 + 32
             }
         },
-        // Blood Pressure (less common, but available)
+        // Blood Pressure
         pressure: {
             'mmHg': { 'kPa': 0.133322, 'bar': 0.00133322 },
             'kPa': { 'mmHg': 7.50062, 'bar': 0.01 },
@@ -48,11 +48,54 @@ export const UnitConverter = {
             'fl oz': { 'mL': 29.5735, 'L': 0.0295735, 'cup': 0.125 },
             'cup': { 'mL': 236.588, 'L': 0.236588, 'fl oz': 8 }
         },
-        // Concentration (for labs)
+        // Concentration (generic)
         concentration: {
-            'mg/dL': { 'mmol/L': null }, // Depends on molecular weight, handled separately
+            'mg/dL': { 'mmol/L': null },
             'g/L': { 'mg/dL': 100, 'g/dL': 0.1 },
             'g/dL': { 'mg/dL': 1000, 'g/L': 10 }
+        },
+        // Glucose
+        glucose: {
+            'mg/dL': { 'mmol/L': 0.0555 },
+            'mmol/L': { 'mg/dL': 18.018 }
+        },
+        // Creatinine
+        creatinine: {
+            'mg/dL': { 'µmol/L': 88.4, 'umol/L': 88.4 },
+            'µmol/L': { 'mg/dL': 0.0113 },
+            'umol/L': { 'mg/dL': 0.0113 }
+        },
+        // Calcium
+        calcium: {
+            'mg/dL': { 'mmol/L': 0.2495 },
+            'mmol/L': { 'mg/dL': 4.008 }
+        },
+        // Albumin
+        albumin: {
+            'g/dL': { 'g/L': 10 },
+            'g/L': { 'g/dL': 0.1 }
+        },
+        // Bilirubin
+        bilirubin: {
+            'mg/dL': { 'µmol/L': 17.1, 'umol/L': 17.1 },
+            'µmol/L': { 'mg/dL': 0.0585 },
+            'umol/L': { 'mg/dL': 0.0585 }
+        },
+        // Hemoglobin
+        hemoglobin: {
+            'g/dL': { 'g/L': 10, 'mmol/L': 0.6206 },
+            'g/L': { 'g/dL': 0.1 },
+            'mmol/L': { 'g/dL': 1.611 }
+        },
+        // Urea/BUN
+        bun: {
+            'mg/dL': { 'mmol/L': 0.357 },
+            'mmol/L': { 'mg/dL': 2.801 }
+        },
+        // Electrolytes (Na, K)
+        electrolyte: {
+            'mEq/L': { 'mmol/L': 1 },
+            'mmol/L': { 'mEq/L': 1 }
         },
         // Cholesterol (TC, HDL, LDL)
         cholesterol: {
@@ -63,6 +106,29 @@ export const UnitConverter = {
         triglycerides: {
             'mg/dL': { 'mmol/L': 0.01129 },
             'mmol/L': { 'mg/dL': 88.57 }
+        },
+        // Platelet count
+        platelet: {
+            '×10⁹/L': { '×10³/µL': 1, 'K/µL': 1 },
+            '×10³/µL': { '×10⁹/L': 1 },
+            'K/µL': { '×10⁹/L': 1 }
+        },
+        // White blood cell count
+        wbc: {
+            '×10⁹/L': { '×10³/µL': 1, 'K/µL': 1 },
+            '×10³/µL': { '×10⁹/L': 1 },
+            'K/µL': { '×10⁹/L': 1 }
+        },
+        // D-dimer
+        ddimer: {
+            'mg/L': { 'µg/mL': 1, 'ng/mL': 1000 },
+            'µg/mL': { 'mg/L': 1 },
+            'ng/mL': { 'mg/L': 0.001 }
+        },
+        // Fibrinogen
+        fibrinogen: {
+            'g/L': { 'mg/dL': 100 },
+            'mg/dL': { 'g/L': 0.01 }
         }
     },
 
@@ -75,20 +141,20 @@ export const UnitConverter = {
      * @returns {number|null} - The converted value or null if conversion not available
      */
     convert(value, fromUnit, toUnit, type) {
-        if (!value || isNaN(value)) return null;
+        if (value === null || value === undefined || isNaN(value)) return null;
         if (fromUnit === toUnit) return value;
-        
+
         const typeConversions = this.conversions[type];
         if (!typeConversions || !typeConversions[fromUnit]) return null;
-        
+
         const conversion = typeConversions[fromUnit][toUnit];
         if (conversion === undefined) return null;
-        
+
         // Handle function-based conversions (like temperature)
         if (typeof conversion === 'function') {
             return conversion(value);
         }
-        
+
         // Handle factor-based conversions
         return value * conversion;
     },
@@ -110,24 +176,24 @@ export const UnitConverter = {
         toggleBtn.dataset.type = type;
         toggleBtn.textContent = defaultUnit;
         toggleBtn.title = `Click to switch units (${units.join(' ↔ ')})`;
-        
+
         // Store original value and unit
         let storedValue = null;
         let currentUnitIndex = 0;
-        
+
         toggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             const currentValue = parseFloat(inputElement.value);
             if (!isNaN(currentValue)) {
                 storedValue = currentValue;
             }
-            
+
             // Cycle to next unit
             currentUnitIndex = (currentUnitIndex + 1) % units.length;
             const oldUnit = units[(currentUnitIndex - 1 + units.length) % units.length];
             const newUnit = units[currentUnitIndex];
-            
+
             // Convert the value if present
             if (storedValue !== null && !isNaN(storedValue)) {
                 const converted = this.convert(storedValue, oldUnit, newUnit, type);
@@ -136,17 +202,19 @@ export const UnitConverter = {
                     const decimals = this.getDecimalPlaces(type, newUnit);
                     inputElement.value = converted.toFixed(decimals);
                     storedValue = converted;
+                    // Fix: Update input element dataset unit immediately
+                    inputElement.dataset.currentUnit = newUnit;
                 }
             }
-            
+
             // Update button
             toggleBtn.textContent = newUnit;
             toggleBtn.dataset.currentUnit = newUnit;
-            
+
             // Trigger change event on input to recalculate
             inputElement.dispatchEvent(new Event('input', { bubbles: true }));
         });
-        
+
         return toggleBtn;
     },
 
@@ -159,10 +227,15 @@ export const UnitConverter = {
             height: { 'cm': 1, 'in': 1, 'ft': 2, 'm': 2 },
             temperature: { 'C': 1, 'F': 1, 'K': 1 },
             pressure: { 'mmHg': 0, 'kPa': 2, 'bar': 3 },
-            volume: { 'mL': 0, 'L': 2, 'fl oz': 1, 'cup': 2 }
+            volume: { 'mL': 0, 'L': 2, 'fl oz': 1, 'cup': 2 },
+            glucose: { 'mmol/L': 1, 'mg/dL': 0 },
+            creatinine: { 'mg/dL': 2, 'µmol/L': 0, 'umol/L': 0 },
+            calcium: { 'mg/dL': 2, 'mmol/L': 2 },
+            albumin: { 'g/dL': 1, 'g/L': 0 },
+            bilirubin: { 'mg/dL': 1, 'µmol/L': 0, 'umol/L': 0 }
         };
-        
-        return decimalMap[type]?.[unit] ?? 1;
+
+        return decimalMap[type]?.[unit] ?? 2;
     },
 
     /**
@@ -179,24 +252,24 @@ export const UnitConverter = {
         if (inputElement.parentElement?.classList.contains('unit-converter-wrapper')) {
             return inputElement.parentElement;
         }
-        
+
         const wrapper = document.createElement('div');
         wrapper.className = 'unit-converter-wrapper';
         wrapper.style.display = 'inline-flex';
         wrapper.style.alignItems = 'center';
         wrapper.style.gap = '5px';
-        
+
         // Replace input with wrapper
         inputElement.parentNode.insertBefore(wrapper, inputElement);
         wrapper.appendChild(inputElement);
-        
+
         // Create and add toggle button
         const toggleBtn = this.createUnitToggle(inputElement, type, units, defaultUnit);
         wrapper.appendChild(toggleBtn);
-        
+
         // Add unit indicator to input
         inputElement.dataset.currentUnit = defaultUnit;
-        
+
         return wrapper;
     },
 
@@ -214,9 +287,9 @@ export const UnitConverter = {
             temperature: { type: 'temperature', units: ['C', 'F'], default: 'C' },
             temp: { type: 'temperature', units: ['C', 'F'], default: 'C' }
         };
-        
+
         const finalConfig = { ...defaultConfig, ...config };
-        
+
         // Find and enhance matching inputs
         Object.entries(finalConfig).forEach(([key, spec]) => {
             const input = container.querySelector(`#${key}, input[name="${key}"], #${key}-input, .${key}-input`);
@@ -237,7 +310,7 @@ export const UnitConverter = {
     getCurrentUnit(inputElement) {
         const wrapper = inputElement.closest('.unit-converter-wrapper');
         if (!wrapper) return null;
-        
+
         const toggleBtn = wrapper.querySelector('.unit-toggle-btn');
         return toggleBtn?.dataset.currentUnit || null;
     },
@@ -251,16 +324,16 @@ export const UnitConverter = {
     getStandardValue(inputElement, standardUnit) {
         const value = parseFloat(inputElement.value);
         if (isNaN(value)) return null;
-        
+
         const currentUnit = this.getCurrentUnit(inputElement);
         if (!currentUnit) return value;
-        
+
         const wrapper = inputElement.closest('.unit-converter-wrapper');
         const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
         const type = toggleBtn?.dataset.type;
-        
+
         if (!type) return value;
-        
+
         return this.convert(value, currentUnit, standardUnit, type) || value;
     }
 };

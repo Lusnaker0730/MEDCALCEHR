@@ -4,6 +4,8 @@ import {
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
@@ -150,10 +152,10 @@ export const apacheIi = {
 
         const neuroSection = uiBuilder.createSection({
             title: 'Neurological Assessment',
-            content: uiBuilder.createInput({ 
-                id: 'apache-ii-gcs', 
-                label: 'Glasgow Coma Scale', 
-                unit: 'points', 
+            content: uiBuilder.createInput({
+                id: 'apache-ii-gcs',
+                label: 'Glasgow Coma Scale',
+                unit: 'points',
                 placeholder: '3 - 15',
                 min: 3,
                 max: 15
@@ -262,39 +264,120 @@ export const apacheIi = {
 
         // Calculate function
         const calculate = () => {
-            const arf = container.querySelector('input[name="arf"]:checked')?.value === '1';
-            const chronic = container.querySelector('input[name="chronic"]:checked')?.value === '5';
-            const oxyMethod = container.querySelector('input[name="oxy_method"]:checked')?.value;
-
-            const getValue = (id) => parseFloat(container.querySelector(id)?.value) || 0;
-
-            const values = {
-                temp: getValue('#apache-ii-temp'),
-                map: getValue('#apache-ii-map'),
-                hr: getValue('#apache-ii-hr'),
-                rr: getValue('#apache-ii-rr'),
-                ph: getValue('#apache-ii-ph'),
-                sodium: getValue('#apache-ii-sodium'),
-                potassium: getValue('#apache-ii-potassium'),
-                creatinine: getValue('#apache-ii-creatinine'),
-                hct: getValue('#apache-ii-hct'),
-                wbc: getValue('#apache-ii-wbc'),
-                gcs: getValue('#apache-ii-gcs'),
-                age: getValue('#apache-ii-age'),
-                fio2: getValue('#apache-ii-fio2'),
-                pao2: getValue('#apache-ii-pao2'),
-                paco2: getValue('#apache-ii-paco2'),
-                pao2_only: getValue('#apache-ii-pao2-only')
-            };
+            // Clear previous errors
+            const existingError = container.querySelector('#apache-ii-error');
+            if (existingError) existingError.remove();
 
             const resultBox = container.querySelector('#apache-ii-result');
-            const resultHeader = resultBox.querySelector('.ui-result-header');
             const resultContent = resultBox.querySelector('.ui-result-content');
 
             try {
-                // Check required fields (simple check: must not be 0 unless 0 is valid, but most vitals aren't 0)
-                // For simplicity, we'll calculate if most fields are present
-                
+                const arf = container.querySelector('input[name="arf"]:checked')?.value === '1';
+                const chronic = container.querySelector('input[name="chronic"]:checked')?.value === '5';
+                const oxyMethod = container.querySelector('input[name="oxy_method"]:checked')?.value;
+
+                // Helper to get float value or null if empty
+                const getValue = (id) => {
+                    const val = container.querySelector(id)?.value;
+                    return val === '' || val === null ? null : parseFloat(val);
+                };
+
+                const values = {
+                    temp: getValue('#apache-ii-temp'),
+                    map: getValue('#apache-ii-map'),
+                    hr: getValue('#apache-ii-hr'),
+                    rr: getValue('#apache-ii-rr'),
+                    ph: getValue('#apache-ii-ph'),
+                    sodium: getValue('#apache-ii-sodium'),
+                    potassium: getValue('#apache-ii-potassium'),
+                    creatinine: getValue('#apache-ii-creatinine'),
+                    hct: getValue('#apache-ii-hct'),
+                    wbc: getValue('#apache-ii-wbc'),
+                    gcs: getValue('#apache-ii-gcs'),
+                    age: getValue('#apache-ii-age'),
+                    fio2: getValue('#apache-ii-fio2'),
+                    pao2: getValue('#apache-ii-pao2'),
+                    paco2: getValue('#apache-ii-paco2'),
+                    pao2_only: getValue('#apache-ii-pao2-only')
+                };
+
+                // Define validation schema
+                const schema = {
+                    temp: ValidationRules.temperature,
+                    map: ValidationRules.map,
+                    hr: ValidationRules.heartRate,
+                    rr: ValidationRules.respiratoryRate,
+                    ph: ValidationRules.pH,
+                    sodium: ValidationRules.sodium,
+                    potassium: ValidationRules.potassium,
+                    creatinine: ValidationRules.creatinine,
+                    hct: ValidationRules.hematocrit,
+                    wbc: ValidationRules.wbc,
+                    gcs: ValidationRules.gcs,
+                    age: ValidationRules.age
+                };
+
+                // Add oxygenation validation based on method
+                if (oxyMethod === 'fio2_pao2') {
+                    schema.fio2 = ValidationRules.arterialGas.fiO2;
+                    schema.pao2 = ValidationRules.arterialGas.paO2;
+                    schema.paco2 = ValidationRules.arterialGas.paCO2;
+                } else {
+                    schema.pao2_only = ValidationRules.arterialGas.paO2;
+                }
+
+                // Validate inputs
+                const validation = validateCalculatorInput(values, schema);
+
+                // Show errors if present and relevant (user typed something invalid)
+                if (!validation.isValid) {
+                    // Check if any non-null input is invalid (active typing error)
+                    // or if all required fields are filled but invalid.
+                    // For APACHE II, it's a big form. We should show errors for fields that are filled but invalid.
+                    const meaningfulErrors = validation.errors.filter(msg => {
+                        // Simplify: if the message relates to a field that has a value, show it.
+                        // But validateCalculatorInput errors are just strings.
+                        // We'll rely on our heuristic: show active errors if inputs exist.
+                        return true;
+                    });
+
+                    // Allow partial calculation? No, APACHE II requires full data for accuracy.
+                    // But we can check if at least one field is filled to start showing errors
+                    const hasInput = Object.values(values).some(v => v !== null);
+
+                    if (hasInput && meaningfulErrors.length > 0) {
+                        // Check if the error is due to a filled field being invalid vs just required
+                        // For now, if we have validation errors and inputs, we show them if detailed enough
+                        // or if the form is potentially complete.
+                        // Let's simple check: if any value is present, we show the first relevant error.
+
+                        // We iterate input keys to see if invalid ones have values.
+                        // Ideally validateCalculatorInput should return per-field errors.
+                        // As it returns a list of strings, we'll just show the first one if we have inputs.
+                    }
+
+                    // For now, allow partial entry without error until submission logic is stricter?
+                    // Or follow the BMI pattern: hide result if invalid.
+
+                    // Specific logic: if validation fails, do NOT calculate score (dangerous to assume 0).
+                    resultBox.style.display = 'none';
+
+                    // If all fields are present but one is invalid, show error.
+                    // If some fields are missing, just wait.
+                    const missingFields = Object.keys(schema).filter(key => values[key] === null);
+
+                    if (missingFields.length === 0 && !validation.isValid) {
+                        // All fields filled but validation failed -> Show error
+                        let errorContainer = document.createElement('div');
+                        errorContainer.id = 'apache-ii-error';
+                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                        displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                    }
+
+                    return;
+                }
+
+                // Calculate only if validation passes (which implies all required fields are present and valid)
                 let aps = 0;
                 aps += getPoints.temp(values.temp);
                 aps += getPoints.map(values.map);
@@ -308,10 +391,10 @@ export const apacheIi = {
                 aps += getPoints.wbc(values.wbc);
                 aps += getPoints.gcs(values.gcs);
 
-                if (oxyMethod === 'fio2_pao2' && values.fio2 >= 0.5) {
+                if (oxyMethod === 'fio2_pao2') {
                     aps += getPoints.oxygenation(values.fio2, values.pao2, values.paco2);
                 } else {
-                    aps += getPoints.oxygenation(0.21, values.pao2_only || values.pao2, null);
+                    aps += getPoints.oxygenation(0.21, values.pao2_only, null);
                 }
 
                 const agePoints = getPoints.age(values.age);
@@ -341,22 +424,29 @@ export const apacheIi = {
 
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({ label: 'Total Score', value: score, unit: 'points' })}
-                    ${uiBuilder.createResultItem({ 
-                        label: 'Predicted ICU Mortality', 
-                        value: mortality.toFixed(1), 
-                        unit: '%', 
-                        interpretation: riskLevel, 
-                        alertClass: mortalityClass 
-                    })}
+                    ${uiBuilder.createResultItem({
+                    label: 'Predicted ICU Mortality',
+                    value: mortality.toFixed(1),
+                    unit: '%',
+                    interpretation: riskLevel,
+                    alertClass: mortalityClass
+                })}
                     
                     <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
                         <strong>Breakdown:</strong> APS ${aps} + Age ${agePoints} + Chronic Health ${chronicPoints}
                     </div>
                 `;
-                
+
                 resultBox.classList.add('show');
             } catch (e) {
-                console.error(e);
+                logError(e, { calculator: 'apache-ii', action: 'calculate' });
+                let errorContainer = container.querySelector('#apache-ii-error');
+                if (!errorContainer) {
+                    errorContainer = document.createElement('div');
+                    errorContainer.id = 'apache-ii-error';
+                    resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                }
+                displayError(errorContainer, e);
             }
         };
 
@@ -364,7 +454,7 @@ export const apacheIi = {
         container.addEventListener('change', (e) => {
             if (e.target.type === 'radio' || e.target.type === 'checkbox') calculate();
         });
-        
+
         container.addEventListener('input', (e) => {
             if (e.target.type === 'number') calculate();
         });

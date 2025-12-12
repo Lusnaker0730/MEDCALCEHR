@@ -5,6 +5,8 @@ import {
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const crcl = {
     id: 'crcl',
@@ -18,73 +20,76 @@ export const crcl = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Patient Information',
-                icon: '👤',
-                content: `
+            title: 'Patient Information',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'crcl-gender',
-                        label: 'Gender',
-                        options: [
-                            { value: 'male', label: 'Male', checked: true },
-                            { value: 'female', label: 'Female' }
-                        ]
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'crcl-age',
-                        label: 'Age',
-                        type: 'number',
-                        unit: 'years',
-                        placeholder: 'e.g., 65'
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'crcl-weight',
-                        label: 'Weight',
-                        type: 'number',
-                        placeholder: 'e.g., 70',
-                        unitToggle: {
-                            type: 'weight',
-                            units: ['kg', 'lbs'],
-                            defaultUnit: 'kg'
-                        }
-                    })}
-                `
-            })}
-            
-            ${uiBuilder.createSection({
-                title: 'Lab Values',
-                icon: '🧪',
-                content: uiBuilder.createInput({
-                    id: 'crcl-scr',
-                    label: 'Serum Creatinine',
-                    type: 'number',
-                    placeholder: 'e.g., 1.0',
-                    unitToggle: {
-                        type: 'creatinine',
-                        units: ['mg/dL', 'µmol/L'],
-                        defaultUnit: 'mg/dL'
-                    }
-                })
-            })}
-            
-            ${uiBuilder.createResultBox({ id: 'crcl-result', title: 'Creatinine Clearance Results' })}
-
-            ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Male', formula: '[(140 - Age) × Weight] / (72 × Serum Creatinine)' },
-                    { label: 'Female', formula: '[(140 - Age) × Weight × 0.85] / (72 × Serum Creatinine)' }
+                name: 'crcl-gender',
+                label: 'Gender',
+                options: [
+                    { value: 'male', label: 'Male', checked: true },
+                    { value: 'female', label: 'Female' }
                 ]
             })}
+                    ${uiBuilder.createInput({
+                id: 'crcl-age',
+                label: 'Age',
+                type: 'number',
+                unit: 'years',
+                placeholder: 'e.g., 65'
+            })}
+                    ${uiBuilder.createInput({
+                id: 'crcl-weight',
+                label: 'Weight',
+                type: 'number',
+                placeholder: 'e.g., 70',
+                unitToggle: {
+                    type: 'weight',
+                    units: ['kg', 'lbs'],
+                    defaultUnit: 'kg'
+                }
+            })}
+                `
+        })}
+            
+            ${uiBuilder.createSection({
+            title: 'Lab Values',
+            icon: '🧪',
+            content: uiBuilder.createInput({
+                id: 'crcl-scr',
+                label: 'Serum Creatinine',
+                type: 'number',
+                placeholder: 'e.g., 1.0',
+                unitToggle: {
+                    type: 'creatinine',
+                    units: ['mg/dL', 'µmol/L'],
+                    defaultUnit: 'mg/dL'
+                }
+            })
+        })}
+            
+            <div id="crcl-result" class="ui-result-box">
+                <div class="ui-result-header">Creatinine Clearance Results</div>
+                <div class="ui-result-content"></div>
+            </div>
+
+            ${uiBuilder.createFormulaSection({
+            items: [
+                { label: 'Male', formula: '[(140 - Age) × Weight] / (72 × Serum Creatinine)' },
+                { label: 'Female', formula: '[(140 - Age) × Weight × 0.85] / (72 × Serum Creatinine)' }
+            ]
+        })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Note:</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li>This formula estimates creatinine clearance, not GFR.</li>
                         <li>May overestimate clearance in elderly patients.</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -96,66 +101,109 @@ export const crcl = {
         const resultBox = container.querySelector('#crcl-result');
 
         const calculateAndUpdate = () => {
+            // Clear previous errors
+            const existingError = container.querySelector('#crcl-error');
+            if (existingError) existingError.remove();
+
             const age = parseFloat(ageInput.value);
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
             const scrMgDl = UnitConverter.getStandardValue(scrInput, 'mg/dL');
             const gender = container.querySelector('input[name="crcl-gender"]:checked')?.value || 'male';
 
-            if (isNaN(age) || isNaN(weightKg) || isNaN(scrMgDl) || age <= 0 || weightKg <= 0 || scrMgDl <= 0) {
-                resultBox.classList.remove('show');
-                return;
-            }
+            try {
+                // Validation inputs
+                const inputs = { age, weight: weightKg, creatinine: scrMgDl };
+                const schema = {
+                    age: ValidationRules.age,
+                    weight: ValidationRules.weight,
+                    creatinine: ValidationRules.creatinine
+                };
 
-            let crcl = ((140 - age) * weightKg) / (72 * scrMgDl);
-            if (gender === 'female') {
-                crcl *= 0.85;
-            }
+                const validation = validateCalculatorInput(inputs, schema);
 
-            let category = '';
-            let severityClass = 'ui-alert-success';
-            let alertType = 'info';
-            let alertMsg = '';
+                if (!validation.isValid) {
+                    const hasInput = (ageInput.value || weightInput.value || scrInput.value);
 
-            if (crcl >= 90) {
-                category = 'Normal kidney function';
-                severityClass = 'ui-alert-success';
-                alertMsg = 'Normal creatinine clearance.';
-            } else if (crcl >= 60) {
-                category = 'Mild reduction';
-                severityClass = 'ui-alert-success';
-                alertMsg = 'Mildly reduced creatinine clearance.';
-            } else if (crcl >= 30) {
-                category = 'Moderate reduction';
-                severityClass = 'ui-alert-warning';
-                alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
-                alertType = 'warning';
-            } else if (crcl >= 15) {
-                category = 'Severe reduction';
-                severityClass = 'ui-alert-danger';
-                alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
-                alertType = 'danger';
-            } else {
-                category = 'Kidney failure';
-                severityClass = 'ui-alert-danger';
-                alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
-                alertType = 'danger';
-            }
+                    if (hasInput) {
+                        const valuesPresent = !isNaN(age) && !isNaN(weightKg) && !isNaN(scrMgDl);
+                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
+                            let errorContainer = document.createElement('div');
+                            errorContainer.id = 'crcl-error';
+                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        }
+                    }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
+                    resultBox.classList.remove('show');
+                    return;
+                }
+
+                let crcl = ((140 - age) * weightKg) / (72 * scrMgDl);
+                if (gender === 'female') {
+                    crcl *= 0.85;
+                }
+
+                if (!isFinite(crcl) || isNaN(crcl)) throw new Error("Calculation Error");
+
+                let category = '';
+                let severityClass = 'ui-alert-success';
+                let alertType = 'info';
+                let alertMsg = '';
+
+                if (crcl >= 90) {
+                    category = 'Normal kidney function';
+                    severityClass = 'ui-alert-success';
+                    alertMsg = 'Normal creatinine clearance.';
+                } else if (crcl >= 60) {
+                    category = 'Mild reduction';
+                    severityClass = 'ui-alert-success';
+                    alertMsg = 'Mildly reduced creatinine clearance.';
+                } else if (crcl >= 30) {
+                    category = 'Moderate reduction';
+                    severityClass = 'ui-alert-warning';
+                    alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
+                    alertType = 'warning';
+                } else if (crcl >= 15) {
+                    category = 'Severe reduction';
+                    severityClass = 'ui-alert-danger';
+                    alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
+                    alertType = 'danger';
+                } else {
+                    category = 'Kidney failure';
+                    severityClass = 'ui-alert-danger';
+                    alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
+                    alertType = 'danger';
+                }
+
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
                     label: 'Creatinine Clearance',
                     value: crcl.toFixed(1),
                     unit: 'mL/min',
                     interpretation: category,
                     alertClass: severityClass
                 })}
-                ${uiBuilder.createAlert({
+                    ${uiBuilder.createAlert({
                     type: alertType,
                     message: alertMsg
                 })}
-            `;
-            resultBox.classList.add('show');
+                `;
+                resultBox.classList.add('show');
+            } catch (error) {
+                logError(error, { calculator: 'crcl', action: 'calculate' });
+                // Only show system errors, validation handled above
+                if (error.name !== 'ValidationError') {
+                    let errorContainer = container.querySelector('#crcl-error');
+                    if (!errorContainer) {
+                        errorContainer = document.createElement('div');
+                        errorContainer.id = 'crcl-error';
+                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                    }
+                    displayError(errorContainer, error);
+                }
+                resultBox.classList.remove('show');
+            }
         };
 
         container.querySelectorAll('input').forEach(input => {
@@ -181,10 +229,9 @@ export const crcl = {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
-                    // const unit = obs.valueQuantity.unit || 'kg'; 
-                    // Assuming standard kg if matches
+                    // Assuming standard kg if matches logic in UnitConverter or default
+                    // Just set value and let user verify unit match
                     weightInput.value = val.toFixed(1);
-                    // Trigger update
                     weightInput.dispatchEvent(new Event('input'));
                 }
             });
@@ -192,13 +239,19 @@ export const crcl = {
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
-                    scrInput.value = val.toFixed(2);
-                    // Trigger update
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+
+                    if (unit.toLowerCase().includes('mol')) {
+                        const converted = UnitConverter.convert(val, 'µmol/L', 'mg/dL', 'creatinine');
+                        scrInput.value = converted ? converted.toFixed(2) : val.toFixed(2);
+                    } else {
+                        scrInput.value = val.toFixed(2);
+                    }
                     scrInput.dispatchEvent(new Event('input'));
                 }
             });
         }
-        
+
         // Initial calculation
         calculateAndUpdate();
     }
