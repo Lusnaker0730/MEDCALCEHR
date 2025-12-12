@@ -306,6 +306,70 @@ export const ValidationRules = {
             max: 1.0,
             message: 'FiO₂ 必须在 0.21-1.0 之间'
         }
+    },
+
+    // 碳酸氢根验证 (mEq/L)
+    bicarbonate: {
+        required: true,
+        min: 2,
+        max: 60,
+        message: 'HCO₃⁻ 必须在 2-60 mEq/L 之间'
+    },
+
+    // 氯离子验证 (mEq/L)
+    chloride: {
+        required: true,
+        min: 50,
+        max: 150,
+        message: '氯离子必须在 50-150 mEq/L 之间'
+    },
+
+    // 胰岛素验证 (µU/mL)
+    insulin: {
+        required: true,
+        min: 0.1,
+        max: 500,
+        message: '胰岛素必须在 0.1-500 µU/mL 之间'
+    },
+
+    // 乙醇验证 (mg/dL)
+    ethanol: {
+        required: false,
+        min: 0,
+        max: 1000,
+        message: '乙醇濃度必須在 0-1000 mg/dL 之間'
+    },
+
+    // 總膽固醇 (Total Cholesterol) mg/dL
+    totalCholesterol: {
+        required: true,
+        min: 50,
+        max: 1000,
+        message: '總膽固醇必須在 50-1000 mg/dL 之間'
+    },
+
+    // 高密度脂蛋白 (HDL) mg/dL
+    hdl: {
+        required: true,
+        min: 10,
+        max: 200,
+        message: 'HDL 必須在 10-200 mg/dL 之間'
+    },
+
+    // 三酸甘油酯 (Triglycerides) mg/dL
+    triglycerides: {
+        required: true,
+        min: 10,
+        max: 3000,
+        message: '三酸甘油酯必須在 10-3000 mg/dL 之間'
+    },
+
+    // 滲透壓 (Osmolality) mOsm/kg
+    osmolality: {
+        required: true,
+        min: 0,
+        max: 2000,
+        message: '滲透壓必須在 0-2000 mOsm/kg 之間'
     }
 };
 

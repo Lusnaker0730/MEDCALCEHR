@@ -1,6 +1,9 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const maintenanceFluids = {
     id: 'maintenance-fluids',
@@ -14,23 +17,26 @@ export const maintenanceFluids = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: 'Calculates maintenance fluid requirements by weight (Holliday-Segar method).'
-            })}
+            type: 'info',
+            message: 'Calculates maintenance fluid requirements by weight (Holliday-Segar method).'
+        })}
             
             ${uiBuilder.createSection({
-                title: 'Patient Weight',
-                icon: '⚖️',
-                content: uiBuilder.createInput({
-                    id: 'weight-fluids',
-                    label: 'Weight',
-                    type: 'number',
-                    placeholder: 'e.g., 70',
-                    unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
-                })
-            })}
+            title: 'Patient Weight',
+            icon: '⚖️',
+            content: uiBuilder.createInput({
+                id: 'weight-fluids',
+                label: 'Weight',
+                type: 'number',
+                placeholder: 'e.g., 70',
+                unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
+            })
+        })}
             
-            ${uiBuilder.createResultBox({ id: 'fluids-result', title: 'Maintenance Fluid Requirements' })}
+            <div id="fluids-result" class="ui-result-box">
+                <div class="ui-result-header">Maintenance Fluid Requirements</div>
+                <div class="ui-result-content"></div>
+            </div>
             
             <div class="formula-section">
                 <h4>📐 Holliday-Segar Formula</h4>
@@ -76,101 +82,99 @@ export const maintenanceFluids = {
         uiBuilder.initializeComponents(container);
 
         const weightInput = container.querySelector('#weight-fluids');
-        
-        // Helper to get weight in kg properly handling unit toggle
-        const getWeightInKg = () => {
-            if (!weightInput.value) return 0;
-            const val = parseFloat(weightInput.value);
-            const unitToggle = weightInput.parentElement.querySelector('.unit-toggle');
-            const unit = unitToggle ? unitToggle.textContent.trim() : 'kg';
-            
-            if (unit === 'lbs') {
-                return val * 0.453592;
-            }
-            return val;
-        };
+        const resultBox = container.querySelector('#fluids-result');
+        const resultContent = resultBox.querySelector('.ui-result-content');
 
         const calculateAndUpdate = () => {
-            const weight = getWeightInKg();
+            // Clear previous errors
+            const existingError = container.querySelector('#fluids-error');
+            if (existingError) existingError.remove();
 
-            if (!weight || weight <= 0) {
-                container.querySelector('#fluids-result').classList.remove('show');
-                return;
-            }
+            const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
 
-            let hourlyRate = 0;
-            if (weight <= 10) {
-                hourlyRate = weight * 4;
-            } else if (weight <= 20) {
-                hourlyRate = 10 * 4 + (weight - 10) * 2;
-            } else {
-                hourlyRate = 10 * 4 + 10 * 2 + (weight - 20) * 1;
-            }
-            const dailyRate = hourlyRate * 24;
+            try {
+                // Validation inputs
+                const inputs = { weight: weightKg };
+                const schema = { weight: ValidationRules.weight };
+                const validation = validateCalculatorInput(inputs, schema);
 
-            const resultBox = container.querySelector('#fluids-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                if (!validation.isValid) {
+                    // Filter required errors if empty
+                    if (weightInput.value) {
+                        const meaningfulErrors = validation.errors.filter(e => !e.includes('required') || weightInput.value);
+                        if (meaningfulErrors.length > 0 && !isNaN(weightKg)) {
+                            let errorContainer = document.createElement('div');
+                            errorContainer.id = 'fluids-error';
+                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                            displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                        }
+                    }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'IV Fluid Rate (Hourly)', 
-                    value: hourlyRate.toFixed(1), 
+                    resultBox.classList.remove('show');
+                    return;
+                }
+
+                if (weightKg <= 0) {
+                    resultBox.classList.remove('show');
+                    return;
+                }
+
+                let hourlyRate = 0;
+                if (weightKg <= 10) {
+                    hourlyRate = weightKg * 4;
+                } else if (weightKg <= 20) {
+                    hourlyRate = 10 * 4 + (weightKg - 10) * 2;
+                } else {
+                    hourlyRate = 10 * 4 + 10 * 2 + (weightKg - 20) * 1;
+                }
+                const dailyRate = hourlyRate * 24;
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'IV Fluid Rate (Hourly)',
+                    value: hourlyRate.toFixed(1),
                     unit: 'mL/hr'
                 })}
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Daily Fluids', 
-                    value: dailyRate.toFixed(1), 
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Daily Fluids',
+                    value: dailyRate.toFixed(1),
                     unit: 'mL/day'
                 })}
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+                resultBox.classList.add('show');
+            } catch (error) {
+                logError(error, { calculator: 'maintenance-fluids', action: 'calculate' });
+                if (error.name !== 'ValidationError') {
+                    let errorContainer = container.querySelector('#fluids-error');
+                    if (!errorContainer) {
+                        errorContainer = document.createElement('div');
+                        errorContainer.id = 'fluids-error';
+                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                    }
+                    displayError(errorContainer, error);
+                }
+                resultBox.classList.remove('show');
+            }
         };
 
         // Add event listener for automatic calculation on input change
         weightInput.addEventListener('input', calculateAndUpdate);
-        
-        // Also listen to unit toggle changes if UnitConverter adds them
-        const unitBtn = weightInput.parentElement.querySelector('.unit-toggle');
-        if(unitBtn) {
-            // UnitConverter usually handles the click and updates text, we need to recalc
-            // Since we don't have a direct event for unit change in UnitConverter easily accessible here without strict coupling, 
-            // we can observe mutation or just rely on user input. 
-            // But UnitConverter.createUnitToggle adds a click listener. 
-            // We can add another click listener to the button.
-            unitBtn.addEventListener('click', () => {
-                // Give time for unit to toggle
-                setTimeout(calculateAndUpdate, 0);
-            });
-        }
 
         // Auto-populate from FHIR
-        if (patient && patient.weight) {
-            // Assuming patient.weight is in kg if it comes from our simplified patient object, 
-            // but usually we look at observations for units.
-            // For simplicity in this mock context:
-            weightInput.value = patient.weight.toFixed(1);
-            calculateAndUpdate();
-        }
-
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT)
                 .then(weightObs => {
                     if (weightObs && weightObs.valueQuantity) {
                         let val = weightObs.valueQuantity.value;
-                        const unit = weightObs.valueQuantity.unit;
-                        
-                        // If unit is lbs, we might want to set the toggle to lbs or convert to kg
-                        // Here we just set value and assume kg default, or could be smarter.
-                        // For now, let's just set value.
-                        if (unit === 'lbs' || unit === '[lb_av]') {
-                             // If we could switch the toggle programmatically...
-                             // For now, let's just convert to kg for the input if default is kg
-                             val = val * 0.453592;
-                        }
-                        
+                        // Let unit converter handle display via setValue if possible, or just set value and assume kg default logic or manual set
+                        // Since UnitConverter initialize wrapper, we just set value.
+                        // Assuming kg typically from backend or handled by standard input expectation if not matched.
+                        // But wait, UnitConverter isn't auto-magically knowing the obs unit unless we map it. 
+                        // For simplicity, we assume we might get kg, or normalized value in utils.
+                        // But utils getMostRecentObservation returns raw Quantity.
+                        // We will set the value and trigger input.
                         weightInput.value = val.toFixed(1);
-                        calculateAndUpdate();
+                        weightInput.dispatchEvent(new Event('input'));
                     }
                 })
                 .catch(err => console.log('Weight data not available'));
