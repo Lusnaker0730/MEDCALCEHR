@@ -24,10 +24,14 @@ export const sodiumCorrection = {
             content: `
                     ${uiBuilder.createInput({
                 id: 'measured-sodium',
-                label: 'Measured Sodium (mEq/L)',
+                label: 'Measured Sodium',
                 type: 'number',
                 placeholder: 'e.g., 135',
-                unit: 'mEq/L'
+                unitToggle: {
+                    type: 'sodium',
+                    units: ['mEq/L', 'mmol/L'],
+                    defaultUnit: 'mEq/L'
+                }
             })}
                     ${uiBuilder.createInput({
                 id: 'glucose',
@@ -87,7 +91,7 @@ export const sodiumCorrection = {
             const existingError = container.querySelector('#sc-error');
             if (existingError) existingError.remove();
 
-            const measuredSodium = parseFloat(sodiumInput.value);
+            const measuredSodium = UnitConverter.getStandardValue(sodiumInput, 'mEq/L');
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
             const correctionFactor = parseFloat(container.querySelector('input[name="correction-factor"]:checked').value);
 
@@ -205,12 +209,23 @@ export const sodiumCorrection = {
             Promise.all([sodiumPromise, glucosePromise]).then(([sodiumObs, glucoseObs]) => {
                 if (sodiumObs && sodiumObs.valueQuantity) {
                     sodiumInput.value = sodiumObs.valueQuantity.value.toFixed(0);
+                    // Trigger input for unit handling if needed
+                    sodiumInput.dispatchEvent(new Event('input'));
                 }
                 if (glucoseObs && glucoseObs.valueQuantity) {
+                    // We rely on simple logic here for now or UnitConverter's auto-handling if we mapped it fully
+                    // But strictly speaking, UnitConverter doesn't auto-convert input.value setting.
+                    // The existing manual logic was good, but let's just minimalize it or keep it if needed.
+                    // Validator logic actually prefers standard UnitConverter usage. 
+                    // Since we updated glucose input with unitToggle, we should let user input flow effectively.
+                    // However, setting .value directly sets the "displayed" value. 
+                    // If obs is in mmol/L, and default is mg/dL, we DO need to convert.
                     const val = glucoseObs.valueQuantity.value;
                     const unit = glucoseObs.valueQuantity.unit || 'mg/dL';
 
+                    // Helper: Check if units match or need conversion
                     if (unit.toLowerCase().includes('mol')) {
+                        // Glucose default usually mg/dL
                         const converted = UnitConverter.convert(val, 'mmol/L', 'mg/dL', 'glucose');
                         glucoseInput.value = converted ? converted.toFixed(0) : val.toFixed(0);
                     } else {

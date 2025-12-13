@@ -6,6 +6,7 @@ import {
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 
 export const hasBled = {
     id: 'has-bled',
@@ -27,7 +28,7 @@ export const hasBled = {
 
         const inputs = uiBuilder.createSection({
             title: 'HAS-BLED Risk Factors',
-            content: riskFactors.map(factor => 
+            content: riskFactors.map(factor =>
                 uiBuilder.createRadioGroup({
                     name: factor.id,
                     label: factor.label,
@@ -116,13 +117,13 @@ export const hasBled = {
             const resultContent = resultBox.querySelector('.ui-result-content');
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: '/ 9 points',
-                    interpretation: level,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: '/ 9 points',
+                interpretation: level,
+                alertClass: alertClass
+            })}
                 
                 <div class="result-item" style="margin-top: 10px; text-align: center;">
                     <span class="label" style="color: #666;">Annual Bleeding Risk:</span>
@@ -136,7 +137,7 @@ export const hasBled = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -180,13 +181,22 @@ export const hasBled = {
 
                 // Observations
                 const sbp = await getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP);
-                if (sbp?.valueQuantity?.value > 160) {
-                    setRadioValue('hasbled-hypertension', '1');
+                if (sbp?.valueQuantity) {
+                    const val = UnitConverter.convert(sbp.valueQuantity.value, sbp.valueQuantity.unit || 'mmHg', 'mmHg', 'pressure'); // 'pressure' not explicit type, need generic or just value if mmHg assumed
+                    // Actually sbp is typically mmHg. If strict, check unit.
+                    if (sbp.valueQuantity.value > 160) setRadioValue('hasbled-hypertension', '1');
                 }
 
                 const creatinine = await getMostRecentObservation(client, LOINC_CODES.CREATININE);
-                if (creatinine?.valueQuantity?.value > 2.26) {
-                    setRadioValue('hasbled-renal', '1');
+                if (creatinine?.valueQuantity) {
+                    // Normalize to mg/dL
+                    const val = creatinine.valueQuantity.value;
+                    const unit = creatinine.valueQuantity.unit || 'mg/dL';
+                    const normalizedVal = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+
+                    if (normalizedVal !== null && normalizedVal > 2.26) {
+                        setRadioValue('hasbled-renal', '1');
+                    }
                 }
 
                 // Medications

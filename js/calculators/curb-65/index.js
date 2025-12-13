@@ -1,6 +1,7 @@
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 
 export const curb65 = {
     id: 'curb-65',
@@ -18,7 +19,7 @@ export const curb65 = {
 
         const criteriaSection = uiBuilder.createSection({
             title: 'CURB-65 Criteria',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -125,13 +126,13 @@ export const curb65 = {
             const resultContent = resultBox.querySelector('.ui-result-content');
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: '/ 5 points',
-                    interpretation: riskLevel,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: '/ 5 points',
+                interpretation: riskLevel,
+                alertClass: alertClass
+            })}
                 
                 <div class="result-item" style="margin-top: 10px; text-align: center;">
                     <span class="label" style="color: #666;">30-Day Mortality Risk:</span>
@@ -145,7 +146,7 @@ export const curb65 = {
                     </div>
                 </div>
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -184,9 +185,15 @@ export const curb65 = {
                 });
 
             // Pre-fill BUN (LOINC: 6299-8 or 3094-0)
+            // Pre-fill BUN (LOINC: 6299-8 or 3094-0)
             getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-                if (obs && obs.valueQuantity.value > 19) {
-                    setRadioValue('curb-bun', '1');
+                if (obs && obs.valueQuantity) {
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const bunMgDl = UnitConverter.convert(val, unit, 'mg/dL', 'bun');
+                    if (bunMgDl !== null && bunMgDl > 19) {
+                        setRadioValue('curb-bun', '1');
+                    }
                 }
             });
         }

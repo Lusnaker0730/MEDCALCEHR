@@ -18,14 +18,14 @@ export const fena = {
                     label: 'Urine Sodium',
                     type: 'number',
                     placeholder: 'e.g. 20',
-                    unit: 'mEq/L'
+                    unitToggle: { type: 'urineSodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
                 }),
                 uiBuilder.createInput({
                     id: 'fena-serum-na',
                     label: 'Serum Sodium',
                     type: 'number',
                     placeholder: 'e.g. 140',
-                    unit: 'mEq/L'
+                    unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
                 }),
                 uiBuilder.createInput({
                     id: 'fena-urine-creat',
@@ -91,8 +91,8 @@ export const fena = {
             const uCrInput = container.querySelector('#fena-urine-creat');
             const sCrInput = container.querySelector('#fena-serum-creat');
 
-            const uNa = parseFloat(uNaInput.value);
-            const sNa = parseFloat(sNaInput.value);
+            const uNa = UnitConverter.getStandardValue(uNaInput, 'mEq/L');
+            const sNa = UnitConverter.getStandardValue(sNaInput, 'mEq/L');
             const uCrMgDl = UnitConverter.getStandardValue(uCrInput, 'mg/dL');
             const sCrMgDl = UnitConverter.getStandardValue(sCrInput, 'mg/dL');
 

@@ -2,6 +2,8 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const nafldFibrosisScore = {
     id: 'nafld-fibrosis-score',
@@ -14,73 +16,73 @@ export const nafldFibrosisScore = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Instructions:</strong> For use in patients with NAFLD to screen for advanced fibrosis.'
-            })}
+            type: 'info',
+            message: '<strong>Instructions:</strong> For use in patients with NAFLD to screen for advanced fibrosis.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Patient Demographics',
-                icon: '👤',
-                content: `
+            title: 'Patient Demographics',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createInput({ id: 'nafld-age', label: 'Age', unit: 'years', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'nafld-bmi', label: 'BMI', unit: 'kg/m²', type: 'number', step: '0.1' })}
                     ${uiBuilder.createRadioGroup({
-                        name: 'nafld-diabetes',
-                        label: 'Impaired Fasting Glucose / Diabetes',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes (+1.13 points)' }
-                        ]
-                    })}
-                `
+                name: 'nafld-diabetes',
+                label: 'Impaired Fasting Glucose / Diabetes',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes (+1.13 points)' }
+                ]
             })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Laboratory Values',
-                icon: '🧪',
-                content: `
+            title: 'Laboratory Values',
+            icon: '🧪',
+            content: `
                     ${uiBuilder.createInput({ id: 'nafld-ast', label: 'AST', unit: 'U/L', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'nafld-alt', label: 'ALT', unit: 'U/L', type: 'number' })}
                     ${uiBuilder.createInput({
-                        id: 'nafld-platelet',
-                        label: 'Platelet Count',
-                        type: 'number',
-                        unit: '×10⁹/L',
-                        unitToggle: {
-                            type: 'platelet',
-                            units: ['×10⁹/L', 'K/µL'],
-                            defaultUnit: '×10⁹/L'
-                        }
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'nafld-albumin',
-                        label: 'Albumin',
-                        type: 'number',
-                        step: '0.1',
-                        unit: 'g/dL',
-                        unitToggle: {
-                            type: 'concentration',
-                            units: ['g/dL', 'g/L'],
-                            defaultUnit: 'g/dL'
-                        }
-                    })}
-                `
+                id: 'nafld-platelet',
+                label: 'Platelet Count',
+                type: 'number',
+                unit: '×10⁹/L',
+                unitToggle: {
+                    type: 'platelet',
+                    units: ['×10⁹/L', 'K/µL'],
+                    defaultUnit: '×10⁹/L'
+                }
             })}
+                    ${uiBuilder.createInput({
+                id: 'nafld-albumin',
+                label: 'Albumin',
+                type: 'number',
+                step: '0.1',
+                unit: 'g/dL',
+                unitToggle: {
+                    type: 'concentration',
+                    units: ['g/dL', 'g/L'],
+                    defaultUnit: 'g/dL'
+                }
+            })}
+                `
+        })}
 
             ${uiBuilder.createResultBox({ id: 'nafld-result', title: 'NAFLD Fibrosis Score' })}
 
             ${uiBuilder.createFormulaSection({
-                items: [
-                    {
-                        label: 'Score Formula',
-                        formula: '-1.675 + (0.037 × Age) + (0.094 × BMI) + (1.13 × Diabetes) + (0.99 × AST/ALT) - (0.013 × Platelet) - (0.66 × Albumin)'
-                    }
-                ]
-            })}
+            items: [
+                {
+                    label: 'Score Formula',
+                    formula: '-1.675 + (0.037 × Age) + (0.094 × BMI) + (1.13 × Diabetes) + (0.99 × AST/ALT) - (0.013 × Platelet) - (0.66 × Albumin)'
+                }
+            ]
+        })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Interpretation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -95,7 +97,7 @@ export const nafldFibrosisScore = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -110,6 +112,10 @@ export const nafldFibrosisScore = {
         const resultBox = container.querySelector('#nafld-result');
 
         const calculate = () => {
+            // Clear previous errors
+            const existingError = container.querySelector('#nafld-error');
+            if (existingError) existingError.remove();
+
             const age = parseFloat(ageInput.value);
             const bmi = parseFloat(bmiInput.value);
             const ast = parseFloat(astInput.value);
@@ -118,53 +124,100 @@ export const nafldFibrosisScore = {
             const albumin = UnitConverter.getStandardValue(albuminInput, 'g/dL');
             const diabetes = parseInt(container.querySelector('input[name="nafld-diabetes"]:checked').value);
 
-            if (isNaN(age) || isNaN(bmi) || isNaN(ast) || isNaN(alt) || isNaN(platelet) || isNaN(albumin) || alt === 0) {
-                resultBox.classList.remove('show');
-                return;
-            }
+            try {
+                // Validation Inputs
+                const inputs = {
+                    age,
+                    bmi,
+                    ast,
+                    alt,
+                    platelets: platelet,
+                    albumin
+                };
+                const schema = {
+                    age: ValidationRules.age,
+                    bmi: ValidationRules.bmi,
+                    ast: ValidationRules.liverEnzyme,
+                    alt: ValidationRules.liverEnzyme,
+                    platelets: ValidationRules.platelets,
+                    albumin: ValidationRules.albumin
+                };
 
-            const astAltRatio = ast / alt;
-            const score = -1.675 + 
-                          (0.037 * age) + 
-                          (0.094 * bmi) + 
-                          (1.13 * diabetes) + 
-                          (0.99 * astAltRatio) - 
-                          (0.013 * platelet) - 
-                          (0.66 * albumin);
+                const validation = validateCalculatorInput(inputs, schema);
 
-            let stage = '';
-            let interpretation = '';
-            let alertType = 'info';
+                if (!validation.isValid) {
+                    const hasInput = (ageInput.value || bmiInput.value || astInput.value || altInput.value || plateletInput.value || albuminInput.value);
+                    if (hasInput) {
+                        const valuesPresent = !isNaN(age) && !isNaN(bmi) && !isNaN(ast) && !isNaN(alt) && !isNaN(platelet) && !isNaN(albumin);
+                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
+                            let errorContainer = document.createElement('div');
+                            errorContainer.id = 'nafld-error';
+                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        }
+                    }
+                    resultBox.classList.remove('show');
+                    return;
+                }
 
-            if (score < -1.455) {
-                stage = 'F0-F2';
-                interpretation = 'Low probability of advanced fibrosis';
-                alertType = 'success';
-            } else if (score <= 0.675) {
-                stage = 'Indeterminate';
-                interpretation = 'Further testing needed (e.g., elastography)';
-                alertType = 'warning';
-            } else {
-                stage = 'F3-F4';
-                interpretation = 'High probability of advanced fibrosis';
-                alertType = 'danger';
-            }
+                const astAltRatio = ast / alt;
+                const score = -1.675 +
+                    (0.037 * age) +
+                    (0.094 * bmi) +
+                    (1.13 * diabetes) +
+                    (0.99 * astAltRatio) -
+                    (0.013 * platelet) -
+                    (0.66 * albumin);
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
+                if (!isFinite(score) || isNaN(score)) throw new Error("Calculation Error");
+
+                let stage = '';
+                let interpretation = '';
+                let alertType = 'info';
+
+                if (score < -1.455) {
+                    stage = 'F0-F2';
+                    interpretation = 'Low probability of advanced fibrosis';
+                    alertType = 'success';
+                } else if (score <= 0.675) {
+                    stage = 'Indeterminate';
+                    interpretation = 'Further testing needed (e.g., elastography)';
+                    alertType = 'warning';
+                } else {
+                    stage = 'F3-F4';
+                    interpretation = 'High probability of advanced fibrosis';
+                    alertType = 'danger';
+                }
+
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
                     label: 'NAFLD Fibrosis Score',
                     value: score.toFixed(3),
                     unit: 'points',
                     interpretation: stage,
                     alertClass: `ui-alert-${alertType}`
                 })}
-                ${uiBuilder.createAlert({
+                    ${uiBuilder.createAlert({
                     type: alertType,
                     message: `<strong>Interpretation:</strong> ${interpretation}`
                 })}
-            `;
-            resultBox.classList.add('show');
+                `;
+                resultBox.classList.add('show');
+            } catch (error) {
+                logError(error, { calculator: 'nafld-fibrosis-score', action: 'calculate' });
+                // Only show system errors, validation handled above
+                if (error.name !== 'ValidationError') {
+                    let errorContainer = container.querySelector('#nafld-error');
+                    if (!errorContainer) {
+                        errorContainer = document.createElement('div');
+                        errorContainer.id = 'nafld-error';
+                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                    }
+                    displayError(errorContainer, error);
+                }
+                resultBox.classList.remove('show');
+            }
         };
 
         // Event listeners

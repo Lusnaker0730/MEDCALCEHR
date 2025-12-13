@@ -39,7 +39,7 @@ export const meldNa = {
                     label: 'Sodium',
                     type: 'number',
                     step: 1,
-                    unit: 'mEq/L',
+                    unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' },
                     placeholder: '100 - 155'
                 }),
                 uiBuilder.createCheckbox({
@@ -109,7 +109,7 @@ export const meldNa = {
                 const bili = UnitConverter.getStandardValue(biliInput, 'mg/dL');
                 const inr = parseFloat(inrInput.value);
                 const creat = UnitConverter.getStandardValue(creatInput, 'mg/dL');
-                const sodium = parseFloat(sodiumInput.value);
+                const sodium = UnitConverter.getStandardValue(sodiumInput, 'mEq/L');
                 const onDialysis = dialysisCheckbox.checked;
 
                 // Define validation schema

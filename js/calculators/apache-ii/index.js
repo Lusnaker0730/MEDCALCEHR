@@ -4,6 +4,7 @@ import {
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -57,12 +58,11 @@ const getPoints = {
         return 0;
     },
     creatinine: (v, arf) => {
-        // arf is boolean for acute renal failure
+        // v expected in mg/dL
         let score = 0;
-        const v_mgdl = v / 88.4; // convert umol/L to mg/dL
-        if (v_mgdl >= 3.5) score = 4;
-        else if (v_mgdl >= 2.0) score = 3;
-        else if (v_mgdl >= 1.5 || v_mgdl < 0.6) score = 2;
+        if (v >= 3.5) score = 4;
+        else if (v >= 2.0) score = 3;
+        else if (v >= 1.5 || v < 0.6) score = 2;
         return arf ? score * 2 : score;
     },
     hct: v => {
@@ -122,7 +122,13 @@ export const apacheIi = {
             title: 'Demographics & Vital Signs',
             content: [
                 uiBuilder.createInput({ id: 'apache-ii-age', label: 'Age', unit: 'years' }),
-                uiBuilder.createInput({ id: 'apache-ii-temp', label: 'Temperature', unit: '°C', step: 0.1, placeholder: '36.1 - 37.8' }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-temp',
+                    label: 'Temperature',
+                    step: 0.1,
+                    placeholder: '36.1 - 37.8',
+                    unitToggle: { type: 'temperature', units: ['C', 'F'], defaultUnit: 'C' }
+                }),
                 uiBuilder.createInput({ id: 'apache-ii-map', label: 'Mean Arterial Pressure', unit: 'mmHg', placeholder: '70 - 100' }),
                 uiBuilder.createInput({ id: 'apache-ii-hr', label: 'Heart Rate', unit: 'bpm', placeholder: '60 - 100' }),
                 uiBuilder.createInput({ id: 'apache-ii-rr', label: 'Respiratory Rate', unit: 'breaths/min', placeholder: '12 - 20' })
@@ -133,9 +139,26 @@ export const apacheIi = {
             title: 'Laboratory Values',
             content: [
                 uiBuilder.createInput({ id: 'apache-ii-ph', label: 'Arterial pH', step: 0.01, placeholder: '7.38 - 7.44' }),
-                uiBuilder.createInput({ id: 'apache-ii-sodium', label: 'Sodium', unit: 'mmol/L', placeholder: '136 - 145' }),
-                uiBuilder.createInput({ id: 'apache-ii-potassium', label: 'Potassium', unit: 'mmol/L', step: 0.1, placeholder: '3.5 - 5.2' }),
-                uiBuilder.createInput({ id: 'apache-ii-creatinine', label: 'Creatinine', unit: 'μmol/L', step: 0.1, placeholder: '62 - 115' }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-sodium',
+                    label: 'Sodium',
+                    placeholder: '136 - 145',
+                    unitToggle: { type: 'sodium', units: ['mmol/L', 'mEq/L'], defaultUnit: 'mmol/L' }
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-potassium',
+                    label: 'Potassium',
+                    step: 0.1,
+                    placeholder: '3.5 - 5.2',
+                    unitToggle: { type: 'potassium', units: ['mmol/L', 'mEq/L'], defaultUnit: 'mmol/L' }
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-creatinine',
+                    label: 'Creatinine',
+                    step: 0.1,
+                    placeholder: '0.7 - 1.3',
+                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], defaultUnit: 'mg/dL' }
+                }),
                 uiBuilder.createInput({ id: 'apache-ii-hct', label: 'Hematocrit', unit: '%', step: 0.1, placeholder: '36 - 51' }),
                 uiBuilder.createInput({ id: 'apache-ii-wbc', label: 'WBC Count', unit: 'x 10⁹/L', step: 0.1, placeholder: '3.7 - 10.7' }),
                 uiBuilder.createRadioGroup({
@@ -282,15 +305,25 @@ export const apacheIi = {
                     return val === '' || val === null ? null : parseFloat(val);
                 };
 
+                // Use UnitConverter for toggle fields
+                const getStdValue = (id, unit) => {
+                    const el = container.querySelector(id);
+                    // If element exists but empty, return null (handled by getStandardValue?? No, it returns NaN usually)
+                    // UnitConverter.getStandardValue returns NaN if invalid/empty.
+                    // We need null for our logic below if empty?
+                    if (!el || el.value === '') return null;
+                    return UnitConverter.getStandardValue(el, unit);
+                };
+
                 const values = {
-                    temp: getValue('#apache-ii-temp'),
+                    temp: getStdValue('#apache-ii-temp', 'C'),
                     map: getValue('#apache-ii-map'),
                     hr: getValue('#apache-ii-hr'),
                     rr: getValue('#apache-ii-rr'),
                     ph: getValue('#apache-ii-ph'),
-                    sodium: getValue('#apache-ii-sodium'),
-                    potassium: getValue('#apache-ii-potassium'),
-                    creatinine: getValue('#apache-ii-creatinine'),
+                    sodium: getStdValue('#apache-ii-sodium', 'mmol/L'),
+                    potassium: getStdValue('#apache-ii-potassium', 'mmol/L'),
+                    creatinine: getStdValue('#apache-ii-creatinine', 'mg/dL'), // Updated to mg/dL
                     hct: getValue('#apache-ii-hct'),
                     wbc: getValue('#apache-ii-wbc'),
                     gcs: getValue('#apache-ii-gcs'),

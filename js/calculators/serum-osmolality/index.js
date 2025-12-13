@@ -28,7 +28,7 @@ export const serumOsmolality = {
                 label: 'Sodium (Na)',
                 type: 'number',
                 placeholder: 'e.g., 140',
-                unit: 'mEq/L'
+                unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'osmo-glucose',
@@ -100,7 +100,7 @@ export const serumOsmolality = {
             const existingError = container.querySelector('#osmo-error');
             if (existingError) existingError.remove();
 
-            const na = parseFloat(naInput.value);
+            const na = UnitConverter.getStandardValue(naInput, 'mEq/L');
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
             const bunMgDl = UnitConverter.getStandardValue(bunInput, 'mg/dL');
             const ethanol = parseFloat(ethanolInput.value) || 0;

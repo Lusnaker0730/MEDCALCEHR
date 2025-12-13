@@ -32,7 +32,8 @@ export const homaIr = {
                 label: 'Fasting Insulin',
                 unit: 'µU/mL',
                 type: 'number',
-                placeholder: 'e.g. 10'
+                placeholder: 'e.g. 10',
+                unitToggle: { type: 'insulin', units: ['µU/mL', 'pmol/L'], defaultUnit: 'µU/mL' }
             })}
                 `
         })}
@@ -64,10 +65,26 @@ export const homaIr = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        UnitConverter.createUnitToggle(container.querySelector('#homa-glucose'), 'glucose', ['mg/dL', 'mmol/L']);
+        // Remove manual UnitConverter calls if they exist, rely on createInput's unitToggle,
+        // BUT uiBuilder.createInput logic for 'unitToggle: true' does NOT call UnitConverter.enhanceInput automatically unless uiBuilder is upgraded.
+        // Wait, checking uiBuilder logic? 
+        // Current uiBuilder createInput just adds data-attribute or markup.
+        // Usually we need `UnitConverter.createUnitToggle` or `UnitConverter.autoEnhance` if not built-in.
+        // HOMA-IR previous code manually called UnitConverter.createUnitToggle for glucose at line 67.
+        // I should remove that manual call and let autoEnhance or manual createUnitToggle handle both.
+        // Better: Since HOMA-IR uses uiBuilder, I should check if I need to manually init toggles.
+        // Line 67: UnitConverter.createUnitToggle(container.querySelector('#homa-glucose'), 'glucose', ['mg/dL', 'mmol/L']);
+        // I will replicate this for insulin.
 
         const insulinInput = container.querySelector('#homa-insulin');
         const glucoseInput = container.querySelector('#homa-glucose');
+
+        // Enhance Glucose (if not done by uiBuilder)
+        // uiBuilder line 28 said unitToggle: true. 
+        // Previously manual toggle creation was at line 67.
+        UnitConverter.createUnitToggle(glucoseInput, 'glucose', ['mg/dL', 'mmol/L']);
+        UnitConverter.createUnitToggle(insulinInput, 'insulin', ['µU/mL', 'pmol/L']);
+
         const resultBox = container.querySelector('#homa-ir-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
 
@@ -77,8 +94,8 @@ export const homaIr = {
             if (existingError) existingError.remove();
 
             // Use UnitConverter to get standard value (mg/dL)
-            const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput);
-            const insulin = parseFloat(insulinInput.value);
+            const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
+            const insulin = UnitConverter.getStandardValue(insulinInput, 'µU/mL');
 
             try {
                 // Validation inputs

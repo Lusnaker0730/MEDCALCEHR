@@ -129,6 +129,18 @@ export const UnitConverter = {
         fibrinogen: {
             'g/L': { 'mg/dL': 100 },
             'mg/dL': { 'g/L': 0.01 }
+        },
+        // Insulin
+        insulin: {
+            'µU/mL': { 'pmol/L': 6.945, 'mU/L': 1 },
+            'mU/L': { 'pmol/L': 6.945, 'µU/mL': 1 },
+            'pmol/L': { 'µU/mL': 0.144, 'mU/L': 0.144 }
+        },
+        // Phenytoin
+        phenytoin: {
+            'mcg/mL': { 'µmol/L': 3.964, 'mg/L': 1 },
+            'µmol/L': { 'mcg/mL': 0.252, 'mg/L': 0.252 },
+            'mg/L': { 'mcg/mL': 1, 'µmol/L': 3.964 }
         }
     },
 

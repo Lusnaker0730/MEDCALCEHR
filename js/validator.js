@@ -308,6 +308,14 @@ export const ValidationRules = {
         }
     },
 
+    // 苯妥英钠 (mcg/mL)
+    phenytoin: {
+        required: true,
+        min: 0,
+        max: 100,
+        message: '苯妥英钠水平必须在 0-100 mcg/mL 之间'
+    },
+
     // 碳酸氢根验证 (mEq/L)
     bicarbonate: {
         required: true,
@@ -370,6 +378,38 @@ export const ValidationRules = {
         min: 0,
         max: 2000,
         message: '滲透壓必須在 0-2000 mOsm/kg 之間'
+    },
+
+    // 時間 (小時)
+    hours: {
+        required: true,
+        min: 0,
+        max: 168, // 1 week max reasonable cap
+        message: '時間必須在 0-168 小時之間'
+    },
+
+    // 體積 (mL)
+    volume: {
+        required: true,
+        min: 0,
+        max: 5000,
+        message: '體積必須在 0-5000 mL 之間'
+    },
+
+    // 酒精濃度 (ABV) %
+    abv: {
+        required: true,
+        min: 0,
+        max: 100,
+        message: 'ABV 必須在 0-100% 之間'
+    },
+
+    // 血紅素 (Hemoglobin) g/dL
+    hemoglobin: {
+        required: true,
+        min: 1,
+        max: 25,
+        message: '血紅素必須在 1-25 g/dL 之間'
     }
 };
 

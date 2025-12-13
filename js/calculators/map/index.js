@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -17,14 +18,15 @@ export const map = {
                     label: 'Systolic BP',
                     type: 'number',
                     placeholder: 'e.g., 120',
-                    unit: 'mmHg'
+                    placeholder: 'e.g., 120',
+                    unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], defaultUnit: 'mmHg' }
                 }),
                 uiBuilder.createInput({
                     id: 'map-dbp',
                     label: 'Diastolic BP',
                     type: 'number',
                     placeholder: 'e.g., 80',
-                    unit: 'mmHg'
+                    unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], defaultUnit: 'mmHg' }
                 })
             ].join('')
         });
@@ -72,8 +74,8 @@ export const map = {
             const existingError = container.querySelector('#map-error');
             if (existingError) existingError.remove();
 
-            const sbp = parseFloat(sbpInput.value);
-            const dbp = parseFloat(dbpInput.value);
+            const sbp = UnitConverter.getStandardValue(sbpInput, 'mmHg');
+            const dbp = UnitConverter.getStandardValue(dbpInput, 'mmHg');
 
             try {
                 // Validate inputs

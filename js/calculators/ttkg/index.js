@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -21,13 +22,21 @@ export const ttkg = {
                 id: 'ttkg-urine-k',
                 label: 'Urine Potassium',
                 type: 'number',
-                unit: 'mEq/L'
+                unitToggle: {
+                    type: 'electrolyte',
+                    units: ['mEq/L', 'mmol/L'],
+                    defaultUnit: 'mEq/L'
+                }
             })}
                     ${uiBuilder.createInput({
                 id: 'ttkg-serum-k',
                 label: 'Serum Potassium',
                 type: 'number',
-                unit: 'mEq/L',
+                unitToggle: {
+                    type: 'electrolyte',
+                    units: ['mEq/L', 'mmol/L'],
+                    defaultUnit: 'mEq/L'
+                },
                 placeholder: 'Norm: 3.5 - 5.2'
             })}
                     ${uiBuilder.createInput({
@@ -98,8 +107,8 @@ export const ttkg = {
             const existingError = container.querySelector('#ttkg-error');
             if (existingError) existingError.remove();
 
-            const urineK = parseFloat(urineKEl.value);
-            const serumK = parseFloat(serumKEl.value);
+            const urineK = UnitConverter.getStandardValue(urineKEl, 'mEq/L');
+            const serumK = UnitConverter.getStandardValue(serumKEl, 'mEq/L');
             const urineOsmo = parseFloat(urineOsmoEl.value);
             const serumOsmo = parseFloat(serumOsmoEl.value);
 
