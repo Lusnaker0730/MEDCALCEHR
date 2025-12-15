@@ -48,15 +48,15 @@ export const growthChart = {
                     </div>
                     <div class="chart-summary" id="bmi-summary"></div>
                     ${uiBuilder.createAlert({
-                        type: 'info',
-                        message: '<strong>Note:</strong> BMI patterns in infants are normal - BMI typically peaks around 8-12 months, then decreases until age 5-6 years (adiposity rebound).'
-                    })}
+            type: 'info',
+            message: '<strong>Note:</strong> BMI patterns in infants are normal - BMI typically peaks around 8-12 months, then decreases until age 5-6 years (adiposity rebound).'
+        })}
                 </div>
             </div>
 
             ${uiBuilder.createSection({
-                title: 'Chart Information',
-                content: `
+            title: 'Chart Information',
+            content: `
                     <ul>
                         <li><strong>Reference:</strong> CDC Growth Charts (2000)</li>
                         <li><strong>Age Range:</strong> Birth to 36 months</li>
@@ -65,11 +65,11 @@ export const growthChart = {
                         <li><strong>Normal Range:</strong> Between P5 and P95 (green shaded area)</li>
                     </ul>
                 `
-            })}
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical Interpretation Guidelines',
-                content: `
+            title: 'Clinical Interpretation Guidelines',
+            content: `
                     <div class="interpretation-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="interpretation-item">
                             <strong>Normal Growth:</strong>
@@ -89,7 +89,7 @@ export const growthChart = {
                         </div>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -97,7 +97,7 @@ export const growthChart = {
         // Reusing the complex chart initialization logic as it is specific to this calculator
         // and doesn't benefit much from uiBuilder for the canvas manipulation part.
         // I will copy the initialization logic from the original file.
-        
+
         const heightCanvas = container.querySelector('#growthChartCanvasHeight');
         const weightCanvas = container.querySelector('#growthChartCanvasWeight');
         const bmiCanvas = container.querySelector('#growthChartCanvasBMI');
@@ -106,7 +106,7 @@ export const growthChart = {
             if (!client || !client.patient || !patient || !patient.birthDate) {
                 return { height: [], weight: [], head: [] };
             }
-            
+
             const loincCodes = {
                 height: LOINC_CODES.HEIGHT,
                 weight: LOINC_CODES.WEIGHT,
@@ -126,9 +126,9 @@ export const growthChart = {
                             .map(item => ({
                                 ageMonths:
                                     new Date(item.resource.effectiveDateTime).getTime() /
-                                        (1000 * 60 * 60 * 24 * 30.4375) -
+                                    (1000 * 60 * 60 * 24 * 30.4375) -
                                     new Date(patient.birthDate).getTime() /
-                                        (1000 * 60 * 60 * 24 * 30.4375),
+                                    (1000 * 60 * 60 * 24 * 30.4375),
                                 value: item.resource.valueQuantity.value,
                                 unit: item.resource.valueQuantity.unit
                             }))
@@ -453,10 +453,27 @@ export const growthChart = {
                 return null;
             } // Too far from reference point
 
-            // Approximate Z-score using P50 and standard deviation estimation
+            // Use LMS Method for precise calculation
+            if (closestPoint.L !== undefined && closestPoint.M !== undefined && closestPoint.S !== undefined) {
+                const L = closestPoint.L;
+                const M = closestPoint.M;
+                const S = closestPoint.S;
+
+                if (value <= 0) return null;
+
+                if (Math.abs(L) < 0.01) {
+                    return Math.log(value / M) / S;
+                } else {
+                    return (Math.pow(value / M, L) - 1) / (L * S);
+                }
+            }
+
+            // Approximate Z-score using P50 and standard deviation estimation (Legacy Fallback)
             const p50 = closestPoint.P50;
             const p5 = closestPoint.P5;
             const p95 = closestPoint.P95;
+
+            if (p50 === undefined || p5 === undefined || p95 === undefined) return null;
 
             // Rough estimate: assume normal distribution where P5 ≈ -1.645 SD, P95 ≈ +1.645 SD
             const sdEstimate = (p95 - p5) / (2 * 1.645);
@@ -561,9 +578,19 @@ export const growthChart = {
                     data.weight.length > 0 ? data.weight[data.weight.length - 1] : null;
                 const latestBMI = bmiData.length > 0 ? bmiData[bmiData.length - 1] : null;
 
-                // Create Height Chart
-                const cdcHeightDataSet =
-                    gender === 'female' ? cdcData.lenageinf_g : cdcData.lenageinf_b;
+                // Helper to transform LMS array to object
+                const mapLmsToObj = (lmsArray) => {
+                    if (!lmsArray) return [];
+                    const headers = ['P3', 'P5', 'P10', 'P25', 'P50', 'P75', 'P90', 'P95', 'P97'];
+                    return lmsArray.map(row => {
+                        const obj = { Agemos: row[0], L: row[1], M: row[2], S: row[3] };
+                        headers.forEach((h, i) => obj[h] = row[4 + i]);
+                        return obj;
+                    });
+                };
+
+                // Create Height Chart (Legacy Format)
+                const cdcHeightDataSet = gender === 'female' ? cdcData.lenageinf_g : cdcData.lenageinf_b;
                 const cdcHeightData = cdcHeightDataSet ? cdcHeightDataSet.data : [];
                 if (heightCanvas) {
                     createChart(
@@ -583,10 +610,10 @@ export const growthChart = {
                     );
                 }
 
-                // Create Weight Chart
-                const cdcWeightDataSet =
-                    gender === 'female' ? cdcData.wtageinf_g : cdcData.wtageinf_b;
-                const cdcWeightData = cdcWeightDataSet ? cdcWeightDataSet.data : [];
+                // Create Weight Chart (New LMS Format)
+                const cdcWeightDataRaw = gender === 'female' ? cdcData.wtageinf.female : cdcData.wtageinf.male;
+                const cdcWeightData = mapLmsToObj(cdcWeightDataRaw);
+
                 if (weightCanvas) {
                     createChart(
                         weightCanvas,
@@ -605,9 +632,8 @@ export const growthChart = {
                     );
                 }
 
-                // Create BMI Chart
-                const cdcBmiDataSet =
-                    gender === 'female' ? cdcData.bmiagerev_g : cdcData.bmiagerev_b;
+                // Create BMI Chart (Legacy Format)
+                const cdcBmiDataSet = gender === 'female' ? cdcData.bmiagerev_g : cdcData.bmiagerev_b;
                 const cdcBmiData = cdcBmiDataSet ? cdcBmiDataSet.data : [];
                 if (bmiCanvas) {
                     createChart(
@@ -633,6 +659,14 @@ export const growthChart = {
                 }
             }
         });
+
+        // Function to update chart status and summary
+        // ... (existing updateChartStatus) ... but moved calculateZScore inside or ensure it's accessible?
+        // calculateZScore is defined in the outer scope.
+
+        // Update calculateZScore to use LMS
+        // We need to replace the definition of calculateZScore in the file.
+
 
         // Function to add growth velocity analysis
         function addGrowthVelocityAnalysis(container, data, bmiData) {
