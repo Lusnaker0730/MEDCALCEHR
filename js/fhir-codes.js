@@ -10,7 +10,7 @@ export const LOINC_CODES = {
     // Vital Signs
     SYSTOLIC_BP: '8480-6', // Systolic blood pressure
     DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
-    BP_PANEL: '85354-9', // Blood pressure panel
+    BP_PANEL: '85354-9,55284-4', // Blood pressure panel
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
     TEMPERATURE: '8310-5', // Body temperature

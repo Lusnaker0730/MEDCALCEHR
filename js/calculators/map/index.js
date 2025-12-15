@@ -189,11 +189,11 @@ export const map = {
             getMostRecentObservation(client, LOINC_CODES.BP_PANEL)
                 .then(bpPanel => {
                     if (bpPanel && bpPanel.component) {
-                        const sbpComp = bpPanel.component.find(
-                            c => c.code.coding[0].code === '8480-6'
+                        const sbpComp = bpPanel.component.find(c =>
+                            c.code.coding && c.code.coding.some(coding => coding.code === '8480-6')
                         ); // Systolic
-                        const dbpComp = bpPanel.component.find(
-                            c => c.code.coding[0].code === '8462-4'
+                        const dbpComp = bpPanel.component.find(c =>
+                            c.code.coding && c.code.coding.some(coding => coding.code === '8462-4')
                         ); // Diastolic
 
                         if (sbpComp && sbpComp.valueQuantity) {

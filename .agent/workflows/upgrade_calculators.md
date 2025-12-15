@@ -80,7 +80,7 @@ import { ValidationError, displayError, logError } from '../../errorHandler.js';
 ## Step 4: Update FHIR Integration
 
 1.  **Normalize Values**: When auto-populating from FHIR, use `UnitConverter.convert` if necessary to match the expected unit, or populate the raw value and let the user/`UnitConverter` handle the toggle (preferred if `unitToggle` is set up correctly, but ensure `getStandardValue` is used during calc). Or better, `UnitConverter` handles the displayed value if we just set `.value`? No, we set `.value` to what we have, but if we have a set unit, we might need to convert before setting if the toggle is fixed.
-    - *Best Practice*: Populate the value as valid for the *current* or *default* unit of the input.
+    - *Best Practice*: Use `UnitConverter.setInputValue(inputElement, value, unit)` which will automatically handle unit checks and conversion if the UI unit differs from the FHIR unit.
 
 ## Step 5: Testing
 

@@ -209,9 +209,12 @@ export const ascvd = {
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
                 if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === LOINC_CODES.SYSTOLIC_BP);
+                    const sbpComp = bpPanel.component.find(c =>
+                        c.code.coding && c.code.coding.some(coding => coding.code === LOINC_CODES.SYSTOLIC_BP)
+                    );
                     if (sbpComp && sbpComp.valueQuantity) {
                         sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
+                        sbpInput.dispatchEvent(new Event('input'));
                     }
                 }
             }).catch(console.log);
@@ -225,6 +228,31 @@ export const ascvd = {
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
                 if (obs && obs.valueQuantity) {
                     UnitConverter.setInputValue(hdlInput, obs.valueQuantity.value, obs.valueQuantity.unit);
+                }
+            }).catch(console.log);
+
+            getMostRecentObservation(client, LOINC_CODES.SMOKING_STATUS).then(obs => {
+                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
+                    const currentSmokerCodes = [
+                        '449868002', // Current every day smoker
+                        '428041000124106', // Current heavy tobacco smoker
+                        '428061000124105', // Current light tobacco smoker
+                        '428071000124103', // Current some day smoker
+                        '77176002' // Smoker
+                    ];
+
+                    const isCurrentSmoker = obs.valueCodeableConcept.coding.some(c =>
+                        currentSmokerCodes.includes(c.code) ||
+                        (c.display && c.display.toLowerCase().includes('current smoker'))
+                    );
+
+                    if (isCurrentSmoker) {
+                        const smokerYes = container.querySelector('input[name="ascvd-smoker"][value="yes"]');
+                        if (smokerYes) {
+                            smokerYes.checked = true;
+                            smokerYes.dispatchEvent(new Event('input'));
+                        }
+                    }
                 }
             }).catch(console.log);
         }

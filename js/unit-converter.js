@@ -37,9 +37,10 @@ export const UnitConverter = {
         },
         // Blood Pressure
         pressure: {
-            'mmHg': { 'kPa': 0.133322, 'bar': 0.00133322 },
-            'kPa': { 'mmHg': 7.50062, 'bar': 0.01 },
-            'bar': { 'mmHg': 750.062, 'kPa': 100 }
+            'mmHg': { 'kPa': 0.133322, 'bar': 0.00133322, 'mm[Hg]': 1 },
+            'kPa': { 'mmHg': 7.50062, 'bar': 0.01, 'mm[Hg]': 7.50062 },
+            'bar': { 'mmHg': 750.062, 'kPa': 100, 'mm[Hg]': 750.062 },
+            'mm[Hg]': { 'mmHg': 1, 'kPa': 0.133322, 'bar': 0.00133322 }
         },
         // Volume
         volume: {
@@ -238,7 +239,11 @@ export const UnitConverter = {
             weight: { 'kg': 1, 'lbs': 1, 'g': 0 },
             height: { 'cm': 1, 'in': 1, 'ft': 2, 'm': 2 },
             temperature: { 'C': 1, 'F': 1, 'K': 1 },
-            pressure: { 'mmHg': 0, 'kPa': 2, 'bar': 3 },
+            cholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
+            triglycerides: { 'mg/dL': 0, 'mmol/L': 2 },
+            insulin: { 'µU/mL': 1, 'pmol/L': 0, 'mU/L': 1 },
+            phenytoin: { 'mcg/mL': 1, 'µmol/L': 0, 'mg/L': 1 },
+            pressure: { 'mmHg': 0, 'kPa': 2, 'bar': 3, 'mm[Hg]': 0 },
             volume: { 'mL': 0, 'L': 2, 'fl oz': 1, 'cup': 2 },
             glucose: { 'mmol/L': 1, 'mg/dL': 0 },
             creatinine: { 'mg/dL': 2, 'µmol/L': 0, 'umol/L': 0 },
@@ -325,6 +330,53 @@ export const UnitConverter = {
 
         const toggleBtn = wrapper.querySelector('.unit-toggle-btn');
         return toggleBtn?.dataset.currentUnit || null;
+    },
+
+    /**
+     * Set the input value, automatically converting if the current UI unit differs from the provided unit.
+     * @param {HTMLElement} inputElement - The input element
+     * @param {number} value - The value to set
+     * @param {string} unit - The unit of the value being set
+     */
+    setInputValue(inputElement, value, unit) {
+        if (!inputElement || value === null || value === undefined) return;
+
+        // Clean up unit string (sometimes FHIR returns messy units or variations)
+        // Basic normalization if needed, or rely on exact map. 
+        // For now, assume exact or close enough mapping in conversions.
+
+        const currentUnit = this.getCurrentUnit(inputElement);
+
+        if (currentUnit && unit && currentUnit !== unit) {
+            // Need conversion
+            const wrapper = inputElement.closest('.unit-converter-wrapper');
+            const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
+            const type = toggleBtn?.dataset.type;
+
+            if (type) {
+                const converted = this.convert(value, unit, currentUnit, type);
+                if (converted !== null) {
+                    const decimals = this.getDecimalPlaces(type, currentUnit);
+                    inputElement.value = converted.toFixed(decimals);
+                } else {
+                    // Conversion failed, fall back to raw value? 
+                    // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
+                    // Just set raw value as fallback.
+                    console.warn(`Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`);
+                    inputElement.value = value;
+                }
+            } else {
+                inputElement.value = value;
+            }
+        } else {
+            // Units match or no UI unit context
+            // If we have a type, we might still want to respect decimal places?
+            // Optional polish.
+            inputElement.value = value;
+        }
+
+        // Dispatch input event to trigger listeners
+        inputElement.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
     /**
