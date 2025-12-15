@@ -53,6 +53,7 @@ export const fib4 = {
                 `
         })}
 
+            <div id="fib4-error-container"></div>
             <div id="fib4-result" class="result-container" style="display:none;"></div>
 
             ${uiBuilder.createFormulaSection({
@@ -65,8 +66,6 @@ export const fib4 = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        // Unit conversion is now handled by uiBuilder via data attributes
-
         const ageInput = container.querySelector('#fib4-age');
         const astInput = container.querySelector('#fib4-ast');
         const altInput = container.querySelector('#fib4-alt');
@@ -78,8 +77,8 @@ export const fib4 = {
 
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#fib4-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#fib4-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const resultBox = container.querySelector('#fib4-result');
 
@@ -102,32 +101,18 @@ export const fib4 = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    // Check if user has entered partial data that is invalid (e.g. negative numbers)
-                    // If inputs are empty, we just hide result.
                     const hasInput = ageInput.value || astInput.value || altInput.value || pltInput.value;
 
                     if (hasInput) {
                         const meaningfulErrors = validation.errors.filter(msg => {
-                            // Filter out "required" messages if the field is simply empty
-                            // Logic: if field is empty, "is required" is true error, but for live calc we hide it until all are filled?
-                            // Better approach: Show errors if fields have values but are invalid.
-                            // If user is typing, we wait. But if they type "-5", show error.
-                            // Simplified: Just use the presence of 'value' to decide to show non-required errors.
                             return true;
                         });
 
-                        // Only display if we have specific value violations, not just emptiness
-                        // Actually, for consistency with BMI, let's just use the validation result but selectively display
-                        // For now, let's only display if all fields have values OR if a present value violates range
                         const valuesPresent = !isNaN(age) && !isNaN(ast) && !isNaN(alt) && !isNaN(plt);
 
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            // If user filled everything (valuesPresent) OR there are range errors
                             if (meaningfulErrors.length > 0) {
-                                let errorContainer = document.createElement('div');
-                                errorContainer.id = 'fib4-error';
-                                resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                                displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                                if (errorContainer) displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                             }
                         }
                     }
@@ -186,15 +171,7 @@ export const fib4 = {
                 }
             } catch (error) {
                 logError(error, { calculator: 'fib-4', action: 'calculate' });
-
-                let errorContainer = container.querySelector('#fib4-error');
-                if (!errorContainer) {
-                    errorContainer = document.createElement('div');
-                    errorContainer.id = 'fib4-error';
-                    resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                }
-                displayError(errorContainer, error);
-
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.style.display = 'none';
             }
         };
@@ -210,14 +187,14 @@ export const fib4 = {
                     astInput.value = obs.valueQuantity.value.toFixed(0);
                     astInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
                 if (obs && obs.valueQuantity) {
                     altInput.value = obs.valueQuantity.value.toFixed(0);
                     altInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
                 if (obs && obs.valueQuantity) {
@@ -225,7 +202,7 @@ export const fib4 = {
                     // Trigger input which handles unit conversion if needed (assuming standard)
                     pltInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Initial run

@@ -1,4 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const apgarScore = {
     id: 'apgar',
@@ -53,7 +54,7 @@ export const apgarScore = {
             }
         ];
 
-        const sectionsHTML = criteria.map(item => 
+        const sectionsHTML = criteria.map(item =>
             uiBuilder.createSection({
                 title: item.title,
                 content: uiBuilder.createRadioGroup({
@@ -70,12 +71,13 @@ export const apgarScore = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: 'Score is usually recorded at 1 and 5 minutes after birth.'
-            })}
+            type: 'info',
+            message: 'Score is usually recorded at 1 and 5 minutes after birth.'
+        })}
             
             ${sectionsHTML}
             
+            <div id="apgar-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'apgar-result', title: 'APGAR Score Result' })}
         `;
     },
@@ -83,49 +85,63 @@ export const apgarScore = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const criteria = ['apgar-appearance', 'apgar-pulse', 'apgar-grimace', 'apgar-activity', 'apgar-respiration'];
-            let score = 0;
-            let allSelected = true;
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#apgar-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            criteria.forEach(name => {
-                const checked = container.querySelector(`input[name="${name}"]:checked`);
-                if (checked) {
-                    score += parseInt(checked.value);
+                const criteria = ['apgar-appearance', 'apgar-pulse', 'apgar-grimace', 'apgar-activity', 'apgar-respiration'];
+                let score = 0;
+                let allSelected = true;
+
+                criteria.forEach(name => {
+                    const checked = container.querySelector(`input[name="${name}"]:checked`);
+                    if (checked) {
+                        score += parseInt(checked.value);
+                    } else {
+                        allSelected = false;
+                    }
+                });
+
+                if (!allSelected) return;
+
+                let interpretation = '';
+                let alertClass = '';
+
+                if (score >= 7) {
+                    interpretation = 'Reassuring (Normal)';
+                    alertClass = 'ui-alert-success';
+                } else if (score >= 4) {
+                    interpretation = 'Moderately Abnormal (May need intervention)';
+                    alertClass = 'ui-alert-warning';
                 } else {
-                    allSelected = false;
+                    interpretation = 'Low (Immediate medical intervention required)';
+                    alertClass = 'ui-alert-danger';
                 }
-            });
 
-            if (!allSelected) return;
+                const resultBox = container.querySelector('#apgar-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
 
-            let interpretation = '';
-            let alertClass = '';
-
-            if (score >= 7) {
-                interpretation = 'Reassuring (Normal)';
-                alertClass = 'ui-alert-success';
-            } else if (score >= 4) {
-                interpretation = 'Moderately Abnormal (May need intervention)';
-                alertClass = 'ui-alert-warning';
-            } else {
-                interpretation = 'Low (Immediate medical intervention required)';
-                alertClass = 'ui-alert-danger';
-            }
-
-            const resultBox = container.querySelector('#apgar-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total APGAR Score', 
-                    value: score, 
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total APGAR Score',
+                    value: score,
                     unit: '/ 10 points',
                     interpretation: interpretation,
                     alertClass: alertClass
                 })}
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#apgar-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'apgar', action: 'calculate' });
+            }
         };
 
         // Add event listeners

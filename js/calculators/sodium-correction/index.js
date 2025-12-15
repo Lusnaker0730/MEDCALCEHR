@@ -56,6 +56,8 @@ export const sodiumCorrection = {
                 `
         })}
             
+            <div id="sodium-correction-error-container"></div>
+            
             <div id="sodium-correction-result" class="ui-result-box">
                 <div class="ui-result-header">Corrected Sodium</div>
                 <div class="ui-result-content"></div>
@@ -88,8 +90,8 @@ export const sodiumCorrection = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#sc-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#sodium-correction-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const measuredSodium = UnitConverter.getStandardValue(sodiumInput, 'mEq/L');
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
@@ -114,10 +116,7 @@ export const sodiumCorrection = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(measuredSodium) && !isNaN(glucoseMgDl);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'sc-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -178,16 +177,7 @@ export const sodiumCorrection = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'sodium-correction', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#sc-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'sc-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -213,28 +203,19 @@ export const sodiumCorrection = {
                     sodiumInput.dispatchEvent(new Event('input'));
                 }
                 if (glucoseObs && glucoseObs.valueQuantity) {
-                    // We rely on simple logic here for now or UnitConverter's auto-handling if we mapped it fully
-                    // But strictly speaking, UnitConverter doesn't auto-convert input.value setting.
-                    // The existing manual logic was good, but let's just minimalize it or keep it if needed.
-                    // Validator logic actually prefers standard UnitConverter usage. 
-                    // Since we updated glucose input with unitToggle, we should let user input flow effectively.
-                    // However, setting .value directly sets the "displayed" value. 
-                    // If obs is in mmol/L, and default is mg/dL, we DO need to convert.
                     const val = glucoseObs.valueQuantity.value;
                     const unit = glucoseObs.valueQuantity.unit || 'mg/dL';
-
-                    // Helper: Check if units match or need conversion
-                    if (unit.toLowerCase().includes('mol')) {
-                        // Glucose default usually mg/dL
-                        const converted = UnitConverter.convert(val, 'mmol/L', 'mg/dL', 'glucose');
-                        glucoseInput.value = converted ? converted.toFixed(0) : val.toFixed(0);
+                    // Use unit converter to normalize if applicable
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
+                    if (converted !== null) {
+                        glucoseInput.value = converted.toFixed(0);
                     } else {
                         glucoseInput.value = val.toFixed(0);
                     }
                     glucoseInput.dispatchEvent(new Event('input'));
                 }
                 calculateAndUpdate();
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculateAndUpdate();

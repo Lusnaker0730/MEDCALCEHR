@@ -54,6 +54,8 @@ export const calciumCorrection = {
             
             ${inputs}
             
+            <div id="ca-error-container"></div>
+            
             <div id="ca-result" class="ui-result-box">
                 <div class="ui-result-header">Corrected Calcium</div>
                 <div class="ui-result-content"></div>
@@ -74,17 +76,14 @@ export const calciumCorrection = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#ca-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#ca-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const calciumInput = container.querySelector('#ca-total');
             const albuminInput = container.querySelector('#ca-albumin');
             const resultBox = container.querySelector('#ca-result');
             const resultContent = resultBox.querySelector('.ui-result-content');
 
-            // Get values using UnitConverter (normalizes to standard unit)
-            // Standard units: Calcium -> mg/dL, Albumin -> g/dL (as per validator rules usually)
-            // Note: validator rules for albumin say 0.5-8.0 g/dL.
             const totalCalciumMgDl = UnitConverter.getStandardValue(calciumInput, 'mg/dL');
             const albuminGdl = UnitConverter.getStandardValue(albuminInput, 'g/dL');
 
@@ -103,10 +102,7 @@ export const calciumCorrection = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(totalCalciumMgDl) && !isNaN(albuminGdl);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'ca-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
                     resultBox.classList.remove('show');
@@ -143,16 +139,7 @@ export const calciumCorrection = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'calcium-correction', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#ca-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'ca-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -176,15 +163,29 @@ export const calciumCorrection = {
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    setInputValue('#ca-total', obs.valueQuantity.value.toFixed(1));
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'calcium');
+                    if (converted !== null) {
+                        setInputValue('#ca-total', converted.toFixed(1));
+                    } else {
+                        setInputValue('#ca-total', val.toFixed(1));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    setInputValue('#ca-albumin', obs.valueQuantity.value.toFixed(1));
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'g/dL';
+                    const converted = UnitConverter.convert(val, unit, 'g/dL', 'albumin');
+                    if (converted !== null) {
+                        setInputValue('#ca-albumin', converted.toFixed(1));
+                    } else {
+                        setInputValue('#ca-albumin', val.toFixed(1));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculateAndUpdate();

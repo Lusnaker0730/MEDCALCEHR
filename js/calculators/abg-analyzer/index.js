@@ -36,13 +36,15 @@ export const abgAnalyzer = {
                 id: 'abg-pco2',
                 label: 'PaCO₂',
                 type: 'number',
-                placeholder: 'e.g., 40'
+                placeholder: 'e.g., 40',
+                unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], defaultUnit: 'mmHg' }
             })}
                     ${uiBuilder.createInput({
                 id: 'abg-hco3',
                 label: 'HCO₃⁻',
                 type: 'number',
-                placeholder: 'e.g., 24'
+                placeholder: 'e.g., 24',
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                 `
         })}
@@ -55,20 +57,23 @@ export const abgAnalyzer = {
                 id: 'abg-sodium',
                 label: 'Sodium (Na⁺)',
                 type: 'number',
-                placeholder: 'e.g., 140'
+                placeholder: 'e.g., 140',
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'abg-chloride',
                 label: 'Chloride (Cl⁻)',
                 type: 'number',
-                placeholder: 'e.g., 100'
+                placeholder: 'e.g., 100',
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'abg-albumin',
                 label: 'Albumin',
                 type: 'number',
                 step: '0.1',
-                placeholder: 'e.g., 4.0'
+                placeholder: 'e.g., 4.0',
+                unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], defaultUnit: 'g/dL' }
             })}
                 `
         })}
@@ -84,7 +89,8 @@ export const abgAnalyzer = {
                 ]
             })
         })}
-
+            
+            <div id="abg-error-container"></div>
             <div id="abg-result" class="ui-result-box">
                 <div class="ui-result-header">ABG Interpretation</div>
                 <div class="ui-result-content"></div>
@@ -114,17 +120,10 @@ export const abgAnalyzer = {
         const resultBox = container.querySelector('#abg-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
 
-        // Initialize Unit Converters
-        UnitConverter.enhanceInput(fields.pco2, 'pressure', ['mmHg', 'kPa']);
-        UnitConverter.enhanceInput(fields.hco3, 'electrolyte', ['mEq/L', 'mmol/L']);
-        UnitConverter.enhanceInput(fields.sodium, 'electrolyte', ['mEq/L', 'mmol/L']);
-        UnitConverter.enhanceInput(fields.chloride, 'electrolyte', ['mEq/L', 'mmol/L']);
-        UnitConverter.enhanceInput(fields.albumin, 'albumin', ['g/dL', 'g/L']);
-
         const interpret = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#abg-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#abg-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const vals = {
                 ph: parseFloat(fields.ph.value),
@@ -140,11 +139,13 @@ export const abgAnalyzer = {
                 const inputs = {
                     ph: vals.ph,
                     paCO2: vals.pco2,
-                    bicarbonate: vals.hco3,
-                    sodium: vals.sodium,
-                    chloride: vals.chloride,
-                    albumin: vals.albumin
+                    bicarbonate: vals.hco3
                 };
+
+                // Add optional fields to inputs if present to validate them too
+                if (!isNaN(vals.sodium)) inputs.sodium = vals.sodium;
+                if (!isNaN(vals.chloride)) inputs.chloride = vals.chloride;
+                if (!isNaN(vals.albumin)) inputs.albumin = vals.albumin;
 
                 const schema = {
                     ph: ValidationRules.pH,
@@ -152,9 +153,9 @@ export const abgAnalyzer = {
                     bicarbonate: ValidationRules.bicarbonate
                 };
 
-                if (!isNaN(vals.sodium) || fields.sodium.value !== '') schema.sodium = ValidationRules.sodium;
-                if (!isNaN(vals.chloride) || fields.chloride.value !== '') schema.chloride = ValidationRules.chloride;
-                if (!isNaN(vals.albumin) || fields.albumin.value !== '') schema.albumin = ValidationRules.albumin;
+                if (inputs.sodium !== undefined) schema.sodium = ValidationRules.sodium;
+                if (inputs.chloride !== undefined) schema.chloride = ValidationRules.chloride;
+                if (inputs.albumin !== undefined) schema.albumin = ValidationRules.albumin;
 
                 const validation = validateCalculatorInput(inputs, schema);
 
@@ -165,10 +166,7 @@ export const abgAnalyzer = {
                     if (hasInput) {
                         const corePresent = !isNaN(vals.ph) && !isNaN(vals.pco2) && !isNaN(vals.hco3);
                         if (corePresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'abg-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -181,7 +179,7 @@ export const abgAnalyzer = {
                 let alertType = 'info';
                 let alertClass = 'ui-alert-info';
 
-                // Primary Disorder
+                // Primary Disorder Logic
                 if (vals.ph < 7.35) {
                     alertType = 'danger';
                     alertClass = 'ui-alert-danger';
@@ -202,7 +200,7 @@ export const abgAnalyzer = {
                     else primaryDisorder = 'Normal Acid-Base Status';
                 }
 
-                // Anion Gap
+                // Anion Gap Logic
                 if (!isNaN(vals.sodium) && !isNaN(vals.chloride) && !isNaN(vals.hco3)) {
                     const anionGap = vals.sodium - (vals.chloride + vals.hco3);
                     let correctedAG = anionGap;
@@ -235,45 +233,54 @@ export const abgAnalyzer = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'abg-analyzer', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#abg-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'abg-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
 
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', interpret);
+            input.addEventListener('change', interpret); // Important for unit toggles
         });
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', interpret);
         });
 
+        // Helper
+        const setInputValue = (field, val) => {
+            if (field) {
+                field.value = val;
+                field.dispatchEvent(new Event('input'));
+            }
+        };
+
         // FHIR Auto-populate
         if (client) {
             const mapping = {
-                '11558-4': fields.ph,
-                '11557-6': fields.pco2,
-                '14627-4': fields.hco3,
-                [LOINC_CODES.SODIUM]: fields.sodium,
-                '2075-0': fields.chloride,
-                [LOINC_CODES.ALBUMIN]: fields.albumin
+                '11558-4': { field: fields.ph, unit: 'pH' }, // pH usually no unit or unitless
+                '11557-6': { field: fields.pco2, unit: 'mmHg', type: 'pressure' },
+                '14627-4': { field: fields.hco3, unit: 'mEq/L', type: 'electrolyte' },
+                [LOINC_CODES.SODIUM]: { field: fields.sodium, unit: 'mEq/L', type: 'electrolyte' },
+                '2075-0': { field: fields.chloride, unit: 'mEq/L', type: 'electrolyte' },
+                [LOINC_CODES.ALBUMIN]: { field: fields.albumin, unit: 'g/dL', type: 'albumin' }
             };
 
-            Object.entries(mapping).forEach(([code, field]) => {
+            Object.entries(mapping).forEach(([code, config]) => {
                 getMostRecentObservation(client, code).then(obs => {
                     if (obs && obs.valueQuantity) {
                         let val = obs.valueQuantity.value;
-                        field.value = val.toFixed(2);
-                        field.dispatchEvent(new Event('input')); // Trigger update
+                        let unit = obs.valueQuantity.unit || config.unit; // Fallback to expected default
+
+                        if (config.type) {
+                            const converted = UnitConverter.convert(val, unit, config.unit, config.type);
+                            if (converted !== null) val = converted;
+                        }
+
+                        // Formatting
+                        if (config.field === fields.ph) setInputValue(config.field, val.toFixed(2));
+                        else setInputValue(config.field, val.toFixed(1));
                     }
-                });
+                }).catch(e => console.warn(e));
             });
         }
     }

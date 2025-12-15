@@ -1,6 +1,7 @@
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const afRisk = {
     id: 'af-risk',
@@ -32,7 +33,7 @@ export const afRisk = {
 
         const cha2ds2vascSection = uiBuilder.createSection({
             title: '💓 CHA₂DS₂-VASc Score (Stroke Risk)',
-            content: cha2ds2vascFactors.map(factor => 
+            content: cha2ds2vascFactors.map(factor =>
                 uiBuilder.createRadioGroup({
                     name: factor.id,
                     label: factor.label,
@@ -46,7 +47,7 @@ export const afRisk = {
 
         const hasBledSection = uiBuilder.createSection({
             title: '🩸 HAS-BLED Score (Bleeding Risk)',
-            content: hasBledFactors.map(factor => 
+            content: hasBledFactors.map(factor =>
                 uiBuilder.createRadioGroup({
                     name: factor.id,
                     label: factor.label,
@@ -67,6 +68,7 @@ export const afRisk = {
             ${cha2ds2vascSection}
             ${hasBledSection}
             
+            <div id="af-risk-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'af-risk-result', title: 'Assessment Results' })}
         `;
     },
@@ -82,94 +84,115 @@ export const afRisk = {
         };
 
         const calculate = () => {
-            // Calculate CHA₂DS₂-VASc Score
-            let cha2ds2vasc_score = 0;
-            const cha2Ids = ['chf', 'htn', 'age75', 'dm', 'stroke', 'vasc', 'age65', 'female'];
-            
-            cha2Ids.forEach(id => {
-                const checked = container.querySelector(`input[name="${id}"]:checked`);
-                if (checked) cha2ds2vasc_score += parseInt(checked.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#af-risk-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            // Handle age overlap logic (though with radios it's manual, but if both selected which shouldn't happen if mutually exclusive but they are separate radios here)
-            // Actually, in this UI design, they are separate Yes/No questions.
-            // However, usually Age >= 75 implies Age >= 65. But standard calculators often treat them as separate criteria where you only tick one.
-            // The original code had logic: `if (age75Check.checked && age65Check.checked) cha2ds2vasc_score -= 1;`
-            // Let's replicate that logic just in case user checks both Yes.
-            const age75Yes = container.querySelector('input[name="age75"][value="2"]').checked;
-            const age65Yes = container.querySelector('input[name="age65"][value="1"]').checked;
-            
-            if (age75Yes && age65Yes) {
-                cha2ds2vasc_score -= 1; // Correct for double counting
-            }
+                // Calculate CHA₂DS₂-VASc Score
+                let cha2ds2vasc_score = 0;
+                const cha2Ids = ['chf', 'htn', 'age75', 'dm', 'stroke', 'vasc', 'age65', 'female'];
 
-            // Calculate HAS-BLED Score
-            let hasbled_score = 0;
-            const hasBledIds = ['hasbled-htn', 'hasbled-renal', 'hasbled-liver', 'hasbled-stroke', 'hasbled-bleed', 'hasbled-inr', 'hasbled-elderly', 'hasbled-drugs', 'hasbled-alcohol'];
-            
-            hasBledIds.forEach(id => {
-                const checked = container.querySelector(`input[name="${id}"]:checked`);
-                if (checked) hasbled_score += parseInt(checked.value);
-            });
-
-            // Generate Treatment Recommendation
-            const isMale = patient && patient.gender === 'male';
-            const strokeRiskScoreForOAC = isMale ? cha2ds2vasc_score : cha2ds2vasc_score - 1;
-
-            let recommendation = '';
-            let alertClass = 'ui-alert-info';
-            if (strokeRiskScoreForOAC >= 2) {
-                recommendation = 'Oral anticoagulation is recommended.';
-                alertClass = 'ui-alert-warning';
-            } else if (strokeRiskScoreForOAC === 1) {
-                recommendation = 'Oral anticoagulation should be considered.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                recommendation = 'Antithrombotic therapy may be omitted.';
-                alertClass = 'ui-alert-success';
-            }
-
-            let bleedNote = '';
-            if (hasbled_score >= 3) {
-                bleedNote = uiBuilder.createAlert({
-                    type: 'danger',
-                    message: '<strong>High Bleeding Risk:</strong> HAS-BLED score is ≥3. Use anticoagulants with caution, address modifiable bleeding risk factors, and schedule regular follow-up.',
-                    icon: '⚠️'
+                cha2Ids.forEach(id => {
+                    const checked = container.querySelector(`input[name="${id}"]:checked`);
+                    if (checked) cha2ds2vasc_score += parseInt(checked.value);
                 });
-            }
 
-            const resultBox = container.querySelector('#af-risk-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                // Double counting correction
+                const age75Yes = container.querySelector('input[name="age75"][value="2"]').checked;
+                const age65Yes = container.querySelector('input[name="age65"][value="1"]').checked;
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'CHA₂DS₂-VASc Score (Stroke Risk)', 
-                    value: cha2ds2vasc_score, 
+                if (age75Yes && age65Yes) {
+                    cha2ds2vasc_score -= 1; // Prioritize higher points but remove double count if both selected
+                }
+
+                // If 75 is selected, it's 2 points. If 65 is selected, it's 1. 
+                // CHA2DS2-VASc defines age criteria as mutually exclusive tiers.
+                // If user selected both YES, current logic substracts 1 point (2+1-1 = 2). Correct, giving max points for age category.
+
+                // Calculate HAS-BLED Score
+                let hasbled_score = 0;
+                const hasBledIds = ['hasbled-htn', 'hasbled-renal', 'hasbled-liver', 'hasbled-stroke', 'hasbled-bleed', 'hasbled-inr', 'hasbled-elderly', 'hasbled-drugs', 'hasbled-alcohol'];
+
+                hasBledIds.forEach(id => {
+                    const checked = container.querySelector(`input[name="${id}"]:checked`);
+                    if (checked) hasbled_score += parseInt(checked.value);
+                });
+
+                // Treatment Recommendation
+                const isMale = patient && patient.gender === 'male';
+                // Adjust threshold logic? Original: male score, female score-1
+                const strokeRiskScoreForOAC = (patient && !isMale) ? cha2ds2vasc_score - 1 : cha2ds2vasc_score;
+                // Note: female gender adds 1 point in score itself.
+                // Standard guideline: Men score >=2, Women score >=3 OAC recommended.
+                // If female, score is at least 1.
+                // score-1 means removing gender point for 'non-sex risk factors'.
+                // If non-sex factors >= 2, OAC recommended. Correct.
+
+                let recommendation = '';
+                let alertClass = 'ui-alert-info';
+                if (strokeRiskScoreForOAC >= 2) {
+                    recommendation = 'Oral anticoagulation is recommended.';
+                    alertClass = 'ui-alert-warning';
+                } else if (strokeRiskScoreForOAC === 1) {
+                    recommendation = 'Oral anticoagulation should be considered.';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    recommendation = 'Antithrombotic therapy may be omitted.';
+                    alertClass = 'ui-alert-success';
+                }
+
+                let bleedNote = '';
+                if (hasbled_score >= 3) {
+                    bleedNote = uiBuilder.createAlert({
+                        type: 'danger',
+                        message: '<strong>High Bleeding Risk:</strong> HAS-BLED score is ≥3. Use anticoagulants with caution, address modifiable bleeding risk factors, and schedule regular follow-up.',
+                        icon: '⚠️'
+                    });
+                }
+
+                const resultBox = container.querySelector('#af-risk-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
+                    value: cha2ds2vasc_score,
                     unit: '/ 9 points'
                 })}
-                ${uiBuilder.createResultItem({ 
-                    label: 'HAS-BLED Score (Bleeding Risk)', 
-                    value: hasbled_score, 
+                    ${uiBuilder.createResultItem({
+                    label: 'HAS-BLED Score (Bleeding Risk)',
+                    value: hasbled_score,
                     unit: '/ 9 points'
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-                ${bleedNote}
-            `;
-            
-            resultBox.classList.add('show');
+                    ${bleedNote}
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#af-risk-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'af-risk', action: 'calculate' });
+            }
         };
 
         // Pre-fill Logic
         const age = patient && patient.birthDate ? calculateAge(patient.birthDate) : 0;
-        
+
         if (age >= 75) {
             setRadioValue('age75', '2');
+            // Assuming we don't also check age65 to avoid confusion, but logic handles it.
         } else if (age >= 65) {
             setRadioValue('age65', '1');
         }
@@ -189,14 +212,21 @@ export const afRisk = {
 
         // Async data population
         if (client) {
-             getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
+            getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
                 if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find(c => c.code.coding[0].code === LOINC_CODES.SYSTOLIC_BP);
+                    // Try to find correct component with LOIMCs logic
+                    const systolicCode = LOINC_CODES.SYSTOLIC_BP; // should be '8480-6'
+                    // Check if components exist
+                    const sbpComp = bpPanel.component.find(c => {
+                        return c.code.coding && c.code.coding.some(coding => coding.code === systolicCode);
+                    });
+
                     if (sbpComp && sbpComp.valueQuantity.value > 160) {
                         setRadioValue('hasbled-htn', '1');
+                        setRadioValue('htn', '1'); // For CHA2DS2-VASc too
                     }
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculate();

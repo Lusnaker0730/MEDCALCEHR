@@ -26,23 +26,27 @@ export const serumAnionGap = {
                 id: 'sag-na',
                 label: 'Sodium (Na⁺)',
                 type: 'number',
-                placeholder: 'e.g., 140'
+                placeholder: 'e.g., 140',
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'sag-cl',
                 label: 'Chloride (Cl⁻)',
                 type: 'number',
-                placeholder: 'e.g., 100'
+                placeholder: 'e.g., 100',
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'sag-hco3',
                 label: 'Bicarbonate (HCO₃⁻)',
                 type: 'number',
-                placeholder: 'e.g., 24'
+                placeholder: 'e.g., 24',
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
             })}
                 `
         })}
             
+            <div id="sag-error-container"></div>
             <div id="sag-result" class="ui-result-box">
                 <div class="ui-result-header">Anion Gap Result</div>
                 <div class="ui-result-content"></div>
@@ -77,15 +81,10 @@ export const serumAnionGap = {
         const resultBox = container.querySelector('#sag-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
 
-        // Enhance inputs
-        UnitConverter.enhanceInput(naInput, 'electrolyte', ['mEq/L', 'mmol/L']);
-        UnitConverter.enhanceInput(clInput, 'electrolyte', ['mEq/L', 'mmol/L']);
-        UnitConverter.enhanceInput(hco3Input, 'electrolyte', ['mEq/L', 'mmol/L']);
-
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#sag-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#sag-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const na = UnitConverter.getStandardValue(naInput, 'mEq/L');
             const cl = UnitConverter.getStandardValue(clInput, 'mEq/L');
@@ -112,10 +111,7 @@ export const serumAnionGap = {
                     if (hasInput) {
                         const requiredPresent = !isNaN(na) && !isNaN(cl) && !isNaN(hco3);
                         if (requiredPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'sag-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -165,15 +161,7 @@ export const serumAnionGap = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'serum-anion-gap', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#sag-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'sag-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -190,19 +178,19 @@ export const serumAnionGap = {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.CHLORIDE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     clInput.value = obs.valueQuantity.value.toFixed(0);
                     clInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.BICARBONATE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     hco3Input.value = obs.valueQuantity.value.toFixed(0);
                     hco3Input.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
     }

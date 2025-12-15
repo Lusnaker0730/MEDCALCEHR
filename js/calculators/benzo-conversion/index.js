@@ -1,4 +1,5 @@
-import { uiBuilder } from '../../ui-builder.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const benzoConversion = {
     id: 'benzo-conversion',
@@ -25,40 +26,41 @@ export const benzoConversion = {
             </div>
 
             ${uiBuilder.createAlert({
-                type: 'warning',
-                message: '<strong>IMPORTANT:</strong> This calculator should be used as a reference for oral benzodiazepine conversions. Equipotent benzodiazepine doses are reported as ranges due to paucity of literature supporting exact conversions.'
-            })}
+            type: 'warning',
+            message: '<strong>IMPORTANT:</strong> This calculator should be used as a reference for oral benzodiazepine conversions. Equipotent benzodiazepine doses are reported as ranges due to paucity of literature supporting exact conversions.'
+        })}
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>INSTRUCTIONS:</strong> Do not use to calculate initial dose for a benzo-naïve patient.'
-            })}
+            type: 'info',
+            message: '<strong>INSTRUCTIONS:</strong> Do not use to calculate initial dose for a benzo-naïve patient.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Conversion Parameters',
-                content: `
+            title: 'Conversion Parameters',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'benzo-from',
-                        label: 'Converting from:',
-                        options: drugs.map(d => ({ ...d, checked: d.value === 'alprazolam' }))
-                    })}
+                name: 'benzo-from',
+                label: 'Converting from:',
+                options: drugs.map(d => ({ ...d, checked: d.value === 'alprazolam' }))
+            })}
                     
                     ${uiBuilder.createInput({
-                        id: 'benzo-dosage',
-                        label: 'Total daily drug dosage',
-                        unit: 'mg',
-                        type: 'number',
-                        defaultValue: '10'
-                    })}
+                id: 'benzo-dosage',
+                label: 'Total daily drug dosage',
+                unit: 'mg',
+                type: 'number',
+                defaultValue: '10'
+            })}
                     
                     ${uiBuilder.createRadioGroup({
-                        name: 'benzo-to',
-                        label: 'Converting to:',
-                        options: drugs.map(d => ({ ...d, checked: d.value === 'diazepam' }))
-                    })}
-                `
+                name: 'benzo-to',
+                label: 'Converting to:',
+                options: drugs.map(d => ({ ...d, checked: d.value === 'diazepam' }))
             })}
+                `
+        })}
             
+            <div id="benzo-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'benzo-result', title: 'Conversion Result' })}
         `;
     },
@@ -153,51 +155,83 @@ export const benzoConversion = {
         };
 
         const calculate = () => {
-            const fromDrugKey = container.querySelector('input[name="benzo-from"]:checked').value;
-            const toDrugKey = container.querySelector('input[name="benzo-to"]:checked').value;
-            const dosage = parseFloat(container.querySelector('#benzo-dosage').value) || 0;
+            // Clear previous errors
+            const errorContainer = container.querySelector('#benzo-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
-            const resultBox = container.querySelector('#benzo-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            const fromDrugName = drugs[fromDrugKey].split(' ')[0];
-            const toDrugName = drugs[toDrugKey].split(' ')[0];
+            try {
+                const fromDrugKey = container.querySelector('input[name="benzo-from"]:checked').value;
+                const toDrugKey = container.querySelector('input[name="benzo-to"]:checked').value;
+                const dosageInput = container.querySelector('#benzo-dosage');
+                const dosage = parseFloat(dosageInput.value) || 0;
 
-            if (fromDrugKey === toDrugKey) {
-                 resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({ label: 'Equivalent Dose', value: `${dosage.toFixed(1)} mg`, unit: '', interpretation: 'Same drug selected' })}
-                `;
-                resultBox.classList.add('show');
-                return;
-            }
+                const resultBox = container.querySelector('#benzo-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                const fromDrugName = drugs[fromDrugKey].split(' ')[0];
+                const toDrugName = drugs[toDrugKey].split(' ')[0];
 
-            const conversion = conversionTable[fromDrugKey]?.[toDrugKey];
+                if (dosageInput.value) {
+                    const validation = validateCalculatorInput({ dosage }, {
+                        dosage: {
+                            required: true,
+                            min: 0,
+                            max: 1000,
+                            message: "Dosage must be a positive number less than 1000mg."
+                        }
+                    });
 
-            if (!conversion || dosage === 0) {
-                 resultBox.classList.remove('show');
-                return;
-            }
+                    if (!validation.isValid) {
+                        displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        resultBox.classList.remove('show');
+                        return;
+                    }
+                }
 
-            const equivalentDose = dosage * conversion.factor;
-            const lowerRange = dosage * conversion.range[0];
-            const upperRange = dosage * conversion.range[1];
+                if (fromDrugKey === toDrugKey) {
+                    resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({ label: 'Equivalent Dose', value: `${dosage.toFixed(1)} mg`, unit: '', interpretation: 'Same drug selected' })}
+                    `;
+                    resultBox.classList.add('show');
+                    return;
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
+                const conversion = conversionTable[fromDrugKey]?.[toDrugKey];
+
+                if (!conversion || dosage === 0) {
+                    if (dosage === 0 && Number(container.querySelector('#benzo-dosage').value) === 0) {
+                        // Valid 0 input
+                    } else {
+                        // Wait or invalid
+                    }
+                    resultBox.classList.remove('show');
+                    return;
+                }
+
+                const equivalentDose = dosage * conversion.factor;
+                const lowerRange = dosage * conversion.range[0];
+                const upperRange = dosage * conversion.range[1];
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
                     label: `Equivalent ${toDrugName} Dose`,
                     value: equivalentDose.toFixed(1),
                     unit: 'mg'
                 })}
-                ${uiBuilder.createResultItem({
+                    ${uiBuilder.createResultItem({
                     label: 'Estimated Range',
                     value: `${lowerRange.toFixed(1)} - ${upperRange.toFixed(1)}`,
                     unit: 'mg'
                 })}
-                ${uiBuilder.createAlert({
+                    ${uiBuilder.createAlert({
                     type: 'info',
                     message: `${toDrugName} dose equivalent to ${dosage} mg ${fromDrugName}`
                 })}
-            `;
-            resultBox.classList.add('show');
+                `;
+                resultBox.classList.add('show');
+            } catch (error) {
+                logError(error, { calculator: 'benzo-conversion', action: 'calculate' });
+                if (errorContainer) displayError(errorContainer, error);
+            }
         };
 
         container.querySelectorAll('input').forEach(input => {

@@ -1,6 +1,7 @@
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const charlson = {
     id: 'charlson',
@@ -30,7 +31,7 @@ export const charlson = {
             this.createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
             this.createConditionToggle('ctd', 'Connective tissue disease', '', 1),
             this.createConditionToggle('pud', 'Peptic ulcer disease', 'Any history of treatment for ulcer disease', 1),
-            
+
             uiBuilder.createRadioGroup({
                 name: 'liver',
                 label: 'Liver disease',
@@ -41,7 +42,7 @@ export const charlson = {
                     { value: '3', label: 'Moderate to severe (+3)' }
                 ]
             }),
-            
+
             uiBuilder.createRadioGroup({
                 name: 'diabetes',
                 label: 'Diabetes mellitus',
@@ -52,10 +53,10 @@ export const charlson = {
                     { value: '2', label: 'End-organ damage (+2)' }
                 ]
             }),
-            
+
             this.createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
             this.createConditionToggle('ckd', 'Moderate to severe CKD', 'Severe on dialysis, uremia, or creatinine >3 mg/dL', 2),
-            
+
             uiBuilder.createRadioGroup({
                 name: 'tumor',
                 label: 'Solid tumor',
@@ -65,7 +66,7 @@ export const charlson = {
                     { value: '6', label: 'Metastatic (+6)' }
                 ]
             }),
-            
+
             this.createConditionToggle('leukemia', 'Leukemia', '', 2),
             this.createConditionToggle('lymphoma', 'Lymphoma', '', 2),
             this.createConditionToggle('aids', 'AIDS', 'Not just HIV positive, but "full-blown" AIDS', 6)
@@ -85,6 +86,8 @@ export const charlson = {
             ${ageSection}
             ${conditionsSection}
             
+            <div id="cci-error-container"></div>
+
             <div class="result-container show" id="cci-result">
                 <div class="score-section">
                     <div class="score-value" id="cci-score">0</div>
@@ -97,7 +100,7 @@ export const charlson = {
             </div>
         `;
     },
-    createConditionToggle: function(id, title, subtitle, points) {
+    createConditionToggle: function (id, title, subtitle, points) {
         return uiBuilder.createRadioGroup({
             name: id,
             label: title,
@@ -112,21 +115,32 @@ export const charlson = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            let score = 0;
-            container.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-                score += parseInt(radio.value, 10);
-            });
+            // Clear previous errors
+            const errorContainer = container.querySelector('#cci-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
-            const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9)); // Adjusted formula from literature
+            try {
+                let score = 0;
+                container.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                    score += parseInt(radio.value, 10);
+                });
 
-            const scoreEl = container.querySelector('#cci-score');
-            const survivalEl = container.querySelector('#cci-survival');
-            
-            if (scoreEl) scoreEl.textContent = score;
-            if (survivalEl) survivalEl.textContent = `${survival.toFixed(0)}%`;
+                if (isNaN(score)) throw new Error("Calculation Error");
+
+                const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9)); // Adjusted formula from literature
+
+                const scoreEl = container.querySelector('#cci-score');
+                const survivalEl = container.querySelector('#cci-survival');
+
+                if (scoreEl) scoreEl.textContent = score;
+                if (survivalEl) survivalEl.textContent = `${survival.toFixed(0)}%`;
+            } catch (error) {
+                logError(error, { calculator: 'charlson', action: 'calculate' });
+                if (errorContainer) displayError(errorContainer, error);
+            }
         };
 
-        // Attach change listener to container for event delegation (handled by UI Builder for visuals, but we need calc)
+        // Attach change listener to container for event delegation
         container.addEventListener('change', (e) => {
             if (e.target.type === 'radio') {
                 calculate();
@@ -179,11 +193,10 @@ export const charlson = {
                             radio.dispatchEvent(new Event('change'));
                         }
                     }
-                });
+                }).catch(e => console.warn(e));
             }
 
             // Special handling for multi-level conditions
-            // ... (keeping same logic as before, just dispatching change event)
             getPatientConditions(client, ['K70.3', 'K74', 'I85']).then(conditions => {
                 // Moderate/Severe Liver
                 if (conditions.length > 0) {
@@ -202,9 +215,9 @@ export const charlson = {
                                 radio.dispatchEvent(new Event('change'));
                             }
                         }
-                    });
+                    }).catch(e => console.warn(e));
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getPatientConditions(client, [
                 'E10.2', 'E10.3', 'E10.4', 'E10.5',
@@ -227,15 +240,16 @@ export const charlson = {
                                 radio.dispatchEvent(new Event('change'));
                             }
                         }
-                    });
+                    }).catch(e => console.warn(e));
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getPatientConditions(client, ['C00-C75', 'C76-C80']).then(conditions => {
                 // Solid tumor
                 if (conditions.length > 0) {
                     const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
                     const isMetastatic = conditions.some(c =>
+                        c.code.coding && c.code.coding[0] &&
                         metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
                     );
                     const value = isMetastatic ? 6 : 2;
@@ -245,7 +259,7 @@ export const charlson = {
                         radio.dispatchEvent(new Event('change'));
                     }
                 }
-            });
+            }).catch(e => console.warn(e));
 
             // Check for CKD via labs or conditions
             getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(conditions => {
@@ -256,7 +270,8 @@ export const charlson = {
                         radio.dispatchEvent(new Event('change'));
                     }
                 }
-            });
+            }).catch(e => console.warn(e));
+
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 // Creatinine
                 if (obs && obs.valueQuantity && obs.valueQuantity.value > 3) {
@@ -266,7 +281,7 @@ export const charlson = {
                         radio.dispatchEvent(new Event('change'));
                     }
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Calculate initially

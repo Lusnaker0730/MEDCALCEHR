@@ -1,4 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const gad7 = {
     id: 'gad-7',
@@ -15,7 +16,7 @@ export const gad7 = {
             'Feeling afraid as if something awful might happen'
         ];
 
-        const sections = questions.map((q, index) => 
+        const sections = questions.map((q, index) =>
             uiBuilder.createSection({
                 title: `${index + 1}. ${q}`,
                 content: uiBuilder.createRadioGroup({
@@ -45,6 +46,7 @@ export const gad7 = {
             
             ${sections}
             
+            <div id="gad7-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'gad7-result', title: 'GAD-7 Result' })}
         `;
     },
@@ -52,55 +54,69 @@ export const gad7 = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            let score = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#gad7-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let severity = '';
-            let alertClass = '';
-            let recommendation = '';
-            
-            if (score <= 4) {
-                severity = 'Minimal anxiety';
-                alertClass = 'ui-alert-success';
-                recommendation = 'Monitor, may not require treatment.';
-            } else if (score <= 9) {
-                severity = 'Mild anxiety';
-                alertClass = 'ui-alert-info';
-                recommendation = 'Watchful waiting, reassessment in 4 weeks.';
-            } else if (score <= 14) {
-                severity = 'Moderate anxiety';
-                alertClass = 'ui-alert-warning';
-                recommendation = 'Active treatment with counseling and/or pharmacotherapy.';
-            } else {
-                severity = 'Severe anxiety';
-                alertClass = 'ui-alert-danger';
-                recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
-            }
+                let score = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            const resultBox = container.querySelector('#gad7-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                let severity = '';
+                let alertClass = '';
+                let recommendation = '';
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                if (score <= 4) {
+                    severity = 'Minimal anxiety';
+                    alertClass = 'ui-alert-success';
+                    recommendation = 'Monitor, may not require treatment.';
+                } else if (score <= 9) {
+                    severity = 'Mild anxiety';
+                    alertClass = 'ui-alert-info';
+                    recommendation = 'Watchful waiting, reassessment in 4 weeks.';
+                } else if (score <= 14) {
+                    severity = 'Moderate anxiety';
+                    alertClass = 'ui-alert-warning';
+                    recommendation = 'Active treatment with counseling and/or pharmacotherapy.';
+                } else {
+                    severity = 'Severe anxiety';
+                    alertClass = 'ui-alert-danger';
+                    recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+                }
+
+                const resultBox = container.querySelector('#gad7-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: '/ 21 points',
                     interpretation: severity,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">🩺</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">🩺</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#gad7-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'gad-7', action: 'calculate' });
+            }
         };
 
         // Add event listeners

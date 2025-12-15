@@ -14,36 +14,36 @@ export const growthChart = {
             </div>
             
             <div class="growth-chart-stack">
-                <div class="growth-chart-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div class="chart-wrapper">
+                <div class="growth-chart-row" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div class="chart-wrapper" style="flex: 1 1 400px; min-width: 0;">
                         <div class="chart-header">
                             <h4>Height for Age</h4>
                             <div class="chart-status" id="height-status">Loading...</div>
                         </div>
-                        <div class="chart-container" style="height: 300px;">
+                        <div class="chart-container" style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                             <canvas id="growthChartCanvasHeight"></canvas>
                         </div>
                         <div class="chart-summary" id="height-summary"></div>
                     </div>
                     
-                    <div class="chart-wrapper">
+                    <div class="chart-wrapper" style="flex: 1 1 400px; min-width: 0;">
                         <div class="chart-header">
                             <h4>Weight for Age</h4>
                             <div class="chart-status" id="weight-status">Loading...</div>
                         </div>
-                        <div class="chart-container" style="height: 300px;">
+                        <div class="chart-container" style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                             <canvas id="growthChartCanvasWeight"></canvas>
                         </div>
                         <div class="chart-summary" id="weight-summary"></div>
                     </div>
                 </div>
                 
-                <div class="chart-wrapper" style="margin-top: 20px;">
+                <div class="chart-wrapper" style="margin-top: 20px; min-width: 0;">
                     <div class="chart-header">
                         <h4>BMI for Age</h4>
                         <div class="chart-status" id="bmi-status">Loading...</div>
                     </div>
-                    <div class="chart-container" style="height: 300px;">
+                    <div class="chart-container" style="position: relative; height: 300px; width: 100%; overflow: hidden;">
                         <canvas id="growthChartCanvasBMI"></canvas>
                     </div>
                     <div class="chart-summary" id="bmi-summary"></div>
@@ -189,7 +189,11 @@ export const growthChart = {
                     pointHoverRadius: 8
                 };
 
-                new Chart(canvas.getContext('2d'), {
+                if (canvas.chart) {
+                    canvas.chart.destroy();
+                }
+
+                canvas.chart = new Chart(canvas.getContext('2d'), {
                     type: 'line',
                     data: { datasets: [patientDataset] },
                     options: {
@@ -329,7 +333,11 @@ export const growthChart = {
                 order: 0 // Ensure patient data is rendered on top
             };
 
-            new Chart(canvas.getContext('2d'), {
+            if (canvas.chart) {
+                canvas.chart.destroy();
+            }
+
+            canvas.chart = new Chart(canvas.getContext('2d'), {
                 type: 'line',
                 data: { datasets: [patientDataset, ...cdcDatasets] },
                 options: {
@@ -568,15 +576,20 @@ export const growthChart = {
                     return;
                 }
 
-                const bmiData = calculateBmiData(data.height, data.weight);
+                // Filter patient data to relevant age range (slightly beyond 36m for context)
+                const MAX_AGE_MONTHS = 40;
+                const filteredHeight = data.height.filter(d => d.ageMonths <= MAX_AGE_MONTHS);
+                const filteredWeight = data.weight.filter(d => d.ageMonths <= MAX_AGE_MONTHS);
+
+                const bmiData = calculateBmiData(filteredHeight, filteredWeight);
+                const filteredBMI = bmiData; // Already filtered because filtered height/weight used
+
                 const gender = patient.gender || 'female';
 
-                // Get latest measurements for summaries
-                const latestHeight =
-                    data.height.length > 0 ? data.height[data.height.length - 1] : null;
-                const latestWeight =
-                    data.weight.length > 0 ? data.weight[data.weight.length - 1] : null;
-                const latestBMI = bmiData.length > 0 ? bmiData[bmiData.length - 1] : null;
+                // Get latest measurements
+                const latestHeight = filteredHeight.length > 0 ? filteredHeight[filteredHeight.length - 1] : null;
+                const latestWeight = filteredWeight.length > 0 ? filteredWeight[filteredWeight.length - 1] : null;
+                const latestBMI = filteredBMI.length > 0 ? filteredBMI[filteredBMI.length - 1] : null;
 
                 // Helper to transform LMS array to object
                 const mapLmsToObj = (lmsArray) => {
@@ -596,14 +609,14 @@ export const growthChart = {
                     createChart(
                         heightCanvas,
                         'Height for Age',
-                        data.height,
+                        filteredHeight,
                         cdcHeightData,
                         'Height (cm)',
                         'Patient Height'
                     );
                     updateChartStatus(
                         'height',
-                        data.height.length,
+                        filteredHeight.length,
                         latestHeight ? latestHeight.value : null,
                         latestHeight ? latestHeight.ageMonths : null,
                         cdcHeightData
@@ -618,14 +631,14 @@ export const growthChart = {
                     createChart(
                         weightCanvas,
                         'Weight for Age',
-                        data.weight,
+                        filteredWeight,
                         cdcWeightData,
                         'Weight (kg)',
                         'Patient Weight'
                     );
                     updateChartStatus(
                         'weight',
-                        data.weight.length,
+                        filteredWeight.length,
                         latestWeight ? latestWeight.value : null,
                         latestWeight ? latestWeight.ageMonths : null,
                         cdcWeightData
@@ -639,14 +652,14 @@ export const growthChart = {
                     createChart(
                         bmiCanvas,
                         'BMI for Age',
-                        bmiData,
+                        filteredBMI,
                         cdcBmiData,
                         'BMI (kg/m²)',
                         'Patient BMI'
                     );
                     updateChartStatus(
                         'bmi',
-                        bmiData.length,
+                        filteredBMI.length,
                         latestBMI ? latestBMI.value : null,
                         latestBMI ? latestBMI.ageMonths : null,
                         cdcBmiData

@@ -40,6 +40,8 @@ export const bmiBsa = {
             
             ${inputSection}
             
+            <div id="bmi-bsa-error-container"></div>
+            
             <div class="result-container" id="bmi-bsa-result" style="display:none;"></div>
             
             <div class="formula-section">
@@ -65,9 +67,8 @@ export const bmiBsa = {
 
         // Function to calculate and update results
         const calculateAndUpdate = () => {
-            // Clear any previous errors first
-            const existingError = container.querySelector('#bmi-bsa-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#bmi-bsa-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             try {
                 // Get values in standard units (kg and cm)
@@ -86,26 +87,11 @@ export const bmiBsa = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    // If fields are empty, just hide results without error (standard behavior)
-                    // But if fields have values (user typed something invalid), show error
+                    // Filter required errors if empty
                     if (weightInput.value || heightInput.value) {
-                        // Only show error if the user has actually entered something that is invalid
-                        // Filter out "required" errors if the field is just empty/partial
-                        const meaningfulErrors = validation.errors.filter(msg => {
-                            // This is a heuristic: if message says "required" but field is empty, ignore it for live typing
-                            // But validateCalculatorInput returns all errors.
-                            // Let's simplified: If we have values but they are invalid (e.g. negative), show error.
-                            return true;
-                        });
-
+                        const meaningfulErrors = validation.errors.filter(e => (!e.includes('required') || (weightInput.value && heightInput.value)));
                         if (meaningfulErrors.length > 0 && (weightKg !== null || heightCm !== null)) {
-                            // Create error container if needed
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'bmi-bsa-error';
-                            resultEl.parentNode.insertBefore(errorContainer, resultEl.nextSibling);
-
-                            // Join errors or take the first one
-                            displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                         }
                     }
                     resultEl.style.display = 'none';
@@ -189,13 +175,7 @@ export const bmiBsa = {
                 });
 
                 // Display error message
-                let errorContainer = container.querySelector('#bmi-bsa-error');
-                if (!errorContainer) {
-                    errorContainer = document.createElement('div');
-                    errorContainer.id = 'bmi-bsa-error';
-                    resultEl.parentNode.insertBefore(errorContainer, resultEl.nextSibling);
-                }
-                displayError(errorContainer, error);
+                if (errorContainer) displayError(errorContainer, error);
 
                 // Reset result display
                 resultEl.style.display = 'none';
@@ -207,6 +187,7 @@ export const bmiBsa = {
         inputs.forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
         });
+        container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
 
         // Auto-populate from FHIR data
         if (client) {
@@ -216,35 +197,28 @@ export const bmiBsa = {
             Promise.all([weightPromise, heightPromise])
                 .then(([weightObs, heightObs]) => {
                     if (weightObs && weightObs.valueQuantity && weightInput) {
-                        weightInput.value = weightObs.valueQuantity.value.toFixed(1);
-                        // Trigger input event to update UI state if needed
-                        weightInput.dispatchEvent(new Event('input'));
+                        const val = weightObs.valueQuantity.value;
+                        const unit = weightObs.valueQuantity.unit || 'kg';
+                        const wInKg = UnitConverter.convert(val, unit, 'kg', 'weight');
+                        if (wInKg !== null) {
+                            weightInput.value = wInKg.toFixed(1);
+                            weightInput.dispatchEvent(new Event('input'));
+                        }
                     }
 
                     if (heightObs && heightObs.valueQuantity && heightInput) {
-                        heightInput.value = heightObs.valueQuantity.value.toFixed(1);
-                        heightInput.dispatchEvent(new Event('input'));
+                        const val = heightObs.valueQuantity.value;
+                        const unit = heightObs.valueQuantity.unit || 'cm';
+                        const hInCm = UnitConverter.convert(val, unit, 'cm', 'height');
+                        if (hInCm !== null) {
+                            heightInput.value = hInCm.toFixed(1);
+                            heightInput.dispatchEvent(new Event('input'));
+                        }
                     }
                 })
                 .catch(error => {
-                    const fhirError = new FHIRDataError(
-                        'Unable to load weight or height data from EHR system',
-                        'BMI_BSA_FHIR_LOAD_ERROR',
-                        { error: error.message }
-                    );
-                    logError(fhirError, {
-                        calculator: 'bmi-bsa',
-                        action: 'loadFHIRData'
-                    });
-
-                    // Display a non-intrusive warning but still allow manual input
-                    const warningContainer = document.createElement('div');
-                    warningContainer.className = 'warning-message';
-                    warningContainer.style.cssText =
-                        'background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-size: 0.9em;';
-                    warningContainer.innerHTML =
-                        '<strong>Note:</strong> Unable to automatically load patient data. Please manually enter weight and height.';
-                    container.insertBefore(warningContainer, container.firstChild.nextSibling);
+                    // Quiet fail or warn
+                    console.warn('FHIR fetch failed', error);
                 });
         }
     }

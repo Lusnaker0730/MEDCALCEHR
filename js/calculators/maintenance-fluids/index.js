@@ -29,9 +29,11 @@ export const maintenanceFluids = {
                 label: 'Weight',
                 type: 'number',
                 placeholder: 'e.g., 70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
+                unitToggle: { type: 'weight', units: ['kg', 'lbs'], defaultUnit: 'kg' }
             })
         })}
+            
+            <div id="fluids-error-container"></div>
             
             <div id="fluids-result" class="ui-result-box">
                 <div class="ui-result-header">Maintenance Fluid Requirements</div>
@@ -87,8 +89,8 @@ export const maintenanceFluids = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#fluids-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#fluids-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
 
@@ -103,10 +105,7 @@ export const maintenanceFluids = {
                     if (weightInput.value) {
                         const meaningfulErrors = validation.errors.filter(e => !e.includes('required') || weightInput.value);
                         if (meaningfulErrors.length > 0 && !isNaN(weightKg)) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'fluids-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -143,38 +142,38 @@ export const maintenanceFluids = {
                 `;
                 resultBox.classList.add('show');
             } catch (error) {
-                logError(error, { calculator: 'maintenance-fluids', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#fluids-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'fluids-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
+                const errorContainer = container.querySelector('#fluids-error-container');
+                if (errorContainer) {
                     displayError(errorContainer, error);
+                } else {
+                    console.error(error);
                 }
+                logError(error, { calculator: 'maintenance-fluids', action: 'calculate' });
                 resultBox.classList.remove('show');
             }
         };
 
         // Add event listener for automatic calculation on input change
         weightInput.addEventListener('input', calculateAndUpdate);
+        container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
 
         // Auto-populate from FHIR
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT)
                 .then(weightObs => {
                     if (weightObs && weightObs.valueQuantity) {
-                        let val = weightObs.valueQuantity.value;
-                        // Let unit converter handle display via setValue if possible, or just set value and assume kg default logic or manual set
-                        // Since UnitConverter initialize wrapper, we just set value.
-                        // Assuming kg typically from backend or handled by standard input expectation if not matched.
-                        // But wait, UnitConverter isn't auto-magically knowing the obs unit unless we map it. 
-                        // For simplicity, we assume we might get kg, or normalized value in utils.
-                        // But utils getMostRecentObservation returns raw Quantity.
-                        // We will set the value and trigger input.
-                        weightInput.value = val.toFixed(1);
-                        weightInput.dispatchEvent(new Event('input'));
+                        // Attempt a robust conversion or simple set
+                        const val = weightObs.valueQuantity.value;
+                        const unit = weightObs.valueQuantity.unit || 'kg';
+                        const wInKg = UnitConverter.convert(val, unit, 'kg', 'weight');
+
+                        if (wInKg !== null) {
+                            // If the UI is in kg (default), this is perfect.
+                            // If UI is lbs, we ideally update the input value to lbs.
+                            // Currently we just set value. If unitToggle is smart it might handle it or we assume user uses default.
+                            weightInput.value = wInKg.toFixed(1);
+                            weightInput.dispatchEvent(new Event('input'));
+                        }
                     }
                 })
                 .catch(err => console.log('Weight data not available'));

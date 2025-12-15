@@ -1,4 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const phq9 = {
     id: 'phq-9',
@@ -17,7 +18,7 @@ export const phq9 = {
             'Thoughts that you would be better off dead or of hurting yourself in some way'
         ];
 
-        const sections = questions.map((q, i) => 
+        const sections = questions.map((q, i) =>
             uiBuilder.createSection({
                 title: `${i + 1}. ${q}`,
                 content: uiBuilder.createRadioGroup({
@@ -47,6 +48,7 @@ export const phq9 = {
             
             ${sections}
             
+            <div id="phq9-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'phq9-result', title: 'PHQ-9 Result' })}
         `;
     },
@@ -54,59 +56,73 @@ export const phq9 = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            let score = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#phq9-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let severity = '';
-            let alertClass = '';
-            let recommendation = '';
-            
-            if (score <= 4) {
-                severity = 'Minimal depression';
-                alertClass = 'ui-alert-success';
-                recommendation = 'Monitor, may not require treatment.';
-            } else if (score <= 9) {
-                severity = 'Mild depression';
-                alertClass = 'ui-alert-info';
-                recommendation = 'Consider counseling, follow-up, and/or pharmacotherapy.';
-            } else if (score <= 14) {
-                severity = 'Moderate depression';
-                alertClass = 'ui-alert-warning';
-                recommendation = 'Consider counseling, follow-up, and/or pharmacotherapy.';
-            } else if (score <= 19) {
-                severity = 'Moderately severe depression';
-                alertClass = 'ui-alert-danger';
-                recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
-            } else {
-                severity = 'Severe depression';
-                alertClass = 'ui-alert-danger';
-                recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
-            }
+                let score = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            const resultBox = container.querySelector('#phq9-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                let severity = '';
+                let alertClass = '';
+                let recommendation = '';
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                if (score <= 4) {
+                    severity = 'Minimal depression';
+                    alertClass = 'ui-alert-success';
+                    recommendation = 'Monitor, may not require treatment.';
+                } else if (score <= 9) {
+                    severity = 'Mild depression';
+                    alertClass = 'ui-alert-info';
+                    recommendation = 'Consider counseling, follow-up, and/or pharmacotherapy.';
+                } else if (score <= 14) {
+                    severity = 'Moderate depression';
+                    alertClass = 'ui-alert-warning';
+                    recommendation = 'Consider counseling, follow-up, and/or pharmacotherapy.';
+                } else if (score <= 19) {
+                    severity = 'Moderately severe depression';
+                    alertClass = 'ui-alert-danger';
+                    recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+                } else {
+                    severity = 'Severe depression';
+                    alertClass = 'ui-alert-danger';
+                    recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+                }
+
+                const resultBox = container.querySelector('#phq9-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: '/ 27 points',
                     interpretation: severity,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">🧠</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">🧠</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#phq9-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'phq-9', action: 'calculate' });
+            }
         };
 
         // Add event listeners

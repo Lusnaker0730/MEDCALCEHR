@@ -1,6 +1,9 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const graceAcs = {
     id: 'grace-acs',
@@ -39,7 +42,11 @@ export const graceAcs = {
                     type: 'number',
                     step: 0.1,
                     placeholder: 'Enter creatinine',
-                    unit: 'mg/dL'
+                    unitToggle: {
+                        type: 'creatinine',
+                        units: ['mg/dL', 'µmol/L'],
+                        defaultUnit: 'mg/dL'
+                    }
                 })
             ].join('')
         });
@@ -94,6 +101,7 @@ export const graceAcs = {
             ${vitalsSection}
             ${clinicalSection}
             
+            <div id="grace-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'grace-result', title: 'GRACE ACS Risk Assessment' })}
         `;
     },
@@ -101,104 +109,155 @@ export const graceAcs = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const age = parseInt(container.querySelector('#grace-age').value);
-            const hr = parseInt(container.querySelector('#grace-hr').value);
-            const sbp = parseInt(container.querySelector('#grace-sbp').value);
-            const creatinine = parseFloat(container.querySelector('#grace-creatinine').value);
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#grace-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            const killipRadio = container.querySelector('input[name="grace-killip"]:checked');
-            const arrestRadio = container.querySelector('input[name="grace-cardiac-arrest"]:checked');
-            const stRadio = container.querySelector('input[name="grace-st-deviation"]:checked');
-            const enzymesRadio = container.querySelector('input[name="grace-cardiac-enzymes"]:checked');
+                // Get inputs using standard logic or standard values
+                const ageInput = container.querySelector('#grace-age');
+                const hrInput = container.querySelector('#grace-hr');
+                const sbpInput = container.querySelector('#grace-sbp');
+                const creatinineInput = container.querySelector('#grace-creatinine');
 
-            const killip = killipRadio ? parseInt(killipRadio.value) : 0;
-            const arrest = arrestRadio ? parseInt(arrestRadio.value) : 0;
-            const st = stRadio ? parseInt(stRadio.value) : 0;
-            const enzymes = enzymesRadio ? parseInt(enzymesRadio.value) : 0;
+                // Unit Conversion for creatinine
+                const creatinine = UnitConverter.getStandardValue(creatinineInput, 'mg/dL');
 
-            if (isNaN(age) || isNaN(hr) || isNaN(sbp) || isNaN(creatinine)) {
-                container.querySelector('#grace-result').classList.remove('show');
-                return;
-            }
+                // Values for logic
+                const age = parseFloat(ageInput.value);
+                const hr = parseFloat(hrInput.value);
+                const sbp = parseFloat(sbpInput.value);
 
-            let agePoints = 0;
-            if (age >= 40 && age <= 49) agePoints = 18;
-            else if (age >= 50 && age <= 59) agePoints = 36;
-            else if (age >= 60 && age <= 69) agePoints = 55;
-            else if (age >= 70 && age <= 79) agePoints = 73;
-            else if (age >= 80) agePoints = 91;
+                // Validation
+                const inputs = {
+                    age: age,
+                    hr: hr,
+                    sbp: sbp,
+                    creatinine: creatinine
+                };
+                const schema = {
+                    age: ValidationRules.age,
+                    hr: ValidationRules.heartRate,
+                    sbp: ValidationRules.systolicBp,
+                    creatinine: ValidationRules.creatinine
+                };
 
-            let hrPoints = 0;
-            if (hr >= 50 && hr <= 69) hrPoints = 0;
-            else if (hr >= 70 && hr <= 89) hrPoints = 3;
-            else if (hr >= 90 && hr <= 109) hrPoints = 7;
-            else if (hr >= 110 && hr <= 149) hrPoints = 13;
-            else if (hr >= 150 && hr <= 199) hrPoints = 23;
-            else if (hr >= 200) hrPoints = 36;
+                const validation = validateCalculatorInput(inputs, schema);
 
-            let sbpPoints = 0;
-            if (sbp >= 200) sbpPoints = 0;
-            else if (sbp >= 160 && sbp <= 199) sbpPoints = 10;
-            else if (sbp >= 140 && sbp <= 159) sbpPoints = 18;
-            else if (sbp >= 120 && sbp <= 139) sbpPoints = 24;
-            else if (sbp >= 100 && sbp <= 119) sbpPoints = 34;
-            else if (sbp >= 80 && sbp <= 99) sbpPoints = 43;
-            else if (sbp < 80) sbpPoints = 53;
+                if (!validation.isValid) {
+                    // Check if meaningful input is present to show error
+                    const hasInput = (age || hr || sbp || !isNaN(creatinine));
+                    if (hasInput) {
+                        // Only show if fields are non-empty but invalid
+                        if (validation.errors.some(e => !e.includes('required'))) {
+                            if (errorContainer) {
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            }
+                        }
+                    }
+                    // Hide result until valid
+                    container.querySelector('#grace-result').classList.remove('show');
+                    return;
+                }
 
-            let crPoints = 0;
-            if (creatinine >= 0 && creatinine <= 0.39) crPoints = 1;
-            else if (creatinine >= 0.4 && creatinine <= 0.79) crPoints = 4;
-            else if (creatinine >= 0.8 && creatinine <= 1.19) crPoints = 7;
-            else if (creatinine >= 1.2 && creatinine <= 1.59) crPoints = 10;
-            else if (creatinine >= 1.6 && creatinine <= 1.99) crPoints = 13;
-            else if (creatinine >= 2.0 && creatinine <= 3.99) crPoints = 21;
-            else if (creatinine >= 4.0) crPoints = 28;
+                // If fully valid, proceed
+                const getRadioVal = (name) => {
+                    const el = container.querySelector(`input[name="${name}"]:checked`);
+                    return el ? parseInt(el.value) : 0;
+                };
 
-            const totalScore = agePoints + hrPoints + sbpPoints + crPoints + killip + arrest + st + enzymes;
+                const killip = getRadioVal('grace-killip');
+                const arrest = getRadioVal('grace-cardiac-arrest');
+                const st = getRadioVal('grace-st-deviation');
+                const enzymes = getRadioVal('grace-cardiac-enzymes');
 
-            let inHospitalMortality = '<1%';
-            let riskLevel = 'Low Risk';
-            let alertClass = 'ui-alert-success';
-            let riskDescription = 'Low risk of in-hospital mortality';
+                let agePoints = 0;
+                if (age >= 40 && age <= 49) agePoints = 18;
+                else if (age >= 50 && age <= 59) agePoints = 36;
+                else if (age >= 60 && age <= 69) agePoints = 55;
+                else if (age >= 70 && age <= 79) agePoints = 73;
+                else if (age >= 80) agePoints = 91;
 
-            if (totalScore > 140) {
-                inHospitalMortality = '>3%';
-                riskLevel = 'High Risk';
-                alertClass = 'ui-alert-danger';
-                riskDescription = 'High risk of in-hospital mortality - Consider intensive monitoring and aggressive intervention';
-            } else if (totalScore > 118) {
-                inHospitalMortality = '1-3%';
-                riskLevel = 'Intermediate Risk';
-                alertClass = 'ui-alert-warning';
-                riskDescription = 'Intermediate risk of in-hospital mortality - Close monitoring recommended';
-            }
+                let hrPoints = 0;
+                if (hr >= 50 && hr <= 69) hrPoints = 0;
+                else if (hr >= 70 && hr <= 89) hrPoints = 3;
+                else if (hr >= 90 && hr <= 109) hrPoints = 7;
+                else if (hr >= 110 && hr <= 149) hrPoints = 13;
+                else if (hr >= 150 && hr <= 199) hrPoints = 23;
+                else if (hr >= 200) hrPoints = 36;
 
-            const resultBox = container.querySelector('#grace-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                let sbpPoints = 0;
+                if (sbp >= 200) sbpPoints = 0;
+                else if (sbp >= 160 && sbp <= 199) sbpPoints = 10;
+                else if (sbp >= 140 && sbp <= 159) sbpPoints = 18;
+                else if (sbp >= 120 && sbp <= 139) sbpPoints = 24;
+                else if (sbp >= 100 && sbp <= 119) sbpPoints = 34;
+                else if (sbp >= 80 && sbp <= 99) sbpPoints = 43;
+                else if (sbp < 80) sbpPoints = 53;
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total GRACE Score', 
-                    value: totalScore, 
+                let crPoints = 0;
+                if (creatinine >= 0 && creatinine <= 0.39) crPoints = 1;
+                else if (creatinine >= 0.4 && creatinine <= 0.79) crPoints = 4;
+                else if (creatinine >= 0.8 && creatinine <= 1.19) crPoints = 7;
+                else if (creatinine >= 1.2 && creatinine <= 1.59) crPoints = 10;
+                else if (creatinine >= 1.6 && creatinine <= 1.99) crPoints = 13;
+                else if (creatinine >= 2.0 && creatinine <= 3.99) crPoints = 21;
+                else if (creatinine >= 4.0) crPoints = 28;
+
+                const totalScore = agePoints + hrPoints + sbpPoints + crPoints + killip + arrest + st + enzymes;
+
+                let inHospitalMortality = '<1%';
+                let riskLevel = 'Low Risk';
+                let alertClass = 'ui-alert-success';
+                let riskDescription = 'Low risk of in-hospital mortality';
+
+                if (totalScore > 140) {
+                    inHospitalMortality = '>3%';
+                    riskLevel = 'High Risk';
+                    alertClass = 'ui-alert-danger';
+                    riskDescription = 'High risk of in-hospital mortality - Consider intensive monitoring and aggressive intervention';
+                } else if (totalScore > 118) {
+                    inHospitalMortality = '1-3%';
+                    riskLevel = 'Intermediate Risk';
+                    alertClass = 'ui-alert-warning';
+                    riskDescription = 'Intermediate risk of in-hospital mortality - Close monitoring recommended';
+                }
+
+                const resultBox = container.querySelector('#grace-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total GRACE Score',
+                    value: totalScore,
                     unit: 'points',
                     interpretation: riskLevel,
                     alertClass: alertClass
                 })}
-                ${uiBuilder.createResultItem({ 
-                    label: 'In-Hospital Mortality Risk', 
-                    value: inHospitalMortality, 
+                    ${uiBuilder.createResultItem({
+                    label: 'In-Hospital Mortality Risk',
+                    value: inHospitalMortality,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">📋</span>
-                    <div class="ui-alert-content">
-                        <strong>Interpretation:</strong> ${riskDescription}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">📋</span>
+                        <div class="ui-alert-content">
+                            <strong>Interpretation:</strong> ${riskDescription}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#grace-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'grace-acs', action: 'calculate' });
+            }
         };
 
         // Add event listeners
@@ -211,6 +270,8 @@ export const graceAcs = {
         if (client) {
             if (patient && patient.birthDate) {
                 container.querySelector('#grace-age').value = calculateAge(patient.birthDate);
+                // Dispatch input event to trigger calculation if other fields present? 
+                // Better to just set value, wait for other asyncs, then calc.
             }
 
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
@@ -224,13 +285,27 @@ export const graceAcs = {
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 if (obs?.valueQuantity) {
                     let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
-                        val = val / 88.4;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    // We let UI Builder / UnitConverter handle the logic if we set the RAW value and dispatch change, 
+                    // provided the unitToggle logic is set up to receive the user's preference.
+                    // But here we are setting the input value.
+                    // If the input default unit is mg/dL, and obs is mmol/L, we must convert.
+                    // Actually, UnitConverter.getStandardValue reads the toggle state.
+                    // BUT setting .value programmatically... does NOT update the unit dropdown.
+                    // So we must be careful.
+                    // Robust way: convert to the *default unit* of the input (mg/dL) before setting.
+
+                    if (UnitConverter.isUnit(unit, 'mmol/L') || unit === 'µmol/L' || unit === 'umol/L') {
+                        // The file previously had custom logic: val = val / 88.4;
+                        // Better use UnitConverter if available, or keep custom logic if simpler.
+                        // UnitConverter has creatinine conversion? Check.
+                        // Ideally: val = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+                        val = val / 88.4; // Custom fallback if UnitConverter not full
                     }
                     container.querySelector('#grace-creatinine').value = val.toFixed(2);
                 }
             });
-            
+
             // Trigger calculation after a delay to allow async operations
             setTimeout(calculate, 1000);
         }

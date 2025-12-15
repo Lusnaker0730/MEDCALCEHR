@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const wellsPE = {
     id: 'wells-pe',
@@ -20,7 +21,7 @@ export const wellsPE = {
 
         const inputs = uiBuilder.createSection({
             title: 'Clinical Criteria',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -48,6 +49,7 @@ export const wellsPE = {
             
             ${inputs}
             
+            <div id="wells-pe-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'wells-result', title: "Wells' PE Score Results" })}
             
             <div class="info-section mt-20">
@@ -68,70 +70,84 @@ export const wellsPE = {
         };
 
         const calculate = () => {
-            let score = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseFloat(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#wells-pe-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let risk = '';
-            let riskClass = '';
-            let interpretation = '';
-            let twoTierModel = '';
-            let alertClass = '';
+                let score = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseFloat(radio.value);
+                });
 
-            if (score <= 1) {
-                risk = 'Low Risk';
-                riskClass = 'low';
-                alertClass = 'ui-alert-success';
-                interpretation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
-                twoTierModel = 'PE Unlikely (Score < 2)';
-            } else if (score <= 6) {
-                risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
-                riskClass = score <= 4 ? 'moderate' : 'high';
-                alertClass = score <= 4 ? 'ui-alert-warning' : 'ui-alert-danger';
-                
-                if (score <= 4) {
-                    interpretation = 'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
-                    twoTierModel = 'PE Unlikely (Score ≤ 4)';
+                let risk = '';
+                let riskClass = '';
+                let interpretation = '';
+                let twoTierModel = '';
+                let alertClass = '';
+
+                if (score <= 1) {
+                    risk = 'Low Risk';
+                    riskClass = 'low';
+                    alertClass = 'ui-alert-success';
+                    interpretation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be safely excluded.';
+                    twoTierModel = 'PE Unlikely (Score < 2)';
+                } else if (score <= 6) {
+                    risk = score <= 4 ? 'Low-Moderate Risk' : 'Moderate-High Risk';
+                    riskClass = score <= 4 ? 'moderate' : 'high';
+                    alertClass = score <= 4 ? 'ui-alert-warning' : 'ui-alert-danger';
+
+                    if (score <= 4) {
+                        interpretation = 'PE is less likely but not excluded. Consider D-dimer testing before proceeding to imaging.';
+                        twoTierModel = 'PE Unlikely (Score ≤ 4)';
+                    } else {
+                        interpretation = 'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
+                        twoTierModel = 'PE Likely (Score > 4)';
+                    }
                 } else {
-                    interpretation = 'PE is likely. Proceed directly to CT pulmonary angiography (CTPA) for definitive diagnosis.';
+                    risk = 'High Risk';
+                    riskClass = 'high';
+                    alertClass = 'ui-alert-danger';
+                    interpretation = 'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
                     twoTierModel = 'PE Likely (Score > 4)';
                 }
-            } else {
-                risk = 'High Risk';
-                riskClass = 'high';
-                alertClass = 'ui-alert-danger';
-                interpretation = 'PE is highly likely. Proceed directly to CT pulmonary angiography (CTPA). Consider empiric anticoagulation if no contraindications while awaiting imaging.';
-                twoTierModel = 'PE Likely (Score > 4)';
-            }
 
-            const resultBox = container.querySelector('#wells-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                const resultBox = container.querySelector('#wells-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: 'points',
                     interpretation: risk,
                     alertClass: alertClass
                 })}
-                
-                <div class="result-item" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                    <span class="result-item-label" style="font-weight: 600; color: #555;">Two-Tier Model:</span>
-                    <span class="result-item-value" style="font-weight: bold; margin-left: 5px;">${twoTierModel}</span>
-                </div>
-                
-                <div class="ui-alert ${alertClass} mt-20">
-                    <span class="ui-alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
-                    <div class="ui-alert-content">
-                        <p>${interpretation}</p>
+                    
+                    <div class="result-item" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <span class="result-item-label" style="font-weight: 600; color: #555;">Two-Tier Model:</span>
+                        <span class="result-item-value" style="font-weight: bold; margin-left: 5px;">${twoTierModel}</span>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                    
+                    <div class="ui-alert ${alertClass} mt-20">
+                        <span class="ui-alert-icon">${riskClass === 'high' ? '⚠️' : 'ℹ️'}</span>
+                        <div class="ui-alert-content">
+                            <p>${interpretation}</p>
+                        </div>
+                    </div>
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#wells-pe-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'wells-pe', action: 'calculate' });
+            }
         };
 
         // Auto-populate heart rate if available
@@ -140,7 +156,7 @@ export const wellsPE = {
                 if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
                     setRadioValue('wells-hr', '1.5');
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Add event listeners

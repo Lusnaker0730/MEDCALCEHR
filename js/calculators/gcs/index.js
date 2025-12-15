@@ -1,4 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const gcs = {
     id: 'gcs',
@@ -44,7 +45,7 @@ export const gcs = {
             }
         ];
 
-        const sectionsHTML = sections.map(section => 
+        const sectionsHTML = sections.map(section =>
             uiBuilder.createSection({
                 title: section.title,
                 icon: section.icon,
@@ -63,11 +64,12 @@ export const gcs = {
             
             ${sectionsHTML}
             
+            <div id="gcs-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'gcs-result', title: 'Glasgow Coma Scale Results' })}
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Interpretation</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li><strong>13-15:</strong> Mild Brain Injury</li>
@@ -75,51 +77,65 @@ export const gcs = {
                         <li><strong>3-8:</strong> Severe Brain Injury (Coma)</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const eyeScore = parseInt(container.querySelector('input[name="eye"]:checked').value);
-            const verbalScore = parseInt(container.querySelector('input[name="verbal"]:checked').value);
-            const motorScore = parseInt(container.querySelector('input[name="motor"]:checked').value);
-            
-            const totalScore = eyeScore + verbalScore + motorScore;
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#gcs-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let severity = '';
-            let alertClass = '';
+                const eyeScore = parseInt(container.querySelector('input[name="eye"]:checked').value);
+                const verbalScore = parseInt(container.querySelector('input[name="verbal"]:checked').value);
+                const motorScore = parseInt(container.querySelector('input[name="motor"]:checked').value);
 
-            if (totalScore >= 13) {
-                severity = 'Mild Brain Injury';
-                alertClass = 'ui-alert-success';
-            } else if (totalScore >= 9) {
-                severity = 'Moderate Brain Injury';
-                alertClass = 'ui-alert-warning';
-            } else {
-                severity = 'Severe Brain Injury (Coma)';
-                alertClass = 'ui-alert-danger';
-            }
+                const totalScore = eyeScore + verbalScore + motorScore;
 
-            const resultBox = container.querySelector('#gcs-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                let severity = '';
+                let alertClass = '';
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total GCS Score', 
-                    value: totalScore, 
+                if (totalScore >= 13) {
+                    severity = 'Mild Brain Injury';
+                    alertClass = 'ui-alert-success';
+                } else if (totalScore >= 9) {
+                    severity = 'Moderate Brain Injury';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    severity = 'Severe Brain Injury (Coma)';
+                    alertClass = 'ui-alert-danger';
+                }
+
+                const resultBox = container.querySelector('#gcs-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total GCS Score',
+                    value: totalScore,
                     unit: 'points',
                     interpretation: severity,
                     alertClass: alertClass
                 })}
-                
-                <div style="margin-top: 15px; text-align: center; font-weight: 500; color: #666;">
-                    Component Breakdown: E${eyeScore} V${verbalScore} M${motorScore}
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                    
+                    <div style="margin-top: 15px; text-align: center; font-weight: 500; color: #666;">
+                        Component Breakdown: E${eyeScore} V${verbalScore} M${motorScore}
+                    </div>
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#gcs-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'gcs', action: 'calculate' });
+            }
         };
 
         // Add event listeners

@@ -1,5 +1,6 @@
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const centor = {
     id: 'centor',
@@ -16,7 +17,7 @@ export const centor = {
 
         const criteriaSection = uiBuilder.createSection({
             title: 'Clinical Criteria',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -49,6 +50,7 @@ export const centor = {
             ${criteriaSection}
             ${ageSection}
             
+            <div id="centor-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'centor-result', title: 'Centor Score Result' })}
         `;
     },
@@ -64,58 +66,72 @@ export const centor = {
         };
 
         const calculate = () => {
-            let score = 0;
-            container.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#centor-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let probability = '';
-            let recommendation = '';
-            let alertClass = '';
+                let score = 0;
+                container.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            if (score <= 0) {
-                probability = '<10%';
-                recommendation = 'No antibiotic or throat culture necessary.';
-                alertClass = 'ui-alert-success';
-            } else if (score === 1) {
-                probability = '≈17%';
-                recommendation = 'No antibiotic or throat culture necessary.';
-                alertClass = 'ui-alert-success';
-            } else if (score === 2) {
-                probability = '≈35%';
-                recommendation = 'Consider throat culture or rapid antigen testing.';
-                alertClass = 'ui-alert-warning';
-            } else if (score === 3) {
-                probability = '≈56%';
-                recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                probability = '>85%';
-                recommendation = 'Empiric antibiotic treatment is justified.';
-                alertClass = 'ui-alert-danger';
-            }
+                let probability = '';
+                let recommendation = '';
+                let alertClass = '';
 
-            const resultBox = container.querySelector('#centor-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                if (score <= 0) {
+                    probability = '<10%';
+                    recommendation = 'No antibiotic or throat culture necessary.';
+                    alertClass = 'ui-alert-success';
+                } else if (score === 1) {
+                    probability = '≈17%';
+                    recommendation = 'No antibiotic or throat culture necessary.';
+                    alertClass = 'ui-alert-success';
+                } else if (score === 2) {
+                    probability = '≈35%';
+                    recommendation = 'Consider throat culture or rapid antigen testing.';
+                    alertClass = 'ui-alert-warning';
+                } else if (score === 3) {
+                    probability = '≈56%';
+                    recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    probability = '>85%';
+                    recommendation = 'Empiric antibiotic treatment is justified.';
+                    alertClass = 'ui-alert-danger';
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                const resultBox = container.querySelector('#centor-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: '/ 5 points',
                     interpretation: `Probability of Strep: ${probability}`,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#centor-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'centor', action: 'calculate' });
+            }
         };
 
         // Add event listeners

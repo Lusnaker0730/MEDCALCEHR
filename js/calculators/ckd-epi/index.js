@@ -57,6 +57,8 @@ export const ckdEpi = {
             })
         })}
             
+            <div id="ckd-epi-error-container"></div>
+            
             <div id="ckd-epi-result" class="ui-result-box">
                 <div class="ui-result-header">eGFR Results (CKD-EPI 2021)</div>
                 <div class="ui-result-content"></div>
@@ -87,15 +89,14 @@ export const ckdEpi = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#ckd-epi-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#ckd-epi-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const age = parseFloat(ageInput.value);
             const gender = container.querySelector('input[name="ckd-epi-gender"]:checked')?.value || 'male';
 
             // Get creatinine in mg/dL using UnitConverter
-            // Note: unit-converter automatically handles the toggle state on the element wrapper
-            const creatinineMgDl = UnitConverter.getStandardValue(creatinineInput, 'mg/dL'); // Assuming mg/dL is standard
+            const creatinineMgDl = UnitConverter.getStandardValue(creatinineInput, 'mg/dL');
 
             try {
                 // Validate inputs
@@ -112,12 +113,9 @@ export const ckdEpi = {
 
                     if (hasInput) {
                         const valuesPresent = !isNaN(age) && !isNaN(creatinineMgDl);
-                        // Show error if values are present (even if invalid range) or at least one is clearly typed but invalid
+                        // Show error if values are present or at least one is clearly typed but invalid
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'ckd-epi-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -189,16 +187,7 @@ export const ckdEpi = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'ckd-epi', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#ckd-epi-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'ckd-epi-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -230,18 +219,15 @@ export const ckdEpi = {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
 
-                    if (unit.toLowerCase().includes('mol')) {
-                        // Simple heuristic: if incoming is mol/L but we expect mg/dL or toggle match
-                        // UnitConverter.createUnitToggle sets default, but doesn't auto-switch based on FHIR unit unless we write logic.
-                        // For now, rely on manual conversion if unit mismatch, but CKD-EPI UI defaults to mg/dL.
-                        const converted = UnitConverter.convert(val, 'µmol/L', 'mg/dL', 'creatinine');
-                        creatinineInput.value = converted ? converted.toFixed(2) : val.toFixed(2);
-                    } else {
-                        creatinineInput.value = val.toFixed(2);
+                    // UnitConverter check
+                    // If UI is default mg/dL, convert if necessary
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+                    if (converted !== null) {
+                        creatinineInput.value = converted.toFixed(2);
+                        creatinineInput.dispatchEvent(new Event('input'));
                     }
-                    creatinineInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculateAndUpdate();

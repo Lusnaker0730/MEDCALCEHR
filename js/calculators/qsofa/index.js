@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const qsofaScore = {
     id: 'qsofa',
@@ -18,7 +19,7 @@ export const qsofaScore = {
             title: 'qSOFA Criteria',
             subtitle: 'Check all that apply',
             icon: '📋',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createCheckbox({
                     id: item.id,
                     label: item.label,
@@ -34,17 +35,18 @@ export const qsofaScore = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.'
-            })}
+            type: 'info',
+            message: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.'
+        })}
             
             ${criteriaSection}
             
+            <div id="qsofa-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'qsofa-result', title: 'qSOFA Score Results' })}
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Interpretation</h4>
                     <ul style="margin-top: 5px; padding-left: 20px;">
                         <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
@@ -59,60 +61,75 @@ export const qsofaScore = {
                         <li>Assess for organ dysfunction</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            let score = 0;
-            checkboxes.forEach(box => {
-                if (box.checked) {
-                    score += parseInt(box.value);
+            try {
+                // Clear any previous errors
+                const errorContainer = container.querySelector('#qsofa-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
+
+                const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+                let score = 0;
+                checkboxes.forEach(box => {
+                    if (box.checked) {
+                        score += parseInt(box.value);
+                    }
+                });
+
+                let riskLevel = '';
+                let interpretation = '';
+                let alertClass = '';
+
+                if (score >= 2) {
+                    riskLevel = 'Positive Screen';
+                    interpretation = 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
+                    alertClass = 'ui-alert-danger';
+                } else if (score === 1) {
+                    riskLevel = 'Intermediate';
+                    interpretation = 'Monitor closely. Consider early intervention if clinical suspicion is high.';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    riskLevel = 'Negative Screen';
+                    interpretation = 'Lower risk, but continue to monitor if infection is suspected.';
+                    alertClass = 'ui-alert-success';
                 }
-            });
 
-            let riskLevel = '';
-            let interpretation = '';
-            let alertClass = '';
+                const resultBox = container.querySelector('#qsofa-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
 
-            if (score >= 2) {
-                riskLevel = 'Positive Screen';
-                interpretation = 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
-                alertClass = 'ui-alert-danger';
-            } else if (score === 1) {
-                riskLevel = 'Intermediate';
-                interpretation = 'Monitor closely. Consider early intervention if clinical suspicion is high.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                riskLevel = 'Negative Screen';
-                interpretation = 'Lower risk, but continue to monitor if infection is suspected.';
-                alertClass = 'ui-alert-success';
-            }
-
-            const resultBox = container.querySelector('#qsofa-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total qSOFA Score', 
-                    value: score, 
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total qSOFA Score',
+                    value: score,
                     unit: '/ 3 points',
                     interpretation: riskLevel,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">${alertClass.includes('danger') ? '🚨' : 'ℹ️'}</span>
-                    <div class="ui-alert-content">
-                        <strong>Interpretation:</strong> ${interpretation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">${alertClass.includes('danger') ? '🚨' : 'ℹ️'}</span>
+                        <div class="ui-alert-content">
+                            <strong>Interpretation:</strong> ${interpretation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                // Error Handling
+                const errorContainer = container.querySelector('#qsofa-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'qsofa', action: 'calculate' });
+            }
         };
 
         // Add event listeners
@@ -127,20 +144,21 @@ export const qsofaScore = {
                     const box = container.querySelector('#qsofa-rr');
                     if (box) {
                         box.checked = true;
-                        calculate();
+                        // Use dispatchEvent to trigger listener if needed, but manual call to calculate works too
+                        box.dispatchEvent(new Event('change'));
                     }
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
                 if (obs?.valueQuantity?.value <= 100) {
                     const box = container.querySelector('#qsofa-sbp');
                     if (box) {
                         box.checked = true;
-                        calculate();
+                        box.dispatchEvent(new Event('change'));
                     }
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculate();

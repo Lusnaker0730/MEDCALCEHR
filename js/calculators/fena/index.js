@@ -62,6 +62,7 @@ export const fena = {
             
             ${inputs}
             
+            <div id="fena-error-container"></div>
             <div id="fena-result" class="ui-result-box">
                 <div class="ui-result-header">FENa Result</div>
                 <div class="ui-result-content"></div>
@@ -83,8 +84,8 @@ export const fena = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#fena-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#fena-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const uNaInput = container.querySelector('#fena-urine-na');
             const sNaInput = container.querySelector('#fena-serum-na');
@@ -119,10 +120,7 @@ export const fena = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(uNa) && !isNaN(sNa) && !isNaN(uCrMgDl) && !isNaN(sCrMgDl);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'fena-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -161,16 +159,7 @@ export const fena = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'fena', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#fena-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'fena-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -179,6 +168,15 @@ export const fena = {
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
         });
+
+        // Helper
+        const setInputValue = (selector, val) => {
+            const el = container.querySelector(selector);
+            if (el) {
+                el.value = val;
+                el.dispatchEvent(new Event('input'));
+            }
+        };
 
         // Auto-populate from FHIR
         if (client) {
@@ -189,21 +187,34 @@ export const fena = {
                 getMostRecentObservation(client, LOINC_CODES.CREATININE)
             ]).then(([uNa, sNa, uCr, sCr]) => {
                 if (uNa && uNa.valueQuantity) {
-                    container.querySelector('#fena-urine-na').value = uNa.valueQuantity.value.toFixed(0);
+                    // Urine Na usually mEq/L, matches default
+                    setInputValue('#fena-urine-na', uNa.valueQuantity.value.toFixed(0));
                 }
                 if (sNa && sNa.valueQuantity) {
-                    container.querySelector('#fena-serum-na').value = sNa.valueQuantity.value.toFixed(0);
+                    setInputValue('#fena-serum-na', sNa.valueQuantity.value.toFixed(0));
                 }
                 if (uCr && uCr.valueQuantity) {
-                    container.querySelector('#fena-urine-creat').value = uCr.valueQuantity.value.toFixed(0);
+                    // Check units for creatinine
+                    const val = uCr.valueQuantity.value;
+                    const unit = uCr.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+                    if (converted !== null) {
+                        setInputValue('#fena-urine-creat', converted.toFixed(1)); // Urine creat might be high, keep dec default
+                    } else {
+                        setInputValue('#fena-urine-creat', val.toFixed(1));
+                    }
                 }
                 if (sCr && sCr.valueQuantity) {
-                    container.querySelector('#fena-serum-creat').value = sCr.valueQuantity.value.toFixed(1);
+                    const val = sCr.valueQuantity.value;
+                    const unit = sCr.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+                    if (converted !== null) {
+                        setInputValue('#fena-serum-creat', converted.toFixed(2));
+                    } else {
+                        setInputValue('#fena-serum-creat', val.toFixed(2));
+                    }
                 }
-
-                // Trigger calculation if values populated
-                container.querySelector('#fena-urine-na').dispatchEvent(new Event('input'));
-            });
+            }).catch(e => console.warn(e));
         }
     }
 };

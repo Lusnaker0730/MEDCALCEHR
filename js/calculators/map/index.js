@@ -18,7 +18,6 @@ export const map = {
                     label: 'Systolic BP',
                     type: 'number',
                     placeholder: 'e.g., 120',
-                    placeholder: 'e.g., 120',
                     unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], defaultUnit: 'mmHg' }
                 }),
                 uiBuilder.createInput({
@@ -46,6 +45,8 @@ export const map = {
             
             ${inputs}
             
+            <div id="map-error-container"></div>
+            
             <div id="map-result" class="ui-result-box">
                 <div class="ui-result-header">MAP Results</div>
                 <div class="ui-result-content"></div>
@@ -71,27 +72,14 @@ export const map = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#map-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#map-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const sbp = UnitConverter.getStandardValue(sbpInput, 'mmHg');
             const dbp = UnitConverter.getStandardValue(dbpInput, 'mmHg');
 
             try {
                 // Validate inputs
-                const inputs = {
-                    bloodPressure: { systolic: sbp, diastolic: dbp }
-                };
-
-                // validator.js bloodPressure rule expects nested objects if checking 'bloodPressure' key?
-                // Actually validateCalculatorInput takes a flat object usually.
-                // Let's check validator.js: "bloodPressure" rule has "systolic" and "diastolic" sub-rules.
-                // validateCalculatorInput iterates keys. 
-                // If I pass key as "systolic", I need a rule "systolic".
-                // But validationRules has "bloodPressure".
-                // I should extract the rules or construct a schema matching my inputs.
-
-                // Let's manually construct schema or use sub-parts
                 const schema = {
                     systolic: ValidationRules.bloodPressure.systolic,
                     diastolic: ValidationRules.bloodPressure.diastolic
@@ -106,12 +94,9 @@ export const map = {
 
                 if (!validation.isValid) {
                     const hasInput = (sbpInput.value || dbpInput.value);
-                    if (hasInput) {
+                    if (hasInput && errorContainer) {
                         const valuesPresent = !isNaN(sbp) && !isNaN(dbp);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'map-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
                             displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
@@ -120,7 +105,7 @@ export const map = {
                 }
 
                 if (sbp < dbp) {
-                    throw new ValidationError('收缩压必须大于舒张压', { input: { sbp, dbp } });
+                    throw new ValidationError('Systolic BP must be greater than Diastolic BP', 'VALIDATION_ERROR');
                 }
 
                 const mapCalc = dbp + (sbp - dbp) / 3;
@@ -166,16 +151,13 @@ export const map = {
 
                 resultBox.classList.add('show');
             } catch (error) {
-                logError(error, { calculator: 'map', action: 'calculate' });
-                // Only show system errors, validation handled above
-                // Note: sbp < dbp is a VALIDATION_ERROR here so displayError handles it nicely
-                let errorContainer = container.querySelector('#map-error');
-                if (!errorContainer) {
-                    errorContainer = document.createElement('div');
-                    errorContainer.id = 'map-error';
-                    resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                const errorContainer = container.querySelector('#map-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
                 }
-                displayError(errorContainer, error);
+                logError(error, { calculator: 'map', action: 'calculate' });
                 resultBox.classList.remove('show');
             }
         };
@@ -184,16 +166,23 @@ export const map = {
         sbpInput.addEventListener('input', calculateAndUpdate);
         dbpInput.addEventListener('input', calculateAndUpdate);
 
+        // Listen for unit changes too if possible, but unitToggle doesn't emit 'input' on change usually. 
+        // Need to check unitToggle implementation or just rely on 'change' bubbling?
+        // uiBuilder unitToggle might need inspection if it emits events. 
+        // Typically select change triggers logic if we listen to it.
+        container.querySelectorAll('select').forEach(sel => sel.addEventListener('change', calculateAndUpdate));
+
+
         // Auto-populate from FHIR data
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BP_PANEL)
                 .then(bpPanel => {
                     if (bpPanel && bpPanel.component) {
                         const sbpComp = bpPanel.component.find(c =>
-                            c.code.coding && c.code.coding.some(coding => coding.code === '8480-6')
+                            c.code.coding && c.code.coding.some(coding => coding.code === LOINC_CODES.SYSTOLIC_BP || coding.code === '8480-6')
                         ); // Systolic
                         const dbpComp = bpPanel.component.find(c =>
-                            c.code.coding && c.code.coding.some(coding => coding.code === '8462-4')
+                            c.code.coding && c.code.coding.some(coding => coding.code === LOINC_CODES.DIASTOLIC_BP || coding.code === '8462-4')
                         ); // Diastolic
 
                         if (sbpComp && sbpComp.valueQuantity) {

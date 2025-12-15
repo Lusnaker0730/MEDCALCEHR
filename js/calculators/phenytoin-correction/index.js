@@ -59,7 +59,11 @@ export const phenytoinCorrection = {
                 `
         })}
             
-            ${uiBuilder.createResultBox({ id: 'phenytoin-result', title: 'Corrected Phenytoin Level' })}
+            <div id="pheny-error-container"></div>
+            <div id="phenytoin-result" class="ui-result-box">
+                <div class="ui-result-header">Corrected Phenytoin Level</div>
+                <div class="ui-result-content"></div>
+            </div>
             
             ${uiBuilder.createFormulaSection({
             items: [
@@ -90,8 +94,8 @@ export const phenytoinCorrection = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#pheny-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#pheny-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const totalPhenytoin = UnitConverter.getStandardValue(totalEl, 'mcg/mL');
             const albuminGdl = UnitConverter.getStandardValue(albuminEl, 'g/dL');
@@ -115,10 +119,7 @@ export const phenytoinCorrection = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(totalPhenytoin) && !isNaN(albuminGdl);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'pheny-error';
-                            resultEl.parentNode.insertBefore(errorContainer, resultEl);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
                     resultEl.classList.remove('show');
@@ -170,15 +171,7 @@ export const phenytoinCorrection = {
                 resultEl.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'phenytoin-correction', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#pheny-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'pheny-error';
-                        resultEl.parentNode.insertBefore(errorContainer, resultEl);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultEl.classList.remove('show');
             }
         };
@@ -192,35 +185,34 @@ export const phenytoinCorrection = {
         if (client) {
             getMostRecentObservation(client, '4038-8').then(obs => { // Phenytoin
                 if (obs && obs.valueQuantity) {
-                    totalEl.value = obs.valueQuantity.value.toFixed(1);
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mcg/mL';
+                    const converted = UnitConverter.convert(val, unit, 'mcg/mL', 'phenytoin');
+                    if (converted !== null) {
+                        totalEl.value = converted.toFixed(1);
+                    } else {
+                        totalEl.value = val.toFixed(1);
+                    }
+                    totalEl.dispatchEvent(new Event('input'));
                 }
-                calculateAndUpdate();
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    // Assuming g/dL logic or unit conversion handled if we had direct value input helper
-                    // For now just set value, assume g/dL if not converted
-                    // If unit is g/L, divide by 10
-                    let val = obs.valueQuantity.value;
+                    const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'g/dL';
-
-                    // Simplified conversion check, ideally UnitConverter handles this if input logic matches
-                    // But we need to set the input value for the user. 
-                    // If user toggle is g/dL, we should provide g/dL.
-                    // If unit is g/L, we can convert to g/dL for default
-                    if (unit.includes('L') && !unit.includes('dL')) { // simple check for g/L
-                        // Assuming standard is g/dL for calculator input default
-                        // Let's just put raw value and let user toggle unit?
-                        // Or convert to g/dL since default is g/dL
-                        val = val / 10;
+                    const converted = UnitConverter.convert(val, unit, 'g/dL', 'albumin');
+                    if (converted !== null) {
+                        albuminEl.value = converted.toFixed(1);
+                    } else {
+                        // Fallback logic from previous version was: if L but not dL, divide by 10.
+                        // But UnitConverter should handle this if configured right.
+                        // If not, we fall back to raw value or simple assumption
+                        albuminEl.value = val.toFixed(1);
                     }
-                    albuminEl.value = val.toFixed(1);
-                    // Trigger input event
                     albuminEl.dispatchEvent(new Event('input'));
                 }
-                calculateAndUpdate();
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculateAndUpdate();

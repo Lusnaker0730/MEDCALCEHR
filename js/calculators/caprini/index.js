@@ -1,5 +1,6 @@
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const caprini = {
     id: 'caprini',
@@ -41,7 +42,7 @@ export const caprini = {
         };
 
         let sections = [];
-        
+
         // Create Age Section manually to make it a single choice radio group
         const ageOptions = [
             { value: '0', label: 'Age < 41', checked: true },
@@ -49,7 +50,7 @@ export const caprini = {
             { value: '2', label: 'Age 61-74 (+2)' },
             { value: '3', label: 'Age ≥ 75 (+3)' }
         ];
-        
+
         sections.push(uiBuilder.createSection({
             title: 'Age',
             content: uiBuilder.createRadioGroup({
@@ -61,9 +62,9 @@ export const caprini = {
         for (const [points, factors] of Object.entries(riskFactors)) {
             // Skip age items as we handled them separately
             const filteredFactors = factors.filter(f => !f.id.includes('age'));
-            
+
             if (filteredFactors.length > 0) {
-                const sectionContent = filteredFactors.map(factor => 
+                const sectionContent = filteredFactors.map(factor =>
                     uiBuilder.createRadioGroup({
                         name: factor.id,
                         label: factor.label,
@@ -73,7 +74,7 @@ export const caprini = {
                         ]
                     })
                 ).join('');
-                
+
                 sections.push(uiBuilder.createSection({
                     title: `${points} Risk Factors`,
                     content: sectionContent
@@ -89,6 +90,7 @@ export const caprini = {
             
             ${sections.join('')}
             
+            <div id="caprini-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'caprini-result', title: 'Caprini Score Result' })}
         `;
     },
@@ -104,57 +106,68 @@ export const caprini = {
         };
 
         const calculate = () => {
-            let score = 0;
-            
-            // Sum all checked radio buttons
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            // Clear previous errors
+            const errorContainer = container.querySelector('#caprini-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
-            let riskCategory = '';
-            let recommendation = '';
-            let alertClass = '';
-            
-            if (score === 0) {
-                riskCategory = 'Lowest Risk';
-                recommendation = 'Early ambulation.';
-                alertClass = 'ui-alert-success';
-            } else if (score >= 1 && score <= 2) {
-                riskCategory = 'Low Risk';
-                recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
-                alertClass = 'ui-alert-info';
-            } else if (score >= 3 && score <= 4) {
-                riskCategory = 'Moderate Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                riskCategory = 'High Risk';
-                recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
-                alertClass = 'ui-alert-danger';
-            }
+            try {
+                let score = 0;
 
-            const resultBox = container.querySelector('#caprini-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                // Sum all checked radio buttons
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                if (isNaN(score)) throw new Error("Calculation Error");
+
+                let riskCategory = '';
+                let recommendation = '';
+                let alertClass = '';
+
+                if (score === 0) {
+                    riskCategory = 'Lowest Risk';
+                    recommendation = 'Early ambulation.';
+                    alertClass = 'ui-alert-success';
+                } else if (score >= 1 && score <= 2) {
+                    riskCategory = 'Low Risk';
+                    recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                    alertClass = 'ui-alert-info';
+                } else if (score >= 3 && score <= 4) {
+                    riskCategory = 'Moderate Risk';
+                    recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    riskCategory = 'High Risk';
+                    recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                    alertClass = 'ui-alert-danger';
+                }
+
+                const resultBox = container.querySelector('#caprini-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: 'points',
                     interpretation: riskCategory,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">💊</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">💊</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                logError(error, { calculator: 'caprini', action: 'calculate' });
+                if (errorContainer) displayError(errorContainer, error);
+            }
         };
 
         // Pre-fill based on patient data

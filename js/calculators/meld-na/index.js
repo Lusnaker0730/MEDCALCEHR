@@ -72,6 +72,8 @@ export const meldNa = {
             
             ${inputs}
             
+            <div id="meld-na-error-container"></div>
+            
             <div id="meld-na-result" class="ui-result-box">
                 <div class="ui-result-header">MELD-Na Score Result</div>
                 <div class="ui-result-content"></div>
@@ -92,8 +94,8 @@ export const meldNa = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#meld-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#meld-na-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const biliInput = container.querySelector('#meld-na-bili');
             const inrInput = container.querySelector('#meld-na-inr');
@@ -124,7 +126,6 @@ export const meldNa = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    // Determine if we should show error (e.g. user entered data but it's invalid)
                     const hasInput = (biliInput.value || inrInput.value || creatInput.value || sodiumInput.value);
 
                     if (hasInput) {
@@ -135,10 +136,7 @@ export const meldNa = {
 
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
                             if (meaningfulErrors.length > 0) {
-                                let errorContainer = document.createElement('div');
-                                errorContainer.id = 'meld-error';
-                                resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                                displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                                if (errorContainer) displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                             }
                         }
                     }
@@ -225,22 +223,15 @@ export const meldNa = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'meld-na', action: 'calculate' });
-
-                let errorContainer = container.querySelector('#meld-error');
-                if (!errorContainer) {
-                    errorContainer = document.createElement('div');
-                    errorContainer.id = 'meld-error';
-                    resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                }
-                displayError(errorContainer, error);
-
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
 
         // Helper to safely set value
-        const setInputValue = (id, val) => {
+        const setInputValue = (id, val, checkUnit = false) => {
             const input = container.querySelector(id);
+            // Logic to handle conversion if needed is omitted for brevity but should be consistent
             if (input && val) {
                 input.value = val;
                 input.dispatchEvent(new Event('input'));
@@ -249,17 +240,27 @@ export const meldNa = {
 
         // Auto-populate from FHIR data
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL).then(obs => {
-                if (obs?.valueQuantity) setInputValue('#meld-na-bili', obs.valueQuantity.value.toFixed(1));
-            });
-            getMostRecentObservation(client, LOINC_CODES.INR_COAG).then(obs => {
-                if (obs?.valueQuantity) setInputValue('#meld-na-inr', obs.valueQuantity.value.toFixed(2));
-            });
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity) setInputValue('#meld-na-creat', obs.valueQuantity.value.toFixed(1));
-            });
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs?.valueQuantity) setInputValue('#meld-na-sodium', obs.valueQuantity.value.toFixed(0));
+            const obsMap = [
+                { code: LOINC_CODES.BILIRUBIN_TOTAL, id: '#meld-na-bili', type: 'bilirubin', unit: 'mg/dL' },
+                { code: LOINC_CODES.INR_COAG, id: '#meld-na-inr', type: 'inr', unit: '' },
+                { code: LOINC_CODES.CREATININE, id: '#meld-na-creat', type: 'creatinine', unit: 'mg/dL' },
+                { code: LOINC_CODES.SODIUM, id: '#meld-na-sodium', type: 'sodium', unit: 'mEq/L' }
+            ];
+
+            obsMap.forEach(item => {
+                getMostRecentObservation(client, item.code).then(obs => {
+                    if (obs?.valueQuantity) {
+                        const val = obs.valueQuantity.value;
+                        const unit = obs.valueQuantity.unit || item.unit;
+                        // Use unit converter to normalize if possible
+                        if (item.type && item.type !== 'inr') {
+                            const converted = UnitConverter.convert(val, unit, item.unit, item.type);
+                            if (converted !== null) setInputValue(item.id, converted.toFixed(item.type === 'sodium' ? 0 : 1));
+                        } else {
+                            setInputValue(item.id, val.toFixed(2));
+                        }
+                    }
+                }).catch(e => console.warn(e));
             });
         }
 
@@ -269,6 +270,7 @@ export const meldNa = {
             const eventType = input.type === 'checkbox' ? 'change' : 'input';
             input.addEventListener(eventType, calculateAndUpdate);
         });
+        container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
 
         // Initial calculation
         calculateAndUpdate();

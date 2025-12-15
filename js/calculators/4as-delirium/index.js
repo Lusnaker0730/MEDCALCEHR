@@ -1,4 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const fourAsDelirium = {
     id: '4as-delirium',
@@ -79,6 +80,7 @@ export const fourAsDelirium = {
             ${attentionSection}
             ${acuteChangeSection}
             
+            <div id="4as-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'four-as-result', title: '4AT Score Result' })}
             
             <div class="info-section mt-20">
@@ -92,49 +94,63 @@ export const fourAsDelirium = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            const alertnessScore = parseInt(
-                container.querySelector('input[name="alertness"]:checked')?.value || '0'
-            );
-            const amt4Score = parseInt(
-                container.querySelector('input[name="amt4"]:checked')?.value || '0'
-            );
-            const attentionScore = parseInt(
-                container.querySelector('input[name="attention"]:checked')?.value || '0'
-            );
-            const acuteChangeScore = parseInt(
-                container.querySelector('input[name="acute_change"]:checked')?.value || '0'
-            );
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#4as-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            const totalScore = alertnessScore + amt4Score + attentionScore + acuteChangeScore;
+                const alertnessScore = parseInt(
+                    container.querySelector('input[name="alertness"]:checked')?.value || '0'
+                );
+                const amt4Score = parseInt(
+                    container.querySelector('input[name="amt4"]:checked')?.value || '0'
+                );
+                const attentionScore = parseInt(
+                    container.querySelector('input[name="attention"]:checked')?.value || '0'
+                );
+                const acuteChangeScore = parseInt(
+                    container.querySelector('input[name="acute_change"]:checked')?.value || '0'
+                );
 
-            let interpretation = '';
-            let alertClass = '';
+                const totalScore = alertnessScore + amt4Score + attentionScore + acuteChangeScore;
 
-            if (totalScore >= 4) {
-                interpretation = 'Likely delirium. Formal assessment for delirium is recommended.';
-                alertClass = 'ui-alert-danger';
-            } else if (totalScore >= 1 && totalScore <= 3) {
-                interpretation = 'Possible cognitive impairment. Further investigation is required.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                interpretation = 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.';
-                alertClass = 'ui-alert-success';
-            }
+                let interpretation = '';
+                let alertClass = '';
 
-            const resultBox = container.querySelector('#four-as-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                if (totalScore >= 4) {
+                    interpretation = 'Likely delirium. Formal assessment for delirium is recommended.';
+                    alertClass = 'ui-alert-danger';
+                } else if (totalScore >= 1 && totalScore <= 3) {
+                    interpretation = 'Possible cognitive impairment. Further investigation is required.';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    interpretation = 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.';
+                    alertClass = 'ui-alert-success';
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: totalScore, 
+                const resultBox = container.querySelector('#four-as-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: totalScore,
                     unit: 'points',
                     interpretation: interpretation,
                     alertClass: alertClass
                 })}
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#4as-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: '4as-delirium', action: 'calculate' });
+            }
         };
 
         // Add event listeners for all radio buttons

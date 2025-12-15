@@ -63,6 +63,7 @@ export const serumOsmolality = {
                 `
         })}
             
+            <div id="osmolality-error-container"></div>
             <div id="osmolality-result" class="ui-result-box">
                 <div class="ui-result-header">Calculated Serum Osmolality</div>
                 <div class="ui-result-content"></div>
@@ -97,8 +98,8 @@ export const serumOsmolality = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#osmo-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#osmolality-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const na = UnitConverter.getStandardValue(naInput, 'mEq/L');
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
@@ -128,10 +129,7 @@ export const serumOsmolality = {
                     if (hasInput) {
                         const requiredPresent = !isNaN(na) && !isNaN(glucoseMgDl) && !isNaN(bunMgDl);
                         if (requiredPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'osmo-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -188,15 +186,7 @@ export const serumOsmolality = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'serum-osmolality', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#osmo-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'osmo-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -213,37 +203,33 @@ export const serumOsmolality = {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
-                    // Logic to handle potential mmol/L from FHIR if unit toggle supports it,
-                    // but simple populate works as UnitConverter.getStandardValue reads the input value
-                    // and assumes it matches the current toggle unless we switch the toggle.
-                    // For now, assume mg/dL or manual correction.
-                    // Actually, let's try to smart switch if unit detected.
-                    if (unit.toLowerCase().includes('mol')) {
-                        // Switch toggle if needed, or convert. UnitConverter typically handles "reading" from toggle.
-                        // But if we populate value, we should match the unit.
-                        // Simplest is populating value and letting user check unit, 
-                        // or more advanced: UnitConverter.setUnit(glucoseInput, 'mmol/L') then value.
-                        // But we don't have setUnit easily exposed or used generally here.
-                        // We will just populate and trigger input.
-                        const converted = UnitConverter.convert(val, 'mmol/L', 'mg/dL', 'glucose');
-                        glucoseInput.value = converted ? converted.toFixed(0) : val.toFixed(0);
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
+                    if (converted !== null) {
+                        glucoseInput.value = converted.toFixed(0);
                     } else {
                         glucoseInput.value = val.toFixed(0);
                     }
                     glucoseInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    bunInput.value = obs.valueQuantity.value.toFixed(0);
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'bun');
+                    if (converted !== null) {
+                        bunInput.value = converted.toFixed(0);
+                    } else {
+                        bunInput.value = val.toFixed(0);
+                    }
                     bunInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculateAndUpdate();

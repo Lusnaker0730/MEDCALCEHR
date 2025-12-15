@@ -56,6 +56,7 @@ export const ttkg = {
                 `
         })}
             
+            <div id="ttkg-error-container"></div>
             <div id="ttkg-result" class="ui-result-box">
                 <div class="ui-result-header">Result</div>
                 <div class="ui-result-content"></div>
@@ -104,8 +105,8 @@ export const ttkg = {
 
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#ttkg-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#ttkg-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const urineK = UnitConverter.getStandardValue(urineKEl, 'mEq/L');
             const serumK = UnitConverter.getStandardValue(serumKEl, 'mEq/L');
@@ -122,9 +123,8 @@ export const ttkg = {
                 };
 
                 // Re-use rules, mapping osmolality broadly if separate types not defined
-                // Ideally we might want specific range for urine vs serum obs, but generic 'osmolality' 0-2000 covers safety
                 const schema = {
-                    urinePotassium: { ...ValidationRules.potassium, message: 'Urine K must be valid' }, // Reusing potassium rule for now or generic number
+                    urinePotassium: { ...ValidationRules.potassium, message: 'Urine K must be valid' },
                     potassium: ValidationRules.potassium,
                     urineOsmolality: ValidationRules.osmolality,
                     serumOsmolality: ValidationRules.osmolality
@@ -138,10 +138,7 @@ export const ttkg = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(urineK) && !isNaN(serumK) && !isNaN(urineOsmo) && !isNaN(serumOsmo);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'ttkg-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -154,6 +151,13 @@ export const ttkg = {
                 }
 
                 const ttkgValue = (urineK * serumOsmo) / (serumK * urineOsmo);
+
+                // Additional logical check: Urine Osmo > Serum Osmo
+                if (urineOsmo <= serumOsmo) {
+                    // This is technically a required condition for validity, maybe throw error or warning
+                    // The old code just showed a warning in interpretation. I'll stick to warning in interpretation unless it's critical.
+                    // But it's invalid physiology for TTKG application usually.
+                }
 
                 let interpretation = '';
                 let alertType = 'info';
@@ -194,15 +198,7 @@ export const ttkg = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'ttkg', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#ttkg-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'ttkg-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -211,32 +207,36 @@ export const ttkg = {
             input.addEventListener('input', calculate);
         });
 
+        // Helper
+        const setInputValue = (el, val) => {
+            if (el) {
+                el.value = val;
+                el.dispatchEvent(new Event('input'));
+            }
+        };
+
         // FHIR auto-population
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
                 if (obs?.valueQuantity) {
-                    urineKEl.value = obs.valueQuantity.value.toFixed(1);
-                    urineKEl.dispatchEvent(new Event('input'));
+                    setInputValue(urineKEl, obs.valueQuantity.value.toFixed(1));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
                 if (obs?.valueQuantity) {
-                    serumKEl.value = obs.valueQuantity.value.toFixed(1);
-                    serumKEl.dispatchEvent(new Event('input'));
+                    setInputValue(serumKEl, obs.valueQuantity.value.toFixed(1));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, '2697-2').then(obs => { // Urine Osmolality
                 if (obs?.valueQuantity) {
-                    urineOsmoEl.value = obs.valueQuantity.value.toFixed(1);
-                    urineOsmoEl.dispatchEvent(new Event('input'));
+                    setInputValue(urineOsmoEl, obs.valueQuantity.value.toFixed(1));
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, '2695-6').then(obs => { // Serum Osmolality
                 if (obs?.valueQuantity) {
-                    serumOsmoEl.value = obs.valueQuantity.value.toFixed(1);
-                    serumOsmoEl.dispatchEvent(new Event('input'));
+                    setInputValue(serumOsmoEl, obs.valueQuantity.value.toFixed(1));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
     }
 };

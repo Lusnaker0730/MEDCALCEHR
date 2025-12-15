@@ -59,6 +59,7 @@ export const freeWaterDeficit = {
                 `
         })}
             
+            <div id="fwd-error-container"></div>
             <div id="fwd-result" class="ui-result-box">
                 <div class="ui-result-header">Free Water Deficit</div>
                 <div class="ui-result-content"></div>
@@ -96,8 +97,8 @@ export const freeWaterDeficit = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#fwd-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#fwd-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
             const sodium = parseFloat(sodiumInput.value);
@@ -122,10 +123,7 @@ export const freeWaterDeficit = {
                     if (hasInput) {
                         const requiredPresent = !isNaN(weightKg) && !isNaN(sodium);
                         if (requiredPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'fwd-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -183,15 +181,7 @@ export const freeWaterDeficit = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'free-water-deficit', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#fwd-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'fwd-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -205,22 +195,34 @@ export const freeWaterDeficit = {
             radio.addEventListener('change', calculateAndUpdate);
         });
 
+        // Helper
+        const setInputValue = (el, val) => {
+            if (el) {
+                el.value = val; // Assuming already converted or raw if no conv needed
+                el.dispatchEvent(new Event('input'));
+            }
+        };
+
         // Auto-populate from FHIR
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    // Assuming standard kg, unit converter handles toggle
                     const val = obs.valueQuantity.value;
-                    weightInput.value = val.toFixed(1);
-                    weightInput.dispatchEvent(new Event('input'));
+                    const unit = obs.valueQuantity.unit || 'kg';
+                    const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
+                    if (converted !== null) {
+                        setInputValue(weightInput, converted.toFixed(1));
+                    } else {
+                        setInputValue(weightInput, val.toFixed(1));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    sodiumInput.value = obs.valueQuantity.value.toFixed(0);
-                    sodiumInput.dispatchEvent(new Event('input'));
+                    // Sodium usually mEq/L or mmol/L (1:1), so raw is fine
+                    setInputValue(sodiumInput, obs.valueQuantity.value.toFixed(0));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Initial patient data (gender)

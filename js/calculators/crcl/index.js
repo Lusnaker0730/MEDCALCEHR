@@ -68,6 +68,8 @@ export const crcl = {
             })
         })}
             
+            <div id="crcl-error-container"></div>
+            
             <div id="crcl-result" class="ui-result-box">
                 <div class="ui-result-header">Creatinine Clearance Results</div>
                 <div class="ui-result-content"></div>
@@ -102,8 +104,8 @@ export const crcl = {
 
         const calculateAndUpdate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#crcl-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#crcl-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const age = parseFloat(ageInput.value);
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
@@ -127,10 +129,7 @@ export const crcl = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(age) && !isNaN(weightKg) && !isNaN(scrMgDl);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'crcl-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -192,16 +191,7 @@ export const crcl = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'crcl', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#crcl-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'crcl-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -229,27 +219,27 @@ export const crcl = {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
-                    // Assuming standard kg if matches logic in UnitConverter or default
-                    // Just set value and let user verify unit match
-                    weightInput.value = val.toFixed(1);
-                    weightInput.dispatchEvent(new Event('input'));
+                    const unit = obs.valueQuantity.unit || 'kg';
+                    const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
+                    if (converted !== null) {
+                        weightInput.value = converted.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
 
-                    if (unit.toLowerCase().includes('mol')) {
-                        const converted = UnitConverter.convert(val, 'µmol/L', 'mg/dL', 'creatinine');
-                        scrInput.value = converted ? converted.toFixed(2) : val.toFixed(2);
-                    } else {
-                        scrInput.value = val.toFixed(2);
+                    if (converted !== null) {
+                        scrInput.value = converted.toFixed(2);
+                        scrInput.dispatchEvent(new Event('input'));
                     }
-                    scrInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Initial calculation

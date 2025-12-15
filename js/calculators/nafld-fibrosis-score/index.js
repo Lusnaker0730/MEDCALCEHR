@@ -69,7 +69,11 @@ export const nafldFibrosisScore = {
                 `
         })}
 
-            ${uiBuilder.createResultBox({ id: 'nafld-result', title: 'NAFLD Fibrosis Score' })}
+            <div id="nafld-error-container"></div>
+            <div id="nafld-result" class="ui-result-box">
+                <div class="ui-result-header">NAFLD Fibrosis Score</div>
+                <div class="ui-result-content"></div>
+            </div>
 
             ${uiBuilder.createFormulaSection({
             items: [
@@ -113,8 +117,8 @@ export const nafldFibrosisScore = {
 
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#nafld-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#nafld-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const age = parseFloat(ageInput.value);
             const bmi = parseFloat(bmiInput.value);
@@ -150,10 +154,7 @@ export const nafldFibrosisScore = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(age) && !isNaN(bmi) && !isNaN(ast) && !isNaN(alt) && !isNaN(platelet) && !isNaN(albumin);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'nafld-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
                     resultBox.classList.remove('show');
@@ -206,16 +207,7 @@ export const nafldFibrosisScore = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'nafld-fibrosis-score', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#nafld-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'nafld-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -239,32 +231,32 @@ export const nafldFibrosisScore = {
                     bmiInput.value = obs.valueQuantity.value.toFixed(1);
                     calculate();
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
                 if (obs?.valueQuantity) {
                     astInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
                 if (obs?.valueQuantity) {
                     altInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
                 if (obs?.valueQuantity) {
                     plateletInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
                 if (obs?.valueQuantity) {
-                    // Populate value, user confirms unit
+                    // Using setInputValue logic or unit helper if needed
                     albuminInput.value = obs.valueQuantity.value.toFixed(1);
                     calculate();
                 }
-            });
+            }).catch(e => console.warn(e));
         }
     }
 };

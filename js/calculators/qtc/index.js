@@ -61,6 +61,8 @@ export const qtc = {
             ${inputSection}
             ${formulaSection}
             
+            <div id="qtc-error-container"></div>
+            
             <div id="qtc-result" class="ui-result-box">
                 <div class="ui-result-header">QTc Results</div>
                 <div class="ui-result-content"></div>
@@ -85,18 +87,18 @@ export const qtc = {
         const resultContent = resultBox.querySelector('.ui-result-content');
 
         const calculate = () => {
-            // Clear previous errors
-            const existingError = container.querySelector('#qtc-error');
-            if (existingError) existingError.remove();
-
-            const qtInput = container.querySelector('#qtc-qt');
-            const hrInput = container.querySelector('#qtc-hr');
-            const qt = parseFloat(qtInput.value);
-            const hr = parseFloat(hrInput.value);
-            const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
-            const formula = formulaRadio ? formulaRadio.value : 'bazett';
-
             try {
+                // Clear previous errors
+                const errorContainer = container.querySelector('#qtc-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
+
+                const qtInput = container.querySelector('#qtc-qt');
+                const hrInput = container.querySelector('#qtc-hr');
+                const qt = parseFloat(qtInput.value);
+                const hr = parseFloat(hrInput.value);
+                const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
+                const formula = formulaRadio ? formulaRadio.value : 'bazett';
+
                 // Validate inputs
                 const inputs = { qtInterval: qt, heartRate: hr };
                 const schema = {
@@ -109,12 +111,12 @@ export const qtc = {
                 if (!validation.isValid) {
                     const hasInput = (qtInput.value || hrInput.value);
 
-                    if (hasInput) {
+                    if (hasInput && errorContainer) {
                         const valuesPresent = !isNaN(qt) && !isNaN(hr);
-                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'qtc-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                        // Only show specific validation errors if values are present but invalid,
+                        // or if required fields are missing but user started typing (simplistic check)
+                        // Better: just if invalid, show first error.
+                        if (validation.errors.some(e => !e.includes('required'))) {
                             displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
@@ -146,7 +148,7 @@ export const qtc = {
                         break;
                 }
 
-                if (!isFinite(qtcValue) || isNaN(qtcValue)) throw new Error("Calculation Error");
+                if (!isFinite(qtcValue) || isNaN(qtcValue)) throw new Error("Calculation resulted in invalid value");
 
                 // Determine risk level
                 let alertClass = 'ui-alert-success';
@@ -184,17 +186,13 @@ export const qtc = {
                 `;
                 resultBox.classList.add('show');
             } catch (error) {
-                logError(error, { calculator: 'qtc', action: 'calculate' });
-                // Only show system errors, validation handled above
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#qtc-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'qtc-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
+                const errorContainer = container.querySelector('#qtc-error-container');
+                if (errorContainer) {
                     displayError(errorContainer, error);
+                } else {
+                    console.error(error);
                 }
+                logError(error, { calculator: 'qtc', action: 'calculate' });
                 resultBox.classList.remove('show');
             }
         };
@@ -204,9 +202,11 @@ export const qtc = {
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
-                    container.querySelector('#qtc-hr').dispatchEvent(new Event('input'));
+                    // Explicitly trigger calculation if QT is already there or just to refresh state
+                    // But we might not want to show errors immediately if QT is empty.
+                    // Just set value.
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Add event listeners

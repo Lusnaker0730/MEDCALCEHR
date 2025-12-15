@@ -1,5 +1,6 @@
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const pecarn = {
     id: 'pecarn',
@@ -22,7 +23,7 @@ export const pecarn = {
             },
             { id: 'pecarn-hematoma', label: 'Non-frontal scalp hematoma', value: 'hematoma' }
         ];
-        
+
         const criteriaOver2 = [
             {
                 id: 'pecarn-gcs-not-15-over2',
@@ -47,44 +48,45 @@ export const pecarn = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Patient Age',
-                icon: '👶',
-                content: uiBuilder.createRadioGroup({
-                    name: 'pecarn-age',
-                    options: [
-                        { value: 'under2', label: '< 2 years', checked: true },
-                        { value: 'over2', label: '≥ 2 years' }
-                    ]
-                })
-            })}
+            title: 'Patient Age',
+            icon: '👶',
+            content: uiBuilder.createRadioGroup({
+                name: 'pecarn-age',
+                options: [
+                    { value: 'under2', label: '< 2 years', checked: true },
+                    { value: 'over2', label: '≥ 2 years' }
+                ]
+            })
+        })}
 
             <div id="pecarn-group-under2">
                 ${uiBuilder.createSection({
-                    title: 'Criteria for Children < 2 Years',
-                    icon: '📋',
-                    content: uiBuilder.createCheckboxGroup({
-                        name: 'pecarn-criteria-under2',
-                        options: criteriaUnder2
-                    })
-                })}
+            title: 'Criteria for Children < 2 Years',
+            icon: '📋',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'pecarn-criteria-under2',
+                options: criteriaUnder2
+            })
+        })}
             </div>
 
             <div id="pecarn-group-over2" style="display:none;">
                 ${uiBuilder.createSection({
-                    title: 'Criteria for Children ≥ 2 Years',
-                    icon: '📋',
-                    content: uiBuilder.createCheckboxGroup({
-                        name: 'pecarn-criteria-over2',
-                        options: criteriaOver2
-                    })
-                })}
+            title: 'Criteria for Children ≥ 2 Years',
+            icon: '📋',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'pecarn-criteria-over2',
+                options: criteriaOver2
+            })
+        })}
             </div>
 
+            <div id="pecarn-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'pecarn-result', title: 'PECARN Assessment' })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Risk Interpretation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -99,7 +101,7 @@ export const pecarn = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -121,64 +123,78 @@ export const pecarn = {
         };
 
         const calculate = () => {
-            const isUnder2 = container.querySelector('input[name="pecarn-age"][value="under2"]').checked;
-            
-            let recommendation = '';
-            let risk = '';
-            let alertType = 'info';
-            let detail = '';
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#pecarn-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            if (isUnder2) {
-                const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-under2"]:checked')).map(cb => cb.value);
-                const hasGCS = criteria.includes('gcs');
-                const hasFracture = criteria.includes('fracture');
-                
-                if (hasGCS || hasFracture) {
-                    recommendation = 'CT Recommended';
-                    risk = '13-16% risk of ciTBI';
-                    alertType = 'danger';
-                } else if (criteria.length > 0) {
-                    recommendation = 'Observation vs. CT';
-                    risk = '4.4% risk of ciTBI';
-                    alertType = 'warning';
-                    detail = 'Clinical factors to consider: Physician experience, multiple findings, parental preference, age <3 months, worsening symptoms.';
+                const isUnder2 = container.querySelector('input[name="pecarn-age"][value="under2"]').checked;
+
+                let recommendation = '';
+                let risk = '';
+                let alertType = 'info';
+                let detail = '';
+
+                if (isUnder2) {
+                    const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-under2"]:checked')).map(cb => cb.value);
+                    const hasGCS = criteria.includes('gcs');
+                    const hasFracture = criteria.includes('fracture');
+
+                    if (hasGCS || hasFracture) {
+                        recommendation = 'CT Recommended';
+                        risk = '13-16% risk of ciTBI';
+                        alertType = 'danger';
+                    } else if (criteria.length > 0) {
+                        recommendation = 'Observation vs. CT';
+                        risk = '4.4% risk of ciTBI';
+                        alertType = 'warning';
+                        detail = 'Clinical factors to consider: Physician experience, multiple findings, parental preference, age <3 months, worsening symptoms.';
+                    } else {
+                        recommendation = 'CT Not Recommended';
+                        risk = '<0.02% risk of ciTBI';
+                        alertType = 'success';
+                    }
                 } else {
-                    recommendation = 'CT Not Recommended';
-                    risk = '<0.02% risk of ciTBI';
-                    alertType = 'success';
-                }
-            } else {
-                const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-over2"]:checked')).map(cb => cb.value);
-                const hasGCS = criteria.includes('gcs');
-                const hasBasilar = criteria.includes('basilar');
+                    const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-over2"]:checked')).map(cb => cb.value);
+                    const hasGCS = criteria.includes('gcs');
+                    const hasBasilar = criteria.includes('basilar');
 
-                if (hasGCS || hasBasilar) {
-                    recommendation = 'CT Recommended';
-                    risk = '14% risk of ciTBI';
-                    alertType = 'danger';
-                } else if (criteria.length > 0) {
-                    recommendation = 'Observation vs. CT';
-                    risk = '4.3% risk of ciTBI';
-                    alertType = 'warning';
-                    detail = 'Clinical factors to consider: Physician experience, multiple findings, parental preference, worsening symptoms.';
-                } else {
-                    recommendation = 'CT Not Recommended';
-                    risk = '<0.05% risk of ciTBI';
-                    alertType = 'success';
+                    if (hasGCS || hasBasilar) {
+                        recommendation = 'CT Recommended';
+                        risk = '14% risk of ciTBI';
+                        alertType = 'danger';
+                    } else if (criteria.length > 0) {
+                        recommendation = 'Observation vs. CT';
+                        risk = '4.3% risk of ciTBI';
+                        alertType = 'warning';
+                        detail = 'Clinical factors to consider: Physician experience, multiple findings, parental preference, worsening symptoms.';
+                    } else {
+                        recommendation = 'CT Not Recommended';
+                        risk = '<0.05% risk of ciTBI';
+                        alertType = 'success';
+                    }
                 }
-            }
 
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
                     label: 'Recommendation',
                     value: recommendation,
                     interpretation: risk,
                     alertClass: `ui-alert-${alertType}`
                 })}
-                ${detail ? uiBuilder.createAlert({ type: 'info', message: detail }) : ''}
-            `;
-            resultBox.classList.add('show');
+                    ${detail ? uiBuilder.createAlert({ type: 'info', message: detail }) : ''}
+                `;
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#pecarn-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'pecarn', action: 'calculate' });
+            }
         };
 
         // Event listeners
@@ -198,8 +214,11 @@ export const pecarn = {
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             const isUnder2 = age < 2;
-            uiBuilder.setRadioValue('pecarn-age', isUnder2 ? 'under2' : 'over2');
-            setAgeGroup(isUnder2);
+            const radio = container.querySelector(`input[name="pecarn-age"][value="${isUnder2 ? 'under2' : 'over2'}"]`);
+            if (radio) {
+                radio.checked = true;
+                setAgeGroup(isUnder2);
+            }
         }
 
         calculate();

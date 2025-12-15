@@ -1,5 +1,5 @@
 import {
-    getMostRecentObservation
+    getMostRecentObservation,
 } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -25,7 +25,8 @@ export const homaIr = {
                 label: 'Fasting Glucose',
                 unit: 'mg/dL',
                 type: 'number',
-                unitToggle: true
+                unitToggle: true,
+                placeholder: 'e.g. 100'
             })}
                     ${uiBuilder.createInput({
                 id: 'homa-insulin',
@@ -38,6 +39,7 @@ export const homaIr = {
                 `
         })}
             
+            <div id="homa-error-container"></div>
             <div id="homa-ir-result" class="ui-result-box">
                 <div class="ui-result-header">HOMA-IR Score</div>
                 <div class="ui-result-content"></div>
@@ -65,24 +67,23 @@ export const homaIr = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        // Remove manual UnitConverter calls if they exist, rely on createInput's unitToggle,
-        // BUT uiBuilder.createInput logic for 'unitToggle: true' does NOT call UnitConverter.enhanceInput automatically unless uiBuilder is upgraded.
-        // Wait, checking uiBuilder logic? 
-        // Current uiBuilder createInput just adds data-attribute or markup.
-        // Usually we need `UnitConverter.createUnitToggle` or `UnitConverter.autoEnhance` if not built-in.
-        // HOMA-IR previous code manually called UnitConverter.createUnitToggle for glucose at line 67.
-        // I should remove that manual call and let autoEnhance or manual createUnitToggle handle both.
-        // Better: Since HOMA-IR uses uiBuilder, I should check if I need to manually init toggles.
-        // Line 67: UnitConverter.createUnitToggle(container.querySelector('#homa-glucose'), 'glucose', ['mg/dL', 'mmol/L']);
-        // I will replicate this for insulin.
-
         const insulinInput = container.querySelector('#homa-insulin');
         const glucoseInput = container.querySelector('#homa-glucose');
 
-        // Enhance Glucose (if not done by uiBuilder)
-        // uiBuilder line 28 said unitToggle: true. 
-        // Previously manual toggle creation was at line 67.
-        UnitConverter.createUnitToggle(glucoseInput, 'glucose', ['mg/dL', 'mmol/L']);
+        // Enhance Glucose (explicitly manual toggle call to ensure 'glucose' type logic works correctly if simple unitToggle:true defaults are generic)
+        // Note: unitToggle:true in uiBuilder implies generic handling, but for specific conversions we often want specific types like 'glucose' for mmol/L->mg/dL logic
+        if (!glucoseInput.hasAttribute('data-unit-toggle-initialized')) {
+            UnitConverter.createUnitToggle(glucoseInput, 'glucose', ['mg/dL', 'mmol/L']);
+        }
+        // Insulin handled by object config in createInput usually, but verifying:
+        // createInput with object unitToggle generates the markup, initializeComponents might handle it?
+        // uiBuilder logic usually handles markup. UnitConverter logic binds events?
+        // Safest is to rely on UnitConverter.createUnitToggle if uncertain about uiBuilder auto-bind depth.
+        // But let's assume ui.initializeComponents does standard work OR we do it manually.
+        // HOMA-IR previous code manually called it.
+        // Re-affirming manual call for safety as 'insulin' type might need specific conversion logic registry.
+        // Check if already init by check attributes.
+        // For now, explicit call is safe and idempotent-ish (replaces/updates).
         UnitConverter.createUnitToggle(insulinInput, 'insulin', ['µU/mL', 'pmol/L']);
 
         const resultBox = container.querySelector('#homa-ir-result');
@@ -90,8 +91,8 @@ export const homaIr = {
 
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#homa-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#homa-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             // Use UnitConverter to get standard value (mg/dL)
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
@@ -116,10 +117,7 @@ export const homaIr = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(glucoseMgDl) && !isNaN(insulin);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'homa-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -161,15 +159,7 @@ export const homaIr = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'homa-ir', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#homa-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'homa-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -182,21 +172,31 @@ export const homaIr = {
         if (client) {
             getMostRecentObservation(client, '2339-0').then(obs => {
                 if (obs && obs.valueQuantity) {
-                    // Populate value. Unit toggle handling:
-                    // Usually we set value and dispatch input.
-                    // If units differ, user manually toggles or we rely on UnitConverter.
-                    // For now, raw population.
-                    glucoseInput.value = obs.valueQuantity.value.toFixed(0);
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
+                    if (converted !== null) {
+                        glucoseInput.value = converted.toFixed(0);
+                    } else {
+                        glucoseInput.value = val.toFixed(0);
+                    }
                     glucoseInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, '20448-7').then(obs => {
                 if (obs && obs.valueQuantity) {
-                    insulinInput.value = obs.valueQuantity.value.toFixed(1);
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'µU/mL';
+                    const converted = UnitConverter.convert(val, unit, 'µU/mL', 'insulin');
+                    if (converted !== null) {
+                        insulinInput.value = converted.toFixed(1);
+                    } else {
+                        insulinInput.value = val.toFixed(1);
+                    }
                     insulinInput.dispatchEvent(new Event('input'));
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculate();

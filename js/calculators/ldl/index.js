@@ -59,6 +59,7 @@ export const ldl = {
                 `
         })}
             
+             <div id="ldl-error-container"></div>
             <div id="ldl-result" class="ui-result-box">
                 <div class="ui-result-header">LDL Cholesterol Result</div>
                 <div class="ui-result-content"></div>
@@ -113,8 +114,8 @@ export const ldl = {
 
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#ldl-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#ldl-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
             const tcVal = UnitConverter.getStandardValue(tcInput, 'mg/dL');
             const hdlVal = UnitConverter.getStandardValue(hdlInput, 'mg/dL');
@@ -141,10 +142,7 @@ export const ldl = {
                     if (hasInput) {
                         const valuesPresent = !isNaN(tcVal) && !isNaN(hdlVal) && !isNaN(trigVal);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'ldl-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
 
@@ -204,15 +202,7 @@ export const ldl = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'ldl', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#ldl-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'ldl-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -223,26 +213,52 @@ export const ldl = {
             input.addEventListener('change', calculate);
         });
 
+        // Helper
+        const setInputValue = (el, val) => {
+            if (el) {
+                el.value = val;
+                el.dispatchEvent(new Event('input'));
+            }
+        };
+
         // FHIR Integration
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
                 if (obs?.valueQuantity) {
-                    tcInput.value = obs.valueQuantity.value.toFixed(0);
-                    tcInput.dispatchEvent(new Event('input'));
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'cholesterol');
+                    if (converted !== null) {
+                        setInputValue(tcInput, converted.toFixed(0));
+                    } else {
+                        setInputValue(tcInput, val.toFixed(0));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
                 if (obs?.valueQuantity) {
-                    hdlInput.value = obs.valueQuantity.value.toFixed(0);
-                    hdlInput.dispatchEvent(new Event('input'));
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'cholesterol');
+                    if (converted !== null) {
+                        setInputValue(hdlInput, converted.toFixed(0));
+                    } else {
+                        setInputValue(hdlInput, val.toFixed(0));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
                 if (obs?.valueQuantity) {
-                    trigInput.value = obs.valueQuantity.value.toFixed(0);
-                    trigInput.dispatchEvent(new Event('input'));
+                    const val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'triglycerides');
+                    if (converted !== null) {
+                        setInputValue(trigInput, converted.toFixed(0));
+                    } else {
+                        setInputValue(trigInput, val.toFixed(0));
+                    }
                 }
-            });
+            }).catch(e => console.warn(e));
         }
     }
 };

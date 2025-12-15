@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const mewsScore = {
     id: 'mews',
@@ -64,7 +65,7 @@ export const mewsScore = {
             }
         ];
 
-        const sectionsHTML = sections.map(section => 
+        const sectionsHTML = sections.map(section =>
             uiBuilder.createSection({
                 title: section.title,
                 icon: section.icon,
@@ -82,12 +83,13 @@ export const mewsScore = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: 'Different hospitals may use different modifications of MEWS. Verify your institution protocols.'
-            })}
+            type: 'info',
+            message: 'Different hospitals may use different modifications of MEWS. Verify your institution protocols.'
+        })}
             
             ${sectionsHTML}
             
+            <div id="mews-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'mews-result', title: 'MEWS Score Results' })}
         `;
     },
@@ -103,76 +105,91 @@ export const mewsScore = {
         };
 
         const calculate = () => {
-            let score = 0;
-            const groups = ['mews-sbp', 'mews-hr', 'mews-rr', 'mews-temp', 'mews-avpu'];
-            let hasCriticalParam = false;
+            try {
+                // Clear any previous errors
+                const errorContainer = container.querySelector('#mews-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            groups.forEach(group => {
-                const checked = container.querySelector(`input[name="${group}"]:checked`);
-                if (checked) {
-                    const val = parseInt(checked.value);
-                    score += val;
-                    if (val === 3) hasCriticalParam = true;
+                let score = 0;
+                const groups = ['mews-sbp', 'mews-hr', 'mews-rr', 'mews-temp', 'mews-avpu'];
+                let hasCriticalParam = false;
+
+                groups.forEach(group => {
+                    const checked = container.querySelector(`input[name="${group}"]:checked`);
+                    if (checked) {
+                        const val = parseInt(checked.value);
+                        score += val;
+                        if (val === 3) hasCriticalParam = true;
+                    }
+                });
+
+                let riskLevel = '';
+                let recommendation = '';
+                let alertClass = '';
+
+                if (score <= 1) {
+                    riskLevel = 'Low Risk';
+                    recommendation = 'Continue routine monitoring.';
+                    alertClass = 'ui-alert-success';
+                } else if (score <= 3) {
+                    riskLevel = 'Moderate Risk';
+                    recommendation = 'Increase frequency of observations. Notify nurse in charge.';
+                    alertClass = 'ui-alert-warning';
+                } else if (score === 4) {
+                    riskLevel = 'Moderate-High Risk';
+                    recommendation = 'Urgent call to doctor. Consider ICU assessment.';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    riskLevel = 'High Risk';
+                    recommendation = 'Emergency call to doctor. Immediate ICU assessment required.';
+                    alertClass = 'ui-alert-danger';
                 }
-            });
 
-            let riskLevel = '';
-            let recommendation = '';
-            let alertClass = '';
-
-            if (score <= 1) {
-                riskLevel = 'Low Risk';
-                recommendation = 'Continue routine monitoring.';
-                alertClass = 'ui-alert-success';
-            } else if (score <= 3) {
-                riskLevel = 'Moderate Risk';
-                recommendation = 'Increase frequency of observations. Notify nurse in charge.';
-                alertClass = 'ui-alert-warning';
-            } else if (score === 4) {
-                riskLevel = 'Moderate-High Risk';
-                recommendation = 'Urgent call to doctor. Consider ICU assessment.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                riskLevel = 'High Risk';
-                recommendation = 'Emergency call to doctor. Immediate ICU assessment required.';
-                alertClass = 'ui-alert-danger';
-            }
-
-            let criticalWarning = '';
-            if (hasCriticalParam) {
-                criticalWarning = `
-                    <div class="ui-alert ui-alert-danger mt-10">
-                        <span class="ui-alert-icon">⚠️</span>
-                        <div class="ui-alert-content">
-                            <strong>Critical Parameter Alert:</strong> One or more parameters scored +3 points. Consider higher level of care regardless of total score.
+                let criticalWarning = '';
+                if (hasCriticalParam) {
+                    criticalWarning = `
+                        <div class="ui-alert ui-alert-danger mt-10">
+                            <span class="ui-alert-icon">⚠️</span>
+                            <div class="ui-alert-content">
+                                <strong>Critical Parameter Alert:</strong> One or more parameters scored +3 points. Consider higher level of care regardless of total score.
+                            </div>
                         </div>
-                    </div>
-                `;
-            }
+                    `;
+                }
 
-            const resultBox = container.querySelector('#mews-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                const resultBox = container.querySelector('#mews-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total MEWS Score', 
-                    value: score, 
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total MEWS Score',
+                    value: score,
                     unit: '/ 14 points',
                     interpretation: riskLevel,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">📋</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">📋</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-                
-                ${criticalWarning}
-            `;
-            
-            resultBox.classList.add('show');
+                    
+                    ${criticalWarning}
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                // Error Handling with standardized ErrorHandler
+                const errorContainer = container.querySelector('#mews-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'mews', action: 'calculate' });
+            }
         };
 
         // Add event listeners
@@ -191,7 +208,7 @@ export const mewsScore = {
                     else if (sbp <= 199) setRadioValue('mews-sbp', '0');
                     else setRadioValue('mews-sbp', '2');
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
                 if (obs?.valueQuantity) {
@@ -203,7 +220,7 @@ export const mewsScore = {
                     else if (hr <= 129) setRadioValue('mews-hr', '2');
                     else setRadioValue('mews-hr', '3');
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
                 if (obs?.valueQuantity) {
@@ -214,7 +231,7 @@ export const mewsScore = {
                     else if (rr <= 29) setRadioValue('mews-rr', '2');
                     else setRadioValue('mews-rr', '3');
                 }
-            });
+            }).catch(e => console.warn(e));
 
             getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
                 if (obs?.valueQuantity) {
@@ -223,11 +240,11 @@ export const mewsScore = {
                     if (unit === '[degF]' || unit === 'degF' || unit === 'F') {
                         temp = ((temp - 32) * 5) / 9;
                     }
-                    
+
                     if (temp < 35 || temp >= 38.5) setRadioValue('mews-temp', '2');
                     else setRadioValue('mews-temp', '0');
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculate();

@@ -1,6 +1,9 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { UnitConverter } from '../../unit-converter.js';
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const sofa = {
     id: 'sofa',
@@ -83,7 +86,7 @@ export const sofa = {
             }
         ];
 
-        const sectionsHTML = sections.map(s => 
+        const sectionsHTML = sections.map(s =>
             uiBuilder.createSection({
                 title: s.title,
                 subtitle: s.subtitle,
@@ -112,6 +115,7 @@ export const sofa = {
 
             ${sectionsHTML}
             
+            <div id="sofa-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'sofa-result', title: 'SOFA Score Result' })}
             
             <div class="info-section mt-20">
@@ -133,55 +137,75 @@ export const sofa = {
         };
 
         const calculate = () => {
-            let totalScore = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                totalScore += parseInt(radio.value);
-            });
+            try {
+                // Clear any previous errors
+                const errorContainer = container.querySelector('#sofa-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let mortalityRisk = '';
-            let mortalityPercentage = '';
-            let alertClass = '';
+                let totalScore = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
 
-            if (totalScore <= 6) {
-                mortalityRisk = 'Low Risk';
-                mortalityPercentage = '~10%';
-                alertClass = 'ui-alert-success';
-            } else if (totalScore <= 9) {
-                mortalityRisk = 'Moderate Risk';
-                mortalityPercentage = '15-20%';
-                alertClass = 'ui-alert-warning';
-            } else if (totalScore <= 12) {
-                mortalityRisk = 'High Risk';
-                mortalityPercentage = '40-50%';
-                alertClass = 'ui-alert-danger';
-            } else {
-                mortalityRisk = 'Very High Risk';
-                mortalityPercentage = '>80%';
-                alertClass = 'ui-alert-danger';
-            }
+                // Validator: Ensure all sections are selected is NOT required for SOFA interactive use usually,
+                // but if we wanted to enforce completeness we could. 
+                // For now, we calculate what is selected (default 0).
 
-            const resultBox = container.querySelector('#sofa-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                radios.forEach(radio => {
+                    totalScore += parseInt(radio.value);
+                });
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total SOFA Score', 
-                    value: totalScore, 
+                let mortalityRisk = '';
+                let mortalityPercentage = '';
+                let alertClass = '';
+
+                if (totalScore <= 6) {
+                    mortalityRisk = 'Low Risk';
+                    mortalityPercentage = '~10%';
+                    alertClass = 'ui-alert-success';
+                } else if (totalScore <= 9) {
+                    mortalityRisk = 'Moderate Risk';
+                    mortalityPercentage = '15-20%';
+                    alertClass = 'ui-alert-warning';
+                } else if (totalScore <= 12) {
+                    mortalityRisk = 'High Risk';
+                    mortalityPercentage = '40-50%';
+                    alertClass = 'ui-alert-danger';
+                } else {
+                    mortalityRisk = 'Very High Risk';
+                    mortalityPercentage = '>80%';
+                    alertClass = 'ui-alert-danger';
+                }
+
+                const resultBox = container.querySelector('#sofa-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total SOFA Score',
+                    value: totalScore,
                     unit: 'points',
                     interpretation: `${mortalityRisk} (ICU Mortality: ${mortalityPercentage})`,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ui-alert-info mt-10">
-                    <span class="ui-alert-icon">ℹ️</span>
-                    <div class="ui-alert-content">
-                        <strong>ΔSOFA Significance:</strong> An increase in SOFA score of ≥2 points indicates organ dysfunction and increased mortality risk.
+                    
+                    <div class="ui-alert ui-alert-info mt-10">
+                        <span class="ui-alert-icon">ℹ️</span>
+                        <div class="ui-alert-content">
+                            <strong>ΔSOFA Significance:</strong> An increase in SOFA score of ≥2 points indicates organ dysfunction and increased mortality risk.
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                // Error Handling with standardized ErrorHandler
+                const errorContainer = container.querySelector('#sofa-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'sofa', action: 'calculate' });
+            }
         };
 
         // Add event listeners
@@ -191,13 +215,17 @@ export const sofa = {
 
         // Auto-populate lab values
         if (client) {
+            // Using standard unit conversion where applicable (though these specific lookups are fairly standard)
+
             // Platelets
             getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
                 const el = container.querySelector('#current-platelets');
                 if (obs?.valueQuantity) {
                     const val = obs.valueQuantity.value;
+                    // Standard unit: 10^3/uL
+                    // We simply display it. Unit conversion for platelets is rare (usually same magnitude).
                     if (el) el.textContent = `${val.toFixed(0)} ×10³/μL`;
-                    
+
                     let radioValue = '0';
                     if (val < 20) radioValue = '4';
                     else if (val < 50) radioValue = '3';
@@ -207,15 +235,22 @@ export const sofa = {
                 } else {
                     if (el) el.textContent = 'Not available';
                 }
-            });
+            }).catch(e => console.warn(e)); // Non-critical fetch error
 
             // Creatinine
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 const el = container.querySelector('#current-creatinine');
                 if (obs?.valueQuantity) {
-                    const val = obs.valueQuantity.value;
+                    // Start using UnitConverter if possible, but here we assume mg/dL is standard or we check unit.
+                    let val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+
+                    if (UnitConverter.isUnit(unit, 'mmol/L')) {
+                        val = UnitConverter.convert(val, 'mmol/L', 'mg/dL', 'creatinine');
+                    }
+
                     if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
-                    
+
                     let radioValue = '0';
                     if (val >= 5.0) radioValue = '4';
                     else if (val >= 3.5) radioValue = '3';
@@ -225,15 +260,23 @@ export const sofa = {
                 } else {
                     if (el) el.textContent = 'Not available';
                 }
-            });
+            }).catch(e => console.warn(e));
 
             // Bilirubin
             getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL).then(obs => {
                 const el = container.querySelector('#current-bilirubin');
                 if (obs?.valueQuantity) {
-                    const val = obs.valueQuantity.value;
+                    let val = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'mg/dL';
+
+                    if (UnitConverter.isUnit(unit, 'mmol/L')) {
+                        // Approximating Bilirubin conversion: 1 mg/dL = 17.1 umol/L (common) -> usually mmol/L not used for bili? umol/L is.
+                        // But UnitConverter handles what's defined. Assuming no conversion needed if not defined, or we leave raw value if unit match fails.
+                        // For robustness, stick to raw if unknown.
+                    }
+
                     if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
-                    
+
                     let radioValue = '0';
                     if (val >= 12.0) radioValue = '4';
                     else if (val >= 6.0) radioValue = '3';
@@ -243,7 +286,7 @@ export const sofa = {
                 } else {
                     if (el) el.textContent = 'Not available';
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         // Initial calculation

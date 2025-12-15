@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const childPugh = {
     id: 'child-pugh',
@@ -99,7 +100,8 @@ export const childPugh = {
 
             ${labSection}
             ${clinicalSection}
-
+            
+            <div id="child-pugh-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'child-pugh-result', title: 'Child-Pugh Score Assessment' })}
         `;
     },
@@ -108,66 +110,75 @@ export const childPugh = {
 
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
-        const updatePointsDisplay = (name, value) => {
-            // Not needed in new UI as points are in labels, but keeping for potential extension
-        };
-
         const calculate = () => {
-            let score = 0;
-            const allAnswered = groups.every(group =>
-                container.querySelector(`input[name="${group}"]:checked`)
-            );
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#child-pugh-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            groups.forEach(group => {
-                const selected = container.querySelector(`input[name="${group}"]:checked`);
-                if (selected) {
-                    const value = parseInt(selected.value);
-                    score += value;
+                let score = 0;
+                const allAnswered = groups.every(group =>
+                    container.querySelector(`input[name="${group}"]:checked`)
+                );
+
+                groups.forEach(group => {
+                    const selected = container.querySelector(`input[name="${group}"]:checked`);
+                    if (selected) {
+                        const value = parseInt(selected.value);
+                        score += value;
+                    }
+                });
+
+                const resultBox = container.querySelector('#child-pugh-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                if (!allAnswered) {
+                    resultBox.classList.remove('show');
+                    return;
                 }
-            });
 
-            const resultBox = container.querySelector('#child-pugh-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                let classification = '';
+                let prognosis = '';
+                let alertClass = 'ui-alert-info';
 
-            if (!allAnswered) {
-                // Optional: show partial score or waiting message
-                resultBox.classList.remove('show');
-                return;
-            }
+                if (score <= 6) {
+                    classification = 'Child Class A';
+                    prognosis = 'Well-compensated disease - Good prognosis\nLife Expectancy: 15-20 years\nSurgical Mortality: 10%';
+                    alertClass = 'ui-alert-success';
+                } else if (score <= 9) {
+                    classification = 'Child Class B';
+                    prognosis = 'Significant functional compromise - Moderate prognosis\nLife Expectancy: 4-14 years\nSurgical Mortality: 30%';
+                    alertClass = 'ui-alert-warning';
+                } else {
+                    classification = 'Child Class C';
+                    prognosis = 'Decompensated disease - Poor prognosis\nLife Expectancy: 1-3 years\nSurgical Mortality: 82%';
+                    alertClass = 'ui-alert-danger';
+                }
 
-            let classification = '';
-            let prognosis = '';
-            let alertClass = 'ui-alert-info';
-
-            if (score <= 6) {
-                classification = 'Child Class A';
-                prognosis = 'Well-compensated disease - Good prognosis\nLife Expectancy: 15-20 years\nSurgical Mortality: 10%';
-                alertClass = 'ui-alert-success';
-            } else if (score <= 9) {
-                classification = 'Child Class B';
-                prognosis = 'Significant functional compromise - Moderate prognosis\nLife Expectancy: 4-14 years\nSurgical Mortality: 30%';
-                alertClass = 'ui-alert-warning';
-            } else {
-                classification = 'Child Class C';
-                prognosis = 'Decompensated disease - Poor prognosis\nLife Expectancy: 1-3 years\nSurgical Mortality: 82%';
-                alertClass = 'ui-alert-danger';
-            }
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Points', 
-                    value: score, 
-                    unit: 'points' 
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Points',
+                    value: score,
+                    unit: 'points'
                 })}
-                ${uiBuilder.createResultItem({ 
-                    label: 'Classification', 
-                    value: classification, 
-                    interpretation: prognosis.replace(/\n/g, '<br>'), 
-                    alertClass: alertClass 
+                    ${uiBuilder.createResultItem({
+                    label: 'Classification',
+                    value: classification,
+                    interpretation: prognosis.replace(/\n/g, '<br>'),
+                    alertClass: alertClass
                 })}
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#child-pugh-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'child-pugh', action: 'calculate' });
+            }
         };
 
         const setRadioFromValue = (groupName, value, ranges, displayValue, unit) => {
@@ -217,19 +228,28 @@ export const childPugh = {
                             'mg/dL'
                         );
                     } else {
-                        container.querySelector('#current-bilirubin').textContent = 'Not available';
+                        const el = container.querySelector('#current-bilirubin');
+                        if (el) el.textContent = 'Not available';
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching bilirubin:', error);
-                    container.querySelector('#current-bilirubin').textContent = 'Not available';
+                    const el = container.querySelector('#current-bilirubin');
+                    if (el) el.textContent = 'Not available';
                 });
 
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
                 .then(obs => {
                     if (obs && obs.valueQuantity) {
-                        const valueGdL = obs.valueQuantity.value / 10; // Convert g/L to g/dL if needed, assuming input might be different
-                        // Note: utils usually handles standard units, but logic kept from original
+                        // Check unit. If g/L, convert to g/dL. If g/dL, use as is.
+                        let valueGdL = obs.valueQuantity.value;
+                        const unit = obs.valueQuantity.unit || 'g/dL';
+
+                        if (unit.toLowerCase().includes('l') && !unit.toLowerCase().includes('dl')) {
+                            // Assuming g/L
+                            valueGdL = valueGdL / 10;
+                        }
+
                         setRadioFromValue(
                             'albumin',
                             valueGdL,
@@ -242,12 +262,14 @@ export const childPugh = {
                             'g/dL'
                         );
                     } else {
-                        container.querySelector('#current-albumin').textContent = 'Not available';
+                        const el = container.querySelector('#current-albumin');
+                        if (el) el.textContent = 'Not available';
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching albumin:', error);
-                    container.querySelector('#current-albumin').textContent = 'Not available';
+                    const el = container.querySelector('#current-albumin');
+                    if (el) el.textContent = 'Not available';
                 });
 
             getMostRecentObservation(client, LOINC_CODES.INR_COAG)
@@ -266,12 +288,14 @@ export const childPugh = {
                             ''
                         );
                     } else {
-                        container.querySelector('#current-inr').textContent = 'Not available';
+                        const el = container.querySelector('#current-inr');
+                        if (el) el.textContent = 'Not available';
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching INR:', error);
-                    container.querySelector('#current-inr').textContent = 'Not available';
+                    const el = container.querySelector('#current-inr');
+                    if (el) el.textContent = 'Not available';
                 });
         }
 

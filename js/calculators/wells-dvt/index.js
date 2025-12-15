@@ -1,4 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const wellsDVT = {
     id: 'wells-dvt',
@@ -20,7 +21,7 @@ export const wellsDVT = {
 
         const inputs = uiBuilder.createSection({
             title: 'Clinical Criteria',
-            content: criteria.map(item => 
+            content: criteria.map(item =>
                 uiBuilder.createRadioGroup({
                     name: item.id,
                     label: item.label,
@@ -47,6 +48,7 @@ export const wellsDVT = {
             
             ${inputs}
             
+            <div id="wells-dvt-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'wells-dvt-result', title: "Wells' DVT Score Results" })}
             
             <div class="info-section mt-20">
@@ -59,51 +61,65 @@ export const wellsDVT = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            let score = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#wells-dvt-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let risk = '';
-            let alertClass = '';
-            let interpretation = '';
+                let score = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            if (score >= 3) {
-                risk = 'High Risk';
-                alertClass = 'ui-alert-danger';
-                interpretation = 'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
-            } else if (score >= 1) {
-                risk = 'Moderate Risk';
-                alertClass = 'ui-alert-warning';
-                interpretation = 'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
-            } else {
-                risk = 'Low Risk';
-                alertClass = 'ui-alert-success';
-                interpretation = 'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
-            }
+                let risk = '';
+                let alertClass = '';
+                let interpretation = '';
 
-            const resultBox = container.querySelector('#wells-dvt-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                if (score >= 3) {
+                    risk = 'High Risk';
+                    alertClass = 'ui-alert-danger';
+                    interpretation = 'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
+                } else if (score >= 1) {
+                    risk = 'Moderate Risk';
+                    alertClass = 'ui-alert-warning';
+                    interpretation = 'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
+                } else {
+                    risk = 'Low Risk';
+                    alertClass = 'ui-alert-success';
+                    interpretation = 'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                const resultBox = container.querySelector('#wells-dvt-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: 'points',
                     interpretation: risk,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${interpretation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${interpretation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#wells-dvt-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'wells-dvt', action: 'calculate' });
+            }
         };
 
         // Add event listeners

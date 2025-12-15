@@ -1,5 +1,6 @@
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const heartScore = {
     id: 'heart-score',
@@ -64,7 +65,7 @@ export const heartScore = {
             }
         ];
 
-        const sectionsHTML = criteria.map(item => 
+        const sectionsHTML = criteria.map(item =>
             uiBuilder.createSection({
                 title: item.title,
                 icon: item.icon,
@@ -83,12 +84,13 @@ export const heartScore = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'warning',
-                message: '<strong>Inclusion Criteria:</strong> Patients ≥21 years old with symptoms suggestive of ACS. <strong>Do not use if:</strong> new ST-elevation ≥1 mm, hypotension, life expectancy <1 year, or noncardiac illness requiring admission.'
-            })}
+            type: 'warning',
+            message: '<strong>Inclusion Criteria:</strong> Patients ≥21 years old with symptoms suggestive of ACS. <strong>Do not use if:</strong> new ST-elevation ≥1 mm, hypotension, life expectancy <1 year, or noncardiac illness requiring admission.'
+        })}
             
             ${sectionsHTML}
             
+            <div id="heart-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'heart-score-result', title: 'HEART Score Result' })}
         `;
     },
@@ -104,69 +106,84 @@ export const heartScore = {
         };
 
         const calculate = () => {
-            const criteria = ['heart-history', 'heart-ecg', 'heart-age', 'heart-risk', 'heart-troponin'];
-            let score = 0;
-            let allSelected = true;
+            try {
+                // Clear errors
+                const errorContainer = container.querySelector('#heart-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            criteria.forEach(name => {
-                const checked = container.querySelector(`input[name="${name}"]:checked`);
-                if (checked) {
-                    score += parseInt(checked.value);
+                const criteria = ['heart-history', 'heart-ecg', 'heart-age', 'heart-risk', 'heart-troponin'];
+                let score = 0;
+                let allSelected = true;
+
+                criteria.forEach(name => {
+                    const checked = container.querySelector(`input[name="${name}"]:checked`);
+                    if (checked) {
+                        score += parseInt(checked.value);
+                    } else {
+                        allSelected = false;
+                    }
+                });
+
+                // With default 'checked: true' in generateHTML, all should be selected initially.
+                if (!allSelected) return;
+
+                let riskCategory = '';
+                let maceRate = '';
+                let recommendation = '';
+                let alertClass = '';
+
+                if (score <= 3) {
+                    riskCategory = 'Low Risk (0-3)';
+                    maceRate = '0.9-1.7%';
+                    recommendation = 'Supports early discharge.';
+                    alertClass = 'ui-alert-success';
+                } else if (score <= 6) {
+                    riskCategory = 'Moderate Risk (4-6)';
+                    maceRate = '12-16.6%';
+                    recommendation = 'Admit for clinical observation and further testing.';
+                    alertClass = 'ui-alert-warning';
                 } else {
-                    allSelected = false;
+                    riskCategory = 'High Risk (7-10)';
+                    maceRate = '50-65%';
+                    recommendation = 'Candidate for early invasive measures.';
+                    alertClass = 'ui-alert-danger';
                 }
-            });
 
-            if (!allSelected) return;
+                const resultBox = container.querySelector('#heart-score-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
 
-            let riskCategory = '';
-            let maceRate = '';
-            let recommendation = '';
-            let alertClass = '';
-
-            if (score <= 3) {
-                riskCategory = 'Low Risk (0-3)';
-                maceRate = '0.9-1.7%';
-                recommendation = 'Supports early discharge.';
-                alertClass = 'ui-alert-success';
-            } else if (score <= 6) {
-                riskCategory = 'Moderate Risk (4-6)';
-                maceRate = '12-16.6%';
-                recommendation = 'Admit for clinical observation and further testing.';
-                alertClass = 'ui-alert-warning';
-            } else {
-                riskCategory = 'High Risk (7-10)';
-                maceRate = '50-65%';
-                recommendation = 'Candidate for early invasive measures.';
-                alertClass = 'ui-alert-danger';
-            }
-
-            const resultBox = container.querySelector('#heart-score-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total HEART Score', 
-                    value: score, 
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total HEART Score',
+                    value: score,
                     unit: '/ 10 points',
                     interpretation: riskCategory,
                     alertClass: alertClass
                 })}
-                ${uiBuilder.createResultItem({ 
-                    label: 'Risk of Major Adverse Cardiac Event (6-week)', 
+                    ${uiBuilder.createResultItem({
+                    label: 'Risk of Major Adverse Cardiac Event (6-week)',
                     value: maceRate,
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">💡</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">💡</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#heart-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'heart-score', action: 'calculate' });
+            }
         };
 
         // Add event listeners

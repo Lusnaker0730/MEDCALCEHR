@@ -1,5 +1,6 @@
 import { getPatient, getPatientConditions, getObservation, calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const timiNstemi = {
     id: 'timi-nstemi',
@@ -17,7 +18,7 @@ export const timiNstemi = {
             { id: 'timi-marker', label: 'Positive Cardiac Marker', icon: '🧪', help: 'Elevated Troponin or CK-MB' }
         ];
 
-        const sections = criteria.map(item => 
+        const sections = criteria.map(item =>
             uiBuilder.createSection({
                 title: item.label,
                 icon: item.icon,
@@ -40,11 +41,12 @@ export const timiNstemi = {
             
             ${sections}
             
+            <div id="timi-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'timi-result', title: 'TIMI Risk Score' })}
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Risk Stratification (14-day events)</h4>
                     <table class="ui-data-table">
                         <thead>
@@ -57,7 +59,7 @@ export const timiNstemi = {
                         </tbody>
                     </table>
                 `
-            })}
+        })}
         `;
     },
 
@@ -65,61 +67,75 @@ export const timiNstemi = {
         uiBuilder.initializeComponents(container);
 
         const calculate = () => {
-            let score = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#timi-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let risk = '';
-            let eventRate = '';
-            let alertClass = '';
-            let recommendation = '';
+                let score = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            if (score <= 2) {
-                risk = 'Low Risk';
-                eventRate = '5-8%';
-                alertClass = 'ui-alert-success';
-                recommendation = 'Conservative management; medical therapy optimization; outpatient follow-up; consider stress testing.';
-            } else if (score <= 4) {
-                risk = 'Intermediate Risk';
-                eventRate = '13-20%';
-                alertClass = 'ui-alert-warning';
-                recommendation = 'Intensive medical therapy; consider early invasive strategy; dual antiplatelet therapy; close monitoring.';
-            } else {
-                risk = 'High Risk';
-                eventRate = '26-41%';
-                alertClass = 'ui-alert-danger';
-                recommendation = 'Early invasive strategy; urgent cardiology consultation; aggressive antiplatelet therapy; consider GP IIb/IIIa inhibitors.';
-            }
+                let risk = '';
+                let eventRate = '';
+                let alertClass = '';
+                let recommendation = '';
 
-            const resultBox = container.querySelector('#timi-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                if (score <= 2) {
+                    risk = 'Low Risk';
+                    eventRate = '5-8%';
+                    alertClass = 'ui-alert-success';
+                    recommendation = 'Conservative management; medical therapy optimization; outpatient follow-up; consider stress testing.';
+                } else if (score <= 4) {
+                    risk = 'Intermediate Risk';
+                    eventRate = '13-20%';
+                    alertClass = 'ui-alert-warning';
+                    recommendation = 'Intensive medical therapy; consider early invasive strategy; dual antiplatelet therapy; close monitoring.';
+                } else {
+                    risk = 'High Risk';
+                    eventRate = '26-41%';
+                    alertClass = 'ui-alert-danger';
+                    recommendation = 'Early invasive strategy; urgent cardiology consultation; aggressive antiplatelet therapy; consider GP IIb/IIIa inhibitors.';
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
+                const resultBox = container.querySelector('#timi-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
+
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
                     unit: '/ 7 points',
                     interpretation: risk,
                     alertClass: alertClass
                 })}
-                ${uiBuilder.createResultItem({ 
-                    label: '14-Day Event Rate', 
-                    value: eventRate, 
+                    ${uiBuilder.createResultItem({
+                    label: '14-Day Event Rate',
+                    value: eventRate,
                     unit: '',
                     alertClass: alertClass
                 })}
-                
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">💡</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                    
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">💡</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            resultBox.classList.add('show');
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#timi-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'timi-nstemi', action: 'calculate' });
+            }
         };
 
         // Add event listeners
@@ -137,6 +153,7 @@ export const timiNstemi = {
         };
 
         // FHIR Integration
+        // Wrapped in try/catch or promise validation implicitly handled by utils/getPatient
         if (client) {
             // Age
             if (patient && patient.birthDate) {
@@ -151,18 +168,18 @@ export const timiNstemi = {
                 if (conditions && conditions.length > 0) {
                     setRadioValue('timi-known-cad', '1');
                 }
-            });
+            }).catch(e => console.warn(e));
 
             // Smoking (simplified check for CAD risk factors)
             // In a real app, we would need robust checking for all 5 risk factors.
             // For now, we just do a basic check if we can find smoking.
             getObservation(client, '72166-2').then(obs => {
-                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding.some(c => 
+                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding.some(c =>
                     ['449868002', '428041000124106'].includes(c.code))) {
                     // If smoker, we might increment a counter, but we can't fully determine ">=3 risk factors" easily without checking everything.
                     // Leaving this as a placeholder for future expansion.
                 }
-            });
+            }).catch(e => console.warn(e));
         }
 
         calculate();

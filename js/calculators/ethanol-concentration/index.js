@@ -55,6 +55,7 @@ export const ethanolConcentration = {
             })}
                 `
         })}
+            <div id="ethanol-error-container"></div>
             <div id="ethanol-result" class="ui-result-box">
                 <div class="ui-result-header">Estimated Peak Concentration</div>
                 <div class="ui-result-content"></div>
@@ -92,14 +93,9 @@ export const ethanolConcentration = {
 
         const calculate = () => {
             // Clear previous errors
-            const existingError = container.querySelector('#eth-error');
-            if (existingError) existingError.remove();
+            const errorContainer = container.querySelector('#ethanol-error-container');
+            if (errorContainer) errorContainer.innerHTML = '';
 
-            // UnitConverter standardizes volume to 'mL' if we ask for it? 
-            // Wait, UnitConverter 'volume' base units: fl oz -> mL is defined.
-            // Let's check UnitConverter.js. Usually getStandardValue normalizes to a base?
-            // Actually getStandardValue converts TO the target unit.
-            // So we want mL.
             const volumeMl = UnitConverter.getStandardValue(amountEl, 'mL');
             const abv = parseFloat(abvEl.value);
             const weightKg = UnitConverter.getStandardValue(weightEl, 'kg');
@@ -120,10 +116,7 @@ export const ethanolConcentration = {
                     if (hasInput) {
                         const valsPresent = !isNaN(volumeMl) && !isNaN(abv) && !isNaN(weightKg);
                         if (valsPresent || validation.errors.some(e => !e.includes('required'))) {
-                            let errorContainer = document.createElement('div');
-                            errorContainer.id = 'eth-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
                     resultBox.classList.remove('show');
@@ -163,15 +156,7 @@ export const ethanolConcentration = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error, { calculator: 'ethanol-concentration', action: 'calculate' });
-                if (error.name !== 'ValidationError') {
-                    let errorContainer = container.querySelector('#eth-error');
-                    if (!errorContainer) {
-                        errorContainer = document.createElement('div');
-                        errorContainer.id = 'eth-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
-                    }
-                    displayError(errorContainer, error);
-                }
+                if (errorContainer) displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
@@ -190,9 +175,16 @@ export const ethanolConcentration = {
         // FHIR auto-populate weight
         getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
-                weightEl.value = obs.valueQuantity.value.toFixed(1);
-                weightEl.dispatchEvent(new Event('input'));
+                const val = obs.valueQuantity.value;
+                const unit = obs.valueQuantity.unit || 'kg';
+                const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
+                if (converted !== null) {
+                    weightEl.value = converted.toFixed(1);
+                    weightEl.dispatchEvent(new Event('input'));
+                } else {
+                    console.warn('Could not convert weight unit:', unit);
+                }
             }
-        });
+        }).catch(e => console.warn(e));
     }
 };

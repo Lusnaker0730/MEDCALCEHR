@@ -2,11 +2,13 @@ import {
     getPatient,
     getMostRecentObservation,
     getPatientConditions,
-    getMedicationRequests
+    getMedicationRequests,
+    calculateAge
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 export const hasBled = {
     id: 'has-bled',
@@ -55,6 +57,7 @@ export const hasBled = {
             
             ${inputs}
             
+            <div id="hasbled-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'has-bled-result', title: 'HAS-BLED Score Result' })}
         `;
     },
@@ -70,75 +73,89 @@ export const hasBled = {
         };
 
         const calculate = () => {
-            let score = 0;
-            const radios = container.querySelectorAll('input[type="radio"]:checked');
-            radios.forEach(radio => {
-                score += parseInt(radio.value);
-            });
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#hasbled-error-container');
+                if (errorContainer) errorContainer.innerHTML = '';
 
-            let risk = '';
-            let level = '';
-            let alertClass = '';
-            let recommendation = '';
+                let score = 0;
+                const radios = container.querySelectorAll('input[type="radio"]:checked');
+                radios.forEach(radio => {
+                    score += parseInt(radio.value);
+                });
 
-            if (score === 0) {
-                risk = '0.9% risk (1.13 bleeds/100 patient-years)';
-                level = 'Low risk';
-                alertClass = 'ui-alert-success';
-            } else if (score === 1) {
-                risk = '1.02 bleeds/100 patient-years';
-                level = 'Low-moderate risk';
-                alertClass = 'ui-alert-success';
-            } else if (score === 2) {
-                risk = '1.88 bleeds/100 patient-years';
-                level = 'Moderate risk';
-                alertClass = 'ui-alert-warning';
-            } else if (score === 3) {
-                risk = '3.74 bleeds/100 patient-years';
-                level = 'Moderate-high risk';
-                alertClass = 'ui-alert-warning';
-            } else if (score === 4) {
-                risk = '8.70 bleeds/100 patient-years';
-                level = 'High risk';
-                alertClass = 'ui-alert-danger';
-            } else {
-                risk = '12.50 bleeds/100 patient-years';
-                level = 'Very high risk';
-                alertClass = 'ui-alert-danger';
-            }
+                let risk = '';
+                let level = '';
+                let alertClass = '';
+                let recommendation = '';
 
-            if (score >= 3) {
-                recommendation = 'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.';
-            } else {
-                recommendation = 'Anticoagulation can be considered. Relatively low risk for major bleeding.';
-            }
+                if (score === 0) {
+                    risk = '0.9% risk (1.13 bleeds/100 patient-years)';
+                    level = 'Low risk';
+                    alertClass = 'ui-alert-success';
+                } else if (score === 1) {
+                    risk = '1.02 bleeds/100 patient-years';
+                    level = 'Low-moderate risk';
+                    alertClass = 'ui-alert-success';
+                } else if (score === 2) {
+                    risk = '1.88 bleeds/100 patient-years';
+                    level = 'Moderate risk';
+                    alertClass = 'ui-alert-warning';
+                } else if (score === 3) {
+                    risk = '3.74 bleeds/100 patient-years';
+                    level = 'Moderate-high risk';
+                    alertClass = 'ui-alert-warning';
+                } else if (score === 4) {
+                    risk = '8.70 bleeds/100 patient-years';
+                    level = 'High risk';
+                    alertClass = 'ui-alert-danger';
+                } else {
+                    risk = '12.50 bleeds/100 patient-years';
+                    level = 'Very high risk';
+                    alertClass = 'ui-alert-danger';
+                }
 
-            const resultBox = container.querySelector('#has-bled-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
+                if (score >= 3) {
+                    recommendation = 'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.';
+                } else {
+                    recommendation = 'Anticoagulation can be considered. Relatively low risk for major bleeding.';
+                }
 
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score,
-                unit: '/ 9 points',
-                interpretation: level,
-                alertClass: alertClass
-            })}
-                
-                <div class="result-item" style="margin-top: 10px; text-align: center;">
-                    <span class="label" style="color: #666;">Annual Bleeding Risk:</span>
-                    <span class="value" style="font-weight: 600;">${risk}</span>
-                </div>
+                const resultBox = container.querySelector('#has-bled-result');
+                const resultContent = resultBox.querySelector('.ui-result-content');
 
-                <div class="ui-alert ${alertClass} mt-10">
-                    <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
-                    <div class="ui-alert-content">
-                        <strong>Recommendation:</strong> ${recommendation}
+                resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                    label: 'Total Score',
+                    value: score,
+                    unit: '/ 9 points',
+                    interpretation: level,
+                    alertClass: alertClass
+                })}
+                    
+                    <div class="result-item" style="margin-top: 10px; text-align: center;">
+                        <span class="label" style="color: #666;">Annual Bleeding Risk:</span>
+                        <span class="value" style="font-weight: 600;">${risk}</span>
                     </div>
-                </div>
-            `;
 
-            resultBox.classList.add('show');
+                    <div class="ui-alert ${alertClass} mt-10">
+                        <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
+                        <div class="ui-alert-content">
+                            <strong>Recommendation:</strong> ${recommendation}
+                        </div>
+                    </div>
+                `;
+
+                resultBox.classList.add('show');
+            } catch (error) {
+                const errorContainer = container.querySelector('#hasbled-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                } else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'has-bled', action: 'calculate' });
+            }
         };
 
         // Add event listeners
@@ -152,63 +169,56 @@ export const hasBled = {
         if (client) {
             try {
                 // Age > 65
-                const patientData = await getPatient(client);
-                if (patientData && patientData.birthDate) {
-                    const birthYear = new Date(patientData.birthDate).getFullYear();
-                    const currentYear = new Date().getFullYear();
-                    if (currentYear - birthYear > 65) {
+                if (patient && patient.birthDate) {
+                    const age = calculateAge(patient.birthDate);
+                    if (age > 65) {
                         setRadioValue('hasbled-age', '1');
                     }
                 }
 
                 // Conditions
-                const conditions = await getPatientConditions(client);
-                if (conditions) {
-                    // Basic mapping check (simplified for brevity)
-                    // In real scenario, we'd check codes more robustly
-                    const checkCondition = (codes, targetId) => {
-                        if (conditions.some(c => codes.includes(c.code?.coding?.[0]?.code))) {
-                            setRadioValue(targetId, '1');
-                        }
-                    };
-
-                    checkCondition(['38341003'], 'hasbled-hypertension');
-                    checkCondition(['80294001'], 'hasbled-renal');
-                    checkCondition(['19943007'], 'hasbled-liver');
-                    checkCondition(['230690007'], 'hasbled-stroke');
-                    checkCondition(['131148009'], 'hasbled-bleeding');
-                }
+                getPatientConditions(client).then(conditions => {
+                    if (conditions) {
+                        const checkCondition = (codes, targetId) => {
+                            if (conditions.some(c => c.code && c.code.coding && codes.includes(c.code.coding[0].code))) {
+                                setRadioValue(targetId, '1');
+                            }
+                        };
+                        checkCondition(['38341003'], 'hasbled-hypertension');
+                        checkCondition(['80294001'], 'hasbled-renal');
+                        checkCondition(['19943007'], 'hasbled-liver');
+                        checkCondition(['230690007'], 'hasbled-stroke');
+                        checkCondition(['131148009'], 'hasbled-bleeding');
+                    }
+                }).catch(e => console.warn(e));
 
                 // Observations
-                const sbp = await getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP);
-                if (sbp?.valueQuantity) {
-                    const val = UnitConverter.convert(sbp.valueQuantity.value, sbp.valueQuantity.unit || 'mmHg', 'mmHg', 'pressure'); // 'pressure' not explicit type, need generic or just value if mmHg assumed
-                    // Actually sbp is typically mmHg. If strict, check unit.
-                    if (sbp.valueQuantity.value > 160) setRadioValue('hasbled-hypertension', '1');
-                }
-
-                const creatinine = await getMostRecentObservation(client, LOINC_CODES.CREATININE);
-                if (creatinine?.valueQuantity) {
-                    // Normalize to mg/dL
-                    const val = creatinine.valueQuantity.value;
-                    const unit = creatinine.valueQuantity.unit || 'mg/dL';
-                    const normalizedVal = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-
-                    if (normalizedVal !== null && normalizedVal > 2.26) {
-                        setRadioValue('hasbled-renal', '1');
+                getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(sbp => {
+                    if (sbp?.valueQuantity) {
+                        // Assuming mmHg default if no unit toggles exist on UI for auto-pop logic correctness
+                        // But for logic:
+                        if (sbp.valueQuantity.value > 160) setRadioValue('hasbled-hypertension', '1');
                     }
-                }
+                }).catch(e => console.warn(e));
+
+                getMostRecentObservation(client, LOINC_CODES.CREATININE).then(creatinine => {
+                    if (creatinine?.valueQuantity) {
+                        const val = creatinine.valueQuantity.value;
+                        const unit = creatinine.valueQuantity.unit || 'mg/dL';
+                        const normalizedVal = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+
+                        if (normalizedVal !== null && normalizedVal > 2.26) {
+                            setRadioValue('hasbled-renal', '1');
+                        }
+                    }
+                }).catch(e => console.warn(e));
 
                 // Medications
-                // For demo, assuming utility function works as expected or returning empty array if not found
-                try {
-                    const meds = await getMedicationRequests(client, ['1191', '32953', '5640']);
+                getMedicationRequests(client, ['1191', '32953', '5640']).then(meds => {
                     if (meds && meds.length > 0) {
                         setRadioValue('hasbled-meds', '1');
                     }
-                } catch (e) {
-                    // Ignore medication errors if API not available
-                }
+                }).catch(e => console.warn(e));
 
             } catch (error) {
                 console.log('FHIR data loading error in HAS-BLED:', error);
