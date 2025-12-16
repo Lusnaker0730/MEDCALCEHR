@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { calculateEthanolConcentration } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -126,23 +127,14 @@ export const ethanolConcentration = {
                 if (!genderEl) return;
 
                 const gender = genderEl.value;
-                const volumeDistribution = gender === 'male' ? 0.68 : 0.55; // L/kg
-                const gramsAlcohol = volumeMl * (abv / 100) * 0.789; // mL * % * density
-                const concentrationMgDl = (gramsAlcohol * 1000) / (weightKg * volumeDistribution * 10); // mg/dL
+                const result = calculateEthanolConcentration({
+                    volumeMl,
+                    abv,
+                    weightKg,
+                    gender
+                });
 
-                let severityText = 'Below Legal Limit';
-                let alertClass = 'ui-alert-success';
-
-                if (concentrationMgDl >= 400) {
-                    severityText = 'Potentially Fatal Level';
-                    alertClass = 'ui-alert-danger';
-                } else if (concentrationMgDl >= 300) {
-                    severityText = 'Severe Intoxication';
-                    alertClass = 'ui-alert-danger';
-                } else if (concentrationMgDl >= 80) {
-                    severityText = 'Above Legal Limit (0.08%)';
-                    alertClass = 'ui-alert-warning';
-                }
+                const { concentrationMgDl, severityText, alertClass } = result;
 
                 resultBox.querySelector('.ui-result-content').innerHTML = `
                     ${uiBuilder.createResultItem({

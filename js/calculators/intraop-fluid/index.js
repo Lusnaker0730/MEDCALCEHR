@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { calculateIntraopFluid } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -109,23 +110,22 @@ export const intraopFluid = {
 
                 if (!traumaRadio) return;
 
-                // 4-2-1 Rule for Maintenance
-                const maintenanceRate =
-                    weightKg > 20 ? weightKg + 40 : weightKg > 10 ? 40 + (weightKg - 10) * 2 : weightKg * 4;
+                const traumaLevel = parseFloat(traumaRadio.value);
 
-                const npoDeficit = maintenanceRate * npoHours;
-                const traumaLossRate = parseFloat(traumaRadio.value) * weightKg;
+                const result = calculateIntraopFluid({
+                    weightKg,
+                    npoHours,
+                    traumaLevel
+                });
 
-                // Hour-by-hour
-                // 1st hour: 50% deficit + maint + trauma
-                // 2nd hour: 25% deficit + maint + trauma
-                // 3rd hour: 25% deficit + maint + trauma
-                // 4th+ hour: maint + trauma
-
-                const firstHourFluids = npoDeficit / 2 + maintenanceRate + traumaLossRate;
-                const secondHourFluids = npoDeficit / 4 + maintenanceRate + traumaLossRate;
-                const thirdHourFluids = npoDeficit / 4 + maintenanceRate + traumaLossRate;
-                const fourthHourFluids = maintenanceRate + traumaLossRate;
+                const {
+                    maintenanceRate,
+                    npoDeficit,
+                    firstHourFluids,
+                    secondHourFluids,
+                    thirdHourFluids,
+                    fourthHourFluids
+                } = result;
 
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
