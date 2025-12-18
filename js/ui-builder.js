@@ -561,18 +561,19 @@ export class UIBuilder {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
 
-        const optionsHTML = options.map(opt => {
+        const optionsHTML = options.map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
+            const id = opt.id || `${name}-${opt.value}-${index}`;
             return `
                 <div class="ui-radio-option">
                     <input type="radio" 
-                           id="${name}-${opt.value}" 
+                           id="${id}" 
                            name="${name}" 
                            value="${opt.value}" 
                            ${checked} 
                            ${disabled}>
-                    <label for="${name}-${opt.value}" class="radio-label">
+                    <label for="${id}" class="radio-label">
                         ${opt.label}
                     </label>
                 </div>

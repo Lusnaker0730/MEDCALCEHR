@@ -65,14 +65,14 @@ export const fourAsDelirium = {
             </div>
             
             <div class="calculator-image-container" style="margin-bottom: 20px; text-align: center;">
-                <img id="ref-image-thumb" src="js/calculators/4as-delirium/article_river_7d53d1600bfa11f098351dbcb3e30ef3-4AT-Poster-2.png" alt="4AT Reference Poster" style="max-width: 100%; max-height: 300px; width: auto; border-radius: 8px; cursor: pointer; border: 1px solid #eee;" />
+                <img id="ref-image-thumb" src="js/calculators/4as-delirium/article_river_7d53d1600bfa11f098351dbcb3e30ef3-4AT-Poster-2.png" alt="4AT Reference Poster" style="max-width: 100%; max-height: 600px; width: auto; border-radius: 8px; cursor: pointer; border: 1px solid #eee;" />
                 <div style="font-size: 0.8em; color: #666; margin-top: 5px;">(Click to enlarge reference poster)</div>
             </div>
             
             <!-- Modal for the image -->
             <div id="image-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9);">
                 <span class="close-btn" style="position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
-                <img class="modal-content" id="modal-image" style="margin: auto; display: block; width: 80%; max-width: 700px; margin-top: 50px;">
+                <img class="modal-content" id="modal-image" style="margin: auto; display: block; width: 95%; max-width: 1400px; margin-top: 50px;">
             </div>
 
             ${alertnessSection}
@@ -80,7 +80,7 @@ export const fourAsDelirium = {
             ${attentionSection}
             ${acuteChangeSection}
             
-            <div id="4as-error-container"></div>
+            <div id="four-as-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'four-as-result', title: '4AT Score Result' })}
             
             <div class="info-section mt-20">
@@ -96,7 +96,7 @@ export const fourAsDelirium = {
         const calculate = () => {
             try {
                 // Clear validation errors
-                const errorContainer = container.querySelector('#4as-error-container');
+                const errorContainer = container.querySelector('#four-as-error-container');
                 if (errorContainer) errorContainer.innerHTML = '';
 
                 const alertnessScore = parseInt(
@@ -143,7 +143,7 @@ export const fourAsDelirium = {
 
                 resultBox.classList.add('show');
             } catch (error) {
-                const errorContainer = container.querySelector('#4as-error-container');
+                const errorContainer = container.querySelector('#four-as-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
                 } else {
