@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -89,6 +90,9 @@ export const freeWaterDeficit = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const weightInput = container.querySelector('#fwd-weight');
         const sodiumInput = container.querySelector('#fwd-sodium');
@@ -215,12 +219,14 @@ export const freeWaterDeficit = {
                     } else {
                         setInputValue(weightInput, val.toFixed(1));
                     }
+                    stalenessTracker.trackObservation('#fwd-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
                 if (obs && obs.valueQuantity) {
                     // Sodium usually mEq/L or mmol/L (1:1), so raw is fine
                     setInputValue(sodiumInput, obs.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#fwd-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
                 }
             }).catch(e => console.warn(e));
         }

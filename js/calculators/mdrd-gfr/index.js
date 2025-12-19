@@ -2,6 +2,7 @@ import {
     getMostRecentObservation,
     calculateAge
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -92,6 +93,10 @@ export const mdrdGfr = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const ageInput = container.querySelector('#mdrd-age');
         const resultEl = container.querySelector('#mdrd-result');
@@ -234,6 +239,7 @@ export const mdrdGfr = {
                         if (converted !== null) {
                             creatinineInput.value = converted.toFixed(2);
                             creatinineInput.dispatchEvent(new Event('input'));
+                            stalenessTracker.trackObservation('#mdrd-creatinine', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                         }
                     }
                 }

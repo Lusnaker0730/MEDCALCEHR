@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { calculateEthanolConcentration } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -87,6 +88,9 @@ export const ethanolConcentration = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         const amountEl = container.querySelector('#eth-amount');
         const abvEl = container.querySelector('#eth-abv');
         const weightEl = container.querySelector('#eth-weight');
@@ -173,6 +177,7 @@ export const ethanolConcentration = {
                 if (converted !== null) {
                     weightEl.value = converted.toFixed(1);
                     weightEl.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#eth-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                 } else {
                     console.warn('Could not convert weight unit:', unit);
                 }

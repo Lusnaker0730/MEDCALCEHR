@@ -1,5 +1,6 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 export const ransonScore = {
@@ -30,33 +31,33 @@ export const ransonScore = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.'
-            })}
+            type: 'info',
+            message: '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'At Admission or Diagnosis',
-                icon: '🏥',
-                content: uiBuilder.createCheckboxGroup({
-                    name: 'ranson-admission',
-                    options: admissionCriteria.map(c => ({ ...c, value: '1' }))
-                })
-            })}
+            title: 'At Admission or Diagnosis',
+            icon: '🏥',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'ranson-admission',
+                options: admissionCriteria.map(c => ({ ...c, value: '1' }))
+            })
+        })}
 
             ${uiBuilder.createSection({
-                title: 'During Initial 48 Hours',
-                icon: '⏱️',
-                content: uiBuilder.createCheckboxGroup({
-                    name: 'ranson-48h',
-                    options: hours48Criteria.map(c => ({ ...c, value: '1' }))
-                })
-            })}
+            title: 'During Initial 48 Hours',
+            icon: '⏱️',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'ranson-48h',
+                options: hours48Criteria.map(c => ({ ...c, value: '1' }))
+            })
+        })}
 
             ${uiBuilder.createResultBox({ id: 'ranson-result', title: 'Ranson Score Result' })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Mortality Estimation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -72,11 +73,15 @@ export const ransonScore = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const resultBox = container.querySelector('#ranson-result');
 
@@ -111,17 +116,17 @@ export const ransonScore = {
             const resultContent = resultBox.querySelector('.ui-result-content');
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Total Ranson Score',
-                    value: score,
-                    unit: '/ 11 points',
-                    interpretation: severity,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Total Ranson Score',
+                value: score,
+                unit: '/ 11 points',
+                interpretation: severity,
+                alertClass: `ui-alert-${alertType}`
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Estimated Mortality',
-                    value: mortality,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Estimated Mortality',
+                value: mortality,
+                alertClass: `ui-alert-${alertType}`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -149,6 +154,7 @@ export const ransonScore = {
                     if (val > 1000) val = val / 1000; // Convert to K/uL if raw count
                     if (val > 16) container.querySelector('#ranson-wbc').checked = true;
                     calculate();
+                    stalenessTracker.trackObservation('#ranson-wbc', obs, LOINC_CODES.WBC, 'WBC Count');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
@@ -157,18 +163,21 @@ export const ransonScore = {
                     if (obs.valueQuantity.unit === 'mmol/L') val = val * 18.0182;
                     if (val > 200) container.querySelector('#ranson-glucose').checked = true;
                     calculate();
+                    stalenessTracker.trackObservation('#ranson-glucose', obs, LOINC_CODES.GLUCOSE, 'Blood Glucose');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
                 if (obs?.valueQuantity) {
                     if (obs.valueQuantity.value > 250) container.querySelector('#ranson-ast').checked = true;
                     calculate();
+                    stalenessTracker.trackObservation('#ranson-ast', obs, LOINC_CODES.AST, 'AST');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
                 if (obs?.valueQuantity) {
                     if (obs.valueQuantity.value > 350) container.querySelector('#ranson-ldh').checked = true;
                     calculate();
+                    stalenessTracker.trackObservation('#ranson-ldh', obs, LOINC_CODES.LDH, 'LDH');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
@@ -177,6 +186,7 @@ export const ransonScore = {
                     if (obs.valueQuantity.unit === 'mmol/L') val = val * 4.008;
                     if (val < 8.0) container.querySelector('#ranson-calcium').checked = true;
                     calculate();
+                    stalenessTracker.trackObservation('#ranson-calcium', obs, LOINC_CODES.CALCIUM, 'Calcium');
                 }
             });
         }

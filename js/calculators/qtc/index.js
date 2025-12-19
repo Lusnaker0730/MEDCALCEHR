@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
@@ -82,6 +83,10 @@ export const qtc = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const resultBox = container.querySelector('#qtc-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
@@ -203,8 +208,10 @@ export const qtc = {
                 if (obs && obs.valueQuantity) {
                     container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
                     // Explicitly trigger calculation if QT is already there or just to refresh state
+                    // Explicitly trigger calculation if QT is already there or just to refresh state
                     // But we might not want to show errors immediately if QT is empty.
                     // Just set value.
+                    stalenessTracker.trackObservation('#qtc-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
                 }
             }).catch(e => console.warn(e));
         }

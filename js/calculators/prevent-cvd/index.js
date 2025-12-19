@@ -1,5 +1,6 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 
@@ -14,23 +15,23 @@ export const preventCVD = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Instructions:</strong> Valid for ages 25-84. Not applicable to patients with established CVD. Cholesterol values use mmol/L by default (UK standard).'
-            })}
+            type: 'info',
+            message: '<strong>Instructions:</strong> Valid for ages 25-84. Not applicable to patients with established CVD. Cholesterol values use mmol/L by default (UK standard).'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Patient Characteristics',
-                icon: '👤',
-                content: `
+            title: 'Patient Characteristics',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createInput({ id: 'qrisk-age', label: 'Age', unit: 'years', type: 'number', min: 25, max: 84 })}
                     ${uiBuilder.createSelect({
-                        id: 'qrisk-gender',
-                        label: 'Gender',
-                        options: [
-                            { value: 'male', label: 'Male' },
-                            { value: 'female', label: 'Female' }
-                        ]
-                    })}
+                id: 'qrisk-gender',
+                label: 'Gender',
+                options: [
+                    { value: 'male', label: 'Male' },
+                    { value: 'female', label: 'Female' }
+                ]
+            })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-smoker', label: 'Current Smoker' })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-diabetes', label: 'Diabetes' })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-bpad', label: 'On Blood Pressure Treatment' })}
@@ -38,56 +39,60 @@ export const preventCVD = {
                     ${uiBuilder.createCheckbox({ id: 'qrisk-chronic', label: 'Chronic Kidney Disease (Stage 3, 4 or 5)' })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-rheum', label: 'Rheumatoid Arthritis' })}
                 `
-            })}
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical Measurements',
-                icon: '🩺',
-                content: `
+            title: 'Clinical Measurements',
+            icon: '🩺',
+            content: `
                     ${uiBuilder.createInput({ id: 'qrisk-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number' })}
                     ${uiBuilder.createInput({
-                        id: 'qrisk-cholesterol',
-                        label: 'Total Cholesterol',
-                        type: 'number',
-                        step: '0.1',
-                        unit: 'mmol/L',
-                        unitToggle: {
-                            type: 'cholesterol',
-                            units: ['mmol/L', 'mg/dL'],
-                            defaultUnit: 'mmol/L'
-                        }
-                    })}
+                id: 'qrisk-cholesterol',
+                label: 'Total Cholesterol',
+                type: 'number',
+                step: '0.1',
+                unit: 'mmol/L',
+                unitToggle: {
+                    type: 'cholesterol',
+                    units: ['mmol/L', 'mg/dL'],
+                    defaultUnit: 'mmol/L'
+                }
+            })}
                     ${uiBuilder.createInput({
-                        id: 'qrisk-hdl',
-                        label: 'HDL Cholesterol',
-                        type: 'number',
-                        step: '0.1',
-                        unit: 'mmol/L',
-                        unitToggle: {
-                            type: 'cholesterol',
-                            units: ['mmol/L', 'mg/dL'],
-                            defaultUnit: 'mmol/L'
-                        }
-                    })}
+                id: 'qrisk-hdl',
+                label: 'HDL Cholesterol',
+                type: 'number',
+                step: '0.1',
+                unit: 'mmol/L',
+                unitToggle: {
+                    type: 'cholesterol',
+                    units: ['mmol/L', 'mg/dL'],
+                    defaultUnit: 'mmol/L'
+                }
+            })}
                     ${uiBuilder.createInput({ id: 'qrisk-egfr', label: 'eGFR', unit: 'mL/min/1.73m²', type: 'number' })}
                 `
-            })}
+        })}
 
             ${uiBuilder.createResultBox({ id: 'qrisk-result', title: 'QRISK3 10-Year Risk' })}
 
             ${uiBuilder.createFormulaSection({
-                items: [
-                    {
-                        label: 'QRISK3 Calculation',
-                        formula: 'Risk = 100 × (1 - S(t)^exp(index))',
-                        notes: 'Uses gender-specific coefficients and baseline survival S(t). Index = Σ(Coefficients × Values) - Mean.'
-                    }
-                ]
-            })}
+            items: [
+                {
+                    label: 'QRISK3 Calculation',
+                    formula: 'Risk = 100 × (1 - S(t)^exp(index))',
+                    notes: 'Uses gender-specific coefficients and baseline survival S(t). Index = Σ(Coefficients × Values) - Mean.'
+                }
+            ]
+        })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const ageInput = container.querySelector('#qrisk-age');
         const genderSelect = container.querySelector('#qrisk-gender');
@@ -198,16 +203,16 @@ export const preventCVD = {
             const resultContent = resultBox.querySelector('.ui-result-content');
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: '10-Year CVD Risk',
-                    value: riskVal.toFixed(1),
-                    unit: '%',
-                    interpretation: riskCategory,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: '10-Year CVD Risk',
+                value: riskVal.toFixed(1),
+                unit: '%',
+                interpretation: riskCategory,
+                alertClass: `ui-alert-${alertType}`
+            })}
                 ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: `<strong>Recommendation:</strong> ${riskVal >= 10 ? 'Consider statin therapy and lifestyle interventions.' : 'Focus on lifestyle modifications.'}`
-                })}
+                type: alertType,
+                message: `<strong>Recommendation:</strong> ${riskVal >= 10 ? 'Consider statin therapy and lifestyle interventions.' : 'Focus on lifestyle modifications.'}`
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -231,6 +236,7 @@ export const preventCVD = {
                 if (obs?.valueQuantity) {
                     sbpInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
+                    stalenessTracker.trackObservation('#qrisk-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
@@ -249,6 +255,7 @@ export const preventCVD = {
                     }
                     cholInput.value = val.toFixed(2);
                     calculate();
+                    stalenessTracker.trackObservation('#qrisk-cholesterol', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
@@ -259,12 +266,14 @@ export const preventCVD = {
                     }
                     hdlInput.value = val.toFixed(2);
                     calculate();
+                    stalenessTracker.trackObservation('#qrisk-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.EGFR).then(obs => {
                 if (obs?.valueQuantity) {
                     egfrInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
+                    stalenessTracker.trackObservation('#qrisk-egfr', obs, LOINC_CODES.EGFR, 'eGFR');
                 }
             });
         }

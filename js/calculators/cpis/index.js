@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -108,6 +109,9 @@ export const cpis = {
     initialize: (client, patient, container) => {
         uiBuilder.initializeComponents(container);
 
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         const calculate = () => {
             try {
                 // Clear errors
@@ -214,6 +218,8 @@ export const cpis = {
                     if (tempC >= 36.5 && tempC <= 38.4) setRadio('cpis-temperature', '0');
                     else if (tempC >= 38.5 && tempC <= 38.9) setRadio('cpis-temperature', '1');
                     else setRadio('cpis-temperature', '2');
+
+                    stalenessTracker.trackObservation('input[name="cpis-temperature"]', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
                 }
             }).catch(e => console.warn(e));
 
@@ -229,6 +235,8 @@ export const cpis = {
 
                     if (wbc >= 4 && wbc <= 11) setRadio('cpis-wbc', '0');
                     else setRadio('cpis-wbc', '1'); // Can't determine bands from just WBC count
+
+                    stalenessTracker.trackObservation('input[name="cpis-wbc"]', obs, LOINC_CODES.WBC, 'WBC');
                 }
             }).catch(e => console.warn(e));
         }

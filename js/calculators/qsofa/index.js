@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -66,6 +67,10 @@ export const qsofaScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const calculate = () => {
             try {
@@ -146,6 +151,9 @@ export const qsofaScore = {
                         box.checked = true;
                         // Use dispatchEvent to trigger listener if needed, but manual call to calculate works too
                         box.dispatchEvent(new Event('change'));
+
+                        // Staleness check
+                        stalenessTracker.trackObservation('#qsofa-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
                     }
                 }
             }).catch(e => console.warn(e));
@@ -156,6 +164,9 @@ export const qsofaScore = {
                     if (box) {
                         box.checked = true;
                         box.dispatchEvent(new Event('change'));
+
+                        // Staleness check
+                        stalenessTracker.trackObservation('#qsofa-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                     }
                 }
             }).catch(e => console.warn(e));

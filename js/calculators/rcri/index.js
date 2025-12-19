@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
@@ -52,6 +53,10 @@ export const rcri = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -145,6 +150,9 @@ export const rcri = {
                     if (crValue !== null && crValue > 2.0) {
                         setRadioValue('rcri-creatinine', '1');
                     }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('input[name="rcri-creatinine"]', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                 }
             }).catch(e => console.warn(e));
         }

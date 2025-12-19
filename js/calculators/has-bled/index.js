@@ -5,6 +5,7 @@ import {
     getMedicationRequests,
     calculateAge
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -63,6 +64,9 @@ export const hasBled = {
     },
     initialize: async function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -197,7 +201,10 @@ export const hasBled = {
                     if (sbp?.valueQuantity) {
                         // Assuming mmHg default if no unit toggles exist on UI for auto-pop logic correctness
                         // But for logic:
-                        if (sbp.valueQuantity.value > 160) setRadioValue('hasbled-hypertension', '1');
+                        if (sbp.valueQuantity.value > 160) {
+                            setRadioValue('hasbled-hypertension', '1');
+                            stalenessTracker.trackObservation('input[name="hasbled-hypertension"]', sbp, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP > 160');
+                        }
                     }
                 }).catch(e => console.warn(e));
 
@@ -209,6 +216,7 @@ export const hasBled = {
 
                         if (normalizedVal !== null && normalizedVal > 2.26) {
                             setRadioValue('hasbled-renal', '1');
+                            stalenessTracker.trackObservation('input[name="hasbled-renal"]', creatinine, LOINC_CODES.CREATININE, 'Creatinine > 2.26 mg/dL');
                         }
                     }
                 }).catch(e => console.warn(e));

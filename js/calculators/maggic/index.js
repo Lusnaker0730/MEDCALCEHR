@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -41,126 +42,129 @@ export const maggic = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Instructions:</strong> Use in adult patients (≥18 years). Use with caution in patients with reduced ejection fraction (not yet externally validated in this population).'
-            })}
+            type: 'info',
+            message: '<strong>Instructions:</strong> Use in adult patients (≥18 years). Use with caution in patients with reduced ejection fraction (not yet externally validated in this population).'
+        })}
             
             ${uiBuilder.createSection({
-                title: 'Patient Characteristics',
-                icon: '👤',
-                content: `
+            title: 'Patient Characteristics',
+            icon: '👤',
+            content: `
                     ${uiBuilder.createInput({ id: 'maggic-age', label: 'Age', unit: 'years', type: 'number' })}
                     ${uiBuilder.createRadioGroup({
-                        name: 'maggic-gender',
-                        label: 'Gender',
-                        options: [
-                            { value: '0', label: 'Female', checked: true },
-                            { value: '1', label: 'Male (+1)' }
-                        ]
-                    })}
+                name: 'maggic-gender',
+                label: 'Gender',
+                options: [
+                    { value: '0', label: 'Female', checked: true },
+                    { value: '1', label: 'Male (+1)' }
+                ]
+            })}
                     ${uiBuilder.createInput({ id: 'maggic-bmi', label: 'BMI', unit: 'kg/m²', type: 'number', step: '0.1', placeholder: 'Norm: 20-25' })}
                     ${uiBuilder.createRadioGroup({
-                        name: 'maggic-smoker',
-                        label: 'Current Smoker',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes (+1)' }
-                        ]
-                    })}
-                `
+                name: 'maggic-smoker',
+                label: 'Current Smoker',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
             })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical Parameters',
-                icon: '🩺',
-                content: `
+            title: 'Clinical Parameters',
+            icon: '🩺',
+            content: `
                     ${uiBuilder.createInput({ id: 'maggic-ef', label: 'Ejection Fraction', unit: '%', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'maggic-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number', placeholder: 'Norm: 100-120' })}
                     ${uiBuilder.createInput({
-                        id: 'maggic-creatinine',
-                        label: 'Creatinine',
-                        type: 'number',
-                        step: '0.1',
-                        unit: 'mg/dL',
-                        unitToggle: {
-                            type: 'creatinine',
-                            units: ['mg/dL', 'µmol/L'],
-                            defaultUnit: 'mg/dL'
-                        },
-                        helpText: 'Uses mg/dL for calculation (conversion applied if needed)'
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'maggic-nyha',
-                        label: 'NYHA Class',
-                        options: [
-                            { value: '0', label: 'Class I (No limitation)' },
-                            { value: '2', label: 'Class II (Slight limitation) (+2)' },
-                            { value: '6', label: 'Class III (Marked limitation) (+6)' },
-                            { value: '8', label: 'Class IV (Unable to carry on any physical activity) (+8)' }
-                        ]
-                    })}
-                `
+                id: 'maggic-creatinine',
+                label: 'Creatinine',
+                type: 'number',
+                step: '0.1',
+                unit: 'mg/dL',
+                unitToggle: {
+                    type: 'creatinine',
+                    units: ['mg/dL', 'µmol/L'],
+                    defaultUnit: 'mg/dL'
+                },
+                helpText: 'Uses mg/dL for calculation (conversion applied if needed)'
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'maggic-nyha',
+                label: 'NYHA Class',
+                options: [
+                    { value: '0', label: 'Class I (No limitation)' },
+                    { value: '2', label: 'Class II (Slight limitation) (+2)' },
+                    { value: '6', label: 'Class III (Marked limitation) (+6)' },
+                    { value: '8', label: 'Class IV (Unable to carry on any physical activity) (+8)' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Comorbidities & History',
-                icon: '🏥',
-                content: `
+            title: 'Comorbidities & History',
+            icon: '🏥',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'maggic-diabetes',
-                        label: 'Diabetes',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '3', label: 'Yes (+3)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'maggic-copd',
-                        label: 'COPD',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '2', label: 'Yes (+2)' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'maggic-hfdx',
-                        label: 'Heart failure first diagnosed ≥18 months ago',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '2', label: 'Yes (+2)' }
-                        ]
-                    })}
-                `
+                name: 'maggic-diabetes',
+                label: 'Diabetes',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '3', label: 'Yes (+3)' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'maggic-copd',
+                label: 'COPD',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '2', label: 'Yes (+2)' }
+                ]
+            })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'maggic-hfdx',
+                label: 'Heart failure first diagnosed ≥18 months ago',
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '2', label: 'Yes (+2)' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Medications',
-                icon: '💊',
-                content: `
+            title: 'Medications',
+            icon: '💊',
+            content: `
                     ${uiBuilder.createRadioGroup({
-                        name: 'maggic-bb',
-                        label: 'Beta Blocker',
-                        options: [
-                            { value: '3', label: 'No (+3)', checked: true },
-                            { value: '0', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'maggic-acei',
-                        label: 'ACEi/ARB',
-                        options: [
-                            { value: '1', label: 'No (+1)', checked: true },
-                            { value: '0', label: 'Yes' }
-                        ]
-                    })}
-                `
+                name: 'maggic-bb',
+                label: 'Beta Blocker',
+                options: [
+                    { value: '3', label: 'No (+3)', checked: true },
+                    { value: '0', label: 'Yes' }
+                ]
             })}
+                    ${uiBuilder.createRadioGroup({
+                name: 'maggic-acei',
+                label: 'ACEi/ARB',
+                options: [
+                    { value: '1', label: 'No (+1)', checked: true },
+                    { value: '0', label: 'Yes' }
+                ]
+            })}
+                `
+        })}
 
             ${uiBuilder.createResultBox({ id: 'maggic-result', title: 'MAGGIC Risk Score' })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const fields = {
             age: container.querySelector('#maggic-age'),
@@ -201,28 +205,28 @@ export const maggic = {
             score += getPoints.sbp(sbp);
             score += getPoints.bmi(bmi);
             score += getPoints.creatinine(creatinine);
-            
+
             Object.values(radioValues).forEach(val => score += val);
 
             const mortality = getMortality(score);
-            
+
             const resultContent = resultBox.querySelector('.ui-result-content');
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Total MAGGIC Score',
-                    value: score.toFixed(1),
-                    unit: 'points'
-                })}
+                label: 'Total MAGGIC Score',
+                value: score.toFixed(1),
+                unit: 'points'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: '1-Year Mortality Risk',
-                    value: `${mortality.prob1yr}%`,
-                    alertClass: 'ui-alert-warning'
-                })}
+                label: '1-Year Mortality Risk',
+                value: `${mortality.prob1yr}%`,
+                alertClass: 'ui-alert-warning'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: '3-Year Mortality Risk',
-                    value: `${mortality.prob3yr}%`,
-                    alertClass: 'ui-alert-danger'
-                })}
+                label: '3-Year Mortality Risk',
+                value: `${mortality.prob3yr}%`,
+                alertClass: 'ui-alert-danger'
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -248,12 +252,14 @@ export const maggic = {
                 if (obs?.valueQuantity) {
                     fields.bmi.value = obs.valueQuantity.value.toFixed(1);
                     calculate();
+                    stalenessTracker.trackObservation('#maggic-bmi', obs, LOINC_CODES.BMI, 'BMI');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
                 if (obs?.valueQuantity) {
                     fields.sbp.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
+                    stalenessTracker.trackObservation('#maggic-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
@@ -262,21 +268,22 @@ export const maggic = {
                     // Here we rely on user manually checking the unit if it differs or we rely on smart populating if implemented
                     // For now just populate value and let user confirm unit
                     let val = obs.valueQuantity.value;
-                     // If the observation unit is explicitly umol/L, we might want to set the toggle to umol/L
-                     // But UIBuilder/UnitConverter logic currently doesn't auto-switch toggle based on external data push unless we specifically code it.
-                     // For simplicity, populate value.
+                    // If the observation unit is explicitly umol/L, we might want to set the toggle to umol/L
+                    // But UIBuilder/UnitConverter logic currently doesn't auto-switch toggle based on external data push unless we specifically code it.
+                    // For simplicity, populate value.
                     fields.creatinine.value = val.toFixed(2);
                     calculate();
+                    stalenessTracker.trackObservation('#maggic-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
                 }
             });
-            
+
             getPatientConditions(client, ['414990002', '195967001']).then(conditions => {
                 const hasDiabetes = conditions.some(c => c.code.coding.some(co => co.code === '414990002'));
                 if (hasDiabetes) uiBuilder.setRadioValue('maggic-diabetes', '3');
-                
+
                 const hasCopd = conditions.some(c => c.code.coding.some(co => co.code === '195967001'));
                 if (hasCopd) uiBuilder.setRadioValue('maggic-copd', '2');
-                
+
                 calculate();
             });
         }

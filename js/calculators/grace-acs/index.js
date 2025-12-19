@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -107,6 +108,9 @@ export const graceAcs = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const calculate = () => {
             try {
@@ -275,11 +279,17 @@ export const graceAcs = {
             }
 
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#grace-hr').value = Math.round(obs.valueQuantity.value);
+                if (obs?.valueQuantity) {
+                    container.querySelector('#grace-hr').value = Math.round(obs.valueQuantity.value);
+                    stalenessTracker.trackObservation('#grace-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                }
             });
 
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity) container.querySelector('#grace-sbp').value = Math.round(obs.valueQuantity.value);
+                if (obs?.valueQuantity) {
+                    container.querySelector('#grace-sbp').value = Math.round(obs.valueQuantity.value);
+                    stalenessTracker.trackObservation('#grace-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                }
             });
 
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
@@ -303,6 +313,7 @@ export const graceAcs = {
                         val = val / 88.4; // Custom fallback if UnitConverter not full
                     }
                     container.querySelector('#grace-creatinine').value = val.toFixed(2);
+                    stalenessTracker.trackObservation('#grace-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
                 }
             });
 

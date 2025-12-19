@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -83,6 +84,10 @@ export const sodiumCorrection = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const sodiumInput = container.querySelector('#measured-sodium');
         const glucoseInput = container.querySelector('#glucose');
@@ -201,6 +206,7 @@ export const sodiumCorrection = {
                     sodiumInput.value = sodiumObs.valueQuantity.value.toFixed(0);
                     // Trigger input for unit handling if needed
                     sodiumInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#measured-sodium', sodiumObs, LOINC_CODES.SODIUM, 'Measured Sodium');
                 }
                 if (glucoseObs && glucoseObs.valueQuantity) {
                     const val = glucoseObs.valueQuantity.value;
@@ -213,6 +219,7 @@ export const sodiumCorrection = {
                         glucoseInput.value = val.toFixed(0);
                     }
                     glucoseInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#glucose', glucoseObs, LOINC_CODES.GLUCOSE, 'Serum Glucose');
                 }
                 calculateAndUpdate();
             }).catch(e => console.warn(e));

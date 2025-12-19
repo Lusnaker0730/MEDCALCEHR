@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -78,6 +79,10 @@ export const fena = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const resultBox = container.querySelector('#fena-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
@@ -189,9 +194,11 @@ export const fena = {
                 if (uNa && uNa.valueQuantity) {
                     // Urine Na usually mEq/L, matches default
                     setInputValue('#fena-urine-na', uNa.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#fena-urine-na', uNa, '2955-3', 'Urine Na');
                 }
                 if (sNa && sNa.valueQuantity) {
                     setInputValue('#fena-serum-na', sNa.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#fena-serum-na', sNa, LOINC_CODES.SODIUM, 'Serum Na');
                 }
                 if (uCr && uCr.valueQuantity) {
                     // Check units for creatinine
@@ -203,6 +210,7 @@ export const fena = {
                     } else {
                         setInputValue('#fena-urine-creat', val.toFixed(1));
                     }
+                    stalenessTracker.trackObservation('#fena-urine-creat', uCr, LOINC_CODES.URINE_CREATININE, 'Urine Creatinine');
                 }
                 if (sCr && sCr.valueQuantity) {
                     const val = sCr.valueQuantity.value;
@@ -213,6 +221,7 @@ export const fena = {
                     } else {
                         setInputValue('#fena-serum-creat', val.toFixed(2));
                     }
+                    stalenessTracker.trackObservation('#fena-serum-creat', sCr, LOINC_CODES.CREATININE, 'Serum Creatinine');
                 }
             }).catch(e => console.warn(e));
         }

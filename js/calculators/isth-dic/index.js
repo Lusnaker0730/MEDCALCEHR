@@ -2,6 +2,7 @@ import {
     getMostRecentObservation,
     getValueInStandardUnit
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -18,91 +19,94 @@ export const isthDic = {
             </div>
 
             ${uiBuilder.createAlert({
-                type: 'warning',
-                message: '<strong>Use only in patients with clinical suspicion for DIC</strong> (e.g. excessive bleeding, malignancy, sepsis, trauma).'
-            })}
+            type: 'warning',
+            message: '<strong>Use only in patients with clinical suspicion for DIC</strong> (e.g. excessive bleeding, malignancy, sepsis, trauma).'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Laboratory Criteria',
-                content: `
+            title: 'Laboratory Criteria',
+            content: `
                     <div class="input-group-wrapper">
                         ${uiBuilder.createInput({
-                            id: 'isth-platelet-input',
-                            label: 'Platelet count',
-                            type: 'number',
-                            unit: '×10⁹/L',
-                            unitToggle: true
-                        })}
+                id: 'isth-platelet-input',
+                label: 'Platelet count',
+                type: 'number',
+                unit: '×10⁹/L',
+                unitToggle: true
+            })}
                         ${uiBuilder.createRadioGroup({
-                            name: 'isth-platelet',
-                            options: [
-                                { value: '0', label: '≥100 (0)', checked: true },
-                                { value: '1', label: '50 to <100 (+1)' },
-                                { value: '2', label: '<50 (+2)' }
-                            ]
-                        })}
+                name: 'isth-platelet',
+                options: [
+                    { value: '0', label: '≥100 (0)', checked: true },
+                    { value: '1', label: '50 to <100 (+1)' },
+                    { value: '2', label: '<50 (+2)' }
+                ]
+            })}
                     </div>
 
                     <div class="input-group-wrapper" style="margin-top: 20px;">
                         ${uiBuilder.createInput({
-                            id: 'isth-ddimer-input',
-                            label: 'D-dimer level',
-                            type: 'number',
-                            unit: 'mg/L',
-                            unitToggle: true
-                        })}
+                id: 'isth-ddimer-input',
+                label: 'D-dimer level',
+                type: 'number',
+                unit: 'mg/L',
+                unitToggle: true
+            })}
                         ${uiBuilder.createRadioGroup({
-                            name: 'isth-fibrin_marker',
-                            options: [
-                                { value: '0', label: 'No increase (<0.5 mg/L) (0)', checked: true },
-                                { value: '2', label: 'Moderate increase (0.5-5 mg/L) (+2)' },
-                                { value: '3', label: 'Severe increase (>5 mg/L) (+3)' }
-                            ]
-                        })}
+                name: 'isth-fibrin_marker',
+                options: [
+                    { value: '0', label: 'No increase (<0.5 mg/L) (0)', checked: true },
+                    { value: '2', label: 'Moderate increase (0.5-5 mg/L) (+2)' },
+                    { value: '3', label: 'Severe increase (>5 mg/L) (+3)' }
+                ]
+            })}
                     </div>
 
                     <div class="input-group-wrapper" style="margin-top: 20px;">
                         ${uiBuilder.createInput({
-                            id: 'isth-pt-input',
-                            label: 'Prothrombin Time (PT)',
-                            type: 'number',
-                            unit: 'seconds',
-                            placeholder: 'Normal ~12s'
-                        })}
+                id: 'isth-pt-input',
+                label: 'Prothrombin Time (PT)',
+                type: 'number',
+                unit: 'seconds',
+                placeholder: 'Normal ~12s'
+            })}
                         ${uiBuilder.createRadioGroup({
-                            name: 'isth-pt',
-                            options: [
-                                { value: '0', label: 'Prolongation <3s (0)', checked: true },
-                                { value: '1', label: 'Prolongation 3 to <6s (+1)' },
-                                { value: '2', label: 'Prolongation ≥6s (+2)' }
-                            ]
-                        })}
+                name: 'isth-pt',
+                options: [
+                    { value: '0', label: 'Prolongation <3s (0)', checked: true },
+                    { value: '1', label: 'Prolongation 3 to <6s (+1)' },
+                    { value: '2', label: 'Prolongation ≥6s (+2)' }
+                ]
+            })}
                     </div>
 
                     <div class="input-group-wrapper" style="margin-top: 20px;">
                         ${uiBuilder.createInput({
-                            id: 'isth-fibrinogen-input',
-                            label: 'Fibrinogen level',
-                            type: 'number',
-                            unit: 'g/L',
-                            unitToggle: true
-                        })}
+                id: 'isth-fibrinogen-input',
+                label: 'Fibrinogen level',
+                type: 'number',
+                unit: 'g/L',
+                unitToggle: true
+            })}
                         ${uiBuilder.createRadioGroup({
-                            name: 'isth-fibrinogen',
-                            options: [
-                                { value: '0', label: '≥1.0 g/L (0)', checked: true },
-                                { value: '1', label: '<1.0 g/L (+1)' }
-                            ]
-                        })}
+                name: 'isth-fibrinogen',
+                options: [
+                    { value: '0', label: '≥1.0 g/L (0)', checked: true },
+                    { value: '1', label: '<1.0 g/L (+1)' }
+                ]
+            })}
                     </div>
                 `
-            })}
+        })}
 
             ${uiBuilder.createResultBox({ id: 'isth-dic-result', title: 'ISTH DIC Score' })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         // Initialize unit converters
         UnitConverter.createUnitToggle(container.querySelector('#isth-platelet-input'), 'platelet', ['×10⁹/L', 'K/µL']);
@@ -112,7 +116,7 @@ export const isthDic = {
         const calculate = () => {
             const groups = ['isth-platelet', 'isth-fibrin_marker', 'isth-pt', 'isth-fibrinogen'];
             let score = 0;
-            
+
             groups.forEach(group => {
                 const checked = container.querySelector(`input[name="${group}"]:checked`);
                 if (checked) score += parseInt(checked.value);
@@ -134,16 +138,16 @@ export const isthDic = {
 
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: score >= 5 ? 'Overt DIC' : 'Not Overt DIC',
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: score >= 5 ? 'Overt DIC' : 'Not Overt DIC',
+                alertClass: `ui-alert-${alertType}`
+            })}
                 ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: interpretation
-                })}
+                type: alertType,
+                message: interpretation
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -162,7 +166,7 @@ export const isthDic = {
         };
 
         // Event listeners for inputs to auto-select radios
-        container.querySelector('#isth-platelet-input').addEventListener('input', function() {
+        container.querySelector('#isth-platelet-input').addEventListener('input', function () {
             const value = UnitConverter.getStandardValue(this); // Standard is 10^9/L
             setRadioFromValue('isth-platelet', value, [
                 { condition: v => v >= 100, value: '0' },
@@ -171,7 +175,7 @@ export const isthDic = {
             ]);
         });
 
-        container.querySelector('#isth-ddimer-input').addEventListener('input', function() {
+        container.querySelector('#isth-ddimer-input').addEventListener('input', function () {
             const value = UnitConverter.getStandardValue(this); // Standard is mg/L
             setRadioFromValue('isth-fibrin_marker', value, [
                 { condition: v => v < 0.5, value: '0' },
@@ -180,7 +184,7 @@ export const isthDic = {
             ]);
         });
 
-        container.querySelector('#isth-pt-input').addEventListener('input', function() {
+        container.querySelector('#isth-pt-input').addEventListener('input', function () {
             const value = parseFloat(this.value);
             if (!isNaN(value)) {
                 const prolongation = value - 12; // Assuming normal PT is 12s
@@ -192,7 +196,7 @@ export const isthDic = {
             }
         });
 
-        container.querySelector('#isth-fibrinogen-input').addEventListener('input', function() {
+        container.querySelector('#isth-fibrinogen-input').addEventListener('input', function () {
             const value = UnitConverter.getStandardValue(this); // Standard is g/L
             setRadioFromValue('isth-fibrinogen', value, [
                 { condition: v => v >= 1, value: '0' },
@@ -212,6 +216,7 @@ export const isthDic = {
                     const input = container.querySelector('#isth-platelet-input');
                     input.value = obs.valueQuantity.value.toFixed(0);
                     input.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#isth-platelet-input', obs, '26515-7', 'Platelets');
                 }
             });
             getMostRecentObservation(client, '48065-7').then(obs => { // D-dimer
@@ -219,6 +224,7 @@ export const isthDic = {
                     const input = container.querySelector('#isth-ddimer-input');
                     input.value = obs.valueQuantity.value.toFixed(2);
                     input.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#isth-ddimer-input', obs, '48065-7', 'D-dimer');
                 }
             });
             getMostRecentObservation(client, LOINC_CODES.PT).then(obs => { // PT
@@ -226,6 +232,7 @@ export const isthDic = {
                     const input = container.querySelector('#isth-pt-input');
                     input.value = obs.valueQuantity.value.toFixed(1);
                     input.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#isth-pt-input', obs, LOINC_CODES.PT, 'PT');
                 }
             });
             getMostRecentObservation(client, '3255-7').then(obs => { // Fibrinogen
@@ -233,6 +240,7 @@ export const isthDic = {
                     const input = container.querySelector('#isth-fibrinogen-input');
                     input.value = obs.valueQuantity.value.toFixed(2);
                     input.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#isth-fibrinogen-input', obs, '3255-7', 'Fibrinogen');
                 }
             });
         }

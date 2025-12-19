@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 
@@ -23,7 +24,7 @@ export const paduaVTE = {
 
         const inputs = uiBuilder.createSection({
             title: 'Risk Factors',
-            content: riskFactors.map(factor => 
+            content: riskFactors.map(factor =>
                 uiBuilder.createRadioGroup({
                     name: factor.id,
                     label: factor.label,
@@ -49,6 +50,9 @@ export const paduaVTE = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -60,7 +64,7 @@ export const paduaVTE = {
         const calculate = () => {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
-            
+
             radios.forEach(radio => {
                 score += parseInt(radio.value);
             });
@@ -86,21 +90,21 @@ export const paduaVTE = {
             const resultContent = resultBox.querySelector('.ui-result-content');
 
             resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({ 
-                    label: 'Total Score', 
-                    value: score, 
-                    unit: 'points',
-                    interpretation: riskLevel,
-                    alertClass: alertClass
-                })}
+                ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score,
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: alertClass
+            })}
                 
                 ${uiBuilder.createAlert({
-                    type: type === 'danger' ? 'warning' : 'info',
-                    message: `<strong>Recommendation:</strong> ${recommendation}`,
-                    icon: type === 'danger' ? '⚠️' : '✓'
-                })}
+                type: type === 'danger' ? 'warning' : 'info',
+                message: `<strong>Recommendation:</strong> ${recommendation}`,
+                icon: type === 'danger' ? '⚠️' : '✓'
+            })}
             `;
-            
+
             resultBox.classList.add('show');
         };
 
@@ -122,6 +126,7 @@ export const paduaVTE = {
             getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
                 if (obs?.valueQuantity?.value >= 30) {
                     setRadioValue('padua-obesity', '1');
+                    stalenessTracker.trackObservation('input[name="padua-obesity"]', obs, LOINC_CODES.BMI, 'BMI ≥ 30');
                 }
             });
         }

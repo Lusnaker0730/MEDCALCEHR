@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 
@@ -13,38 +14,41 @@ export const tpaDosing = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-                title: 'Patient Details',
-                content: `
+            title: 'Patient Details',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'tpa-weight',
-                        label: 'Weight',
-                        type: 'number',
-                        unit: 'kg',
-                        placeholder: 'Enter weight'
-                    })}
-                `
+                id: 'tpa-weight',
+                label: 'Weight',
+                type: 'number',
+                unit: 'kg',
+                placeholder: 'Enter weight'
             })}
+                `
+        })}
             ${uiBuilder.createResultBox({ id: 'tpa-result', title: 'Dosing Guidelines' })}
             ${uiBuilder.createFormulaSection({
-                items: [
-                    {
-                        label: 'Total Dose',
-                        formula: '0.9 mg/kg (Max 90 mg)'
-                    },
-                    {
-                        label: 'Bolus Dose',
-                        formula: '10% of total dose over 1 minute'
-                    },
-                    {
-                        label: 'Infusion Dose',
-                        formula: '90% of total dose over 60 minutes'
-                    }
-                ]
-            })}
+            items: [
+                {
+                    label: 'Total Dose',
+                    formula: '0.9 mg/kg (Max 90 mg)'
+                },
+                {
+                    label: 'Bolus Dose',
+                    formula: '10% of total dose over 1 minute'
+                },
+                {
+                    label: 'Infusion Dose',
+                    formula: '90% of total dose over 60 minutes'
+                }
+            ]
+        })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const weightEl = container.querySelector('#tpa-weight');
         const resultBox = container.querySelector('#tpa-result');
@@ -65,23 +69,23 @@ export const tpaDosing = {
 
             resultBox.querySelector('.ui-result-content').innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Total Dose',
-                    value: totalDose.toFixed(2),
-                    unit: 'mg',
-                    interpretation: weight > 100 ? '(Capped at 90 mg max)' : ''
-                })}
+                label: 'Total Dose',
+                value: totalDose.toFixed(2),
+                unit: 'mg',
+                interpretation: weight > 100 ? '(Capped at 90 mg max)' : ''
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Bolus Dose (10%)',
-                    value: bolusDose.toFixed(2),
-                    unit: 'mg',
-                    interpretation: 'Give over 1 minute'
-                })}
+                label: 'Bolus Dose (10%)',
+                value: bolusDose.toFixed(2),
+                unit: 'mg',
+                interpretation: 'Give over 1 minute'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Infusion Dose (90%)',
-                    value: infusionDose.toFixed(2),
-                    unit: 'mg',
-                    interpretation: 'Infuse over 60 minutes'
-                })}
+                label: 'Infusion Dose (90%)',
+                value: infusionDose.toFixed(2),
+                unit: 'mg',
+                interpretation: 'Infuse over 60 minutes'
+            })}
             `;
             resultBox.classList.add('show');
         };
@@ -92,6 +96,7 @@ export const tpaDosing = {
             if (obs && obs.valueQuantity) {
                 weightEl.value = obs.valueQuantity.value.toFixed(1);
                 calculate();
+                stalenessTracker.trackObservation('#tpa-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
             }
         });
 

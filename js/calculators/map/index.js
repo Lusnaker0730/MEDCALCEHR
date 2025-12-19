@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -64,6 +65,10 @@ export const map = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const sbpInput = container.querySelector('#map-sbp');
         const dbpInput = container.querySelector('#map-dbp');
@@ -188,11 +193,18 @@ export const map = {
                         if (sbpComp && sbpComp.valueQuantity) {
                             sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
                             sbpInput.dispatchEvent(new Event('input'));
+
+                            // Track staleness (using panel observation if available, or just not tracking component timestamp easily without obj access)
+                            // Ideally track the specific component, but we only have bpPanel object here handy usually.
+                            // Actually sbpComp is an object inside bpPanel, but observation timestamp is on bpPanel usually.
+                            stalenessTracker.trackObservation('#map-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                         }
 
                         if (dbpComp && dbpComp.valueQuantity) {
                             dbpInput.value = dbpComp.valueQuantity.value.toFixed(0);
                             dbpInput.dispatchEvent(new Event('input'));
+
+                            stalenessTracker.trackObservation('#map-dbp', bpPanel, LOINC_CODES.DIASTOLIC_BP, 'Diastolic BP');
                         }
                     }
                 })

@@ -2,6 +2,7 @@
 import {
     getMostRecentObservation
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { FHIRDataError, ValidationError, logError, displayError } from '../../errorHandler.js';
@@ -60,6 +61,10 @@ export const bmiBsa = {
     initialize: function (client, patient, container) {
         // Initialize UI Builder components (unit toggles, etc.)
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const resultEl = container.querySelector('#bmi-bsa-result');
         const weightInput = container.querySelector('#bmi-bsa-weight');
@@ -204,6 +209,9 @@ export const bmiBsa = {
                             weightInput.value = wInKg.toFixed(1);
                             weightInput.dispatchEvent(new Event('input'));
                         }
+
+                        // Track staleness
+                        stalenessTracker.trackObservation('#bmi-bsa-weight', weightObs, LOINC_CODES.WEIGHT, 'Weight');
                     }
 
                     if (heightObs && heightObs.valueQuantity && heightInput) {
@@ -214,6 +222,9 @@ export const bmiBsa = {
                             heightInput.value = hInCm.toFixed(1);
                             heightInput.dispatchEvent(new Event('input'));
                         }
+
+                        // Track staleness
+                        stalenessTracker.trackObservation('#bmi-bsa-height', heightObs, LOINC_CODES.HEIGHT, 'Height');
                     }
                 })
                 .catch(error => {

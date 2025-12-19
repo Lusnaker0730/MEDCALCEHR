@@ -1,5 +1,6 @@
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -51,6 +52,10 @@ export const perc = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const calculate = () => {
             try {
@@ -130,7 +135,9 @@ export const perc = {
                     const box = container.querySelector('#hr100');
                     if (box) {
                         box.checked = true;
+                        box.checked = true;
                         // No event dispatch here, wait for final calc
+                        stalenessTracker.trackObservation('#hr100', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
                     }
                 }
             }).catch(e => console.warn(e))
@@ -141,6 +148,7 @@ export const perc = {
                     const box = container.querySelector('#o2sat');
                     if (box) {
                         box.checked = true;
+                        stalenessTracker.trackObservation('#o2sat', obs, LOINC_CODES.OXYGEN_SATURATION, 'O2 Saturation');
                     }
                 }
             }).catch(e => console.warn(e))

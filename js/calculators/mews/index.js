@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -95,6 +96,10 @@ export const mewsScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -207,6 +212,8 @@ export const mewsScore = {
                     else if (sbp <= 100) setRadioValue('mews-sbp', '1');
                     else if (sbp <= 199) setRadioValue('mews-sbp', '0');
                     else setRadioValue('mews-sbp', '2');
+
+                    stalenessTracker.trackObservation('input[name="mews-sbp"]', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                 }
             }).catch(e => console.warn(e));
 
@@ -219,6 +226,8 @@ export const mewsScore = {
                     else if (hr <= 110) setRadioValue('mews-hr', '1');
                     else if (hr <= 129) setRadioValue('mews-hr', '2');
                     else setRadioValue('mews-hr', '3');
+
+                    stalenessTracker.trackObservation('input[name="mews-hr"]', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
                 }
             }).catch(e => console.warn(e));
 
@@ -230,6 +239,8 @@ export const mewsScore = {
                     else if (rr <= 20) setRadioValue('mews-rr', '1');
                     else if (rr <= 29) setRadioValue('mews-rr', '2');
                     else setRadioValue('mews-rr', '3');
+
+                    stalenessTracker.trackObservation('input[name="mews-rr"]', obs, LOINC_CODES.RESPIRATORY_RATE, 'Resp Rate');
                 }
             }).catch(e => console.warn(e));
 
@@ -243,6 +254,8 @@ export const mewsScore = {
 
                     if (temp < 35 || temp >= 38.5) setRadioValue('mews-temp', '2');
                     else setRadioValue('mews-temp', '0');
+
+                    stalenessTracker.trackObservation('input[name="mews-temp"]', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
                 }
             }).catch(e => console.warn(e));
         }

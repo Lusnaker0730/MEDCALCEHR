@@ -1,6 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -76,6 +77,10 @@ export const sirs = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -199,6 +204,7 @@ export const sirs = {
                 } else if (el) {
                     el.textContent = 'Not available';
                 }
+                if (obs) stalenessTracker.trackObservation('#current-temp', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
             }).catch(e => console.warn(e));
 
             // Heart Rate
@@ -213,6 +219,7 @@ export const sirs = {
                 } else if (el) {
                     el.textContent = 'Not available';
                 }
+                if (obs) stalenessTracker.trackObservation('#current-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
             }).catch(e => console.warn(e));
 
             // Respiratory Rate
@@ -227,6 +234,7 @@ export const sirs = {
                 } else if (el) {
                     el.textContent = 'Not available';
                 }
+                if (obs) stalenessTracker.trackObservation('#current-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
             }).catch(e => console.warn(e));
 
             // WBC
@@ -252,6 +260,7 @@ export const sirs = {
                 } else if (el) {
                     el.textContent = 'Not available';
                 }
+                if (obs) stalenessTracker.trackObservation('#current-wbc', obs, LOINC_CODES.WBC, 'WBC Count');
             }).catch(e => console.warn(e));
         }
 

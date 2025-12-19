@@ -1,5 +1,7 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
+
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -107,6 +109,10 @@ export const childPugh = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
@@ -227,6 +233,9 @@ export const childPugh = {
                             value.toFixed(1),
                             'mg/dL'
                         );
+
+                        // Track staleness
+                        stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
                     } else {
                         const el = container.querySelector('#current-bilirubin');
                         if (el) el.textContent = 'Not available';
@@ -261,6 +270,9 @@ export const childPugh = {
                             valueGdL.toFixed(1),
                             'g/dL'
                         );
+
+                        // Track staleness
+                        stalenessTracker.trackObservation('#current-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                     } else {
                         const el = container.querySelector('#current-albumin');
                         if (el) el.textContent = 'Not available';
@@ -287,6 +299,9 @@ export const childPugh = {
                             value.toFixed(2),
                             ''
                         );
+
+                        // Track staleness
+                        stalenessTracker.trackObservation('#current-inr', obs, LOINC_CODES.INR_COAG, 'INR');
                     } else {
                         const el = container.querySelector('#current-inr');
                         if (el) el.textContent = 'Not available';

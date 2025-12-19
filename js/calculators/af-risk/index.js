@@ -1,5 +1,6 @@
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -74,6 +75,10 @@ export const afRisk = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -225,6 +230,7 @@ export const afRisk = {
                         setRadioValue('hasbled-htn', '1');
                         setRadioValue('htn', '1'); // For CHA2DS2-VASc too
                     }
+                    stalenessTracker.trackObservation('input[name="hasbled-htn"]', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP (from Panel)');
                 }
             }).catch(e => console.warn(e));
         }

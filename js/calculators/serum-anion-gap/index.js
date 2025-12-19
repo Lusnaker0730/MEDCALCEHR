@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -74,6 +75,10 @@ export const serumAnionGap = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const naInput = container.querySelector('#sag-na');
         const clInput = container.querySelector('#sag-cl');
@@ -177,18 +182,21 @@ export const serumAnionGap = {
                 if (obs && obs.valueQuantity) {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#sag-na', obs, LOINC_CODES.SODIUM, 'Sodium');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.CHLORIDE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     clInput.value = obs.valueQuantity.value.toFixed(0);
                     clInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#sag-cl', obs, LOINC_CODES.CHLORIDE, 'Chloride');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.BICARBONATE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     hco3Input.value = obs.valueQuantity.value.toFixed(0);
                     hco3Input.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#sag-hco3', obs, LOINC_CODES.BICARBONATE, 'Bicarbonate');
                 }
             }).catch(e => console.warn(e));
         }

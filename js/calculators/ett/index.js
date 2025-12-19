@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 
@@ -15,31 +16,34 @@ export const ett = {
             </div>
 
             ${uiBuilder.createSection({
-                title: 'Patient Parameters',
-                content: `
+            title: 'Patient Parameters',
+            content: `
                     ${uiBuilder.createInput({
-                        id: 'ett-height',
-                        label: 'Height',
-                        unit: 'cm',
-                        type: 'number',
-                        placeholder: 'e.g. 170'
-                    })}
-                    ${uiBuilder.createSelect({
-                        id: 'ett-gender',
-                        label: 'Gender',
-                        options: [
-                            { value: 'male', label: 'Male' },
-                            { value: 'female', label: 'Female' }
-                        ]
-                    })}
-                `
+                id: 'ett-height',
+                label: 'Height',
+                unit: 'cm',
+                type: 'number',
+                placeholder: 'e.g. 170'
             })}
+                    ${uiBuilder.createSelect({
+                id: 'ett-gender',
+                label: 'Gender',
+                options: [
+                    { value: 'male', label: 'Male' },
+                    { value: 'female', label: 'Female' }
+                ]
+            })}
+                `
+        })}
             
             ${uiBuilder.createResultBox({ id: 'ett-result', title: 'ETT & Ventilation Settings' })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const heightEl = container.querySelector('#ett-height');
         const genderEl = container.querySelector('#ett-gender');
@@ -52,6 +56,7 @@ export const ett = {
             if (obs && obs.valueQuantity) {
                 heightEl.value = obs.valueQuantity.value.toFixed(1);
                 calculate();
+                stalenessTracker.trackObservation('#ett-height', obs, LOINC_CODES.HEIGHT, 'Height');
             }
         });
 
@@ -96,20 +101,20 @@ export const ett = {
 
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                    label: 'Estimated ETT Depth (at lips)',
-                    value: originalFormulaDepth.toFixed(1),
-                    unit: 'cm'
-                })}
+                label: 'Estimated ETT Depth (at lips)',
+                value: originalFormulaDepth.toFixed(1),
+                unit: 'cm'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Ideal Body Weight (IBW)',
-                    value: ibw.toFixed(1),
-                    unit: 'kg'
-                })}
+                label: 'Ideal Body Weight (IBW)',
+                value: ibw.toFixed(1),
+                unit: 'kg'
+            })}
                 ${uiBuilder.createResultItem({
-                    label: 'Target Tidal Volume (6-8 mL/kg)',
-                    value: `${tidalVolumeLow.toFixed(0)} - ${tidalVolumeHigh.toFixed(0)}`,
-                    unit: 'mL'
-                })}
+                label: 'Target Tidal Volume (6-8 mL/kg)',
+                value: `${tidalVolumeLow.toFixed(0)} - ${tidalVolumeHigh.toFixed(0)}`,
+                unit: 'mL'
+            })}
             `;
             resultBox.classList.add('show');
         };

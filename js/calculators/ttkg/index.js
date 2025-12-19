@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -95,6 +96,10 @@ export const ttkg = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const urineKEl = container.querySelector('#ttkg-urine-k');
         const serumKEl = container.querySelector('#ttkg-serum-k');
@@ -220,21 +225,25 @@ export const ttkg = {
             getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
                 if (obs?.valueQuantity) {
                     setInputValue(urineKEl, obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#ttkg-urine-k', obs, LOINC_CODES.URINE_POTASSIUM, 'Urine K');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
                 if (obs?.valueQuantity) {
                     setInputValue(serumKEl, obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#ttkg-serum-k', obs, LOINC_CODES.POTASSIUM, 'Serum K');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, '2697-2').then(obs => { // Urine Osmolality
                 if (obs?.valueQuantity) {
                     setInputValue(urineOsmoEl, obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#ttkg-urine-osmo', obs, '2697-2', 'Urine Osmolality');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, '2695-6').then(obs => { // Serum Osmolality
                 if (obs?.valueQuantity) {
                     setInputValue(serumOsmoEl, obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#ttkg-serum-osmo', obs, '2695-6', 'Serum Osmolality');
                 }
             }).catch(e => console.warn(e));
         }

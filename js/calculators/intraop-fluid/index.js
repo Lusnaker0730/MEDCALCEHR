@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { calculateIntraopFluid } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -68,6 +69,9 @@ export const intraopFluid = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const weightInput = container.querySelector('#ifd-weight');
         const npoInput = container.querySelector('#ifd-npo');
@@ -184,6 +188,7 @@ export const intraopFluid = {
                 if (obs && obs.valueQuantity) {
                     weightInput.value = obs.valueQuantity.value.toFixed(1);
                     weightInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#ifd-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                 }
             });
         }

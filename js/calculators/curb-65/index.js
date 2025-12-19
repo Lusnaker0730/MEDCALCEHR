@@ -1,4 +1,5 @@
 import { calculateAge, getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -68,6 +69,9 @@ export const curb65 = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -198,12 +202,14 @@ export const curb65 = {
 
                             if (rrComp && rrComp.valueQuantity.value >= 30) {
                                 setRadioValue('curb-rr', '1');
+                                stalenessTracker.trackObservation('input[name="curb-rr"]', vitals, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
                             }
                             if (
                                 (sbpComp && sbpComp.valueQuantity.value < 90) ||
                                 (dbpComp && dbpComp.valueQuantity.value <= 60)
                             ) {
                                 setRadioValue('curb-bp', '1');
+                                stalenessTracker.trackObservation('input[name="curb-bp"]', vitals, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure');
                             }
                         }
                     }
@@ -216,6 +222,7 @@ export const curb65 = {
                     const bunMgDl = UnitConverter.convert(val, unit, 'mg/dL', 'bun');
                     if (bunMgDl !== null && bunMgDl > 19) {
                         setRadioValue('curb-bun', '1');
+                        stalenessTracker.trackObservation('input[name="curb-bun"]', obs, LOINC_CODES.BUN, 'BUN');
                     }
                 }
             }).catch(e => console.warn(e));

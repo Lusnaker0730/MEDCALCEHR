@@ -2,6 +2,7 @@ import {
     getMostRecentObservation,
     calculateAge,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -96,6 +97,10 @@ export const crcl = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const ageInput = container.querySelector('#crcl-age');
         const weightInput = container.querySelector('#crcl-weight');
@@ -224,6 +229,7 @@ export const crcl = {
                     if (converted !== null) {
                         weightInput.value = converted.toFixed(1);
                         weightInput.dispatchEvent(new Event('input'));
+                        stalenessTracker.trackObservation('#crcl-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                     }
                 }
             }).catch(e => console.warn(e));
@@ -237,6 +243,7 @@ export const crcl = {
                     if (converted !== null) {
                         scrInput.value = converted.toFixed(2);
                         scrInput.dispatchEvent(new Event('input'));
+                        stalenessTracker.trackObservation('#crcl-scr', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                     }
                 }
             }).catch(e => console.warn(e));

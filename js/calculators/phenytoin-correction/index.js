@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -87,6 +88,10 @@ export const phenytoinCorrection = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const totalEl = container.querySelector('#pheny-total');
         const albuminEl = container.querySelector('#pheny-albumin');
@@ -194,6 +199,7 @@ export const phenytoinCorrection = {
                         totalEl.value = val.toFixed(1);
                     }
                     totalEl.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#pheny-total', obs, '4038-8', 'Phenytoin');
                 }
             }).catch(e => console.warn(e));
 
@@ -211,6 +217,7 @@ export const phenytoinCorrection = {
                         albuminEl.value = val.toFixed(1);
                     }
                     albuminEl.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#pheny-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                 }
             }).catch(e => console.warn(e));
         }

@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -60,6 +61,10 @@ export const wellsPE = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -155,6 +160,7 @@ export const wellsPE = {
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(hrObs => {
                 if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
                     setRadioValue('wells-hr', '1.5');
+                    stalenessTracker.trackObservation('input[name="wells-hr"]', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
                 }
             }).catch(e => console.warn(e));
         }

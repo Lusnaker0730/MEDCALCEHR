@@ -3,6 +3,7 @@ import {
     getMostRecentObservation,
     calculateAge
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -65,6 +66,10 @@ export const fib4 = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const ageInput = container.querySelector('#fib4-age');
         const astInput = container.querySelector('#fib4-ast');
@@ -186,6 +191,7 @@ export const fib4 = {
                 if (obs && obs.valueQuantity) {
                     astInput.value = obs.valueQuantity.value.toFixed(0);
                     astInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#fib4-ast', obs, LOINC_CODES.AST, 'AST');
                 }
             }).catch(e => console.warn(e));
 
@@ -193,6 +199,7 @@ export const fib4 = {
                 if (obs && obs.valueQuantity) {
                     altInput.value = obs.valueQuantity.value.toFixed(0);
                     altInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#fib4-alt', obs, LOINC_CODES.ALT, 'ALT');
                 }
             }).catch(e => console.warn(e));
 
@@ -201,6 +208,7 @@ export const fib4 = {
                     pltInput.value = obs.valueQuantity.value.toFixed(0);
                     // Trigger input which handles unit conversion if needed (assuming standard)
                     pltInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#fib4-plt', obs, LOINC_CODES.PLATELETS, 'Platelets');
                 }
             }).catch(e => console.warn(e));
         }

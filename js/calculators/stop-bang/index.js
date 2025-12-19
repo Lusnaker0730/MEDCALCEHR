@@ -1,5 +1,6 @@
 import { getPatient, getPatientConditions, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
@@ -81,6 +82,10 @@ export const stopBang = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const checkboxes = container.querySelectorAll('input[type="checkbox"]');
         const resultBox = container.querySelector('#stop-bang-result');
@@ -170,6 +175,7 @@ export const stopBang = {
                     if (bmiCheckbox && !bmiCheckbox.checked) {
                         bmiCheckbox.checked = true;
                         bmiCheckbox.dispatchEvent(new Event('change'));
+                        stalenessTracker.trackObservation('#sb-bmi', obs, LOINC_CODES.BMI, 'BMI');
                     }
                 }
             }).catch(e => console.warn(e));

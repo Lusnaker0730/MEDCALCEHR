@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -66,6 +67,9 @@ export const tpaDosing = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const weightInput = container.querySelector('#weight');
         const symptomOnsetInput = container.querySelector('#symptom-onset');
@@ -183,6 +187,7 @@ export const tpaDosing = {
                     if (kgValue !== null) {
                         weightInput.value = kgValue.toFixed(1);
                         calculate();
+                        stalenessTracker.trackObservation('#weight', weightObs, LOINC_CODES.WEIGHT, 'Weight');
                     }
                 }
             }).catch(e => console.warn(e));

@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -88,6 +89,10 @@ export const serumOsmolality = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const naInput = container.querySelector('#osmo-na');
         const glucoseInput = container.querySelector('#osmo-glucose');
@@ -202,6 +207,7 @@ export const serumOsmolality = {
                 if (obs && obs.valueQuantity) {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#osmo-na', obs, LOINC_CODES.SODIUM, 'Sodium');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
@@ -215,6 +221,7 @@ export const serumOsmolality = {
                         glucoseInput.value = val.toFixed(0);
                     }
                     glucoseInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#osmo-glucose', obs, LOINC_CODES.GLUCOSE, 'Glucose');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
@@ -228,6 +235,7 @@ export const serumOsmolality = {
                         bunInput.value = val.toFixed(0);
                     }
                     bunInput.dispatchEvent(new Event('input'));
+                    stalenessTracker.trackObservation('#osmo-bun', obs, LOINC_CODES.BUN, 'BUN');
                 }
             }).catch(e => console.warn(e));
         }

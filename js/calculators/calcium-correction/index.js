@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -73,6 +74,10 @@ export const calciumCorrection = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const calculateAndUpdate = () => {
             // Clear previous errors
@@ -171,6 +176,7 @@ export const calciumCorrection = {
                     } else {
                         setInputValue('#ca-total', val.toFixed(1));
                     }
+                    stalenessTracker.trackObservation('#ca-total', obs, LOINC_CODES.CALCIUM, 'Total Calcium');
                 }
             }).catch(e => console.warn(e));
 
@@ -184,6 +190,7 @@ export const calciumCorrection = {
                     } else {
                         setInputValue('#ca-albumin', val.toFixed(1));
                     }
+                    stalenessTracker.trackObservation('#ca-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                 }
             }).catch(e => console.warn(e));
         }

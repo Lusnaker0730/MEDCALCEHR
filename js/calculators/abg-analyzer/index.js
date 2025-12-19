@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -108,6 +109,9 @@ export const abgAnalyzer = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const fields = {
             ph: container.querySelector('#abg-ph'),
@@ -257,12 +261,12 @@ export const abgAnalyzer = {
         // FHIR Auto-populate
         if (client) {
             const mapping = {
-                '11558-4': { field: fields.ph, unit: 'pH' }, // pH usually no unit or unitless
-                '11557-6': { field: fields.pco2, unit: 'mmHg', type: 'pressure' },
-                '14627-4': { field: fields.hco3, unit: 'mEq/L', type: 'electrolyte' },
-                [LOINC_CODES.SODIUM]: { field: fields.sodium, unit: 'mEq/L', type: 'electrolyte' },
-                '2075-0': { field: fields.chloride, unit: 'mEq/L', type: 'electrolyte' },
-                [LOINC_CODES.ALBUMIN]: { field: fields.albumin, unit: 'g/dL', type: 'albumin' }
+                '11558-4': { field: fields.ph, unit: 'pH', label: 'pH' }, // pH usually no unit or unitless
+                '11557-6': { field: fields.pco2, unit: 'mmHg', type: 'pressure', label: 'PaCO2' },
+                '14627-4': { field: fields.hco3, unit: 'mEq/L', type: 'electrolyte', label: 'HCO3' },
+                [LOINC_CODES.SODIUM]: { field: fields.sodium, unit: 'mEq/L', type: 'electrolyte', label: 'Sodium' },
+                '2075-0': { field: fields.chloride, unit: 'mEq/L', type: 'electrolyte', label: 'Chloride' },
+                [LOINC_CODES.ALBUMIN]: { field: fields.albumin, unit: 'g/dL', type: 'albumin', label: 'Albumin' }
             };
 
             Object.entries(mapping).forEach(([code, config]) => {
@@ -279,6 +283,11 @@ export const abgAnalyzer = {
                         // Formatting
                         if (config.field === fields.ph) setInputValue(config.field, val.toFixed(2));
                         else setInputValue(config.field, val.toFixed(1));
+
+                        // Track staleness
+                        if (config.field && config.field.id) {
+                            stalenessTracker.trackObservation('#' + config.field.id, obs, code, config.label || 'Value');
+                        }
                     }
                 }).catch(e => console.warn(e));
             });

@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
@@ -113,6 +114,9 @@ export const charlson = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const calculate = () => {
             // Clear previous errors
@@ -280,6 +284,7 @@ export const charlson = {
                         radio.checked = true;
                         radio.dispatchEvent(new Event('change'));
                     }
+                    stalenessTracker.trackObservation('input[name="ckd"][value="2"]', obs, LOINC_CODES.CREATININE, 'Creatinine > 3 mg/dL');
                 }
             }).catch(e => console.warn(e));
         }

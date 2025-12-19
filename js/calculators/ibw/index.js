@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -71,6 +72,10 @@ export const ibw = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const heightInput = container.querySelector('#ibw-height');
         const actualWeightInput = container.querySelector('#ibw-actual');
@@ -193,6 +198,9 @@ export const ibw = {
                     heightInput.value = val.toFixed(1);
                 }
                 calculate();
+
+                // Track staleness
+                stalenessTracker.trackObservation('#ibw-height', obs, LOINC_CODES.HEIGHT, 'Height');
             }
         }).catch(e => console.warn(e));
         getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
@@ -206,6 +214,9 @@ export const ibw = {
                     actualWeightInput.value = val.toFixed(1);
                 }
                 calculate();
+
+                // Track staleness
+                stalenessTracker.trackObservation('#ibw-actual', obs, LOINC_CODES.WEIGHT, 'Weight');
             }
         }).catch(e => console.warn(e));
 

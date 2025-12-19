@@ -1,4 +1,5 @@
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { calculateNAFLDScore } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -108,6 +109,9 @@ export const nafldFibrosisScore = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         const ageInput = container.querySelector('#nafld-age');
         const bmiInput = container.querySelector('#nafld-bmi');
         const astInput = container.querySelector('#nafld-ast');
@@ -214,24 +218,28 @@ export const nafldFibrosisScore = {
                 if (obs?.valueQuantity) {
                     bmiInput.value = obs.valueQuantity.value.toFixed(1);
                     calculate();
+                    stalenessTracker.trackObservation('#nafld-bmi', obs, LOINC_CODES.BMI, 'BMI');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
                 if (obs?.valueQuantity) {
                     astInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
+                    stalenessTracker.trackObservation('#nafld-ast', obs, LOINC_CODES.AST, 'AST');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
                 if (obs?.valueQuantity) {
                     altInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
+                    stalenessTracker.trackObservation('#nafld-alt', obs, LOINC_CODES.ALT, 'ALT');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
                 if (obs?.valueQuantity) {
                     plateletInput.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
+                    stalenessTracker.trackObservation('#nafld-platelet', obs, LOINC_CODES.PLATELETS, 'Platelets');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
@@ -239,6 +247,7 @@ export const nafldFibrosisScore = {
                     // Using setInputValue logic or unit helper if needed
                     albuminInput.value = obs.valueQuantity.value.toFixed(1);
                     calculate();
+                    stalenessTracker.trackObservation('#nafld-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                 }
             }).catch(e => console.warn(e));
         }

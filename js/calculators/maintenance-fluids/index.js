@@ -1,4 +1,5 @@
 import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -82,6 +83,9 @@ export const maintenanceFluids = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const weightInput = container.querySelector('#weight-fluids');
         const resultBox = container.querySelector('#fluids-result');
@@ -173,6 +177,7 @@ export const maintenanceFluids = {
                             // Currently we just set value. If unitToggle is smart it might handle it or we assume user uses default.
                             weightInput.value = wInKg.toFixed(1);
                             weightInput.dispatchEvent(new Event('input'));
+                            stalenessTracker.trackObservation('#weight-fluids', weightObs, LOINC_CODES.WEIGHT, 'Weight');
                         }
                     }
                 })
