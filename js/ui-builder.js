@@ -186,7 +186,7 @@ export class UIBuilder {
                 font-weight: 500;
                 color: #34495e;
                 margin-bottom: 6px;
-                font-size: 0.9em;
+                font-size: 1.5em;
             }
 
             .ui-input-group label .required {
@@ -213,7 +213,7 @@ export class UIBuilder {
                 padding: 10px 12px;
                 border: 2px solid #e0e6ed;
                 border-radius: 8px;
-                font-size: 1em;
+                font-size: 1.5em;
                 transition: all 0.3s ease;
                 background: #fafbfc;
             }
@@ -240,7 +240,7 @@ export class UIBuilder {
                 color: white;
                 border-radius: 6px;
                 font-weight: 600;
-                font-size: 0.9em;
+                font-size: 1.5em;
                 min-width: 50px;
                 text-align: center;
             }
@@ -279,6 +279,7 @@ export class UIBuilder {
                 color: #2d3436;
                 text-align: center;
                 user-select: none;
+                font-size: 1.5em;
             }
 
             .ui-radio-option input[type="radio"]:checked + .radio-label {
@@ -329,6 +330,7 @@ export class UIBuilder {
                 transition: all 0.3s ease;
                 color: #2d3436;
                 user-select: none;
+                font-size: 1.5em;
             }
 
             .ui-checkbox-option .checkbox-label::before {
@@ -375,7 +377,7 @@ export class UIBuilder {
                 padding: 10px 12px;
                 border: 2px solid #e0e6ed;
                 border-radius: 8px;
-                font-size: 1em;
+                font-size: 1.5em;
                 background: #fafbfc;
                 cursor: pointer;
                 transition: all 0.3s ease;
@@ -399,7 +401,7 @@ export class UIBuilder {
                 padding: 12px 24px;
                 border: none;
                 border-radius: 8px;
-                font-size: 1em;
+                font-size: 1.5em;
                 font-weight: 600;
                 cursor: pointer;
                 transition: all 0.3s ease;

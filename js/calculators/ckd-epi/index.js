@@ -3,6 +3,7 @@ import {
     calculateAge,
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -82,6 +83,10 @@ export const ckdEpi = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const ageInput = container.querySelector('#ckd-epi-age');
         const creatinineInput = container.querySelector('#ckd-epi-creatinine');
@@ -226,6 +231,9 @@ export const ckdEpi = {
                         creatinineInput.value = converted.toFixed(2);
                         creatinineInput.dispatchEvent(new Event('input'));
                     }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#ckd-epi-creatinine', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                 }
             }).catch(e => console.warn(e));
         }

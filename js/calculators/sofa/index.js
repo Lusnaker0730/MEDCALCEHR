@@ -4,6 +4,7 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 
 export const sofa = {
     id: 'sofa',
@@ -127,6 +128,10 @@ export const sofa = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         // Helper to set radio value
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -226,6 +231,9 @@ export const sofa = {
                     // We simply display it. Unit conversion for platelets is rare (usually same magnitude).
                     if (el) el.textContent = `${val.toFixed(0)} ×10³/μL`;
 
+                    // Track staleness
+                    stalenessTracker.trackObservation('#current-platelets', obs, LOINC_CODES.PLATELETS, 'Platelets');
+
                     let radioValue = '0';
                     if (val < 20) radioValue = '4';
                     else if (val < 50) radioValue = '3';
@@ -250,6 +258,9 @@ export const sofa = {
                     }
 
                     if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#current-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
 
                     let radioValue = '0';
                     if (val >= 5.0) radioValue = '4';
@@ -276,6 +287,9 @@ export const sofa = {
                     }
 
                     if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
 
                     let radioValue = '0';
                     if (val >= 12.0) radioValue = '4';

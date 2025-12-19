@@ -7,6 +7,7 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
@@ -237,6 +238,10 @@ export const apacheIi = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         const ageInput = container.querySelector('#apache-ii-age');
         if (patient && patient.birthDate) {
             ageInput.value = calculateAge(patient.birthDate);
@@ -248,40 +253,79 @@ export const apacheIi = {
             if (el) el.value = value;
         };
 
-        // Auto-populate from FHIR
+        // Helper to set value and track staleness
+        const setValueWithTracking = (id, obs, code, customLabel = null) => {
+            if (obs?.valueQuantity) {
+                setValue(id, obs.valueQuantity.value.toFixed(1));
+                // Track staleness for this observation
+                stalenessTracker.trackObservation(id, obs, code, customLabel);
+            }
+        };
+
+        // Auto-populate from FHIR with staleness tracking
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-temp', obs.valueQuantity.value.toFixed(1));
+                setValueWithTracking('#apache-ii-temp', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
             });
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-map', obs.valueQuantity.value.toFixed(0));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-map', obs.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#apache-ii-map', obs, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure (MAP)');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-hr', obs.valueQuantity.value.toFixed(0));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-hr', obs.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#apache-ii-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-rr', obs.valueQuantity.value.toFixed(0));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-rr', obs.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#apache-ii-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.PO2).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-ph', obs.valueQuantity.value.toFixed(2));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-ph', obs.valueQuantity.value.toFixed(2));
+                    stalenessTracker.trackObservation('#apache-ii-ph', obs, LOINC_CODES.PO2, 'Arterial pH');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-sodium', obs.valueQuantity.value.toFixed(0));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-sodium', obs.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#apache-ii-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-potassium', obs.valueQuantity.value.toFixed(1));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-potassium', obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#apache-ii-potassium', obs, LOINC_CODES.POTASSIUM, 'Potassium');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-creatinine', obs.valueQuantity.value.toFixed(2));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-creatinine', obs.valueQuantity.value.toFixed(2));
+                    stalenessTracker.trackObservation('#apache-ii-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
+                }
             });
             getMostRecentObservation(client, LOINC_CODES.HEMATOCRIT).then(obs => {
-                if (obs?.valueQuantity) setValue('#apache-ii-hct', obs.valueQuantity.value.toFixed(1));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-hct', obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#apache-ii-hct', obs, LOINC_CODES.HEMATOCRIT, 'Hematocrit');
+                }
             });
             getMostRecentObservation(client, '6764-2').then(obs => { // WBC
-                if (obs?.valueQuantity) setValue('#apache-ii-wbc', obs.valueQuantity.value.toFixed(1));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-wbc', obs.valueQuantity.value.toFixed(1));
+                    stalenessTracker.trackObservation('#apache-ii-wbc', obs, '6764-2', 'WBC Count');
+                }
             });
             getMostRecentObservation(client, '8478-0').then(obs => { // GCS
-                if (obs?.valueQuantity) setValue('#apache-ii-gcs', obs.valueQuantity.value.toFixed(0));
+                if (obs?.valueQuantity) {
+                    setValue('#apache-ii-gcs', obs.valueQuantity.value.toFixed(0));
+                    stalenessTracker.trackObservation('#apache-ii-gcs', obs, '8478-0', 'Glasgow Coma Scale');
+                }
             });
         }
 

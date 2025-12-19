@@ -117,8 +117,8 @@ export const calculatorModules = [
  */
 export async function loadCalculator(calculatorId) {
     try {
-        // Use CACHE_VERSION if available for cache busting
-        const version = window.CACHE_VERSION || Date.now();
+        // Use timestamp for cache busting during development
+        const version = Date.now();
         const module = await import(`/js/calculators/${calculatorId}/index.js?v=${version}`);
 
         // Return the calculator object (usually the first export)

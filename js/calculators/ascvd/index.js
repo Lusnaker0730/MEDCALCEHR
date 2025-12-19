@@ -3,6 +3,7 @@ import {
     calculateAge
 } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -184,6 +185,10 @@ export const ascvd = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
+
         const ageInput = container.querySelector('#ascvd-age');
         const sbpInput = container.querySelector('#ascvd-sbp');
         const tcInput = container.querySelector('#ascvd-tc');
@@ -215,6 +220,9 @@ export const ascvd = {
                     if (sbpComp && sbpComp.valueQuantity) {
                         sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
                         sbpInput.dispatchEvent(new Event('input'));
+
+                        // Track staleness
+                        stalenessTracker.trackObservation('#ascvd-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                     }
                 }
             }).catch(console.log);
@@ -222,12 +230,26 @@ export const ascvd = {
             getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
                 if (obs && obs.valueQuantity) {
                     UnitConverter.setInputValue(tcInput, obs.valueQuantity.value, obs.valueQuantity.unit);
+                    // Force 1 decimal place
+                    if (tcInput.value && !isNaN(parseFloat(tcInput.value))) {
+                        tcInput.value = parseFloat(tcInput.value).toFixed(1);
+                    }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#ascvd-tc', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
                 }
             }).catch(console.log);
 
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
                 if (obs && obs.valueQuantity) {
                     UnitConverter.setInputValue(hdlInput, obs.valueQuantity.value, obs.valueQuantity.unit);
+                    // Force 1 decimal place
+                    if (hdlInput.value && !isNaN(parseFloat(hdlInput.value))) {
+                        hdlInput.value = parseFloat(hdlInput.value).toFixed(1);
+                    }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#ascvd-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
                 }
             }).catch(console.log);
 

@@ -5,7 +5,7 @@ import { favoritesManager } from '/js/favorites.js';
 
 
 // Cache version - increment this when you update calculators to force reload
-window.CACHE_VERSION = '1.0.4';
+window.CACHE_VERSION = '1.0.5';
 
 /**
  * Show loading indicator

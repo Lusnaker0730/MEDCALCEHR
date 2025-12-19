@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -105,6 +106,10 @@ export const ldl = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const tcInput = container.querySelector('#ldl-tc');
         const hdlInput = container.querySelector('#ldl-hdl');
@@ -233,6 +238,9 @@ export const ldl = {
                     } else {
                         setInputValue(tcInput, val.toFixed(0));
                     }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#ldl-tc', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
@@ -245,6 +253,9 @@ export const ldl = {
                     } else {
                         setInputValue(hdlInput, val.toFixed(0));
                     }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#ldl-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
@@ -257,6 +268,9 @@ export const ldl = {
                     } else {
                         setInputValue(trigInput, val.toFixed(0));
                     }
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#ldl-trig', obs, LOINC_CODES.TRIGLYCERIDES, 'Triglycerides');
                 }
             }).catch(e => console.warn(e));
         }

@@ -1,6 +1,7 @@
 import {
     getMostRecentObservation,
 } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -66,6 +67,10 @@ export const homaIr = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const insulinInput = container.querySelector('#homa-insulin');
         const glucoseInput = container.querySelector('#homa-glucose');
@@ -181,6 +186,9 @@ export const homaIr = {
                         glucoseInput.value = val.toFixed(0);
                     }
                     glucoseInput.dispatchEvent(new Event('input'));
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#homa-glucose', obs, '2339-0', 'Fasting Glucose');
                 }
             }).catch(e => console.warn(e));
 
@@ -195,6 +203,9 @@ export const homaIr = {
                         insulinInput.value = val.toFixed(1);
                     }
                     insulinInput.dispatchEvent(new Event('input'));
+
+                    // Track staleness
+                    stalenessTracker.trackObservation('#homa-insulin', obs, '20448-7', 'Fasting Insulin');
                 }
             }).catch(e => console.warn(e));
         }

@@ -1,5 +1,6 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
@@ -90,7 +91,9 @@ export const meldNa = {
         `;
     },
     initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
+        // Initialize staleness tracker for this calculator
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
 
         const calculateAndUpdate = () => {
             // Clear previous errors
@@ -241,10 +244,10 @@ export const meldNa = {
         // Auto-populate from FHIR data
         if (client) {
             const obsMap = [
-                { code: LOINC_CODES.BILIRUBIN_TOTAL, id: '#meld-na-bili', type: 'bilirubin', unit: 'mg/dL' },
-                { code: LOINC_CODES.INR_COAG, id: '#meld-na-inr', type: 'inr', unit: '' },
-                { code: LOINC_CODES.CREATININE, id: '#meld-na-creat', type: 'creatinine', unit: 'mg/dL' },
-                { code: LOINC_CODES.SODIUM, id: '#meld-na-sodium', type: 'sodium', unit: 'mEq/L' }
+                { code: LOINC_CODES.BILIRUBIN_TOTAL, id: '#meld-na-bili', type: 'bilirubin', unit: 'mg/dL', label: 'Bilirubin' },
+                { code: LOINC_CODES.INR_COAG, id: '#meld-na-inr', type: 'inr', unit: '', label: 'INR' },
+                { code: LOINC_CODES.CREATININE, id: '#meld-na-creat', type: 'creatinine', unit: 'mg/dL', label: 'Creatinine' },
+                { code: LOINC_CODES.SODIUM, id: '#meld-na-sodium', type: 'sodium', unit: 'mEq/L', label: 'Sodium' }
             ];
 
             obsMap.forEach(item => {
@@ -259,6 +262,9 @@ export const meldNa = {
                         } else {
                             setInputValue(item.id, val.toFixed(2));
                         }
+
+                        // Track staleness
+                        stalenessTracker.trackObservation(item.id, obs, item.code, item.label);
                     }
                 }).catch(e => console.warn(e));
             });
