@@ -313,13 +313,13 @@ export function createStalenessTracker(options = {}) {
         }
 
         .staleness-date {
-            color: #b45309;
+            color: #22d3ee;
             font-family: monospace;
             font-size: 1.25rem;
         }
 
         .staleness-age {
-            color: #92400e;
+            color: #06b6d4;
             font-size: 1.15rem;
         }
 
@@ -337,10 +337,10 @@ export function createStalenessTracker(options = {}) {
         /* Dark mode support */
         @media (prefers-color-scheme: dark) {
             .staleness-date {
-                color: #fbbf24;
+                color: #22d3ee;
             }
             .staleness-age {
-                color: #fcd34d;
+                color: #06b6d4;
             }
         }
     `;

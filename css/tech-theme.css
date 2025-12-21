@@ -483,37 +483,53 @@ select:focus {
 }
 
 
-/* Alerts and Warnings */
+/* Alerts and Warnings - Tech Theme */
 .ui-alert,
 .warning,
 .alert,
 .ui-alert-content {
-    background: rgba(234, 179, 8, 0.1) !important;
-    border-left: 4px solid #eab308 !important;
-    color: #fef08a !important;
-    border-radius: 6px;
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-left: 3px solid var(--tech-accent) !important;
+    color: var(--tech-text-main) !important;
+    border-radius: 8px;
     font-size: 1.5rem !important;
-    /* Minimum 1.5rem */
     padding: 18px;
     line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--tech-border);
+}
+
+.ui-alert-warning {
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-left: 3px solid #f59e0b !important;
+    color: #fbbf24 !important;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
 }
 
 .ui-alert-danger {
-    background: rgba(239, 68, 68, 0.1) !important;
-    border-left-color: #ef4444 !important;
-    color: #fca5a5 !important;
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-left: 3px solid #ef4444 !important;
+    color: var(--tech-glow) !important;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
 }
 
 .ui-alert-success {
-    background: rgba(34, 197, 94, 0.1) !important;
-    border-left-color: #22c55e !important;
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-left: 3px solid #22c55e !important;
     color: #86efac !important;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
 }
 
 .ui-alert-info {
-    background: rgba(59, 130, 246, 0.1) !important;
-    border-left-color: #3b82f6 !important;
-    color: #bfdbfe !important;
+    background: rgba(30, 41, 59, 0.6) !important;
+    border-left: 3px solid var(--tech-accent) !important;
+    color: var(--tech-glow) !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+/* Alert icon glow */
+.ui-alert-icon {
+    filter: drop-shadow(0 0 5px currentColor);
 }
 
 /* Scrollbar */
@@ -630,21 +646,34 @@ input[type="checkbox"] {
     border-bottom: 1px solid var(--tech-border);
 }
 
-/* Calculator Header Gradient Box */
+/* Calculator Header - Result Box Style */
 .calculator-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.8) 0%, rgba(147, 51, 234, 0.8) 100%) !important;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     margin-bottom: 25px;
+    border: 1px solid var(--tech-border);
+    border-bottom: 2px solid var(--tech-accent);
 }
 
 .calculator-header h3,
 .calculator-header p {
     background: none !important;
-    -webkit-text-fill-color: white !important;
-    color: white !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    -webkit-text-fill-color: var(--tech-glow) !important;
+    color: var(--tech-glow) !important;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+.calculator-header h3 {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.calculator-header p {
+    opacity: 0.9;
+    font-size: 1.3rem;
 }
 
 /* Checklist items */
@@ -802,6 +831,41 @@ input[type="checkbox"].ui-checkbox {
 .ui-formula-item strong {
     font-size: 1.6rem !important;
     color: var(--tech-accent) !important;
+}
+
+/* Formula Section Title - Result Box Style */
+.ui-formula-item h4,
+.ui-formula-item>strong:first-child,
+.ui-formula-section h4 {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+    color: var(--tech-glow) !important;
+    padding: 15px 20px !important;
+    margin: 0 0 15px 0 !important;
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: 2px solid var(--tech-accent) !important;
+    font-weight: 700 !important;
+    font-size: 1.6rem !important;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3) !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Formula Item Container */
+.ui-formula-item {
+    background: rgba(30, 41, 59, 0.4) !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+    border: 1px solid var(--tech-border) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    overflow: hidden !important;
+}
+
+/* Formula Content Padding */
+.ui-formula-item>div,
+.ui-formula-item>ul,
+.ui-formula-item>p {
+    padding: 15px 20px !important;
 }
 
 /* ===== UI Table Styles ===== */
