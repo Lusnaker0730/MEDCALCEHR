@@ -18,16 +18,21 @@
     <meta name="description" content="Medical calculator with FHIR EHR integration" />
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚕️</text></svg>" />
-    <link rel="stylesheet" href="css/variables.css" />
-    <link rel="stylesheet" href="css/ui-builder.css" />
-    <link rel="stylesheet" href="css/unified-calculator.css" />
-    <link rel="stylesheet" href="css/tech-theme.css" />
+    <!-- 新的模組化 CSS 結構 -->
+    <link rel="stylesheet" href="css/main.css" />
+    <!-- 深色科技主題（通過 data-theme 屬性啟用） -->
+    <link rel="stylesheet" href="css/themes/tech-theme.css" />
 </head>
 
-<body class="tech-theme">
+<body>
     <div class="container">
-        <a href="index.html" class="back-link">&larr; Back to Calculator List</a>
-        <h1 id="page-title">CGMH EHRCALC on FHIR</h1>
+        <div class="header-top">
+            <a href="index.html" class="back-link">&larr; Back to Calculator List</a>
+            <h1 id="page-title">CGMH EHRCALC on FHIR</h1>
+            <button id="theme-toggle" class="theme-toggle-btn" title="切換主題">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
         <div id="patient-info">Loading patient data...</div>
         <hr />
         <div id="calculator-container">
@@ -37,6 +42,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="js/theme-toggle.js"></script>
     <script type="module" src="js/calculator-page.js"></script>
 </body>
 

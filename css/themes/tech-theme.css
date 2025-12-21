@@ -1,0 +1,192 @@
+/* =============================================
+   Tech Theme - 深色科技主題
+   Version: 2.0.0
+   
+   這個文件只覆蓋 CSS 變數來實現主題切換
+   不使用 !important，保持樣式層級清晰
+   ============================================= */
+
+/* ===================
+   深色科技主題變數
+   =================== */
+
+[data-theme="tech"],
+.theme-tech {
+    /* 背景顏色 */
+    --color-bg-body: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    --color-bg-container: rgba(30, 41, 59, 0.95);
+    --color-bg-card: rgba(15, 23, 42, 0.8);
+    --color-bg-input: rgba(30, 41, 59, 0.6);
+    --color-bg-hover: rgba(30, 41, 59, 0.9);
+
+    /* 主要顏色 */
+    --color-primary: #3b82f6;
+    --color-primary-light: #60a5fa;
+    --color-primary-dark: #2563eb;
+    --color-secondary: #0891b2;
+    --color-accent: #22d3ee;
+
+    /* 漸層定義 */
+    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
+    --gradient-header: linear-gradient(to right, #60a5fa, #22d3ee);
+
+    /* 文字顏色 */
+    --color-text-primary: #e2e8f0;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+    --color-text-white: #ffffff;
+    --color-text-inverse: #0f172a;
+
+    /* 邊框顏色 */
+    --color-border: rgba(148, 163, 184, 0.2);
+    --color-border-light: rgba(255, 255, 255, 0.1);
+    --color-border-focus: #3b82f6;
+
+    /* 狀態顏色 */
+    --color-success: #22c55e;
+    --color-success-bg: rgba(34, 197, 94, 0.15);
+    --color-warning: #f59e0b;
+    --color-warning-bg: rgba(245, 158, 11, 0.15);
+    --color-danger: #ef4444;
+    --color-danger-bg: rgba(239, 68, 68, 0.15);
+    --color-info: #3b82f6;
+    --color-info-bg: rgba(59, 130, 246, 0.15);
+
+    /* 陰影 */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+/* ===================
+   主題特定樣式覆蓋
+   =================== */
+
+[data-theme="tech"] .container,
+.theme-tech .container {
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="tech"] .container::before,
+.theme-tech .container::before {
+    background: linear-gradient(90deg, #3b82f6 0%, #22d3ee 50%, #3b82f6 100%);
+}
+
+[data-theme="tech"] h1,
+[data-theme="tech"] h2,
+.theme-tech h1,
+.theme-tech h2 {
+    background: linear-gradient(to right, #60a5fa, #22d3ee);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+[data-theme="tech"] .sticky-header,
+.theme-tech .sticky-header {
+    background: rgba(30, 41, 59, 0.98);
+}
+
+[data-theme="tech"] .calculator-header,
+.theme-tech .calculator-header {
+    background: var(--gradient-primary);
+}
+
+[data-theme="tech"] .list-item:hover,
+.theme-tech .list-item:hover {
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+[data-theme="tech"] .result-box,
+[data-theme="tech"] .ui-result-box,
+.theme-tech .result-box,
+.theme-tech .ui-result-box {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="tech"] .result-box.has-result,
+[data-theme="tech"] .ui-result-box.has-result,
+.theme-tech .result-box.has-result,
+.theme-tech .ui-result-box.has-result {
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.2);
+}
+
+/* ===================
+   表單元素主題樣式
+   =================== */
+
+[data-theme="tech"] input,
+[data-theme="tech"] select,
+[data-theme="tech"] textarea,
+.theme-tech input,
+.theme-tech select,
+.theme-tech textarea {
+    background: var(--color-bg-input);
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+}
+
+[data-theme="tech"] input:focus,
+[data-theme="tech"] select:focus,
+[data-theme="tech"] textarea:focus,
+.theme-tech input:focus,
+.theme-tech select:focus,
+.theme-tech textarea:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+}
+
+[data-theme="tech"] input::placeholder,
+.theme-tech input::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* ===================
+   按鈕主題樣式
+   =================== */
+
+[data-theme="tech"] .btn,
+[data-theme="tech"] .ui-button,
+.theme-tech .btn,
+.theme-tech .ui-button {
+    background: var(--gradient-primary);
+}
+
+[data-theme="tech"] .btn:hover,
+[data-theme="tech"] .ui-button:hover,
+.theme-tech .btn:hover,
+.theme-tech .ui-button:hover {
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+/* ===================
+   Radio/Checkbox 主題樣式
+   =================== */
+
+[data-theme="tech"] .radio-option,
+[data-theme="tech"] .checkbox-option,
+[data-theme="tech"] .ui-radio-option,
+[data-theme="tech"] .ui-checkbox-option,
+.theme-tech .radio-option,
+.theme-tech .checkbox-option,
+.theme-tech .ui-radio-option,
+.theme-tech .ui-checkbox-option {
+    background: var(--color-bg-card);
+    border-color: var(--color-border);
+}
+
+[data-theme="tech"] .radio-option.selected,
+[data-theme="tech"] .checkbox-option.selected,
+[data-theme="tech"] .ui-radio-option.selected,
+[data-theme="tech"] .ui-checkbox-option.selected,
+.theme-tech .radio-option.selected,
+.theme-tech .checkbox-option.selected,
+.theme-tech .ui-radio-option.selected,
+.theme-tech .ui-checkbox-option.selected {
+    border-color: var(--color-accent);
+    background: rgba(34, 211, 238, 0.1);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
+}
+
