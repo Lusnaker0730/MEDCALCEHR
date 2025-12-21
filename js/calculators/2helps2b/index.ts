@@ -44,9 +44,77 @@ export const helps2bScore: CalculatorModule = {
                 `
         })}
 
+
             ${uiBuilder.createResultBox({ id: 'helps2b-result', title: '2HELPS2B Score Results' })}
 
-
+            ${uiBuilder.createFormulaSection({
+            items: [
+                {
+                    title: 'Scoring Criteria',
+                    formulas: [
+                        'Frequency > 2 Hz: +1 point',
+                        'Sporadic epileptiform discharges: +1 point',
+                        'LPD (Lateralized Periodic Discharges) / BIPD / LRDA: +1 point',
+                        'Plus features (superimposed fast activity or rhythmic delta): +1 point',
+                        'Prior seizure (before cEEG monitoring): +1 point',
+                        'BIRDs (Brief Ictal Rhythmic Discharges): +2 points'
+                    ]
+                },
+                {
+                    title: 'Seizure Probability by Score',
+                    content: `
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                    <thead>
+                                        <tr style="background: rgba(102, 126, 234, 0.1);">
+                                            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Score</th>
+                                            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Seizure Risk</th>
+                                            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Risk Category</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">0</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">< 5%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Very Low</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Low</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">27%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Moderate</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">3</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">50%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Moderate-High</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">73%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">High</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">88%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Very High</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥6</td>
+                                            <td style="padding: 8px; border: 1px; solid #ddd; text-align: center;">> 95%</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Extremely High</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `
+                }
+            ]
+        })}
 
             <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
                 <h4>📚 Reference</h4>

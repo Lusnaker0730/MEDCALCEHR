@@ -144,17 +144,65 @@ export const fourCMortalityCovid: CalculatorModule = {
             <div id="four-c-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'four-c-result', title: '4C Mortality Score Results' })}
             
-            ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
-                    <h4>📊 Risk Groups</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li><strong>Low (0-3):</strong> 1.2% Mortality</li>
-                        <li><strong>Intermediate (4-8):</strong> 9.9% Mortality</li>
-                        <li><strong>High (9-14):</strong> 31.4% Mortality</li>
-                        <li><strong>Very High (≥15):</strong> 61.5% Mortality</li>
-                    </ul>
-                `
+            
+            ${uiBuilder.createFormulaSection({
+            items: [
+                {
+                    title: 'Scoring Criteria',
+                    formulas: [
+                        'Age: <50 (0) | 50-59 (+2) | 60-69 (+4) | 70-79 (+6) | ≥80 (+7)',
+                        'Sex: Female (0) | Male (+1)',
+                        'Comorbidities: 0 (0) | 1 (+1) | ≥2 (+2)',
+                        'Respiratory Rate: <20 (0) | 20-29 (+1) | ≥30 (+2)',
+                        'O₂ Saturation: ≥92% (0) | <92% (+2)',
+                        'Glasgow Coma Scale: 15 (0) | <15 (+2)',
+                        'Urea/BUN: <7 mmol/L or <19.6 mg/dL (0) | 7-14 mmol/L or 19.6-39.2 mg/dL (+1) | >14 mmol/L or >39.2 mg/dL (+3)',
+                        'C-Reactive Protein: <50 mg/L (0) | 50-99 mg/L (+1) | ≥100 mg/L (+2)'
+                    ]
+                },
+                {
+                    title: 'In-Hospital Mortality Risk Stratification',
+                    content: `
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                    <thead>
+                                        <tr style="background: rgba(102, 126, 234, 0.1);">
+                                            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Score</th>
+                                            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Risk Group</th>
+                                            <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Mortality Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="background: rgba(40, 167, 69, 0.1);">
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">0-3</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Low</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1.2%</td>
+                                        </tr>
+                                        <tr style="background: rgba(255, 193, 7, 0.1);">
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4-8</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Intermediate</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9.9%</td>
+                                        </tr>
+                                        <tr style="background: rgba(255, 152, 0, 0.1);">
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9-14</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">High</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">31.4%</td>
+                                        </tr>
+                                        <tr style="background: rgba(220, 53, 69, 0.1);">
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥15</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Very High</td>
+                                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">61.5%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `
+                },
+                {
+                    label: 'Note',
+                    content: 'Comorbidities include: chronic cardiac disease, chronic respiratory disease, chronic renal disease, chronic liver disease, chronic neurological disease, dementia, malignancy, obesity (BMI >30), diabetes mellitus, and immunosuppression.'
+                }
+            ]
         })}
         `;
     },
