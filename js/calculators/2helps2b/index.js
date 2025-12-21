@@ -85,7 +85,6 @@ export const helps2bScore = {
         container.querySelectorAll('input[type="checkbox"]').forEach(box => {
             box.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

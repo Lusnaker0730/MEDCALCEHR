@@ -96,9 +96,7 @@ export const abgAnalyzer = {
                 <div class="ui-result-content"></div>
             </div>
 
-            <div class="chart-container" style="margin-top: 20px; text-align: center;">
-                <img src="js/calculators/abg-analyzer/ABG-interpretation.avif" alt="ABG Interpretation Reference Image" class="reference-image" style="max-width: 100%; border-radius: 8px;" />
-            </div>
+
 
             <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
                 <h4>📚 Reference</h4>

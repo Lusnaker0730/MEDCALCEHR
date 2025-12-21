@@ -122,9 +122,6 @@ export const actionIcu: CalculatorModule = {
 
             ${uiBuilder.createResultBox({ id: 'action-icu-result', title: 'ACTION ICU Score' })}
 
-            <div class="chart-container" style="margin-top: 20px; text-align: center;">
-                 <!-- Images are currently missing in source but keeping placeholder structure if needed -->
-            </div>
 
             ${uiBuilder.createAlert({
             type: 'info',

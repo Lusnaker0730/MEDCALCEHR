@@ -2,7 +2,6 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-
 export const paduaVTE = {
     id: 'padua-vte',
     title: 'Padua Prediction Score for Risk of VTE',
@@ -21,21 +20,17 @@ export const paduaVTE = {
             { id: 'padua-obesity', label: 'Obesity (BMI ≥30 kg/m²)', points: 1 },
             { id: 'padua-hormonal', label: 'Ongoing hormonal treatment', points: 1 }
         ];
-
         const inputs = uiBuilder.createSection({
             title: 'Risk Factors',
-            content: riskFactors.map(factor =>
-                uiBuilder.createRadioGroup({
-                    name: factor.id,
-                    label: factor.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: factor.points.toString(), label: `Yes (+${factor.points})` }
-                    ]
-                })
-            ).join('')
+            content: riskFactors.map(factor => uiBuilder.createRadioGroup({
+                name: factor.id,
+                label: factor.label,
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: factor.points.toString(), label: `Yes (+${factor.points})` }
+                ]
+            })).join('')
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -49,10 +44,8 @@ export const paduaVTE = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -60,59 +53,55 @@ export const paduaVTE = {
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
         const calculate = () => {
             let score = 0;
             const radios = container.querySelectorAll('input[type="radio"]:checked');
-
             radios.forEach(radio => {
                 score += parseInt(radio.value);
             });
-
             let alertClass = '';
             let riskLevel = '';
             let recommendation = '';
-            let type = '';
-
+            let type = 'success';
             if (score >= 4) {
                 alertClass = 'ui-alert-danger';
                 riskLevel = 'High Risk for VTE';
                 recommendation = 'Pharmacologic prophylaxis is recommended.';
                 type = 'danger';
-            } else {
+            }
+            else {
                 alertClass = 'ui-alert-success';
                 riskLevel = 'Low Risk for VTE';
                 recommendation = 'Pharmacologic prophylaxis may not be necessary.';
                 type = 'success';
             }
-
             const resultBox = container.querySelector('#padua-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
+            if (resultBox) {
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultContent) {
+                    resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score,
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: alertClass
-            })}
+                        label: 'Total Score',
+                        value: score,
+                        unit: 'points',
+                        interpretation: riskLevel,
+                        alertClass: alertClass
+                    })}
                 
                 ${uiBuilder.createAlert({
-                type: type === 'danger' ? 'warning' : 'info',
-                message: `<strong>Recommendation:</strong> ${recommendation}`,
-                icon: type === 'danger' ? '⚠️' : '✓'
-            })}
+                        type: type === 'danger' ? 'warning' : 'info',
+                        message: `<strong>Recommendation:</strong> ${recommendation}`,
+                        icon: type === 'danger' ? '⚠️' : '✓'
+                    })}
             `;
-
-            resultBox.classList.add('show');
+                }
+                resultBox.classList.add('show');
+            }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Auto-populate age
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
@@ -120,17 +109,15 @@ export const paduaVTE = {
                 setRadioValue('padua-age', '1');
             }
         }
-
         // Auto-populate BMI
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
-                if (obs?.valueQuantity?.value >= 30) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value && obs.valueQuantity.value >= 30) {
                     setRadioValue('padua-obesity', '1');
                     stalenessTracker.trackObservation('input[name="padua-obesity"]', obs, LOINC_CODES.BMI, 'BMI ≥ 30');
                 }
             });
         }
-
         // Initial calculation
         calculate();
     }

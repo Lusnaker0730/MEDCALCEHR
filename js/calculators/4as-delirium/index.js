@@ -133,7 +133,6 @@ export const fourAsDelirium = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Initial calculation
         calculate();
     }

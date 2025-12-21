@@ -1,5 +1,4 @@
 import { uiBuilder } from '../../ui-builder.js';
-
 export const steroidConversion = {
     id: 'steroid-conversion',
     title: 'Steroid Conversion Calculator',
@@ -14,98 +13,79 @@ export const steroidConversion = {
             { name: 'Prednisone', dose: 5, value: '5' },
             { name: 'Triamcinolone', dose: 4, value: '4' }
         ];
-
         const steroidOptions = steroids.map(s => ({ label: s.name, value: s.value }));
-
-        // Generate conversion table
-        let tableRows = '';
-        steroids.forEach(steroid => {
-            let conversions = '';
-            steroids.forEach(targetSteroid => {
-                const equivalentDose = (steroid.dose / targetSteroid.dose).toFixed(2);
-                conversions += `<td>${equivalentDose}</td>`;
-            });
-            tableRows += `
-                <tr>
-                    <td class="steroid-name">${steroid.name} ${steroid.dose} mg</td>
-                    ${conversions}
-                </tr>
-            `;
+        // Generate conversion table data
+        const headers = ['Reference Dose', ...steroids.map(s => s.name)];
+        const rows = steroids.map(steroid => {
+            const firstCell = `${steroid.name} ${steroid.dose} mg`;
+            const conversions = steroids.map(targetSteroid => (steroid.dose / targetSteroid.dose).toFixed(2));
+            return [firstCell, ...conversions];
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-                title: 'Conversion',
-                content: `
+            title: 'Conversion',
+            content: `
                     <div class="conversion-row" style="display: flex; gap: 1rem; align-items: flex-end;">
                         <div style="flex: 1;">
                             ${uiBuilder.createInput({
-                                id: 'steroid-from-dose',
-                                label: 'Dose',
-                                type: 'number',
-                                placeholder: 'Enter dose',
-                                min: 0
-                            })}
+                id: 'steroid-from-dose',
+                label: 'Dose',
+                type: 'number',
+                placeholder: 'Enter dose',
+                min: 0
+            })}
                         </div>
                         <div style="flex: 1;">
                             ${uiBuilder.createSelect({
-                                id: 'steroid-from-type',
-                                label: 'Steroid',
-                                options: steroidOptions
-                            })}
+                id: 'steroid-from-type',
+                label: 'Steroid',
+                options: steroidOptions
+            })}
                         </div>
                     </div>
                     <div style="text-align: center; margin: 1rem 0; font-weight: bold;">IS EQUIVALENT TO</div>
                      <div class="conversion-row" style="display: flex; gap: 1rem; align-items: flex-end;">
                         <div style="flex: 1;">
                             ${uiBuilder.createInput({
-                                id: 'steroid-to-dose',
-                                label: 'Equivalent Dose',
-                                type: 'text', // Readonly usually
-                                placeholder: 'Result',
-                                min: 0
-                            })}
+                id: 'steroid-to-dose',
+                label: 'Equivalent Dose',
+                type: 'text', // Readonly usually
+                placeholder: 'Result',
+                min: 0
+            })}
                         </div>
                         <div style="flex: 1;">
                             ${uiBuilder.createSelect({
-                                id: 'steroid-to-type',
-                                label: 'Steroid',
-                                options: steroidOptions
-                            })}
+                id: 'steroid-to-type',
+                label: 'Steroid',
+                options: steroidOptions
+            })}
                         </div>
                     </div>
                 `
-            })}
+        })}
             
             ${uiBuilder.createSection({
-                title: 'Steroid Equivalence Table',
-                content: `
-                    <div class="ui-data-table" style="overflow-x: auto;">
-                        <table class="steroid-equivalence-table" style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th class="sticky-col">Reference Dose</th>
-                                    ${steroids.map(s => `<th>${s.name}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${tableRows}
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="table-note" style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
-                    </p>
-                `
+            title: 'Steroid Equivalence Table',
+            content: `
+                ${uiBuilder.createTable({
+                headers,
+                rows,
+                stickyFirstColumn: true
             })}
+                <p class="table-note" style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                    <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
+                </p>
+            `
+        })}
 
              ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>Relative Potency Information</h4>
                     <ul>
                         <li><strong>Highest Potency:</strong> Dexamethasone (0.75 mg)</li>
@@ -120,43 +100,40 @@ export const steroidConversion = {
                          <li><strong>Dexamethasone</strong> longest half-life (36-54 hrs) - useful once daily dosing</li>
                     </ul>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const fromDoseEl = container.querySelector('#steroid-from-dose');
         const fromTypeEl = container.querySelector('#steroid-from-type');
         const toDoseEl = container.querySelector('#steroid-to-dose');
         const toTypeEl = container.querySelector('#steroid-to-type');
-        
         // Make result readonly
-        toDoseEl.readOnly = true;
-
+        if (toDoseEl)
+            toDoseEl.readOnly = true;
         const calculateConversion = () => {
             const fromDose = parseFloat(fromDoseEl.value);
             const fromEquivalent = parseFloat(fromTypeEl.value);
             const toEquivalent = parseFloat(toTypeEl.value);
-
-            if (
-                isNaN(fromDose) ||
+            if (isNaN(fromDose) ||
                 isNaN(fromEquivalent) ||
                 isNaN(toEquivalent) ||
-                fromEquivalent === 0
-            ) {
-                toDoseEl.value = '';
+                fromEquivalent === 0) {
+                if (toDoseEl)
+                    toDoseEl.value = '';
                 return;
             }
-
             const toDose = (fromDose / fromEquivalent) * toEquivalent;
-            toDoseEl.value = toDose.toFixed(2);
+            if (toDoseEl)
+                toDoseEl.value = toDose.toFixed(2);
         };
-
-        fromDoseEl.addEventListener('input', calculateConversion);
-        fromTypeEl.addEventListener('change', calculateConversion);
-        toTypeEl.addEventListener('change', calculateConversion);
-
+        if (fromDoseEl)
+            fromDoseEl.addEventListener('input', calculateConversion);
+        if (fromTypeEl)
+            fromTypeEl.addEventListener('change', calculateConversion);
+        if (toTypeEl)
+            toTypeEl.addEventListener('change', calculateConversion);
         calculateConversion();
     }
 };

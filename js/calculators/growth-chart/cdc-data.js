@@ -1,7 +1,6 @@
 // CDC Growth Chart Data (2000) for Infants (0-36 months)
 // Format 1 (LMS): [Agemos, L, M, S, P3, P5, P10, P25, P50, P75, P90, P95, P97]
 // Format 2 (Legacy): Object with 'data' array of percentiles
-
 export const cdcData = {
     // Weight-for-age (LMS Precision Data)
     wtageinf: {

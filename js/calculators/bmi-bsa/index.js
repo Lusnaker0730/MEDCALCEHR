@@ -46,8 +46,8 @@ export const bmiBsa = {
             
             ${uiBuilder.createFormulaSection({
             items: [
-                { label: 'BMI (Body Mass Index)', formula: 'BMI = Weight (kg) / Height² (m²)' },
-                { label: 'BSA (Body Surface Area - Du Bois Formula)', formula: 'BSA = 0.007184 × Weight<sup>0.425</sup> (kg) × Height<sup>0.725</sup> (cm)' }
+                { label: 'BMI (Body Mass Index)', formula: 'Weight (kg) / Height² (m²)' },
+                { label: 'BSA (Du Bois Formula)', formula: '0.007184 × Weight<sup>0.425</sup> (kg) × Height<sup>0.725</sup> (cm)' }
             ]
         })}
         `;
@@ -90,7 +90,8 @@ export const bmiBsa = {
                                 displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                         }
                     }
-                    resultEl.classList.remove('show');
+                    if (resultEl)
+                        resultEl.classList.remove('show');
                     return;
                 }
                 if (weightKg !== null && heightCm !== null && weightKg > 0 && heightCm > 0) {
@@ -103,32 +104,31 @@ export const bmiBsa = {
                     }
                     // Determine BMI category and severity
                     let bmiCategory = '';
-                    let severityClass = 'ui-alert-success';
+                    let alertClass = '';
                     if (bmi < 18.5) {
                         bmiCategory = 'Underweight';
-                        severityClass = 'ui-alert-warning';
+                        alertClass = 'warning';
                     }
                     else if (bmi < 25) {
                         bmiCategory = 'Normal weight';
-                        severityClass = 'ui-alert-success';
+                        alertClass = 'success';
                     }
                     else if (bmi < 30) {
                         bmiCategory = 'Overweight';
-                        severityClass = 'ui-alert-warning';
+                        alertClass = 'warning';
                     }
                     else if (bmi < 35) {
                         bmiCategory = 'Obese (Class I)';
-                        severityClass = 'ui-alert-danger';
+                        alertClass = 'danger';
                     }
                     else if (bmi < 40) {
                         bmiCategory = 'Obese (Class II)';
-                        severityClass = 'ui-alert-danger';
+                        alertClass = 'danger';
                     }
                     else {
                         bmiCategory = 'Obese (Class III)';
-                        severityClass = 'ui-alert-danger';
+                        alertClass = 'danger';
                     }
-
                     if (resultEl) {
                         const resultContent = resultEl.querySelector('.ui-result-content');
                         if (resultContent) {
@@ -138,13 +138,15 @@ export const bmiBsa = {
                                 value: bmi.toFixed(1),
                                 unit: 'kg/m²',
                                 interpretation: bmiCategory,
-                                alertClass: severityClass
+                                alertClass: 'ui-alert-' + alertClass
                             })}
+                                
                                 ${uiBuilder.createResultItem({
                                 label: 'Body Surface Area (BSA)',
                                 value: bsa.toFixed(2),
                                 unit: 'm²'
                             })}
+                                
                                 ${uiBuilder.createAlert({
                                 type: 'info',
                                 message: 'BSA calculated using Du Bois formula. Used for medication dosing and cardiac index calculation.'
@@ -152,12 +154,12 @@ export const bmiBsa = {
                             `;
                         }
                         resultEl.classList.add('show');
-
                     }
                 }
                 else {
                     // Hide result if inputs are invalid (0 or negative that slipped through)
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl)
+                        resultEl.classList.remove('show');
                 }
             }
             catch (error) {
@@ -169,7 +171,8 @@ export const bmiBsa = {
                 if (errorContainer)
                     displayError(errorContainer, error);
                 // Reset result display
-                resultEl.classList.remove('show');
+                if (resultEl)
+                    resultEl.classList.remove('show');
             }
         };
         // Add event listeners for real-time calculation
@@ -184,33 +187,33 @@ export const bmiBsa = {
             const heightPromise = getMostRecentObservation(client, LOINC_CODES.HEIGHT);
             Promise.all([weightPromise, heightPromise])
                 .then(([weightObs, heightObs]) => {
-                    if (weightObs && weightObs.valueQuantity && weightInput) {
-                        const val = weightObs.valueQuantity.value;
-                        const unit = weightObs.valueQuantity.unit || 'kg';
-                        const wInKg = UnitConverter.convert(val, unit, 'kg', 'weight');
-                        if (wInKg !== null) {
-                            weightInput.value = wInKg.toFixed(1);
-                            weightInput.dispatchEvent(new Event('input'));
-                        }
-                        // Track staleness
-                        stalenessTracker.trackObservation('#bmi-bsa-weight', weightObs, LOINC_CODES.WEIGHT, 'Weight');
+                if (weightObs && weightObs.valueQuantity && weightInput) {
+                    const val = weightObs.valueQuantity.value;
+                    const unit = weightObs.valueQuantity.unit || 'kg';
+                    const wInKg = UnitConverter.convert(val, unit, 'kg', 'weight');
+                    if (wInKg !== null) {
+                        weightInput.value = wInKg.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
                     }
-                    if (heightObs && heightObs.valueQuantity && heightInput) {
-                        const val = heightObs.valueQuantity.value;
-                        const unit = heightObs.valueQuantity.unit || 'cm';
-                        const hInCm = UnitConverter.convert(val, unit, 'cm', 'height');
-                        if (hInCm !== null) {
-                            heightInput.value = hInCm.toFixed(1);
-                            heightInput.dispatchEvent(new Event('input'));
-                        }
-                        // Track staleness
-                        stalenessTracker.trackObservation('#bmi-bsa-height', heightObs, LOINC_CODES.HEIGHT, 'Height');
+                    // Track staleness
+                    stalenessTracker.trackObservation('#bmi-bsa-weight', weightObs, LOINC_CODES.WEIGHT, 'Weight');
+                }
+                if (heightObs && heightObs.valueQuantity && heightInput) {
+                    const val = heightObs.valueQuantity.value;
+                    const unit = heightObs.valueQuantity.unit || 'cm';
+                    const hInCm = UnitConverter.convert(val, unit, 'cm', 'height');
+                    if (hInCm !== null) {
+                        heightInput.value = hInCm.toFixed(1);
+                        heightInput.dispatchEvent(new Event('input'));
                     }
-                })
+                    // Track staleness
+                    stalenessTracker.trackObservation('#bmi-bsa-height', heightObs, LOINC_CODES.HEIGHT, 'Height');
+                }
+            })
                 .catch(error => {
-                    // Quiet fail or warn
-                    console.warn('FHIR fetch failed', error);
-                });
+                // Quiet fail or warn
+                console.warn('FHIR fetch failed', error);
+            });
         }
     }
 };

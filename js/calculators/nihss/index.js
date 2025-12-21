@@ -1,11 +1,9 @@
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const nihss = {
     id: 'nihss',
     title: 'NIH Stroke Scale/Score (NIHSS)',
     description: 'Quantifies stroke severity and monitors for neurological changes over time.',
-
     generateHTML: function () {
         const sections = [
             {
@@ -156,17 +154,13 @@ export const nihss = {
                 ]
             }
         ];
-
-        const formContent = sections.map(section =>
-            uiBuilder.createSection({
-                title: section.title,
-                content: uiBuilder.createRadioGroup({
-                    name: section.id,
-                    options: section.options
-                })
+        const formContent = sections.map(section => uiBuilder.createSection({
+            title: section.title,
+            content: uiBuilder.createRadioGroup({
+                name: section.id,
+                options: section.options
             })
-        ).join('');
-
+        })).join('');
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -194,95 +188,96 @@ export const nihss = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#nihss-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 const groups = [
                     'nihss-1a', 'nihss-1b', 'nihss-1c', 'nihss-2', 'nihss-3',
                     'nihss-4', 'nihss-5a', 'nihss-5b', 'nihss-6a', 'nihss-6b',
                     'nihss-7', 'nihss-8', 'nihss-9', 'nihss-10', 'nihss-11'
                 ];
-
                 let score = 0;
                 let allSelected = true;
-
                 groups.forEach(groupName => {
                     const checked = container.querySelector(`input[name="${groupName}"]:checked`);
                     if (checked) {
                         score += parseInt(checked.value);
-                    } else {
+                    }
+                    else {
                         allSelected = false;
                     }
                 });
-
-                if (!allSelected) return;
-
+                if (!allSelected)
+                    return;
                 let severity = '';
                 let alertClass = '';
                 let interpretation = '';
-
                 if (score === 0) {
                     severity = 'No Stroke';
                     alertClass = 'ui-alert-success';
                     interpretation = 'No stroke symptoms detected.';
-                } else if (score >= 1 && score <= 4) {
+                }
+                else if (score >= 1 && score <= 4) {
                     severity = 'Minor Stroke';
                     alertClass = 'ui-alert-info';
                     interpretation = 'Minor stroke. Consider outpatient management with close follow-up.';
-                } else if (score >= 5 && score <= 15) {
+                }
+                else if (score >= 5 && score <= 15) {
                     severity = 'Moderate Stroke';
                     alertClass = 'ui-alert-warning';
                     interpretation = 'Moderate stroke. Requires inpatient monitoring and treatment.';
-                } else if (score >= 16 && score <= 20) {
+                }
+                else if (score >= 16 && score <= 20) {
                     severity = 'Moderate-to-Severe Stroke';
                     alertClass = 'ui-alert-danger';
                     interpretation = 'Moderate-to-severe stroke. Intensive monitoring and intervention required.';
-                } else {
+                }
+                else {
                     severity = 'Severe Stroke';
                     alertClass = 'ui-alert-danger';
                     interpretation = 'Severe stroke. Critical care and aggressive intervention needed.';
                 }
-
                 const resultBox = container.querySelector('#nihss-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: '/ 42 points',
-                    interpretation: severity,
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="ui-alert ${alertClass} mt-10">
-                        <span class="ui-alert-icon">${score >= 16 ? '⚠️' : 'ℹ️'}</span>
-                        <div class="ui-alert-content">${interpretation}</div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Total Score',
+                            value: score,
+                            unit: '/ 42 points',
+                            interpretation: severity,
+                            alertClass: alertClass
+                        })}
+                            
+                            <div class="ui-alert ${alertClass} mt-10">
+                                <span class="ui-alert-icon">${score >= 16 ? '⚠️' : 'ℹ️'}</span>
+                                <div class="ui-alert-content">${interpretation}</div>
+                            </div>
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#nihss-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'nihss', action: 'calculate' });
             }
         };
-
         // Event listeners for all radio buttons
         const radios = container.querySelectorAll('input[type="radio"]');
         radios.forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Initial calculation
         calculate();
     }

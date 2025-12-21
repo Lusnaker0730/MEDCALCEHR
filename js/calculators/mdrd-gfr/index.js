@@ -111,7 +111,8 @@ export const mdrdGfr = {
                                 displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl)
+                        resultEl.classList.remove('show');
                     return;
                 }
                 if (creatinineMgDl && creatinineMgDl > 0 && age > 0) {
@@ -176,14 +177,16 @@ export const mdrdGfr = {
                     }
                 }
                 else {
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl)
+                        resultEl.classList.remove('show');
                 }
             }
             catch (error) {
                 logError(error, { calculator: 'mdrd-gfr', action: 'calculate' });
                 if (errorContainer)
                     displayError(errorContainer, error);
-                if (resultEl) resultEl.classList.remove('show');
+                if (resultEl)
+                    resultEl.classList.remove('show');
             }
         };
         if (patient && patient.birthDate) {

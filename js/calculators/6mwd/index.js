@@ -75,9 +75,37 @@ export const sixMwd = {
             <div id="mwd6-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'mwd6-result', title: '6 Minute Walk Distance Results' })}
 
-            <div class="chart-container" style="margin-top: 20px; text-align: center;">
-                <img src="js/calculators/6mwd/6mwd.png" alt="6 Minute Walk Distance Reference Image" class="reference-image" style="max-width: 100%; border-radius: 8px;" />
-            </div>
+
+
+            ${uiBuilder.createFormulaSection({
+            items: [
+                {
+                    title: 'Men',
+                    formulas: [
+                        '6MWD = (7.57 × height<sub>cm</sub>) - (5.02 × age) - (1.76 × weight<sub>kg</sub>) - 309 m',
+                        'Alternate: 6MWD = 1,140 m - (5.61 × BMI) - (6.94 × age)'
+                    ]
+                },
+                {
+                    title: 'Women',
+                    formulas: [
+                        '6MWD = (2.11 × height<sub>cm</sub>) - (2.29 × weight<sub>kg</sub>) - (5.78 × age) + 667 m',
+                        'Alternate: 6MWD = 1,017 m - (6.24 × BMI) - (5.83 × age)'
+                    ]
+                },
+                {
+                    title: 'Lower Limit of Normal',
+                    formulas: [
+                        'LLN = Expected Distance - 153 m'
+                    ],
+                    notes: 'When using either equation, subtract 153 m for the LLN'
+                },
+                {
+                    label: 'Abbreviations',
+                    content: 'BMI = body mass index (kg/m²); 6MWD = 6-min walk distance; LLN = lower limit of normal'
+                }
+            ]
+        })}
 
             <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
                 <h4>Reference</h4>

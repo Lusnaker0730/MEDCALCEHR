@@ -2,7 +2,7 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const ransonScore = {
     id: 'ranson-score',
     title: 'Ranson Score for Pancreatitis',
@@ -15,7 +15,6 @@ export const ransonScore = {
             { id: 'ranson-ast', label: 'Serum AST > 250 IU/L' },
             { id: 'ranson-ldh', label: 'Serum LDH > 350 IU/L' }
         ];
-
         const hours48Criteria = [
             { id: 'ranson-calcium', label: 'Serum calcium < 8.0 mg/dL (<2.0 mmol/L)' },
             { id: 'ranson-hct', label: 'Hematocrit fall > 10%' },
@@ -24,7 +23,6 @@ export const ransonScore = {
             { id: 'ranson-base', label: 'Base deficit > 4 mEq/L' },
             { id: 'ranson-fluid', label: 'Fluid sequestration > 6 L' }
         ];
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -53,6 +51,7 @@ export const ransonScore = {
             })
         })}
 
+            <div id="ranson-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'ranson-result', title: 'Ranson Score Result' })}
 
             ${uiBuilder.createAlert({
@@ -78,71 +77,87 @@ export const ransonScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const resultBox = container.querySelector('#ranson-result');
-
         const calculate = () => {
-            let score = 0;
-            container.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                score += 1;
-            });
-
-            let mortality = '';
-            let severity = '';
-            let alertType = 'info';
-
-            if (score <= 2) {
-                mortality = '0-3%';
-                severity = 'Low Risk';
-                alertType = 'success';
-            } else if (score <= 4) {
-                mortality = '15-20%';
-                severity = 'Moderate Risk';
-                alertType = 'warning';
-            } else if (score <= 6) {
-                mortality = '~40%';
-                severity = 'High Risk';
-                alertType = 'danger';
-            } else {
-                mortality = '>50%';
-                severity = 'Very High Risk';
-                alertType = 'danger';
+            try {
+                // Clear validation errors
+                const errorContainer = container.querySelector('#ranson-error-container');
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
+                let score = 0;
+                container.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+                    score += 1;
+                });
+                let mortality = '';
+                let severity = '';
+                let alertType = 'info';
+                if (score <= 2) {
+                    mortality = '0-3%';
+                    severity = 'Low Risk';
+                    alertType = 'success';
+                }
+                else if (score <= 4) {
+                    mortality = '15-20%';
+                    severity = 'Moderate Risk';
+                    alertType = 'warning';
+                }
+                else if (score <= 6) {
+                    mortality = '~40%';
+                    severity = 'High Risk';
+                    alertType = 'danger';
+                }
+                else {
+                    mortality = '>50%';
+                    severity = 'Very High Risk';
+                    alertType = 'danger';
+                }
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Total Ranson Score',
+                            value: score,
+                            unit: '/ 11 points',
+                            interpretation: severity,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
+                            ${uiBuilder.createResultItem({
+                            label: 'Estimated Mortality',
+                            value: mortality,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
             }
-
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                label: 'Total Ranson Score',
-                value: score,
-                unit: '/ 11 points',
-                interpretation: severity,
-                alertClass: `ui-alert-${alertType}`
-            })}
-                ${uiBuilder.createResultItem({
-                label: 'Estimated Mortality',
-                value: mortality,
-                alertClass: `ui-alert-${alertType}`
-            })}
-            `;
-            resultBox.classList.add('show');
+            catch (error) {
+                const errorContainer = container.querySelector('#ranson-error-container');
+                if (errorContainer) {
+                    displayError(errorContainer, error);
+                }
+                else {
+                    console.error(error);
+                }
+                logError(error, { calculator: 'ranson', action: 'calculate' });
+            }
         };
-
         container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.addEventListener('change', calculate);
         });
-
         // Auto-populate
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             if (age > 55) {
-                container.querySelector('#ranson-age').checked = true;
+                const box = container.querySelector('#ranson-age');
+                if (box)
+                    box.checked = true;
             }
         }
-
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
                 if (obs?.valueQuantity) {
@@ -151,46 +166,68 @@ export const ransonScore = {
                     // If value > 1000, assume cells/uL?
                     // Standard FHIR often K/uL.
                     let val = obs.valueQuantity.value;
-                    if (val > 1000) val = val / 1000; // Convert to K/uL if raw count
-                    if (val > 16) container.querySelector('#ranson-wbc').checked = true;
+                    if (val > 1000)
+                        val = val / 1000; // Convert to K/uL if raw count
+                    if (val > 16) {
+                        const box = container.querySelector('#ranson-wbc');
+                        if (box)
+                            box.checked = true;
+                    }
                     calculate();
                     stalenessTracker.trackObservation('#ranson-wbc', obs, LOINC_CODES.WBC, 'WBC Count');
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
                 if (obs?.valueQuantity) {
                     let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'mmol/L') val = val * 18.0182;
-                    if (val > 200) container.querySelector('#ranson-glucose').checked = true;
+                    if (obs.valueQuantity.unit === 'mmol/L')
+                        val = val * 18.0182;
+                    if (val > 200) {
+                        const box = container.querySelector('#ranson-glucose');
+                        if (box)
+                            box.checked = true;
+                    }
                     calculate();
                     stalenessTracker.trackObservation('#ranson-glucose', obs, LOINC_CODES.GLUCOSE, 'Blood Glucose');
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
                 if (obs?.valueQuantity) {
-                    if (obs.valueQuantity.value > 250) container.querySelector('#ranson-ast').checked = true;
+                    if (obs.valueQuantity.value > 250) {
+                        const box = container.querySelector('#ranson-ast');
+                        if (box)
+                            box.checked = true;
+                    }
                     calculate();
                     stalenessTracker.trackObservation('#ranson-ast', obs, LOINC_CODES.AST, 'AST');
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
                 if (obs?.valueQuantity) {
-                    if (obs.valueQuantity.value > 350) container.querySelector('#ranson-ldh').checked = true;
+                    if (obs.valueQuantity.value > 350) {
+                        const box = container.querySelector('#ranson-ldh');
+                        if (box)
+                            box.checked = true;
+                    }
                     calculate();
                     stalenessTracker.trackObservation('#ranson-ldh', obs, LOINC_CODES.LDH, 'LDH');
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
                 if (obs?.valueQuantity) {
                     let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'mmol/L') val = val * 4.008;
-                    if (val < 8.0) container.querySelector('#ranson-calcium').checked = true;
+                    if (obs.valueQuantity.unit === 'mmol/L')
+                        val = val * 4.008;
+                    if (val < 8.0) {
+                        const box = container.querySelector('#ranson-calcium');
+                        if (box)
+                            box.checked = true;
+                    }
                     calculate();
                     stalenessTracker.trackObservation('#ranson-calcium', obs, LOINC_CODES.CALCIUM, 'Calcium');
                 }
-            });
+            }).catch(e => console.warn(e));
         }
-
         calculate();
     }
 };
