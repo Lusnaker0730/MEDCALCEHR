@@ -3,34 +3,40 @@ import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-
+import { logError } from '../../errorHandler.js';
 const getPoints = {
-    age: v => v * 0.08,
-    ef: v => v * -0.05,
-    sbp: v => v * -0.02,
-    bmi: v => {
-        if (v < 20) return 2;
-        if (v >= 20 && v < 25) return 1;
-        if (v >= 25 && v < 30) return 0;
-        if (v >= 30) return -1;
+    age: (v) => v * 0.08,
+    ef: (v) => v * -0.05,
+    sbp: (v) => v * -0.02,
+    bmi: (v) => {
+        if (v < 20)
+            return 2;
+        if (v >= 20 && v < 25)
+            return 1;
+        if (v >= 25 && v < 30)
+            return 0;
+        if (v >= 30)
+            return -1;
         return 0;
     },
-    creatinine: v => { // v in mg/dL
-        if (v <= 0.9) return 0;
-        if (v > 0.9 && v <= 1.3) return 1;
-        if (v > 1.3 && v <= 2.2) return 3;
-        if (v > 2.2) return 5;
+    creatinine: (v) => {
+        if (v <= 0.9)
+            return 0;
+        if (v > 0.9 && v <= 1.3)
+            return 1;
+        if (v > 1.3 && v <= 2.2)
+            return 3;
+        if (v > 2.2)
+            return 5;
         return 0;
     }
 };
-
-const getMortality = score => {
+const getMortality = (score) => {
     const linearPredictor = 0.047 * (score - 21.6);
     const prob1yr = 1 - Math.pow(0.92, Math.exp(linearPredictor));
     const prob3yr = 1 - Math.pow(0.79, Math.exp(linearPredictor));
     return { prob1yr: (prob1yr * 100).toFixed(1), prob3yr: (prob3yr * 100).toFixed(1) };
 };
-
 export const maggic = {
     id: 'maggic-hf',
     title: 'MAGGIC Risk Calculator for Heart Failure',
@@ -59,7 +65,7 @@ export const maggic = {
                     { value: '1', label: 'Male (+1)' }
                 ]
             })}
-                    ${uiBuilder.createInput({ id: 'maggic-bmi', label: 'BMI', unit: 'kg/m²', type: 'number', step: '0.1', placeholder: 'Norm: 20-25' })}
+                    ${uiBuilder.createInput({ id: 'maggic-bmi', label: 'BMI', unit: 'kg/m²', type: 'number', step: 0.1, placeholder: 'Norm: 20-25' })}
                     ${uiBuilder.createRadioGroup({
                 name: 'maggic-smoker',
                 label: 'Current Smoker',
@@ -81,12 +87,12 @@ export const maggic = {
                 id: 'maggic-creatinine',
                 label: 'Creatinine',
                 type: 'number',
-                step: '0.1',
+                step: 0.1,
                 unit: 'mg/dL',
                 unitToggle: {
                     type: 'creatinine',
                     units: ['mg/dL', 'µmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 },
                 helpText: 'Uses mg/dL for calculation (conversion applied if needed)'
             })}
@@ -162,10 +168,8 @@ export const maggic = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const fields = {
             age: container.querySelector('#maggic-age'),
             ef: container.querySelector('#maggic-ef'),
@@ -175,62 +179,68 @@ export const maggic = {
         };
         const radios = ['nyha', 'gender', 'smoker', 'diabetes', 'copd', 'hfdx', 'bb', 'acei'];
         const resultBox = container.querySelector('#maggic-result');
-
         const calculate = () => {
             const age = parseFloat(fields.age.value);
             const ef = parseFloat(fields.ef.value);
             const sbp = parseFloat(fields.sbp.value);
             const bmi = parseFloat(fields.bmi.value);
             const creatinine = UnitConverter.getStandardValue(fields.creatinine, 'mg/dL');
-
             const radioValues = {};
             let allRadiosChecked = true;
             radios.forEach(r => {
                 const checked = container.querySelector(`input[name="maggic-${r}"]:checked`);
                 if (checked) {
                     radioValues[r] = parseInt(checked.value);
-                } else {
+                }
+                else {
                     allRadiosChecked = false;
                 }
             });
-
-            if (isNaN(age) || isNaN(ef) || isNaN(sbp) || isNaN(bmi) || isNaN(creatinine) || !allRadiosChecked) {
-                resultBox.classList.remove('show');
+            if (isNaN(age) || isNaN(ef) || isNaN(sbp) || isNaN(bmi) || creatinine === null || isNaN(creatinine) || !allRadiosChecked) {
+                if (resultBox)
+                    resultBox.classList.remove('show');
                 return;
             }
-
-            let score = 0;
-            score += getPoints.age(age);
-            score += getPoints.ef(ef);
-            score += getPoints.sbp(sbp);
-            score += getPoints.bmi(bmi);
-            score += getPoints.creatinine(creatinine);
-
-            Object.values(radioValues).forEach(val => score += val);
-
-            const mortality = getMortality(score);
-
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                label: 'Total MAGGIC Score',
-                value: score.toFixed(1),
-                unit: 'points'
-            })}
-                ${uiBuilder.createResultItem({
-                label: '1-Year Mortality Risk',
-                value: `${mortality.prob1yr}%`,
-                alertClass: 'ui-alert-warning'
-            })}
-                ${uiBuilder.createResultItem({
-                label: '3-Year Mortality Risk',
-                value: `${mortality.prob3yr}%`,
-                alertClass: 'ui-alert-danger'
-            })}
-            `;
-            resultBox.classList.add('show');
+            try {
+                let score = 0;
+                score += getPoints.age(age);
+                score += getPoints.ef(ef);
+                score += getPoints.sbp(sbp);
+                score += getPoints.bmi(bmi);
+                score += getPoints.creatinine(creatinine);
+                Object.values(radioValues).forEach(val => score += val);
+                const mortality = getMortality(score);
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Total MAGGIC Score',
+                            value: score.toFixed(1),
+                            unit: 'points'
+                        })}
+                            ${uiBuilder.createResultItem({
+                            label: '1-Year Mortality Risk',
+                            value: `${mortality.prob1yr}%`,
+                            alertClass: 'ui-alert-warning'
+                        })}
+                            ${uiBuilder.createResultItem({
+                            label: '3-Year Mortality Risk',
+                            value: `${mortality.prob3yr}%`,
+                            alertClass: 'ui-alert-danger'
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
+                logError(error, { calculator: 'maggic', action: 'calculate' });
+                // If there were a dedicated error container for maggic, we would use it.
+                // Assuming one isn't explicitly defined in HTML string above, just logging for now
+                // or could insert one implicitly. The template above didn't include one, so sticking to console log or could append alert.
+            }
         };
-
         // Event listeners
         Object.values(fields).forEach(input => input.addEventListener('input', calculate));
         radios.forEach(r => {
@@ -238,52 +248,43 @@ export const maggic = {
                 radio.addEventListener('change', calculate);
             });
         });
-
         // Auto-populate
         if (patient && patient.birthDate) {
-            fields.age.value = calculateAge(patient.birthDate);
+            fields.age.value = calculateAge(patient.birthDate).toString();
         }
         if (patient && patient.gender) {
             uiBuilder.setRadioValue('maggic-gender', patient.gender === 'male' ? '1' : '0');
         }
-
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
-                if (obs?.valueQuantity) {
+                if (obs && obs.valueQuantity) {
                     fields.bmi.value = obs.valueQuantity.value.toFixed(1);
                     calculate();
                     stalenessTracker.trackObservation('#maggic-bmi', obs, LOINC_CODES.BMI, 'BMI');
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity) {
+                if (obs && obs.valueQuantity) {
                     fields.sbp.value = obs.valueQuantity.value.toFixed(0);
                     calculate();
                     stalenessTracker.trackObservation('#maggic-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                 }
-            });
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity) {
-                    // Assume util checks unit but if we rely on raw value we might need adjustment
-                    // Here we rely on user manually checking the unit if it differs or we rely on smart populating if implemented
-                    // For now just populate value and let user confirm unit
-                    let val = obs.valueQuantity.value;
-                    // If the observation unit is explicitly umol/L, we might want to set the toggle to umol/L
-                    // But UIBuilder/UnitConverter logic currently doesn't auto-switch toggle based on external data push unless we specifically code it.
-                    // For simplicity, populate value.
+                if (obs && obs.valueQuantity) {
+                    const val = obs.valueQuantity.value;
                     fields.creatinine.value = val.toFixed(2);
                     calculate();
                     stalenessTracker.trackObservation('#maggic-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
                 }
-            });
-
+            }).catch(e => console.warn(e));
             getPatientConditions(client, ['414990002', '195967001']).then(conditions => {
-                const hasDiabetes = conditions.some(c => c.code.coding.some(co => co.code === '414990002'));
-                if (hasDiabetes) uiBuilder.setRadioValue('maggic-diabetes', '3');
-
-                const hasCopd = conditions.some(c => c.code.coding.some(co => co.code === '195967001'));
-                if (hasCopd) uiBuilder.setRadioValue('maggic-copd', '2');
-
+                const hasDiabetes = conditions.some((c) => c.code.coding.some((co) => co.code === '414990002'));
+                if (hasDiabetes)
+                    uiBuilder.setRadioValue('maggic-diabetes', '3');
+                const hasCopd = conditions.some((c) => c.code.coding.some((co) => co.code === '195967001'));
+                if (hasCopd)
+                    uiBuilder.setRadioValue('maggic-copd', '2');
                 calculate();
             });
         }

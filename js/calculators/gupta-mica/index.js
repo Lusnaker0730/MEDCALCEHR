@@ -2,12 +2,10 @@ import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-
 export const guptaMica = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
-    description:
-        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] × 100 where x = -5.25 + sum of selected variables.',
+    description: 'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] × 100 where x = -5.25 + sum of selected variables.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -60,7 +58,7 @@ export const guptaMica = {
                 label: 'Creatinine',
                 unit: 'mg/dL',
                 type: 'number',
-                step: '0.1',
+                step: 0.1,
                 placeholder: 'Enter creatinine'
             })
         })}
@@ -97,29 +95,25 @@ export const guptaMica = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const ageInput = container.querySelector('#mica-age');
         const statusSelect = container.querySelector('#mica-status');
         const asaSelect = container.querySelector('#mica-asa');
         const creatInput = container.querySelector('#mica-creat');
         const procedureSelect = container.querySelector('#mica-procedure');
         const resultEl = container.querySelector('#mica-result');
-
         const calculate = () => {
             const age = parseInt(ageInput.value);
             const functionalStatus = parseFloat(statusSelect.value);
             const asaClass = parseFloat(asaSelect.value);
             const creat = parseFloat(creatInput.value);
             const procedure = parseFloat(procedureSelect.value);
-
             if (isNaN(age) || isNaN(creat)) {
-                resultEl.classList.remove('show');
+                if (resultEl)
+                    resultEl.classList.remove('show');
                 return;
             }
-
             let x = -5.25;
             x += age * 0.02;
             x += functionalStatus;
@@ -128,59 +122,59 @@ export const guptaMica = {
                 x += 0.61;
             }
             x += procedure;
-
             const risk = (1 / (1 + Math.exp(-x))) * 100;
             const riskPercent = risk.toFixed(2);
-
             let riskLevel = 'Low Risk';
             let riskDescription = 'Low risk of postoperative MI or cardiac arrest';
             let alertType = 'success';
-
             if (risk > 5) {
                 riskLevel = 'High Risk';
                 riskDescription = 'High risk - Consider risk modification strategies';
                 alertType = 'danger';
-            } else if (risk > 2) {
+            }
+            else if (risk > 2) {
                 riskLevel = 'Intermediate Risk';
                 riskDescription = 'Intermediate risk - Consider perioperative optimization';
                 alertType = 'warning';
             }
-
-            const resultContent = resultEl.querySelector('.ui-result-content');
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                label: 'Cardiac Risk',
-                value: riskPercent,
-                unit: '%',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
-                ${uiBuilder.createAlert({
-                type: alertType,
-                message: riskDescription
-            })}
-                ${uiBuilder.createSection({
-                title: 'Formula Components',
-                content: `
-                        <div style="font-size: 0.9em; color: #555;">
-                            <p>Age Component: ${(age * 0.02).toFixed(2)}</p>
-                            <p>Functional Status: ${functionalStatus.toFixed(2)}</p>
-                            <p>ASA Class: ${asaClass.toFixed(2)}</p>
-                            <p>Creatinine (≥1.5 mg/dL): ${creat >= 1.5 ? '0.61' : '0.00'}</p>
-                            <p>Procedure Type: ${procedure.toFixed(2)}</p>
-                            <p><strong>X Value: ${x.toFixed(2)}</strong></p>
-                        </div>
-                    `
-            })}
-            `;
-            resultEl.classList.add('show');
+            if (resultEl) {
+                const resultContent = resultEl.querySelector('.ui-result-content');
+                if (resultContent) {
+                    resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                        label: 'Cardiac Risk',
+                        value: riskPercent,
+                        unit: '%',
+                        interpretation: riskLevel,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
+                        ${uiBuilder.createAlert({
+                        type: alertType,
+                        message: riskDescription
+                    })}
+                        ${uiBuilder.createSection({
+                        title: 'Formula Components',
+                        content: `
+                                <div style="font-size: 0.9em; color: #555;">
+                                    <p>Age Component: ${(age * 0.02).toFixed(2)}</p>
+                                    <p>Functional Status: ${functionalStatus.toFixed(2)}</p>
+                                    <p>ASA Class: ${asaClass.toFixed(2)}</p>
+                                    <p>Creatinine (≥1.5 mg/dL): ${creat >= 1.5 ? '0.61' : '0.00'}</p>
+                                    <p>Procedure Type: ${procedure.toFixed(2)}</p>
+                                    <p><strong>X Value: ${x.toFixed(2)}</strong></p>
+                                </div>
+                            `
+                    })}
+                    `;
+                }
+                resultEl.classList.add('show');
+            }
         };
-
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
-            if (age > 0) ageInput.value = age;
+            if (age > 0)
+                ageInput.value = age.toString();
         }
-
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 if (obs && obs.valueQuantity) {
@@ -194,12 +188,10 @@ export const guptaMica = {
                 }
             });
         }
-
         container.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

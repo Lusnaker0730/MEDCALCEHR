@@ -2,13 +2,11 @@ import { getMostRecentObservation } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-
-// HScore probability calculation using logistic regression formula
-const getProbability = score => {
+import { displayError, logError } from '../../errorHandler.js';
+const getProbability = (score) => {
     const probability = 1 / (1 + Math.exp(-(-4.3 + 0.03 * score)));
     return (probability * 100).toFixed(1);
 };
-
 export const hscore = {
     id: 'hscore',
     title: 'HScore for Reactive Hemophagocytic Syndrome',
@@ -114,16 +112,15 @@ export const hscore = {
                 ]
             })
         })}
-
+            
+            <div id="hscore-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'hscore-result', title: 'HScore Result' })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const groups = [
             'hscore-immuno',
             'hscore-temp',
@@ -135,46 +132,55 @@ export const hscore = {
             'hscore-ast',
             'hscore-bma'
         ];
-
         const calculate = () => {
-            let score = 0;
-
-            groups.forEach(group => {
-                const checked = container.querySelector(`input[name="${group}"]:checked`);
-                if (checked) score += parseInt(checked.value);
-            });
-
-            const probability = getProbability(score);
-
-            const resultBox = container.querySelector('#hscore-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                label: 'HScore',
-                value: score,
-                unit: 'points'
-            })}
-                ${uiBuilder.createResultItem({
-                label: 'Probability of Hemophagocytic Syndrome',
-                value: probability,
-                unit: '%'
-            })}
-                ${uiBuilder.createAlert({
-                type: 'info',
-                message: 'Best cutoff value was 169, corresponding to sensitivity of 93% and specificity of 86%.'
-            })}
-            `;
-            resultBox.classList.add('show');
+            const errorContainer = container.querySelector('#hscore-error-container');
+            if (errorContainer)
+                errorContainer.innerHTML = '';
+            try {
+                let score = 0;
+                groups.forEach(group => {
+                    const checked = container.querySelector(`input[name="${group}"]:checked`);
+                    if (checked)
+                        score += parseInt(checked.value);
+                });
+                const probability = getProbability(score);
+                const resultBox = container.querySelector('#hscore-result');
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'HScore',
+                            value: score.toString(),
+                            unit: 'points'
+                        })}
+                            ${uiBuilder.createResultItem({
+                            label: 'Probability of Hemophagocytic Syndrome',
+                            value: probability,
+                            unit: '%'
+                        })}
+                            ${uiBuilder.createAlert({
+                            type: 'info',
+                            message: 'Best cutoff value was 169, corresponding to sensitivity of 93% and specificity of 86%.'
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
+                logError(error, { calculator: 'hscore', action: 'calculate' });
+                if (errorContainer)
+                    displayError(errorContainer, error);
+            }
         };
-
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Helper to set radio based on value ranges
         const setRadioFromValue = (groupName, value, ranges) => {
-            if (value === null || value === undefined) return;
+            if (value === null || value === undefined)
+                return;
             const range = ranges.find(r => r.condition(value));
             if (range) {
                 const radio = container.querySelector(`input[name="${groupName}"][value="${range.value}"]`);
@@ -184,7 +190,6 @@ export const hscore = {
                 }
             }
         };
-
         if (client) {
             Promise.all([
                 getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN),
@@ -192,31 +197,25 @@ export const hscore = {
                 getMostRecentObservation(client, '26515-7') // Platelets
             ]).then(([hgb, wbc, platelets]) => {
                 let cytopeniaCount = 0;
-                if (hgb && hgb.valueQuantity.value <= 9.2) cytopeniaCount++;
-                if (wbc && wbc.valueQuantity.value <= 5) cytopeniaCount++; // Assuming K/uL
-                if (platelets && platelets.valueQuantity.value <= 110) cytopeniaCount++; // Assuming K/uL
-
+                if (hgb && hgb.valueQuantity && hgb.valueQuantity.value <= 9.2)
+                    cytopeniaCount++;
+                if (wbc && wbc.valueQuantity && wbc.valueQuantity.value <= 5)
+                    cytopeniaCount++; // Assuming K/uL or similar scale
+                if (platelets && platelets.valueQuantity && platelets.valueQuantity.value <= 110)
+                    cytopeniaCount++; // Assuming K/uL or similar scale
                 setRadioFromValue('hscore-cytopenias', cytopeniaCount, [
                     { condition: v => v <= 1, value: '0' },
                     { condition: v => v === 2, value: '24' },
                     { condition: v => v >= 3, value: '34' }
                 ]);
-
-                // Track staleness (using whichever is most relevant or all?)
-                // HScore sums up points, so tracking individual contributing labs is tricky as there's no single input field per lab in UI (just radios).
-                // We'll attach trackObservation to the cytopenias radio group even though it's a composite score.
-                // Or maybe just track Hgb/WBC/Plt separately?
-                // The trackObservation usually targets an input. Here we targeted 'hscore-cytopenias'.
-                // Since it's a composite, we can perhaps just pass the most critical one or all if possible?
-                // For simplicity, let's track Platelets as it's common.
-                if (platelets) stalenessTracker.trackObservation('input[name="hscore-cytopenias"]', platelets, '26515-7', 'Platelets (for Cytopenias)');
-            });
-
+                if (platelets)
+                    stalenessTracker.trackObservation('input[name="hscore-cytopenias"]', platelets, '26515-7', 'Platelets (for Cytopenias)');
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     let tempF = obs.valueQuantity.value;
                     // Convert C to F if needed
-                    if (obs.valueQuantity.unit.includes('C')) {
+                    if (obs.valueQuantity.unit && obs.valueQuantity.unit.includes('C')) {
                         tempF = (tempF * 9 / 5) + 32;
                     }
                     setRadioFromValue('hscore-temp', tempF, [
@@ -226,9 +225,8 @@ export const hscore = {
                     ]);
                     stalenessTracker.trackObservation('input[name="hscore-temp"]', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
                 }
-            });
-
-            getMostRecentObservation(client, '2276-4').then(obs => { // Ferritin
+            }).catch(e => console.warn(e));
+            getMostRecentObservation(client, '2276-4').then(obs => {
                 if (obs && obs.valueQuantity) {
                     setRadioFromValue('hscore-ferritin', obs.valueQuantity.value, [
                         { condition: v => v < 2000, value: '0' },
@@ -237,8 +235,7 @@ export const hscore = {
                     ]);
                     stalenessTracker.trackObservation('input[name="hscore-ferritin"]', obs, '2276-4', 'Ferritin');
                 }
-            });
-
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
                 if (obs && obs.valueQuantity) {
                     setRadioFromValue('hscore-trig', obs.valueQuantity.value, [
@@ -248,22 +245,20 @@ export const hscore = {
                     ]);
                     stalenessTracker.trackObservation('input[name="hscore-trig"]', obs, LOINC_CODES.TRIGLYCERIDES, 'Triglycerides');
                 }
-            });
-
-            getMostRecentObservation(client, '3255-7').then(obs => { // Fibrinogen
+            }).catch(e => console.warn(e));
+            getMostRecentObservation(client, '3255-7').then(obs => {
                 if (obs && obs.valueQuantity) {
                     // Convert g/L to mg/dL if needed (x100)
                     let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'g/L') val *= 100;
-
+                    if (obs.valueQuantity.unit === 'g/L')
+                        val *= 100;
                     setRadioFromValue('hscore-fibrinogen', val, [
                         { condition: v => v > 250, value: '0' },
                         { condition: v => v <= 250, value: '30' }
                     ]);
                     stalenessTracker.trackObservation('input[name="hscore-fibrinogen"]', obs, '3255-7', 'Fibrinogen');
                 }
-            });
-
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
                 if (obs && obs.valueQuantity) {
                     setRadioFromValue('hscore-ast', obs.valueQuantity.value, [
@@ -272,9 +267,8 @@ export const hscore = {
                     ]);
                     stalenessTracker.trackObservation('input[name="hscore-ast"]', obs, LOINC_CODES.AST, 'AST');
                 }
-            });
+            }).catch(e => console.warn(e));
         }
-
         calculate();
     }
 };

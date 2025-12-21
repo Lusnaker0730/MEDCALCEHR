@@ -1,6 +1,6 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
-    font-size: 200%;
+    font-size: 1.25rem;
     line-height: 1.6;
     color: #2d3748;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -60,15 +60,26 @@ body {
 }
 
 @keyframes shimmer {
-    0%, 100% { background-position: 200% 0; }
-    50% { background-position: -200% 0; }
+
+    0%,
+    100% {
+        background-position: 200% 0;
+    }
+
+    50% {
+        background-position: -200% 0;
+    }
 }
 
-input, select, button {
+input,
+select,
+button {
     font-size: inherit;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -79,23 +90,25 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 2.5em;
+    font-size: 3em;
     text-align: center;
     margin-bottom: 30px;
 }
 
 h2 {
-    font-size: 1.8em;
+    font-size: 2.25em;
     margin-top: 30px;
 }
 
 h3 {
-    font-size: 1.4em;
+    font-size: 1.25em;
     margin-bottom: 15px;
 }
 
 #patient-info p {
     margin: 5px 0;
+    font-size: 1.5rem;
+    font-weight: 500;
 }
 
 hr {
@@ -120,7 +133,7 @@ input[type="number"] {
     box-sizing: border-box;
     border: 2px solid #e2e8f0;
     border-radius: 12px;
-    font-size: inherit;
+    font-size: 1.5rem;
     background: rgba(255, 255, 255, 0.9);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
@@ -267,8 +280,8 @@ label {
     font-weight: 400;
 }
 
-.input-group.floating input:focus + label,
-.input-group.floating input:not(:placeholder-shown) + label {
+.input-group.floating input:focus+label,
+.input-group.floating input:not(:placeholder-shown)+label {
     top: 4px;
     font-size: 0.75em;
     color: #667eea;
@@ -289,7 +302,7 @@ label {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .calculator-card h3 {
@@ -316,7 +329,8 @@ label {
     line-height: 1.5;
 }
 
-.input-group input, .input-group select {
+.input-group input,
+.input-group select {
     flex: 1;
     padding: 8px;
     border-radius: 4px;
@@ -378,7 +392,7 @@ label {
 
 .calculator-link:hover {
     background-color: #e7f3fe;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .back-link {
@@ -387,6 +401,7 @@ label {
     color: #007bff;
     text-decoration: none;
     font-weight: bold;
+    font-size: 1.3rem;
 }
 
 .back-link:hover {
@@ -502,448 +517,6 @@ label {
     color: #f3d11a;
 }
 
-/* SOFA Score specific styles */
-.sofa-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.sofa-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.sofa-item label {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.sofa-item select {
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-/* GAD-7 Calculator Styles */
-.gad7-instructions {
-    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    border-left: 4px solid #667eea;
-}
-
-.gad7-instructions p {
-    margin: 0;
-    color: #2d3748;
-    font-size: 0.9em;
-}
-
-.gad7-questions {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.gad7-question {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 12px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-}
-
-.gad7-question:hover {
-    border-color: rgba(102, 126, 234, 0.3);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
-    transform: translateY(-2px);
-}
-
-.question-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.question-number {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.85em;
-    flex-shrink: 0;
-}
-
-.question-text {
-    margin: 0;
-    flex: 1;
-    padding-top: 4px;
-    font-size: 0.9em;
-    color: #2d3748;
-}
-
-.gad7-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.radio-label {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    background: rgba(248, 249, 250, 0.8);
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    font-size: 0.85em;
-}
-
-.radio-label:hover {
-    background: rgba(102, 126, 234, 0.05);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.radio-label input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.radio-custom {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #cbd5e0;
-    border-radius: 50%;
-    margin-right: 10px;
-    position: relative;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.radio-label input[type="radio"]:checked ~ .radio-custom {
-    border-color: #667eea;
-    background: #667eea;
-}
-
-.radio-label input[type="radio"]:checked ~ .radio-custom::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: white;
-}
-
-.radio-label input[type="radio"]:checked ~ .radio-text {
-    color: #667eea;
-    font-weight: 600;
-}
-
-.radio-text {
-    flex: 1;
-    color: #4a5568;
-    transition: all 0.2s ease;
-}
-
-.score-badge {
-    background: rgba(102, 126, 234, 0.1);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.9em;
-    font-weight: 600;
-    color: #667eea;
-    margin-left: 5px;
-}
-
-.radio-label input[type="radio"]:checked ~ .radio-text .score-badge {
-    background: #667eea;
-    color: white;
-}
-
-/* GAD-7 Result Card */
-.gad7-result-card {
-    margin-top: 25px;
-    padding: 25px;
-    border-radius: 16px;
-    border: 2px solid;
-    animation: slideIn 0.4s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.gad7-result-card.minimal {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    border-color: #28a745;
-}
-
-.gad7-result-card.mild {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    border-color: #ffc107;
-}
-
-.gad7-result-card.moderate {
-    background: linear-gradient(135deg, #ffe5d0 0%, #ffd8b8 100%);
-    border-color: #fd7e14;
-}
-
-.gad7-result-card.severe {
-    background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
-    border-color: #dc3545;
-}
-
-.result-score {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-}
-
-.score-label {
-    font-size: 0.95em;
-    font-weight: 600;
-    color: #2d3748;
-}
-
-.score-value {
-    font-size: 2em;
-    font-weight: 700;
-    color: #2d3748;
-}
-
-.result-severity {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
-    font-size: 0.9em;
-}
-
-.severity-icon {
-    font-size: 1.5em;
-}
-
-.result-severity.minimal .severity-icon {
-    color: #28a745;
-}
-
-.result-severity.mild .severity-icon {
-    color: #ffc107;
-}
-
-.result-severity.moderate .severity-icon {
-    color: #fd7e14;
-}
-
-.result-severity.severe .severity-icon {
-    color: #dc3545;
-}
-
-.severity-text {
-    font-weight: 600;
-    color: #2d3748;
-}
-
-.result-recommendation {
-    background: rgba(255, 255, 255, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-}
-
-.recommendation-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    color: #2d3748;
-    font-weight: 600;
-    font-size: 0.95em;
-}
-
-.recommendation-header svg {
-    color: #667eea;
-}
-
-.result-recommendation p {
-    margin: 0;
-    color: #4a5568;
-    line-height: 1.6;
-    font-size: 0.9em;
-}
-/* GAD-7 Scoring Guide */
-.gad7-scoring-guide {
-    margin-top: 30px;
-    padding: 25px;
-    background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(241, 245, 249, 0.9) 100%);
-    border-radius: 16px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-}
-
-.gad7-scoring-guide h4 {
-    margin: 0 0 20px 0;
-    font-size: 1.1em;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.scoring-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-}
-
-.scoring-item {
-    padding: 15px;
-    border-radius: 10px;
-    text-align: center;
-    border: 2px solid;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    transition: all 0.3s ease;
-}
-
-.scoring-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.scoring-item.minimal {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    border-color: #28a745;
-}
-
-.scoring-item.mild {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    border-color: #ffc107;
-}
-
-.scoring-item.moderate {
-    background: linear-gradient(135deg, #ffe5d0 0%, #ffd8b8 100%);
-    border-color: #fd7e14;
-}
-
-.scoring-item.severe {
-    background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
-    border-color: #dc3545;
-}
-
-.score-range {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: #2d3748;
-}
-
-.severity-label {
-    font-size: 0.85em;
-    font-weight: 600;
-    color: #4a5568;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Responsive adjustments for GAD-7 */
-@media (max-width: 768px) {
-    .gad7-options {
-        grid-template-columns: 1fr;
-    }
-    
-    .scoring-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .result-score {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-}
-
-/* MME Calculator specific styles */
-.mme-opioid-item {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.mme-opioid-item .opioid-select {
-    flex: 2;
-}
-
-.mme-opioid-item .opioid-dose {
-    flex: 1;
-}
-
-#add-opioid-btn {
-    margin-right: 10px;
-}
-
-.warning {
-    color: #856404;
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    padding: .75rem 1.25rem;
-    margin-top: 10px;
-    border: 1px solid transparent;
-    border-radius: .25rem;
-}
-
-/* CIWA-Ar specific styles */
-.ciwa-ar-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.ciwa-ar-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.ciwa-ar-item label {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.ciwa-ar-item input {
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    width: auto;
-}
 
 /* New CIWA-Ar Styles */
 .ciwa-ar-category {
@@ -976,34 +549,10 @@ label {
     flex-direction: column;
 }
 
-.ciwa-ar-option {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.2s;
-}
 
-.ciwa-ar-option:last-child {
-    border-bottom: none;
-}
 
-.ciwa-ar-option:hover {
-    background-color: #f1f1f1;
-}
-
-.ciwa-ar-option.selected {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-}
-
-.ciwa-ar-score {
-    font-weight: bold;
-}
-
-input[type="radio"], input[type="checkbox"] {
+input[type="radio"],
+input[type="checkbox"] {
     margin-right: 5px;
     transform: scale(1.8);
     margin: 8px;
@@ -1025,8 +574,10 @@ input[type="radio"], input[type="checkbox"] {
     border: 1px solid #ddd;
     text-align: left;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-    font-weight: normal; /* Override general label styles */
-    margin-bottom: 0; /* Override general label styles */
+    font-weight: normal;
+    /* Override general label styles */
+    margin-bottom: 0;
+    /* Override general label styles */
 }
 
 .radio-group label:hover {
@@ -1035,7 +586,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .radio-group input[type="radio"] {
-    display: none; /* Hide the radio button */
+    display: none;
+    /* Hide the radio button */
 }
 
 .radio-group label.selected {
@@ -1050,8 +602,10 @@ input[type="radio"], input[type="checkbox"] {
     padding: 20px;
     margin-top: 20px;
     text-align: left;
-    background-color: #f0f0f0; /* Default background */
-    color: #333; /* Default dark text color */
+    background-color: #f0f0f0;
+    /* Default background */
+    color: #333;
+    /* Default dark text color */
 }
 
 .result-box .result-score {
@@ -1066,27 +620,7 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: bold;
 }
 
-/* Specific style for the meningitis score result */
-.result-box.bms-result {
-    background-color: #d4edda; /* A light green background */
-    color: #155724; /* A dark green text color */
-    border: 1px solid #c3e6cb;
-}
 
-.result-box.low-prob {
-    background-color: #28a745; /* Green */
-    color: white; /* White text for dark backgrounds */
-}
-
-.result-box.intermediate-prob {
-    background-color: #ffc107; /* Yellow */
-    color: #333;
-}
-
-.result-box.high-prob {
-    background-color: #dc3545; /* Red */
-    color: white; /* White text for dark backgrounds */
-}
 
 .result-box h3 {
     margin-top: 0;
@@ -1095,23 +629,7 @@ input[type="radio"], input[type="checkbox"] {
     color: #0056b3;
 }
 
-.result-box.has-bled-result {
-    background-color: #008080; /* Teal/dark green color from image */
-    color: white;
-    border-radius: 8px;
-    padding: 20px;
-}
 
-.result-box.has-bled-result h3 {
-    color: white;
-    font-size: 2em;
-    margin-bottom: 15px;
-}
-
-.result-box.has-bled-result p {
-    font-size: 1em;
-    line-height: 1.5;
-}
 
 .result-box.calculated {
     background-color: #e7f3ff;
@@ -1144,17 +662,20 @@ input[type="radio"], input[type="checkbox"] {
     border-radius: 5px;
     overflow: hidden;
     width: fit-content;
-    flex-shrink: 0; /* Prevent shrinking in flex containers */
+    flex-shrink: 0;
+    /* Prevent shrinking in flex containers */
 }
 
 .segmented-control button {
     padding: 8px 15px;
     border: none;
-    background-color: #f8f9fa; /* Off-white for inactive state */
+    background-color: #f8f9fa;
+    /* Off-white for inactive state */
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
     font-size: 0.9em;
-    color: #212529; /* Black text for inactive button */
+    color: #212529;
+    /* Black text for inactive button */
     border-left: 1px solid #007bff;
     white-space: nowrap;
 }
@@ -1239,11 +760,13 @@ input[type="radio"], input[type="checkbox"] {
     cursor: pointer;
     text-align: left;
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-    color: #212529; /* Ensure text is visible on inactive buttons */
+    color: #212529;
+    /* Ensure text is visible on inactive buttons */
 }
 
 .vertical-radio-group button.active {
-    background-color: #28a745; /* Green color from image */
+    background-color: #28a745;
+    /* Green color from image */
     color: white;
     border-color: #28a745;
 }
@@ -1253,7 +776,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .result-box.four-as-result {
-    background-color: #28a745; /* Green color from image */
+    background-color: #28a745;
+    /* Green color from image */
     color: white;
     border-radius: 8px;
     padding: 20px;
@@ -1278,7 +802,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .instructions-box.dark-blue {
-    background-color: #343a40; /* Dark color from image */
+    background-color: #343a40;
+    /* Dark color from image */
     color: white;
     border-color: #343a40;
 }
@@ -1291,7 +816,8 @@ input[type="radio"], input[type="checkbox"] {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: #28a745; /* Green color from image */
+    background-color: #28a745;
+    /* Green color from image */
     color: white;
     padding: 20px;
     border-radius: 8px;
@@ -1324,7 +850,8 @@ input[type="radio"], input[type="checkbox"] {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #008080; /* Teal color from image */
+    background-color: #008080;
+    /* Teal color from image */
     color: white;
     padding: 20px;
     border-radius: 8px;
@@ -1598,6 +1125,7 @@ input[type="radio"], input[type="checkbox"] {
     padding: 15px;
     margin-bottom: 20px;
 }
+
 .instructions-box p {
     margin: 5px 0 0 0;
     font-size: 0.9em;
@@ -1615,45 +1143,23 @@ input[type="radio"], input[type="checkbox"] {
     color: #1b4f72;
 }
 
-/* TTKG Result Box */
-.ttkg-result {
-    margin-top: 15px;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #f0f4f8; /* Light blue-grey background */
-    display: none; /* Initially hidden */
+
+
+.low-risk {
+    background-color: #28a745;
 }
 
-.ttkg-result.calculated {
-    background-color: #1e8449; /* Green for calculated result */
+/* Green */
+.intermediate-risk {
+    background-color: #ffc107;
 }
 
-.ttkg-result.error {
-    background-color: #dc3545; /* Red for error */
+/* Yellow */
+.high-risk {
+    background-color: #dc3545;
 }
 
-.ttkg-result .result-title {
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.ttkg-result .result-value {
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
-.ttkg-result .result-value small {
-    display: block;
-    font-size: 0.8em;
-    margin-top: 10px;
-    line-height: 1.4;
-    font-weight: normal;
-}
-
-.low-risk { background-color: #28a745; } /* Green */
-.intermediate-risk { background-color: #ffc107; } /* Yellow */
-.high-risk { background-color: #dc3545; } /* Red */
+/* Red */
 
 .input-group-4ts {
     margin-bottom: 15px;
@@ -1695,7 +1201,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .radio-group-4ts button.active {
-    background-color: #e7f3ff; /* Light blue for active state */
+    background-color: #e7f3ff;
+    /* Light blue for active state */
     color: #0056b3;
     font-weight: bold;
 }
@@ -1708,9 +1215,18 @@ input[type="radio"], input[type="checkbox"] {
     transition: background-color 0.3s;
 }
 
-.result-box.four-ts-result.low-risk { background-color: #28a745; }
-.result-box.four-ts-result.intermediate-risk { background-color: #ffc107; color: #212529; }
-.result-box.four-ts-result.high-risk { background-color: #dc3545; }
+.result-box.four-ts-result.low-risk {
+    background-color: #28a745;
+}
+
+.result-box.four-ts-result.intermediate-risk {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.result-box.four-ts-result.high-risk {
+    background-color: #dc3545;
+}
 
 .result-box.four-ts-result h3 {
     margin: 0 0 5px 0;
@@ -1734,17 +1250,17 @@ input[type="radio"], input[type="checkbox"] {
 
 /* Styles for Image Modal */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    padding-top: 60px; 
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
     left: 0;
     top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgb(0,0,0); 
-    background-color: rgba(0,0,0,0.9); 
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
 .modal-content {
@@ -1852,68 +1368,18 @@ input[type="radio"], input[type="checkbox"] {
     justify-content: flex-end;
 }
 
-.hep-score-new .segmented-control {
-    display: flex;
-    width: 100%;
-    flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
-}
-
-.hep-score-new .segmented-control button {
-    flex-grow: 1; /* Allow buttons to grow and fill the space */
-    margin-bottom: 5px; /* Add some space between rows when wrapped */
-    padding: 8px 12px;
-    border: 1px solid #007bff;
-    background-color: #fff;
-    color: #007bff;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-    font-weight: 500;
-    font-size: 0.9rem;
-    white-space: nowrap;
-}
-
-.hep-score-new .segmented-control button:first-child {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    border-right: none;
-}
-
-.hep-score-new .segmented-control button:last-child {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-left: 1px solid #007bff;
-}
-
-.hep-score-new .segmented-control button:not(:first-child):not(:last-child) {
-    border-radius: 0;
-    border-left: none;
-}
 
 
-.hep-score-new .segmented-control button.active {
-    background-color: #007bff;
-    color: #fff;
-}
 
-.hep-score-new .hep-onset-row {
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    border-bottom: none;
-}
-
-.hep-score-new .hep-onset-row .input-control-new {
-    flex: 0 0 auto; /* Don't grow, just take content width */
-    width: 180px;
-}
 
 /* Allow segmented controls to wrap */
 .segmented-control {
     flex-wrap: wrap;
 }
+
 .segmented-control button {
-    margin-bottom: 5px; /* Add space for wrapped buttons */
+    margin-bottom: 5px;
+    /* Add space for wrapped buttons */
 }
 
 .references img {
@@ -2230,8 +1696,15 @@ input[type="radio"], input[type="checkbox"] {
 
 /* Loading animation */
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .loading {
@@ -2249,43 +1722,43 @@ html {
         padding: 10px;
         font-size: 150%;
     }
-    
+
     .container {
         padding: 20px;
         border-radius: 16px;
         margin: 10px auto;
     }
-    
+
     .form-container {
         padding: 20px;
         margin: 15px 0;
     }
-    
+
     .result-item {
         flex-direction: column;
         text-align: center;
         padding: 20px 15px;
     }
-    
+
     .result-item .value {
         font-size: 1.8em;
         margin-bottom: 5px;
     }
-    
+
     h1 {
         font-size: 2em;
     }
-    
+
     h3 {
         font-size: 1.2em;
     }
-    
+
     button {
         width: 100%;
         padding: 18px 24px;
         font-size: 1.1em;
     }
-    
+
     .formula-section,
     .references {
         padding: 20px;
@@ -2352,51 +1825,53 @@ html {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
     body {
         background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
         color: #e2e8f0;
     }
-    
+
     .container {
         background: rgba(26, 32, 44, 0.95);
         border-color: rgba(102, 126, 234, 0.3);
     }
-    
+
     input[type="number"],
     select {
         background: rgba(45, 55, 72, 0.9);
         border-color: #4a5568;
         color: #e2e8f0;
     }
-    
+
     input[type="number"]:focus,
     select:focus {
         background: rgba(45, 55, 72, 1);
         border-color: #667eea;
     }
-    
+
     .result {
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
         border-color: rgba(102, 126, 234, 0.2);
     }
-    
+
     .result-item {
         background: rgba(45, 55, 72, 0.8);
     }
-    
+
     .formula-section,
     .references {
         background: linear-gradient(135deg, rgba(45, 55, 72, 0.9) 0%, rgba(26, 32, 44, 0.9) 100%);
         border-color: rgba(102, 126, 234, 0.2);
     }
-    
+
     .formula {
         background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
         color: #e2e8f0;
@@ -2478,11 +1953,11 @@ html {
         max-width: 1600px;
         padding: 50px;
     }
-    
+
     .growth-chart-row {
         gap: 40px;
     }
-    
+
     .chart-container {
         height: 65vh;
         min-height: 550px;
@@ -2495,7 +1970,7 @@ html {
     .growth-chart-row {
         gap: 20px;
     }
-    
+
     .chart-container {
         height: 50vh;
         min-height: 450px;
@@ -2716,11 +2191,29 @@ html {
     color: white;
 }
 
-.percentile-label.p97, .percentile-label.p3 { background-color: #dc2626; }
-.percentile-label.p95, .percentile-label.p5 { background-color: #ea580c; }
-.percentile-label.p90, .percentile-label.p10 { background-color: #ca8a04; }
-.percentile-label.p75, .percentile-label.p25 { background-color: #16a34a; }
-.percentile-label.p50 { background-color: #0f172a; }
+.percentile-label.p97,
+.percentile-label.p3 {
+    background-color: #dc2626;
+}
+
+.percentile-label.p95,
+.percentile-label.p5 {
+    background-color: #ea580c;
+}
+
+.percentile-label.p90,
+.percentile-label.p10 {
+    background-color: #ca8a04;
+}
+
+.percentile-label.p75,
+.percentile-label.p25 {
+    background-color: #16a34a;
+}
+
+.percentile-label.p50 {
+    background-color: #0f172a;
+}
 
 .percentile-desc {
     flex: 1;
@@ -2826,40 +2319,40 @@ html {
         gap: 20px;
         margin: 20px 0;
     }
-    
+
     .growth-chart-row {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .chart-container {
         height: 45vh;
         min-height: 350px;
         max-height: 500px;
     }
-    
+
     .growth-chart-info {
         grid-template-columns: 1fr;
         gap: 15px;
         margin-top: 20px;
     }
-    
+
     .interpretation-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .velocity-grid {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-    
+
     .chart-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
-    
+
     .chart-wrapper {
         padding: 15px;
     }
@@ -2870,6 +2363,7 @@ html {
     color: #667eea;
     text-decoration: none;
     font-weight: 600;
+    font-size: 1.5rem;
     padding: 10px 16px;
     border-radius: 8px;
     transition: all 0.3s ease;
@@ -2884,7 +2378,11 @@ html {
     color: #5a67d8;
     transform: translateX(-2px);
 }
+
+.calculator-notes {
     border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-top: 20px;
 }
 
 .calculator-notes h4 {
@@ -2987,20 +2485,20 @@ html {
         align-items: stretch;
         gap: 15px;
     }
-    
+
     .search-container {
         min-width: auto;
     }
-    
+
     .sort-container {
         justify-content: space-between;
     }
-    
+
     .container {
         padding: 20px;
         max-height: 95vh;
     }
-    
+
     .sticky-header {
         padding: 20px 0 15px 0;
         margin: -20px -20px 0 -20px;
@@ -3008,7 +2506,7 @@ html {
         padding-right: 20px;
         padding-top: 20px;
     }
-    
+
     .content-area {
         padding: 15px 0 0 0;
     }
@@ -3116,73 +2614,24 @@ html {
         padding: 20px 15px;
         margin-top: 20px;
     }
-    
+
     .formula-equation {
         font-size: 1.1em;
         padding: 12px;
     }
-    
+
     .values-grid {
         grid-template-columns: 1fr;
         gap: 8px;
     }
-    
+
     .value-item {
         padding: 10px 12px;
     }
 }
 
-/* Additional styles for anion gap calculator */
-.normal-range {
-    border-left: 4px solid #22c55e !important;
-    background: rgba(34, 197, 94, 0.1) !important;
-}
 
-.high-range {
-    border-left: 4px solid #ef4444 !important;
-    background: rgba(239, 68, 68, 0.1) !important;
-}
 
-.low-range {
-    border-left: 4px solid #f59e0b !important;
-    background: rgba(245, 158, 11, 0.1) !important;
-}
-
-.clinical-causes {
-    margin-top: 20px;
-}
-
-.causes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
-.cause-category {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.cause-category h6 {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    font-size: 1.1em;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
-
-.cause-category ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.cause-category li {
-    margin-bottom: 6px;
-    color: #2d3748;
-}
 
 .clinical-note ul {
     list-style-type: none;
@@ -3203,1002 +2652,32 @@ html {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .cause-category {
         padding: 12px;
     }
 }
 
-/* Additional styles for phenytoin calculator */
-.therapeutic-range {
-    border-left: 4px solid #22c55e !important;
-    background: rgba(34, 197, 94, 0.1) !important;
-}
 
-.toxic-range {
-    border-left: 4px solid #ef4444 !important;
-    background: rgba(239, 68, 68, 0.1) !important;
-}
 
-.subtherapeutic-range {
-    border-left: 4px solid #f59e0b !important;
-    background: rgba(245, 158, 11, 0.1) !important;
-}
 
-.clinical-scenarios, .correction-rationale {
-    margin-top: 20px;
-}
 
-.scenarios-grid, .rationale-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
 
-.scenario-category, .rationale-item {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
 
-.scenario-category h6, .rationale-item h6 {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    font-size: 1.1em;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
 
-.scenario-category ul {
-    margin: 0;
-    padding-left: 20px;
-}
 
-.scenario-category li {
-    margin-bottom: 6px;
-    color: #2d3748;
-}
 
-.rationale-item p {
-    margin: 0;
-    color: #4a5568;
-    line-height: 1.5;
-}
 
-/* Nested list styling for formula components */
-.formula-explanation ul ul {
-    margin-top: 8px;
-    margin-bottom: 0;
-}
 
-.formula-explanation ul ul li {
-    margin-bottom: 4px;
-    padding: 4px 8px;
-    background: rgba(102, 126, 234, 0.05);
-    border-radius: 4px;
-    font-size: 0.9em;
-}
 
-/* Mobile responsiveness for new grids */
-@media (max-width: 768px) {
-    .scenarios-grid, .rationale-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .scenario-category, .rationale-item {
-        padding: 12px;
-    }
-    
-    .formula-explanation ul ul {
-        padding-left: 15px;
-    }
-}
 
-/* Additional styles for TTKG calculator */
-.reference-k {
-    border-left: 4px solid #3b82f6 !important;
-    background: rgba(59, 130, 246, 0.1) !important;
-}
 
-.reference-osmo {
-    border-left: 4px solid #8b5cf6 !important;
-    background: rgba(139, 92, 246, 0.1) !important;
-}
 
-.clinical-interpretation, .physiological-basis {
-    margin-top: 20px;
-}
 
-.interpretation-grid, .physiology-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
 
-.interpretation-category, .physiology-item {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
 
-.interpretation-category h6, .physiology-item h6 {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    font-size: 1.1em;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
 
-.interpretation-item {
-    margin-bottom: 12px;
-    padding: 10px;
-    background: rgba(102, 126, 234, 0.05);
-    border-radius: 8px;
-    border-left: 3px solid rgba(102, 126, 234, 0.3);
-}
 
-.interpretation-item:last-child {
-    margin-bottom: 0;
-}
-
-.interpretation-item strong {
-    color: #2d3748;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.interpretation-item p {
-    margin: 0;
-    color: #4a5568;
-    font-size: 0.9em;
-    line-height: 1.4;
-}
-
-.physiology-item p {
-    margin: 0;
-    color: #4a5568;
-    line-height: 1.5;
-}
-
-/* Mobile responsiveness for TTKG grids */
-@media (max-width: 768px) {
-    .interpretation-grid, .physiology-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .interpretation-category, .physiology-item {
-        padding: 12px;
-    }
-    
-    .interpretation-item {
-        padding: 8px;
-    }
-}
-
-/* Additional styles for serum osmolality calculator */
-.reference-na {
-    border-left: 4px solid #3b82f6 !important;
-    background: rgba(59, 130, 246, 0.1) !important;
-}
-
-.reference-glucose {
-    border-left: 4px solid #10b981 !important;
-    background: rgba(16, 185, 129, 0.1) !important;
-}
-
-.reference-bun {
-    border-left: 4px solid #f59e0b !important;
-    background: rgba(245, 158, 11, 0.1) !important;
-}
-
-.osmolar-gap, .alternative-formulas {
-    margin-top: 20px;
-}
-
-.gap-explanation {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-    margin-top: 10px;
-}
-
-.gap-formula {
-    text-align: center;
-    font-size: 1.1em;
-    margin-bottom: 15px;
-    padding: 10px;
-    background: rgba(102, 126, 234, 0.1);
-    border-radius: 8px;
-    color: #2d3748;
-}
-
-.gap-interpretation {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.gap-item {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.normal-gap {
-    background: rgba(34, 197, 94, 0.1);
-    border-left: 4px solid #22c55e;
-}
-
-.elevated-gap {
-    background: rgba(239, 68, 68, 0.1);
-    border-left: 4px solid #ef4444;
-}
-
-.gap-item strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #2d3748;
-}
-
-.gap-item p {
-    margin: 0;
-    color: #4a5568;
-    font-size: 0.9em;
-}
-
-.alt-formulas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.alt-formula-item {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.alt-formula-item h6 {
-    margin: 0 0 10px 0;
-    color: #4a5568;
-    font-size: 1.1em;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
-
-.alt-equation {
-    font-family: 'Courier New', monospace;
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    text-align: center;
-}
-
-.alt-formula-item p {
-    margin: 0;
-    color: #4a5568;
-    font-size: 0.9em;
-    line-height: 1.4;
-}
-
-/* Mobile responsiveness for osmolality calculator */
-@media (max-width: 768px) {
-    .gap-interpretation {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .alt-formulas-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .gap-explanation {
-        padding: 12px;
-    }
-    
-    .alt-formula-item {
-        padding: 12px;
-    }
-    
-    .alt-equation {
-        font-size: 1em;
-        padding: 8px;
-    }
-}
-
-/* Additional styles for sodium correction calculator */
-.normal-glucose {
-    border-left: 4px solid #10b981 !important;
-    background: rgba(16, 185, 129, 0.1) !important;
-}
-
-.correction-factor {
-    border-left: 4px solid #8b5cf6 !important;
-    background: rgba(139, 92, 246, 0.1) !important;
-}
-
-.correction-scenarios {
-    margin-top: 20px;
-}
-
-.correction-scenarios .scenarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.correction-scenarios .scenario-category {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.correction-scenarios .scenario-category h6 {
-    margin: 0 0 12px 0;
-    color: #4a5568;
-    font-size: 1.1em;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
-
-.correction-scenarios .scenario-category ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.correction-scenarios .scenario-category li {
-    margin-bottom: 6px;
-    color: #2d3748;
-}
-
-/* Mobile responsiveness for sodium correction calculator */
-@media (max-width: 768px) {
-    .correction-scenarios .scenarios-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .correction-scenarios .scenario-category {
-        padding: 12px;
-    }
-}
-
-/* Styles for tPA dosing stroke calculator */
-.dosing-protocol {
-    margin-top: 20px;
-}
-
-.protocol-steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.protocol-step {
-    background: rgba(59, 130, 246, 0.1);
-    padding: 15px;
-    border-radius: 12px;
-    border-left: 4px solid #3b82f6;
-}
-
-.protocol-step h6 {
-    margin: 0 0 10px 0;
-    color: #1e40af;
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.protocol-step p {
-    margin: 5px 0;
-    color: #374151;
-}
-
-.eligibility-criteria, .contraindications {
-    margin-top: 25px;
-}
-
-.criteria-grid, .contraindications-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.criteria-category, .contraindication-category {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.criteria-category h6, .contraindication-category h6 {
-    margin: 0 0 10px 0;
-    color: #4a5568;
-    font-size: 1em;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-}
-
-.contraindication-category {
-    border-left: 4px solid #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
-
-.contraindication-category h6 {
-    color: #dc2626;
-    border-bottom-color: rgba(239, 68, 68, 0.3);
-}
-
-.criteria-category {
-    border-left: 4px solid #10b981;
-    background: rgba(16, 185, 129, 0.05);
-}
-
-.criteria-category h6 {
-    color: #059669;
-    border-bottom-color: rgba(16, 185, 129, 0.3);
-}
-
-.monitoring-guidelines {
-    margin-top: 25px;
-}
-
-.monitoring-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.monitoring-item {
-    background: rgba(245, 158, 11, 0.1);
-    padding: 15px;
-    border-radius: 12px;
-    border-left: 4px solid #f59e0b;
-}
-
-.monitoring-item h6 {
-    margin: 0 0 10px 0;
-    color: #d97706;
-    font-size: 1em;
-    font-weight: 600;
-}
-
-.monitoring-item ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.monitoring-item li {
-    margin-bottom: 4px;
-    color: #374151;
-}
-
-/* tPA dosing results styles */
-.tpa-dosing-results {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 15px;
-}
-
-.dosing-summary {
-    background: rgba(59, 130, 246, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border-left: 4px solid #3b82f6;
-}
-
-.dosing-summary h4 {
-    margin: 0 0 10px 0;
-    color: #1e40af;
-}
-
-.dose-calculation p {
-    margin: 5px 0;
-    font-weight: 500;
-}
-
-.administration-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.dose-step {
-    background: rgba(16, 185, 129, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #10b981;
-}
-
-.dose-step h5 {
-    margin: 0 0 10px 0;
-    color: #059669;
-    font-size: 1.1em;
-}
-
-.dose-step p {
-    margin: 5px 0;
-    color: #374151;
-}
-
-.eligibility-status {
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.eligibility-status.eligible {
-    background: rgba(16, 185, 129, 0.2);
-    color: #059669;
-    border: 2px solid #10b981;
-}
-
-.eligibility-status.not-eligible {
-    background: rgba(239, 68, 68, 0.2);
-    color: #dc2626;
-    border: 2px solid #ef4444;
-}
-
-.eligibility-status.warning {
-    background: rgba(245, 158, 11, 0.2);
-    color: #d97706;
-    border: 2px solid #f59e0b;
-}
-
-.important-reminders {
-    background: rgba(239, 68, 68, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #ef4444;
-}
-
-.important-reminders h5 {
-    margin: 0 0 10px 0;
-    color: #dc2626;
-}
-
-.important-reminders ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.important-reminders li {
-    margin-bottom: 6px;
-    color: #374151;
-}
-
-/* Mobile responsiveness for tPA calculator */
-@media (max-width: 768px) {
-    .protocol-steps, .criteria-grid, .contraindications-grid, .monitoring-grid, .administration-details {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .protocol-step, .criteria-category, .contraindication-category, .monitoring-item, .dose-step {
-        padding: 12px;
-    }
-    
-    .tpa-dosing-results {
-        padding: 15px;
-    }
-}
-
-/* Styles for TIMI Risk Score calculator */
-.timi-form-container {
-    margin: 20px 0;
-}
-
-.timi-criteria-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.timi-criterion-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 20px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.timi-criterion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.criterion-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.criterion-icon {
-    font-size: 1.5em;
-    margin-right: 12px;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(102, 126, 234, 0.1);
-    border-radius: 50%;
-}
-
-.criterion-title {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: #2d3748;
-    flex: 1;
-}
-
-.criterion-subtitle {
-    font-size: 0.9em;
-    color: #718096;
-    margin-bottom: 15px;
-    line-height: 1.4;
-}
-
-.timi-segmented-control {
-    display: flex;
-    background: rgba(247, 250, 252, 0.8);
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.segment-option {
-    flex: 1;
-    cursor: pointer;
-    position: relative;
-}
-
-.segment-option input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.segment-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 8px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    background: transparent;
-    color: #4a5568;
-    font-weight: 500;
-}
-
-.segment-option input[type="radio"]:checked + .segment-label {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    transform: translateY(-1px);
-}
-
-.option-text {
-    font-size: 0.95em;
-    margin-bottom: 2px;
-}
-
-.option-points {
-    font-size: 0.85em;
-    font-weight: 700;
-    opacity: 0.8;
-}
-
-.segment-option input[type="radio"]:checked + .segment-label .option-points {
-    opacity: 1;
-}
-
-/* TIMI Results Container */
-.timi-result-container {
-    margin-top: 30px;
-}
-
-.timi-score-display {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    padding: 30px;
-    color: white;
-    margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-}
-
-.score-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-}
-.score-number {
-    font-size: 2.5em;
-    font-weight: 700;
-    line-height: 1;
-    color: #333333;
-}
-
-.score-label {
-    font-size: 1em;
-    opacity: 0.9;
-    margin-top: 4px;
-    color: #333333;
-}
-
-.risk-assessment {
-    flex: 1;
-}
-
-.risk-percentage {
-    font-size: 3em;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 10px;
-    color: white;
-}
-
-.risk-description {
-    font-size: 1.1em;
-    line-height: 1.4;
-    opacity: 0.95;
-    color: #333333;
-}
-
-/* Risk Stratification */
-.risk-stratification {
-    margin-bottom: 30px;
-}
-
-.risk-stratification h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.risk-levels {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.risk-level {
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.risk-level.low-risk {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.risk-level.moderate-risk {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-}
-
-.risk-level.high-risk {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-}
-
-.risk-level.active {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.risk-level.low-risk.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.2);
-}
-
-.risk-level.moderate-risk.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.risk-level.high-risk.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.2);
-}
-
-.risk-range {
-    font-size: 0.9em;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.risk-category {
-    font-size: 1.1em;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.risk-value {
-    font-size: 1.3em;
-    font-weight: 700;
-}
-
-/* Clinical Recommendations */
-.clinical-recommendations h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.recommendations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.recommendation-item {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 20px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.recommendation-item.low-risk-rec {
-    border-left: 4px solid #10b981;
-}
-
-.recommendation-item.moderate-risk-rec {
-    border-left: 4px solid #f59e0b;
-}
-
-.recommendation-item.high-risk-rec {
-    border-left: 4px solid #ef4444;
-}
-
-.recommendation-item.active {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.recommendation-item.low-risk-rec.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.05);
-}
-
-.recommendation-item.moderate-risk-rec.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.05);
-}
-
-.recommendation-item.high-risk-rec.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
-
-.recommendation-item h5 {
-    margin: 0 0 15px 0;
-    color: #2d3748;
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.recommendation-item ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.recommendation-item li {
-    margin-bottom: 8px;
-    color: #4a5568;
-    line-height: 1.4;
-}
-
-/* Mobile responsiveness for TIMI calculator */
-@media (max-width: 768px) {
-    .timi-criteria-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .timi-criterion-card {
-        padding: 15px;
-    }
-    
-    .timi-score-display {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-        padding: 25px;
-    }
-    
-    .score-circle {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .score-number {
-        font-size: 2em;
-    }
-    
-    .risk-percentage {
-        font-size: 2.5em;
-    }
-    
-    .risk-levels, .recommendations-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .risk-level, .recommendation-item {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .timi-segmented-control {
-        flex-direction: column;
-        gap: 8px;
-        padding: 8px;
-    }
-    
-    .segment-label {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 12px 16px;
-    }
-    
-    .criterion-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .criterion-icon {
-        align-self: center;
-    }
-}
 
 /* References section for TIMI calculator */
 .references-section {
@@ -4256,42 +2735,48 @@ html {
     color: #1e40af;
 }
 
-.study-details, .study-results {
+.study-details,
+.study-results {
     background: rgba(16, 185, 129, 0.05);
     padding: 20px;
     border-radius: 12px;
     border-left: 4px solid #10b981;
 }
 
-.study-details h5, .study-results h5 {
+.study-details h5,
+.study-results h5 {
     margin: 0 0 15px 0;
     color: #059669;
     font-size: 1.1em;
     font-weight: 600;
 }
 
-.study-grid, .findings-grid {
+.study-grid,
+.findings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
     margin-top: 15px;
 }
 
-.study-item, .finding-item {
+.study-item,
+.finding-item {
     background: rgba(255, 255, 255, 0.8);
     padding: 15px;
     border-radius: 8px;
     border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-.study-item h6, .finding-item h6 {
+.study-item h6,
+.finding-item h6 {
     margin: 0 0 8px 0;
     color: #047857;
     font-size: 1em;
     font-weight: 600;
 }
 
-.study-item p, .finding-item ul {
+.study-item p,
+.finding-item ul {
     margin: 0;
     color: #374151;
     font-size: 0.95em;
@@ -4385,17 +2870,25 @@ html {
         padding: 20px;
         margin-top: 30px;
     }
-    
-    .study-grid, .findings-grid, .validation-points {
+
+    .study-grid,
+    .findings-grid,
+    .validation-points {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
-    .study-item, .finding-item, .validation-item {
+
+    .study-item,
+    .finding-item,
+    .validation-item {
         padding: 12px;
     }
-    
-    .reference-citation, .study-details, .study-results, .reference-image, .clinical-validation {
+
+    .reference-citation,
+    .study-details,
+    .study-results,
+    .reference-image,
+    .clinical-validation {
         padding: 15px;
     }
 }
@@ -4404,493 +2897,17 @@ html {
     .references-section h4 {
         font-size: 1.2em;
     }
-    
-    .reference-citation h5, .study-details h5, .study-results h5, .reference-image h5, .clinical-validation h5 {
+
+    .reference-citation h5,
+    .study-details h5,
+    .study-results h5,
+    .reference-image h5,
+    .clinical-validation h5 {
         font-size: 1em;
     }
 }
 
-/* Styles for STOP-BANG calculator */
-.stop-bang-container {
-    margin: 20px 0;
-}
 
-.patient-demographics {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 25px;
-    border-left: 4px solid #3b82f6;
-}
-
-.patient-demographics h4 {
-    margin: 0 0 15px 0;
-    color: #1e40af;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.demographics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-}
-
-.demo-item {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 12px 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.demo-item label {
-    font-weight: 600;
-    color: #374151;
-    margin-right: 10px;
-}
-
-.demo-item span {
-    color: #1e40af;
-    font-weight: 500;
-}
-
-.stop-bang-criteria h4 {
-    margin: 0 0 20px 0;
-    color: #2d3748;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.criteria-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.criterion-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 20px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    position: relative;
-}
-
-.criterion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.criterion-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.criterion-letter {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-    font-weight: 700;
-    margin-right: 12px;
-}
-
-.criterion-title {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: #2d3748;
-    flex: 1;
-}
-
-.criterion-question {
-    font-size: 1em;
-    color: #374151;
-    margin-bottom: 8px;
-    font-weight: 500;
-    line-height: 1.4;
-}
-
-.criterion-detail {
-    font-size: 0.85em;
-    color: #6b7280;
-    margin-bottom: 15px;
-    font-style: italic;
-    line-height: 1.3;
-}
-
-.stop-bang-toggle {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.stop-bang-toggle input[type="checkbox"] {
-    display: none;
-}
-
-.toggle-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    background: rgba(247, 250, 252, 0.8);
-    border-radius: 25px;
-    padding: 8px 15px;
-    border: 2px solid rgba(102, 126, 234, 0.2);
-    transition: all 0.3s ease;
-    min-width: 80px;
-    justify-content: center;
-}
-
-.toggle-slider {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #cbd5e1;
-    margin-right: 8px;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.toggle-slider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: white;
-    transition: all 0.3s ease;
-}
-
-.toggle-text {
-    font-weight: 600;
-    color: #4a5568;
-    transition: all 0.3s ease;
-}
-
-.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    border-color: #10b981;
-    color: white;
-}
-
-.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider::after {
-    background: white;
-    transform: translate(-50%, -50%) scale(1.2);
-}
-
-.stop-bang-toggle input[type="checkbox"]:checked + .toggle-label .toggle-text {
-    color: white;
-}
-
-/* STOP-BANG Results Container */
-.stop-bang-result-container {
-    margin-top: 30px;
-}
-
-.score-display {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    padding: 30px;
-    color: white;
-    margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-}
-
-.score-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-}
-
-.score-circle.low-risk {
-    background: rgba(16, 185, 129, 0.3);
-    border-color: rgba(16, 185, 129, 0.5);
-}
-
-.score-circle.intermediate-risk {
-    background: rgba(245, 158, 11, 0.3);
-    border-color: rgba(245, 158, 11, 0.5);
-}
-
-.score-circle.high-risk {
-    background: rgba(239, 68, 68, 0.3);
-    border-color: rgba(239, 68, 68, 0.5);
-}
-
-.score-number {
-    font-size: 2.5em;
-    font-weight: 700;
-    line-height: 1;
-    color: #333333;
-}
-
-.score-label {
-    font-size: 1em;
-    opacity: 0.9;
-    margin-top: 4px;
-    color: #333333;
-}
-
-.risk-assessment {
-    flex: 1;
-}
-
-.risk-level {
-    font-size: 2.2em;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 10px;
-    color: #333333;
-}
-
-.risk-description {
-    font-size: 1.1em;
-    line-height: 1.4;
-    opacity: 0.95;
-    color: #333333;
-}
-
-/* Risk Interpretation */
-.risk-interpretation {
-    margin-bottom: 30px;
-}
-
-.risk-interpretation h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.risk-levels {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.risk-item {
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.risk-item.low-risk {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.risk-item.intermediate-risk {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-}
-
-.risk-item.high-risk {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-}
-
-.risk-item.active {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.risk-item.low-risk.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.2);
-}
-
-.risk-item.intermediate-risk.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.risk-item.high-risk.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.2);
-}
-
-.risk-score {
-    font-size: 0.9em;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.risk-category {
-    font-size: 1.2em;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.risk-probability {
-    font-size: 0.95em;
-    line-height: 1.3;
-}
-/* Clinical Recommendations */
-.clinical-recommendations h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-.recommendations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.recommendation-item {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 20px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.recommendation-item.low-risk-rec {
-    border-left: 4px solid #10b981;
-}
-
-.recommendation-item.intermediate-risk-rec {
-    border-left: 4px solid #f59e0b;
-}
-
-.recommendation-item.high-risk-rec {
-    border-left: 4px solid #ef4444;
-}
-
-.recommendation-item.active {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.recommendation-item.low-risk-rec.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.05);
-}
-
-.recommendation-item.intermediate-risk-rec.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.05);
-}
-
-.recommendation-item.high-risk-rec.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
-
-.recommendation-item h5 {
-    margin: 0 0 15px 0;
-    color: #2d3748;
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.recommendation-item ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.recommendation-item li {
-    margin-bottom: 8px;
-    color: #4a5568;
-    line-height: 1.4;
-}
-
-/* Mobile responsiveness for STOP-BANG calculator */
-@media (max-width: 768px) {
-    .criteria-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .criterion-card {
-        padding: 15px;
-    }
-    
-    .score-display {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-        padding: 25px;
-    }
-    
-    .score-circle {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .score-number {
-        font-size: 2em;
-    }
-    
-    .risk-level {
-        font-size: 1.8em;
-    }
-    
-    .risk-levels, .recommendations-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .risk-item, .recommendation-item {
-        padding: 15px;
-    }
-    
-    .demographics-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .criterion-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .criterion-letter {
-        align-self: center;
-    }
-    
-    .stop-bang-toggle {
-        justify-content: center;
-        margin-top: 10px;
-    }
-    
-    .patient-demographics, .criterion-card {
-        padding: 12px;
-    }
-}
 
 /* Styles for Serum Osmolality calculator */
 .osmolality-calculation {
@@ -4915,7 +2932,7 @@ html {
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .result-value {
@@ -5052,7 +3069,7 @@ html {
         gap: 15px;
         text-align: center;
     }
-    
+
     .result-number {
         font-size: 2em;
     }
@@ -5093,7 +3110,7 @@ html {
 
 .header-icon {
     font-size: 3em;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .calculator-title {
@@ -5327,7 +3344,8 @@ html {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.gender-icon, .smoking-icon {
+.gender-icon,
+.smoking-icon {
     font-size: 1.1em;
 }
 
@@ -5431,10 +3449,21 @@ html {
     margin-bottom: 8px;
 }
 
-.result-percentage.low-risk { color: #059669; }
-.result-percentage.moderate-risk { color: #d97706; }
-.result-percentage.high-risk { color: #dc2626; }
-.result-percentage.very-high-risk { color: #991b1b; }
+.result-percentage.low-risk {
+    color: #059669;
+}
+
+.result-percentage.moderate-risk {
+    color: #d97706;
+}
+
+.result-percentage.high-risk {
+    color: #dc2626;
+}
+
+.result-percentage.very-high-risk {
+    color: #991b1b;
+}
 
 .result-label {
     font-size: 1.1em;
@@ -5544,10 +3573,21 @@ html {
     border-radius: 50%;
 }
 
-.category-color.low { background: #059669; }
-.category-color.moderate { background: #d97706; }
-.category-color.high { background: #dc2626; }
-.category-color.very-high { background: #991b1b; }
+.category-color.low {
+    background: #059669;
+}
+
+.category-color.moderate {
+    background: #d97706;
+}
+
+.category-color.high {
+    background: #dc2626;
+}
+
+.category-color.very-high {
+    background: #991b1b;
+}
 
 .category-title {
     font-weight: 700;
@@ -5568,12 +3608,14 @@ html {
     padding: 25px;
     border-left: 4px solid #667eea;
 }
+
 .clinical-notes h5 {
     color: #1f2937;
     font-size: 1.1em;
     font-weight: 700;
     margin: 0 0 15px 0;
 }
+
 .clinical-notes ul {
     margin: 0;
     padding-left: 20px;
@@ -5593,35 +3635,35 @@ html {
     .score2-diabetes-container {
         padding: 15px;
     }
-    
+
     .calculator-header {
         flex-direction: column;
         text-align: center;
         padding: 25px 20px;
     }
-    
+
     .calculator-title {
         font-size: 1.5em;
     }
-    
+
     .input-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .region-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .result-main {
         flex-direction: column;
         gap: 20px;
         text-align: center;
     }
-    
+
     .result-percentage {
         font-size: 3em;
     }
-    
+
     .risk-categories {
         grid-template-columns: 1fr;
     }
@@ -6023,1589 +4065,50 @@ html {
     .regiscar-container {
         padding: 15px;
     }
-    
+
     .criterion-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .regiscar-toggle-group.triple {
         flex-direction: column;
     }
-    
+
     .interpretation-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .image-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .result-score-display {
         font-size: 3.5em;
     }
 }
 
-/* Styles for FENa calculator */
-.formula-equation-large {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: #1f2937;
-    padding: 15px;
-    background: #f3f4f6;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 20px;
-    font-family: 'Courier New', monospace;
-}
 
-.formula-equation-fraction {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 10px;
-}
 
-.fraction-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
 
-.fraction {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 200px;
-}
 
-.numerator,
-.denominator {
-    padding: 8px 15px;
-    font-size: 1.1em;
-    font-weight: 500;
-    color: #374151;
-}
 
-.fraction-line {
-    width: 100%;
-    height: 2px;
-    background: #1f2937;
-    margin: 5px 0;
-}
 
-.multiply {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: #667eea;
-}
 
-.interpretation-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
 
-.interpretation-item {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    border: 2px solid #e5e7eb;
-    transition: all 0.2s ease;
-}
 
-.interpretation-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
 
-.interpretation-item.prerenal {
-    border-left: 4px solid #10b981;
-}
 
-.interpretation-item.indeterminate {
-    border-left: 4px solid #f59e0b;
-}
 
-.interpretation-item.intrinsic {
-    border-left: 4px solid #ef4444;
-}
 
-.interpretation-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #e5e7eb;
-}
 
-.interpretation-value {
-    font-size: 1.5em;
-    font-weight: 700;
-}
 
-.prerenal .interpretation-value {
-    color: #10b981;
-}
 
-.indeterminate .interpretation-value {
-    color: #f59e0b;
-}
 
-.intrinsic .interpretation-value {
-    color: #ef4444;
-}
 
-.interpretation-label {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: #6b7280;
-}
 
-.interpretation-details p {
-    margin: 10px 0;
-    color: #374151;
-    font-weight: 500;
-}
 
-.interpretation-details ul {
-    margin: 10px 0;
-    padding-left: 20px;
-    color: #6b7280;
-}
 
-.interpretation-details li {
-    margin-bottom: 6px;
-    line-height: 1.4;
-}
-
-.alternative-indices {
-    margin-top: 25px;
-    padding: 20px;
-    background: #f8fafc;
-    border-radius: 12px;
-}
-
-.alternative-indices h5 {
-    color: #1f2937;
-    font-size: 1.1em;
-    font-weight: 700;
-    margin: 0 0 15px 0;
-}
-
-.alternative-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.alternative-item {
-    background: white;
-    border-radius: 10px;
-    padding: 18px;
-    border: 1px solid #e5e7eb;
-}
-
-.alternative-item h6 {
-    color: #667eea;
-    font-size: 1em;
-    font-weight: 700;
-    margin: 0 0 12px 0;
-}
-
-.alternative-item .formula-equation {
-    font-size: 0.95em;
-    font-weight: 500;
-    color: #374151;
-    padding: 10px;
-    background: #f3f4f6;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    font-family: 'Courier New', monospace;
-}
-
-.alternative-item p {
-    margin: 8px 0;
-    color: #6b7280;
-    font-size: 0.95em;
-    line-height: 1.5;
-}
-
-.alternative-item p strong {
-    color: #374151;
-}
-
-@media (max-width: 768px) {
-    .interpretation-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .alternative-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .formula-equation-large {
-        font-size: 1.1em;
-        padding: 12px;
-    }
-    
-    .fraction {
-        min-width: 150px;
-    }
-    
-    .numerator,
-    .denominator {
-        font-size: 1em;
-        padding: 6px 10px;
-    }
-}
-
-/* Styles for Child-Pugh Score calculator */
-.child-pugh-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.child-pugh-container .calculator-header {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 16px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-}
-
-.child-pugh-container .calculator-title {
-    font-size: 1.8em;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    line-height: 1.2;
-    color: white !important;
-}
-
-.child-pugh-container .calculator-description {
-    font-size: 1.1em;
-    margin: 0;
-    opacity: 0.95;
-    line-height: 1.4;
-    color: white !important;
-}
-
-.child-pugh-container .header-icon {
-    font-size: 3em;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-}
-
-.child-pugh-container .header-content {
-    flex: 1;
-}
-
-.child-pugh-radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.child-pugh-radio-group .radio-option {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.child-pugh-radio-group .radio-option input[type="radio"] {
-    display: none;
-}
-
-.child-pugh-radio-group .radio-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 18px;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-}
-
-.child-pugh-radio-group .radio-option:hover .radio-content {
-    border-color: #667eea;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-}
-
-.child-pugh-radio-group .radio-option.active .radio-content,
-.child-pugh-radio-group .radio-option:has(input[type="radio"]:checked) .radio-content {
-    border-color: #667eea;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-}
-
-.result-classification {
-    font-size: 2em;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.result-prognosis {
-    font-size: 1.1em;
-    color: #6b7280;
-    line-height: 1.5;
-}
-
-.result-main.class-a .result-score-display {
-    color: #059669;
-}
-
-.result-main.class-a .result-classification {
-    color: #059669;
-}
-.result-main.class-b .result-score-display {
-    color: #d97706;
-}
-.result-main.class-b .result-classification {
-    color: #d97706;
-}
-
-.result-main.class-c .result-score-display {
-    color: #dc2626;
-}
-
-.result-main.class-c .result-classification {
-    color: #dc2626;
-}
-
-.class-interpretation-guide {
-    margin-top: 25px;
-    padding: 20px;
-    background: #f8fafc;
-    border-radius: 12px;
-}
-
-.class-interpretation-guide h5 {
-    color: #1f2937;
-    font-size: 1.1em;
-    font-weight: 700;
-    margin: 0 0 15px 0;
-}
-
-.class-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 15px;
-}
-
-.class-item {
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 20px;
-    transition: all 0.2s ease;
-}
-
-.class-item.active {
-    border-color: #667eea;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
-    transform: scale(1.02);
-}
-
-.class-item.class-a {
-    border-left: 4px solid #059669;
-}
-
-.class-item.class-b {
-    border-left: 4px solid #d97706;
-}
-
-.class-item.class-c {
-    border-left: 4px solid #dc2626;
-}
-
-.class-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.class-name {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: #1f2937;
-}
-
-.class-a .class-name {
-    color: #059669;
-}
-
-.class-b .class-name {
-    color: #d97706;
-}
-
-.class-c .class-name {
-    color: #dc2626;
-}
-
-.class-score {
-    font-size: 0.9em;
-    font-weight: 600;
-    color: #6b7280;
-    background: #f3f4f6;
-    padding: 4px 12px;
-    border-radius: 12px;
-}
-
-.class-details {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.detail-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-}
-
-.detail-label {
-    font-weight: 500;
-    color: #6b7280;
-    font-size: 0.9em;
-}
-
-.detail-value {
-    font-weight: 700;
-    color: #1f2937;
-    font-size: 0.95em;
-}
-
-.management-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.management-item {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid #e5e7eb;
-}
-
-.management-item h6 {
-    color: #1f2937;
-    font-size: 1em;
-    font-weight: 700;
-    margin: 0 0 10px 0;
-}
-
-.management-item ul {
-    margin: 0;
-    padding-left: 20px;
-    color: #374151;
-}
-
-.management-item li {
-    margin-bottom: 6px;
-    line-height: 1.4;
-}
-
-@media (max-width: 768px) {
-    .child-pugh-container {
-        padding: 15px;
-    }
-    
-    .class-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .management-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Styles for SOFA Score calculator */
-.sofa-container {
-    margin: 20px 0;
-}
-
-.lab-values-summary {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 25px;
-    border-left: 4px solid #3b82f6;
-}
-
-.lab-values-summary h4 {
-    margin: 0 0 15px 0;
-    color: #1e40af;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.lab-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-.lab-item {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 12px 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.lab-item label {
-    font-weight: 600;
-    color: #374151;
-    margin-right: 10px;
-}
-
-.lab-item span {
-    color: #1e40af;
-    font-weight: 500;
-}
-
-.sofa-organs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.organ-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 20px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    position: relative;
-}
-
-.organ-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.organ-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    justify-content: space-between;
-}
-
-.organ-icon {
-    font-size: 1.8em;
-    margin-right: 12px;
-}
-
-.organ-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #2d3748;
-    flex: 1;
-}
-
-.organ-score {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-    font-weight: 700;
-}
-
-.organ-parameter {
-    font-size: 1em;
-    color: #4a5568;
-    margin-bottom: 12px;
-    font-weight: 500;
-}
-
-.sofa-select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid rgba(102, 126, 234, 0.2);
-    border-radius: 8px;
-    background: rgba(247, 250, 252, 0.8);
-    font-size: 0.95em;
-    color: #374151;
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
-}
-
-.sofa-select:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.organ-detail {
-    font-size: 0.85em;
-    color: #6b7280;
-    font-style: italic;
-    line-height: 1.3;
-}
-
-/* Organ-specific colors */
-.organ-card.respiration .organ-icon {
-    color: #ef4444;
-}
-
-.organ-card.coagulation .organ-icon {
-    color: #dc2626;
-}
-
-.organ-card.liver .organ-icon {
-    color: #f59e0b;
-}
-
-.organ-card.cardiovascular .organ-icon {
-    color: #ec4899;
-}
-
-.organ-card.cns .organ-icon {
-    color: #8b5cf6;
-}
-
-.organ-card.renal .organ-icon {
-    color: #10b981;
-}
-
-/* SOFA Results Container */
-.sofa-result-container {
-    margin-top: 30px;
-}
-
-.total-score-display {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    padding: 30px;
-    color: white;
-    margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-}
-
-.score-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-}
-
-.score-circle.low-mortality {
-    background: rgba(16, 185, 129, 0.3);
-    border-color: rgba(16, 185, 129, 0.5);
-}
-
-.score-circle.moderate-mortality {
-    background: rgba(245, 158, 11, 0.3);
-    border-color: rgba(245, 158, 11, 0.5);
-}
-
-.score-circle.high-mortality {
-    background: rgba(239, 68, 68, 0.3);
-    border-color: rgba(239, 68, 68, 0.5);
-}
-
-.score-circle.very-high-mortality {
-    background: rgba(153, 27, 27, 0.3);
-    border-color: rgba(153, 27, 27, 0.5);
-}
-
-.score-number {
-    font-size: 2.5em;
-    font-weight: 700;
-    line-height: 1;
-    color: #333333;
-}
-
-.score-label {
-    font-size: 1em;
-    opacity: 0.9;
-    margin-top: 4px;
-    color: #333333;
-}
-
-.mortality-assessment {
-    flex: 1;
-}
-
-.mortality-risk {
-    font-size: 2.2em;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 8px;
-    color: #333333;
-}
-
-.mortality-percentage {
-    font-size: 1.8em;
-    font-weight: 600;
-    margin-bottom: 8px;
-    opacity: 0.95;
-    color: #333333;
-}
-
-.mortality-description {
-    font-size: 1.1em;
-    opacity: 0.9;
-    color: #333333;
-}
-
-/* Score Interpretation */
-.score-interpretation {
-    margin-bottom: 30px;
-}
-
-.score-interpretation h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.interpretation-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.interpretation-item {
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.interpretation-item.low-mortality {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-}
-
-.interpretation-item.moderate-mortality {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-}
-
-.interpretation-item.high-mortality {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-}
-
-.interpretation-item.very-high-mortality {
-    background: rgba(153, 27, 27, 0.1);
-    color: #991b1b;
-}
-
-.interpretation-item.active {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.interpretation-item.low-mortality.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.2);
-}
-
-.interpretation-item.moderate-mortality.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.interpretation-item.high-mortality.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.2);
-}
-
-.interpretation-item.very-high-mortality.active {
-    border-color: #991b1b;
-    background: rgba(153, 27, 27, 0.2);
-}
-
-.score-range {
-    font-size: 0.9em;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.mortality-category {
-    font-size: 1.1em;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.mortality-rate {
-    font-size: 1.2em;
-    font-weight: 700;
-}
-
-/* Delta SOFA and Clinical Applications */
-.delta-sofa-info, .clinical-applications {
-    margin-bottom: 30px;
-}
-
-.delta-sofa-info h4, .clinical-applications h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.delta-grid, .applications-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.delta-item, .application-item {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 20px;
-    border-left: 4px solid #667eea;
-    transition: all 0.3s ease;
-}
-
-.delta-item:hover, .application-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.delta-item h5, .application-item h5 {
-    margin: 0 0 12px 0;
-    color: #4c51bf;
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.delta-item p {
-    margin: 0;
-    color: #4a5568;
-    line-height: 1.4;
-}
-
-.application-item ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.application-item li {
-    margin-bottom: 8px;
-    color: #4a5568;
-    line-height: 1.4;
-}
-
-/* Mobile responsiveness for SOFA calculator */
-@media (max-width: 768px) {
-    .sofa-organs-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .organ-card {
-        padding: 15px;
-    }
-    
-    .total-score-display {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-        padding: 25px;
-    }
-    
-    .score-circle {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .score-number {
-        font-size: 2em;
-    }
-    
-    .mortality-risk {
-        font-size: 1.8em;
-    }
-    
-    .mortality-percentage {
-        font-size: 1.5em;
-    }
-    
-    .interpretation-grid, .delta-grid, .applications-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .interpretation-item, .delta-item, .application-item {
-        padding: 15px;
-    }
-    
-    .lab-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .organ-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .organ-score {
-        align-self: center;
-        width: 35px;
-        height: 35px;
-        font-size: 1em;
-    }
-    
-    .lab-values-summary, .organ-card {
-        padding: 12px;
-    }
-}
-
-/* Styles for SIRS calculator */
-.sirs-container {
-    margin: 20px 0;
-}
-
-.current-vitals {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 25px;
-    border-left: 4px solid #3b82f6;
-}
-
-.current-vitals h4 {
-    margin: 0 0 15px 0;
-    color: #1e40af;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.vitals-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-.vital-item {
-    background: rgba(255, 255, 255, 0.8);
-    padding: 12px 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.vital-item label {
-    font-weight: 600;
-    color: #374151;
-    margin-right: 10px;
-}
-
-.vital-item span {
-    color: #1e40af;
-    font-weight: 500;
-}
-
-.sirs-criteria-section {
-    margin-bottom: 30px;
-}
-
-.sirs-criteria-section h4 {
-    margin: 0 0 10px 0;
-    color: #2d3748;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.criteria-requirement {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    border-left: 4px solid #f59e0b;
-}
-
-.sirs-criteria-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-}
-
-.criterion-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 20px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    position: relative;
-}
-
-.criterion-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.criterion-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    justify-content: space-between;
-}
-
-.criterion-icon {
-    font-size: 1.8em;
-    margin-right: 12px;
-}
-
-.criterion-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #2d3748;
-    flex: 1;
-}
-
-.criterion-status {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    font-weight: 700;
-    transition: all 0.3s ease;
-}
-
-.criterion-details {
-    margin-bottom: 15px;
-}
-
-.criterion-range {
-    font-size: 1em;
-    color: #4a5568;
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.criterion-explanation {
-    font-size: 0.85em;
-    color: #6b7280;
-    font-style: italic;
-    line-height: 1.3;
-}
-
-.sirs-toggle {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.sirs-toggle input[type="checkbox"] {
-    display: none;
-}
-
-.toggle-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    background: rgba(247, 250, 252, 0.8);
-    border-radius: 25px;
-    padding: 8px 15px;
-    border: 2px solid rgba(102, 126, 234, 0.2);
-    transition: all 0.3s ease;
-    min-width: 80px;
-    justify-content: center;
-}
-.toggle-slider {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #cbd5e1;
-    margin-right: 8px;
-    transition: all 0.3s ease;
-    position: relative;
-}
-.toggle-slider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: white;
-    transition: all 0.3s ease;
-}
-
-.toggle-text {
-    font-weight: 600;
-    color: #4a5568;
-    transition: all 0.3s ease;
-}
-
-.sirs-toggle input[type="checkbox"]:checked + .toggle-label {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    border-color: #ef4444;
-    color: white;
-}
-
-.sirs-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.sirs-toggle input[type="checkbox"]:checked + .toggle-label .toggle-slider::after {
-    background: white;
-    transform: translate(-50%, -50%) scale(1.2);
-}
-
-.sirs-toggle input[type="checkbox"]:checked + .toggle-label .toggle-text {
-    color: white;
-}
-
-.sirs-score-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 16px;
-    margin-bottom: 20px;
-}
-
-.score-counter {
-    display: flex;
-    align-items: baseline;
-    gap: 5px;
-}
-
-.score-number {
-    font-size: 2.5em;
-    font-weight: 700;
-    line-height: 1;
-    color: #333333;
-}
-
-.score-denominator {
-    font-size: 1.5em;
-    font-weight: 600;
-    opacity: 0.8;
-}
-
-.score-label {
-    font-size: 1.1em;
-    font-weight: 600;
-    opacity: 0.95;
-    color: #333333;
-}
-
-.progression-criteria {
-    margin-bottom: 30px;
-}
-
-.progression-criteria h4 {
-    margin: 0 0 20px 0;
-    color: #2d3748;
-    font-size: 1.2em;
-    font-weight: 600;
-}
-
-.progression-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.progression-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 20px;
-    border: 2px solid rgba(102, 126, 234, 0.1);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.progression-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
-}
-
-.progression-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.progression-icon {
-    font-size: 1.8em;
-    margin-right: 12px;
-}
-
-.progression-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: #2d3748;
-}
-
-.progression-details {
-    margin-bottom: 15px;
-}
-
-.progression-question {
-    font-size: 1em;
-    color: #4a5568;
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.progression-explanation {
-    font-size: 0.85em;
-    color: #6b7280;
-    font-style: italic;
-    line-height: 1.3;
-}
-
-/* SIRS Results Container */
-.sirs-result-container {
-    margin-top: 30px;
-}
-
-.diagnosis-display {
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-    border-radius: 20px;
-    padding: 30px;
-    color: white;
-    margin-bottom: 30px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-}
-
-.diagnosis-display.normal {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.diagnosis-display.sirs {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.diagnosis-display.sepsis {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-}
-
-.diagnosis-display.shock {
-    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
-}
-
-.diagnosis-icon {
-    font-size: 3em;
-    opacity: 0.9;
-}
-
-.diagnosis-content {
-    flex: 1;
-}
-
-.diagnosis-title {
-    font-size: 2.2em;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 8px;
-    color: white;
-}
-
-.diagnosis-description {
-    font-size: 1.1em;
-    line-height: 1.4;
-    opacity: 0.95;
-    color: white;
-}
-
-.severity-progression {
-    margin-bottom: 30px;
-}
-
-.severity-progression h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.progression-flow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.progression-step {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 15px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    min-width: 120px;
-}
-
-.progression-step.active {
-    transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.progression-step.normal.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.2);
-}
-
-.progression-step.sirs.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.2);
-}
-
-.progression-step.sepsis.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.2);
-}
-
-.progression-step.shock.active {
-    border-color: #991b1b;
-    background: rgba(153, 27, 27, 0.2);
-}
-
-.step-icon {
-    font-size: 1.5em;
-    margin-bottom: 8px;
-}
-
-.step-title {
-    font-size: 1em;
-    font-weight: 700;
-    margin-bottom: 5px;
-    color: #2d3748;
-}
-
-.step-criteria {
-    font-size: 0.8em;
-    color: #6b7280;
-    line-height: 1.2;
-}
-
-.progression-arrow {
-    font-size: 1.5em;
-    color: #6b7280;
-    font-weight: bold;
-}
-
-.clinical-management h4 {
-    margin-bottom: 20px;
-    color: #2d3748;
-    font-size: 1.3em;
-}
-
-.management-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.management-item {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 20px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.management-item.normal-management {
-    border-left: 4px solid #10b981;
-}
-
-.management-item.sirs-management {
-    border-left: 4px solid #f59e0b;
-}
-
-.management-item.sepsis-management {
-    border-left: 4px solid #ef4444;
-}
-
-.management-item.shock-management {
-    border-left: 4px solid #991b1b;
-}
-
-.management-item.active {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.management-item.normal-management.active {
-    border-color: #10b981;
-    background: rgba(16, 185, 129, 0.05);
-}
-
-.management-item.sirs-management.active {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, 0.05);
-}
-
-.management-item.sepsis-management.active {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
-}
-
-.management-item.shock-management.active {
-    border-color: #991b1b;
-    background: rgba(153, 27, 27, 0.05);
-}
-
-.management-item h5 {
-    margin: 0 0 15px 0;
-    color: #2d3748;
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.management-item ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.management-item li {
-    margin-bottom: 8px;
-    color: #4a5568;
-    line-height: 1.4;
-}
-
-/* Mobile responsiveness for SIRS calculator */
-@media (max-width: 768px) {
-    .sirs-criteria-grid, .progression-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .criterion-card, .progression-card {
-        padding: 15px;
-    }
-    
-    .diagnosis-display {
-        flex-direction: column;
-        text-align: center;
-        gap: 15px;
-        padding: 25px;
-    }
-    
-    .diagnosis-icon {
-        font-size: 2.5em;
-    }
-    
-    .diagnosis-title {
-        font-size: 1.8em;
-    }
-    
-    .progression-flow {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .progression-arrow {
-        transform: rotate(90deg);
-    }
-    
-    .management-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .management-item {
-        padding: 15px;
-    }
-    
-    .vitals-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .criterion-header, .progression-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .criterion-status {
-        align-self: center;
-        width: 30px;
-        height: 30px;
-        font-size: 1em;
-    }
-    
-    .sirs-toggle {
-        justify-content: center;
-        margin-top: 10px;
-    }
-    
-    .current-vitals, .criterion-card, .progression-card {
-        padding: 12px;
-    }
-    
-    .score-number {
-        font-size: 2em;
-    }
-    
-    .score-denominator {
-        font-size: 1.2em;
-    }
-}
 
 /* SEX-SHOCK Risk Score Styles */
 .sex-shock-container {
@@ -7716,18 +4219,51 @@ html {
     border-color: #007bff;
 }
 
-.criterion-card.age { border-left: 4px solid #6f42c1; }
-.criterion-card.sex { border-left: 4px solid #e83e8c; }
-.criterion-card.pci { border-left: 4px solid #20c997; }
-.criterion-card.timi { border-left: 4px solid #fd7e14; }
-.criterion-card.left-main { border-left: 4px solid #dc3545; }
-.criterion-card.glycemia { border-left: 4px solid #ffc107; }
-.criterion-card.bp { border-left: 4px solid #17a2b8; }
-.criterion-card.hr { border-left: 4px solid #28a745; }
-.criterion-card.killip { border-left: 4px solid #6c757d; }
-.criterion-card.arrest { border-left: 4px solid #343a40; }
-.criterion-card.lvef { border-left: 4px solid #007bff; }
-.criterion-card.st-elevation { border-left: 4px solid #fd7e14; }
+.criterion-card.age {
+    border-left: 4px solid #6f42c1;
+}
+
+.criterion-card.sex {
+    border-left: 4px solid #e83e8c;
+}
+
+.criterion-card.pci {
+    border-left: 4px solid #20c997;
+}
+
+
+
+.criterion-card.left-main {
+    border-left: 4px solid #dc3545;
+}
+
+.criterion-card.glycemia {
+    border-left: 4px solid #ffc107;
+}
+
+.criterion-card.bp {
+    border-left: 4px solid #17a2b8;
+}
+
+.criterion-card.hr {
+    border-left: 4px solid #28a745;
+}
+
+.criterion-card.killip {
+    border-left: 4px solid #6c757d;
+}
+
+.criterion-card.arrest {
+    border-left: 4px solid #343a40;
+}
+
+.criterion-card.lvef {
+    border-left: 4px solid #007bff;
+}
+
+.criterion-card.st-elevation {
+    border-left: 4px solid #fd7e14;
+}
 
 .criterion-header {
     display: flex;
@@ -7787,7 +4323,7 @@ html {
     pointer-events: none;
 }
 
-.sex-shock-toggle input[type="radio"]:checked + span {
+.sex-shock-toggle input[type="radio"]:checked+span {
     color: white;
 }
 
@@ -7959,6 +4495,7 @@ html {
     line-height: 1;
     color: #333333;
 }
+
 .score-unit {
     font-size: 1.2em;
     font-weight: 500;
@@ -7968,6 +4505,7 @@ html {
 .risk-interpretation {
     flex: 1;
 }
+
 .risk-title {
     font-size: 1.8em;
     font-weight: 700;
@@ -8011,10 +4549,25 @@ html {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.risk-level.low-risk.active { border-color: #28a745; background: #d4edda; }
-.risk-level.moderate-risk.active { border-color: #ffc107; background: #fff3cd; }
-.risk-level.high-risk.active { border-color: #fd7e14; background: #ffeaa7; }
-.risk-level.very-high-risk.active { border-color: #dc3545; background: #f8d7da; }
+.risk-level.low-risk.active {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.risk-level.moderate-risk.active {
+    border-color: #ffc107;
+    background: #fff3cd;
+}
+
+.risk-level.high-risk.active {
+    border-color: #fd7e14;
+    background: #ffeaa7;
+}
+
+.risk-level.very-high-risk.active {
+    border-color: #dc3545;
+    background: #f8d7da;
+}
 
 .risk-range {
     font-size: 1.2em;
@@ -8029,10 +4582,21 @@ html {
     margin-bottom: 8px;
 }
 
-.risk-level.low-risk .risk-category { color: #28a745; }
-.risk-level.moderate-risk .risk-category { color: #ffc107; }
-.risk-level.high-risk .risk-category { color: #fd7e14; }
-.risk-level.very-high-risk .risk-category { color: #dc3545; }
+.risk-level.low-risk .risk-category {
+    color: #28a745;
+}
+
+.risk-level.moderate-risk .risk-category {
+    color: #ffc107;
+}
+
+.risk-level.high-risk .risk-category {
+    color: #fd7e14;
+}
+
+.risk-level.very-high-risk .risk-category {
+    color: #dc3545;
+}
 
 .risk-level .risk-description {
     font-size: 0.9em;
@@ -8060,21 +4624,24 @@ html {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-.recommendation-item.low-risk-rec.active { 
-    border-color: #28a745; 
-    background: #d4edda; 
+.recommendation-item.low-risk-rec.active {
+    border-color: #28a745;
+    background: #d4edda;
 }
-.recommendation-item.moderate-risk-rec.active { 
-    border-color: #ffc107; 
-    background: #fff3cd; 
+
+.recommendation-item.moderate-risk-rec.active {
+    border-color: #ffc107;
+    background: #fff3cd;
 }
-.recommendation-item.high-risk-rec.active { 
-    border-color: #fd7e14; 
-    background: #ffeaa7; 
+
+.recommendation-item.high-risk-rec.active {
+    border-color: #fd7e14;
+    background: #ffeaa7;
 }
-.recommendation-item.very-high-risk-rec.active { 
-    border-color: #dc3545; 
-    background: #f8d7da; 
+
+.recommendation-item.very-high-risk-rec.active {
+    border-color: #dc3545;
+    background: #f8d7da;
 }
 
 .recommendation-item h5 {
@@ -8248,41 +4815,41 @@ html {
     .sex-shock-container {
         padding: 15px;
     }
-    
+
     .demographics-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .criteria-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .lab-inputs-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .risk-score-display {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .score-circle {
         margin-right: 0;
         margin-bottom: 20px;
     }
-    
+
     .risk-levels {
         grid-template-columns: 1fr;
     }
-    
+
     .recommendations-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .management-steps {
         grid-template-columns: 1fr;
     }
-    
+
     .study-grid,
     .findings-grid,
     .validation-points {
@@ -8290,494 +4857,7 @@ html {
     }
 }
 
-/* ============================================
-   Bacterial Meningitis Score - Enhanced Styles
-   ============================================ */
 
-/* Instructions Box */
-.bms-instructions {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    margin-bottom: 25px;
-}
-
-.bms-instructions .instruction-header {
-    display: flex;
-    align-items: center;
-    font-size: 1.1em;
-    margin-bottom: 12px;
-}
-
-.bms-instructions p {
-    margin: 5px 0;
-    line-height: 1.6;
-    font-size: 0.95em;
-}
-
-/* Criteria Section */
-.bms-criteria-section {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.bms-input-row {
-    padding: 18px;
-    margin-bottom: 12px;
-    background: linear-gradient(to right, #f8f9ff 0%, #ffffff 100%);
-    border-radius: 10px;
-    border-left: 4px solid #667eea;
-    transition: all 0.3s ease;
-}
-
-.bms-input-row:hover {
-    background: linear-gradient(to right, #f0f3ff 0%, #ffffff 100%);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-    transform: translateX(5px);
-}
-
-.bms-input-row:last-child {
-    margin-bottom: 0;
-}
-
-.bms-label {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    flex: 1;
-}
-
-.label-icon {
-    font-size: 1.8em;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-.label-main {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 1.05em;
-    margin-bottom: 4px;
-}
-
-.label-sub {
-    font-size: 0.85em;
-    color: #7f8c8d;
-    font-weight: normal;
-}
-
-/* Segmented Control for BMS */
-.bms-control {
-    border: 2px solid #667eea;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.bms-control label {
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.bms-control label:hover {
-    background-color: #f0f3ff;
-}
-
-.bms-control input[type="radio"]:checked + span {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-weight: 600;
-}
-
-.bms-control span {
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    transition: all 0.3s ease;
-}
-
-.bms-control strong {
-    font-size: 1.1em;
-}
-
-/* Result Box */
-.bms-result {
-    margin-top: 25px;
-    border-radius: 16px;
-    padding: 0;
-    overflow: hidden;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    transition: all 0.4s ease;
-    border: none;
-}
-
-.bms-result-content {
-    display: flex;
-    align-items: stretch;
-    min-height: 150px;
-}
-
-.result-score-section {
-    flex: 0 0 40%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.result-label {
-    font-size: 0.9em;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.9;
-    margin-bottom: 10px;
-}
-
-.bms-score {
-    font-size: 4.5em !important;
-    font-weight: 800;
-    line-height: 1;
-    margin: 0;
-}
-
-.result-points {
-    font-size: 1em;
-    font-weight: 600;
-    margin-top: 5px;
-    opacity: 0.9;
-}
-
-.result-divider {
-    width: 2px;
-    background: rgba(255, 255, 255, 0.3);
-    margin: 20px 0;
-}
-
-.result-interpretation-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    text-align: center;
-}
-
-.result-risk-icon {
-    font-size: 3.5em;
-    margin-bottom: 15px;
-    animation: iconPulse 2s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.bms-interpretation {
-    font-size: 1.3em !important;
-    font-weight: 700;
-    line-height: 1.4;
-    margin: 0;
-}
-
-/* Color Variants */
-.bms-very-low-risk {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-}
-
-.bms-not-low-risk {
-    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-    color: white;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .bms-result-content {
-        flex-direction: column;
-    }
-    
-    .result-score-section {
-        flex: 1;
-        padding: 25px;
-    }
-    
-    .result-divider {
-        width: 100%;
-        height: 2px;
-        margin: 0;
-    }
-    
-    .result-interpretation-section {
-        padding: 25px;
-    }
-    
-    .bms-input-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .bms-control {
-        width: 100%;
-    }
-    
-    .label-icon {
-        font-size: 1.5em;
-    }
-}
-
-/* ============================================
-   CPIS Score - Enhanced Styles
-   ============================================ */
-
-/* Instructions Box */
-.cpis-instructions {
-    background: linear-gradient(135deg, #06beb6 0%, #48b1bf 100%);
-    color: white;
-    border: none;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(6, 190, 182, 0.3);
-    margin-bottom: 25px;
-}
-
-.cpis-instructions .instruction-header {
-    display: flex;
-    align-items: center;
-    font-size: 1.1em;
-    margin-bottom: 12px;
-}
-
-.cpis-instructions p {
-    margin: 5px 0;
-    line-height: 1.6;
-    font-size: 0.95em;
-}
-
-/* Criteria Section */
-.cpis-criteria-section {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.cpis-input-row {
-    padding: 18px;
-    margin-bottom: 12px;
-    background: linear-gradient(to right, #f0fffe 0%, #ffffff 100%);
-    border-radius: 10px;
-    border-left: 4px solid #06beb6;
-    transition: all 0.3s ease;
-}
-
-.cpis-input-row:hover {
-    background: linear-gradient(to right, #e0fffe 0%, #ffffff 100%);
-    box-shadow: 0 4px 12px rgba(6, 190, 182, 0.15);
-    transform: translateX(5px);
-}
-
-.cpis-input-row:last-child {
-    margin-bottom: 0;
-}
-
-.cpis-label {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    flex: 1;
-}
-
-/* Segmented Control for CPIS */
-.cpis-control {
-    border: 2px solid #06beb6;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.cpis-control label {
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.cpis-control label:hover {
-    background-color: #e0fffe;
-}
-
-.cpis-control input[type="radio"]:checked + span {
-    background: linear-gradient(135deg, #06beb6 0%, #48b1bf 100%);
-    color: white;
-    font-weight: 600;
-}
-
-.cpis-control span {
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    transition: all 0.3s ease;
-}
-
-.cpis-control.multi label {
-    flex: 1;
-}
-
-.cpis-control strong {
-    font-size: 1.1em;
-}
-
-/* Result Box */
-.cpis-result {
-    margin-top: 25px;
-    border-radius: 16px;
-    padding: 0;
-    overflow: hidden;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    transition: all 0.4s ease;
-    border: none;
-}
-
-.cpis-result-content {
-    display: flex;
-    align-items: stretch;
-    min-height: 150px;
-}
-
-.cpis-score {
-    font-size: 4.5em !important;
-    font-weight: 800;
-    line-height: 1;
-    margin: 0;
-}
-
-.cpis-interpretation {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.interpretation-text {
-    font-size: 1.4em;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.interpretation-detail {
-    font-size: 1em;
-    opacity: 0.9;
-    font-weight: 500;
-}
-
-/* Color Variants */
-.cpis-low-risk {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-}
-
-.cpis-high-risk {
-    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-    color: white;
-}
-
-/* Additional Clinical Note */
-.cpis-additional-note {
-    margin-top: 20px;
-    padding: 15px 20px;
-    background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
-    border-radius: 10px;
-    border-left: 5px solid #ffc107;
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
-    color: #856404;
-    font-size: 1em;
-    line-height: 1.6;
-}
-
-.cpis-additional-note strong {
-    color: #856404;
-    font-weight: 700;
-}
-
-/* Management Box */
-.cpis-management-box {
-    margin-top: 25px;
-    padding: 25px;
-    background: linear-gradient(to right, #f8f9ff 0%, #ffffff 100%);
-    border-radius: 12px;
-    border-left: 5px solid #06beb6;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.cpis-management-box h4 {
-    margin: 0 0 15px 0;
-    color: #2c3e50;
-    font-size: 1.3em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.cpis-management-box ul {
-    margin: 0;
-    padding-left: 20px;
-    list-style: none;
-}
-
-.cpis-management-box li {
-    margin: 12px 0;
-    padding-left: 25px;
-    position: relative;
-    line-height: 1.6;
-    color: #34495e;
-}
-
-.cpis-management-box li:before {
-    content: "→";
-    position: absolute;
-    left: 0;
-    color: #06beb6;
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-.cpis-management-box li strong {
-    color: #06beb6;
-}
-/* Responsive Design */
-@media (max-width: 768px) {
-    .cpis-result-content {
-        flex-direction: column;
-    }
-    
-    .cpis-input-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .cpis-control {
-        width: 100%;
-    }
-    
-    .cpis-control.multi {
-        flex-direction: column;
-    }
-    
-    .cpis-control.multi label {
-        width: 100%;
-    }
-}
 
 /* ============================================
    Steroid Conversion Table Styles
@@ -8988,1408 +5068,36 @@ html {
     .steroid-conversion-table-container {
         padding: 20px 15px;
     }
-    
+
     .steroid-equivalence-table {
         font-size: 0.85em;
     }
-    
+
     .steroid-equivalence-table th,
     .steroid-equivalence-table td {
         padding: 10px 8px;
     }
-    
+
     .steroid-equivalence-table th.sticky-col,
     .steroid-equivalence-table td.steroid-name {
         min-width: 150px;
         padding-left: 15px;
     }
-    
+
     .potency-grid {
         grid-template-columns: 1fr;
     }
 }
 
-/* ============================================
-   Ethanol Concentration Formula Styles
-   ============================================ */
+/* Removed legacy Ethanol Concentration styles (superseded by uiBuilder and global styles) */
 
-.formula-section {
-    margin-top: 40px;
-    padding: 30px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
+/* Removed legacy FIB-4 styles (superseded by uiBuilder and global styles) */
 
-.formula-section h4 {
-    margin: 0 0 25px 0;
-    color: #2c3e50;
-    font-size: 1.6em;
-    font-weight: 700;
-    text-align: center;
-}
 
-.formula-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
-}
 
-.formula-step {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
 
-.formula-step:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-}
 
-.formula-step h5 {
-    margin: 0 0 15px 0;
-    color: #667eea;
-    font-size: 1.2em;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
-.formula-step h5:before {
-    content: "➜";
-    font-size: 1.3em;
-}
-
-.formula-box {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 1em;
-    line-height: 1.8;
-    text-align: center;
-}
-
-.formula-box strong {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1.1em;
-}
-
-.formula-box.highlight {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
-}
-
-.fraction {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 10px;
-    font-size: 0.95em;
-}
-
-.numerator {
-    padding: 8px 15px;
-    border-bottom: 2px solid white;
-    margin-bottom: 5px;
-}
-
-.denominator {
-    padding: 8px 15px;
-}
-
-.formula-note {
-    margin: 0;
-    padding: 12px 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    color: #4a5568;
-    font-size: 0.9em;
-    line-height: 1.6;
-}
-
-.formula-step.combined {
-    border: 3px solid #f093fb;
-    background: linear-gradient(to right, #fff5f7 0%, #ffffff 100%);
-}
-
-/* Clinical Notes */
-.clinical-notes {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    border-left: 5px solid #ff6b6b;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    margin-bottom: 25px;
-}
-
-.clinical-notes h5 {
-    margin: 0 0 15px 0;
-    color: #2c3e50;
-    font-size: 1.3em;
-    font-weight: 600;
-}
-
-.clinical-notes ul {
-    margin: 0;
-    padding-left: 25px;
-    list-style: none;
-}
-
-.clinical-notes li {
-    margin: 10px 0;
-    padding-left: 25px;
-    position: relative;
-    line-height: 1.7;
-    color: #4a5568;
-}
-
-.clinical-notes li:before {
-    content: "▸";
-    position: absolute;
-    left: 0;
-    color: #ff6b6b;
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-.clinical-notes li strong {
-    color: #ff6b6b;
-}
-
-/* Common Drinks Section */
-.common-drinks {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.common-drinks h5 {
-    margin: 0 0 20px 0;
-    color: #2c3e50;
-    font-size: 1.3em;
-    font-weight: 600;
-    text-align: center;
-}
-
-.drinks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.drink-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-}
-
-.drink-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.drink-card strong {
-    display: block;
-    font-size: 1.1em;
-    margin-bottom: 10px;
-}
-
-.drink-card p {
-    margin: 0;
-    font-size: 0.95em;
-    opacity: 0.95;
-}
-
-.drinks-note {
-    margin: 0;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    text-align: center;
-    color: #4a5568;
-    font-size: 0.95em;
-    line-height: 1.6;
-    font-weight: 500;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .formula-section {
-        padding: 20px 15px;
-    }
-    
-    .formula-box {
-        font-size: 0.9em;
-        padding: 15px;
-    }
-    
-    .fraction {
-        font-size: 0.85em;
-    }
-    
-    .drinks-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 10px;
-    }
-    
-    .drink-card {
-        padding: 15px;
-    }
-}
-
-/* ============================================
-   FIB-4 Calculator Styles
-   ============================================ */
-
-.fib4-container {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.fib4-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.fib4-header h3 {
-    margin: 0 0 10px 0;
-    color: #2c3e50;
-    font-size: 2em;
-}
-
-.fib4-subtitle {
-    color: #718096;
-    font-size: 1.1em;
-    margin: 0;
-}
-
-/* Input Section */
-.fib4-input-section {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-@media (max-width: 768px) {
-    .fib4-input-section {
-        grid-template-columns: 1fr;
-    }
-}
-
-.fib4-input-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    min-height: 120px;
-}
-
-.fib4-input-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
-    border-color: #667eea;
-}
-
-.fib4-input-card .input-icon {
-    font-size: 2em;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
-.fib4-input-card .input-content {
-    flex: 1;
-    position: relative;
-}
-
-.fib4-input-card label {
-    display: block;
-    color: #4a5568;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 0.95em;
-}
-
-.fib4-input-card input {
-    width: 100%;
-    padding: 12px 45px 12px 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 1.1em;
-    transition: all 0.3s ease;
-}
-
-.fib4-input-card input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.fib4-input-card .input-unit {
-    position: absolute;
-    right: 12px;
-    top: 42px;
-    color: #a0aec0;
-    font-weight: 500;
-    font-size: 0.9em;
-    pointer-events: none;
-}
-
-/* Calculate Button */
-.fib4-calculate-btn {
-    width: 100%;
-    padding: 18px 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.2em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.fib4-calculate-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-}
-
-.fib4-calculate-btn .btn-icon {
-    font-size: 1.3em;
-    transition: transform 0.3s ease;
-}
-
-.fib4-calculate-btn:hover .btn-icon {
-    transform: translateX(5px);
-}
-
-/* Result Box */
-.fib4-result {
-    margin-bottom: 30px;
-}
-
-.fib4-result-content {
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    transition: all 0.4s ease;
-}
-
-.fib4-result-content.low-risk {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-}
-
-.fib4-result-content.intermediate-risk {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-}
-
-.fib4-result-content.high-risk {
-    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-    color: white;
-}
-
-.fib4-result-content.error {
-    background: #fff3cd;
-    color: #856404;
-    text-align: center;
-}
-
-.result-header {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 20px;
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-}
-
-.result-icon {
-    font-size: 4em;
-    line-height: 1;
-    animation: iconPulse 2s ease-in-out infinite;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.result-main {
-    background: rgba(255, 255, 255, 0.25);
-    padding: 15px 25px;
-    border-radius: 10px;
-    backdrop-filter: blur(5px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.result-score-label {
-    font-size: 1em;
-    opacity: 1;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.result-score-value {
-    font-size: 4.5em;
-    font-weight: 900;
-    line-height: 1;
-    margin-top: 8px;
-    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    letter-spacing: -2px;
-}
-
-.result-divider {
-    height: 2px;
-    background: rgba(255, 255, 255, 0.3);
-    margin: 20px 0;
-}
-
-.result-details {
-    line-height: 1.7;
-}
-
-.risk-classification {
-    font-size: 1.8em;
-    margin-bottom: 15px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.result-details .interpretation {
-    font-size: 1.2em;
-    margin: 10px 0 15px 0;
-    font-weight: 600;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    line-height: 1.6;
-}
-
-.recommendation {
-    background: rgba(255, 255, 255, 0.25);
-    padding: 18px 20px;
-    border-radius: 10px;
-    margin-top: 15px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
-}
-
-.recommendation strong {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 1.15em;
-    font-weight: 700;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.recommendation p {
-    margin: 0;
-    opacity: 1;
-    font-weight: 500;
-    line-height: 1.6;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Formula Section */
-.fib4-formula-section {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
-}
-
-.fib4-formula-section h4 {
-    margin: 0 0 20px 0;
-    color: #2c3e50;
-    font-size: 1.4em;
-    text-align: center;
-}
-
-.fib4-formula {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-/* Interpretation Guide */
-.fib4-interpretation-guide {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
-}
-
-.fib4-interpretation-guide h4 {
-    margin: 0 0 25px 0;
-    color: #2c3e50;
-    font-size: 1.4em;
-    text-align: center;
-}
-.interpretation-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.interp-card {
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.interp-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.interp-card.low-risk {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    color: white;
-}
-
-.interp-card.intermediate-risk {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-}
-
-.interp-card.high-risk {
-    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-    color: white;
-}
-
-.risk-range {
-    font-size: 2em;
-    font-weight: 800;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.risk-label {
-    font-size: 1.3em;
-    font-weight: 700;
-    margin-bottom: 15px;
-    text-align: center;
-    padding-bottom: 15px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.interp-card p {
-    margin: 0 0 15px 0;
-    font-size: 1em;
-    line-height: 1.6;
-}
-
-.interp-card ul {
-    margin: 0;
-    padding-left: 20px;
-    list-style: none;
-}
-
-.interp-card li {
-    margin: 8px 0;
-    padding-left: 20px;
-    position: relative;
-    font-size: 0.95em;
-    line-height: 1.5;
-}
-
-.interp-card li:before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    font-weight: bold;
-}
-
-/* Clinical Notes */
-.fib4-clinical-notes {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    border-left: 5px solid #667eea;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.fib4-clinical-notes h4 {
-    margin: 0 0 15px 0;
-    color: #2c3e50;
-    font-size: 1.3em;
-}
-
-.fib4-clinical-notes ul {
-    margin: 0;
-    padding-left: 25px;
-    list-style: none;
-}
-
-.fib4-clinical-notes li {
-    margin: 12px 0;
-    padding-left: 25px;
-    position: relative;
-    line-height: 1.7;
-    color: #4a5568;
-}
-
-.fib4-clinical-notes li:before {
-    content: "→";
-    position: absolute;
-    left: 0;
-    color: #667eea;
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-.fib4-clinical-notes li strong {
-    color: #667eea;
-}
-
-/* Additional Responsive Design */
-@media (max-width: 768px) {
-    .interpretation-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .result-header {
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-    }
-    
-    .result-main {
-        width: 100%;
-        text-align: center;
-    }
-    
-    .result-score-value {
-        font-size: 3em;
-    }
-    
-    .fib4-input-card {
-        min-height: auto;
-    }
-}
-
-/* ============================================
-   Free Water Deficit - Enhanced Styles
-   ============================================ */
-
-.fwd-correction-guide {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    margin: 30px 0;
-}
-
-.fwd-correction-guide h4 {
-    margin: 0 0 25px 0;
-    color: #2c3e50;
-    font-size: 1.4em;
-    text-align: center;
-}
-
-.correction-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.correction-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.correction-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.correction-card.rate {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.correction-card.fluid {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.correction-card.monitoring {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.correction-card .card-icon {
-    font-size: 3em;
-    margin-bottom: 15px;
-    text-align: center;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.correction-card h5 {
-    margin: 0 0 15px 0;
-    font-size: 1.3em;
-    font-weight: 700;
-    text-align: center;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-    padding-bottom: 10px;
-}
-
-.correction-card p {
-    margin: 8px 0;
-    line-height: 1.6;
-    font-size: 0.95em;
-}
-
-.correction-card ul {
-    margin: 10px 0;
-    padding-left: 20px;
-    list-style: none;
-}
-
-.correction-card li {
-    margin: 8px 0;
-    padding-left: 20px;
-    position: relative;
-    line-height: 1.5;
-}
-
-.correction-card li:before {
-    content: "→";
-    position: absolute;
-    left: 0;
-    font-weight: bold;
-}
-
-/* Example Calculation */
-.example-calculation {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    margin-top: 30px;
-}
-
-.example-calculation h4 {
-    margin: 0 0 20px 0;
-    color: #2c3e50;
-    font-size: 1.4em;
-    text-align: center;
-}
-
-.example-box {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 30px;
-    padding: 20px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 10px;
-}
-
-.example-data {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.example-data strong {
-    display: block;
-    margin-bottom: 12px;
-    color: #667eea;
-    font-size: 1.1em;
-}
-
-.example-data ul {
-    margin: 0;
-    padding-left: 20px;
-    list-style: none;
-}
-
-.example-data li {
-    margin: 8px 0;
-    padding-left: 25px;
-    position: relative;
-    color: #4a5568;
-    line-height: 1.6;
-}
-
-.example-data li:before {
-    content: "•";
-    position: absolute;
-    left: 0;
-    color: #667eea;
-    font-weight: bold;
-    font-size: 1.5em;
-}
-
-.example-steps {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.example-steps strong {
-    display: block;
-    margin-bottom: 12px;
-    color: #667eea;
-    font-size: 1.1em;
-}
-
-.example-steps ol {
-    margin: 10px 0;
-    padding-left: 25px;
-    color: #4a5568;
-}
-
-.example-steps li {
-    margin: 10px 0;
-    line-height: 1.7;
-    font-family: 'Courier New', monospace;
-}
-
-.example-result {
-    margin-top: 20px;
-    padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    line-height: 1.7;
-}
-
-.example-result strong {
-    font-size: 1.1em;
-}
-
-/* Responsive Design for FWD */
-@media (max-width: 768px) {
-    .correction-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .example-box {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-}
-
-/* ===== GRACE ACS Calculator Styles ===== */
-
-/* Header Styling */
-.calculator-header {
-    text-align: center;
-    margin-bottom: 35px;
-    padding: 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-}
-
-.calculator-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    font-size: 2.2em;
-    color: #ffffff;
-    margin-bottom: 12px;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.title-icon {
-    font-size: 1.2em;
-    animation: heartbeat 2s infinite;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    10%, 30% { transform: scale(1.1); }
-    20%, 40% { transform: scale(1); }
-}
-
-.calculator-description {
-    font-size: 1.05em;
-    color: #ffffff;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-    opacity: 0.95;
-}
-
-/* Container Styling */
-.grace-container {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
-.grace-section {
-    background: white;
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(102, 126, 234, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.grace-section:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
-}
-
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.4em;
-    color: #2d3748;
-    margin-bottom: 25px;
-    font-weight: 600;
-    padding-bottom: 15px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.15);
-}
-
-.section-icon {
-    font-size: 1.3em;
-}
-
-/* Input Grid */
-.grace-input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-}
-
-.grace-input-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.input-group label {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
-}
-
-.label-text {
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 0.95em;
-}
-
-.label-unit {
-    font-size: 0.85em;
-    color: #718096;
-    font-weight: 400;
-}
-
-.input-group input[type="number"] {
-    padding: 14px 18px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1em;
-    transition: all 0.3s ease;
-    background: #f7fafc;
-}
-
-.input-group input[type="number"]:focus {
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    outline: none;
-}
-
-.input-group input[type="number"]:hover:not(:focus) {
-    border-color: #cbd5e0;
-}
-
-/* Auto-filled input styling */
-.input-group input[type="number"][style*="background: rgb(230, 247, 255)"] {
-    position: relative;
-}
-
-.input-group input[type="number"][style*="background: rgb(230, 247, 255)"]::after {
-    content: '✓';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #1890ff;
-    font-weight: bold;
-}
-
-/* Select Grid */
-.grace-select-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.select-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.select-group label {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
-}
-
-.label-helper {
-    font-size: 0.8em;
-    color: #a0aec0;
-    font-style: italic;
-    font-weight: 400;
-}
-
-.modern-select {
-    padding: 14px 18px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.95em;
-    background: #f7fafc;
-    color: #2d3748;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    padding-right: 45px;
-}
-
-.modern-select:focus {
-    border-color: #667eea;
-    background-color: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    outline: none;
-}
-
-.modern-select:hover:not(:focus) {
-    border-color: #cbd5e0;
-}
-
-/* Button Container */
-.button-container {
-    display: flex;
-    justify-content: center;
-    margin: 30px 0;
-}
-
-.calculate-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 18px 45px;
-    font-size: 1.1em;
-    font-weight: 600;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.calculate-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-}
-
-.calculate-btn:active {
-    transform: translateY(-1px);
-}
-
-.btn-icon {
-    font-size: 1.2em;
-}
-
-/* Result Container */
-.result-container {
-    margin-top: 35px;
-    animation: slideIn 0.5s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.grace-result-card {
-    background: white;
-    border-radius: 16px;
-    padding: 35px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    border-left: 6px solid;
-}
-
-.result-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
-}
-
-.result-icon {
-    font-size: 2.5em;
-}
-
-.result-title {
-    font-size: 1.8em;
-    color: #2d3748;
-    margin: 0;
-    font-weight: 700;
-}
-
-/* Score Display */
-.grace-score-display {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 30px;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 30px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    border-radius: 12px;
-}
-
-.score-main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.score-label {
-    font-size: 1em;
-    color: #718096;
-    font-weight: 600;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.score-value {
-    font-size: 4em;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.score-divider {
-    width: 2px;
-    height: 100px;
-    background: linear-gradient(180deg, transparent 0%, #cbd5e0 50%, transparent 100%);
-}
-
-.score-risk {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.risk-label {
-    font-size: 1em;
-    color: #718096;
-    font-weight: 600;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.risk-value {
-    font-size: 3em;
-    font-weight: 800;
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.risk-category {
-    font-size: 1.1em;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-/* Risk Interpretation */
-.risk-interpretation {
-    padding: 25px;
-    border-radius: 12px;
-    border-left: 5px solid;
-    margin-bottom: 30px;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
-
-.interpretation-icon {
-    font-size: 2em;
-    flex-shrink: 0;
-}
-
-.interpretation-text {
-    flex: 1;
-    font-size: 1em;
-    line-height: 1.7;
-    color: #2d3748;
-}
-
-.interpretation-text strong {
-    font-size: 1.05em;
-}
-
-/* Score Breakdown */
-.score-breakdown {
-    background: #f7fafc;
-    padding: 25px;
-    border-radius: 12px;
-}
-
-.breakdown-title {
-    font-size: 1.2em;
-    color: #2d3748;
-    margin: 0 0 20px 0;
-    font-weight: 600;
-}
-
-.breakdown-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-.breakdown-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
-}
-
-.breakdown-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-    border-color: #667eea;
-}
-
-.breakdown-label {
-    font-size: 0.9em;
-    color: #4a5568;
-    font-weight: 500;
-}
-
-.breakdown-points {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
-    padding: 5px 12px;
-    border-radius: 8px;
-}
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .grace-score-display {
-        grid-template-columns: 1fr;
-        gap: 25px;
-    }
-    
-    .score-divider {
-        width: 100%;
-        height: 2px;
-    }
-    
-    .breakdown-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .calculator-title {
-        font-size: 1.8em;
-    }
-    
-    .grace-input-grid,
-    .grace-select-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .grace-section {
-        padding: 20px;
-    }
-    
-    .grace-result-card {
-        padding: 25px;
-    }
-    
-    .score-value {
-        font-size: 3em;
-    }
-    
-    .risk-value {
-        font-size: 2.5em;
-        padding: 12px 25px;
-    }
-    
-    .breakdown-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .result-title {
-        font-size: 1.4em;
-    }
-}
 
 /* ===== Formula Table Styles (for HEART Score & similar) ===== */
 
@@ -10550,21 +5258,21 @@ html {
         padding: 20px;
         margin-top: 30px;
     }
-    
+
     .formula-title {
         font-size: 1.3em;
     }
-    
+
     .formula-table thead th,
     .formula-table tbody td {
         padding: 12px 10px;
         font-size: 0.85em;
     }
-    
+
     .formula-footnotes {
         padding: 20px 15px;
     }
-    
+
     .formula-footnotes li {
         font-size: 0.85em;
     }
@@ -10576,12 +5284,12 @@ html {
         margin-right: -20px;
         border-radius: 0;
     }
-    
+
     .formula-table {
         border-radius: 0;
         font-size: 0.8em;
     }
-    
+
     .formula-table thead th,
     .formula-table tbody td {
         padding: 10px 8px;
@@ -10766,30 +5474,31 @@ html {
 
 /* Responsive Design for Formula and Reference */
 @media (max-width: 768px) {
+
     .formula-box,
     .reference-box {
         padding: 20px;
     }
-    
+
     .formula-equation {
         font-size: 1.1em;
         padding: 20px 15px;
         flex-direction: column;
     }
-    
+
     .formula-numerator {
         font-size: 0.9em;
     }
-    
+
     .formula-notes,
     .reference-abstract {
         padding: 15px;
     }
-    
+
     .reference-links {
         flex-direction: column;
     }
-    
+
     .reference-link {
         width: 100%;
         justify-content: center;
@@ -10801,159 +5510,13 @@ html {
         font-size: 1em;
         padding: 15px 10px;
     }
-    
+
     .formula-numerator,
     .formula-denominator {
         padding: 6px 10px;
     }
-    
+
     .reference-citation {
         font-size: 0.9em;
-    }
-}
-
-/* ===== Additional Styles for HScore Table ===== */
-
-.hscore-table tbody td {
-    vertical-align: middle;
-}
-
-.hscore-table .variable-name {
-    width: 35%;
-    vertical-align: middle;
-}
-
-.points-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.95em;
-    margin-left: 5px;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
-}
-
-.footnote-cell {
-    font-size: 0.85em;
-    font-style: italic;
-    color: #718096;
-    background: #f7fafc !important;
-    padding: 12px 16px !important;
-    border-top: 1px dashed #cbd5e0 !important;
-}
-
-/* Interpretation Table Styles */
-.interpretation-table {
-    margin-top: 30px;
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #f59e0b;
-}
-
-.interpretation-table h5 {
-    margin: 0 0 20px 0;
-    color: #2d3748;
-    font-size: 1.3em;
-    font-weight: 600;
-}
-
-.simple-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 15px;
-}
-
-.simple-table thead {
-    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-}
-
-.simple-table thead th {
-    padding: 12px 16px;
-    text-align: left;
-    color: white;
-    font-weight: 600;
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.simple-table tbody tr {
-    border-bottom: 1px solid #e2e8f0;
-    transition: background-color 0.2s ease;
-}
-
-.simple-table tbody tr:hover {
-    background-color: #fff7ed;
-}
-
-.simple-table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.simple-table tbody td {
-    padding: 12px 16px;
-    color: #2d3748;
-    font-size: 0.95em;
-}
-
-.simple-table tbody td:first-child {
-    font-weight: 600;
-    color: #1a202c;
-}
-
-.interpretation-note {
-    margin: 15px 0 0 0;
-    padding: 15px;
-    background: #fef3c7;
-    border-radius: 8px;
-    border-left: 4px solid #f59e0b;
-    color: #78350f;
-    font-size: 0.9em;
-    line-height: 1.6;
-}
-
-.interpretation-note em {
-    font-style: italic;
-}
-
-/* Responsive Design for Interpretation Table */
-@media (max-width: 768px) {
-    .interpretation-table {
-        padding: 20px;
-    }
-    
-    .simple-table thead th,
-    .simple-table tbody td {
-        padding: 10px 12px;
-        font-size: 0.85em;
-    }
-    
-    .interpretation-note {
-        font-size: 0.85em;
-        padding: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .hscore-table .variable-name {
-        width: 100%;
-    }
-    
-    .simple-table {
-        font-size: 0.8em;
-    }
-    
-    .simple-table thead th,
-    .simple-table tbody td {
-        padding: 8px 10px;
-    }
-    
-    .points-badge {
-        padding: 3px 8px;
-        font-size: 0.85em;
     }
 }

@@ -1,21 +1,13 @@
-import {
-    getPatient,
-    getMostRecentObservation,
-    getPatientConditions,
-    getMedicationRequests,
-    calculateAge
-} from '../../utils.js';
+import { getMostRecentObservation, getPatientConditions, getMedicationRequests, calculateAge } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const hasBled = {
     id: 'has-bled',
     title: 'HAS-BLED Score for Major Bleeding Risk',
-    description:
-        'Estimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care.',
+    description: 'Estimates risk of major bleeding for patients on anticoagulation to assess risk-benefit in atrial fibrillation care.',
     generateHTML: function () {
         const riskFactors = [
             { id: 'hasbled-hypertension', label: '<strong>H</strong>ypertension (Uncontrolled, >160 mmHg systolic)' },
@@ -28,21 +20,17 @@ export const hasBled = {
             { id: 'hasbled-meds', label: '<strong>D</strong>rugs predisposing to bleeding (Aspirin, clopidogrel, NSAIDs)' },
             { id: 'hasbled-alcohol', label: 'Alcohol use (≥8 drinks/week)' }
         ];
-
         const inputs = uiBuilder.createSection({
             title: 'HAS-BLED Risk Factors',
-            content: riskFactors.map(factor =>
-                uiBuilder.createRadioGroup({
-                    name: factor.id,
-                    label: factor.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes (+1)' }
-                    ]
-                })
-            ).join('')
+            content: riskFactors.map(factor => uiBuilder.createRadioGroup({
+                name: factor.id,
+                label: factor.label,
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
+            })).join('')
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -64,10 +52,8 @@ export const hasBled = {
     },
     initialize: async function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -75,100 +61,100 @@ export const hasBled = {
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#hasbled-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let score = 0;
                 const radios = container.querySelectorAll('input[type="radio"]:checked');
                 radios.forEach(radio => {
                     score += parseInt(radio.value);
                 });
-
                 let risk = '';
                 let level = '';
                 let alertClass = '';
                 let recommendation = '';
-
                 if (score === 0) {
                     risk = '0.9% risk (1.13 bleeds/100 patient-years)';
                     level = 'Low risk';
                     alertClass = 'ui-alert-success';
-                } else if (score === 1) {
+                }
+                else if (score === 1) {
                     risk = '1.02 bleeds/100 patient-years';
                     level = 'Low-moderate risk';
                     alertClass = 'ui-alert-success';
-                } else if (score === 2) {
+                }
+                else if (score === 2) {
                     risk = '1.88 bleeds/100 patient-years';
                     level = 'Moderate risk';
                     alertClass = 'ui-alert-warning';
-                } else if (score === 3) {
+                }
+                else if (score === 3) {
                     risk = '3.74 bleeds/100 patient-years';
                     level = 'Moderate-high risk';
                     alertClass = 'ui-alert-warning';
-                } else if (score === 4) {
+                }
+                else if (score === 4) {
                     risk = '8.70 bleeds/100 patient-years';
                     level = 'High risk';
                     alertClass = 'ui-alert-danger';
-                } else {
+                }
+                else {
                     risk = '12.50 bleeds/100 patient-years';
                     level = 'Very high risk';
                     alertClass = 'ui-alert-danger';
                 }
-
                 if (score >= 3) {
                     recommendation = 'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.';
-                } else {
+                }
+                else {
                     recommendation = 'Anticoagulation can be considered. Relatively low risk for major bleeding.';
                 }
-
                 const resultBox = container.querySelector('#has-bled-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: '/ 9 points',
-                    interpretation: level,
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="result-item" style="margin-top: 10px; text-align: center;">
-                        <span class="label" style="color: #666;">Annual Bleeding Risk:</span>
-                        <span class="value" style="font-weight: 600;">${risk}</span>
-                    </div>
-
-                    <div class="ui-alert ${alertClass} mt-10">
-                        <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
-                        <div class="ui-alert-content">
-                            <strong>Recommendation:</strong> ${recommendation}
+                const resultContent = resultBox?.querySelector('.ui-result-content');
+                if (resultBox && resultContent) {
+                    resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                        label: 'Total Score',
+                        value: score,
+                        unit: '/ 9 points',
+                        interpretation: level,
+                        alertClass: alertClass
+                    })}
+                        
+                        <div class="result-item" style="margin-top: 10px; text-align: center;">
+                            <span class="label" style="color: #666;">Annual Bleeding Risk:</span>
+                            <span class="value" style="font-weight: 600;">${risk}</span>
                         </div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+    
+                        <div class="ui-alert ${alertClass} mt-10">
+                            <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
+                            <div class="ui-alert-content">
+                                <strong>Recommendation:</strong> ${recommendation}
+                            </div>
+                        </div>
+                    `;
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#hasbled-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'has-bled', action: 'calculate' });
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         calculate();
-
         // FHIR Integration
         if (client) {
             try {
@@ -179,9 +165,8 @@ export const hasBled = {
                         setRadioValue('hasbled-age', '1');
                     }
                 }
-
                 // Conditions
-                getPatientConditions(client).then(conditions => {
+                getPatientConditions(client, ['38341003', '80294001', '19943007', '230690007', '131148009']).then(conditions => {
                     if (conditions) {
                         const checkCondition = (codes, targetId) => {
                             if (conditions.some(c => c.code && c.code.coding && codes.includes(c.code.coding[0].code))) {
@@ -195,7 +180,6 @@ export const hasBled = {
                         checkCondition(['131148009'], 'hasbled-bleeding');
                     }
                 }).catch(e => console.warn(e));
-
                 // Observations
                 getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(sbp => {
                     if (sbp?.valueQuantity) {
@@ -206,29 +190,26 @@ export const hasBled = {
                             stalenessTracker.trackObservation('input[name="hasbled-hypertension"]', sbp, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP > 160');
                         }
                     }
-                }).catch(e => console.warn(e));
-
+                }).catch(console.warn);
                 getMostRecentObservation(client, LOINC_CODES.CREATININE).then(creatinine => {
                     if (creatinine?.valueQuantity) {
                         const val = creatinine.valueQuantity.value;
                         const unit = creatinine.valueQuantity.unit || 'mg/dL';
                         const normalizedVal = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-
                         if (normalizedVal !== null && normalizedVal > 2.26) {
                             setRadioValue('hasbled-renal', '1');
                             stalenessTracker.trackObservation('input[name="hasbled-renal"]', creatinine, LOINC_CODES.CREATININE, 'Creatinine > 2.26 mg/dL');
                         }
                     }
-                }).catch(e => console.warn(e));
-
+                }).catch(console.warn);
                 // Medications
                 getMedicationRequests(client, ['1191', '32953', '5640']).then(meds => {
                     if (meds && meds.length > 0) {
                         setRadioValue('hasbled-meds', '1');
                     }
-                }).catch(e => console.warn(e));
-
-            } catch (error) {
+                }).catch(console.warn);
+            }
+            catch (error) {
                 console.log('FHIR data loading error in HAS-BLED:', error);
             }
         }

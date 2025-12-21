@@ -26,6 +26,33 @@ export function getMostRecentObservation(client, code) {
 }
 
 /**
+ * Extracts a value from an observation, handling both valueQuantity and components.
+ * @param {Object} observation - The FHIR Observation resource.
+ * @param {string} code - The specific LOINC code to look for (optional if simple observation).
+ * @returns {number|null} - The value or null if not found.
+ */
+export function getObservationValue(observation, code) {
+    if (!observation) return null;
+
+    // 1. Check top-level valueQuantity
+    if (observation.valueQuantity && observation.valueQuantity.value !== undefined) {
+        return observation.valueQuantity.value;
+    }
+
+    // 2. Check components if code is provided
+    if (observation.component && code) {
+        const component = observation.component.find(c =>
+            c.code.coding && c.code.coding.some(coding => coding.code === code)
+        );
+        if (component && component.valueQuantity) {
+            return component.valueQuantity.value;
+        }
+    }
+
+    return null;
+}
+
+/**
  * Calculates age based on a birthdate string.
  * @param {string} birthDate The birthdate in 'YYYY-MM-DD' format.
  * @returns {number} The calculated age in years.

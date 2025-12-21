@@ -42,11 +42,11 @@ export class DataStalenessTracker {
         // - effectiveInstant (precise point in time)
         // - effectivePeriod.start or effectivePeriod.end
         // - issued (when the observation was made available)
-        const dateStr = observation.effectiveDateTime || 
-                        observation.effectiveInstant || 
-                        observation.effectivePeriod?.end ||
-                        observation.effectivePeriod?.start ||
-                        observation.issued;
+        const dateStr = observation.effectiveDateTime ||
+            observation.effectiveInstant ||
+            observation.effectivePeriod?.end ||
+            observation.effectivePeriod?.start ||
+            observation.issued;
 
         if (!dateStr) return null;
 
@@ -74,7 +74,7 @@ export class DataStalenessTracker {
      */
     trackObservation(fieldId, observation, code, customLabel = null) {
         const stalenessInfo = this.checkStaleness(observation);
-        
+
         if (stalenessInfo && stalenessInfo.isStale) {
             const label = customLabel || getLoincName(code) || code;
             this.staleItems.set(fieldId, {
@@ -94,7 +94,7 @@ export class DataStalenessTracker {
                 this._updateWarningDisplay();
             }
         }
-        
+
         return stalenessInfo;
     }
 
@@ -142,13 +142,13 @@ export class DataStalenessTracker {
      */
     _ensureWarningContainer() {
         if (!this.container) return;
-        
+
         let warningContainer = this.container.querySelector(`#${this.warningContainerId}`);
         if (!warningContainer) {
             warningContainer = document.createElement('div');
             warningContainer.id = this.warningContainerId;
             warningContainer.className = 'staleness-warning-container';
-            
+
             // Insert at the top of the calculator (after header if exists)
             const header = this.container.querySelector('.calculator-header');
             if (header && header.nextSibling) {
@@ -176,7 +176,7 @@ export class DataStalenessTracker {
         }
 
         warningContainer.style.display = 'block';
-        
+
         const items = this.getStaleItems();
         const itemsHtml = items.map(item => `
             <li class="staleness-item" data-field="${item.fieldId}">
@@ -192,7 +192,7 @@ export class DataStalenessTracker {
                 <div class="ui-alert-content">
                     <strong>過期數據警告 / Stale Data Warning</strong>
                     <p style="margin: 8px 0 4px 0;">以下自動填入的數值已超過 3 個月，請確認是否需要更新：</p>
-                    <p style="margin: 0 0 8px 0; font-size: 0.85em; color: #666;">
+                    <p style="margin: 0 0 8px 0; font-size: 1.2rem; color: #666;">
                         The following auto-populated values are older than 3 months. Please verify if updates are needed:
                     </p>
                     <ul class="staleness-list" style="margin: 0; padding-left: 20px;">
@@ -255,11 +255,11 @@ export class DataStalenessTracker {
 export function getObservationDate(observation) {
     if (!observation) return null;
 
-    const dateStr = observation.effectiveDateTime || 
-                    observation.effectiveInstant || 
-                    observation.effectivePeriod?.end ||
-                    observation.effectivePeriod?.start ||
-                    observation.issued;
+    const dateStr = observation.effectiveDateTime ||
+        observation.effectiveInstant ||
+        observation.effectivePeriod?.end ||
+        observation.effectivePeriod?.start ||
+        observation.issued;
 
     return dateStr ? new Date(dateStr) : null;
 }
@@ -273,7 +273,7 @@ export function getObservationDate(observation) {
 export function isObservationStale(observation, thresholdMs = DEFAULT_STALENESS_THRESHOLD_MS) {
     const date = getObservationDate(observation);
     if (!date) return false;
-    
+
     return (new Date() - date) > thresholdMs;
 }
 
@@ -304,7 +304,7 @@ export function createStalenessTracker(options = {}) {
 
         .staleness-list {
             list-style-type: disc;
-            font-size: 0.95em;
+            font-size: 1.25rem;
         }
 
         .staleness-item {
@@ -315,11 +315,12 @@ export function createStalenessTracker(options = {}) {
         .staleness-date {
             color: #b45309;
             font-family: monospace;
+            font-size: 1.25rem;
         }
 
         .staleness-age {
             color: #92400e;
-            font-size: 0.9em;
+            font-size: 1.15rem;
         }
 
         @keyframes staleness-fade-in {

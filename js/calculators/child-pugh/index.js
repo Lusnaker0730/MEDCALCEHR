@@ -1,10 +1,8 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
-
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const childPugh = {
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
@@ -42,7 +40,6 @@ export const childPugh = {
                 })
             ].join('')
         });
-
         const clinicalSection = uiBuilder.createSection({
             title: 'Clinical Parameters',
             content: [
@@ -68,7 +65,6 @@ export const childPugh = {
                 })
             ].join('')
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -109,24 +105,18 @@ export const childPugh = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#child-pugh-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let score = 0;
-                const allAnswered = groups.every(group =>
-                    container.querySelector(`input[name="${group}"]:checked`)
-                );
-
+                const allAnswered = groups.every(group => container.querySelector(`input[name="${group}"]:checked`));
                 groups.forEach(group => {
                     const selected = container.querySelector(`input[name="${group}"]:checked`);
                     if (selected) {
@@ -134,33 +124,30 @@ export const childPugh = {
                         score += value;
                     }
                 });
-
                 const resultBox = container.querySelector('#child-pugh-result');
                 const resultContent = resultBox.querySelector('.ui-result-content');
-
                 if (!allAnswered) {
                     resultBox.classList.remove('show');
                     return;
                 }
-
                 let classification = '';
                 let prognosis = '';
                 let alertClass = 'ui-alert-info';
-
                 if (score <= 6) {
                     classification = 'Child Class A';
                     prognosis = 'Well-compensated disease - Good prognosis\nLife Expectancy: 15-20 years\nSurgical Mortality: 10%';
                     alertClass = 'ui-alert-success';
-                } else if (score <= 9) {
+                }
+                else if (score <= 9) {
                     classification = 'Child Class B';
                     prognosis = 'Significant functional compromise - Moderate prognosis\nLife Expectancy: 4-14 years\nSurgical Mortality: 30%';
                     alertClass = 'ui-alert-warning';
-                } else {
+                }
+                else {
                     classification = 'Child Class C';
                     prognosis = 'Decompensated disease - Poor prognosis\nLife Expectancy: 1-3 years\nSurgical Mortality: 82%';
                     alertClass = 'ui-alert-danger';
                 }
-
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
                     label: 'Total Points',
@@ -174,19 +161,19 @@ export const childPugh = {
                     alertClass: alertClass
                 })}
                 `;
-
                 resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#child-pugh-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'child-pugh', action: 'calculate' });
             }
         };
-
         const setRadioFromValue = (groupName, value, ranges, displayValue, unit) => {
             if (value === null || value === undefined) {
                 const displayEl = container.querySelector(`#current-${groupName}`);
@@ -195,19 +182,15 @@ export const childPugh = {
                 }
                 return;
             }
-
             // Update display
             const displayEl = container.querySelector(`#current-${groupName}`);
             if (displayEl) {
                 displayEl.textContent = `${displayValue} ${unit}`;
             }
-
             // Select appropriate radio
             const radioToSelect = ranges.find(range => range.condition(value));
             if (radioToSelect) {
-                const radio = container.querySelector(
-                    `input[name="${groupName}"][value="${radioToSelect.value}"]`
-                );
+                const radio = container.querySelector(`input[name="${groupName}"][value="${radioToSelect.value}"]`);
                 if (radio) {
                     radio.checked = true;
                     // Trigger change event to update UI (if needed) and recalculate
@@ -215,112 +198,94 @@ export const childPugh = {
                 }
             }
         };
-
         // Fetch and set lab values
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
                 .then(obs => {
-                    if (obs && obs.valueQuantity) {
-                        const value = obs.valueQuantity.value;
-                        setRadioFromValue(
-                            'bilirubin',
-                            value,
-                            [
-                                { condition: v => v < 2, value: '1' },
-                                { condition: v => v >= 2 && v <= 3, value: '2' },
-                                { condition: v => v > 3, value: '3' }
-                            ],
-                            value.toFixed(1),
-                            'mg/dL'
-                        );
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
-                    } else {
-                        const el = container.querySelector('#current-bilirubin');
-                        if (el) el.textContent = 'Not available';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching bilirubin:', error);
+                if (obs && obs.valueQuantity) {
+                    const value = obs.valueQuantity.value;
+                    setRadioFromValue('bilirubin', value, [
+                        { condition: v => v < 2, value: '1' },
+                        { condition: v => v >= 2 && v <= 3, value: '2' },
+                        { condition: v => v > 3, value: '3' }
+                    ], value.toFixed(1), 'mg/dL');
+                    // Track staleness
+                    stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
+                }
+                else {
                     const el = container.querySelector('#current-bilirubin');
-                    if (el) el.textContent = 'Not available';
-                });
-
+                    if (el)
+                        el.textContent = 'Not available';
+                }
+            })
+                .catch(error => {
+                console.error('Error fetching bilirubin:', error);
+                const el = container.querySelector('#current-bilirubin');
+                if (el)
+                    el.textContent = 'Not available';
+            });
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
                 .then(obs => {
-                    if (obs && obs.valueQuantity) {
-                        // Check unit. If g/L, convert to g/dL. If g/dL, use as is.
-                        let valueGdL = obs.valueQuantity.value;
-                        const unit = obs.valueQuantity.unit || 'g/dL';
-
-                        if (unit.toLowerCase().includes('l') && !unit.toLowerCase().includes('dl')) {
-                            // Assuming g/L
-                            valueGdL = valueGdL / 10;
-                        }
-
-                        setRadioFromValue(
-                            'albumin',
-                            valueGdL,
-                            [
-                                { condition: v => v > 3.5, value: '1' },
-                                { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
-                                { condition: v => v < 2.8, value: '3' }
-                            ],
-                            valueGdL.toFixed(1),
-                            'g/dL'
-                        );
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#current-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
-                    } else {
-                        const el = container.querySelector('#current-albumin');
-                        if (el) el.textContent = 'Not available';
+                if (obs && obs.valueQuantity) {
+                    // Check unit. If g/L, convert to g/dL. If g/dL, use as is.
+                    let valueGdL = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'g/dL';
+                    if (unit.toLowerCase().includes('l') && !unit.toLowerCase().includes('dl')) {
+                        // Assuming g/L
+                        valueGdL = valueGdL / 10;
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching albumin:', error);
+                    setRadioFromValue('albumin', valueGdL, [
+                        { condition: v => v > 3.5, value: '1' },
+                        { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
+                        { condition: v => v < 2.8, value: '3' }
+                    ], valueGdL.toFixed(1), 'g/dL');
+                    // Track staleness
+                    stalenessTracker.trackObservation('#current-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
+                }
+                else {
                     const el = container.querySelector('#current-albumin');
-                    if (el) el.textContent = 'Not available';
-                });
-
+                    if (el)
+                        el.textContent = 'Not available';
+                }
+            })
+                .catch(error => {
+                console.error('Error fetching albumin:', error);
+                const el = container.querySelector('#current-albumin');
+                if (el)
+                    el.textContent = 'Not available';
+            });
             getMostRecentObservation(client, LOINC_CODES.INR_COAG)
                 .then(obs => {
-                    if (obs && obs.valueQuantity) {
-                        const value = obs.valueQuantity.value;
-                        setRadioFromValue(
-                            'inr',
-                            value,
-                            [
-                                { condition: v => v < 1.7, value: '1' },
-                                { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
-                                { condition: v => v > 2.3, value: '3' }
-                            ],
-                            value.toFixed(2),
-                            ''
-                        );
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#current-inr', obs, LOINC_CODES.INR_COAG, 'INR');
-                    } else {
-                        const el = container.querySelector('#current-inr');
-                        if (el) el.textContent = 'Not available';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching INR:', error);
+                if (obs && obs.valueQuantity) {
+                    const value = obs.valueQuantity.value;
+                    setRadioFromValue('inr', value, [
+                        { condition: v => v < 1.7, value: '1' },
+                        { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
+                        { condition: v => v > 2.3, value: '3' }
+                    ], value.toFixed(2), '');
+                    // Track staleness
+                    stalenessTracker.trackObservation('#current-inr', obs, LOINC_CODES.INR_COAG, 'INR');
+                }
+                else {
                     const el = container.querySelector('#current-inr');
-                    if (el) el.textContent = 'Not available';
-                });
+                    if (el)
+                        el.textContent = 'Not available';
+                }
+            })
+                .catch(error => {
+                console.error('Error fetching INR:', error);
+                const el = container.querySelector('#current-inr');
+                if (el)
+                    el.textContent = 'Not available';
+            });
         }
-
         // Event listeners for all radio buttons
         container.addEventListener('change', (e) => {
-            if (e.target.type === 'radio') {
+            const target = e.target;
+            if (target.type === 'radio') {
                 calculate();
             }
         });
-
         // Initial calculation
         calculate();
     }

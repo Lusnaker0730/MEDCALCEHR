@@ -1,6 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const ciwaAr = {
     id: 'ciwa-ar',
     title: 'CIWA-Ar for Alcohol Withdrawal',
@@ -155,18 +154,14 @@ export const ciwaAr = {
                 ]
             }
         ];
-
-        const sections = categories.map(cat =>
-            uiBuilder.createSection({
-                title: cat.title,
-                subtitle: cat.subtitle,
-                content: uiBuilder.createRadioGroup({
-                    name: cat.id,
-                    options: cat.options
-                })
+        const sections = categories.map(cat => uiBuilder.createSection({
+            title: cat.title,
+            subtitle: cat.subtitle,
+            content: uiBuilder.createRadioGroup({
+                name: cat.id,
+                options: cat.options
             })
-        ).join('');
-
+        })).join('');
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -181,76 +176,76 @@ export const ciwaAr = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Auto-calculation function
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#ciwa-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let score = 0;
                 const radios = container.querySelectorAll('input[type="radio"]:checked');
                 radios.forEach(radio => {
                     score += parseInt(radio.value);
                 });
-
                 let severity = '';
                 let recommendation = '';
                 let alertClass = '';
-
                 if (score <= 9) {
                     severity = 'Absent or minimal withdrawal';
                     recommendation = 'Supportive care. Medication may not be necessary.';
                     alertClass = 'ui-alert-success';
-                } else if (score <= 15) {
+                }
+                else if (score <= 15) {
                     severity = 'Mild to moderate withdrawal';
                     recommendation = 'Medication is usually indicated.';
                     alertClass = 'ui-alert-warning';
-                } else {
+                }
+                else {
                     // score > 15
                     severity = 'Severe withdrawal';
                     recommendation = 'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.';
                     alertClass = 'ui-alert-danger';
                 }
-
                 const resultBox = container.querySelector('#ciwa-ar-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'CIWA-Ar Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: severity,
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="ui-alert ${alertClass} mt-10">
-                        <span class="ui-alert-icon">🩺</span>
-                        <div class="ui-alert-content">
-                            <strong>Recommendation:</strong> ${recommendation}
-                        </div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'CIWA-Ar Score',
+                            value: score.toString(),
+                            unit: 'points',
+                            interpretation: severity,
+                            alertClass: alertClass
+                        })}
+                            
+                            <div class="ui-alert ${alertClass} mt-10">
+                                <span class="ui-alert-icon">🩺</span>
+                                <div class="ui-alert-content">
+                                    <strong>Recommendation:</strong> ${recommendation}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#ciwa-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'ciwa-ar', action: 'calculate' });
             }
         };
-
         // Add event listeners for all radio buttons
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Initial calculation
         calculate();
     }

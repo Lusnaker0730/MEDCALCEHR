@@ -1,13 +1,10 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
+import { getMostRecentObservation, } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const freeWaterDeficit = {
     id: 'free-water-deficit',
     title: 'Free Water Deficit in Hypernatremia',
@@ -31,7 +28,7 @@ export const freeWaterDeficit = {
                 unitToggle: {
                     type: 'weight',
                     units: ['kg', 'lbs'],
-                    defaultUnit: 'kg'
+                    default: 'kg'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -42,7 +39,7 @@ export const freeWaterDeficit = {
                 unitToggle: {
                     type: 'sodium',
                     units: ['mEq/L', 'mmol/L'],
-                    defaultUnit: 'mEq/L'
+                    default: 'mEq/L'
                 }
             })}
                     ${uiBuilder.createRadioGroup({
@@ -90,24 +87,19 @@ export const freeWaterDeficit = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const weightInput = container.querySelector('#fwd-weight');
         const sodiumInput = container.querySelector('#fwd-sodium');
         const resultBox = container.querySelector('#fwd-result');
-        const resultContent = resultBox.querySelector('.ui-result-content');
-
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#fwd-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
             const sodium = parseFloat(sodiumInput.value);
             const genderType = container.querySelector('input[name="fwd-gender"]:checked')?.value || 'male';
-
             try {
                 // Validation inputs
                 const inputs = {
@@ -118,87 +110,99 @@ export const freeWaterDeficit = {
                     weight: ValidationRules.weight,
                     sodium: ValidationRules.sodium
                 };
-
+                // @ts-ignore
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (weightInput.value || sodiumInput.value);
-
                     if (hasInput) {
-                        const requiredPresent = !isNaN(weightKg) && !isNaN(sodium);
-                        if (requiredPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const requiredPresent = weightKg !== null && !isNaN(weightKg) && !isNaN(sodium);
+                        if (requiredPresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-
-                    resultBox.classList.remove('show');
+                    if (resultBox)
+                        resultBox.classList.remove('show');
                     return;
                 }
-
+                if (weightKg === null)
+                    return;
                 // Determine TBW factor
                 let tbwFactor = 0.6;
                 switch (genderType) {
-                    case 'male': tbwFactor = 0.6; break;
-                    case 'female': tbwFactor = 0.5; break;
-                    case 'elderly': tbwFactor = 0.5; break;
-                    case 'elderly_female': tbwFactor = 0.45; break;
-                    case 'child': tbwFactor = 0.6; break;
+                    case 'male':
+                        tbwFactor = 0.6;
+                        break;
+                    case 'female':
+                        tbwFactor = 0.5;
+                        break;
+                    case 'elderly':
+                        tbwFactor = 0.5;
+                        break;
+                    case 'elderly_female':
+                        tbwFactor = 0.45;
+                        break;
+                    case 'child':
+                        tbwFactor = 0.6;
+                        break;
                 }
-
                 const totalBodyWater = weightKg * tbwFactor;
                 const deficit = totalBodyWater * ((sodium / 140) - 1);
-
-                if (!isFinite(deficit) || isNaN(deficit)) throw new Error("Calculation Error");
-
+                if (!isFinite(deficit) || isNaN(deficit))
+                    throw new Error("Calculation Error");
                 let status = '';
                 let alertType = 'success';
                 let alertMsg = '';
-
                 if (sodium <= 140) {
                     status = 'Not Indicated';
                     alertType = 'warning';
                     alertMsg = 'Calculation intended for hypernatremia (Na > 140).';
-                } else {
+                }
+                else {
                     status = 'Hypernatremia';
                     alertType = 'danger'; // High risk
                     alertMsg = 'Correction should be slow (e.g., over 48-72 hours) to avoid cerebral edema. Max rate ~0.5 mEq/L/hr.';
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Free Water Deficit',
-                    value: deficit > 0 ? deficit.toFixed(1) : '0.0',
-                    unit: 'Liters',
-                    interpretation: status,
-                    alertClass: `ui-alert-${alertType}`
-                })}
-                    ${uiBuilder.createResultItem({
-                    label: 'Estimated TBW',
-                    value: totalBodyWater.toFixed(1),
-                    unit: 'Liters'
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Free Water Deficit',
+                            value: deficit > 0 ? deficit.toFixed(1) : '0.0',
+                            unit: 'Liters',
+                            interpretation: status,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
+                            ${uiBuilder.createResultItem({
+                            label: 'Estimated TBW',
+                            value: totalBodyWater.toFixed(1),
+                            unit: 'Liters'
+                        })}
+                            ${uiBuilder.createAlert({
+                            type: alertType,
+                            message: alertMsg
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 logError(error, { calculator: 'free-water-deficit', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
             input.addEventListener('change', calculateAndUpdate);
         });
-
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculateAndUpdate);
         });
-
         // Helper
         const setInputValue = (el, val) => {
             if (el) {
@@ -206,7 +210,6 @@ export const freeWaterDeficit = {
                 el.dispatchEvent(new Event('input'));
             }
         };
-
         // Auto-populate from FHIR
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
@@ -216,7 +219,8 @@ export const freeWaterDeficit = {
                     const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
                     if (converted !== null) {
                         setInputValue(weightInput, converted.toFixed(1));
-                    } else {
+                    }
+                    else {
                         setInputValue(weightInput, val.toFixed(1));
                     }
                     stalenessTracker.trackObservation('#fwd-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
@@ -230,7 +234,6 @@ export const freeWaterDeficit = {
                 }
             }).catch(e => console.warn(e));
         }
-
         // Initial patient data (gender)
         if (patient && patient.gender) {
             const genderVal = patient.gender.toLowerCase();
@@ -241,6 +244,5 @@ export const freeWaterDeficit = {
                 genderRadio.dispatchEvent(new Event('change'));
             }
         }
-
     }
 };

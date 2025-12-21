@@ -1,11 +1,9 @@
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const fourAsDelirium = {
     id: '4as-delirium',
     title: "4 A's Test for Delirium Screening",
     description: 'Diagnoses delirium in older patients.',
-
     generateHTML: function () {
         const alertnessSection = uiBuilder.createSection({
             title: '1. Alertness',
@@ -19,7 +17,6 @@ export const fourAsDelirium = {
                 ]
             })
         });
-
         const amt4Section = uiBuilder.createSection({
             title: '2. AMT 4',
             subtitle: 'Age, date of birth, place (name of the hospital or building), current year',
@@ -32,7 +29,6 @@ export const fourAsDelirium = {
                 ]
             })
         });
-
         const attentionSection = uiBuilder.createSection({
             title: '3. Attention',
             subtitle: 'Instruct patient to list months in reverse order, starting at December',
@@ -45,7 +41,6 @@ export const fourAsDelirium = {
                 ]
             })
         });
-
         const acuteChangeSection = uiBuilder.createSection({
             title: '4. Acute change or fluctuating course',
             subtitle: 'Evidence of significant change or fluctuation in mental status within the last 2 weeks and still persisting in the last 24 hours',
@@ -57,7 +52,6 @@ export const fourAsDelirium = {
                 ]
             })
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -89,103 +83,88 @@ export const fourAsDelirium = {
             </div>
         `;
     },
-
     initialize: (client, patient, container) => {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#four-as-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
-                const alertnessScore = parseInt(
-                    container.querySelector('input[name="alertness"]:checked')?.value || '0'
-                );
-                const amt4Score = parseInt(
-                    container.querySelector('input[name="amt4"]:checked')?.value || '0'
-                );
-                const attentionScore = parseInt(
-                    container.querySelector('input[name="attention"]:checked')?.value || '0'
-                );
-                const acuteChangeScore = parseInt(
-                    container.querySelector('input[name="acute_change"]:checked')?.value || '0'
-                );
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
+                const alertnessScore = parseInt(container.querySelector('input[name="alertness"]:checked')?.value || '0');
+                const amt4Score = parseInt(container.querySelector('input[name="amt4"]:checked')?.value || '0');
+                const attentionScore = parseInt(container.querySelector('input[name="attention"]:checked')?.value || '0');
+                const acuteChangeScore = parseInt(container.querySelector('input[name="acute_change"]:checked')?.value || '0');
                 const totalScore = alertnessScore + amt4Score + attentionScore + acuteChangeScore;
-
                 let interpretation = '';
                 let alertClass = '';
-
                 if (totalScore >= 4) {
                     interpretation = 'Likely delirium. Formal assessment for delirium is recommended.';
                     alertClass = 'ui-alert-danger';
-                } else if (totalScore >= 1 && totalScore <= 3) {
+                }
+                else if (totalScore >= 1 && totalScore <= 3) {
                     interpretation = 'Possible cognitive impairment. Further investigation is required.';
                     alertClass = 'ui-alert-warning';
-                } else {
+                }
+                else {
                     interpretation = 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.';
                     alertClass = 'ui-alert-success';
                 }
-
                 const resultBox = container.querySelector('#four-as-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: totalScore,
-                    unit: 'points',
-                    interpretation: interpretation,
-                    alertClass: alertClass
-                })}
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Total Score',
+                            value: totalScore.toString(),
+                            unit: 'points',
+                            interpretation: interpretation,
+                            alertClass: alertClass
+                        })}
+                    `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#four-as-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: '4as-delirium', action: 'calculate' });
             }
         };
-
         // Add event listeners for all radio buttons
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Image Modal Logic
         const modal = container.querySelector('#image-modal');
         const imgThumb = container.querySelector('#ref-image-thumb');
         const modalImg = container.querySelector('#modal-image');
         const closeBtn = container.querySelector('.close-btn');
-
         if (imgThumb && modal && modalImg) {
             imgThumb.onclick = function () {
                 modal.style.display = 'block';
-                modalImg.src = this.src;
+                modalImg.src = imgThumb.src;
             };
         }
-
         if (closeBtn && modal) {
             closeBtn.onclick = function () {
                 modal.style.display = 'none';
             };
         }
-
         if (modal) {
-            // Use window click for modal outside click, but scope it if possible or attach to window
-            window.onclick = function (event) {
+            modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
-            };
+            });
         }
-
         // Initial calculation
         calculate();
     }

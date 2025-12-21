@@ -1,12 +1,12 @@
-import { getPatient, getMostRecentObservation, getPatientConditions, calculateAge } from '../../utils.js';
+import { getPatientConditions, calculateAge, getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-
 export const fourPeps = {
     id: '4peps',
     title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)',
     description: 'Rules out PE based on clinical criteria.',
-    generateHTML: () => {
+    generateHTML: function () {
         const criteria = [
             { id: 'sex', title: 'Sex', options: [{ value: '0', label: 'Female', checked: true }, { value: '2', label: 'Male (+2)' }] },
             { id: 'resp_disease', title: 'Chronic Respiratory Disease', options: [{ value: '0', label: 'No', checked: true }, { value: '-1', label: 'Yes (-1)' }] },
@@ -20,40 +20,36 @@ export const fourPeps = {
             { id: 'calf_pain', title: 'Calf pain / Unilateral Edema', options: [{ value: '0', label: 'No', checked: true }, { value: '3', label: 'Yes (+3)' }] },
             { id: 'pe_likely', title: 'PE is the most likely diagnosis', options: [{ value: '0', label: 'No', checked: true }, { value: '5', label: 'Yes (+5)' }] }
         ];
-
-        const criteriaHtml = criteria.map(c => 
-            uiBuilder.createSection({
-                title: c.title,
-                content: uiBuilder.createRadioGroup({
-                    name: `4peps-${c.id}`,
-                    options: c.options
-                })
+        const criteriaHtml = criteria.map(c => uiBuilder.createSection({
+            title: c.title,
+            content: uiBuilder.createRadioGroup({
+                name: `4peps-${c.id}`,
+                options: c.options
             })
-        ).join('');
-
+        })).join('');
         return `
             <div class="calculator-header">
-                <h3>${fourPeps.title}</h3>
-                <p class="description">${fourPeps.description}</p>
+                <h3>${this.title}</h3>
+                <p class="description">${this.description}</p>
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>Instructions:</strong> Use clinician judgment to assess which vital sign should be used for the 4PEPS score.'
-            })}
+            type: 'info',
+            message: '<strong>Instructions:</strong> Use clinician judgment to assess which vital sign should be used for the 4PEPS score.'
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Age',
-                icon: '👴',
-                content: uiBuilder.createInput({
-                    id: 'fourpeps-age',
-                    label: 'Age',
-                    type: 'number',
-                    unit: 'years',
-                    placeholder: 'e.g., 70',
-                    helpText: '+2 points if >74 years'
-                })
-            })}
+            title: 'Age',
+            icon: '👴',
+            content: uiBuilder.createInput({
+                id: 'fourpeps-age',
+                label: 'Age',
+                type: 'number',
+                unit: 'years',
+                placeholder: 'e.g., 70',
+                helpText: '+2 points if >74 years'
+            })
+        })}
 
             ${criteriaHtml}
 
@@ -69,130 +65,151 @@ export const fourPeps = {
             </div>
         `;
     },
-    initialize: async (client, patient, container) => {
+    initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
         const calculate = () => {
             let score = 0;
-
             const ageInput = container.querySelector('#fourpeps-age');
             const age = parseInt(ageInput.value);
             if (!isNaN(age) && age > 74) {
                 score += 2;
             }
-
             const radioGroups = [
-                'sex', 'resp_disease', 'hr', 'chest_pain', 'estrogen', 
+                'sex', 'resp_disease', 'hr', 'chest_pain', 'estrogen',
                 'vte', 'syncope', 'immobility', 'o2_sat', 'calf_pain', 'pe_likely'
             ];
-
             radioGroups.forEach(id => {
                 const checked = container.querySelector(`input[name="4peps-${id}"]:checked`);
                 if (checked) {
                     score += parseInt(checked.value);
                 }
             });
-
             let probability = '';
             let riskLevel = '';
             let recommendation = '';
             let alertType = 'info';
-
             if (score <= 3) {
                 probability = '2-7%';
                 riskLevel = 'Low CPP';
                 alertType = 'success';
                 recommendation = 'PE can be ruled out if 4PEPS score is 0-3 and D-dimer is negative (using age-adjusted threshold).';
-            } else if (score <= 9) {
+            }
+            else if (score <= 9) {
                 probability = '20-65%';
                 riskLevel = 'Moderate CPP';
                 alertType = 'warning';
                 recommendation = 'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL';
-            } else {
+            }
+            else {
                 probability = '66-95%';
                 riskLevel = 'High CPP';
                 alertType = 'danger';
                 recommendation = 'Imaging (e.g., CTPA) is recommended.';
             }
-
             const resultBox = container.querySelector('#fourpeps-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                    label: '4PEPS Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: riskLevel,
-                    alertClass: `ui-alert-${alertType}`
-                })}
-                ${uiBuilder.createResultItem({
-                    label: 'Clinical Pretest Probability',
-                    value: probability,
-                    alertClass: `ui-alert-${alertType}`
-                })}
-                ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: `<strong>Recommendation:</strong> ${recommendation}`
-                })}
-            `;
-            resultBox.classList.add('show');
+            if (resultBox) {
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultContent) {
+                    resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                        label: '4PEPS Score',
+                        value: score.toString(),
+                        unit: 'points',
+                        interpretation: riskLevel,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
+                    ${uiBuilder.createResultItem({
+                        label: 'Clinical Pretest Probability',
+                        value: probability,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
+                    ${uiBuilder.createAlert({
+                        type: alertType,
+                        message: `<strong>Recommendation:</strong> ${recommendation}`
+                    })}
+                `;
+                }
+                resultBox.classList.add('show');
+            }
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
         });
-
         // FHIR auto-population
-        try {
-            if (patient) {
-                if (patient.birthDate) {
-                    const age = calculateAge(patient.birthDate);
-                    container.querySelector('#fourpeps-age').value = age;
-                }
-                if (patient.gender) {
-                    const genderVal = patient.gender === 'male' ? '2' : '0';
-                    const radio = container.querySelector(`input[name="4peps-sex"][value="${genderVal}"]`);
-                    if (radio) radio.checked = true;
-                }
-            }
-
-            if (client) {
-                const chronicRespCodes = ['13645005', 'J44.9']; // COPD
-                const vteCodes = ['I82.90', '451574005']; // VTE history
-
-                const [conditions, hrObs, o2Obs] = await Promise.all([
-                    getPatientConditions(client, [...chronicRespCodes, ...vteCodes]),
-                    getMostRecentObservation(client, LOINC_CODES.HEART_RATE),
-                    getMostRecentObservation(client, LOINC_CODES.OXYGEN_SATURATION)
-                ]);
-
-                if (conditions) {
-                    if (conditions.some(c => chronicRespCodes.includes(c.code.coding[0].code))) {
-                        const radio = container.querySelector('input[name="4peps-resp_disease"][value="-1"]');
-                        if (radio) radio.checked = true;
+        const populate = async () => {
+            try {
+                if (patient) {
+                    if (patient.birthDate) {
+                        const age = calculateAge(patient.birthDate);
+                        const ageInput = container.querySelector('#fourpeps-age');
+                        if (ageInput)
+                            ageInput.value = age.toString();
                     }
-                    if (conditions.some(c => vteCodes.includes(c.code.coding[0].code))) {
-                        const radio = container.querySelector('input[name="4peps-vte"][value="2"]');
-                        if (radio) radio.checked = true;
+                    if (patient.gender) {
+                        const genderVal = patient.gender === 'male' ? '2' : '0';
+                        const radio = container.querySelector(`input[name="4peps-sex"][value="${genderVal}"]`);
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change'));
+                        }
                     }
                 }
-
-                if (hrObs && hrObs.valueQuantity?.value < 80) {
-                    const radio = container.querySelector('input[name="4peps-hr"][value="-1"]');
-                    if (radio) radio.checked = true;
-                }
-
-                if (o2Obs && o2Obs.valueQuantity?.value < 95) {
-                    const radio = container.querySelector('input[name="4peps-o2_sat"][value="3"]');
-                    if (radio) radio.checked = true;
+                if (client) {
+                    const chronicRespCodes = ['13645005', 'J44.9']; // COPD
+                    const vteCodes = ['I82.90', '451574005']; // VTE history
+                    const [conditions, hrObs, o2Obs] = await Promise.all([
+                        getPatientConditions(client, [...chronicRespCodes, ...vteCodes]),
+                        getMostRecentObservation(client, LOINC_CODES.HEART_RATE),
+                        getMostRecentObservation(client, LOINC_CODES.OXYGEN_SATURATION)
+                    ]);
+                    if (conditions) {
+                        if (conditions.some((c) => c.code?.coding?.some((cod) => chronicRespCodes.includes(cod.code)))) {
+                            const radio = container.querySelector('input[name="4peps-resp_disease"][value="-1"]');
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
+                        }
+                        if (conditions.some((c) => c.code?.coding?.some((cod) => vteCodes.includes(cod.code)))) {
+                            const radio = container.querySelector('input[name="4peps-vte"][value="2"]');
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    }
+                    if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value !== undefined) {
+                        if (hrObs.valueQuantity.value < 80) {
+                            const radio = container.querySelector('input[name="4peps-hr"][value="-1"]');
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
+                        }
+                        stalenessTracker.trackObservation('input[name="4peps-hr"]', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                    }
+                    if (o2Obs && o2Obs.valueQuantity && o2Obs.valueQuantity.value !== undefined) {
+                        if (o2Obs.valueQuantity.value < 95) {
+                            const radio = container.querySelector('input[name="4peps-o2_sat"][value="3"]');
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change'));
+                            }
+                        }
+                        stalenessTracker.trackObservation('input[name="4peps-o2_sat"]', o2Obs, LOINC_CODES.OXYGEN_SATURATION, 'O2 Saturation');
+                    }
                 }
             }
-        } catch (error) {
-            console.error('Error auto-populating 4PEPS:', error);
-        } finally {
-            calculate();
-        }
+            catch (error) {
+                console.error('Error auto-populating 4PEPS:', error);
+            }
+            finally {
+                calculate();
+            }
+        };
+        populate();
     }
 };

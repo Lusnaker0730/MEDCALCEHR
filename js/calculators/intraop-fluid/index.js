@@ -6,7 +6,6 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const intraopFluid = {
     id: 'intraop-fluid',
     title: 'Intraoperative Fluid Dosing in Adult Patients',
@@ -36,7 +35,7 @@ export const intraopFluid = {
                 label: 'Weight',
                 type: 'number',
                 placeholder: 'e.g., 70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
+                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
             })}
                     ${uiBuilder.createInput({
                 id: 'ifd-npo',
@@ -69,68 +68,53 @@ export const intraopFluid = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const weightInput = container.querySelector('#ifd-weight');
         const npoInput = container.querySelector('#ifd-npo');
         const resultBox = container.querySelector('#ifd-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
-
         const calculate = () => {
             // Clear previous errors
             const existingError = container.querySelector('#ifd-error');
-            if (existingError) existingError.remove();
-
+            if (existingError)
+                existingError.remove();
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
             const npoHours = parseFloat(npoInput.value);
             const traumaRadio = container.querySelector('input[name="ifd-trauma"]:checked');
-
             try {
                 // Validation inputs
                 const inputs = { weight: weightKg, hours: npoHours };
                 const schema = {
                     weight: { ...ValidationRules.weight, min: 10, message: 'Weight must be > 10 kg for this calculator.' },
+                    // @ts-ignore
                     hours: ValidationRules.hours
                 };
+                // @ts-ignore
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     // Filter required errors if empty
                     if (weightInput.value || npoInput.value) {
                         const meaningfulErrors = validation.errors.filter(e => !e.includes('required') || (weightInput.value && npoInput.value));
-                        if (meaningfulErrors.length > 0 && !isNaN(weightKg) && !isNaN(npoHours)) {
+                        if (meaningfulErrors.length > 0 && weightKg !== null && !isNaN(weightKg) && !isNaN(npoHours)) {
                             let errorContainer = document.createElement('div');
                             errorContainer.id = 'ifd-error';
-                            resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                            resultBox.parentNode?.insertBefore(errorContainer, resultBox);
                             displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                         }
                     }
-
                     resultBox.classList.remove('show');
                     return;
                 }
-
-                if (!traumaRadio) return;
-
+                if (!traumaRadio)
+                    return;
                 const traumaLevel = parseFloat(traumaRadio.value);
-
                 const result = calculateIntraopFluid({
                     weightKg,
                     npoHours,
                     traumaLevel
                 });
-
-                const {
-                    maintenanceRate,
-                    npoDeficit,
-                    firstHourFluids,
-                    secondHourFluids,
-                    thirdHourFluids,
-                    fourthHourFluids
-                } = result;
-
+                const { maintenanceRate, npoDeficit, firstHourFluids, secondHourFluids, thirdHourFluids, fourthHourFluids } = result;
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
                     label: 'Hourly Maintenance Fluid',
@@ -168,21 +152,21 @@ export const intraopFluid = {
                 })}
                 `;
                 resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'intraop-fluid', action: 'calculate' });
                 if (error.name !== 'ValidationError') {
                     let errorContainer = container.querySelector('#ifd-error');
                     if (!errorContainer) {
                         errorContainer = document.createElement('div');
                         errorContainer.id = 'ifd-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                        resultBox.parentNode?.insertBefore(errorContainer, resultBox);
                     }
                     displayError(errorContainer, error);
                 }
                 resultBox.classList.remove('show');
             }
         };
-
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
                 if (obs && obs.valueQuantity) {
@@ -192,12 +176,10 @@ export const intraopFluid = {
                 }
             });
         }
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate); // For radio buttons and unit toggles (if they bubbled)
         });
-
         // Specifically listen to radio change since inputs selector might miss dynamic ones or behavior differs
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);

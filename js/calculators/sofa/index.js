@@ -2,15 +2,12 @@ import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { displayError, logError } from '../../errorHandler.js';
 import { createStalenessTracker } from '../../data-staleness.js';
-
 export const sofa = {
     id: 'sofa',
     title: 'SOFA Score for Sepsis Organ Failure',
-    description:
-        'Sequential Organ Failure Assessment (SOFA) Score predicts ICU mortality based on lab results and clinical data.',
+    description: 'Sequential Organ Failure Assessment (SOFA) Score predicts ICU mortality based on lab results and clinical data.',
     generateHTML: function () {
         const sections = [
             {
@@ -86,18 +83,14 @@ export const sofa = {
                 ]
             }
         ];
-
-        const sectionsHTML = sections.map(s =>
-            uiBuilder.createSection({
-                title: s.title,
-                subtitle: s.subtitle,
-                content: uiBuilder.createRadioGroup({
-                    name: `sofa-${s.id}`,
-                    options: s.options
-                })
+        const sectionsHTML = sections.map(s => uiBuilder.createSection({
+            title: s.title,
+            subtitle: s.subtitle,
+            content: uiBuilder.createRadioGroup({
+                name: `sofa-${s.id}`,
+                options: s.options
             })
-        ).join('');
-
+        })).join('');
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -127,11 +120,9 @@ export const sofa = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker for this calculator
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         // Helper to set radio value
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -140,169 +131,179 @@ export const sofa = {
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
         const calculate = () => {
             try {
                 // Clear any previous errors
                 const errorContainer = container.querySelector('#sofa-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let totalScore = 0;
                 const radios = container.querySelectorAll('input[type="radio"]:checked');
-
-                // Validator: Ensure all sections are selected is NOT required for SOFA interactive use usually,
-                // but if we wanted to enforce completeness we could. 
-                // For now, we calculate what is selected (default 0).
-
                 radios.forEach(radio => {
-                    totalScore += parseInt(radio.value);
+                    totalScore += parseInt(radio.value, 10);
                 });
-
                 let mortalityRisk = '';
                 let mortalityPercentage = '';
                 let alertClass = '';
-
                 if (totalScore <= 6) {
                     mortalityRisk = 'Low Risk';
                     mortalityPercentage = '~10%';
                     alertClass = 'ui-alert-success';
-                } else if (totalScore <= 9) {
+                }
+                else if (totalScore <= 9) {
                     mortalityRisk = 'Moderate Risk';
                     mortalityPercentage = '15-20%';
                     alertClass = 'ui-alert-warning';
-                } else if (totalScore <= 12) {
+                }
+                else if (totalScore <= 12) {
                     mortalityRisk = 'High Risk';
                     mortalityPercentage = '40-50%';
                     alertClass = 'ui-alert-danger';
-                } else {
+                }
+                else {
                     mortalityRisk = 'Very High Risk';
                     mortalityPercentage = '>80%';
                     alertClass = 'ui-alert-danger';
                 }
-
                 const resultBox = container.querySelector('#sofa-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total SOFA Score',
-                    value: totalScore,
-                    unit: 'points',
-                    interpretation: `${mortalityRisk} (ICU Mortality: ${mortalityPercentage})`,
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="ui-alert ui-alert-info mt-10">
-                        <span class="ui-alert-icon">ℹ️</span>
-                        <div class="ui-alert-content">
-                            <strong>ΔSOFA Significance:</strong> An increase in SOFA score of ≥2 points indicates organ dysfunction and increased mortality risk.
-                        </div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Total SOFA Score',
+                            value: totalScore.toString(),
+                            unit: 'points',
+                            interpretation: `${mortalityRisk} (ICU Mortality: ${mortalityPercentage})`,
+                            alertClass: alertClass
+                        })}
+                            
+                            <div class="ui-alert ui-alert-info mt-10">
+                                <span class="ui-alert-icon">ℹ️</span>
+                                <div class="ui-alert-content">
+                                    <strong>ΔSOFA Significance:</strong> An increase in SOFA score of ≥2 points indicates organ dysfunction and increased mortality risk.
+                                </div>
+                            </div>
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 // Error Handling with standardized ErrorHandler
                 const errorContainer = container.querySelector('#sofa-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'sofa', action: 'calculate' });
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Auto-populate lab values
         if (client) {
-            // Using standard unit conversion where applicable (though these specific lookups are fairly standard)
-
             // Platelets
             getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
                 const el = container.querySelector('#current-platelets');
-                if (obs?.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     const val = obs.valueQuantity.value;
                     // Standard unit: 10^3/uL
-                    // We simply display it. Unit conversion for platelets is rare (usually same magnitude).
-                    if (el) el.textContent = `${val.toFixed(0)} ×10³/μL`;
-
+                    if (el)
+                        el.textContent = `${val.toFixed(0)} ×10³/μL`;
                     // Track staleness
                     stalenessTracker.trackObservation('#current-platelets', obs, LOINC_CODES.PLATELETS, 'Platelets');
-
                     let radioValue = '0';
-                    if (val < 20) radioValue = '4';
-                    else if (val < 50) radioValue = '3';
-                    else if (val < 100) radioValue = '2';
-                    else if (val < 150) radioValue = '1';
+                    if (val < 20)
+                        radioValue = '4';
+                    else if (val < 50)
+                        radioValue = '3';
+                    else if (val < 100)
+                        radioValue = '2';
+                    else if (val < 150)
+                        radioValue = '1';
                     setRadioValue('sofa-coag', radioValue);
-                } else {
-                    if (el) el.textContent = 'Not available';
                 }
-            }).catch(e => console.warn(e)); // Non-critical fetch error
-
+                else {
+                    if (el)
+                        el.textContent = 'Not available';
+                }
+            }).catch(e => console.warn(e));
             // Creatinine
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 const el = container.querySelector('#current-creatinine');
-                if (obs?.valueQuantity) {
-                    // Start using UnitConverter if possible, but here we assume mg/dL is standard or we check unit.
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     let val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
-
-                    if (UnitConverter.isUnit(unit, 'mmol/L')) {
-                        val = UnitConverter.convert(val, 'mmol/L', 'mg/dL', 'creatinine');
+                    if (unit === 'mmol/L' || unit.toLowerCase() === 'umol/l') {
+                        // Note: 1 mg/dL = 88.4 umol/L.
+                        // UnitConverter should be used if capable, otherwise manual.
+                        // Assuming UnitConverter can handle 'umol/L' if mapped, or we implement simple logic.
+                        const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
+                        if (converted !== null) {
+                            val = converted;
+                        }
                     }
-
-                    if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
-
+                    if (el)
+                        el.textContent = `${val.toFixed(1)} mg/dL`;
                     // Track staleness
                     stalenessTracker.trackObservation('#current-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
-
                     let radioValue = '0';
-                    if (val >= 5.0) radioValue = '4';
-                    else if (val >= 3.5) radioValue = '3';
-                    else if (val >= 2.0) radioValue = '2';
-                    else if (val >= 1.2) radioValue = '1';
+                    if (val >= 5.0)
+                        radioValue = '4';
+                    else if (val >= 3.5)
+                        radioValue = '3';
+                    else if (val >= 2.0)
+                        radioValue = '2';
+                    else if (val >= 1.2)
+                        radioValue = '1';
                     setRadioValue('sofa-renal', radioValue);
-                } else {
-                    if (el) el.textContent = 'Not available';
+                }
+                else {
+                    if (el)
+                        el.textContent = 'Not available';
                 }
             }).catch(e => console.warn(e));
-
             // Bilirubin
             getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL).then(obs => {
                 const el = container.querySelector('#current-bilirubin');
-                if (obs?.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     let val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
-
-                    if (UnitConverter.isUnit(unit, 'mmol/L')) {
-                        // Approximating Bilirubin conversion: 1 mg/dL = 17.1 umol/L (common) -> usually mmol/L not used for bili? umol/L is.
-                        // But UnitConverter handles what's defined. Assuming no conversion needed if not defined, or we leave raw value if unit match fails.
-                        // For robustness, stick to raw if unknown.
+                    // Convert if needed (e.g. umol/L to mg/dL for Bilirubin: 1 mg/dL = 17.1 umol/L)
+                    if (unit === 'mmol/L' || unit.toLowerCase() === 'umol/l') {
+                        const converted = UnitConverter.convert(val, unit, 'mg/dL', 'bilirubin'); // type 'bilirubin' might not be standard in UnitConverter map
+                        // If UnitConverter doesn't have 'bilirubin' type, we might check generic map.
+                        // But for now, let's just attempt conversion if UnitConverter supports it, or leave as is if not.
+                        if (converted !== null) {
+                            val = converted;
+                        }
                     }
-
-                    if (el) el.textContent = `${val.toFixed(1)} mg/dL`;
-
+                    if (el)
+                        el.textContent = `${val.toFixed(1)} mg/dL`;
                     // Track staleness
                     stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
-
                     let radioValue = '0';
-                    if (val >= 12.0) radioValue = '4';
-                    else if (val >= 6.0) radioValue = '3';
-                    else if (val >= 2.0) radioValue = '2';
-                    else if (val >= 1.2) radioValue = '1';
+                    if (val >= 12.0)
+                        radioValue = '4';
+                    else if (val >= 6.0)
+                        radioValue = '3';
+                    else if (val >= 2.0)
+                        radioValue = '2';
+                    else if (val >= 1.2)
+                        radioValue = '1';
                     setRadioValue('sofa-liver', radioValue);
-                } else {
-                    if (el) el.textContent = 'Not available';
+                }
+                else {
+                    if (el)
+                        el.textContent = 'Not available';
                 }
             }).catch(e => console.warn(e));
         }
-
         // Initial calculation
         calculate();
     }

@@ -3,14 +3,11 @@ import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const cpis = {
     id: 'cpis',
     title: 'Clinical Pulmonary Infection Score (CPIS) for VAP',
-    description:
-        'Predicts ventilator-associated pneumonia (VAP) likelihood in patients on mechanical ventilation.',
-
+    description: 'Predicts ventilator-associated pneumonia (VAP) likelihood in patients on mechanical ventilation.',
     generateHTML: () => `
         <div class="calculator-header">
             <h3>Clinical Pulmonary Infection Score (CPIS)</h3>
@@ -105,38 +102,34 @@ export const cpis = {
             `
     })}
     `,
-
     initialize: (client, patient, container) => {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const calculate = () => {
             try {
                 // Clear errors
                 const errorContainer = container.querySelector('#cpis-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 const groups = [
                     'cpis-temperature', 'cpis-wbc', 'cpis-secretions',
                     'cpis-oxygenation', 'cpis-chest_xray', 'cpis-culture'
                 ];
-
                 let score = 0;
                 groups.forEach(group => {
                     const checked = container.querySelector(`input[name="${group}"]:checked`);
-                    if (checked) score += parseInt(checked.value);
+                    if (checked)
+                        score += parseInt(checked.value);
                 });
-
                 const resultBox = container.querySelector('#cpis-result-box');
+                if (!resultBox)
+                    return;
                 const resultContent = resultBox.querySelector('.ui-result-content');
-
                 let interpretation = '';
                 let detail = '';
                 let alertType = 'success';
                 let management = '';
-
                 if (score < 6) {
                     interpretation = 'Low likelihood of VAP';
                     detail = 'Score <6 suggests VAP is less likely';
@@ -148,7 +141,8 @@ export const cpis = {
                             <li><strong>Re-evaluate:</strong> If clinical deterioration occurs</li>
                         </ul>
                     `;
-                } else {
+                }
+                else {
                     interpretation = 'High likelihood of VAP';
                     detail = 'Score ≥6 suggests VAP is likely';
                     alertType = 'danger';
@@ -160,41 +154,42 @@ export const cpis = {
                         </ul>
                     `;
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'CPIS Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: interpretation,
-                    alertClass: `ui-alert-${alertType}`
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: `<strong>Interpretation:</strong> ${detail}`
-                })}
-                    ${uiBuilder.createSection({
-                    title: 'Management Considerations',
-                    content: management
-                })}
-                `;
+                if (resultContent) {
+                    resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                        label: 'CPIS Score',
+                        value: score.toString(),
+                        unit: 'points',
+                        interpretation: interpretation,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
+                        ${uiBuilder.createAlert({
+                        type: alertType,
+                        message: `<strong>Interpretation:</strong> ${detail}`
+                    })}
+                        ${uiBuilder.createSection({
+                        title: 'Management Considerations',
+                        content: management
+                    })}
+                    `;
+                }
                 resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 // Error Handling
                 const errorContainer = container.querySelector('#cpis-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'cpis', action: 'calculate' });
             }
         };
-
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // --- FHIR Integration ---
         const setRadio = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -203,44 +198,46 @@ export const cpis = {
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-
         if (client) {
             // Temperature
             getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     let tempC = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || obs.valueQuantity.code;
-
-                    if (UnitConverter.isUnit(unit, 'degF') || unit === 'degF' || unit === 'F') {
+                    if (unit === 'degF' || unit === 'F' || (unit && unit.toLowerCase().includes('fahr'))) {
+                        // @ts-ignore
                         tempC = UnitConverter.convert(tempC, 'degF', 'degC', 'temperature');
                     }
-
-                    if (tempC >= 36.5 && tempC <= 38.4) setRadio('cpis-temperature', '0');
-                    else if (tempC >= 38.5 && tempC <= 38.9) setRadio('cpis-temperature', '1');
-                    else setRadio('cpis-temperature', '2');
-
+                    if (tempC !== null) {
+                        if (tempC >= 36.5 && tempC <= 38.4)
+                            setRadio('cpis-temperature', '0');
+                        else if (tempC >= 38.5 && tempC <= 38.9)
+                            setRadio('cpis-temperature', '1');
+                        else
+                            setRadio('cpis-temperature', '2');
+                    }
                     stalenessTracker.trackObservation('input[name="cpis-temperature"]', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
                 }
             }).catch(e => console.warn(e));
-
             // WBC
             getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
                 if (obs && obs.valueQuantity) {
                     let wbc = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit;
-
+                    // const unit = obs.valueQuantity.unit;
                     // Basic normalization
-                    if (wbc < 100) wbc = wbc; // Assume 10*3
-                    if (wbc > 1000) wbc = wbc / 1000;
-
-                    if (wbc >= 4 && wbc <= 11) setRadio('cpis-wbc', '0');
-                    else setRadio('cpis-wbc', '1'); // Can't determine bands from just WBC count
-
+                    if (wbc < 100)
+                        wbc = wbc; // Assume 10*3 if user raw value isn't super high, but wait, usually 4000-11000 or 4.0-11.0. 
+                    // If > 1000, assumes /uL. If < 100, assumes /mm3 or similar in thousands.
+                    if (wbc > 1000)
+                        wbc = wbc / 1000;
+                    if (wbc >= 4 && wbc <= 11)
+                        setRadio('cpis-wbc', '0');
+                    else
+                        setRadio('cpis-wbc', '1'); // Can't determine bands from just WBC count
                     stalenessTracker.trackObservation('input[name="cpis-wbc"]', obs, LOINC_CODES.WBC, 'WBC');
                 }
             }).catch(e => console.warn(e));
         }
-
         calculate();
     }
 };

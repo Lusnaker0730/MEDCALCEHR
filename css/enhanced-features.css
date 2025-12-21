@@ -8,6 +8,10 @@
     margin-bottom: 20px;
 }
 
+.sort-container select {
+    font-size: 1.35em;
+}
+
 /* Language Toggle Button */
 .language-toggle {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -45,7 +49,7 @@
     border: 2px solid #e2e8f0;
     border-radius: 12px;
     padding: 12px 24px;
-    font-size: 0.9em;
+    font-size: 1.35em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -95,16 +99,18 @@
     flex: 1;
 }
 
-.category-container label {
+.category-container label,
+.sort-container label {
     font-weight: 600;
     color: #4a5568;
-    font-size: 0.9em;
+    font-size: 1.35em;
     white-space: nowrap;
 }
 
 .category-container select {
     flex: 1;
     min-width: 150px;
+    font-size: 1.35em;
 }
 
 /* ========== Calculator Stats ========== */
@@ -241,6 +247,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -251,14 +258,27 @@
     animation: fadeIn 0.3s ease-out;
 }
 
-.list-item:nth-child(1) { animation-delay: 0.05s; }
-.list-item:nth-child(2) { animation-delay: 0.1s; }
-.list-item:nth-child(3) { animation-delay: 0.15s; }
-.list-item:nth-child(4) { animation-delay: 0.2s; }
-.list-item:nth-child(5) { animation-delay: 0.25s; }
+.list-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.list-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.list-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.list-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.list-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
 
 /* ========== Smooth Transitions ========== */
 * {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
-

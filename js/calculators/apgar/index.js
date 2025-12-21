@@ -1,6 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const apgarScore = {
     id: 'apgar',
     title: 'APGAR Score',
@@ -53,17 +52,13 @@ export const apgarScore = {
                 ]
             }
         ];
-
-        const sectionsHTML = criteria.map(item =>
-            uiBuilder.createSection({
-                title: item.title,
-                content: uiBuilder.createRadioGroup({
-                    name: `apgar-${item.id}`,
-                    options: item.options
-                })
+        const sectionsHTML = criteria.map(item => uiBuilder.createSection({
+            title: item.title,
+            content: uiBuilder.createRadioGroup({
+                name: `apgar-${item.id}`,
+                options: item.options
             })
-        ).join('');
-
+        })).join('');
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -83,72 +78,72 @@ export const apgarScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#apgar-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 const criteria = ['apgar-appearance', 'apgar-pulse', 'apgar-grimace', 'apgar-activity', 'apgar-respiration'];
                 let score = 0;
                 let allSelected = true;
-
                 criteria.forEach(name => {
                     const checked = container.querySelector(`input[name="${name}"]:checked`);
                     if (checked) {
                         score += parseInt(checked.value);
-                    } else {
+                    }
+                    else {
                         allSelected = false;
                     }
                 });
-
-                if (!allSelected) return;
-
+                if (!allSelected)
+                    return;
                 let interpretation = '';
-                let alertClass = '';
-
+                let alertClass = 'ui-alert-info';
                 if (score >= 7) {
                     interpretation = 'Reassuring (Normal)';
                     alertClass = 'ui-alert-success';
-                } else if (score >= 4) {
+                }
+                else if (score >= 4) {
                     interpretation = 'Moderately Abnormal (May need intervention)';
                     alertClass = 'ui-alert-warning';
-                } else {
+                }
+                else {
                     interpretation = 'Low (Immediate medical intervention required)';
                     alertClass = 'ui-alert-danger';
                 }
-
                 const resultBox = container.querySelector('#apgar-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total APGAR Score',
-                    value: score,
-                    unit: '/ 10 points',
-                    interpretation: interpretation,
-                    alertClass: alertClass
-                })}
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Total APGAR Score',
+                            value: score.toString(),
+                            unit: '/ 10 points',
+                            interpretation: interpretation,
+                            alertClass: alertClass
+                        })}
+                    `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#apgar-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'apgar', action: 'calculate' });
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

@@ -1,19 +1,14 @@
-import {
-    getMostRecentObservation,
-    calculateAge
-} from '../../utils.js';
+import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { ValidationError, displayError } from '../../errorHandler.js';
 export const ascvd = {
     id: 'ascvd',
     title: 'ASCVD Risk Calculator with Therapy Impact',
-    description:
-        'Determines 10-year risk of hard ASCVD and calculates the impact of various therapies on risk reduction.',
+    description: 'Determines 10-year risk of hard ASCVD and calculates the impact of various therapies on risk reduction.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -62,14 +57,14 @@ export const ascvd = {
                 label: 'Total Cholesterol',
                 type: 'number',
                 placeholder: 'e.g., 200',
-                unitToggle: { type: 'totalCholesterol', units: ['mg/dL', 'mmol/L'], defaultUnit: 'mg/dL' }
+                unitToggle: { type: 'totalCholesterol', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' }
             })}
                         ${uiBuilder.createInput({
                 id: 'ascvd-hdl',
                 label: 'HDL Cholesterol',
                 type: 'number',
                 placeholder: 'e.g., 50',
-                unitToggle: { type: 'hdl', units: ['mg/dL', 'mmol/L'], defaultUnit: 'mg/dL' }
+                unitToggle: { type: 'hdl', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' }
             })}
                         ${uiBuilder.createInput({ id: 'ascvd-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number', placeholder: 'e.g., 130' })}
                     `
@@ -184,11 +179,9 @@ export const ascvd = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker for this calculator
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const ageInput = container.querySelector('#ascvd-age');
         const sbpInput = container.querySelector('#ascvd-sbp');
         const tcInput = container.querySelector('#ascvd-tc');
@@ -198,9 +191,8 @@ export const ascvd = {
         const resultBox = container.querySelector('#ascvd-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
         const therapySection = container.querySelector('#therapy-impact-section');
-
         if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate);
+            ageInput.value = calculateAge(patient.birthDate).toString();
         }
         if (patient && patient.gender) {
             const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
@@ -209,24 +201,19 @@ export const ascvd = {
                 genderRadio.checked = true;
             }
         }
-
         // Try to load FHIR data
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
                 if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find(c =>
-                        c.code.coding && c.code.coding.some(coding => coding.code === LOINC_CODES.SYSTOLIC_BP)
-                    );
+                    const sbpComp = bpPanel.component.find((c) => c.code.coding && c.code.coding.some((coding) => coding.code === LOINC_CODES.SYSTOLIC_BP));
                     if (sbpComp && sbpComp.valueQuantity) {
                         sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
                         sbpInput.dispatchEvent(new Event('input'));
-
                         // Track staleness
                         stalenessTracker.trackObservation('#ascvd-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                     }
                 }
             }).catch(console.log);
-
             getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
                 if (obs && obs.valueQuantity) {
                     UnitConverter.setInputValue(tcInput, obs.valueQuantity.value, obs.valueQuantity.unit);
@@ -234,12 +221,10 @@ export const ascvd = {
                     if (tcInput.value && !isNaN(parseFloat(tcInput.value))) {
                         tcInput.value = parseFloat(tcInput.value).toFixed(1);
                     }
-
                     // Track staleness
                     stalenessTracker.trackObservation('#ascvd-tc', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
                 }
             }).catch(console.log);
-
             getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
                 if (obs && obs.valueQuantity) {
                     UnitConverter.setInputValue(hdlInput, obs.valueQuantity.value, obs.valueQuantity.unit);
@@ -247,12 +232,10 @@ export const ascvd = {
                     if (hdlInput.value && !isNaN(parseFloat(hdlInput.value))) {
                         hdlInput.value = parseFloat(hdlInput.value).toFixed(1);
                     }
-
                     // Track staleness
                     stalenessTracker.trackObservation('#ascvd-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
                 }
             }).catch(console.log);
-
             getMostRecentObservation(client, LOINC_CODES.SMOKING_STATUS).then(obs => {
                 if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
                     const currentSmokerCodes = [
@@ -262,12 +245,8 @@ export const ascvd = {
                         '428071000124103', // Current some day smoker
                         '77176002' // Smoker
                     ];
-
-                    const isCurrentSmoker = obs.valueCodeableConcept.coding.some(c =>
-                        currentSmokerCodes.includes(c.code) ||
-                        (c.display && c.display.toLowerCase().includes('current smoker'))
-                    );
-
+                    const isCurrentSmoker = obs.valueCodeableConcept.coding.some((c) => currentSmokerCodes.includes(c.code) ||
+                        (c.display && c.display.toLowerCase().includes('current smoker')));
                     if (isCurrentSmoker) {
                         const smokerYes = container.querySelector('input[name="ascvd-smoker"][value="yes"]');
                         if (smokerYes) {
@@ -278,54 +257,49 @@ export const ascvd = {
                 }
             }).catch(console.log);
         }
-
         knownAscvdCheckbox.addEventListener('change', () => {
             riskInputsDiv.style.display = knownAscvdCheckbox.checked ? 'none' : 'block';
             calculate(); // Recalculate immediately
         });
-
         // Therapy option toggle handlers
         container.querySelector('#statin-therapy').addEventListener('change', function () {
             container.querySelector('#statin-details').style.display = this.checked ? 'block' : 'none';
         });
-
         container.querySelector('#lifestyle-mods').addEventListener('change', function () {
             container.querySelector('#lifestyle-details').style.display = this.checked ? 'block' : 'none';
         });
-
         container.querySelector('#additional-therapy').addEventListener('change', function () {
             container.querySelector('#additional-details').style.display = this.checked ? 'block' : 'none';
         });
-
         let baselineRisk = 0;
         let patientData = {};
-
-        const calculateRisk = patient => {
+        const calculateRisk = (patient) => {
             const lnAge = Math.log(patient.age);
             const lnTC = Math.log(patient.tc);
             const lnHDL = Math.log(patient.hdl);
             const lnSBP = Math.log(patient.sbp);
-
             let individualSum = 0;
             let baselineSurvival = 0;
             let meanValue = 0;
-
             if (patient.isMale) {
                 if (patient.race === 'white') {
                     individualSum = 12.344 * lnAge + 11.853 * lnTC - 2.664 * lnAge * lnTC - 7.99 * lnHDL + 1.769 * lnAge * lnHDL + (patient.onHtnTx ? 1.797 : 1.764) * lnSBP + 7.837 * (patient.isSmoker ? 1 : 0) - 1.795 * lnAge * (patient.isSmoker ? 1 : 0) + 0.658 * (patient.isDiabetic ? 1 : 0);
                     meanValue = 61.18;
                     baselineSurvival = 0.9144;
-                } else { // African American Male
+                }
+                else { // African American Male
                     individualSum = 2.469 * lnAge + 0.302 * lnTC - 0.307 * lnHDL + (patient.onHtnTx ? 1.916 : 1.809) * lnSBP + 0.549 * (patient.isSmoker ? 1 : 0) + 0.645 * (patient.isDiabetic ? 1 : 0);
                     meanValue = 19.54;
                     baselineSurvival = 0.8954;
                 }
-            } else { // Female
+            }
+            else { // Female
                 if (patient.race === 'white') {
                     individualSum = -29.799 * lnAge + 4.884 * lnAge * lnAge + 13.54 * lnTC - 3.114 * lnAge * lnTC - 13.578 * lnHDL + 3.149 * lnAge * lnHDL + (patient.onHtnTx ? 2.019 * lnSBP : 1.957 * lnSBP) + 7.574 * (patient.isSmoker ? 1 : 0) - 1.665 * lnAge * (patient.isSmoker ? 1 : 0) + 0.661 * (patient.isDiabetic ? 1 : 0);
                     meanValue = -29.18;
                     baselineSurvival = 0.9665;
-                } else { // African American Female
+                }
+                else { // African American Female
                     individualSum = 17.114 * lnAge + 0.94 * lnTC - 18.92 * lnHDL + 4.475 * lnAge * lnHDL + (patient.onHtnTx ? 29.291 : 27.82) * lnSBP - 6.432 * lnAge * lnSBP + 0.691 * (patient.isSmoker ? 1 : 0) + 0.874 * (patient.isDiabetic ? 1 : 0);
                     meanValue = 86.61;
                     baselineSurvival = 0.9533;
@@ -334,12 +308,11 @@ export const ascvd = {
             const risk = (1 - Math.pow(baselineSurvival, Math.exp(individualSum - meanValue))) * 100;
             return Math.max(0, Math.min(100, risk));
         };
-
         const calculate = () => {
             // Clear previous errors
             const existingError = container.querySelector('#ascvd-error');
-            if (existingError) existingError.remove();
-
+            if (existingError)
+                existingError.remove();
             if (knownAscvdCheckbox.checked) {
                 // Known ASCVD Logic (Simplified)
                 patientData = {
@@ -350,7 +323,6 @@ export const ascvd = {
                 };
                 // Capture other flags if they exist, but mostly we just set High Risk
                 baselineRisk = 50;
-
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({ label: 'Risk Category', value: 'High Risk', interpretation: 'Known Clinical ASCVD', alertClass: 'ui-alert-danger' })}
                     ${uiBuilder.createAlert({ type: 'warning', message: '<strong>Guideline:</strong> High-intensity statin therapy is indicated for secondary prevention.' })}
@@ -359,37 +331,35 @@ export const ascvd = {
                 therapySection.style.display = 'block';
                 return;
             }
-
             const raceRadio = container.querySelector('input[name="ascvd-race"]:checked');
             const race = raceRadio ? raceRadio.value : 'white';
-
             const age = parseFloat(ageInput.value);
             const sbp = parseFloat(sbpInput.value);
             // Use UnitConverter for Cholesterol
             const tcMgDl = UnitConverter.getStandardValue(tcInput, 'mg/dL');
             const hdlMgDl = UnitConverter.getStandardValue(hdlInput, 'mg/dL');
-
             // Validation Schema
             const values = { age, systolic: sbp, totalCholesterol: tcMgDl, hdl: hdlMgDl };
+            // @ts-ignore - ValidationRules nesting
             const schema = {
                 age: ValidationRules.age,
+                // @ts-ignore
                 systolic: ValidationRules.bloodPressure.systolic,
                 totalCholesterol: ValidationRules.totalCholesterol,
                 hdl: ValidationRules.hdl
             };
-
+            // @ts-ignore
             const validation = validateCalculatorInput(values, schema);
-
             if (!validation.isValid) {
                 const hasInput = (ageInput.value || sbpInput.value || tcInput.value || hdlInput.value);
                 if (hasInput) {
                     // Check if present values are invalid
-                    const valsPresent = !isNaN(age) && !isNaN(sbp) && !isNaN(tcMgDl) && !isNaN(hdlMgDl);
+                    const valsPresent = !isNaN(age) && !isNaN(sbp) && (tcMgDl !== null && !isNaN(tcMgDl)) && (hdlMgDl !== null && !isNaN(hdlMgDl));
                     if (valsPresent || validation.errors.some(e => !e.includes('required'))) {
                         // Show error
                         let errorContainer = document.createElement('div');
                         errorContainer.id = 'ascvd-error';
-                        resultBox.parentNode.insertBefore(errorContainer, resultBox);
+                        resultBox.parentNode?.insertBefore(errorContainer, resultBox);
                         displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                     }
                 }
@@ -397,7 +367,6 @@ export const ascvd = {
                 therapySection.style.display = 'none';
                 return;
             }
-
             // Specific Age Range for ASCVD (override generic Age rule if strictly enforced by guideline, 
             // but generic validation is 0-150. We can add specific alert for <40 or >79)
             if (age < 40 || age > 79) {
@@ -409,12 +378,10 @@ export const ascvd = {
                 therapySection.style.display = 'none';
                 return; // Stop calculation? Usually yes for PCE.
             }
-
             const genderRadio = container.querySelector('input[name="ascvd-gender"]:checked');
             const htnRadio = container.querySelector('input[name="ascvd-htn"]:checked');
             const dmRadio = container.querySelector('input[name="ascvd-dm"]:checked');
             const smokerRadio = container.querySelector('input[name="ascvd-smoker"]:checked');
-
             patientData = {
                 age,
                 tc: tcMgDl,
@@ -426,37 +393,35 @@ export const ascvd = {
                 isDiabetic: dmRadio ? dmRadio.value === 'yes' : false,
                 isSmoker: smokerRadio ? smokerRadio.value === 'yes' : false
             };
-
             const riskPercent = calculateRisk(patientData);
             baselineRisk = riskPercent;
-
             let riskCategory = '';
             let recommendation = '';
             let alertType = 'info';
-
             if (riskPercent < 5) {
                 riskCategory = 'Low Risk';
                 recommendation = 'Emphasize lifestyle modifications.';
                 alertType = 'success';
-            } else if (riskPercent < 7.5) {
+            }
+            else if (riskPercent < 7.5) {
                 riskCategory = 'Borderline Risk';
                 recommendation = 'Discuss risk. Consider moderate-intensity statin if risk enhancers present.';
                 alertType = 'warning';
-            } else if (riskPercent < 20) {
+            }
+            else if (riskPercent < 20) {
                 riskCategory = 'Intermediate Risk';
                 recommendation = 'Initiate moderate-intensity statin therapy. Discuss risk enhancers.';
                 alertType = 'warning';
-            } else {
+            }
+            else {
                 riskCategory = 'High Risk';
                 recommendation = 'Initiate high-intensity statin therapy.';
                 alertType = 'danger';
             }
-
             let otherRaceAlert = '';
             if (race === 'other') {
                 otherRaceAlert = uiBuilder.createAlert({ type: 'warning', message: 'The Pooled Cohort Equations are validated for non-Hispanic white and African American individuals. Risk for other groups may be over- or underestimated.' });
             }
-
             resultContent.innerHTML = `
                 ${otherRaceAlert}
                 ${uiBuilder.createResultItem({
@@ -474,7 +439,6 @@ export const ascvd = {
             resultBox.classList.add('show');
             therapySection.style.display = 'block';
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
@@ -485,89 +449,115 @@ export const ascvd = {
             el.removeEventListener('change', calculate);
             // Re-add if it was part of main inputs (unlikely given selectors)
         });
-
-
         // Therapy Impact Calculation
-        container.querySelector('#calculate-therapy-impact').addEventListener('click', () => {
-            const therapyResultsEl = container.querySelector('#therapy-results');
-
-            if (baselineRisk === 0 && !knownAscvdCheckbox.checked) {
-                therapyResultsEl.innerHTML = uiBuilder.createAlert({ type: 'danger', message: 'Please calculate baseline risk first.' });
-                therapyResultsEl.style.display = 'block';
-                return;
-            }
-
-            const modifiedPatientData = { ...patientData };
-            const interventions = [];
-
-            // Statin
-            if (container.querySelector('#statin-therapy').checked) {
-                const intensity = container.querySelector('#statin-intensity').value;
-                let ldlReduction = 0;
-                let statinDescription = '';
-
-                if (intensity === 'high') { ldlReduction = 0.5; statinDescription = 'High-intensity statin'; }
-                else if (intensity === 'moderate') { ldlReduction = 0.4; statinDescription = 'Moderate-intensity statin'; }
-                else { ldlReduction = 0.25; statinDescription = 'Low-intensity statin'; }
-
-                const estimatedTrig = 150;
-                const baselineLDL = modifiedPatientData.tc - modifiedPatientData.hdl - estimatedTrig / 5;
-                const treatedLDL = baselineLDL * (1 - ldlReduction);
-                modifiedPatientData.tc = treatedLDL + modifiedPatientData.hdl + estimatedTrig / 5;
-                interventions.push(statinDescription);
-            }
-
-            // Lifestyle
-            if (container.querySelector('#lifestyle-mods').checked) {
-                if (container.querySelector('#smoking-cessation').checked && modifiedPatientData.isSmoker) {
-                    modifiedPatientData.isSmoker = false;
-                    interventions.push('Smoking cessation');
+        const calcTherapyBtn = container.querySelector('#calculate-therapy-impact');
+        if (calcTherapyBtn) {
+            calcTherapyBtn.addEventListener('click', () => {
+                const therapyResultsEl = container.querySelector('#therapy-results');
+                if (baselineRisk === 0 && !knownAscvdCheckbox.checked) {
+                    therapyResultsEl.innerHTML = uiBuilder.createAlert({ type: 'danger', message: 'Please calculate baseline risk first.' });
+                    therapyResultsEl.style.display = 'block';
+                    return;
                 }
-                if (container.querySelector('#bp-control').checked && modifiedPatientData.sbp > 130) {
-                    modifiedPatientData.sbp = 130;
-                    modifiedPatientData.onHtnTx = true;
-                    interventions.push('Blood pressure control');
+                const modifiedPatientData = { ...patientData };
+                const interventions = [];
+                // Statin
+                const statinTherapy = container.querySelector('#statin-therapy');
+                if (statinTherapy.checked) {
+                    const intensity = container.querySelector('#statin-intensity').value;
+                    let ldlReduction = 0;
+                    let statinDescription = '';
+                    if (intensity === 'high') {
+                        ldlReduction = 0.5;
+                        statinDescription = 'High-intensity statin';
+                    }
+                    else if (intensity === 'moderate') {
+                        ldlReduction = 0.4;
+                        statinDescription = 'Moderate-intensity statin';
+                    }
+                    else {
+                        ldlReduction = 0.25;
+                        statinDescription = 'Low-intensity statin';
+                    }
+                    const estimatedTrig = 150;
+                    const baselineLDL = modifiedPatientData.tc - modifiedPatientData.hdl - estimatedTrig / 5;
+                    const treatedLDL = baselineLDL * (1 - ldlReduction);
+                    modifiedPatientData.tc = treatedLDL + modifiedPatientData.hdl + estimatedTrig / 5;
+                    interventions.push(statinDescription);
                 }
-            }
-
-            if (container.querySelector('#additional-therapy').checked) {
-                const select = container.querySelector('#additional-options');
-                interventions.push(select.options[select.selectedIndex].text);
-            }
-
-            const modifiedRisk = calculateRisk(modifiedPatientData);
-            const arr = Math.max(0, baselineRisk - modifiedRisk);
-            const nnt = arr > 0 ? Math.round(100 / arr) : 'N/A';
-
-            therapyResultsEl.innerHTML = `
+                // Lifestyle
+                if (container.querySelector('#lifestyle-mods').checked) {
+                    if (container.querySelector('#smoking-cessation').checked && modifiedPatientData.isSmoker) {
+                        modifiedPatientData.isSmoker = false;
+                        interventions.push('Smoking cessation');
+                    }
+                    if (container.querySelector('#bp-control').checked && modifiedPatientData.sbp > 130) {
+                        modifiedPatientData.sbp = 130;
+                        modifiedPatientData.onHtnTx = true;
+                        interventions.push('Blood pressure control');
+                    }
+                    // Weight loss has indirect effects, add to list but hard to quantify in PCE
+                    if (container.querySelector('#weight-loss')?.checked) {
+                        interventions.push('Weight loss');
+                    }
+                }
+                // Additional Therapies - Apply actual LDL reduction
+                if (container.querySelector('#additional-therapy').checked) {
+                    const select = container.querySelector('#additional-options');
+                    const additionalOption = select.value;
+                    if (additionalOption === 'ezetimibe') {
+                        // Ezetimibe provides additional 15-20% LDL reduction
+                        const estimatedTrig = 150;
+                        const currentLDL = modifiedPatientData.tc - modifiedPatientData.hdl - estimatedTrig / 5;
+                        const treatedLDL = currentLDL * 0.825; // 17.5% average reduction
+                        modifiedPatientData.tc = treatedLDL + modifiedPatientData.hdl + estimatedTrig / 5;
+                        interventions.push('Ezetimibe (additional 15-20% LDL reduction)');
+                    }
+                    else if (additionalOption === 'pcsk9') {
+                        // PCSK9 inhibitor provides additional 50-60% LDL reduction
+                        const estimatedTrig = 150;
+                        const currentLDL = modifiedPatientData.tc - modifiedPatientData.hdl - estimatedTrig / 5;
+                        const treatedLDL = currentLDL * 0.45; // 55% average reduction
+                        modifiedPatientData.tc = treatedLDL + modifiedPatientData.hdl + estimatedTrig / 5;
+                        interventions.push('PCSK9 Inhibitor (additional 50-60% LDL reduction)');
+                    }
+                    else if (additionalOption === 'aspirin') {
+                        // Aspirin doesn't affect PCE calculation but is important for prevention
+                        interventions.push('Low-dose Aspirin (if bleeding risk low)');
+                    }
+                }
+                const modifiedRisk = calculateRisk(modifiedPatientData);
+                const arr = Math.max(0, baselineRisk - modifiedRisk);
+                const nnt = arr > 0 ? Math.round(100 / arr) : 'N/A';
+                therapyResultsEl.innerHTML = `
                 ${uiBuilder.createResultItem({
-                label: 'Baseline Risk',
-                value: baselineRisk.toFixed(1),
-                unit: '%'
-            })}
+                    label: 'Baseline Risk',
+                    value: baselineRisk.toFixed(1),
+                    unit: '%'
+                })}
                 ${uiBuilder.createResultItem({
-                label: 'Treated Risk',
-                value: modifiedRisk.toFixed(1),
-                unit: '%',
-                alertClass: 'ui-alert-success'
-            })}
+                    label: 'Treated Risk',
+                    value: modifiedRisk.toFixed(1),
+                    unit: '%',
+                    alertClass: 'ui-alert-success'
+                })}
                 ${uiBuilder.createResultItem({
-                label: 'Absolute Risk Reduction (ARR)',
-                value: arr.toFixed(1),
-                unit: '%'
-            })}
+                    label: 'Absolute Risk Reduction (ARR)',
+                    value: arr.toFixed(1),
+                    unit: '%'
+                })}
                 ${uiBuilder.createResultItem({
-                label: 'Number Needed to Treat (NNT)',
-                value: nnt
-            })}
+                    label: 'Number Needed to Treat (NNT)',
+                    value: nnt
+                })}
                 ${uiBuilder.createSection({
-                title: 'Selected Interventions',
-                content: `<ul>${interventions.map(i => `<li>${i}</li>`).join('')}</ul>`
-            })}
+                    title: 'Selected Interventions',
+                    content: `<ul>${interventions.map(i => `<li>${i}</li>`).join('')}</ul>`
+                })}
             `;
-            therapyResultsEl.style.display = 'block';
-        });
-
+                therapyResultsEl.style.display = 'block';
+            });
+        }
         calculate();
     }
 };

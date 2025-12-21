@@ -13,7 +13,7 @@ export const LOINC_CODES = {
     BP_PANEL: '85354-9,55284-4', // Blood pressure panel
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
-    TEMPERATURE: '8310-5', // Body temperature
+    TEMPERATURE: '8310-5,8331-1', // Body temperature (and Oral)
     OXYGEN_SATURATION: '59408-5', // Oxygen saturation
     OXYGEN_SATURATION_PULSE_OX: '2708-6', // O2 saturation by pulse oximetry
 

@@ -5,7 +5,6 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const fena = {
     id: 'fena',
     title: 'Fractional Excretion of Sodium (FENa)',
@@ -19,14 +18,14 @@ export const fena = {
                     label: 'Urine Sodium',
                     type: 'number',
                     placeholder: 'e.g. 20',
-                    unitToggle: { type: 'urineSodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                    unitToggle: { type: 'urineSodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
                 }),
                 uiBuilder.createInput({
                     id: 'fena-serum-na',
                     label: 'Serum Sodium',
                     type: 'number',
                     placeholder: 'e.g. 140',
-                    unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                    unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
                 }),
                 uiBuilder.createInput({
                     id: 'fena-urine-creat',
@@ -42,14 +41,12 @@ export const fena = {
                 })
             ].join('')
         });
-
         const formulaSection = uiBuilder.createFormulaSection({
             items: [
                 { label: 'FENa Equation', formula: 'FENa (%) = [(Urine Na × Serum Cr) / (Serum Na × Urine Cr)] × 100' },
                 { label: 'Units', formula: 'Na (mEq/L), Cr (mg/dL or µmol/L)' }
             ]
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -79,29 +76,23 @@ export const fena = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const resultBox = container.querySelector('#fena-result');
-        const resultContent = resultBox.querySelector('.ui-result-content');
-
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#fena-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const uNaInput = container.querySelector('#fena-urine-na');
             const sNaInput = container.querySelector('#fena-serum-na');
             const uCrInput = container.querySelector('#fena-urine-creat');
             const sCrInput = container.querySelector('#fena-serum-creat');
-
             const uNa = UnitConverter.getStandardValue(uNaInput, 'mEq/L');
             const sNa = UnitConverter.getStandardValue(sNaInput, 'mEq/L');
             const uCrMgDl = UnitConverter.getStandardValue(uCrInput, 'mg/dL');
             const sCrMgDl = UnitConverter.getStandardValue(sCrInput, 'mg/dL');
-
             try {
                 // Validation inputs
                 const inputs = {
@@ -116,64 +107,64 @@ export const fena = {
                     urineCreatinine: ValidationRules.urineCreatinine,
                     creatinine: ValidationRules.creatinine
                 };
-
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (uNaInput.value || sNaInput.value || uCrInput.value || sCrInput.value);
-
-                    if (hasInput) {
-                        const valuesPresent = !isNaN(uNa) && !isNaN(sNa) && !isNaN(uCrMgDl) && !isNaN(sCrMgDl);
-                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                    if (hasInput && resultBox) {
+                        const valuesPresent = uNa !== null && sNa !== null && uCrMgDl !== null && sCrMgDl !== null && !isNaN(uNa) && !isNaN(sNa) && !isNaN(uCrMgDl) && !isNaN(sCrMgDl);
+                        if (valuesPresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
+                        resultBox.classList.remove('show');
                     }
-
-                    resultBox.classList.remove('show');
                     return;
                 }
-
-                const fenaValue = (uNa / sNa / (uCrMgDl / sCrMgDl)) * 100;
-
-                if (!isFinite(fenaValue) || isNaN(fenaValue)) throw new Error("Calculation Error");
-
-                let interpretation = '';
-                let alertClass = '';
-
-                if (fenaValue < 1) {
-                    interpretation = 'Prerenal AKI (< 1%)';
-                    alertClass = 'ui-alert-success';
-                } else if (fenaValue > 2) {
-                    interpretation = 'Intrinsic/ATN (> 2%)';
-                    alertClass = 'ui-alert-danger';
-                } else {
-                    interpretation = 'Indeterminate (1-2%)';
-                    alertClass = 'ui-alert-warning';
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    const fenaValue = (uNa / sNa / (uCrMgDl / sCrMgDl)) * 100;
+                    if (!isFinite(fenaValue) || isNaN(fenaValue))
+                        throw new Error("Calculation Error");
+                    let interpretation = '';
+                    let alertClass = '';
+                    if (fenaValue < 1) {
+                        interpretation = 'Prerenal AKI (< 1%)';
+                        alertClass = 'ui-alert-success';
+                    }
+                    else if (fenaValue > 2) {
+                        interpretation = 'Intrinsic/ATN (> 2%)';
+                        alertClass = 'ui-alert-danger';
+                    }
+                    else {
+                        interpretation = 'Indeterminate (1-2%)';
+                        alertClass = 'ui-alert-warning';
+                    }
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Fractional Excretion of Sodium',
+                            value: fenaValue.toFixed(2),
+                            unit: '%',
+                            interpretation: interpretation,
+                            alertClass: alertClass
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Fractional Excretion of Sodium',
-                    value: fenaValue.toFixed(2),
-                    unit: '%',
-                    interpretation: interpretation,
-                    alertClass: alertClass
-                })}
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'fena', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
         });
-
         // Helper
         const setInputValue = (selector, val) => {
             const el = container.querySelector(selector);
@@ -182,7 +173,6 @@ export const fena = {
                 el.dispatchEvent(new Event('input'));
             }
         };
-
         // Auto-populate from FHIR
         if (client) {
             Promise.all([
@@ -191,34 +181,36 @@ export const fena = {
                 getMostRecentObservation(client, LOINC_CODES.URINE_CREATININE),
                 getMostRecentObservation(client, LOINC_CODES.CREATININE)
             ]).then(([uNa, sNa, uCr, sCr]) => {
-                if (uNa && uNa.valueQuantity) {
+                if (uNa && uNa.valueQuantity && uNa.valueQuantity.value !== undefined) {
                     // Urine Na usually mEq/L, matches default
                     setInputValue('#fena-urine-na', uNa.valueQuantity.value.toFixed(0));
                     stalenessTracker.trackObservation('#fena-urine-na', uNa, '2955-3', 'Urine Na');
                 }
-                if (sNa && sNa.valueQuantity) {
+                if (sNa && sNa.valueQuantity && sNa.valueQuantity.value !== undefined) {
                     setInputValue('#fena-serum-na', sNa.valueQuantity.value.toFixed(0));
                     stalenessTracker.trackObservation('#fena-serum-na', sNa, LOINC_CODES.SODIUM, 'Serum Na');
                 }
-                if (uCr && uCr.valueQuantity) {
+                if (uCr && uCr.valueQuantity && uCr.valueQuantity.value !== undefined) {
                     // Check units for creatinine
                     const val = uCr.valueQuantity.value;
                     const unit = uCr.valueQuantity.unit || 'mg/dL';
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
                     if (converted !== null) {
                         setInputValue('#fena-urine-creat', converted.toFixed(1)); // Urine creat might be high, keep dec default
-                    } else {
+                    }
+                    else {
                         setInputValue('#fena-urine-creat', val.toFixed(1));
                     }
                     stalenessTracker.trackObservation('#fena-urine-creat', uCr, LOINC_CODES.URINE_CREATININE, 'Urine Creatinine');
                 }
-                if (sCr && sCr.valueQuantity) {
+                if (sCr && sCr.valueQuantity && sCr.valueQuantity.value !== undefined) {
                     const val = sCr.valueQuantity.value;
                     const unit = sCr.valueQuantity.unit || 'mg/dL';
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
                     if (converted !== null) {
                         setInputValue('#fena-serum-creat', converted.toFixed(2));
-                    } else {
+                    }
+                    else {
                         setInputValue('#fena-serum-creat', val.toFixed(2));
                     }
                     stalenessTracker.trackObservation('#fena-serum-creat', sCr, LOINC_CODES.CREATININE, 'Serum Creatinine');

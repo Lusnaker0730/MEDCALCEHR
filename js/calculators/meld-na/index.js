@@ -5,7 +5,6 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const meldNa = {
     id: 'meld-na',
     title: 'MELD-Na (UNOS/OPTN)',
@@ -19,7 +18,7 @@ export const meldNa = {
                     label: 'Bilirubin (Total)',
                     type: 'number',
                     step: 0.1,
-                    unitToggle: { type: 'bilirubin', units: ['mg/dL', 'µmol/L'] }
+                    unitToggle: { type: 'bilirubin', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 }),
                 uiBuilder.createInput({
                     id: 'meld-na-inr',
@@ -33,14 +32,14 @@ export const meldNa = {
                     label: 'Creatinine',
                     type: 'number',
                     step: 0.1,
-                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'] }
+                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 }),
                 uiBuilder.createInput({
                     id: 'meld-na-sodium',
                     label: 'Sodium',
                     type: 'number',
                     step: 1,
-                    unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' },
+                    unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' },
                     placeholder: '100 - 155'
                 }),
                 uiBuilder.createCheckbox({
@@ -49,7 +48,6 @@ export const meldNa = {
                 })
             ].join('')
         });
-
         const formulaSection = uiBuilder.createFormulaSection({
             items: [
                 { label: 'MELD Score', formula: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643' },
@@ -57,7 +55,6 @@ export const meldNa = {
                 { label: 'Constraints', formula: 'Min lab values: 1.0; Max Creat: 4.0; Na capped: 125-137; Score range: 6-40' }
             ]
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -94,21 +91,18 @@ export const meldNa = {
         // Initialize staleness tracker for this calculator
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#meld-na-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const biliInput = container.querySelector('#meld-na-bili');
             const inrInput = container.querySelector('#meld-na-inr');
             const creatInput = container.querySelector('#meld-na-creat');
             const sodiumInput = container.querySelector('#meld-na-sodium');
             const dialysisCheckbox = container.querySelector('#meld-na-dialysis');
-
             const resultBox = container.querySelector('#meld-na-result');
             const resultContent = resultBox.querySelector('.ui-result-content');
-
             try {
                 // Get standard values
                 const bili = UnitConverter.getStandardValue(biliInput, 'mg/dL');
@@ -116,7 +110,6 @@ export const meldNa = {
                 const creat = UnitConverter.getStandardValue(creatInput, 'mg/dL');
                 const sodium = UnitConverter.getStandardValue(sodiumInput, 'mEq/L');
                 const onDialysis = dialysisCheckbox.checked;
-
                 // Define validation schema
                 const inputs = { bili, inr, creat, sodium };
                 const schema = {
@@ -125,29 +118,26 @@ export const meldNa = {
                     creat: ValidationRules.creatinine,
                     sodium: ValidationRules.sodium
                 };
-
+                // @ts-ignore
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (biliInput.value || inrInput.value || creatInput.value || sodiumInput.value);
-
                     if (hasInput) {
                         const meaningfulErrors = validation.errors.filter(() => true);
-
                         // Show error if we have data presence
-                        const valuesPresent = !isNaN(bili) && !isNaN(inr) && !isNaN(creat) && !isNaN(sodium);
-
+                        const valuesPresent = bili !== null && !isNaN(bili) && !isNaN(inr) && creat !== null && !isNaN(creat) && sodium !== null && !isNaN(sodium);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
                             if (meaningfulErrors.length > 0) {
-                                if (errorContainer) displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                                if (errorContainer)
+                                    displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
                             }
                         }
                     }
-
                     resultBox.classList.remove('show');
                     return;
                 }
-
+                if (bili === null || inr === null || creat === null || sodium === null)
+                    return;
                 // Apply UNOS/OPTN rules
                 const adjustedBili = Math.max(bili, 1.0);
                 const adjustedInr = Math.max(inr, 1.0);
@@ -155,56 +145,53 @@ export const meldNa = {
                 if (onDialysis || adjustedCreat > 4.0) {
                     adjustedCreat = 4.0;
                 }
-
                 // Calculate original MELD
-                let meldScore =
-                    0.957 * Math.log(adjustedCreat) +
+                let meldScore = 0.957 * Math.log(adjustedCreat) +
                     0.378 * Math.log(adjustedBili) +
                     1.12 * Math.log(adjustedInr) +
                     0.643;
                 meldScore = Math.round(meldScore * 10) / 10;
-
                 // Calculate MELD-Na
                 let meldNaScore = meldScore;
                 if (meldScore > 11) {
                     const adjustedSodium = Math.max(125, Math.min(137, sodium));
                     meldNaScore =
                         meldScore +
-                        1.32 * (137 - adjustedSodium) -
-                        0.033 * meldScore * (137 - adjustedSodium);
+                            1.32 * (137 - adjustedSodium) -
+                            0.033 * meldScore * (137 - adjustedSodium);
                 }
-
                 // Final score capping
                 meldNaScore = Math.max(6, Math.min(40, meldNaScore));
                 meldNaScore = Math.round(meldNaScore);
-
                 // Determine risk category and mortality
                 let riskCategory = '';
                 let mortalityRate = '';
                 let alertClass = '';
-
                 if (meldNaScore < 10) {
                     riskCategory = 'Low Risk';
                     mortalityRate = '1.9%';
                     alertClass = 'ui-alert-success';
-                } else if (meldNaScore <= 19) {
+                }
+                else if (meldNaScore <= 19) {
                     riskCategory = 'Low-Moderate Risk';
                     mortalityRate = '6.0%';
                     alertClass = 'ui-alert-info';
-                } else if (meldNaScore <= 29) {
+                }
+                else if (meldNaScore <= 29) {
                     riskCategory = 'Moderate Risk';
                     mortalityRate = '19.6%';
                     alertClass = 'ui-alert-warning';
-                } else if (meldNaScore <= 39) {
+                }
+                else if (meldNaScore <= 39) {
                     riskCategory = 'High Risk';
                     mortalityRate = '52.6%';
                     alertClass = 'ui-alert-danger';
-                } else {
+                }
+                else {
                     riskCategory = 'Very High Risk';
                     mortalityRate = '71.3%';
                     alertClass = 'ui-alert-danger';
                 }
-
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
                     label: 'MELD-Na Score',
@@ -222,15 +209,15 @@ export const meldNa = {
                         • Adjusted Creatinine: ${adjustedCreat.toFixed(1)} mg/dL ${onDialysis ? '(capped for dialysis)' : ''}
                     </div>
                 `;
-
                 resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'meld-na', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
+                if (errorContainer)
+                    displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
-
         // Helper to safely set value
         const setInputValue = (id, val, checkUnit = false) => {
             const input = container.querySelector(id);
@@ -240,7 +227,6 @@ export const meldNa = {
                 input.dispatchEvent(new Event('input'));
             }
         };
-
         // Auto-populate from FHIR data
         if (client) {
             const obsMap = [
@@ -249,7 +235,6 @@ export const meldNa = {
                 { code: LOINC_CODES.CREATININE, id: '#meld-na-creat', type: 'creatinine', unit: 'mg/dL', label: 'Creatinine' },
                 { code: LOINC_CODES.SODIUM, id: '#meld-na-sodium', type: 'sodium', unit: 'mEq/L', label: 'Sodium' }
             ];
-
             obsMap.forEach(item => {
                 getMostRecentObservation(client, item.code).then(obs => {
                     if (obs?.valueQuantity) {
@@ -258,18 +243,18 @@ export const meldNa = {
                         // Use unit converter to normalize if possible
                         if (item.type && item.type !== 'inr') {
                             const converted = UnitConverter.convert(val, unit, item.unit, item.type);
-                            if (converted !== null) setInputValue(item.id, converted.toFixed(item.type === 'sodium' ? 0 : 1));
-                        } else {
+                            if (converted !== null)
+                                setInputValue(item.id, converted.toFixed(item.type === 'sodium' ? 0 : 1));
+                        }
+                        else {
                             setInputValue(item.id, val.toFixed(2));
                         }
-
                         // Track staleness
                         stalenessTracker.trackObservation(item.id, obs, item.code, item.label);
                     }
                 }).catch(e => console.warn(e));
             });
         }
-
         // Add event listeners
         const inputs = container.querySelectorAll('input');
         inputs.forEach(input => {
@@ -277,7 +262,6 @@ export const meldNa = {
             input.addEventListener(eventType, calculateAndUpdate);
         });
         container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
-
         // Initial calculation
         calculateAndUpdate();
     }

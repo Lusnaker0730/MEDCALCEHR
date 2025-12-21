@@ -1,6 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const kawasaki = {
     id: 'kawasaki',
     title: 'Kawasaki Disease Diagnostic Criteria',
@@ -76,15 +75,14 @@ export const kawasaki = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#kawasaki-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
-                const fever = container.querySelector('input[name="kawasaki-fever"]:checked')?.value === '1';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
+                const feverEl = container.querySelector('input[name="kawasaki-fever"]:checked');
+                const fever = feverEl?.value === '1';
                 const features = [
                     'kawasaki-extrem',
                     'kawasaki-exanthem',
@@ -92,7 +90,6 @@ export const kawasaki = {
                     'kawasaki-oral',
                     'kawasaki-lymph'
                 ];
-
                 let featureCount = 0;
                 features.forEach(feature => {
                     const input = container.querySelector(`input[name="${feature}"]:checked`);
@@ -100,51 +97,53 @@ export const kawasaki = {
                         featureCount++;
                     }
                 });
-
                 const resultBox = container.querySelector('#kawasaki-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                let interpretation = '';
-                let alertType = 'info';
-
-                if (!fever) {
-                    interpretation = 'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
-                    alertType = 'warning';
-                } else if (featureCount >= 4) {
-                    interpretation = 'Positive for Kawasaki Disease (Fever + ≥4 principal features).';
-                    alertType = 'danger';
-                } else {
-                    interpretation = `Criteria Not Met (Fever + ${featureCount}/4 features). Consider Incomplete Kawasaki Disease if clinical suspicion is high.`;
-                    alertType = 'warning';
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    let interpretation = '';
+                    let alertType = 'info';
+                    if (!fever) {
+                        interpretation = 'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
+                        alertType = 'warning';
+                    }
+                    else if (featureCount >= 4) {
+                        interpretation = 'Positive for Kawasaki Disease (Fever + ≥4 principal features).';
+                        alertType = 'danger';
+                    }
+                    else {
+                        interpretation = `Criteria Not Met (Fever + ${featureCount}/4 features). Consider Incomplete Kawasaki Disease if clinical suspicion is high.`;
+                        alertType = 'warning';
+                    }
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Principal Features Present',
+                            value: `${featureCount} / 5`,
+                            unit: ''
+                        })}
+                            ${uiBuilder.createAlert({
+                            type: alertType,
+                            message: interpretation
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Principal Features Present',
-                    value: `${featureCount} / 5`,
-                    unit: ''
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: interpretation
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#kawasaki-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'kawasaki', action: 'calculate' });
             }
         };
-
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

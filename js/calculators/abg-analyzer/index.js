@@ -5,7 +5,6 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const abgAnalyzer = {
     id: 'abg-analyzer',
     title: 'Arterial Blood Gas (ABG) Analyzer',
@@ -30,7 +29,7 @@ export const abgAnalyzer = {
                 id: 'abg-ph',
                 label: 'pH',
                 type: 'number',
-                step: '0.01',
+                step: 0.01,
                 placeholder: 'e.g., 7.40'
             })}
                     ${uiBuilder.createInput({
@@ -38,14 +37,14 @@ export const abgAnalyzer = {
                 label: 'PaCO₂',
                 type: 'number',
                 placeholder: 'e.g., 40',
-                unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], defaultUnit: 'mmHg' }
+                unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' }
             })}
                     ${uiBuilder.createInput({
                 id: 'abg-hco3',
                 label: 'HCO₃⁻',
                 type: 'number',
                 placeholder: 'e.g., 24',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                 `
         })}
@@ -59,22 +58,22 @@ export const abgAnalyzer = {
                 label: 'Sodium (Na⁺)',
                 type: 'number',
                 placeholder: 'e.g., 140',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'abg-chloride',
                 label: 'Chloride (Cl⁻)',
                 type: 'number',
                 placeholder: 'e.g., 100',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'abg-albumin',
                 label: 'Albumin',
                 type: 'number',
-                step: '0.1',
+                step: 0.1,
                 placeholder: 'e.g., 4.0',
-                unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], defaultUnit: 'g/dL' }
+                unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' }
             })}
                 `
         })}
@@ -109,10 +108,8 @@ export const abgAnalyzer = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const fields = {
             ph: container.querySelector('#abg-ph'),
             pco2: container.querySelector('#abg-pco2'),
@@ -122,13 +119,12 @@ export const abgAnalyzer = {
             albumin: container.querySelector('#abg-albumin')
         };
         const resultBox = container.querySelector('#abg-result');
-        const resultContent = resultBox.querySelector('.ui-result-content');
-
+        const resultContent = resultBox ? resultBox.querySelector('.ui-result-content') : null;
         const interpret = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#abg-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const vals = {
                 ph: parseFloat(fields.ph.value),
                 pco2: UnitConverter.getStandardValue(fields.pco2, 'mmHg'),
@@ -137,7 +133,6 @@ export const abgAnalyzer = {
                 chloride: UnitConverter.getStandardValue(fields.chloride, 'mEq/L'),
                 albumin: UnitConverter.getStandardValue(fields.albumin, 'g/dL')
             };
-
             try {
                 // Validation inputs
                 const inputs = {
@@ -145,103 +140,122 @@ export const abgAnalyzer = {
                     paCO2: vals.pco2,
                     bicarbonate: vals.hco3
                 };
-
                 // Add optional fields to inputs if present to validate them too
-                if (!isNaN(vals.sodium)) inputs.sodium = vals.sodium;
-                if (!isNaN(vals.chloride)) inputs.chloride = vals.chloride;
-                if (!isNaN(vals.albumin)) inputs.albumin = vals.albumin;
-
+                if (vals.sodium !== null && !isNaN(vals.sodium))
+                    inputs.sodium = vals.sodium;
+                if (vals.chloride !== null && !isNaN(vals.chloride))
+                    inputs.chloride = vals.chloride;
+                if (vals.albumin !== null && !isNaN(vals.albumin))
+                    inputs.albumin = vals.albumin;
                 const schema = {
                     ph: ValidationRules.pH,
                     paCO2: ValidationRules.arterialGas.paCO2,
                     bicarbonate: ValidationRules.bicarbonate
                 };
-
-                if (inputs.sodium !== undefined) schema.sodium = ValidationRules.sodium;
-                if (inputs.chloride !== undefined) schema.chloride = ValidationRules.chloride;
-                if (inputs.albumin !== undefined) schema.albumin = ValidationRules.albumin;
-
+                if (inputs.sodium !== undefined)
+                    schema.sodium = ValidationRules.sodium;
+                if (inputs.chloride !== undefined)
+                    schema.chloride = ValidationRules.chloride;
+                if (inputs.albumin !== undefined)
+                    schema.albumin = ValidationRules.albumin;
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     // Check if at least one field has input to avoid error on empty load
                     const hasInput = Object.values(fields).some(f => f.value !== '');
-
                     if (hasInput) {
-                        const corePresent = !isNaN(vals.ph) && !isNaN(vals.pco2) && !isNaN(vals.hco3);
-                        if (corePresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const corePresent = !isNaN(vals.ph) && vals.pco2 !== null && !isNaN(vals.pco2) && vals.hco3 !== null && !isNaN(vals.hco3);
+                        // Validation errors are strings
+                        if (corePresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-
-                    resultBox.classList.remove('show');
+                    if (resultBox)
+                        resultBox.classList.remove('show');
                     return;
                 }
-
+                // Ensure required values are present
+                if (vals.pco2 === null || vals.hco3 === null) {
+                    if (resultBox)
+                        resultBox.classList.remove('show');
+                    return;
+                }
                 let primaryDisorder = '';
                 let anionGapInfo = '';
-                let alertType = 'info';
                 let alertClass = 'ui-alert-info';
-
                 // Primary Disorder Logic
                 if (vals.ph < 7.35) {
-                    alertType = 'danger';
                     alertClass = 'ui-alert-danger';
-                    if (vals.pco2 > 45) primaryDisorder = 'Respiratory Acidosis';
-                    else if (vals.hco3 < 22) primaryDisorder = 'Metabolic Acidosis';
-                    else primaryDisorder = 'Mixed Acidosis';
-                } else if (vals.ph > 7.45) {
-                    alertType = 'danger';
-                    alertClass = 'ui-alert-danger';
-                    if (vals.pco2 < 35) primaryDisorder = 'Respiratory Alkalosis';
-                    else if (vals.hco3 > 26) primaryDisorder = 'Metabolic Alkalosis';
-                    else primaryDisorder = 'Mixed Alkalosis';
-                } else {
-                    alertType = 'success';
-                    alertClass = 'ui-alert-success';
-                    if (vals.pco2 > 45 && vals.hco3 > 26) primaryDisorder = 'Compensated Respiratory Acidosis/Metabolic Alkalosis';
-                    else if (vals.pco2 < 35 && vals.hco3 < 22) primaryDisorder = 'Compensated Metabolic Acidosis/Respiratory Alkalosis';
-                    else primaryDisorder = 'Normal Acid-Base Status';
+                    if (vals.pco2 > 45)
+                        primaryDisorder = 'Respiratory Acidosis';
+                    else if (vals.hco3 < 22)
+                        primaryDisorder = 'Metabolic Acidosis';
+                    else
+                        primaryDisorder = 'Mixed Acidosis';
                 }
-
+                else if (vals.ph > 7.45) {
+                    alertClass = 'ui-alert-danger';
+                    if (vals.pco2 < 35)
+                        primaryDisorder = 'Respiratory Alkalosis';
+                    else if (vals.hco3 > 26)
+                        primaryDisorder = 'Metabolic Alkalosis';
+                    else
+                        primaryDisorder = 'Mixed Alkalosis';
+                }
+                else {
+                    alertClass = 'ui-alert-success';
+                    if (vals.pco2 > 45 && vals.hco3 > 26)
+                        primaryDisorder = 'Compensated Respiratory Acidosis/Metabolic Alkalosis';
+                    else if (vals.pco2 < 35 && vals.hco3 < 22)
+                        primaryDisorder = 'Compensated Metabolic Acidosis/Respiratory Alkalosis';
+                    else
+                        primaryDisorder = 'Normal Acid-Base Status';
+                }
                 // Anion Gap Logic
-                if (!isNaN(vals.sodium) && !isNaN(vals.chloride) && !isNaN(vals.hco3)) {
+                if (vals.sodium !== null && !isNaN(vals.sodium) &&
+                    vals.chloride !== null && !isNaN(vals.chloride) &&
+                    vals.hco3 !== null && !isNaN(vals.hco3)) {
                     const anionGap = vals.sodium - (vals.chloride + vals.hco3);
                     let correctedAG = anionGap;
-
-                    if (!isNaN(vals.albumin)) {
+                    if (vals.albumin !== null && !isNaN(vals.albumin)) {
                         correctedAG = anionGap + 2.5 * (4.0 - vals.albumin);
                     }
-
                     if (correctedAG > 12) {
                         anionGapInfo = `High Anion Gap (${correctedAG.toFixed(1)})`;
                         const deltaDelta = correctedAG - 12 + vals.hco3;
-                        if (deltaDelta > 28) anionGapInfo += ' + Metabolic Alkalosis';
-                        else if (deltaDelta < 22) anionGapInfo += ' + Non-Gap Acidosis';
-                    } else {
+                        if (deltaDelta > 28)
+                            anionGapInfo += ' + Metabolic Alkalosis';
+                        else if (deltaDelta < 22)
+                            anionGapInfo += ' + Non-Gap Acidosis';
+                    }
+                    else {
                         anionGapInfo = `Normal Anion Gap (${correctedAG.toFixed(1)})`;
                     }
                 }
-
-                resultContent.innerHTML = `
+                if (resultContent) {
+                    resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'Primary Disorder',
-                    value: primaryDisorder,
-                    alertClass: alertClass
-                })}
+                        label: 'Primary Disorder',
+                        value: primaryDisorder,
+                        alertClass: alertClass
+                    })}
                     ${anionGapInfo ? uiBuilder.createResultItem({
-                    label: 'Anion Gap Assessment',
-                    value: anionGapInfo
-                }) : ''}
+                        label: 'Anion Gap Assessment',
+                        value: anionGapInfo
+                    }) : ''}
                 `;
-                resultBox.classList.add('show');
-            } catch (error) {
+                }
+                if (resultBox)
+                    resultBox.classList.add('show');
+            }
+            catch (error) {
                 logError(error, { calculator: 'abg-analyzer', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', interpret);
             input.addEventListener('change', interpret); // Important for unit toggles
@@ -249,7 +263,6 @@ export const abgAnalyzer = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', interpret);
         });
-
         // Helper
         const setInputValue = (field, val) => {
             if (field) {
@@ -257,7 +270,6 @@ export const abgAnalyzer = {
                 field.dispatchEvent(new Event('input'));
             }
         };
-
         // FHIR Auto-populate
         if (client) {
             const mapping = {
@@ -268,22 +280,21 @@ export const abgAnalyzer = {
                 '2075-0': { field: fields.chloride, unit: 'mEq/L', type: 'electrolyte', label: 'Chloride' },
                 [LOINC_CODES.ALBUMIN]: { field: fields.albumin, unit: 'g/dL', type: 'albumin', label: 'Albumin' }
             };
-
             Object.entries(mapping).forEach(([code, config]) => {
                 getMostRecentObservation(client, code).then(obs => {
-                    if (obs && obs.valueQuantity) {
+                    if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                         let val = obs.valueQuantity.value;
                         let unit = obs.valueQuantity.unit || config.unit; // Fallback to expected default
-
                         if (config.type) {
                             const converted = UnitConverter.convert(val, unit, config.unit, config.type);
-                            if (converted !== null) val = converted;
+                            if (converted !== null)
+                                val = converted;
                         }
-
                         // Formatting
-                        if (config.field === fields.ph) setInputValue(config.field, val.toFixed(2));
-                        else setInputValue(config.field, val.toFixed(1));
-
+                        if (config.field === fields.ph)
+                            setInputValue(config.field, val.toFixed(2));
+                        else
+                            setInputValue(config.field, val.toFixed(1));
                         // Track staleness
                         if (config.field && config.field.id) {
                             stalenessTracker.trackObservation('#' + config.field.id, obs, code, config.label || 'Value');

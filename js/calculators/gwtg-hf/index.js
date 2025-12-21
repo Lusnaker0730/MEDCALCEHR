@@ -2,62 +2,94 @@ import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-
+import { ValidationRules, validateCalculatorInput } from '../../validator.js';
+import { ValidationError, displayError, logError } from '../../errorHandler.js';
 const getPoints = {
-    sbp: v => {
-        if (v < 90) return 28;
-        if (v < 100) return 23;
-        if (v < 110) return 18;
-        if (v < 120) return 14;
-        if (v < 130) return 9;
-        if (v < 140) return 5;
+    sbp: (v) => {
+        if (v < 90)
+            return 28;
+        if (v < 100)
+            return 23;
+        if (v < 110)
+            return 18;
+        if (v < 120)
+            return 14;
+        if (v < 130)
+            return 9;
+        if (v < 140)
+            return 5;
         return 0;
     },
-    bun: v => {
-        if (v < 20) return 0;
-        if (v < 30) return 4;
-        if (v < 40) return 9;
-        if (v < 50) return 13;
-        if (v < 60) return 18;
-        if (v < 70) return 22;
+    bun: (v) => {
+        if (v < 20)
+            return 0;
+        if (v < 30)
+            return 4;
+        if (v < 40)
+            return 9;
+        if (v < 50)
+            return 13;
+        if (v < 60)
+            return 18;
+        if (v < 70)
+            return 22;
         return 28;
     },
-    sodium: v => {
-        if (v > 140) return 4;
-        if (v > 135) return 2;
+    sodium: (v) => {
+        if (v > 140)
+            return 4;
+        if (v > 135)
+            return 2;
         return 0;
     },
-    age: v => {
-        if (v < 40) return 0;
-        if (v < 50) return 7;
-        if (v < 60) return 14;
-        if (v < 70) return 21;
-        if (v < 80) return 28;
+    age: (v) => {
+        if (v < 40)
+            return 0;
+        if (v < 50)
+            return 7;
+        if (v < 60)
+            return 14;
+        if (v < 70)
+            return 21;
+        if (v < 80)
+            return 28;
         return 28;
     },
-    hr: v => {
-        if (v < 70) return 0;
-        if (v < 80) return 1;
-        if (v < 90) return 3;
-        if (v < 100) return 5;
-        if (v < 110) return 6;
+    hr: (v) => {
+        if (v < 70)
+            return 0;
+        if (v < 80)
+            return 1;
+        if (v < 90)
+            return 3;
+        if (v < 100)
+            return 5;
+        if (v < 110)
+            return 6;
         return 8;
     }
 };
-
-const getMortality = score => {
-    if (score <= 32) return '<1%';
-    if (score <= 41) return '1-2%';
-    if (score <= 50) return '2-5%';
-    if (score <= 56) return '5-10%';
-    if (score <= 61) return '10-15%';
-    if (score <= 65) return '15-20%';
-    if (score <= 72) return '20-30%';
-    if (score <= 74) return '30-40%';
-    if (score <= 79) return '40-50%';
+const getMortality = (score) => {
+    if (score <= 32)
+        return '<1%';
+    if (score <= 41)
+        return '1-2%';
+    if (score <= 50)
+        return '2-5%';
+    if (score <= 56)
+        return '5-10%';
+    if (score <= 61)
+        return '10-15%';
+    if (score <= 65)
+        return '15-20%';
+    if (score <= 72)
+        return '20-30%';
+    if (score <= 74)
+        return '30-40%';
+    if (score <= 79)
+        return '40-50%';
     return '>50%';
 };
-
 export const gwtgHf = {
     id: 'gwtg-hf',
     title: 'GWTG-Heart Failure Risk Score',
@@ -107,16 +139,15 @@ export const gwtgHf = {
             })}
                 `
         })}
-
+        
+            <div id="gwtg-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'gwtg-hf-result', title: 'GWTG-HF Score Result' })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const fields = {
             sbp: container.querySelector('#gwtg-sbp'),
             bun: container.querySelector('#gwtg-bun'),
@@ -124,99 +155,131 @@ export const gwtgHf = {
             age: container.querySelector('#gwtg-age'),
             hr: container.querySelector('#gwtg-hr')
         };
-
         const calculate = () => {
+            const errorContainer = container.querySelector('#gwtg-error-container');
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const copd = container.querySelector('input[name="copd"]:checked');
             const race = container.querySelector('input[name="race"]:checked');
-
             const allFilled = Object.values(fields).every(el => el && el.value !== '') && copd;
-
             if (!allFilled) {
-                container.querySelector('#gwtg-hf-result').classList.remove('show');
+                const resultBox = container.querySelector('#gwtg-hf-result');
+                if (resultBox)
+                    resultBox.classList.remove('show');
                 return;
             }
-
-            let score = 0;
-            score += getPoints.sbp(parseFloat(fields.sbp.value));
-            score += getPoints.bun(parseFloat(fields.bun.value));
-            score += getPoints.sodium(parseFloat(fields.sodium.value));
-            score += getPoints.age(parseFloat(fields.age.value));
-            score += getPoints.hr(parseFloat(fields.hr.value));
-            score += parseInt(copd.value);
-            if (race) {
-                score += parseInt(race.value);
+            try {
+                // Validation
+                const inputs = {
+                    sbp: parseFloat(fields.sbp.value),
+                    bun: parseFloat(fields.bun.value),
+                    sodium: parseFloat(fields.sodium.value),
+                    age: parseFloat(fields.age.value),
+                    hr: parseFloat(fields.hr.value)
+                };
+                const schema = {
+                    sbp: ValidationRules.systolicBp,
+                    bun: { min: 0, max: 200 }, // Basic reasonable range
+                    sodium: ValidationRules.sodium,
+                    age: ValidationRules.age,
+                    hr: ValidationRules.heartRate
+                };
+                // @ts-ignore
+                const validation = validateCalculatorInput(inputs, schema);
+                if (!validation.isValid) {
+                    if (errorContainer)
+                        displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                    const resultBox = container.querySelector('#gwtg-hf-result');
+                    if (resultBox)
+                        resultBox.classList.remove('show');
+                    return;
+                }
+                let score = 0;
+                score += getPoints.sbp(inputs.sbp);
+                score += getPoints.bun(inputs.bun);
+                score += getPoints.sodium(inputs.sodium);
+                score += getPoints.age(inputs.age);
+                score += getPoints.hr(inputs.hr);
+                score += parseInt(copd.value);
+                if (race) {
+                    score += parseInt(race.value);
+                }
+                const mortality = getMortality(score);
+                let riskLevel = 'Low Risk';
+                let alertType = 'success';
+                if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
+                    riskLevel = 'High Risk';
+                    alertType = 'danger';
+                }
+                else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
+                    riskLevel = 'Moderate Risk';
+                    alertType = 'warning';
+                }
+                const resultBox = container.querySelector('#gwtg-hf-result');
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'GWTG-HF Score',
+                            value: score.toString(),
+                            unit: 'points',
+                            interpretation: riskLevel,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
+                            ${uiBuilder.createResultItem({
+                            label: 'In-hospital Mortality',
+                            value: mortality,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
             }
-
-            const mortality = getMortality(score);
-
-            let riskLevel = 'Low Risk';
-            let alertType = 'success';
-
-            if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
-                riskLevel = 'High Risk';
-                alertType = 'danger';
-            } else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
-                riskLevel = 'Moderate Risk';
-                alertType = 'warning';
+            catch (error) {
+                logError(error, { calculator: 'gwtg-hf', action: 'calculate' });
+                if (errorContainer)
+                    displayError(errorContainer, error);
             }
-
-            const resultBox = container.querySelector('#gwtg-hf-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                label: 'GWTG-HF Score',
-                value: score,
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
-                ${uiBuilder.createResultItem({
-                label: 'In-hospital Mortality',
-                value: mortality,
-                alertClass: `ui-alert-${alertType}`
-            })}
-            `;
-            resultBox.classList.add('show');
         };
-
         if (patient && patient.birthDate) {
-            fields.age.value = calculateAge(patient.birthDate);
+            fields.age.value = calculateAge(patient.birthDate).toString();
         }
-        getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-            if (obs && obs.valueQuantity) {
-                fields.sbp.value = obs.valueQuantity.value.toFixed(0);
-                calculate();
-                stalenessTracker.trackObservation('#gwtg-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-            }
-        });
-        getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-            if (obs && obs.valueQuantity) {
-                fields.bun.value = obs.valueQuantity.value.toFixed(0);
-                calculate();
-                stalenessTracker.trackObservation('#gwtg-bun', obs, LOINC_CODES.BUN, 'BUN');
-            }
-        });
-        getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-            if (obs && obs.valueQuantity) {
-                fields.sodium.value = obs.valueQuantity.value.toFixed(0);
-                calculate();
-                stalenessTracker.trackObservation('#gwtg-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
-            }
-        });
-        getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-            if (obs && obs.valueQuantity) {
-                fields.hr.value = obs.valueQuantity.value.toFixed(0);
-                calculate();
-                stalenessTracker.trackObservation('#gwtg-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
-            }
-        });
-
+        if (client) {
+            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.sbp.value = obs.valueQuantity.value.toFixed(0);
+                    calculate();
+                    stalenessTracker.trackObservation('#gwtg-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                }
+            }).catch(e => console.warn(e));
+            getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.bun.value = obs.valueQuantity.value.toFixed(0);
+                    calculate();
+                    stalenessTracker.trackObservation('#gwtg-bun', obs, LOINC_CODES.BUN, 'BUN');
+                }
+            }).catch(e => console.warn(e));
+            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.sodium.value = obs.valueQuantity.value.toFixed(0);
+                    calculate();
+                    stalenessTracker.trackObservation('#gwtg-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
+                }
+            }).catch(e => console.warn(e));
+            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    fields.hr.value = obs.valueQuantity.value.toFixed(0);
+                    calculate();
+                    stalenessTracker.trackObservation('#gwtg-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                }
+            }).catch(e => console.warn(e));
+        }
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

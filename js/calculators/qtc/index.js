@@ -4,7 +4,6 @@ import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const qtc = {
     id: 'qtc',
     title: 'Corrected QT Interval (QTc)',
@@ -29,7 +28,6 @@ export const qtc = {
                 })
             ].join('')
         });
-
         const formulaSection = uiBuilder.createSection({
             title: 'Correction Formula',
             content: uiBuilder.createRadioGroup({
@@ -42,7 +40,6 @@ export const qtc = {
                 ]
             })
         });
-
         const formulaRefSection = uiBuilder.createFormulaSection({
             items: [
                 { label: 'Bazett', formula: 'QTc = QT / √RR' },
@@ -52,7 +49,6 @@ export const qtc = {
                 { label: 'Note', formula: 'RR = 60 / Heart Rate (in seconds)' }
             ]
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -83,57 +79,49 @@ export const qtc = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const resultBox = container.querySelector('#qtc-result');
-        const resultContent = resultBox.querySelector('.ui-result-content');
-
+        const resultContent = resultBox?.querySelector('.ui-result-content');
         const calculate = () => {
             try {
                 // Clear previous errors
                 const errorContainer = container.querySelector('#qtc-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 const qtInput = container.querySelector('#qtc-qt');
                 const hrInput = container.querySelector('#qtc-hr');
+                if (!qtInput || !hrInput)
+                    return;
                 const qt = parseFloat(qtInput.value);
                 const hr = parseFloat(hrInput.value);
                 const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked');
                 const formula = formulaRadio ? formulaRadio.value : 'bazett';
-
                 // Validate inputs
                 const inputs = { qtInterval: qt, heartRate: hr };
                 const schema = {
                     qtInterval: ValidationRules.qtInterval,
                     heartRate: ValidationRules.heartRate
                 };
-
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (qtInput.value || hrInput.value);
-
                     if (hasInput && errorContainer) {
                         const valuesPresent = !isNaN(qt) && !isNaN(hr);
                         // Only show specific validation errors if values are present but invalid,
                         // or if required fields are missing but user started typing (simplistic check)
-                        // Better: just if invalid, show first error.
                         if (validation.errors.some(e => !e.includes('required'))) {
                             displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-
-                    resultBox.classList.remove('show');
+                    if (resultBox)
+                        resultBox.classList.remove('show');
                     return;
                 }
-
                 const rr = 60 / hr;
-                let qtcValue;
-                let formulaName;
-
+                let qtcValue = 0;
+                let formulaName = '';
                 switch (formula) {
                     case 'bazett':
                         qtcValue = qt / Math.sqrt(rr);
@@ -152,35 +140,35 @@ export const qtc = {
                         formulaName = 'Framingham';
                         break;
                 }
-
-                if (!isFinite(qtcValue) || isNaN(qtcValue)) throw new Error("Calculation resulted in invalid value");
-
+                if (!isFinite(qtcValue) || isNaN(qtcValue))
+                    throw new Error("Calculation resulted in invalid value");
                 // Determine risk level
                 let alertClass = 'ui-alert-success';
                 let riskText = 'Normal';
                 let interpretation = 'Normal: Men <450ms, Women <460ms';
-
                 if (qtcValue > 500) {
                     alertClass = 'ui-alert-danger';
                     riskText = 'Prolonged';
                     interpretation = 'QTc >500ms significantly increases risk of Torsades de Pointes and sudden cardiac death.';
-                } else if (qtcValue > 460) {
+                }
+                else if (qtcValue > 460) {
                     alertClass = 'ui-alert-warning';
                     riskText = 'Borderline';
                     interpretation = 'Borderline prolonged QTc.';
                 }
-
                 // Update title dynamically
-                resultBox.querySelector('.ui-result-header').textContent = `QTc Results (${formulaName})`;
-
-                resultContent.innerHTML = `
+                const resultHeader = resultBox?.querySelector('.ui-result-header');
+                if (resultHeader)
+                    resultHeader.textContent = `QTc Results (${formulaName})`;
+                if (resultContent) {
+                    resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'Corrected QT Interval',
-                    value: qtcValue.toFixed(0),
-                    unit: 'ms',
-                    interpretation: riskText,
-                    alertClass: alertClass
-                })}
+                        label: 'Corrected QT Interval',
+                        value: qtcValue.toFixed(0),
+                        unit: 'ms',
+                        interpretation: riskText,
+                        alertClass: alertClass
+                    })}
                     
                     <div class="ui-alert ${alertClass} mt-10">
                         <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
@@ -189,39 +177,42 @@ export const qtc = {
                         </div>
                     </div>
                 `;
-                resultBox.classList.add('show');
-            } catch (error) {
+                    resultBox?.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#qtc-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'qtc', action: 'calculate' });
-                resultBox.classList.remove('show');
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         // Auto-populate heart rate from FHIR
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    container.querySelector('#qtc-hr').value = obs.valueQuantity.value.toFixed(0);
-                    // Explicitly trigger calculation if QT is already there or just to refresh state
-                    // Explicitly trigger calculation if QT is already there or just to refresh state
-                    // But we might not want to show errors immediately if QT is empty.
-                    // Just set value.
-                    stalenessTracker.trackObservation('#qtc-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                    const hrInput = container.querySelector('#qtc-hr');
+                    if (hrInput) {
+                        hrInput.value = obs.valueQuantity.value.toFixed(0);
+                        // Explicitly trigger calculation if QT is already there or just to refresh state
+                        // But we might not want to show errors immediately if QT is empty.
+                        // Just set value.
+                        stalenessTracker.trackObservation('#qtc-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                    }
                 }
             }).catch(e => console.warn(e));
         }
-
         // Add event listeners
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
         });
-
         // Initial calculation
         calculate();
     }

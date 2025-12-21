@@ -1,18 +1,14 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
+import { getMostRecentObservation, } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const serumOsmolality = {
     id: 'serum-osmolality',
     title: 'Serum Osmolality/Osmolarity',
-    description:
-        'Calculates expected serum osmolarity, for comparison to measured osmolality to detect unmeasured compounds in the serum.',
+    description: 'Calculates expected serum osmolarity, for comparison to measured osmolality to detect unmeasured compounds in the serum.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -29,7 +25,7 @@ export const serumOsmolality = {
                 label: 'Sodium (Na)',
                 type: 'number',
                 placeholder: 'e.g., 140',
-                unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'osmo-glucose',
@@ -39,7 +35,7 @@ export const serumOsmolality = {
                 unitToggle: {
                     type: 'glucose',
                     units: ['mg/dL', 'mmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -50,7 +46,7 @@ export const serumOsmolality = {
                 unitToggle: {
                     type: 'bun',
                     units: ['mg/dL', 'mmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -89,28 +85,23 @@ export const serumOsmolality = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker for this calculator
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const naInput = container.querySelector('#osmo-na');
         const glucoseInput = container.querySelector('#osmo-glucose');
         const bunInput = container.querySelector('#osmo-bun');
         const ethanolInput = container.querySelector('#osmo-ethanol');
         const resultBox = container.querySelector('#osmolality-result');
-        const resultContent = resultBox.querySelector('.ui-result-content');
-
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#osmolality-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const na = UnitConverter.getStandardValue(naInput, 'mEq/L');
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
             const bunMgDl = UnitConverter.getStandardValue(bunInput, 'mg/dL');
             const ethanol = parseFloat(ethanolInput.value) || 0;
-
             try {
                 // Validation inputs
                 const inputs = {
@@ -125,99 +116,100 @@ export const serumOsmolality = {
                     bun: ValidationRules.bun,
                     ethanol: ValidationRules.ethanol
                 };
-
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (naInput.value || glucoseInput.value || bunInput.value || ethanolInput.value);
-
-                    if (hasInput) {
-                        const requiredPresent = !isNaN(na) && !isNaN(glucoseMgDl) && !isNaN(bunMgDl);
-                        if (requiredPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                    if (hasInput && resultBox) {
+                        const valuesPresent = na !== null && glucoseMgDl !== null && bunMgDl !== null && !isNaN(na) && !isNaN(glucoseMgDl) && !isNaN(bunMgDl);
+                        if (valuesPresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
+                        resultBox.classList.remove('show');
                     }
-
-                    resultBox.classList.remove('show');
                     return;
                 }
-
-                const calculatedOsmolality = 2 * na + glucoseMgDl / 18 + bunMgDl / 2.8 + ethanol / 4.6;
-
-                if (!isFinite(calculatedOsmolality) || isNaN(calculatedOsmolality)) throw new Error("Calculation Error");
-
-                // Determine interpretation
-                let interpretation = '';
-                let alertClass = 'ui-alert-success';
-                let alertType = 'success';
-                let alertMsg = 'Within normal range.';
-
-                if (calculatedOsmolality < 275) {
-                    interpretation = 'Low Osmolality';
-                    alertClass = 'ui-alert-info';
-                    alertType = 'info';
-                    alertMsg = 'Below normal range (275-295 mOsm/kg).';
-                } else if (calculatedOsmolality > 295) {
-                    interpretation = 'High Osmolality';
-                    alertClass = 'ui-alert-warning';
-                    alertType = 'warning';
-                    alertMsg = 'Above normal range (275-295 mOsm/kg).';
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    const calculatedOsmolality = 2 * na + glucoseMgDl / 18 + bunMgDl / 2.8 + ethanol / 4.6;
+                    if (!isFinite(calculatedOsmolality) || isNaN(calculatedOsmolality))
+                        throw new Error("Calculation Error");
+                    // Determine interpretation
+                    let interpretation = '';
+                    let alertClass = 'ui-alert-success';
+                    let alertType = 'success';
+                    let alertMsg = 'Within normal range.';
+                    if (calculatedOsmolality < 275) {
+                        interpretation = 'Low Osmolality';
+                        alertClass = 'ui-alert-info';
+                        alertType = 'info';
+                        alertMsg = 'Below normal range (275-295 mOsm/kg).';
+                    }
+                    else if (calculatedOsmolality > 295) {
+                        interpretation = 'High Osmolality';
+                        alertClass = 'ui-alert-warning';
+                        alertType = 'warning';
+                        alertMsg = 'Above normal range (275-295 mOsm/kg).';
+                    }
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Calculated Osmolality',
+                            value: calculatedOsmolality.toFixed(1),
+                            unit: 'mOsm/kg',
+                            interpretation: interpretation,
+                            alertClass: alertClass
+                        })}
+                        ${uiBuilder.createAlert({
+                            type: alertType,
+                            message: alertMsg
+                        })}
+                        ${uiBuilder.createSection({
+                            title: 'Calculation Breakdown',
+                            content: `
+                                <div style="font-size: 0.9em; color: #555;">
+                                    <div>2 × Na: ${(2 * na).toFixed(1)}</div>
+                                    <div>Glucose / 18: ${(glucoseMgDl / 18).toFixed(1)}</div>
+                                    <div>BUN / 2.8: ${(bunMgDl / 2.8).toFixed(1)}</div>
+                                    ${ethanol > 0 ? `<div>Ethanol / 4.6: ${(ethanol / 4.6).toFixed(1)}</div>` : ''}
+                                </div>
+                            `
+                        })}
+                    `;
+                    }
+                    resultBox.classList.add('show');
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Calculated Osmolality',
-                    value: calculatedOsmolality.toFixed(1),
-                    unit: 'mOsm/kg',
-                    interpretation: interpretation,
-                    alertClass: alertClass
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
-                    ${uiBuilder.createSection({
-                    title: 'Calculation Breakdown',
-                    content: `
-                            <div style="font-size: 0.9em; color: #555;">
-                                <div>2 × Na: ${(2 * na).toFixed(1)}</div>
-                                <div>Glucose / 18: ${(glucoseMgDl / 18).toFixed(1)}</div>
-                                <div>BUN / 2.8: ${(bunMgDl / 2.8).toFixed(1)}</div>
-                                ${ethanol > 0 ? `<div>Ethanol / 4.6: ${(ethanol / 4.6).toFixed(1)}</div>` : ''}
-                            </div>
-                        `
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'serum-osmolality', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
             input.addEventListener('change', calculateAndUpdate);
         });
-
         // Auto-populate
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs && obs.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
                     stalenessTracker.trackObservation('#osmo-na', obs, LOINC_CODES.SODIUM, 'Sodium');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
-                if (obs && obs.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
                     if (converted !== null) {
                         glucoseInput.value = converted.toFixed(0);
-                    } else {
+                    }
+                    else {
                         glucoseInput.value = val.toFixed(0);
                     }
                     glucoseInput.dispatchEvent(new Event('input'));
@@ -225,13 +217,14 @@ export const serumOsmolality = {
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-                if (obs && obs.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'bun');
                     if (converted !== null) {
                         bunInput.value = converted.toFixed(0);
-                    } else {
+                    }
+                    else {
                         bunInput.value = val.toFixed(0);
                     }
                     bunInput.dispatchEvent(new Event('input'));
@@ -239,7 +232,6 @@ export const serumOsmolality = {
                 }
             }).catch(e => console.warn(e));
         }
-
         calculateAndUpdate();
     }
 };

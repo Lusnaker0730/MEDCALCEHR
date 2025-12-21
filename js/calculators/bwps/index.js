@@ -1,9 +1,9 @@
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js'; // Imported UnitConverter
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { UnitConverter } from '../../unit-converter.js';
+import { displayError, logError } from '../../errorHandler.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 export const bwps = {
     id: 'bwps',
     title: 'Burch-Wartofsky Point Scale (BWPS) for Thyrotoxicosis',
@@ -116,120 +116,126 @@ export const bwps = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
+        // Initialize staleness tracker
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
         const fields = ['temp', 'cns', 'gi', 'hr', 'chf', 'afib', 'precip'];
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#bwps-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             try {
                 let score = 0;
-                let allAnswered = true;
-
                 fields.forEach(id => {
                     const el = container.querySelector(`#bwps-${id}`);
-                    if (!el.value) {
-                        // Allow partial calc, treat as 0 or wait?
-                        // Standard behavior for Selects is usually they have a default if generated specific way, 
-                        // but here they have "Select..." usually?
-                        // The options above have '0' as first option, which means 'Absent' or <Value. 
-                        // uiBuilder createSelect does not automatically add a blank option unless specified.
-                        // So default is likely the first option (0) if not changed.
-                        // If value is empty string, we skip.
-                    } else {
+                    if (el && el.value !== '') {
                         score += parseInt(el.value);
                     }
                 });
-
-                if (isNaN(score)) throw new Error("Calculation Error");
-
+                if (isNaN(score))
+                    throw new Error("Calculation Error");
                 const resultBox = container.querySelector('#bwps-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                let interpretation = '';
-                let alertType = 'info';
-
-                if (score >= 45) {
-                    interpretation = 'Highly suggestive of thyroid storm';
-                    alertType = 'danger';
-                } else if (score >= 25) {
-                    interpretation = 'Suggests impending storm';
-                    alertType = 'warning';
-                } else {
-                    interpretation = 'Unlikely to represent thyroid storm';
-                    alertType = 'success';
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        let interpretation = '';
+                        let alertType = 'info';
+                        if (score >= 45) {
+                            interpretation = 'Highly suggestive of thyroid storm';
+                            alertType = 'danger';
+                        }
+                        else if (score >= 25) {
+                            interpretation = 'Suggests impending storm';
+                            alertType = 'warning';
+                        }
+                        else {
+                            interpretation = 'Unlikely to represent thyroid storm';
+                            alertType = 'success';
+                        }
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Total Score',
+                            value: score.toString(),
+                            unit: 'points',
+                            interpretation: interpretation,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: interpretation,
-                    alertClass: `ui-alert-${alertType}`
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'bwps', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
+                if (errorContainer)
+                    displayError(errorContainer, error);
             }
         };
-
         // Auto-populate data
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
                 if (obs && obs.valueQuantity) {
-                    let tempVal = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'degF'; // Default to F if missing? Or assume C?
-
+                    const tempVal = obs.valueQuantity.value;
+                    const unit = obs.valueQuantity.unit || 'degF';
                     // Convert to F for logic
-                    // Use UnitConverter for robustness
                     const converted = UnitConverter.convert(tempVal, unit, 'degF', 'temperature');
                     let tempF = converted !== null ? converted : tempVal;
-
-                    // If unit was unknown and conversion failed, we might be using raw value which could be C
-                    // Simple heuristic fallback if no unit matching: if < 50, assume derived C (unlikely to be F for living human)
+                    // Simple heuristic fallback if no unit matching: if < 50, assume derived C
                     if (converted === null && tempVal < 50) {
                         tempF = (tempVal * 9 / 5) + 32;
                     }
-
                     const tempSelect = container.querySelector('#bwps-temp');
-                    if (tempF < 99) tempSelect.value = '0';
-                    else if (tempF < 100) tempSelect.value = '5';
-                    else if (tempF < 101) tempSelect.value = '10';
-                    else if (tempF < 102) tempSelect.value = '15';
-                    else if (tempF < 103) tempSelect.value = '20';
-                    else if (tempF < 104) tempSelect.value = '25';
-                    else tempSelect.value = '30';
-
-                    tempSelect.dispatchEvent(new Event('change'));
+                    if (tempSelect) {
+                        if (tempF < 99)
+                            tempSelect.value = '0';
+                        else if (tempF < 100)
+                            tempSelect.value = '5';
+                        else if (tempF < 101)
+                            tempSelect.value = '10';
+                        else if (tempF < 102)
+                            tempSelect.value = '15';
+                        else if (tempF < 103)
+                            tempSelect.value = '20';
+                        else if (tempF < 104)
+                            tempSelect.value = '25';
+                        else
+                            tempSelect.value = '30';
+                        tempSelect.dispatchEvent(new Event('change'));
+                        // Track staleness
+                        stalenessTracker.trackObservation('#bwps-temp', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
+                    }
                 }
-            }).catch(e => console.warn(e)); // Catch FHIR errors
-
+            }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const hr = obs.valueQuantity.value;
                     const hrSelect = container.querySelector('#bwps-hr');
-                    if (hr < 90) hrSelect.value = '0';
-                    else if (hr < 110) hrSelect.value = '5';
-                    else if (hr < 120) hrSelect.value = '10';
-                    else if (hr < 130) hrSelect.value = '15';
-                    else if (hr < 140) hrSelect.value = '20';
-                    else hrSelect.value = '25';
-
-                    hrSelect.dispatchEvent(new Event('change'));
+                    if (hrSelect) {
+                        if (hr < 90)
+                            hrSelect.value = '0';
+                        else if (hr < 110)
+                            hrSelect.value = '5';
+                        else if (hr < 120)
+                            hrSelect.value = '10';
+                        else if (hr < 130)
+                            hrSelect.value = '15';
+                        else if (hr < 140)
+                            hrSelect.value = '20';
+                        else
+                            hrSelect.value = '25';
+                        hrSelect.dispatchEvent(new Event('change'));
+                        // Track staleness
+                        stalenessTracker.trackObservation('#bwps-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                    }
                 }
             }).catch(e => console.warn(e));
         }
-
         fields.forEach(id => {
             const el = container.querySelector(`#bwps-${id}`);
-            if (el) el.addEventListener('change', calculate);
+            if (el)
+                el.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

@@ -1,12 +1,10 @@
-import { getPatient, getPatientConditions, getObservation, calculateAge } from '../../utils.js';
+import { getPatientConditions, getObservation, calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const timiNstemi = {
     id: 'timi-nstemi',
     title: 'TIMI Risk Score for UA/NSTEMI',
     description: 'Estimates mortality for patients with unstable angina and non-ST elevation MI.',
-
     generateHTML: () => {
         const criteria = [
             { id: 'timi-age', label: 'Age ≥ 65', icon: '👴', help: 'Patient is 65 years or older' },
@@ -17,26 +15,22 @@ export const timiNstemi = {
             { id: 'timi-ekg', label: 'EKG ST Changes ≥ 0.5mm', icon: '📈', help: 'ST segment deviation of 0.5mm or more' },
             { id: 'timi-marker', label: 'Positive Cardiac Marker', icon: '🧪', help: 'Elevated Troponin or CK-MB' }
         ];
-
-        const sections = criteria.map(item =>
-            uiBuilder.createSection({
-                title: item.label,
-                icon: item.icon,
-                content: uiBuilder.createRadioGroup({
-                    name: item.id,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes (+1)' }
-                    ],
-                    helpText: item.help
-                })
+        const sections = criteria.map(item => uiBuilder.createSection({
+            title: item.label,
+            icon: item.icon,
+            content: uiBuilder.createRadioGroup({
+                name: item.id,
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ],
+                helpText: item.help
             })
-        ).join('');
-
+        })).join('');
         return `
             <div class="calculator-header">
-                <h3>${timiNstemi.title}</h3>
-                <p class="description">${timiNstemi.description}</p>
+                <h3>TIMI Risk Score for UA/NSTEMI</h3>
+                <p class="description">Estimates mortality for patients with unstable angina and non-ST elevation MI.</p>
             </div>
             
             ${sections}
@@ -62,87 +56,86 @@ export const timiNstemi = {
         })}
         `;
     },
-
     initialize: (client, patient, container) => {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#timi-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let score = 0;
                 const radios = container.querySelectorAll('input[type="radio"]:checked');
                 radios.forEach(radio => {
-                    score += parseInt(radio.value);
+                    score += parseInt(radio.value, 10);
                 });
-
                 let risk = '';
                 let eventRate = '';
                 let alertClass = '';
                 let recommendation = '';
-
                 if (score <= 2) {
                     risk = 'Low Risk';
                     eventRate = '5-8%';
                     alertClass = 'ui-alert-success';
                     recommendation = 'Conservative management; medical therapy optimization; outpatient follow-up; consider stress testing.';
-                } else if (score <= 4) {
+                }
+                else if (score <= 4) {
                     risk = 'Intermediate Risk';
                     eventRate = '13-20%';
                     alertClass = 'ui-alert-warning';
                     recommendation = 'Intensive medical therapy; consider early invasive strategy; dual antiplatelet therapy; close monitoring.';
-                } else {
+                }
+                else {
                     risk = 'High Risk';
                     eventRate = '26-41%';
                     alertClass = 'ui-alert-danger';
                     recommendation = 'Early invasive strategy; urgent cardiology consultation; aggressive antiplatelet therapy; consider GP IIb/IIIa inhibitors.';
                 }
-
                 const resultBox = container.querySelector('#timi-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: '/ 7 points',
-                    interpretation: risk,
-                    alertClass: alertClass
-                })}
-                    ${uiBuilder.createResultItem({
-                    label: '14-Day Event Rate',
-                    value: eventRate,
-                    unit: '',
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="ui-alert ${alertClass} mt-10">
-                        <span class="ui-alert-icon">💡</span>
-                        <div class="ui-alert-content">
-                            <strong>Recommendation:</strong> ${recommendation}
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Total Score',
+                            value: score.toString(),
+                            unit: '/ 7 points',
+                            interpretation: risk,
+                            alertClass: alertClass
+                        })}
+                        ${uiBuilder.createResultItem({
+                            label: '14-Day Event Rate',
+                            value: eventRate,
+                            unit: '',
+                            alertClass: alertClass
+                        })}
+                        
+                        <div class="ui-alert ${alertClass} mt-10">
+                            <span class="ui-alert-icon">💡</span>
+                            <div class="ui-alert-content">
+                                <strong>Recommendation:</strong> ${recommendation}
+                            </div>
                         </div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                    `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#timi-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'timi-nstemi', action: 'calculate' });
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // Helper to set radio value
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -151,9 +144,7 @@ export const timiNstemi = {
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
         // FHIR Integration
-        // Wrapped in try/catch or promise validation implicitly handled by utils/getPatient
         if (client) {
             // Age
             if (patient && patient.birthDate) {
@@ -162,26 +153,24 @@ export const timiNstemi = {
                     setRadioValue('timi-age', '1');
                 }
             }
-
             // Known CAD (simplified check)
-            getPatientConditions(client, ['53741008']).then(conditions => {
+            getPatientConditions(client, ['53741008']).then((conditions) => {
                 if (conditions && conditions.length > 0) {
                     setRadioValue('timi-known-cad', '1');
                 }
             }).catch(e => console.warn(e));
-
             // Smoking (simplified check for CAD risk factors)
-            // In a real app, we would need robust checking for all 5 risk factors.
-            // For now, we just do a basic check if we can find smoking.
-            getObservation(client, '72166-2').then(obs => {
-                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding.some(c =>
-                    ['449868002', '428041000124106'].includes(c.code))) {
-                    // If smoker, we might increment a counter, but we can't fully determine ">=3 risk factors" easily without checking everything.
-                    // Leaving this as a placeholder for future expansion.
+            // 72166-2 is "Tobacco smoking status"
+            // 449868002: Smoker on current inventory
+            // 428041000124106: Current occasional tobacco smoker
+            getObservation(client, '72166-2').then((obs) => {
+                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
+                    if (obs.valueCodeableConcept.coding.some((c) => ['449868002', '428041000124106'].includes(c.code))) {
+                        // Logic place holder
+                    }
                 }
-            }).catch(e => console.warn(e));
+            }).catch((e) => console.warn(e));
         }
-
         calculate();
     }
 };

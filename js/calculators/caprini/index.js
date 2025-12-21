@@ -1,7 +1,6 @@
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const caprini = {
     id: 'caprini',
     title: 'Caprini Score for Venous Thromboembolism (2005)',
@@ -40,9 +39,7 @@ export const caprini = {
                 { id: 'caprini-spinal-cord-injury', label: 'Acute spinal cord injury (<1 month)' }
             ]
         };
-
         let sections = [];
-
         // Create Age Section manually to make it a single choice radio group
         const ageOptions = [
             { value: '0', label: 'Age < 41', checked: true },
@@ -50,7 +47,6 @@ export const caprini = {
             { value: '2', label: 'Age 61-74 (+2)' },
             { value: '3', label: 'Age ≥ 75 (+3)' }
         ];
-
         sections.push(uiBuilder.createSection({
             title: 'Age',
             content: uiBuilder.createRadioGroup({
@@ -58,30 +54,24 @@ export const caprini = {
                 options: ageOptions
             })
         }));
-
         for (const [points, factors] of Object.entries(riskFactors)) {
             // Skip age items as we handled them separately
             const filteredFactors = factors.filter(f => !f.id.includes('age'));
-
             if (filteredFactors.length > 0) {
-                const sectionContent = filteredFactors.map(factor =>
-                    uiBuilder.createRadioGroup({
-                        name: factor.id,
-                        label: factor.label,
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: String(points.split(' ')[0]), label: `Yes (+${points.split(' ')[0]})` }
-                        ]
-                    })
-                ).join('');
-
+                const sectionContent = filteredFactors.map(factor => uiBuilder.createRadioGroup({
+                    name: factor.id,
+                    label: factor.label,
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: String(points.split(' ')[0]), label: `Yes (+${points.split(' ')[0]})` }
+                    ]
+                })).join('');
                 sections.push(uiBuilder.createSection({
                     title: `${points} Risk Factors`,
                     content: sectionContent
                 }));
             }
         }
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -96,7 +86,6 @@ export const caprini = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -104,48 +93,45 @@ export const caprini = {
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#caprini-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             try {
                 let score = 0;
-
                 // Sum all checked radio buttons
                 const radios = container.querySelectorAll('input[type="radio"]:checked');
                 radios.forEach(radio => {
                     score += parseInt(radio.value);
                 });
-
-                if (isNaN(score)) throw new Error("Calculation Error");
-
+                if (isNaN(score))
+                    throw new Error("Calculation Error");
                 let riskCategory = '';
                 let recommendation = '';
                 let alertClass = '';
-
                 if (score === 0) {
                     riskCategory = 'Lowest Risk';
                     recommendation = 'Early ambulation.';
                     alertClass = 'ui-alert-success';
-                } else if (score >= 1 && score <= 2) {
+                }
+                else if (score >= 1 && score <= 2) {
                     riskCategory = 'Low Risk';
                     recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
                     alertClass = 'ui-alert-info';
-                } else if (score >= 3 && score <= 4) {
+                }
+                else if (score >= 3 && score <= 4) {
                     riskCategory = 'Moderate Risk';
                     recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
                     alertClass = 'ui-alert-warning';
-                } else {
+                }
+                else {
                     riskCategory = 'High Risk';
                     recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
                     alertClass = 'ui-alert-danger';
                 }
-
                 const resultBox = container.querySelector('#caprini-result');
                 const resultContent = resultBox.querySelector('.ui-result-content');
-
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
                     label: 'Total Score',
@@ -162,33 +148,34 @@ export const caprini = {
                         </div>
                     </div>
                 `;
-
                 resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'caprini', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
+                if (errorContainer)
+                    displayError(errorContainer, error);
             }
         };
-
         // Pre-fill based on patient data
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             if (age >= 75) {
                 setRadioValue('caprini-age', '3');
-            } else if (age >= 61) {
+            }
+            else if (age >= 61) {
                 setRadioValue('caprini-age', '2');
-            } else if (age >= 41) {
+            }
+            else if (age >= 41) {
                 setRadioValue('caprini-age', '1');
-            } else {
+            }
+            else {
                 setRadioValue('caprini-age', '0');
             }
         }
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

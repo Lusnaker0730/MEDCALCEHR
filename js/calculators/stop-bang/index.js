@@ -2,8 +2,7 @@ import { getPatient, getPatientConditions, getMostRecentObservation } from '../.
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const stopBang = {
     id: 'stop-bang',
     title: 'STOP-BANG Score for Obstructive Sleep Apnea',
@@ -80,65 +79,67 @@ export const stopBang = {
         })}
         `;
     },
-    initialize: function (client, patient, container) {
+    initialize: function (client, _patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const checkboxes = container.querySelectorAll('input[type="checkbox"]');
         const resultBox = container.querySelector('#stop-bang-result');
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#stop-bang-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             try {
                 let score = 0;
                 checkboxes.forEach(box => {
-                    if (box.checked) score++;
+                    if (box.checked)
+                        score++;
                 });
-
                 let riskLevel = '';
                 let riskDescription = '';
                 let alertType = 'info';
-
                 if (score <= 2) {
                     riskLevel = 'Low Risk';
                     riskDescription = 'Low probability of moderate to severe OSA';
                     alertType = 'success';
-                } else if (score <= 4) {
+                }
+                else if (score <= 4) {
                     riskLevel = 'Intermediate Risk';
                     riskDescription = 'Intermediate probability of moderate to severe OSA';
                     alertType = 'warning';
-                } else {
+                }
+                else {
                     riskLevel = 'High Risk';
                     riskDescription = 'High probability of moderate to severe OSA';
                     alertType = 'danger';
                 }
-
-                resultBox.querySelector('.ui-result-content').innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'STOP-BANG Score',
-                    value: score,
-                    unit: '/ 8'
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: `<strong>${riskLevel}</strong>: ${riskDescription}`
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'STOP-BANG Score',
+                            value: score,
+                            unit: '/ 8'
+                        })}
+                        ${uiBuilder.createAlert({
+                            type: alertType,
+                            message: `<strong>${riskLevel}</strong>: ${riskDescription}`
+                        })}
+                    `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 logError(error, { calculator: 'stop-bang', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
+                if (errorContainer)
+                    displayError(errorContainer, error);
             }
         };
-
         checkboxes.forEach(box => box.addEventListener('change', calculate));
-
         // Auto-populate patient data
         if (client) {
             getPatient(client).then(pt => {
@@ -158,7 +159,6 @@ export const stopBang = {
                             ageCheckbox.dispatchEvent(new Event('change'));
                         }
                     }
-
                     if (pt.gender && pt.gender.toLowerCase() === 'male') {
                         const genderCheckbox = container.querySelector('#sb-gender');
                         if (genderCheckbox && !genderCheckbox.checked) {
@@ -168,7 +168,6 @@ export const stopBang = {
                     }
                 }
             }).catch(e => console.warn(e));
-
             getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
                 if (obs && obs.valueQuantity && obs.valueQuantity.value > 35) {
                     const bmiCheckbox = container.querySelector('#sb-bmi');
@@ -179,7 +178,6 @@ export const stopBang = {
                     }
                 }
             }).catch(e => console.warn(e));
-
             // Check for hypertension
             getPatientConditions(client, ['38341003']).then(conditions => {
                 if (conditions.length > 0) {
@@ -191,7 +189,6 @@ export const stopBang = {
                 }
             }).catch(e => console.warn(e));
         }
-
         calculate();
     }
 };

@@ -1,13 +1,10 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
+import { getMostRecentObservation, } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const serumAnionGap = {
     id: 'serum-anion-gap',
     title: 'Serum Anion Gap',
@@ -28,21 +25,21 @@ export const serumAnionGap = {
                 label: 'Sodium (Na⁺)',
                 type: 'number',
                 placeholder: 'e.g., 140',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'sag-cl',
                 label: 'Chloride (Cl⁻)',
                 type: 'number',
                 placeholder: 'e.g., 100',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                     ${uiBuilder.createInput({
                 id: 'sag-hco3',
                 label: 'Bicarbonate (HCO₃⁻)',
                 type: 'number',
                 placeholder: 'e.g., 24',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], defaultUnit: 'mEq/L' }
+                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
             })}
                 `
         })}
@@ -75,26 +72,21 @@ export const serumAnionGap = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const naInput = container.querySelector('#sag-na');
         const clInput = container.querySelector('#sag-cl');
         const hco3Input = container.querySelector('#sag-hco3');
         const resultBox = container.querySelector('#sag-result');
-        const resultContent = resultBox.querySelector('.ui-result-content');
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#sag-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const na = UnitConverter.getStandardValue(naInput, 'mEq/L');
             const cl = UnitConverter.getStandardValue(clInput, 'mEq/L');
             const hco3 = UnitConverter.getStandardValue(hco3Input, 'mEq/L');
-
             try {
                 // Validation inputs
                 const inputs = {
@@ -107,99 +99,99 @@ export const serumAnionGap = {
                     chloride: ValidationRules.chloride,
                     bicarbonate: ValidationRules.bicarbonate
                 };
-
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (naInput.value || clInput.value || hco3Input.value);
-
-                    if (hasInput) {
-                        const requiredPresent = !isNaN(na) && !isNaN(cl) && !isNaN(hco3);
-                        if (requiredPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                    if (hasInput && resultBox) {
+                        const valuesPresent = na !== null && cl !== null && hco3 !== null && !isNaN(na) && !isNaN(cl) && !isNaN(hco3);
+                        if (valuesPresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
+                        resultBox.classList.remove('show');
                     }
-
-                    resultBox.classList.remove('show');
                     return;
                 }
-
-                const anionGap = na - (cl + hco3);
-
-                if (!isFinite(anionGap) || isNaN(anionGap)) throw new Error("Calculation Error");
-
-                let interpretation = '';
-                let alertClass = 'ui-alert-success';
-                let alertType = 'success';
-                let alertMsg = '';
-
-                if (anionGap > 12) {
-                    interpretation = 'High Anion Gap';
-                    alertClass = 'ui-alert-danger';
-                    alertType = 'danger';
-                    alertMsg = 'Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions - MUDPILES).';
-                } else if (anionGap < 6) {
-                    interpretation = 'Low Anion Gap';
-                    alertClass = 'ui-alert-warning';
-                    alertType = 'warning';
-                    alertMsg = 'Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
-                } else {
-                    interpretation = 'Normal Anion Gap';
-                    alertClass = 'ui-alert-success';
-                    alertType = 'success';
-                    alertMsg = 'Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    const anionGap = na - (cl + hco3);
+                    if (!isFinite(anionGap) || isNaN(anionGap))
+                        throw new Error("Calculation Error");
+                    let interpretation = '';
+                    let alertClass = 'ui-alert-success';
+                    let alertType = 'success';
+                    let alertMsg = '';
+                    if (anionGap > 12) {
+                        interpretation = 'High Anion Gap';
+                        alertClass = 'ui-alert-danger';
+                        alertType = 'danger';
+                        alertMsg = 'Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions - MUDPILES).';
+                    }
+                    else if (anionGap < 6) {
+                        interpretation = 'Low Anion Gap';
+                        alertClass = 'ui-alert-warning';
+                        alertType = 'warning';
+                        alertMsg = 'Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+                    }
+                    else {
+                        interpretation = 'Normal Anion Gap';
+                        alertClass = 'ui-alert-success';
+                        alertType = 'success';
+                        alertMsg = 'Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                    }
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Serum Anion Gap',
+                            value: anionGap.toFixed(1),
+                            unit: 'mEq/L',
+                            interpretation: interpretation,
+                            alertClass: alertClass
+                        })}
+                        ${uiBuilder.createAlert({
+                            type: alertType,
+                            message: alertMsg
+                        })}
+                    `;
+                    }
+                    resultBox.classList.add('show');
                 }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Serum Anion Gap',
-                    value: anionGap.toFixed(1),
-                    unit: 'mEq/L',
-                    interpretation: interpretation,
-                    alertClass: alertClass
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'serum-anion-gap', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
         });
-
         // Auto-populate from FHIR
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs && obs.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     naInput.value = obs.valueQuantity.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
                     stalenessTracker.trackObservation('#sag-na', obs, LOINC_CODES.SODIUM, 'Sodium');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.CHLORIDE).then(obs => {
-                if (obs && obs.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     clInput.value = obs.valueQuantity.value.toFixed(0);
                     clInput.dispatchEvent(new Event('input'));
                     stalenessTracker.trackObservation('#sag-cl', obs, LOINC_CODES.CHLORIDE, 'Chloride');
                 }
             }).catch(e => console.warn(e));
             getMostRecentObservation(client, LOINC_CODES.BICARBONATE).then(obs => {
-                if (obs && obs.valueQuantity) {
+                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
                     hco3Input.value = obs.valueQuantity.value.toFixed(0);
                     hco3Input.dispatchEvent(new Event('input'));
                     stalenessTracker.trackObservation('#sag-hco3', obs, LOINC_CODES.BICARBONATE, 'Bicarbonate');
                 }
             }).catch(e => console.warn(e));
         }
-
     }
 };

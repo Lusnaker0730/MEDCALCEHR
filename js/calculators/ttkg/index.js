@@ -5,7 +5,6 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const ttkg = {
     id: 'ttkg',
     title: 'Transtubular Potassium Gradient (TTKG)',
@@ -26,7 +25,7 @@ export const ttkg = {
                 unitToggle: {
                     type: 'electrolyte',
                     units: ['mEq/L', 'mmol/L'],
-                    defaultUnit: 'mEq/L'
+                    default: 'mEq/L'
                 }
             })}
                     ${uiBuilder.createInput({
@@ -36,7 +35,7 @@ export const ttkg = {
                 unitToggle: {
                     type: 'electrolyte',
                     units: ['mEq/L', 'mmol/L'],
-                    defaultUnit: 'mEq/L'
+                    default: 'mEq/L'
                 },
                 placeholder: 'Norm: 3.5 - 5.2'
             })}
@@ -67,10 +66,10 @@ export const ttkg = {
             items: [
                 {
                     label: 'TTKG Formula',
-                    formula: 'TTKG = (Urine K × Serum Osmolality) / (Serum K × Urine Osmolality)'
+                    formula: 'TTKG = (Urine K × Serum Osmolality) / (Serum K × Urine Osmolality)',
+                    notes: 'Valid only when Urine Osmolality > Serum Osmolality.'
                 }
-            ],
-            notes: 'Valid only when Urine Osmolality > Serum Osmolality.'
+            ]
         })}
             ${uiBuilder.createAlert({
             type: 'info',
@@ -96,28 +95,24 @@ export const ttkg = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const urineKEl = container.querySelector('#ttkg-urine-k');
         const serumKEl = container.querySelector('#ttkg-serum-k');
         const urineOsmoEl = container.querySelector('#ttkg-urine-osmo');
         const serumOsmoEl = container.querySelector('#ttkg-serum-osmo');
         const resultBox = container.querySelector('#ttkg-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#ttkg-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const urineK = UnitConverter.getStandardValue(urineKEl, 'mEq/L');
             const serumK = UnitConverter.getStandardValue(serumKEl, 'mEq/L');
             const urineOsmo = parseFloat(urineOsmoEl.value);
             const serumOsmo = parseFloat(serumOsmoEl.value);
-
             try {
                 // Validation inputs
                 const inputs = {
@@ -126,72 +121,73 @@ export const ttkg = {
                     urineOsmolality: urineOsmo,
                     serumOsmolality: serumOsmo
                 };
-
                 // Re-use rules, mapping osmolality broadly if separate types not defined
+                // @ts-ignore
                 const schema = {
+                    // @ts-ignore
                     urinePotassium: { ...ValidationRules.potassium, message: 'Urine K must be valid' },
+                    // @ts-ignore
                     potassium: ValidationRules.potassium,
+                    // @ts-ignore
                     urineOsmolality: ValidationRules.osmolality,
+                    // @ts-ignore
                     serumOsmolality: ValidationRules.osmolality
                 };
-
+                // @ts-ignore
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (urineKEl.value || serumKEl.value || urineOsmoEl.value || serumOsmoEl.value);
-
                     if (hasInput) {
-                        const valuesPresent = !isNaN(urineK) && !isNaN(serumK) && !isNaN(urineOsmo) && !isNaN(serumOsmo);
+                        const valuesPresent = (urineK !== null && !isNaN(urineK)) && (serumK !== null && !isNaN(serumK)) && !isNaN(urineOsmo) && !isNaN(serumOsmo);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-
                     resultBox.classList.remove('show');
                     return;
                 }
-
                 if (serumK === 0 || urineOsmo === 0) {
                     throw new ValidationError('Serum potassium and Urine osmolality cannot be zero.', 'CALCULATION_ERROR');
                 }
-
+                // @ts-ignore - TS might worry about nulls here even though validation passed
                 const ttkgValue = (urineK * serumOsmo) / (serumK * urineOsmo);
-
                 // Additional logical check: Urine Osmo > Serum Osmo
                 if (urineOsmo <= serumOsmo) {
                     // This is technically a required condition for validity, maybe throw error or warning
                     // The old code just showed a warning in interpretation. I'll stick to warning in interpretation unless it's critical.
                     // But it's invalid physiology for TTKG application usually.
                 }
-
                 let interpretation = '';
                 let alertType = 'info';
-
-                if (serumK < 3.5) {
+                // @ts-ignore
+                if (serumK !== null && serumK < 3.5) {
                     // Hypokalemia
                     if (ttkgValue < 3) {
                         interpretation = 'Suggests non-renal potassium loss (e.g., GI loss, transcellular shift).';
-                    } else {
+                    }
+                    else {
                         interpretation = 'Suggests renal potassium wasting.';
                         alertType = 'warning';
                     }
-                } else if (serumK > 5.2) {
+                }
+                else if (serumK !== null && serumK > 5.2) {
                     // Hyperkalemia
                     if (ttkgValue > 10) {
                         interpretation = 'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
-                    } else if (ttkgValue < 7) {
+                    }
+                    else if (ttkgValue < 7) {
                         interpretation = 'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
                         alertType = 'warning';
                     }
-                } else {
+                }
+                else {
                     interpretation = 'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
                 }
-
                 if (urineOsmo <= serumOsmo) {
                     interpretation = `<strong>Warning:</strong> TTKG is not valid when Urine Osmolality (${urineOsmo}) ≤ Serum Osmolality (${serumOsmo}).`;
                     alertType = 'warning';
                 }
-
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
                     label: 'TTKG',
@@ -201,25 +197,24 @@ export const ttkg = {
                 })}
                 `;
                 resultBox.classList.add('show');
-            } catch (error) {
+            }
+            catch (error) {
                 logError(error, { calculator: 'ttkg', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
+                if (errorContainer)
+                    displayError(errorContainer, error);
                 resultBox.classList.remove('show');
             }
         };
-
         [urineKEl, serumKEl, urineOsmoEl, serumOsmoEl].forEach(input => {
             input.addEventListener('input', calculate);
         });
-
         // Helper
         const setInputValue = (el, val) => {
             if (el) {
-                el.value = val;
+                el.value = val.toString();
                 el.dispatchEvent(new Event('input'));
             }
         };
-
         // FHIR auto-population
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
@@ -234,13 +229,13 @@ export const ttkg = {
                     stalenessTracker.trackObservation('#ttkg-serum-k', obs, LOINC_CODES.POTASSIUM, 'Serum K');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '2697-2').then(obs => { // Urine Osmolality
+            getMostRecentObservation(client, '2697-2').then(obs => {
                 if (obs?.valueQuantity) {
                     setInputValue(urineOsmoEl, obs.valueQuantity.value.toFixed(1));
                     stalenessTracker.trackObservation('#ttkg-urine-osmo', obs, '2697-2', 'Urine Osmolality');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '2695-6').then(obs => { // Serum Osmolality
+            getMostRecentObservation(client, '2695-6').then(obs => {
                 if (obs?.valueQuantity) {
                     setInputValue(serumOsmoEl, obs.valueQuantity.value.toFixed(1));
                     stalenessTracker.trackObservation('#ttkg-serum-osmo', obs, '2695-6', 'Serum Osmolality');

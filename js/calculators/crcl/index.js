@@ -1,14 +1,10 @@
-import {
-    getMostRecentObservation,
-    calculateAge,
-} from '../../utils.js';
+import { getMostRecentObservation, calculateAge, } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const crcl = {
     id: 'crcl',
     title: 'Creatinine Clearance (Cockcroft-Gault Equation)',
@@ -47,7 +43,7 @@ export const crcl = {
                 unitToggle: {
                     type: 'weight',
                     units: ['kg', 'lbs'],
-                    defaultUnit: 'kg'
+                    default: 'kg'
                 }
             })}
                 `
@@ -64,7 +60,7 @@ export const crcl = {
                 unitToggle: {
                     type: 'creatinine',
                     units: ['mg/dL', 'µmol/L'],
-                    defaultUnit: 'mg/dL'
+                    default: 'mg/dL'
                 }
             })
         })}
@@ -97,26 +93,22 @@ export const crcl = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         // Initialize staleness tracker
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const ageInput = container.querySelector('#crcl-age');
         const weightInput = container.querySelector('#crcl-weight');
         const scrInput = container.querySelector('#crcl-scr');
         const resultBox = container.querySelector('#crcl-result');
-
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#crcl-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const age = parseFloat(ageInput.value);
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
             const scrMgDl = UnitConverter.getStandardValue(scrInput, 'mg/dL');
             const gender = container.querySelector('input[name="crcl-gender"]:checked')?.value || 'male';
-
             try {
                 // Validation inputs
                 const inputs = { age, weight: weightKg, creatinine: scrMgDl };
@@ -125,90 +117,96 @@ export const crcl = {
                     weight: ValidationRules.weight,
                     creatinine: ValidationRules.creatinine
                 };
-
+                // @ts-ignore
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (ageInput.value || weightInput.value || scrInput.value);
-
                     if (hasInput) {
-                        const valuesPresent = !isNaN(age) && !isNaN(weightKg) && !isNaN(scrMgDl);
-                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent = !isNaN(age) && weightKg !== null && !isNaN(weightKg) && scrMgDl !== null && !isNaN(scrMgDl);
+                        if (valuesPresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-
-                    resultBox.classList.remove('show');
+                    if (resultBox)
+                        resultBox.classList.remove('show');
                     return;
                 }
-
-                let crcl = ((140 - age) * weightKg) / (72 * scrMgDl);
+                if (weightKg === null || scrMgDl === null)
+                    return;
+                let crclVal = ((140 - age) * weightKg) / (72 * scrMgDl);
                 if (gender === 'female') {
-                    crcl *= 0.85;
+                    crclVal *= 0.85;
                 }
-
-                if (!isFinite(crcl) || isNaN(crcl)) throw new Error("Calculation Error");
-
+                if (!isFinite(crclVal) || isNaN(crclVal))
+                    throw new Error("Calculation Error");
                 let category = '';
                 let severityClass = 'ui-alert-success';
                 let alertType = 'info';
                 let alertMsg = '';
-
-                if (crcl >= 90) {
+                if (crclVal >= 90) {
                     category = 'Normal kidney function';
                     severityClass = 'ui-alert-success';
                     alertMsg = 'Normal creatinine clearance.';
-                } else if (crcl >= 60) {
+                }
+                else if (crclVal >= 60) {
                     category = 'Mild reduction';
                     severityClass = 'ui-alert-success';
                     alertMsg = 'Mildly reduced creatinine clearance.';
-                } else if (crcl >= 30) {
+                }
+                else if (crclVal >= 30) {
                     category = 'Moderate reduction';
                     severityClass = 'ui-alert-warning';
                     alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
                     alertType = 'warning';
-                } else if (crcl >= 15) {
+                }
+                else if (crclVal >= 15) {
                     category = 'Severe reduction';
                     severityClass = 'ui-alert-danger';
                     alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
                     alertType = 'danger';
-                } else {
+                }
+                else {
                     category = 'Kidney failure';
                     severityClass = 'ui-alert-danger';
                     alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
                     alertType = 'danger';
                 }
-
-                const resultContent = resultBox.querySelector('.ui-result-content');
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Creatinine Clearance',
-                    value: crcl.toFixed(1),
-                    unit: 'mL/min',
-                    interpretation: category,
-                    alertClass: severityClass
-                })}
-                    ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: alertMsg
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Creatinine Clearance',
+                            value: crclVal.toFixed(1),
+                            unit: 'mL/min',
+                            interpretation: category,
+                            alertClass: severityClass
+                        })}
+                            ${uiBuilder.createAlert({
+                            type: alertType,
+                            message: alertMsg
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 logError(error, { calculator: 'crcl', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
             input.addEventListener('change', calculateAndUpdate);
         });
-
         if (patient) {
             if (patient.birthDate) {
-                ageInput.value = calculateAge(patient.birthDate);
+                ageInput.value = calculateAge(patient.birthDate).toString();
             }
             if (patient.gender) {
                 const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
@@ -219,7 +217,6 @@ export const crcl = {
                 }
             }
         }
-
         if (client) {
             getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
                 if (obs && obs.valueQuantity) {
@@ -233,13 +230,11 @@ export const crcl = {
                     }
                 }
             }).catch(e => console.warn(e));
-
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-
                     if (converted !== null) {
                         scrInput.value = converted.toFixed(2);
                         scrInput.dispatchEvent(new Event('input'));
@@ -248,7 +243,6 @@ export const crcl = {
                 }
             }).catch(e => console.warn(e));
         }
-
         // Initial calculation
         calculateAndUpdate();
     }

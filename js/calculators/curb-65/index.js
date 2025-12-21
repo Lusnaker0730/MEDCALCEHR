@@ -3,13 +3,11 @@ import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const curb65 = {
     id: 'curb-65',
     title: 'CURB-65 Score for Pneumonia Severity',
-    description:
-        'Estimates mortality of community-acquired pneumonia to help determine inpatient vs. outpatient treatment.',
+    description: 'Estimates mortality of community-acquired pneumonia to help determine inpatient vs. outpatient treatment.',
     generateHTML: function () {
         const criteria = [
             { id: 'curb-confusion', label: '<strong>C</strong>onfusion (new disorientation to person, place, or time)', points: 1 },
@@ -18,21 +16,17 @@ export const curb65 = {
             { id: 'curb-bp', label: '<strong>B</strong>lood Pressure (SBP < 90 or DBP ≤60 mmHg)', points: 1 },
             { id: 'curb-age', label: 'Age ≥<strong>65</strong> years', points: 1 }
         ];
-
         const criteriaSection = uiBuilder.createSection({
             title: 'CURB-65 Criteria',
-            content: criteria.map(item =>
-                uiBuilder.createRadioGroup({
-                    name: item.id,
-                    label: item.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes (+1)' }
-                    ]
-                })
-            ).join('')
+            content: criteria.map(item => uiBuilder.createRadioGroup({
+                name: item.id,
+                label: item.label,
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: '1', label: 'Yes (+1)' }
+                ]
+            })).join('')
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -69,10 +63,8 @@ export const curb65 = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -80,23 +72,20 @@ export const curb65 = {
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#curb65-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let score = 0;
                 container.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
                     score += parseInt(radio.value);
                 });
-
                 let mortality = '';
                 let recommendation = '';
                 let riskLevel = '';
                 let alertClass = '';
-
                 switch (score) {
                     case 0:
                         mortality = '0.6%';
@@ -132,49 +121,50 @@ export const curb65 = {
                         alertClass = 'ui-alert-danger';
                         break;
                 }
-
                 const resultBox = container.querySelector('#curb65-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Total Score',
+                            value: score.toString(),
+                            unit: '/ 5 points',
+                            interpretation: riskLevel,
+                            alertClass: alertClass
+                        })}
+                            
+                            <div class="result-item" style="margin-top: 10px; text-align: center;">
+                                <span class="label" style="color: #666;">30-Day Mortality Risk:</span>
+                                <span class="value" style="font-weight: 600;">${mortality}</span>
+                            </div>
 
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: '/ 5 points',
-                    interpretation: riskLevel,
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="result-item" style="margin-top: 10px; text-align: center;">
-                        <span class="label" style="color: #666;">30-Day Mortality Risk:</span>
-                        <span class="value" style="font-weight: 600;">${mortality}</span>
-                    </div>
-
-                    <div class="ui-alert ${alertClass} mt-10">
-                        <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
-                        <div class="ui-alert-content">
-                            <strong>Recommendation:</strong> ${recommendation}
-                        </div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                            <div class="ui-alert ${alertClass} mt-10">
+                                <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
+                                <div class="ui-alert-content">
+                                    <strong>Recommendation:</strong> ${recommendation}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#curb65-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'curb-65', action: 'calculate' });
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         // FHIR auto-population
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
@@ -182,39 +172,37 @@ export const curb65 = {
                 setRadioValue('curb-age', '1');
             }
         }
-
         if (client) {
-            // Pre-fill vitals
-            // Using generic approach for vitals if LOINC_CODES are standard
-            // Logic for BP and RR - simplified fetch
-            // Ideally should iterate LOINC_CODES for BP Panel, but here keeps custom logic
-            // Note: This relies on manual strict FHIR calls which might fail if not standardized.
-            // But we keep existing logic structure, just wrapping in safe promises/catches implicitly.
-            client.request(`Observation?patient=${client.patient.id}&code=85353-1&_sort=-date&_count=1`)
-                .then(response => {
-                    if (response.entry && response.entry.length > 0) {
-                        const vitals = response.entry[0].resource;
-                        // Check components
-                        if (vitals.component) {
-                            const rrComp = vitals.component.find(c => c.code.coding.some(code => code.code === LOINC_CODES.RESPIRATORY_RATE));
-                            const sbpComp = vitals.component.find(c => c.code.coding.some(code => code.code === LOINC_CODES.SYSTOLIC_BP));
-                            const dbpComp = vitals.component.find(c => c.code.coding.some(code => code.code === LOINC_CODES.DIASTOLIC_BP));
-
-                            if (rrComp && rrComp.valueQuantity.value >= 30) {
-                                setRadioValue('curb-rr', '1');
-                                stalenessTracker.trackObservation('input[name="curb-rr"]', vitals, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
-                            }
-                            if (
-                                (sbpComp && sbpComp.valueQuantity.value < 90) ||
-                                (dbpComp && dbpComp.valueQuantity.value <= 60)
-                            ) {
-                                setRadioValue('curb-bp', '1');
-                                stalenessTracker.trackObservation('input[name="curb-bp"]', vitals, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure');
-                            }
-                        }
+            // Respiratory Rate
+            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
+                if (obs && obs.valueQuantity) {
+                    if (obs.valueQuantity.value >= 30) {
+                        setRadioValue('curb-rr', '1');
+                        stalenessTracker.trackObservation('input[name="curb-rr"]', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
                     }
-                }).catch(e => console.warn('Vitals fetch failed', e));
-
+                }
+            }).catch(e => console.warn(e));
+            // BP - Check SBP < 90 OR DBP <= 60
+            // We need to fetch both.
+            Promise.all([
+                getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).catch(() => null),
+                getMostRecentObservation(client, LOINC_CODES.DIASTOLIC_BP).catch(() => null)
+            ]).then(([sbpObs, dbpObs]) => {
+                let sbpLow = false;
+                let dbpLow = false;
+                if (sbpObs && sbpObs.valueQuantity && sbpObs.valueQuantity.value < 90) {
+                    sbpLow = true;
+                    stalenessTracker.trackObservation('input[name="curb-bp"]', sbpObs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                }
+                if (dbpObs && dbpObs.valueQuantity && dbpObs.valueQuantity.value <= 60) {
+                    dbpLow = true;
+                    stalenessTracker.trackObservation('input[name="curb-bp"]', dbpObs, LOINC_CODES.DIASTOLIC_BP, 'Diastolic BP');
+                }
+                if (sbpLow || dbpLow) {
+                    setRadioValue('curb-bp', '1');
+                }
+            });
+            // BUN
             getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
                 if (obs && obs.valueQuantity) {
                     const val = obs.valueQuantity.value;
@@ -227,7 +215,6 @@ export const curb65 = {
                 }
             }).catch(e => console.warn(e));
         }
-
         // Initial calculation
         calculate();
     }

@@ -6,7 +6,6 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
 export const ethanolConcentration = {
     id: 'ethanol-concentration',
     title: 'Estimated Ethanol (and Toxic Alcohol) Serum Concentration Based on Ingestion',
@@ -25,7 +24,7 @@ export const ethanolConcentration = {
                 label: 'Amount Ingested',
                 type: 'number',
                 placeholder: 'e.g., 1.5',
-                unitToggle: { type: 'volume', units: ['fl oz', 'mL'], defaultUnit: 'fl oz' }
+                unitToggle: { type: 'volume', units: ['fl oz', 'mL'], default: 'fl oz' }
             })}
                     ${uiBuilder.createInput({
                 id: 'eth-abv',
@@ -33,7 +32,7 @@ export const ethanolConcentration = {
                 type: 'number',
                 unit: '%',
                 placeholder: '40',
-                step: '1'
+                step: 1
             })}
                 `
         })}
@@ -45,7 +44,7 @@ export const ethanolConcentration = {
                 label: 'Patient Weight',
                 type: 'number',
                 placeholder: '70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'] }
+                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
             })}
                     ${uiBuilder.createRadioGroup({
                 name: 'eth-gender',
@@ -80,32 +79,30 @@ export const ethanolConcentration = {
                 { label: 'Volume (mL)', formula: 'Amount (oz) × 29.57 OR Amount (mL)' },
                 { label: 'Grams of Alcohol', formula: 'Volume (mL) × (ABV% / 100) × 0.789' },
                 { label: 'Concentration (mg/dL)', formula: '(Grams × 1000) / (Weight (kg) × Vd × 10)' }
-            ],
-            notes: 'Vd (Volume of Distribution): Male 0.68 L/kg, Female 0.55 L/kg. Ethanol density: 0.789 g/mL.'
+            ]
         })}
+            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                <strong>Notes:</strong> Vd (Volume of Distribution): Male 0.68 L/kg, Female 0.55 L/kg. Ethanol density: 0.789 g/mL.
+            </p>
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const amountEl = container.querySelector('#eth-amount');
         const abvEl = container.querySelector('#eth-abv');
         const weightEl = container.querySelector('#eth-weight');
         const resultBox = container.querySelector('#ethanol-result');
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#ethanol-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             const volumeMl = UnitConverter.getStandardValue(amountEl, 'mL');
             const abv = parseFloat(abvEl.value);
             const weightKg = UnitConverter.getStandardValue(weightEl, 'kg');
             const genderEl = container.querySelector('input[name="eth-gender"]:checked');
-
             try {
                 // Validation
                 const inputs = { volume: volumeMl, abv: abv, weight: weightKg };
@@ -114,22 +111,23 @@ export const ethanolConcentration = {
                     abv: ValidationRules.abv,
                     weight: ValidationRules.weight
                 };
+                // @ts-ignore
                 const validation = validateCalculatorInput(inputs, schema);
-
                 if (!validation.isValid) {
                     const hasInput = (amountEl.value || abvEl.value || weightEl.value);
                     if (hasInput) {
-                        const valsPresent = !isNaN(volumeMl) && !isNaN(abv) && !isNaN(weightKg);
-                        if (valsPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valsPresent = volumeMl !== null && !isNaN(volumeMl) && !isNaN(abv) && weightKg !== null && !isNaN(weightKg);
+                        if (valsPresent || validation.errors.some((e) => !e.includes('required'))) {
+                            if (errorContainer)
+                                displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
                         }
                     }
-                    resultBox.classList.remove('show');
+                    if (resultBox)
+                        resultBox.classList.remove('show');
                     return;
                 }
-
-                if (!genderEl) return;
-
+                if (volumeMl === null || weightKg === null || !genderEl)
+                    return;
                 const gender = genderEl.value;
                 const result = calculateEthanolConcentration({
                     volumeMl,
@@ -137,37 +135,45 @@ export const ethanolConcentration = {
                     weightKg,
                     gender
                 });
-
                 const { concentrationMgDl, severityText, alertClass } = result;
-
-                resultBox.querySelector('.ui-result-content').innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Estimated Concentration',
-                    value: concentrationMgDl.toFixed(0),
-                    unit: 'mg/dL',
-                    alertClass: alertClass,
-                    interpretation: severityText
-                })}
-                `;
-                resultBox.classList.add('show');
-            } catch (error) {
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                            ${uiBuilder.createResultItem({
+                            label: 'Estimated Concentration',
+                            value: concentrationMgDl.toFixed(0),
+                            unit: 'mg/dL',
+                            alertClass: alertClass,
+                            interpretation: severityText
+                        })}
+                        `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 logError(error, { calculator: 'ethanol-concentration', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
-                resultBox.classList.remove('show');
+                if (errorContainer)
+                    displayError(errorContainer, error);
+                if (resultBox)
+                    resultBox.classList.remove('show');
             }
         };
-
         [amountEl, abvEl, weightEl].forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate); // radio/checkbox/unitToggle
         });
         container.querySelectorAll('input[name="eth-gender"]').forEach(radio => radio.addEventListener('change', calculate));
-
         // Set default gender based on patient
         if (patient && patient.gender) {
-            uiBuilder.setRadioValue('eth-gender', patient.gender.toLowerCase(), container);
+            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+            const genderRadio = container.querySelector(`input[name="eth-gender"][value="${genderValue}"]`);
+            if (genderRadio) {
+                genderRadio.checked = true;
+                genderRadio.dispatchEvent(new Event('change'));
+            }
         }
-
         // FHIR auto-populate weight
         getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
             if (obs && obs.valueQuantity) {
@@ -178,7 +184,8 @@ export const ethanolConcentration = {
                     weightEl.value = converted.toFixed(1);
                     weightEl.dispatchEvent(new Event('input'));
                     stalenessTracker.trackObservation('#eth-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
-                } else {
+                }
+                else {
                     console.warn('Could not convert weight unit:', unit);
                 }
             }

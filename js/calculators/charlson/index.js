@@ -2,13 +2,23 @@ import { getMostRecentObservation, calculateAge, getPatientConditions } from '..
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const charlson = {
     id: 'charlson',
     title: 'Charlson Comorbidity Index (CCI)',
     description: 'Predicts 10-year survival in patients with multiple comorbidities.',
     generateHTML: function () {
+        const createConditionToggle = (id, title, subtitle, points) => {
+            return uiBuilder.createRadioGroup({
+                name: id,
+                label: title,
+                helpText: subtitle,
+                options: [
+                    { value: '0', label: 'No (+0)', checked: true },
+                    { value: String(points), label: `Yes (+${points})` }
+                ]
+            });
+        };
         const ageSection = uiBuilder.createSection({
             title: 'Age',
             content: uiBuilder.createRadioGroup({
@@ -22,17 +32,15 @@ export const charlson = {
                 ]
             })
         });
-
         const conditionsContent = [
-            this.createConditionToggle('mi', 'Myocardial infarction', 'History of definite or probable MI', 1),
-            this.createConditionToggle('chf', 'CHF', 'Exertional or paroxysmal nocturnal dyspnea', 1),
-            this.createConditionToggle('pvd', 'Peripheral vascular disease', 'Intermittent claudication, past bypass, gangrene, or aneurysm', 1),
-            this.createConditionToggle('cva', 'CVA or TIA', 'History of a cerebrovascular accident', 1),
-            this.createConditionToggle('dementia', 'Dementia', 'Chronic cognitive deficit', 1),
-            this.createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
-            this.createConditionToggle('ctd', 'Connective tissue disease', '', 1),
-            this.createConditionToggle('pud', 'Peptic ulcer disease', 'Any history of treatment for ulcer disease', 1),
-
+            createConditionToggle('mi', 'Myocardial infarction', 'History of definite or probable MI', 1),
+            createConditionToggle('chf', 'CHF', 'Exertional or paroxysmal nocturnal dyspnea', 1),
+            createConditionToggle('pvd', 'Peripheral vascular disease', 'Intermittent claudication, past bypass, gangrene, or aneurysm', 1),
+            createConditionToggle('cva', 'CVA or TIA', 'History of a cerebrovascular accident', 1),
+            createConditionToggle('dementia', 'Dementia', 'Chronic cognitive deficit', 1),
+            createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
+            createConditionToggle('ctd', 'Connective tissue disease', '', 1),
+            createConditionToggle('pud', 'Peptic ulcer disease', 'Any history of treatment for ulcer disease', 1),
             uiBuilder.createRadioGroup({
                 name: 'liver',
                 label: 'Liver disease',
@@ -43,7 +51,6 @@ export const charlson = {
                     { value: '3', label: 'Moderate to severe (+3)' }
                 ]
             }),
-
             uiBuilder.createRadioGroup({
                 name: 'diabetes',
                 label: 'Diabetes mellitus',
@@ -54,10 +61,8 @@ export const charlson = {
                     { value: '2', label: 'End-organ damage (+2)' }
                 ]
             }),
-
-            this.createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
-            this.createConditionToggle('ckd', 'Moderate to severe CKD', 'Severe on dialysis, uremia, or creatinine >3 mg/dL', 2),
-
+            createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
+            createConditionToggle('ckd', 'Moderate to severe CKD', 'Severe on dialysis, uremia, or creatinine >3 mg/dL', 2),
             uiBuilder.createRadioGroup({
                 name: 'tumor',
                 label: 'Solid tumor',
@@ -67,17 +72,14 @@ export const charlson = {
                     { value: '6', label: 'Metastatic (+6)' }
                 ]
             }),
-
-            this.createConditionToggle('leukemia', 'Leukemia', '', 2),
-            this.createConditionToggle('lymphoma', 'Lymphoma', '', 2),
-            this.createConditionToggle('aids', 'AIDS', 'Not just HIV positive, but "full-blown" AIDS', 6)
+            createConditionToggle('leukemia', 'Leukemia', '', 2),
+            createConditionToggle('lymphoma', 'Lymphoma', '', 2),
+            createConditionToggle('aids', 'AIDS', 'Not just HIV positive, but "full-blown" AIDS', 6)
         ].join('');
-
         const conditionsSection = uiBuilder.createSection({
             title: 'Comorbidities',
             content: conditionsContent
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
@@ -101,67 +103,56 @@ export const charlson = {
             </div>
         `;
     },
-    createConditionToggle: function (id, title, subtitle, points) {
-        return uiBuilder.createRadioGroup({
-            name: id,
-            label: title,
-            helpText: subtitle,
-            options: [
-                { value: '0', label: 'No (+0)', checked: true },
-                { value: String(points), label: `Yes (+${points})` }
-            ]
-        });
-    },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#cci-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
+            if (errorContainer)
+                errorContainer.innerHTML = '';
             try {
                 let score = 0;
                 container.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
                     score += parseInt(radio.value, 10);
                 });
-
-                if (isNaN(score)) throw new Error("Calculation Error");
-
+                if (isNaN(score))
+                    throw new Error("Calculation Error");
                 const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9)); // Adjusted formula from literature
-
                 const scoreEl = container.querySelector('#cci-score');
                 const survivalEl = container.querySelector('#cci-survival');
-
-                if (scoreEl) scoreEl.textContent = score;
-                if (survivalEl) survivalEl.textContent = `${survival.toFixed(0)}%`;
-            } catch (error) {
+                if (scoreEl)
+                    scoreEl.textContent = score.toString();
+                if (survivalEl)
+                    survivalEl.textContent = `${survival.toFixed(0)}%`;
+            }
+            catch (error) {
                 logError(error, { calculator: 'charlson', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer, error);
+                if (errorContainer)
+                    displayError(errorContainer, error);
             }
         };
-
         // Attach change listener to container for event delegation
         container.addEventListener('change', (e) => {
-            if (e.target.type === 'radio') {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'radio') {
                 calculate();
             }
         });
-
         // Auto-populate age
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             let ageValue = 0;
             if (age >= 80) {
                 ageValue = 4;
-            } else if (age >= 70) {
+            }
+            else if (age >= 70) {
                 ageValue = 3;
-            } else if (age >= 60) {
+            }
+            else if (age >= 60) {
                 ageValue = 2;
-            } else if (age >= 50) {
+            }
+            else if (age >= 50) {
                 ageValue = 1;
             }
             const ageRadio = container.querySelector(`input[name="age"][value="${ageValue}"]`);
@@ -170,7 +161,6 @@ export const charlson = {
                 ageRadio.dispatchEvent(new Event('change'));
             }
         }
-
         // Auto-populate conditions from FHIR
         if (client) {
             const conditionMap = {
@@ -187,7 +177,6 @@ export const charlson = {
                 lymphoma: { codes: ['C81', 'C82', 'C83', 'C84', 'C85'], value: 2 },
                 aids: { codes: ['B20', 'B21', 'B22', 'B24'], value: 6 }
             };
-
             for (const [key, { codes, value }] of Object.entries(conditionMap)) {
                 getPatientConditions(client, codes).then(conditions => {
                     if (conditions.length > 0) {
@@ -199,7 +188,6 @@ export const charlson = {
                     }
                 }).catch(e => console.warn(e));
             }
-
             // Special handling for multi-level conditions
             getPatientConditions(client, ['K70.3', 'K74', 'I85']).then(conditions => {
                 // Moderate/Severe Liver
@@ -209,7 +197,8 @@ export const charlson = {
                         radio.checked = true;
                         radio.dispatchEvent(new Event('change'));
                     }
-                } else {
+                }
+                else {
                     getPatientConditions(client, ['K73', 'B18']).then(conditions => {
                         // Mild Liver
                         if (conditions.length > 0) {
@@ -222,7 +211,6 @@ export const charlson = {
                     }).catch(e => console.warn(e));
                 }
             }).catch(e => console.warn(e));
-
             getPatientConditions(client, [
                 'E10.2', 'E10.3', 'E10.4', 'E10.5',
                 'E11.2', 'E11.3', 'E11.4', 'E11.5'
@@ -234,7 +222,8 @@ export const charlson = {
                         radio.checked = true;
                         radio.dispatchEvent(new Event('change'));
                     }
-                } else {
+                }
+                else {
                     getPatientConditions(client, ['E10', 'E11']).then(conditions => {
                         // Uncomplicated Diabetes
                         if (conditions.length > 0) {
@@ -247,15 +236,12 @@ export const charlson = {
                     }).catch(e => console.warn(e));
                 }
             }).catch(e => console.warn(e));
-
             getPatientConditions(client, ['C00-C75', 'C76-C80']).then(conditions => {
                 // Solid tumor
                 if (conditions.length > 0) {
                     const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
-                    const isMetastatic = conditions.some(c =>
-                        c.code.coding && c.code.coding[0] &&
-                        metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
-                    );
+                    const isMetastatic = conditions.some((c) => c.code.coding && c.code.coding[0] &&
+                        metastaticCodes.includes(c.code.coding[0].code.substring(0, 3)));
                     const value = isMetastatic ? 6 : 2;
                     const radio = container.querySelector(`input[name="tumor"][value="${value}"]`);
                     if (radio) {
@@ -264,7 +250,6 @@ export const charlson = {
                     }
                 }
             }).catch(e => console.warn(e));
-
             // Check for CKD via labs or conditions
             getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(conditions => {
                 if (conditions.length > 0) {
@@ -275,7 +260,6 @@ export const charlson = {
                     }
                 }
             }).catch(e => console.warn(e));
-
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
                 // Creatinine
                 if (obs && obs.valueQuantity && obs.valueQuantity.value > 3) {
@@ -288,7 +272,6 @@ export const charlson = {
                 }
             }).catch(e => console.warn(e));
         }
-
         // Calculate initially
         calculate();
     }

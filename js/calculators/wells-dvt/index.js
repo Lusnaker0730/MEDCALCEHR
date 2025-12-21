@@ -1,6 +1,5 @@
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-
+import { displayError, logError } from '../../errorHandler.js';
 export const wellsDVT = {
     id: 'wells-dvt',
     title: "Wells' Criteria for DVT",
@@ -18,33 +17,27 @@ export const wellsDVT = {
             { id: 'dvt-previous', label: 'Previously documented DVT', points: 1 },
             { id: 'dvt-alternative', label: 'Alternative diagnosis at least as likely as DVT', points: -2 }
         ];
-
         const inputs = uiBuilder.createSection({
             title: 'Clinical Criteria',
-            content: criteria.map(item =>
-                uiBuilder.createRadioGroup({
-                    name: item.id,
-                    label: item.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: item.points.toString(), label: `Yes (${item.points > 0 ? '+' : ''}${item.points})` }
-                    ]
-                })
-            ).join('')
+            content: criteria.map(item => uiBuilder.createRadioGroup({
+                name: item.id,
+                label: item.label,
+                options: [
+                    { value: '0', label: 'No', checked: true },
+                    { value: item.points.toString(), label: `Yes (${item.points > 0 ? '+' : ''}${item.points})` }
+                ]
+            })).join('')
         });
-
         return `
             <div class="calculator-header">
                 <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
             </div>
             
-            <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
-                <div class="alert-content">
-                    <p><strong>Instructions:</strong> Select all criteria that apply to the patient. Score ranges from -2 to +9 points.</p>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: 'info',
+            message: '<strong>Instructions:</strong> Select all criteria that apply to the patient. Score ranges from -2 to +9 points.'
+        })}
             
             ${inputs}
             
@@ -59,74 +52,74 @@ export const wellsDVT = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#wells-dvt-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
+                if (errorContainer)
+                    errorContainer.innerHTML = '';
                 let score = 0;
                 const radios = container.querySelectorAll('input[type="radio"]:checked');
                 radios.forEach(radio => {
-                    score += parseInt(radio.value);
+                    score += parseInt(radio.value, 10);
                 });
-
                 let risk = '';
                 let alertClass = '';
                 let interpretation = '';
-
                 if (score >= 3) {
                     risk = 'High Risk';
                     alertClass = 'ui-alert-danger';
                     interpretation = 'DVT is likely. Ultrasound imaging of the lower extremity is recommended. Consider anticoagulation while awaiting results if bleeding risk is low.';
-                } else if (score >= 1) {
+                }
+                else if (score >= 1) {
                     risk = 'Moderate Risk';
                     alertClass = 'ui-alert-warning';
                     interpretation = 'Moderate probability of DVT. Consider D-dimer testing and/or ultrasound imaging based on clinical judgment and D-dimer availability.';
-                } else {
+                }
+                else {
                     risk = 'Low Risk';
                     alertClass = 'ui-alert-success';
                     interpretation = 'DVT is unlikely. Consider D-dimer testing. If D-dimer is negative, DVT can be safely excluded in most cases.';
                 }
-
                 const resultBox = container.querySelector('#wells-dvt-result');
-                const resultContent = resultBox.querySelector('.ui-result-content');
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: risk,
-                    alertClass: alertClass
-                })}
-                    
-                    <div class="ui-alert ${alertClass} mt-10">
-                        <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
-                        <div class="ui-alert-content">
-                            <strong>Recommendation:</strong> ${interpretation}
+                if (resultBox) {
+                    const resultContent = resultBox.querySelector('.ui-result-content');
+                    if (resultContent) {
+                        resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Total Score',
+                            value: score.toString(),
+                            unit: 'points',
+                            interpretation: risk,
+                            alertClass: alertClass
+                        })}
+                        
+                        <div class="ui-alert ${alertClass} mt-10">
+                            <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
+                            <div class="ui-alert-content">
+                                <strong>Recommendation:</strong> ${interpretation}
+                            </div>
                         </div>
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error) {
+                    `;
+                    }
+                    resultBox.classList.add('show');
+                }
+            }
+            catch (error) {
                 const errorContainer = container.querySelector('#wells-dvt-error-container');
                 if (errorContainer) {
                     displayError(errorContainer, error);
-                } else {
+                }
+                else {
                     console.error(error);
                 }
                 logError(error, { calculator: 'wells-dvt', action: 'calculate' });
             }
         };
-
         // Add event listeners
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
         calculate();
     }
 };

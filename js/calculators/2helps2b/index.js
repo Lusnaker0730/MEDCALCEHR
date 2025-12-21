@@ -1,10 +1,8 @@
 import { uiBuilder } from '../../ui-builder.js';
-
 export const helps2bScore = {
-    id: '2helps2b', // Corrected ID to match folder/module usually
+    id: '2helps2b',
     title: '2HELPS2B Score',
-    description:
-        'Estimates seizure risk in acutely ill patients undergoing continuous EEG (cEEG), based on the 2HELPS2B score and seizure probability table.',
+    description: 'Estimates seizure risk in acutely ill patients undergoing continuous EEG (cEEG), based on the 2HELPS2B score and seizure probability table.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -13,14 +11,14 @@ export const helps2bScore = {
             </div>
             
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: '<strong>📋 EEG Risk Factors</strong><br>Select all that apply from the continuous EEG (cEEG) findings:'
-            })}
+            type: 'info',
+            message: '<strong>📋 EEG Risk Factors</strong><br>Select all that apply from the continuous EEG (cEEG) findings:'
+        })}
             
             ${uiBuilder.createSection({
-                title: 'EEG Findings',
-                icon: '🧠',
-                content: `
+            title: 'EEG Findings',
+            icon: '🧠',
+            content: `
                     ${uiBuilder.createCheckbox({ id: 'freq-gt-2hz', label: 'Frequency > 2Hz (+1)', value: '1' })}
                     ${uiBuilder.createCheckbox({ id: 'sporadic-epileptiform', label: 'Sporadic epileptiform discharges (+1)', value: '1' })}
                     ${uiBuilder.createCheckbox({ id: 'lpd-bipd-lrda', label: 'LPD / BIPD / LRDA (+1)', value: '1' })}
@@ -28,7 +26,7 @@ export const helps2bScore = {
                     ${uiBuilder.createCheckbox({ id: 'prior-seizure', label: 'Prior seizure (+1)', value: '1' })}
                     ${uiBuilder.createCheckbox({ id: 'birds', label: 'Brief ictal rhythmic discharges (BIRDs) (+2)', value: '2' })}
                 `
-            })}
+        })}
 
             ${uiBuilder.createResultBox({ id: 'helps2b-result', title: '2HELPS2B Score Results' })}
 
@@ -51,17 +49,14 @@ export const helps2bScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
         const calculate = () => {
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
             let score = 0;
-
             checkboxes.forEach(box => {
                 if (box.checked) {
                     score += parseInt(box.value);
                 }
             });
-
             // Risk mapping
             const riskData = {
                 0: { risk: '< 5%', category: 'Very Low', alertType: 'success' },
@@ -71,62 +66,60 @@ export const helps2bScore = {
                 4: { risk: '73%', category: 'High', alertType: 'danger' },
                 5: { risk: '88%', category: 'Very High', alertType: 'danger' }
             };
-
             const result = score >= 6
                 ? { risk: '> 95%', category: 'Extremely High', alertType: 'danger' }
                 : riskData[score];
-
             const resultBox = container.querySelector('#helps2b-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: result.category,
-                    alertClass: `ui-alert-${result.alertType}`
-                })}
-                ${uiBuilder.createResultItem({
-                    label: 'Risk of Seizure',
-                    value: result.risk,
-                    alertClass: `ui-alert-${result.alertType}`
-                })}
-            `;
-            resultBox.classList.add('show');
+            if (resultBox) {
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultContent) {
+                    resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                        label: 'Total Score',
+                        value: score.toString(),
+                        unit: 'points',
+                        interpretation: result.category,
+                        alertClass: `ui-alert-${result.alertType}`
+                    })}
+                    ${uiBuilder.createResultItem({
+                        label: 'Risk of Seizure',
+                        value: result.risk,
+                        alertClass: `ui-alert-${result.alertType}`
+                    })}
+                `;
+                }
+                resultBox.classList.add('show');
+            }
         };
-
         container.querySelectorAll('input[type="checkbox"]').forEach(box => {
             box.addEventListener('change', calculate);
         });
-
         // Image Modal Logic (Custom)
         const modal = container.querySelector('#image-modal');
         const imgThumb = container.querySelector('#ref-image-thumb');
         const modalImg = container.querySelector('#modal-image');
         const closeBtn = container.querySelector('.close-btn');
-
         if (imgThumb && modal && modalImg) {
             imgThumb.onclick = function () {
                 modal.style.display = 'block';
-                modalImg.src = this.src;
+                modalImg.src = imgThumb.src;
             };
         }
-
         if (closeBtn && modal) {
             closeBtn.onclick = function () {
                 modal.style.display = 'none';
             };
         }
-
         if (modal) {
-            window.onclick = function (event) {
+            // Use addEventListener instead of onclick to avoid overwriting invalid global handler
+            // But scoping it to window means it affects everything globally.
+            // A better way is to attach the click listener to the modal background itself.
+            modal.addEventListener('click', (event) => {
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
-            };
+            });
         }
-
         calculate();
     }
 };

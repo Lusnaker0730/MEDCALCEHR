@@ -103,10 +103,30 @@ export const UnitConverter = {
             'mg/dL': { 'mmol/L': 0.02586 },
             'mmol/L': { 'mg/dL': 38.67 }
         },
+        // Total Cholesterol (alias for cholesterol)
+        totalCholesterol: {
+            'mg/dL': { 'mmol/L': 0.02586 },
+            'mmol/L': { 'mg/dL': 38.67 }
+        },
+        // HDL Cholesterol
+        hdl: {
+            'mg/dL': { 'mmol/L': 0.02586 },
+            'mmol/L': { 'mg/dL': 38.67 }
+        },
+        // LDL Cholesterol
+        ldl: {
+            'mg/dL': { 'mmol/L': 0.02586 },
+            'mmol/L': { 'mg/dL': 38.67 }
+        },
         // Triglycerides
         triglycerides: {
             'mg/dL': { 'mmol/L': 0.01129 },
             'mmol/L': { 'mg/dL': 88.57 }
+        },
+        // Sodium
+        sodium: {
+            'mEq/L': { 'mmol/L': 1 },
+            'mmol/L': { 'mEq/L': 1 }
         },
         // Platelet count
         platelet: {
@@ -240,7 +260,11 @@ export const UnitConverter = {
             height: { 'cm': 1, 'in': 1, 'ft': 2, 'm': 2 },
             temperature: { 'C': 1, 'F': 1, 'K': 1 },
             cholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
+            totalCholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
+            hdl: { 'mg/dL': 0, 'mmol/L': 2 },
+            ldl: { 'mg/dL': 0, 'mmol/L': 2 },
             triglycerides: { 'mg/dL': 0, 'mmol/L': 2 },
+            sodium: { 'mEq/L': 0, 'mmol/L': 0 },
             insulin: { 'µU/mL': 1, 'pmol/L': 0, 'mU/L': 1 },
             phenytoin: { 'mcg/mL': 1, 'µmol/L': 0, 'mg/L': 1 },
             pressure: { 'mmHg': 0, 'kPa': 2, 'bar': 3, 'mm[Hg]': 0 },
@@ -408,46 +432,49 @@ style.textContent = `
 .unit-converter-wrapper {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     position: relative;
+    width: 100%;
 }
 
 .unit-toggle-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 12px 20px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.85em;
-    font-weight: 600;
+    font-size: 1.3rem !important;
+    font-weight: 700;
     transition: all 0.3s ease;
-    min-width: 50px;
+    min-width: 80px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .unit-toggle-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.5);
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 .unit-toggle-btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 6px rgba(102, 126, 234, 0.3);
 }
 
 .unit-converter-wrapper input {
     flex: 1;
-    min-width: 80px;
+    min-width: 120px;
 }
 
 @media (max-width: 768px) {
     .unit-toggle-btn {
-        padding: 4px 8px;
-        font-size: 0.75em;
-        min-width: 40px;
+        padding: 10px 16px;
+        font-size: 1.2rem !important;
+        min-width: 70px;
     }
 }
 `;

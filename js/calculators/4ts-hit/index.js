@@ -1,6 +1,6 @@
-import { getMostRecentObservation, getPatientConditions } from '../../utils.js';
+import { getMostRecentObservation } from '../../utils.js';
+import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
-
 export const hepScore = {
     id: '4ts-hit',
     title: 'HIT Expert Probability (HEP) Score for Heparin-Induced Thrombocytopenia',
@@ -12,20 +12,20 @@ export const hepScore = {
         </div>
 
         ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
-        })}
+        type: 'info',
+        message: '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
+    })}
 
         ${uiBuilder.createSection({
-            title: 'Type of HIT onset suspected',
-            content: uiBuilder.createRadioGroup({
-                name: 'hit_onset_type',
-                options: [
-                    { value: 'typical', label: 'Typical onset', checked: true },
-                    { value: 'rapid', label: 'Rapid onset (re-exposure)' }
-                ]
-            })
-        })}
+        title: 'Type of HIT onset suspected',
+        content: uiBuilder.createRadioGroup({
+            name: 'hit_onset_type',
+            options: [
+                { value: 'typical', label: 'Typical onset', checked: true },
+                { value: 'rapid', label: 'Rapid onset (re-exposure)' }
+            ]
+        })
+    })}
 
         <div id="hep-score-criteria">
             <!-- JS will populate this section based on onset type -->
@@ -45,10 +45,10 @@ export const hepScore = {
     `,
     initialize: async (client, patient, container) => {
         uiBuilder.initializeComponents(container);
-        
+        const stalenessTracker = createStalenessTracker();
+        stalenessTracker.setContainer(container);
         const criteriaContainer = container.querySelector('#hep-score-criteria');
         const onsetInputs = container.querySelectorAll('input[name="hit_onset_type"]');
-
         const criteria = {
             platelet_fall_magnitude: {
                 label: 'Magnitude of platelet count fall',
@@ -60,7 +60,7 @@ export const hepScore = {
             },
             timing_typical: {
                 label: 'Timing of platelet count fall',
-                condition: type => type === 'typical',
+                condition: (type) => type === 'typical',
                 options: [
                     { label: 'Fall begins <4 days after heparin exposure (-2)', value: '-2' },
                     { label: 'Fall begins 4 days after heparin exposure (+2)', value: '2' },
@@ -71,7 +71,7 @@ export const hepScore = {
             },
             timing_rapid: {
                 label: 'Timing of platelet count fall',
-                condition: type => type === 'rapid',
+                condition: (type) => type === 'rapid',
                 options: [
                     { label: 'Fall begins <48 hours after heparin re-exposure (-1)', value: '-1' },
                     { label: 'Fall begins ≥48 hours after heparin re-exposure (+2)', value: '2' }
@@ -86,7 +86,7 @@ export const hepScore = {
             },
             thrombosis_typical: {
                 label: 'Thrombosis',
-                condition: type => type === 'typical',
+                condition: (type) => type === 'typical',
                 options: [
                     { label: 'New VTE/ATE ≥4 days after heparin exposure (+3)', value: '3' },
                     { label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)', value: '2' },
@@ -95,7 +95,7 @@ export const hepScore = {
             },
             thrombosis_rapid: {
                 label: 'Thrombosis',
-                condition: type => type === 'rapid',
+                condition: (type) => type === 'rapid',
                 options: [
                     { label: 'New VTE/ATE after heparin exposure (+3)', value: '3' },
                     { label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)', value: '2' },
@@ -113,118 +113,122 @@ export const hepScore = {
             cardiopulmonary_bypass: { label: 'Cardiopulmonary bypass within previous 96 hours', yes: '-1', no: '0' },
             no_other_cause: { label: 'No other apparent cause', yes: '3', no: '0' }
         };
-
-        const renderCriteria = (onsetType = 'typical') => {
-            criteriaContainer.innerHTML = '';
-            Object.entries(criteria).forEach(([key, data]) => {
-                if (data.condition && !data.condition(onsetType)) {
-                    return;
-                }
-
-                let options = [];
-                if (data.options) {
-                    options = data.options;
-                } else {
-                    options = [
-                        { label: `No (${data.no})`, value: data.no, checked: true },
-                        { label: `Yes (${data.yes > 0 ? '+' : ''}${data.yes})`, value: data.yes }
-                    ];
-                }
-
-                const sectionHtml = uiBuilder.createSection({
-                    title: data.label,
-                    content: uiBuilder.createRadioGroup({
-                        name: key,
-                        options: options
-                    })
-                });
-                criteriaContainer.innerHTML += sectionHtml;
-            });
-            
-            // Re-initialize listeners for new elements
-            criteriaContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
-                radio.addEventListener('change', calculateScore);
-            });
-            
-            calculateScore();
-        };
-
         const calculateScore = () => {
             let score = 0;
-            criteriaContainer.querySelectorAll('.ui-radio-group').forEach(group => {
-                const selected = group.querySelector('input[type="radio"]:checked');
-                if (selected) {
-                    score += parseInt(selected.value);
-                }
-            });
-
+            if (criteriaContainer) {
+                criteriaContainer.querySelectorAll('.ui-radio-group').forEach(group => {
+                    const selected = group.querySelector('input[type="radio"]:checked');
+                    if (selected) {
+                        score += parseInt(selected.value);
+                    }
+                });
+            }
             let interpretation = '';
             let probability = '';
             let alertType = 'info';
-
             if (score <= -1) {
                 interpretation = 'Scores ≤ -1 suggest a lower probability of HIT.';
                 probability = 'Low';
                 alertType = 'success';
-            } else if (score >= 4) {
+            }
+            else if (score >= 4) {
                 interpretation = 'Scores ≥ 4 are >90% sensitive for HIT.';
                 probability = 'High (>90% sensitive)';
                 alertType = 'danger';
-            } else {
+            }
+            else {
                 interpretation = 'Intermediate probability of HIT.';
                 probability = 'Intermediate';
                 alertType = 'warning';
             }
-
             const resultBox = container.querySelector('#hep-score-result');
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            resultContent.innerHTML = `
-                ${uiBuilder.createResultItem({
-                    label: 'HEP Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: probability,
-                    alertClass: `ui-alert-${alertType}`
-                })}
-                ${uiBuilder.createAlert({
-                    type: alertType,
-                    message: interpretation
-                })}
-            `;
-            resultBox.classList.add('show');
+            if (resultBox) {
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultContent) {
+                    resultContent.innerHTML = `
+                    ${uiBuilder.createResultItem({
+                        label: 'HEP Score',
+                        value: score.toString(),
+                        unit: 'points',
+                        interpretation: probability,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
+                    ${uiBuilder.createAlert({
+                        type: alertType,
+                        message: interpretation
+                    })}
+                `;
+                }
+                resultBox.classList.add('show');
+            }
         };
-
+        const renderCriteria = (onsetType = 'typical') => {
+            if (criteriaContainer) {
+                criteriaContainer.innerHTML = '';
+                Object.entries(criteria).forEach(([key, data]) => {
+                    if (data.condition && !data.condition(onsetType)) {
+                        return;
+                    }
+                    let options = [];
+                    if (data.options) {
+                        options = data.options;
+                    }
+                    else if (data.yes && data.no) {
+                        options = [
+                            { label: `No (${data.no})`, value: data.no, checked: true },
+                            { label: `Yes (${parseInt(data.yes) > 0 ? '+' : ''}${data.yes})`, value: data.yes }
+                        ];
+                    }
+                    const sectionHtml = uiBuilder.createSection({
+                        title: data.label,
+                        content: uiBuilder.createRadioGroup({
+                            name: key,
+                            options: options
+                        })
+                    });
+                    criteriaContainer.innerHTML += sectionHtml;
+                });
+                // Re-initialize listeners for new elements
+                criteriaContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.addEventListener('change', calculateScore);
+                });
+                calculateScore();
+            }
+        };
         onsetInputs.forEach(radio => {
             radio.addEventListener('change', (e) => {
-                renderCriteria(e.target.value);
+                const target = e.target;
+                renderCriteria(target.value);
             });
         });
-
         // Initial render
         renderCriteria('typical');
-
         // FHIR auto-population logic
         try {
             if (client) {
-                const plateletObs = await getMostRecentObservation(client, '26515-7'); // Platelets
-                if (plateletObs && plateletObs.valueQuantity) {
-                    const nadirGroup = criteriaContainer.querySelector('input[name="nadir_platelet"]');
-                    if (nadirGroup) {
-                        const radioValue = plateletObs.valueQuantity.value < 20 ? '-2' : '2';
-                        const radioToCheck = criteriaContainer.querySelector(`input[name="nadir_platelet"][value="${radioValue}"]`);
-                        if (radioToCheck) {
-                            radioToCheck.checked = true;
-                            // Note: Might need to dispatch change event if visual feedback depends on it, but calculateScore will pick it up
+                // LOINC code for Platelets is 26515-7, commonly
+                // We shouldn't hardcode magic string if possible, use LOINC_CODES if available
+                // 26515-7 is Platelets [#/volume] in Blood
+                const plateletObs = await getMostRecentObservation(client, '26515-7');
+                if (plateletObs && plateletObs.valueQuantity && plateletObs.valueQuantity.value !== undefined) {
+                    if (criteriaContainer) {
+                        const nadirGroup = criteriaContainer.querySelector('input[name="nadir_platelet"]');
+                        if (nadirGroup) { // Check if rendered (always rendered as condition is undefined)
+                            const radioValue = plateletObs.valueQuantity.value < 20 ? '-2' : '2';
+                            const radioToCheck = criteriaContainer.querySelector(`input[name="nadir_platelet"][value="${radioValue}"]`);
+                            if (radioToCheck) {
+                                radioToCheck.checked = true;
+                                stalenessTracker.trackObservation(`input[name="nadir_platelet"][value="${radioValue}"]`, plateletObs, '26515-7', 'Platelets');
+                            }
                         }
                     }
                 }
-
-                // ... other FHIR logic as needed ...
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error auto-populating HEP score:', error);
-        } finally {
+        }
+        finally {
             calculateScore();
         }
     }
