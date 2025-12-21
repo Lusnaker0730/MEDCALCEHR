@@ -45,6 +45,8 @@ export interface YesNoCalculatorConfig {
     description: string;
     /** 問題列表 */
     questions: YesNoQuestion[];
+    /** 問題列表（替代 questions，用於不同命名風格，優先使用 questions） */
+    criteria?: YesNoQuestion[];
     /** 風險等級 */
     riskLevels: YesNoRiskLevel[];
     /** 區塊標題 */
@@ -57,6 +59,8 @@ export interface YesNoCalculatorConfig {
     references?: string[];
     /** 自定義結果渲染 */
     customResultRenderer?: (score: number) => string;
+    /** 自定義初始化函數 */
+    customInitialize?: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => void;
     /** 分數範圍說明 (例如 "-2 to +9 points") */
     scoreRange?: string;
 }
@@ -78,6 +82,9 @@ export interface CalculatorModule {
  * 創建 Yes/No 評分計算器
  */
 export function createYesNoCalculator(config: YesNoCalculatorConfig): CalculatorModule {
+    // 支援 questions 或 criteria
+    const questions = config.questions || config.criteria || [];
+
     return {
         id: config.id,
         title: config.title,
@@ -85,11 +92,12 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
 
         generateHTML(): string {
             // 生成問題的 Radio Group
-            const questionsHTML = config.questions.map(q => {
+            const questionsHTML = questions.map(q => {
                 const pointsText = q.points >= 0 ? `+${q.points}` : `${q.points}`;
                 return uiBuilder.createRadioGroup({
                     name: q.id,
                     label: q.label,
+                    helpText: q.description,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: q.points.toString(), label: `Yes (${pointsText})` }
@@ -143,7 +151,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                 let score = 0;
                 
                 // 收集所有選中的 radio 值
-                config.questions.forEach(q => {
+                questions.forEach(q => {
                     const radio = container.querySelector(
                         `input[name="${q.id}"]:checked`
                     ) as HTMLInputElement | null;
@@ -191,6 +199,11 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
             container.querySelectorAll('input[type="radio"]').forEach(radio => {
                 radio.addEventListener('change', calculate);
             });
+
+            // 自定義初始化（如 FHIR 自動填充）
+            if (config.customInitialize) {
+                config.customInitialize(client, patient, container, calculate);
+            }
 
             // 初始計算
             calculate();

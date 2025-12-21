@@ -1,139 +1,80 @@
-import { uiBuilder } from '../../ui-builder.js';
-import { displayError, logError } from '../../errorHandler.js';
-export const fourAsDelirium = {
+/**
+ * 4 A's Test (4AT) for Delirium Screening Calculator
+ *
+ * 使用 Radio Score Calculator 工廠函數遷移
+ * Diagnoses delirium in older patients.
+ */
+import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+const config = {
     id: '4as-delirium',
-    title: "4 A's Test for Delirium Screening",
-    description: 'Diagnoses delirium in older patients.',
-    generateHTML: function () {
-        const alertnessSection = uiBuilder.createSection({
+    title: "4 A's Test (4AT) for Delirium Screening",
+    description: 'Diagnoses delirium in older patients. A rapid assessment tool for detection of delirium and cognitive impairment.',
+    sections: [
+        {
+            id: 'alertness',
             title: '1. Alertness',
             subtitle: 'May ask patient to state name and address to help with rating',
-            content: uiBuilder.createRadioGroup({
-                name: 'alertness',
-                options: [
-                    { value: '0', label: 'Normal (0)', checked: true },
-                    { value: '0', label: 'Mild sleepiness for <10 seconds after waking, then normal (0)' },
-                    { value: '4', label: 'Clearly abnormal (+4)' }
-                ]
-            })
-        });
-        const amt4Section = uiBuilder.createSection({
-            title: '2. AMT 4',
+            options: [
+                { value: '0', label: 'Normal (fully alert, but not agitated, throughout assessment) (0)', checked: true },
+                { value: '0', label: 'Mild sleepiness for <10 seconds after waking, then normal (0)' },
+                { value: '4', label: 'Clearly abnormal (+4)' }
+            ]
+        },
+        {
+            id: 'amt4',
+            title: '2. AMT4 (Abbreviated Mental Test)',
             subtitle: 'Age, date of birth, place (name of the hospital or building), current year',
-            content: uiBuilder.createRadioGroup({
-                name: 'amt4',
-                options: [
-                    { value: '0', label: 'No mistakes (0)', checked: true },
-                    { value: '1', label: '1 mistake (+1)' },
-                    { value: '2', label: '≥2 mistakes or untestable (+2)' }
-                ]
-            })
-        });
-        const attentionSection = uiBuilder.createSection({
+            options: [
+                { value: '0', label: 'No mistakes (0)', checked: true },
+                { value: '1', label: '1 mistake (+1)' },
+                { value: '2', label: '≥2 mistakes or untestable (+2)' }
+            ]
+        },
+        {
+            id: 'attention',
             title: '3. Attention',
             subtitle: 'Instruct patient to list months in reverse order, starting at December',
-            content: uiBuilder.createRadioGroup({
-                name: 'attention',
-                options: [
-                    { value: '0', label: 'Lists ≥7 months correctly (0)', checked: true },
-                    { value: '1', label: 'Starts but lists <7 months, or refuses to start (+1)' },
-                    { value: '2', label: 'Untestable (cannot start because unwell, drowsy, inattentive) (+2)' }
-                ]
-            })
-        });
-        const acuteChangeSection = uiBuilder.createSection({
-            title: '4. Acute change or fluctuating course',
+            options: [
+                { value: '0', label: 'Lists ≥7 months correctly (0)', checked: true },
+                { value: '1', label: 'Starts but lists <7 months, or refuses to start (+1)' },
+                { value: '2', label: 'Untestable (cannot start because unwell, drowsy, inattentive) (+2)' }
+            ]
+        },
+        {
+            id: 'acute_change',
+            title: '4. Acute Change or Fluctuating Course',
             subtitle: 'Evidence of significant change or fluctuation in mental status within the last 2 weeks and still persisting in the last 24 hours',
-            content: uiBuilder.createRadioGroup({
-                name: 'acute_change',
-                options: [
-                    { value: '0', label: 'No (0)', checked: true },
-                    { value: '4', label: 'Yes (+4)' }
-                ]
-            })
-        });
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-            
-
-
-            ${alertnessSection}
-            ${amt4Section}
-            ${attentionSection}
-            ${acuteChangeSection}
-            
-            <div id="four-as-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'four-as-result', title: '4AT Score Result' })}
-            
-            <div class="info-section mt-20">
-                <h4>📚 Reference</h4>
-                <p>Bellelli, G., et al. (2014). Validation of the 4AT, a new instrument for rapid delirium screening: a study in 234 hospitalised older people. <em>Age and Ageing</em>, 43(4), 496–502.</p>
-            </div>
-        `;
-    },
-    initialize: (client, patient, container) => {
-        uiBuilder.initializeComponents(container);
-        const calculate = () => {
-            try {
-                // Clear validation errors
-                const errorContainer = container.querySelector('#four-as-error-container');
-                if (errorContainer)
-                    errorContainer.innerHTML = '';
-                const alertnessScore = parseInt(container.querySelector('input[name="alertness"]:checked')?.value || '0');
-                const amt4Score = parseInt(container.querySelector('input[name="amt4"]:checked')?.value || '0');
-                const attentionScore = parseInt(container.querySelector('input[name="attention"]:checked')?.value || '0');
-                const acuteChangeScore = parseInt(container.querySelector('input[name="acute_change"]:checked')?.value || '0');
-                const totalScore = alertnessScore + amt4Score + attentionScore + acuteChangeScore;
-                let interpretation = '';
-                let alertClass = '';
-                if (totalScore >= 4) {
-                    interpretation = 'Likely delirium. Formal assessment for delirium is recommended.';
-                    alertClass = 'ui-alert-danger';
-                }
-                else if (totalScore >= 1 && totalScore <= 3) {
-                    interpretation = 'Possible cognitive impairment. Further investigation is required.';
-                    alertClass = 'ui-alert-warning';
-                }
-                else {
-                    interpretation = 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.';
-                    alertClass = 'ui-alert-success';
-                }
-                const resultBox = container.querySelector('#four-as-result');
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                        ${uiBuilder.createResultItem({
-                            label: 'Total Score',
-                            value: totalScore.toString(),
-                            unit: 'points',
-                            interpretation: interpretation,
-                            alertClass: alertClass
-                        })}
-                    `;
-                    }
-                    resultBox.classList.add('show');
-                }
-            }
-            catch (error) {
-                const errorContainer = container.querySelector('#four-as-error-container');
-                if (errorContainer) {
-                    displayError(errorContainer, error);
-                }
-                else {
-                    console.error(error);
-                }
-                logError(error, { calculator: '4as-delirium', action: 'calculate' });
-            }
-        };
-        // Add event listeners for all radio buttons
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', calculate);
-        });
-        // Initial calculation
-        calculate();
-    }
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '4', label: 'Yes (+4)' }
+            ]
+        }
+    ],
+    riskLevels: [
+        {
+            minScore: 0,
+            maxScore: 0,
+            label: 'Delirium Unlikely',
+            severity: 'success',
+            description: 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.'
+        },
+        {
+            minScore: 1,
+            maxScore: 3,
+            label: 'Possible Cognitive Impairment',
+            severity: 'warning',
+            description: 'Possible cognitive impairment. Further investigation is required.'
+        },
+        {
+            minScore: 4,
+            maxScore: 12,
+            label: 'Likely Delirium',
+            severity: 'danger',
+            description: 'Likely delirium ± underlying cognitive impairment. Formal assessment for delirium is recommended.'
+        }
+    ],
+    references: [
+        'Bellelli G, et al. Validation of the 4AT, a new instrument for rapid delirium screening: a study in 234 hospitalised older people. <em>Age and Ageing</em>. 2014;43(4):496-502.'
+    ]
 };
+export const fourAsDelirium = createRadioScoreCalculator(config);

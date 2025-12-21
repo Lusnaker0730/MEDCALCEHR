@@ -50,6 +50,8 @@ export interface RadioScoreCalculatorConfig {
     references?: string[];
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
+    /** 自定義初始化函數（用於 FHIR 自動填充等） */
+    customInitialize?: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => void;
 }
 
 /** 計算器模組介面 */
@@ -185,6 +187,11 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
             container.querySelectorAll('input[type="radio"]').forEach(radio => {
                 radio.addEventListener('change', calculate);
             });
+
+            // 自定義初始化（如 FHIR 自動填充）
+            if (config.customInitialize) {
+                config.customInitialize(client, patient, container, calculate);
+            }
 
             // 初始計算
             calculate();
