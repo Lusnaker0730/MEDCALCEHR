@@ -1,18 +1,16 @@
+/**
+ * GWTG-Heart Failure Risk Score
+ * 
+ * 使用 createMixedInputCalculator 工廠函數遷移
+ */
+
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { createMixedInputCalculator, MixedInputCalculatorConfig } from '../shared/mixed-input-calculator.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
+// 分數計算函數
 const getPoints = {
     sbp: (v: number): number => {
         if (v < 90) return 28;
@@ -68,208 +66,182 @@ const getMortality = (score: number): string => {
     return '>50%';
 };
 
-export const gwtgHf: CalculatorModule = {
+const config: MixedInputCalculatorConfig = {
     id: 'gwtg-hf',
     title: 'GWTG-Heart Failure Risk Score',
     description: 'Predicts in-hospital all-cause heart failure mortality.',
-    generateHTML: function () {
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-
-            ${uiBuilder.createAlert({
-            type: 'warning',
-            message: '<strong>IMPORTANT:</strong> This calculator includes inputs based on race, which may or may not provide better estimates.'
-        })}
-
-            ${uiBuilder.createSection({
+    
+    infoAlert: '<strong>IMPORTANT:</strong> This calculator includes inputs based on race, which may or may not provide better estimates.',
+    
+    sections: [
+        {
             title: 'Clinical Parameters',
-            content: `
-                    ${uiBuilder.createInput({ id: 'gwtg-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number', placeholder: '120' })}
-                    ${uiBuilder.createInput({ id: 'gwtg-bun', label: 'BUN', unit: 'mg/dL', type: 'number', placeholder: '30' })}
-                    ${uiBuilder.createInput({ id: 'gwtg-sodium', label: 'Sodium', unit: 'mEq/L', type: 'number', placeholder: '140' })}
-                    ${uiBuilder.createInput({ id: 'gwtg-age', label: 'Age', unit: 'years', type: 'number', placeholder: '65' })}
-                    ${uiBuilder.createInput({ id: 'gwtg-hr', label: 'Heart Rate', unit: 'bpm', type: 'number', placeholder: '80' })}
-                `
-        })}
-
-            ${uiBuilder.createSection({
+            inputs: [
+                {
+                    type: 'number',
+                    id: 'gwtg-sbp',
+                    label: 'Systolic BP',
+                    unit: 'mmHg',
+                    placeholder: '120'
+                },
+                {
+                    type: 'number',
+                    id: 'gwtg-bun',
+                    label: 'BUN',
+                    unit: 'mg/dL',
+                    placeholder: '30'
+                },
+                {
+                    type: 'number',
+                    id: 'gwtg-sodium',
+                    label: 'Sodium',
+                    unit: 'mEq/L',
+                    placeholder: '140'
+                },
+                {
+                    type: 'number',
+                    id: 'gwtg-age',
+                    label: 'Age',
+                    unit: 'years',
+                    placeholder: '65'
+                },
+                {
+                    type: 'number',
+                    id: 'gwtg-hr',
+                    label: 'Heart Rate',
+                    unit: 'bpm',
+                    placeholder: '80'
+                }
+            ]
+        },
+        {
             title: 'Risk Factors',
-            content: `
-                    ${uiBuilder.createRadioGroup({
-                name: 'copd',
-                label: 'COPD History',
-                options: [
-                    { value: '0', label: 'No (0)', checked: true },
-                    { value: '2', label: 'Yes (+2)' }
-                ]
-            })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'race',
-                label: 'Black Race',
-                helpText: 'Race may/may not provide better estimates of in-hospital mortality; optional',
-                options: [
-                    { value: '0', label: 'No (0)', checked: true },
-                    { value: '-3', label: 'Yes (-3)' }
-                ]
-            })}
-                `
-        })}
+            inputs: [
+                {
+                    type: 'radio',
+                    name: 'copd',
+                    label: 'COPD History',
+                    options: [
+                        { value: '0', label: 'No (0)', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                },
+                {
+                    type: 'radio',
+                    name: 'race',
+                    label: 'Black Race',
+                    helpText: 'Race may/may not provide better estimates of in-hospital mortality; optional',
+                    options: [
+                        { value: '0', label: 'No (0)', checked: true },
+                        { value: '-3', label: 'Yes (-3)' }
+                    ]
+                }
+            ]
+        }
+    ],
+    
+    resultTitle: 'GWTG-HF Score Result',
+    
+    calculate: (values) => {
+        const sbp = values['gwtg-sbp'] as number | null;
+        const bun = values['gwtg-bun'] as number | null;
+        const sodium = values['gwtg-sodium'] as number | null;
+        const age = values['gwtg-age'] as number | null;
+        const hr = values['gwtg-hr'] as number | null;
         
-            <div id="gwtg-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'gwtg-hf-result', title: 'GWTG-HF Score Result' })}
+        // Require all numeric inputs
+        if (sbp === null || bun === null || sodium === null || age === null || hr === null) {
+            return null;
+        }
+        
+        let score = 0;
+        score += getPoints.sbp(sbp);
+        score += getPoints.bun(bun);
+        score += getPoints.sodium(sodium);
+        score += getPoints.age(age);
+        score += getPoints.hr(hr);
+        
+        // Radio values
+        const copd = values['copd'] as string | null;
+        const race = values['race'] as string | null;
+        
+        if (copd) score += parseInt(copd);
+        if (race) score += parseInt(race);
+        
+        return score;
+    },
+    
+    customResultRenderer: (score, values) => {
+        const mortality = getMortality(score);
+        
+        let riskLevel = 'Low Risk';
+        let alertType: 'success' | 'warning' | 'danger' = 'success';
+        
+        if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
+            riskLevel = 'High Risk';
+            alertType = 'danger';
+        } else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
+            riskLevel = 'Moderate Risk';
+            alertType = 'warning';
+        }
+        
+        return `
+            ${uiBuilder.createResultItem({
+                label: 'GWTG-HF Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
+            ${uiBuilder.createResultItem({
+                label: 'In-hospital Mortality',
+                value: mortality,
+                alertClass: `ui-alert-${alertType}`
+            })}
         `;
     },
-    initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
-
+    
+    customInitialize: async (client, patient, container, calculate, setValue) => {
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
-        const fields = {
-            sbp: container.querySelector('#gwtg-sbp') as HTMLInputElement,
-            bun: container.querySelector('#gwtg-bun') as HTMLInputElement,
-            sodium: container.querySelector('#gwtg-sodium') as HTMLInputElement,
-            age: container.querySelector('#gwtg-age') as HTMLInputElement,
-            hr: container.querySelector('#gwtg-hr') as HTMLInputElement
-        };
-
-        const calculate = () => {
-            const errorContainer = container.querySelector('#gwtg-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
-
-            const copd = container.querySelector('input[name="copd"]:checked') as HTMLInputElement;
-            const race = container.querySelector('input[name="race"]:checked') as HTMLInputElement;
-
-            const allFilled = Object.values(fields).every(el => el && el.value !== '') && copd;
-
-            if (!allFilled) {
-                const resultBox = container.querySelector('#gwtg-hf-result');
-                if (resultBox) resultBox.classList.remove('show');
-                return;
-            }
-
-            try {
-                // Validation
-                const inputs = {
-                    sbp: parseFloat(fields.sbp.value),
-                    bun: parseFloat(fields.bun.value),
-                    sodium: parseFloat(fields.sodium.value),
-                    age: parseFloat(fields.age.value),
-                    hr: parseFloat(fields.hr.value)
-                };
-
-                const schema = {
-                    sbp: ValidationRules.systolicBp,
-                    bun: { min: 0, max: 200 }, // Basic reasonable range
-                    sodium: ValidationRules.sodium,
-                    age: ValidationRules.age,
-                    hr: ValidationRules.heartRate
-                };
-
-                // @ts-ignore
-                const validation = validateCalculatorInput(inputs, schema);
-
-                if (!validation.isValid) {
-                    if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
-                    const resultBox = container.querySelector('#gwtg-hf-result');
-                    if (resultBox) resultBox.classList.remove('show');
-                    return;
-                }
-
-                let score = 0;
-                score += getPoints.sbp(inputs.sbp);
-                score += getPoints.bun(inputs.bun);
-                score += getPoints.sodium(inputs.sodium);
-                score += getPoints.age(inputs.age);
-                score += getPoints.hr(inputs.hr);
-                score += parseInt(copd.value);
-                if (race) {
-                    score += parseInt(race.value);
-                }
-
-                const mortality = getMortality(score);
-
-                let riskLevel = 'Low Risk';
-                let alertType: 'success' | 'warning' | 'danger' = 'success';
-
-                if (mortality.includes('>50%') || mortality.includes('40-50') || mortality.includes('30-40')) {
-                    riskLevel = 'High Risk';
-                    alertType = 'danger';
-                } else if (mortality.includes('20-30') || mortality.includes('15-20') || mortality.includes('10-15')) {
-                    riskLevel = 'Moderate Risk';
-                    alertType = 'warning';
-                }
-
-                const resultBox = container.querySelector('#gwtg-hf-result');
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                            ${uiBuilder.createResultItem({
-                            label: 'GWTG-HF Score',
-                            value: score.toString(),
-                            unit: 'points',
-                            interpretation: riskLevel,
-                            alertClass: `ui-alert-${alertType}`
-                        })}
-                            ${uiBuilder.createResultItem({
-                            label: 'In-hospital Mortality',
-                            value: mortality,
-                            alertClass: `ui-alert-${alertType}`
-                        })}
-                        `;
-                    }
-                    resultBox.classList.add('show');
-                }
-            } catch (error) {
-                logError(error as Error, { calculator: 'gwtg-hf', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-            }
-        };
-
-        if (patient && patient.birthDate) {
-            fields.age.value = calculateAge(patient.birthDate).toString();
+        
+        // Age from patient
+        if (patient && (patient as any).birthDate) {
+            setValue('gwtg-age', calculateAge((patient as any).birthDate).toString());
         }
-
+        
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    fields.sbp.value = obs.valueQuantity.value.toFixed(0);
-                    calculate();
-                    stalenessTracker.trackObservation('#gwtg-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    fields.bun.value = obs.valueQuantity.value.toFixed(0);
-                    calculate();
-                    stalenessTracker.trackObservation('#gwtg-bun', obs, LOINC_CODES.BUN, 'BUN');
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    fields.sodium.value = obs.valueQuantity.value.toFixed(0);
-                    calculate();
-                    stalenessTracker.trackObservation('#gwtg-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    fields.hr.value = obs.valueQuantity.value.toFixed(0);
-                    calculate();
-                    stalenessTracker.trackObservation('#gwtg-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
-                }
-            }).catch(e => console.warn(e));
+            // Fetch all observations in parallel
+            const [sbpObs, bunObs, sodiumObs, hrObs] = await Promise.all([
+                getMostRecentObservation(client as any, LOINC_CODES.SYSTOLIC_BP).catch(() => null),
+                getMostRecentObservation(client as any, LOINC_CODES.BUN).catch(() => null),
+                getMostRecentObservation(client as any, LOINC_CODES.SODIUM).catch(() => null),
+                getMostRecentObservation(client as any, LOINC_CODES.HEART_RATE).catch(() => null)
+            ]);
+            
+            if (sbpObs?.valueQuantity) {
+                setValue('gwtg-sbp', sbpObs.valueQuantity.value.toFixed(0));
+                stalenessTracker.trackObservation('#gwtg-sbp', sbpObs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+            }
+            
+            if (bunObs?.valueQuantity) {
+                setValue('gwtg-bun', bunObs.valueQuantity.value.toFixed(0));
+                stalenessTracker.trackObservation('#gwtg-bun', bunObs, LOINC_CODES.BUN, 'BUN');
+            }
+            
+            if (sodiumObs?.valueQuantity) {
+                setValue('gwtg-sodium', sodiumObs.valueQuantity.value.toFixed(0));
+                stalenessTracker.trackObservation('#gwtg-sodium', sodiumObs, LOINC_CODES.SODIUM, 'Sodium');
+            }
+            
+            if (hrObs?.valueQuantity) {
+                setValue('gwtg-hr', hrObs.valueQuantity.value.toFixed(0));
+                stalenessTracker.trackObservation('#gwtg-hr', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+            }
         }
-
-        container.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', calculate);
-            input.addEventListener('change', calculate);
-        });
-
+        
         calculate();
     }
 };
+
+export const gwtgHf = createMixedInputCalculator(config);

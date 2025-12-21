@@ -1,9 +1,14 @@
+/**
+ * MAGGIC Risk Calculator for Heart Failure
+ *
+ * 使用 createMixedInputCalculator 工廠函數遷移
+ */
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
-import { logError } from '../../errorHandler.js';
+import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+// 分數計算函數
 const getPoints = {
     age: (v) => v * 0.08,
     ef: (v) => v * -0.05,
@@ -37,256 +42,251 @@ const getMortality = (score) => {
     const prob3yr = 1 - Math.pow(0.79, Math.exp(linearPredictor));
     return { prob1yr: (prob1yr * 100).toFixed(1), prob3yr: (prob3yr * 100).toFixed(1) };
 };
-export const maggic = {
-    id: 'maggic-hf',
+const config = {
+    id: 'maggic',
     title: 'MAGGIC Risk Calculator for Heart Failure',
     description: 'Estimates 1- and 3- year mortality in heart failure.',
-    generateHTML: function () {
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-            ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>Instructions:</strong> Use in adult patients (≥18 years). Use with caution in patients with reduced ejection fraction (not yet externally validated in this population).'
-        })}
-            
-            ${uiBuilder.createSection({
+    infoAlert: '<strong>Instructions:</strong> Use in adult patients (≥18 years). Use with caution in patients with reduced ejection fraction (not yet externally validated in this population).',
+    sections: [
+        {
             title: 'Patient Characteristics',
             icon: '👤',
-            content: `
-                    ${uiBuilder.createInput({ id: 'maggic-age', label: 'Age', unit: 'years', type: 'number' })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-gender',
-                label: 'Gender',
-                options: [
-                    { value: '0', label: 'Female', checked: true },
-                    { value: '1', label: 'Male (+1)' }
-                ]
-            })}
-                    ${uiBuilder.createInput({ id: 'maggic-bmi', label: 'BMI', unit: 'kg/m²', type: 'number', step: 0.1, placeholder: 'Norm: 20-25' })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-smoker',
-                label: 'Current Smoker',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes (+1)' }
-                ]
-            })}
-                `
-        })}
-
-            ${uiBuilder.createSection({
+            inputs: [
+                {
+                    type: 'number',
+                    id: 'maggic-age',
+                    label: 'Age',
+                    unit: 'years'
+                },
+                {
+                    type: 'radio',
+                    name: 'maggic-gender',
+                    label: 'Gender',
+                    options: [
+                        { value: '0', label: 'Female', checked: true },
+                        { value: '1', label: 'Male (+1)' }
+                    ]
+                },
+                {
+                    type: 'number',
+                    id: 'maggic-bmi',
+                    label: 'BMI',
+                    unit: 'kg/m²',
+                    step: 0.1,
+                    placeholder: 'Norm: 20-25'
+                },
+                {
+                    type: 'radio',
+                    name: 'maggic-smoker',
+                    label: 'Current Smoker',
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                }
+            ]
+        },
+        {
             title: 'Clinical Parameters',
             icon: '🩺',
-            content: `
-                    ${uiBuilder.createInput({ id: 'maggic-ef', label: 'Ejection Fraction', unit: '%', type: 'number' })}
-                    ${uiBuilder.createInput({ id: 'maggic-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number', placeholder: 'Norm: 100-120' })}
-                    ${uiBuilder.createInput({
-                id: 'maggic-creatinine',
-                label: 'Creatinine',
-                type: 'number',
-                step: 0.1,
-                unit: 'mg/dL',
-                unitToggle: {
-                    type: 'creatinine',
-                    units: ['mg/dL', 'µmol/L'],
-                    default: 'mg/dL'
+            inputs: [
+                {
+                    type: 'number',
+                    id: 'maggic-ef',
+                    label: 'Ejection Fraction',
+                    unit: '%'
                 },
-                helpText: 'Uses mg/dL for calculation (conversion applied if needed)'
-            })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-nyha',
-                label: 'NYHA Class',
-                options: [
-                    { value: '0', label: 'Class I (No limitation)' },
-                    { value: '2', label: 'Class II (Slight limitation) (+2)' },
-                    { value: '6', label: 'Class III (Marked limitation) (+6)' },
-                    { value: '8', label: 'Class IV (Unable to carry on any physical activity) (+8)' }
-                ]
-            })}
-                `
-        })}
-
-            ${uiBuilder.createSection({
+                {
+                    type: 'number',
+                    id: 'maggic-sbp',
+                    label: 'Systolic BP',
+                    unit: 'mmHg',
+                    placeholder: 'Norm: 100-120'
+                },
+                {
+                    type: 'number',
+                    id: 'maggic-creatinine',
+                    label: 'Creatinine',
+                    step: 0.1,
+                    unitToggle: {
+                        type: 'creatinine',
+                        units: ['mg/dL', 'µmol/L'],
+                        default: 'mg/dL'
+                    },
+                    helpText: 'Uses mg/dL for calculation (conversion applied if needed)'
+                },
+                {
+                    type: 'radio',
+                    name: 'maggic-nyha',
+                    label: 'NYHA Class',
+                    options: [
+                        { value: '0', label: 'Class I (No limitation)' },
+                        { value: '2', label: 'Class II (Slight limitation) (+2)' },
+                        { value: '6', label: 'Class III (Marked limitation) (+6)' },
+                        { value: '8', label: 'Class IV (Unable to carry on any physical activity) (+8)' }
+                    ]
+                }
+            ]
+        },
+        {
             title: 'Comorbidities & History',
             icon: '🏥',
-            content: `
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-diabetes',
-                label: 'Diabetes',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '3', label: 'Yes (+3)' }
-                ]
-            })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-copd',
-                label: 'COPD',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '2', label: 'Yes (+2)' }
-                ]
-            })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-hfdx',
-                label: 'Heart failure first diagnosed ≥18 months ago',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '2', label: 'Yes (+2)' }
-                ]
-            })}
-                `
-        })}
-
-            ${uiBuilder.createSection({
+            inputs: [
+                {
+                    type: 'radio',
+                    name: 'maggic-diabetes',
+                    label: 'Diabetes',
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: '3', label: 'Yes (+3)' }
+                    ]
+                },
+                {
+                    type: 'radio',
+                    name: 'maggic-copd',
+                    label: 'COPD',
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                },
+                {
+                    type: 'radio',
+                    name: 'maggic-hfdx',
+                    label: 'Heart failure first diagnosed ≥18 months ago',
+                    options: [
+                        { value: '0', label: 'No', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                }
+            ]
+        },
+        {
             title: 'Medications',
             icon: '💊',
-            content: `
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-bb',
-                label: 'Beta Blocker',
-                options: [
-                    { value: '3', label: 'No (+3)', checked: true },
-                    { value: '0', label: 'Yes' }
-                ]
-            })}
-                    ${uiBuilder.createRadioGroup({
-                name: 'maggic-acei',
-                label: 'ACEi/ARB',
-                options: [
-                    { value: '1', label: 'No (+1)', checked: true },
-                    { value: '0', label: 'Yes' }
-                ]
-            })}
-                `
+            inputs: [
+                {
+                    type: 'radio',
+                    name: 'maggic-bb',
+                    label: 'Beta Blocker',
+                    options: [
+                        { value: '3', label: 'No (+3)', checked: true },
+                        { value: '0', label: 'Yes' }
+                    ]
+                },
+                {
+                    type: 'radio',
+                    name: 'maggic-acei',
+                    label: 'ACEi/ARB',
+                    options: [
+                        { value: '1', label: 'No (+1)', checked: true },
+                        { value: '0', label: 'Yes' }
+                    ]
+                }
+            ]
+        }
+    ],
+    resultTitle: 'MAGGIC Risk Score',
+    calculate: (values) => {
+        const age = values['maggic-age'];
+        const ef = values['maggic-ef'];
+        const sbp = values['maggic-sbp'];
+        const bmi = values['maggic-bmi'];
+        const creatinine = values['maggic-creatinine'];
+        const nyha = values['maggic-nyha'];
+        // 需要所有輸入
+        if (age === null || ef === null || sbp === null || bmi === null || creatinine === null || nyha === null) {
+            return null;
+        }
+        let score = 0;
+        score += getPoints.age(age);
+        score += getPoints.ef(ef);
+        score += getPoints.sbp(sbp);
+        score += getPoints.bmi(bmi);
+        score += getPoints.creatinine(creatinine);
+        // Radio values
+        const radios = ['maggic-gender', 'maggic-smoker', 'maggic-nyha', 'maggic-diabetes', 'maggic-copd', 'maggic-hfdx', 'maggic-bb', 'maggic-acei'];
+        radios.forEach(name => {
+            const val = values[name];
+            if (val !== null && val !== undefined) {
+                score += parseInt(val);
+            }
+        });
+        return score;
+    },
+    customResultRenderer: (score, values) => {
+        const mortality = getMortality(score);
+        return `
+            ${uiBuilder.createResultItem({
+            label: 'Total MAGGIC Score',
+            value: score.toFixed(1),
+            unit: 'points'
         })}
-
-            ${uiBuilder.createResultBox({ id: 'maggic-result', title: 'MAGGIC Risk Score' })}
+            ${uiBuilder.createResultItem({
+            label: '1-Year Mortality Risk',
+            value: `${mortality.prob1yr}%`,
+            alertClass: 'ui-alert-warning'
+        })}
+            ${uiBuilder.createResultItem({
+            label: '3-Year Mortality Risk',
+            value: `${mortality.prob3yr}%`,
+            alertClass: 'ui-alert-danger'
+        })}
         `;
     },
-    initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
+    customInitialize: async (client, patient, container, calculate, setValue) => {
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-        const fields = {
-            age: container.querySelector('#maggic-age'),
-            ef: container.querySelector('#maggic-ef'),
-            sbp: container.querySelector('#maggic-sbp'),
-            bmi: container.querySelector('#maggic-bmi'),
-            creatinine: container.querySelector('#maggic-creatinine')
-        };
-        const radios = ['nyha', 'gender', 'smoker', 'diabetes', 'copd', 'hfdx', 'bb', 'acei'];
-        const resultBox = container.querySelector('#maggic-result');
-        const calculate = () => {
-            const age = parseFloat(fields.age.value);
-            const ef = parseFloat(fields.ef.value);
-            const sbp = parseFloat(fields.sbp.value);
-            const bmi = parseFloat(fields.bmi.value);
-            const creatinine = UnitConverter.getStandardValue(fields.creatinine, 'mg/dL');
-            const radioValues = {};
-            let allRadiosChecked = true;
-            radios.forEach(r => {
-                const checked = container.querySelector(`input[name="maggic-${r}"]:checked`);
-                if (checked) {
-                    radioValues[r] = parseInt(checked.value);
-                }
-                else {
-                    allRadiosChecked = false;
-                }
-            });
-            if (isNaN(age) || isNaN(ef) || isNaN(sbp) || isNaN(bmi) || creatinine === null || isNaN(creatinine) || !allRadiosChecked) {
-                if (resultBox)
-                    resultBox.classList.remove('show');
-                return;
-            }
-            try {
-                let score = 0;
-                score += getPoints.age(age);
-                score += getPoints.ef(ef);
-                score += getPoints.sbp(sbp);
-                score += getPoints.bmi(bmi);
-                score += getPoints.creatinine(creatinine);
-                Object.values(radioValues).forEach(val => score += val);
-                const mortality = getMortality(score);
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                            ${uiBuilder.createResultItem({
-                            label: 'Total MAGGIC Score',
-                            value: score.toFixed(1),
-                            unit: 'points'
-                        })}
-                            ${uiBuilder.createResultItem({
-                            label: '1-Year Mortality Risk',
-                            value: `${mortality.prob1yr}%`,
-                            alertClass: 'ui-alert-warning'
-                        })}
-                            ${uiBuilder.createResultItem({
-                            label: '3-Year Mortality Risk',
-                            value: `${mortality.prob3yr}%`,
-                            alertClass: 'ui-alert-danger'
-                        })}
-                        `;
-                    }
-                    resultBox.classList.add('show');
-                }
-            }
-            catch (error) {
-                logError(error, { calculator: 'maggic', action: 'calculate' });
-                // If there were a dedicated error container for maggic, we would use it.
-                // Assuming one isn't explicitly defined in HTML string above, just logging for now
-                // or could insert one implicitly. The template above didn't include one, so sticking to console log or could append alert.
+        const setRadio = (name, value) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        // Event listeners
-        Object.values(fields).forEach(input => input.addEventListener('input', calculate));
-        radios.forEach(r => {
-            container.querySelectorAll(`input[name="maggic-${r}"]`).forEach(radio => {
-                radio.addEventListener('change', calculate);
-            });
-        });
-        // Auto-populate
-        if (patient && patient.birthDate) {
-            fields.age.value = calculateAge(patient.birthDate).toString();
-        }
-        if (patient && patient.gender) {
-            uiBuilder.setRadioValue('maggic-gender', patient.gender === 'male' ? '1' : '0');
+        // Age and gender from patient
+        if (patient) {
+            if (patient.birthDate) {
+                setValue('maggic-age', calculateAge(patient.birthDate).toString());
+            }
+            if (patient.gender) {
+                setRadio('maggic-gender', patient.gender === 'male' ? '1' : '0');
+            }
         }
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    fields.bmi.value = obs.valueQuantity.value.toFixed(1);
-                    calculate();
-                    stalenessTracker.trackObservation('#maggic-bmi', obs, LOINC_CODES.BMI, 'BMI');
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    fields.sbp.value = obs.valueQuantity.value.toFixed(0);
-                    calculate();
-                    stalenessTracker.trackObservation('#maggic-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    fields.creatinine.value = val.toFixed(2);
-                    calculate();
-                    stalenessTracker.trackObservation('#maggic-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
-                }
-            }).catch(e => console.warn(e));
-            getPatientConditions(client, ['414990002', '195967001']).then(conditions => {
-                const hasDiabetes = conditions.some((c) => c.code.coding.some((co) => co.code === '414990002'));
+            // Fetch observations in parallel
+            const [bmiObs, sbpObs, creatObs] = await Promise.all([
+                getMostRecentObservation(client, LOINC_CODES.BMI).catch(() => null),
+                getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).catch(() => null),
+                getMostRecentObservation(client, LOINC_CODES.CREATININE).catch(() => null)
+            ]);
+            if (bmiObs?.valueQuantity) {
+                setValue('maggic-bmi', bmiObs.valueQuantity.value.toFixed(1));
+                stalenessTracker.trackObservation('#maggic-bmi', bmiObs, LOINC_CODES.BMI, 'BMI');
+            }
+            if (sbpObs?.valueQuantity) {
+                setValue('maggic-sbp', sbpObs.valueQuantity.value.toFixed(0));
+                stalenessTracker.trackObservation('#maggic-sbp', sbpObs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+            }
+            if (creatObs?.valueQuantity) {
+                setValue('maggic-creatinine', creatObs.valueQuantity.value.toFixed(2));
+                stalenessTracker.trackObservation('#maggic-creatinine', creatObs, LOINC_CODES.CREATININE, 'Creatinine');
+            }
+            // Fetch conditions
+            try {
+                const conditions = await getPatientConditions(client, ['414990002', '195967001']);
+                const hasDiabetes = conditions.some((c) => c.code?.coding?.some((co) => co.code === '414990002'));
                 if (hasDiabetes)
-                    uiBuilder.setRadioValue('maggic-diabetes', '3');
-                const hasCopd = conditions.some((c) => c.code.coding.some((co) => co.code === '195967001'));
+                    setRadio('maggic-diabetes', '3');
+                const hasCopd = conditions.some((c) => c.code?.coding?.some((co) => co.code === '195967001'));
                 if (hasCopd)
-                    uiBuilder.setRadioValue('maggic-copd', '2');
-                calculate();
-            });
+                    setRadio('maggic-copd', '2');
+            }
+            catch (e) {
+                console.warn('Error fetching conditions for MAGGIC', e);
+            }
         }
+        calculate();
     }
 };
+export const maggic = createMixedInputCalculator(config);
