@@ -201,7 +201,7 @@ export const meldNa = {
                     alertClass: alertClass
                 })}
                     
-                    <div style="margin-top: 15px; font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                    <div class="mt-15 text-sm text-muted p-10">
                         <strong>Calculation Breakdown:</strong><br>
                         • Original MELD: ${meldScore.toFixed(1)}<br>
                         • Adjusted Bilirubin: ${adjustedBili.toFixed(1)} mg/dL<br>

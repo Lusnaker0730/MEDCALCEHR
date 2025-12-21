@@ -69,7 +69,7 @@ export const qtc = {
             
             <div class="info-section mt-20">
                 <h4>📚 Normal Values</h4>
-                <ul style="margin-top: 5px; padding-left: 20px;">
+                <ul class="info-list">
                     <li>Men: QTc &lt; 450 ms</li>
                     <li>Women: QTc &lt; 460 ms</li>
                     <li>Prolonged: &gt; 500 ms (increased risk of arrhythmias)</li>

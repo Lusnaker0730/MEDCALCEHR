@@ -66,7 +66,7 @@ export const gcs = {
             type: 'info',
             message: `
                     <h4>📊 Interpretation</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li><strong>13-15:</strong> Mild Brain Injury</li>
                         <li><strong>9-12:</strong> Moderate Brain Injury</li>
                         <li><strong>3-8:</strong> Severe Brain Injury (Coma)</li>
@@ -119,7 +119,7 @@ export const gcs = {
                             alertClass: alertClass
                         })}
                             
-                            <div style="margin-top: 15px; text-align: center; font-weight: 500; color: #666;">
+                            <div class="mt-15 text-center font-semibold text-muted">
                                 Component Breakdown: E${eyeScore} V${verbalScore} M${motorScore}
                             </div>
                         `;

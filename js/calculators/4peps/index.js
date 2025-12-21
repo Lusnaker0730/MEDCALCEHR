@@ -57,7 +57,7 @@ export const fourPeps = {
 
 
 
-            <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
+            <div class="info-section mt-20 text-sm text-muted">
                 <h4>📚 Reference</h4>
                 <p>Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. <em>JAMA Cardiology</em>.</p>
             </div>

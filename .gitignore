@@ -13,6 +13,16 @@ build/
 *.min.js
 *.min.css
 
+# Compiled TypeScript output (from src/ to js/calculators/)
+js/calculators/**/*.js
+js/calculators/**/*.d.ts
+js/calculators/**/*.js.map
+js/calculators/**/*.d.ts.map
+
+# Keep calculator helper files (not compiled from TS)
+!js/calculators/**/calculation.js
+!js/calculators/**/cdc-data.js
+
 # IDE
 .vscode/
 .idea/

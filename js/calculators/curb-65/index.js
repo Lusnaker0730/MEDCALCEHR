@@ -134,9 +134,9 @@ export const curb65 = {
                             alertClass: alertClass
                         })}
                             
-                            <div class="result-item" style="margin-top: 10px; text-align: center;">
-                                <span class="label" style="color: #666;">30-Day Mortality Risk:</span>
-                                <span class="value" style="font-weight: 600;">${mortality}</span>
+                            <div class="result-item mt-10 text-center">
+                                <span class="label text-muted">30-Day Mortality Risk:</span>
+                                <span class="value font-semibold">${mortality}</span>
                             </div>
 
                             <div class="ui-alert ${alertClass} mt-10">

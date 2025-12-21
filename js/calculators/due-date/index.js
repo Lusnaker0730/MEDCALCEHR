@@ -26,7 +26,7 @@ export const dueDate = {
             type: 'info',
             message: `
                     <strong>Important Notes:</strong>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li>Calculation assumes a 28-day cycle.</li>
                         <li>Actual due date may vary by ±2 weeks.</li>
                         <li>Ultrasound is more accurate for dating in the first trimester.</li>

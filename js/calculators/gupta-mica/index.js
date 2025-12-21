@@ -155,7 +155,7 @@ export const guptaMica = {
                         ${uiBuilder.createSection({
                         title: 'Formula Components',
                         content: `
-                                <div style="font-size: 0.9em; color: #555;">
+                                <div class="text-sm text-muted">
                                     <p>Age Component: ${(age * 0.02).toFixed(2)}</p>
                                     <p>Functional Status: ${functionalStatus.toFixed(2)}</p>
                                     <p>ASA Class: ${asaClass.toFixed(2)}</p>

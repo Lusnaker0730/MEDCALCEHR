@@ -60,7 +60,7 @@ export const serumAnionGap = {
             type: 'info',
             message: `
                     <h4>Interpretation:</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li><strong>Normal Range:</strong> 6-12 mEq/L</li>
                         <li><strong>High (>12):</strong> High Anion Gap Metabolic Acidosis (MUDPILES)</li>
                         <li><strong>Low (<6):</strong> Uncommon, possible lab error or hypoalbuminemia</li>

@@ -44,7 +44,7 @@ export const isthDic = {
             })}
                     </div>
 
-                    <div class="input-group-wrapper" style="margin-top: 20px;">
+                    <div class="input-group-wrapper mt-20">
                         ${uiBuilder.createInput({
                 id: 'isth-ddimer-input',
                 label: 'D-dimer level',
@@ -66,7 +66,7 @@ export const isthDic = {
             })}
                     </div>
 
-                    <div class="input-group-wrapper" style="margin-top: 20px;">
+                    <div class="input-group-wrapper mt-20">
                         ${uiBuilder.createInput({
                 id: 'isth-pt-input',
                 label: 'Prothrombin Time (PT)',
@@ -84,7 +84,7 @@ export const isthDic = {
             })}
                     </div>
 
-                    <div class="input-group-wrapper" style="margin-top: 20px;">
+                    <div class="input-group-wrapper mt-20">
                         ${uiBuilder.createInput({
                 id: 'isth-fibrinogen-input',
                 label: 'Fibrinogen level',

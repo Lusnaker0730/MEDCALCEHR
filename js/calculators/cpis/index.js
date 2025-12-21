@@ -97,7 +97,7 @@ export const cpis = {
         message: `
                 <h4>⚕️ Clinical Note</h4>
                 <p>Scores ≥ 6 may indicate higher likelihood of VAP and need for BAL or mini-BAL.</p>
-                <h4 style="margin-top: 10px;">📚 Reference</h4>
+                <h4 class="mt-10">📚 Reference</h4>
                 <p>Schurink CAM, et al. Clinical pulmonary infection score for ventilator-associated pneumonia: accuracy and inter-observer variability. <em>Intensive Care Med.</em> 2004.</p>
             `
     })}

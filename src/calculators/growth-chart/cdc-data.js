@@ -1,53 +1,7 @@
 // CDC Growth Chart Data (2000) for Infants (0-36 months)
 // Format 1 (LMS): [Agemos, L, M, S, P3, P5, P10, P25, P50, P75, P90, P95, P97]
 // Format 2 (Legacy): Object with 'data' array of percentiles
-
-interface LMSDataPoint {
-    Agemos: number;
-    L: number;
-    M: number;
-    S: number;
-    P3: number;
-    P5: number;
-    P10: number;
-    P25: number;
-    P50: number;
-    P75: number;
-    P90: number;
-    P95: number;
-    P97: number;
-    [key: string]: number; // Allow indexing by string for generic access
-}
-
-interface LegacyDataPoint {
-    Agemos: number;
-    P3: number;
-    P5: number;
-    P10: number;
-    P25: number;
-    P50: number;
-    P75: number;
-    P90: number;
-    P95: number;
-    P97: number;
-}
-
-interface CDCDataSet<T> {
-    sex?: string;
-    source?: string;
-    type?: string;
-    male?: number[][]; // For raw LMS arrays
-    female?: number[][]; // For raw LMS arrays
-    data?: T[];
-}
-
-export const cdcData: {
-    wtageinf: CDCDataSet<any>;
-    lenageinf_g: CDCDataSet<LegacyDataPoint>;
-    lenageinf_b: CDCDataSet<LegacyDataPoint>;
-    bmiagerev_g: CDCDataSet<LegacyDataPoint>;
-    bmiagerev_b: CDCDataSet<LegacyDataPoint>;
-} = {
+export const cdcData = {
     // Weight-for-age (LMS Precision Data)
     wtageinf: {
         type: 'LMS',
