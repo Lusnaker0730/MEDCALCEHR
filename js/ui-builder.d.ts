@@ -63,6 +63,13 @@ export declare class UIBuilder {
     }): string;
     createAlert(options: { type?: 'info' | 'warning' | 'danger' | 'success'; message: string; icon?: string }): string;
     createFormulaSection(options: { items?: Array<{ label?: string; title?: string; formula?: string; content?: string; formulas?: string[]; notes?: string }> }): string;
+    createTable(options: {
+        id?: string;
+        headers?: string[];
+        rows?: string[][];
+        className?: string;
+        stickyFirstColumn?: boolean;
+    }): string;
     setRadioValue(name: string, value: string): void;
     initializeComponents(container: HTMLElement): void;
     createForm(options: {

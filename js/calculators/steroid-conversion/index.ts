@@ -25,20 +25,15 @@ export const steroidConversion: CalculatorModule = {
 
         const steroidOptions = steroids.map(s => ({ label: s.name, value: s.value }));
 
-        // Generate conversion table
-        let tableRows = '';
-        steroids.forEach(steroid => {
-            let conversions = '';
-            steroids.forEach(targetSteroid => {
-                const equivalentDose = (steroid.dose / targetSteroid.dose).toFixed(2);
-                conversions += `<td>${equivalentDose}</td>`;
-            });
-            tableRows += `
-                <tr>
-                    <td class="steroid-name">${steroid.name} ${steroid.dose} mg</td>
-                    ${conversions}
-                </tr>
-            `;
+        // Generate conversion table data
+        const headers = ['Reference Dose', ...steroids.map(s => s.name)];
+
+        const rows = steroids.map(steroid => {
+            const firstCell = `${steroid.name} ${steroid.dose} mg`;
+            const conversions = steroids.map(targetSteroid =>
+                (steroid.dose / targetSteroid.dose).toFixed(2)
+            );
+            return [firstCell, ...conversions];
         });
 
         return `
@@ -92,23 +87,15 @@ export const steroidConversion: CalculatorModule = {
             ${uiBuilder.createSection({
             title: 'Steroid Equivalence Table',
             content: `
-                    <div class="ui-data-table" style="overflow-x: auto;">
-                        <table class="steroid-equivalence-table" style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th class="sticky-col">Reference Dose</th>
-                                    ${steroids.map(s => `<th>${s.name}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${tableRows}
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="table-note" style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
-                    </p>
-                `
+                ${uiBuilder.createTable({
+                headers,
+                rows,
+                stickyFirstColumn: true
+            })}
+                <p class="table-note" style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                    <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
+                </p>
+            `
         })}
 
              ${uiBuilder.createAlert({

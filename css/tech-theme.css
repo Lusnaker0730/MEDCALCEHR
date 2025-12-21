@@ -803,3 +803,92 @@ input[type="checkbox"].ui-checkbox {
     font-size: 1.6rem !important;
     color: var(--tech-accent) !important;
 }
+
+/* ===== UI Table Styles ===== */
+
+.ui-table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid var(--tech-border);
+}
+
+.ui-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.4rem;
+    /* Standardized size */
+}
+
+/* Header Cells */
+.ui-table thead th {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+    color: var(--tech-glow);
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid var(--tech-accent);
+    white-space: nowrap;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+/* Body Cells */
+.ui-table tbody td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--tech-border);
+    color: var(--tech-text-main);
+    transition: all 0.2s;
+}
+
+/* Alternating rows handled by transparency but we add hover */
+.ui-table tbody tr:hover td {
+    background: rgba(6, 182, 212, 0.1);
+    color: white;
+}
+
+/* Sticky First Column */
+.ui-table th.sticky-col,
+.ui-table td.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: rgba(15, 23, 42, 0.95);
+    /* Must have bg to hide scrolling content */
+    border-right: 2px solid var(--tech-border);
+    font-weight: 600;
+    color: var(--tech-accent);
+}
+
+.ui-table th.sticky-col {
+    z-index: 20;
+    /* Higher than data cells */
+    background: rgba(15, 23, 42, 1) !important;
+    /* Ensure header sticky is opaque */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.ui-table td.sticky-col {
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure data cells don't have bg that overrides row hover completely, 
+   except sticky one needs it. */
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .ui-table {
+        font-size: 1.2rem;
+    }
+
+    .ui-table th,
+    .ui-table td {
+        padding: 12px 15px;
+    }
+}
+
+.ui-formula-item strong {
+    font-size: 1.6rem !important;
+    color: var(--tech-accent) !important;
+}

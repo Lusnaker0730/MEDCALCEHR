@@ -451,6 +451,47 @@ export class UIBuilder {
             </form>
         `;
     }
+
+    /**
+     * Create a data table
+     * @param {Object} options - Configuration object
+     */
+    createTable({
+        id,
+        headers = [], // ['Col 1', 'Col 2']
+        rows = [],    // [['r1c1', 'r1c2'], ['r2c1', 'r2c2']]
+        className = '',
+        stickyFirstColumn = false
+    }) {
+        const headerHTML = headers.map((h, i) => {
+            const stickyClass = (stickyFirstColumn && i === 0) ? 'sticky-col' : '';
+            return `<th class="${stickyClass}">${h}</th>`;
+        }).join('');
+
+        const rowsHTML = rows.map(row => {
+            const cellsHTML = row.map((cell, i) => {
+                const stickyClass = (stickyFirstColumn && i === 0) ? 'sticky-col' : '';
+                return `<td class="${stickyClass}">${cell}</td>`;
+            }).join('');
+            return `<tr>${cellsHTML}</tr>`;
+        }).join('');
+
+        const tableClass = `ui-table ${className} ${stickyFirstColumn ? 'has-sticky-col' : ''}`;
+        const wrapperId = id ? `id="${id}"` : '';
+
+        return `
+            <div class="ui-table-container" ${wrapperId}>
+                <table class="${tableClass}">
+                    <thead>
+                        <tr>${headerHTML}</tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHTML}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
 }
 
 // Create and export a singleton instance

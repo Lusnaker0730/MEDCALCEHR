@@ -76,9 +76,7 @@ export const fourPeps: CalculatorModule = {
 
             ${uiBuilder.createResultBox({ id: 'fourpeps-result', title: '4PEPS Score Results' })}
 
-            <div class="chart-container" style="margin-top: 20px; text-align: center;">
-                <img src="js/calculators/4peps/4PEPS.png" alt="4PEPS Score Reference" class="reference-image" style="max-width: 100%; border-radius: 8px;" />
-            </div>
+
 
             <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
                 <h4>📚 Reference</h4>

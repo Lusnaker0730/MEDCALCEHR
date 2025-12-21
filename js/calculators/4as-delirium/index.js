@@ -58,16 +58,7 @@ export const fourAsDelirium = {
                 <p class="description">${this.description}</p>
             </div>
             
-            <div class="calculator-image-container" style="margin-bottom: 20px; text-align: center;">
-                <img id="ref-image-thumb" src="js/calculators/4as-delirium/article_river_7d53d1600bfa11f098351dbcb3e30ef3-4AT-Poster-2.png" alt="4AT Reference Poster" style="max-width: 100%; max-height: 600px; width: auto; border-radius: 8px; cursor: pointer; border: 1px solid #eee;" />
-                <div style="font-size: 0.8em; color: #666; margin-top: 5px;">(Click to enlarge reference poster)</div>
-            </div>
-            
-            <!-- Modal for the image -->
-            <div id="image-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9);">
-                <span class="close-btn" style="position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
-                <img class="modal-content" id="modal-image" style="margin: auto; display: block; width: 95%; max-width: 1400px; margin-top: 50px;">
-            </div>
+
 
             ${alertnessSection}
             ${amt4Section}
@@ -142,29 +133,7 @@ export const fourAsDelirium = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-        // Image Modal Logic
-        const modal = container.querySelector('#image-modal');
-        const imgThumb = container.querySelector('#ref-image-thumb');
-        const modalImg = container.querySelector('#modal-image');
-        const closeBtn = container.querySelector('.close-btn');
-        if (imgThumb && modal && modalImg) {
-            imgThumb.onclick = function () {
-                modal.style.display = 'block';
-                modalImg.src = imgThumb.src;
-            };
-        }
-        if (closeBtn && modal) {
-            closeBtn.onclick = function () {
-                modal.style.display = 'none';
-            };
-        }
-        if (modal) {
-            modal.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        }
+
         // Initial calculation
         calculate();
     }
