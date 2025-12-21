@@ -1,50 +1,126 @@
+/**
+ * Centor Score (Modified/McIsaac) for Strep Pharyngitis Calculator
+ * 
+ * 使用 Yes/No Calculator 工廠函數遷移
+ * Estimates probability that pharyngitis is streptococcal, and suggests management course.
+ */
+
+import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-interface Criterion {
-    id: string;
-    label: string;
-    points: number;
-}
-
-export const centor: CalculatorModule = {
+const config: YesNoCalculatorConfig = {
     id: 'centor',
     title: 'Centor Score (Modified/McIsaac) for Strep Pharyngitis',
-    description:
-        'Estimates probability that pharyngitis is streptococcal, and suggests management course.',
-    generateHTML: function () {
-        const criteria: Criterion[] = [
-            { id: 'centor-exudates', label: 'Tonsillar exudates or swelling', points: 1 },
-            { id: 'centor-nodes', label: 'Swollen, tender anterior cervical nodes', points: 1 },
-            { id: 'centor-fever', label: 'Temperature > 38°C (100.4°F)', points: 1 },
-            { id: 'centor-cough', label: 'Absence of cough', points: 1 }
-        ];
+    description: 'Estimates probability that pharyngitis is streptococcal, and suggests management course.',
+    sectionTitle: 'Clinical Criteria',
+    sectionIcon: '🩺',
+    questions: [
+        { id: 'centor-exudates', label: 'Tonsillar exudates or swelling', points: 1 },
+        { id: 'centor-nodes', label: 'Swollen, tender anterior cervical nodes', points: 1 },
+        { id: 'centor-fever', label: 'Temperature > 38°C (100.4°F)', points: 1 },
+        { id: 'centor-cough', label: 'Absence of cough', points: 1 }
+    ],
+    riskLevels: [
+        {
+            minScore: -1,
+            maxScore: 0,
+            label: '<10% probability',
+            severity: 'success',
+            recommendation: 'No antibiotic or throat culture necessary.'
+        },
+        {
+            minScore: 1,
+            maxScore: 1,
+            label: '≈17% probability',
+            severity: 'success',
+            recommendation: 'No antibiotic or throat culture necessary.'
+        },
+        {
+            minScore: 2,
+            maxScore: 2,
+            label: '≈35% probability',
+            severity: 'warning',
+            recommendation: 'Consider throat culture or rapid antigen testing.'
+        },
+        {
+            minScore: 3,
+            maxScore: 3,
+            label: '≈56% probability',
+            severity: 'warning',
+            recommendation: 'Consider throat culture or rapid antigen testing. May treat empirically.'
+        },
+        {
+            minScore: 4,
+            maxScore: 999,
+            label: '>85% probability',
+            severity: 'danger',
+            recommendation: 'Empiric antibiotic treatment is justified.'
+        }
+    ],
+    customResultRenderer: (score: number): string => {
+        let probability = '';
+        let recommendation = '';
+        let alertClass: 'success' | 'warning' | 'danger' = 'success';
 
-        const criteriaSection = uiBuilder.createSection({
-            title: 'Clinical Criteria',
-            content: criteria.map(item =>
-                uiBuilder.createRadioGroup({
-                    name: item.id,
-                    label: item.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes (+1)' }
-                    ]
-                })
-            ).join('')
-        });
+        if (score <= 0) {
+            probability = '<10%';
+            recommendation = 'No antibiotic or throat culture necessary.';
+            alertClass = 'success';
+        } else if (score === 1) {
+            probability = '≈17%';
+            recommendation = 'No antibiotic or throat culture necessary.';
+            alertClass = 'success';
+        } else if (score === 2) {
+            probability = '≈35%';
+            recommendation = 'Consider throat culture or rapid antigen testing.';
+            alertClass = 'warning';
+        } else if (score === 3) {
+            probability = '≈56%';
+            recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
+            alertClass = 'warning';
+        } else {
+            probability = '>85%';
+            recommendation = 'Empiric antibiotic treatment is justified.';
+            alertClass = 'danger';
+        }
+        
+        return `
+            ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 5 points',
+                interpretation: `Probability of Strep: ${probability}`,
+                alertClass: `ui-alert-${alertClass}`
+            })}
+            
+            <div class="ui-alert ui-alert-${alertClass} mt-10">
+                <span class="ui-alert-icon">${alertClass === 'success' ? '✓' : '⚠️'}</span>
+                <div class="ui-alert-content">
+                    <strong>Recommendation:</strong> ${recommendation}
+                </div>
+            </div>
+        `;
+    }
+};
 
+// 創建基礎計算器
+const baseCalculator = createYesNoCalculator(config);
+
+// 導出帶有年齡選項和 FHIR 自動填入的計算器
+export const centor = {
+    id: 'centor',
+    title: config.title,
+    description: config.description,
+    
+    generateHTML(): string {
+        // 先用基礎計算器生成 HTML
+        let html = baseCalculator.generateHTML();
+        
+        // 在結果框之前插入年齡區塊
         const ageSection = uiBuilder.createSection({
             title: 'McIsaac Modification (Age)',
+            icon: '🎂',
             content: uiBuilder.createRadioGroup({
                 name: 'centor-age',
                 options: [
@@ -54,108 +130,64 @@ export const centor: CalculatorModule = {
                 ]
             })
         });
-
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-            
-            ${criteriaSection}
-            ${ageSection}
-            
-            <div id="centor-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'centor-result', title: 'Centor Score Result' })}
-        `;
+        
+        // 插入年齡區塊在 error-container 之前
+        html = html.replace(
+            '<div id="centor-error-container"></div>',
+            `${ageSection}<div id="centor-error-container"></div>`
+        );
+        
+        return html;
     },
-    initialize: function (client, patient, container) {
+    
+    initialize(client: unknown, patient: any, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
-
-        const setRadioValue = (name: string, value: string) => {
+        
+        const setRadioValue = (name: string, value: string): void => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
             }
         };
-
-        const calculate = () => {
-            try {
-                // Clear validation errors
-                const errorContainer = container.querySelector('#centor-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
-                let score = 0;
-                container.querySelectorAll<HTMLInputElement>('input[type="radio"]:checked').forEach(radio => {
-                    score += parseInt(radio.value);
-                });
-
-                let probability = '';
-                let recommendation = '';
-                let alertClass = '';
-
-                if (score <= 0) {
-                    probability = '<10%';
-                    recommendation = 'No antibiotic or throat culture necessary.';
-                    alertClass = 'ui-alert-success';
-                } else if (score === 1) {
-                    probability = '≈17%';
-                    recommendation = 'No antibiotic or throat culture necessary.';
-                    alertClass = 'ui-alert-success';
-                } else if (score === 2) {
-                    probability = '≈35%';
-                    recommendation = 'Consider throat culture or rapid antigen testing.';
-                    alertClass = 'ui-alert-warning';
-                } else if (score === 3) {
-                    probability = '≈56%';
-                    recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
-                    alertClass = 'ui-alert-warning';
-                } else {
-                    probability = '>85%';
-                    recommendation = 'Empiric antibiotic treatment is justified.';
-                    alertClass = 'ui-alert-danger';
+        
+        // 計算函數
+        const calculate = (): void => {
+            let score = 0;
+            
+            // 計算臨床標準分數
+            config.questions.forEach(q => {
+                const radio = container.querySelector(
+                    `input[name="${q.id}"]:checked`
+                ) as HTMLInputElement | null;
+                if (radio) {
+                    score += parseInt(radio.value) || 0;
                 }
-
-                const resultBox = container.querySelector('#centor-result');
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                            ${uiBuilder.createResultItem({
-                            label: 'Total Score',
-                            value: score.toString(),
-                            unit: '/ 5 points',
-                            interpretation: `Probability of Strep: ${probability}`,
-                            alertClass: alertClass
-                        })}
-                            
-                            <div class="ui-alert ${alertClass} mt-10">
-                                <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
-                                <div class="ui-alert-content">
-                                    <strong>Recommendation:</strong> ${recommendation}
-                                </div>
-                            </div>
-                        `;
-                    }
-                    resultBox.classList.add('show');
+            });
+            
+            // 計算年齡分數
+            const ageRadio = container.querySelector('input[name="centor-age"]:checked') as HTMLInputElement | null;
+            if (ageRadio) {
+                score += parseInt(ageRadio.value) || 0;
+            }
+            
+            // 使用自定義渲染器
+            const resultBox = document.getElementById('centor-result');
+            if (resultBox) {
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultContent && config.customResultRenderer) {
+                    resultContent.innerHTML = config.customResultRenderer(score);
                 }
-            } catch (error) {
-                const errorContainer = container.querySelector('#centor-error-container');
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                } else {
-                    console.error(error);
-                }
-                logError(error as Error, { calculator: 'centor', action: 'calculate' });
+                resultBox.classList.add('show');
             }
         };
-
-        // Add event listeners
+        
+        // 綁定事件
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
-        // Auto-populate Age
+        
+        // FHIR 自動填入年齡
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             if (age >= 3 && age <= 14) {
@@ -166,7 +198,8 @@ export const centor: CalculatorModule = {
                 setRadioValue('centor-age', '0');
             }
         }
-
+        
+        // 初始計算
         calculate();
     }
 };

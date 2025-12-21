@@ -1,187 +1,120 @@
+/**
+ * qSOFA Score for Sepsis
+ * 
+ * 使用 Checkbox 工廠函數重構
+ * 保留 FHIR 自動填充功能
+ */
+
+import { createScoreCalculator } from '../shared/score-calculator.js';
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
-import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-export const qsofaScore: CalculatorModule = {
+// 基礎計算器配置
+const baseCalculator = createScoreCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
-    description:
-        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
-    generateHTML: function () {
-        const criteria = [
-            { id: 'qsofa-rr', label: 'Respiratory Rate ≥ 22/min', points: 1 },
-            { id: 'qsofa-ams', label: 'Altered Mental Status (GCS < 15)', points: 1 },
-            { id: 'qsofa-sbp', label: 'Systolic Blood Pressure ≤ 100 mmHg', points: 1 }
-        ];
+    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
 
-        const criteriaSection = uiBuilder.createSection({
+    infoAlert: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.',
+
+    sections: [
+        {
             title: 'qSOFA Criteria',
-            subtitle: 'Check all that apply',
             icon: '📋',
-            content: criteria.map(item =>
-                uiBuilder.createCheckbox({
-                    id: item.id,
-                    label: item.label,
-                    value: item.points.toString()
-                })
-            ).join('')
-        });
+            options: [
+                { id: 'qsofa-rr', label: 'Respiratory Rate ≥ 22/min (+1)', value: 1 },
+                { id: 'qsofa-ams', label: 'Altered Mental Status (GCS < 15) (+1)', value: 1 },
+                { id: 'qsofa-sbp', label: 'Systolic Blood Pressure ≤ 100 mmHg (+1)', value: 1 }
+            ]
+        }
+    ],
 
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-            
-            ${uiBuilder.createAlert({
-            type: 'info',
-            message: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.'
-        })}
-            
-            ${criteriaSection}
-            
-            <div id="qsofa-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'qsofa-result', title: 'qSOFA Score Results' })}
-            
-            ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
-                    <h4>📊 Interpretation</h4>
-                    <ul class="info-list">
-                        <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
-                        <li><strong>Score < 2:</strong> Negative screen; lower risk but continue monitoring.</li>
-                    </ul>
-                    <h4 class="mt-15">Next Steps for Positive qSOFA:</h4>
-                    <ul class="info-list">
-                        <li>Calculate full SOFA score</li>
-                        <li>Measure serum lactate</li>
-                        <li>Obtain blood cultures</li>
-                        <li>Consider early antibiotic therapy</li>
-                        <li>Assess for organ dysfunction</li>
-                    </ul>
-                `
-        })}
-        `;
-    },
-    initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
+    riskLevels: [
+        { 
+            minScore: 0, maxScore: 0, 
+            risk: 'Negative Screen', 
+            category: 'Lower Risk', 
+            severity: 'success',
+            recommendation: 'Lower risk, but continue to monitor if infection is suspected.'
+        },
+        { 
+            minScore: 1, maxScore: 1, 
+            risk: 'Intermediate', 
+            category: 'Monitor Closely', 
+            severity: 'warning',
+            recommendation: 'Monitor closely. Consider early intervention if clinical suspicion is high.'
+        },
+        { 
+            minScore: 2, maxScore: 3, 
+            risk: 'Positive Screen', 
+            category: 'High Risk', 
+            severity: 'danger',
+            recommendation: 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).'
+        }
+    ],
 
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+    formulaItems: [
+        {
+            title: 'Interpretation',
+            content: `
+                <ul class="info-list">
+                    <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
+                    <li><strong>Score < 2:</strong> Negative screen; lower risk but continue monitoring.</li>
+                </ul>
+            `
+        },
+        {
+            title: 'Next Steps for Positive qSOFA',
+            content: `
+                <ul class="info-list">
+                    <li>Calculate full SOFA score</li>
+                    <li>Measure serum lactate</li>
+                    <li>Obtain blood cultures</li>
+                    <li>Consider early antibiotic therapy</li>
+                    <li>Assess for organ dysfunction</li>
+                </ul>
+            `
+        }
+    ]
+});
 
-        const calculate = () => {
-            try {
-                // Clear any previous errors
-                const errorContainer = container.querySelector('#qsofa-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+// 擴展計算器以支持 FHIR 自動填充
+export const qsofaScore = {
+    ...baseCalculator,
+    
+    initialize(client: any, patient: any, container: HTMLElement): void {
+        // 調用基礎初始化
+        baseCalculator.initialize(client, patient, container);
 
-                const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-                let score = 0;
-                checkboxes.forEach(box => {
-                    if ((box as HTMLInputElement).checked) {
-                        score += parseInt((box as HTMLInputElement).value);
-                    }
-                });
-
-                let riskLevel = '';
-                let interpretation = '';
-                let alertClass = '';
-
-                if (score >= 2) {
-                    riskLevel = 'Positive Screen';
-                    interpretation = 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).';
-                    alertClass = 'ui-alert-danger';
-                } else if (score === 1) {
-                    riskLevel = 'Intermediate';
-                    interpretation = 'Monitor closely. Consider early intervention if clinical suspicion is high.';
-                    alertClass = 'ui-alert-warning';
-                } else {
-                    riskLevel = 'Negative Screen';
-                    interpretation = 'Lower risk, but continue to monitor if infection is suspected.';
-                    alertClass = 'ui-alert-success';
-                }
-
-                const resultBox = container.querySelector('#qsofa-result');
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                        ${uiBuilder.createResultItem({
-                            label: 'Total qSOFA Score',
-                            value: score,
-                            unit: '/ 3 points',
-                            interpretation: riskLevel,
-                            alertClass: alertClass
-                        })}
-                        
-                        <div class="ui-alert ${alertClass} mt-10">
-                            <span class="ui-alert-icon">${alertClass.includes('danger') ? '🚨' : 'ℹ️'}</span>
-                            <div class="ui-alert-content">
-                                <strong>Interpretation:</strong> ${interpretation}
-                            </div>
-                        </div>
-                    `;
-                    }
-                    resultBox.classList.add('show');
-                }
-            } catch (error) {
-                // Error Handling
-                const errorContainer = container.querySelector('#qsofa-error-container');
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                } else {
-                    console.error(error);
-                }
-                logError(error as Error, { calculator: 'qsofa', action: 'calculate' });
-            }
-        };
-
-        // Add event listeners
-        container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', calculate);
-        });
-
-        // Auto-populate
+        // 如果有 FHIR 客戶端，進行自動填充
         if (client) {
+            const stalenessTracker = createStalenessTracker();
+            stalenessTracker.setContainer(container);
+
+            // 自動填充呼吸速率
             getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
                 if (obs?.valueQuantity?.value >= 22) {
                     const box = container.querySelector('#qsofa-rr') as HTMLInputElement;
                     if (box) {
                         box.checked = true;
-                        // Use dispatchEvent to trigger listener if needed, but manual call to calculate works too
                         box.dispatchEvent(new Event('change'));
-
-                        // Staleness check
                         stalenessTracker.trackObservation('#qsofa-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
                     }
                 }
             }).catch(e => console.warn(e));
 
+            // 自動填充收縮壓
             getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
                 if (obs?.valueQuantity?.value <= 100) {
                     const box = container.querySelector('#qsofa-sbp') as HTMLInputElement;
                     if (box) {
                         box.checked = true;
                         box.dispatchEvent(new Event('change'));
-
-                        // Staleness check
                         stalenessTracker.trackObservation('#qsofa-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                     }
                 }
             }).catch(e => console.warn(e));
         }
-
-        calculate();
     }
 };

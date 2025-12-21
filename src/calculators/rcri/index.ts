@@ -1,176 +1,152 @@
+/**
+ * Revised Cardiac Risk Index (RCRI) for Pre-Operative Risk Calculator
+ * 
+ * 使用 Yes/No Calculator 工廠函數遷移
+ * Estimates risk of cardiac complications after noncardiac surgery.
+ */
+
+import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
-import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { uiBuilder } from '../../ui-builder.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-export const rcri: CalculatorModule = {
+const config: YesNoCalculatorConfig = {
     id: 'rcri',
     title: 'Revised Cardiac Risk Index for Pre-Operative Risk',
     description: 'Estimates risk of cardiac complications after noncardiac surgery.',
-    generateHTML: function () {
-        const riskFactors = [
-            { id: 'rcri-surgery', label: 'High-risk surgery (intraperitoneal, intrathoracic, suprainguinal vascular)' },
-            { id: 'rcri-ihd', label: 'History of Ischemic Heart Disease (MI or positive stress test)' },
-            { id: 'rcri-hf', label: 'History of Congestive Heart Failure' },
-            { id: 'rcri-cvd', label: 'History of Cerebrovascular Disease (stroke or TIA)' },
-            { id: 'rcri-insulin', label: 'Preoperative treatment with insulin' },
-            { id: 'rcri-creatinine', label: 'Preoperative serum creatinine > 2.0 mg/dL' }
-        ];
-
-        const inputs = uiBuilder.createSection({
-            title: 'RCRI Factors',
-            content: riskFactors.map(factor =>
-                uiBuilder.createRadioGroup({
-                    name: factor.id,
-                    label: factor.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes (+1)' }
-                    ]
-                })
-            ).join('')
-        });
-
+    sectionTitle: 'RCRI Factors',
+    sectionIcon: '❤️',
+    questions: [
+        { id: 'rcri-surgery', label: 'High-risk surgery (intraperitoneal, intrathoracic, suprainguinal vascular)', points: 1 },
+        { id: 'rcri-ihd', label: 'History of Ischemic Heart Disease (MI or positive stress test)', points: 1 },
+        { id: 'rcri-hf', label: 'History of Congestive Heart Failure', points: 1 },
+        { id: 'rcri-cvd', label: 'History of Cerebrovascular Disease (stroke or TIA)', points: 1 },
+        { id: 'rcri-insulin', label: 'Preoperative treatment with insulin', points: 1 },
+        { id: 'rcri-creatinine', label: 'Preoperative serum creatinine > 2.0 mg/dL', points: 1 }
+    ],
+    riskLevels: [
+        { minScore: 0, maxScore: 0, label: 'Class I (Low Risk)', severity: 'success', description: '0.4% risk of major cardiac complications' },
+        { minScore: 1, maxScore: 1, label: 'Class II (Low Risk)', severity: 'success', description: '0.9% risk of major cardiac complications' },
+        { minScore: 2, maxScore: 2, label: 'Class III (Moderate Risk)', severity: 'warning', description: '6.6% risk of major cardiac complications' },
+        { minScore: 3, maxScore: 999, label: 'Class IV (High Risk)', severity: 'danger', description: '11% risk of major cardiac complications' }
+    ],
+    references: [
+        'Lee, T. H., Marcantonio, E. R., Mangione, C. M., Thomas, E. J., Polanczyk, C. A., Cook, E. F., ... & Goldman, L. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.'
+    ],
+    customResultRenderer: (score: number): string => {
+        const riskData: Record<number, { risk: string; rate: string; level: 'success' | 'warning' | 'danger' }> = {
+            0: { risk: 'Class I (Low Risk)', rate: '0.4%', level: 'success' },
+            1: { risk: 'Class II (Low Risk)', rate: '0.9%', level: 'success' },
+            2: { risk: 'Class III (Moderate Risk)', rate: '6.6%', level: 'warning' }
+        };
+        
+        const data = riskData[score] || { risk: 'Class IV (High Risk)', rate: '11%', level: 'danger' as const };
+        const alertClass = `ui-alert-${data.level}`;
+        
         return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
+            ${uiBuilder.createResultItem({
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 6 points',
+                interpretation: data.risk,
+                alertClass: alertClass
+            })}
+            
+            <div class="ui-alert ${alertClass} mt-10">
+                <span class="ui-alert-icon">📊</span>
+                <div class="ui-alert-content">
+                    Major Cardiac Complications Rate: <strong>${data.rate}</strong>
+                </div>
             </div>
-            
-            ${inputs}
-            
-            <div id="rcri-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'rcri-result', title: 'RCRI Result' })}
-            
+        `;
+    }
+};
+
+// 創建基礎計算器
+const baseCalculator = createYesNoCalculator(config);
+
+// 導出帶有 FHIR 自動填入的計算器
+export const rcri = {
+    ...baseCalculator,
+    
+    // 添加參考圖片
+    generateHTML(): string {
+        let html = baseCalculator.generateHTML();
+        
+        const referenceSection = `
             <div class="info-section mt-20">
                 <h4>Reference</h4>
-                <p>Lee, T. H., Marcantonio, E. R., Mangione, C. M., Thomas, E. J., Polanczyk, C. A., Cook, E. F., ... & Goldman, L. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.</p>
+                <p>Lee, T. H., et al. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.</p>
                 <img src="js/calculators/rcri/Lees-Revised-Cardiac-Risk-Index-RCRI_W640.jpg" alt="RCRI Risk Stratification Table" style="max-width: 100%; height: auto; margin-top: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
             </div>
         `;
+        
+        return html + referenceSection;
     },
-    initialize: function (client, patient, container) {
+    
+    initialize(client: unknown, patient: unknown, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
-
-        // Initialize staleness tracker
+        
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
-
-        const setRadioValue = (name: string, value: string) => {
+        
+        const setRadioValue = (name: string, value: string, obs?: any, loinc?: string, label?: string): void => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
+                if (obs && loinc && label) {
+                    stalenessTracker.trackObservation(`input[name="${name}"]`, obs, loinc, label);
+                }
             }
         };
-
-        const calculate = () => {
-            try {
-                // Clear validation errors
-                const errorContainer = container.querySelector('#rcri-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
-
-                let score = 0;
-                const radios = container.querySelectorAll('input[type="radio"]:checked');
-
-                radios.forEach(radio => {
-                    score += parseInt((radio as HTMLInputElement).value);
-                });
-
-                let risk = '';
-                let complicationsRate = '';
-                let alertClass = '';
-
-                if (score === 0) {
-                    risk = 'Class I (Low Risk)';
-                    complicationsRate = '0.4%';
-                    alertClass = 'ui-alert-success';
-                } else if (score === 1) {
-                    risk = 'Class II (Low Risk)';
-                    complicationsRate = '0.9%';
-                    alertClass = 'ui-alert-success';
-                } else if (score === 2) {
-                    risk = 'Class III (Moderate Risk)';
-                    complicationsRate = '6.6%';
-                    alertClass = 'ui-alert-warning';
-                } else {
-                    risk = 'Class IV (High Risk)';
-                    complicationsRate = '11%';
-                    alertClass = 'ui-alert-danger';
+        
+        // 計算函數
+        const calculate = (): void => {
+            let score = 0;
+            config.questions.forEach(q => {
+                const radio = container.querySelector(`input[name="${q.id}"]:checked`) as HTMLInputElement | null;
+                if (radio) {
+                    score += parseInt(radio.value) || 0;
                 }
-
-                const resultBox = container.querySelector('#rcri-result');
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                        ${uiBuilder.createResultItem({
-                            label: 'Total Score',
-                            value: score,
-                            unit: '/ 6 points',
-                            interpretation: risk,
-                            alertClass: alertClass
-                        })}
-                        
-                        <div class="ui-alert ${alertClass} mt-10">
-                            <span class="ui-alert-icon">📊</span>
-                            <div class="ui-alert-content">
-                                Major Cardiac Complications Rate: <strong>${complicationsRate}</strong>
-                            </div>
-                        </div>
-                    `;
-                    }
-                    resultBox.classList.add('show');
+            });
+            
+            const resultBox = document.getElementById('rcri-result');
+            if (resultBox) {
+                const resultContent = resultBox.querySelector('.ui-result-content');
+                if (resultContent && config.customResultRenderer) {
+                    resultContent.innerHTML = config.customResultRenderer(score);
                 }
-            } catch (error) {
-                const errorContainer = container.querySelector('#rcri-error-container');
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                } else {
-                    console.error(error);
-                }
-                logError(error as Error, { calculator: 'rcri', action: 'calculate' });
+                resultBox.classList.add('show');
             }
         };
-
-        // Event listeners
+        
+        // 綁定事件
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-
-        // Auto-populate creatinine
+        
+        // FHIR 自動填入 Creatinine
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
+            getMostRecentObservation(client as any, LOINC_CODES.CREATININE).then(obs => {
                 if (obs?.valueQuantity) {
-                    let crValue = obs.valueQuantity.value;
+                    const crValue = obs.valueQuantity.value;
                     const unit = obs.valueQuantity.unit || 'mg/dL';
 
-                    // It's possible crValue is nullish but TS might complain if 'convert' expects number.
-                    // UnitConverter.convert usually returns number | null.
                     if (crValue !== undefined && crValue !== null) {
                         const convertedValue = UnitConverter.convert(crValue, unit, 'mg/dL', 'creatinine');
 
                         if (convertedValue !== null && convertedValue > 2.0) {
-                            setRadioValue('rcri-creatinine', '1');
+                            setRadioValue('rcri-creatinine', '1', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                         }
                     }
-
-                    // Track staleness
-                    stalenessTracker.trackObservation('input[name="rcri-creatinine"]', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                 }
             }).catch(e => console.warn(e));
         }
-
+        
+        // 初始計算
         calculate();
     }
 };

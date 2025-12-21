@@ -12,7 +12,15 @@
 import { uiBuilder } from '../../ui-builder.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { displayError, logError } from '../../errorHandler.js';
-import type { CalculatorConfig, CalculatorInput, CalculatorResult, FHIRClient, Patient, StalenessTracker } from '../../types/calculator.js';
+import type { 
+    CalculatorConfig, 
+    CalculatorInput, 
+    CalculatorResult, 
+    FHIRClient, 
+    Patient, 
+    StalenessTracker,
+    Observation 
+} from '../../types/calculator.js';
 
 /**
  * 計算器基類

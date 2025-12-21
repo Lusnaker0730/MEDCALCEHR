@@ -106,25 +106,31 @@ window.onload = () => {
 
             card.innerHTML = calculator.generateHTML();
 
+            // 初始化計算器的輔助函數
+            const initializeCalculator = (client, patient) => {
+                if (typeof calculator.initialize === 'function') {
+                    try {
+                        calculator.initialize(client, patient, card);
+                    } catch (initError) {
+                        console.error('Error during calculator initialization:', initError);
+                        card.innerHTML =
+                            '<div class="error-box">An error occurred while initializing this calculator.</div>';
+                    }
+                }
+            };
+
             FHIR.oauth2
                 .ready()
                 .then(client => {
                     displayPatientInfo(client, patientInfoDiv).then(patient => {
-                        if (typeof calculator.initialize === 'function') {
-                            // Add a try-catch here as well to catch runtime errors during initialization
-                            try {
-                                calculator.initialize(client, patient, card);
-                            } catch (initError) {
-                                console.error('Error during calculator initialization:', initError);
-                                card.innerHTML =
-                                    '<div class="error-box">An error occurred while initializing this calculator.</div>';
-                            }
-                        }
+                        initializeCalculator(client, patient);
                     });
                 })
                 .catch(error => {
                     console.error(error);
-                    patientInfoDiv.innerText = 'Failed to initialize SMART on FHIR client.';
+                    patientInfoDiv.innerText = 'No patient data available. Please launch from the EHR.';
+                    // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
+                    initializeCalculator(null, null);
                 });
         } catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);

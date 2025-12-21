@@ -1,3 +1,9 @@
+/**
+ * Revised Geneva Score (Simplified) Calculator
+ *
+ * 這是一個混合計算器 - 有 checkbox 評分和 input 輸入（心率）
+ * 需要自定義處理，因此不完全使用工廠函數
+ */
 import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
@@ -7,34 +13,24 @@ export const genevaScore = {
     title: 'Revised Geneva Score (Simplified)',
     description: 'Estimates the pre-test probability of pulmonary embolism (PE).',
     generateHTML: function () {
-        const riskFactors = [
-            { id: 'geneva-age', label: 'Age > 65 years', points: 1 },
-            { id: 'geneva-prev-dvt', label: 'Previous DVT or PE', points: 1 },
-            { id: 'geneva-surgery', label: 'Surgery or fracture within 1 month', points: 1 },
-            { id: 'geneva-malignancy', label: 'Active malignancy', points: 1 }
-        ];
-        const clinicalSigns = [
-            { id: 'geneva-limb-pain', label: 'Unilateral lower limb pain', points: 1 },
-            { id: 'geneva-hemoptysis', label: 'Hemoptysis', points: 1 },
-            { id: 'geneva-palpation', label: 'Pain on deep vein palpation AND unilateral edema', points: 1 }
-        ];
         const assessmentSection = uiBuilder.createSection({
             title: 'Clinical Assessment',
             icon: '📋',
-            content: riskFactors.map(item => uiBuilder.createCheckbox({
-                id: item.id,
-                label: `${item.label} (+${item.points})`,
-                value: item.points.toString()
-            })).join('')
+            content: [
+                uiBuilder.createCheckbox({ id: 'geneva-age', label: 'Age > 65 years (+1)', value: '1' }),
+                uiBuilder.createCheckbox({ id: 'geneva-prev-dvt', label: 'Previous DVT or PE (+1)', value: '1' }),
+                uiBuilder.createCheckbox({ id: 'geneva-surgery', label: 'Surgery or fracture within 1 month (+1)', value: '1' }),
+                uiBuilder.createCheckbox({ id: 'geneva-malignancy', label: 'Active malignancy (+1)', value: '1' })
+            ].join('')
         });
         const signsSection = uiBuilder.createSection({
             title: 'Clinical Signs',
             icon: '⚕️',
-            content: clinicalSigns.map(item => uiBuilder.createCheckbox({
-                id: item.id,
-                label: `${item.label} (+${item.points})`,
-                value: item.points.toString()
-            })).join('')
+            content: [
+                uiBuilder.createCheckbox({ id: 'geneva-limb-pain', label: 'Unilateral lower limb pain (+1)', value: '1' }),
+                uiBuilder.createCheckbox({ id: 'geneva-hemoptysis', label: 'Hemoptysis (+1)', value: '1' }),
+                uiBuilder.createCheckbox({ id: 'geneva-palpation', label: 'Pain on deep vein palpation AND unilateral edema (+1)', value: '1' })
+            ].join('')
         });
         const vitalsSection = uiBuilder.createSection({
             title: 'Vital Signs',
@@ -54,11 +50,23 @@ export const genevaScore = {
                 <p class="description">${this.description}</p>
             </div>
             
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <p><strong>Note:</strong> This is the Simplified (Modified) Revised Geneva Score. Each criterion is worth 1 point (except heart rate scoring).</p>
+                </div>
+            </div>
+            
             ${assessmentSection}
             ${signsSection}
             ${vitalsSection}
             
             ${uiBuilder.createResultBox({ id: 'geneva-result', title: 'Geneva Score Result' })}
+            
+            <div class="info-section mt-20">
+                <h4>📚 References</h4>
+                <p>Klok FA, et al. Simplification of the revised Geneva score for assessing clinical probability of pulmonary embolism. <em>Arch Intern Med</em>. 2008;168(19):2131-2136.</p>
+            </div>
         `;
     },
     initialize: function (client, patient, container) {
@@ -147,8 +155,9 @@ export const genevaScore = {
         // Load FHIR data
         if (client && patient) {
             // Auto-populate age checkbox
-            if (patient.birthDate) {
-                const age = calculateAge(patient.birthDate);
+            const typedPatient = patient;
+            if (typedPatient.birthDate) {
+                const age = calculateAge(typedPatient.birthDate);
                 const ageCheckbox = container.querySelector('#geneva-age');
                 if (age > 65 && ageCheckbox) {
                     ageCheckbox.checked = true;
@@ -163,7 +172,7 @@ export const genevaScore = {
                     hrInput.dispatchEvent(new Event('input'));
                     stalenessTracker.trackObservation('#geneva-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
                 }
-            });
+            }).catch(e => console.warn('Error loading heart rate:', e));
         }
         // Initial calculation
         calculate();

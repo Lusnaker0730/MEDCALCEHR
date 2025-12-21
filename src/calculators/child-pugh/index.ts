@@ -1,17 +1,41 @@
+/**
+ * Child-Pugh Score for Cirrhosis Mortality Calculator
+ * 
+ * 這是一個複雜的計算器，包含：
+ * - 實驗室數值自動填充（Bilirubin, Albumin, INR）
+ * - 臨床參數（Ascites, Encephalopathy）
+ * - 數值區間自動選擇對應的 radio
+ * 
+ * 由於複雜度高，保持自定義實現
+ */
+
 import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { createStalenessTracker } from '../../data-staleness.js';
-
 import { uiBuilder } from '../../ui-builder.js';
-import { displayError, logError } from '../../errorHandler.js';
 
-export const childPugh = {
+interface CalculatorModule {
+    id: string;
+    title: string;
+    description: string;
+    generateHTML: () => string;
+    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
+}
+
+interface RangeCondition {
+    condition: (v: number) => boolean;
+    value: string;
+}
+
+export const childPugh: CalculatorModule = {
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
-    description: 'Estimates cirrhosis severity.',
+    description: 'Estimates cirrhosis severity and prognosis.',
+    
     generateHTML: function (): string {
         const labSection = uiBuilder.createSection({
             title: 'Laboratory Parameters',
+            icon: '🔬',
             content: [
                 uiBuilder.createRadioGroup({
                     name: 'bilirubin',
@@ -45,6 +69,7 @@ export const childPugh = {
 
         const clinicalSection = uiBuilder.createSection({
             title: 'Clinical Parameters',
+            icon: '🩺',
             content: [
                 uiBuilder.createRadioGroup({
                     name: 'ascites',
@@ -105,9 +130,15 @@ export const childPugh = {
             
             <div id="child-pugh-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'child-pugh-result', title: 'Child-Pugh Score Assessment' })}
+            
+            <div class="info-section mt-20">
+                <h4>📚 References</h4>
+                <p>Pugh RN, Murray-Lyon IM, Dawson JL, et al. Transection of the oesophagus for bleeding oesophageal varices. <em>Br J Surg</em>. 1973;60(8):646-649.</p>
+            </div>
         `;
     },
-    initialize: function (client: any, patient: any, container: HTMLElement): void {
+    
+    initialize: function (client: unknown, patient: unknown, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         // Initialize staleness tracker
@@ -116,7 +147,7 @@ export const childPugh = {
 
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
 
-        const calculate = () => {
+        const calculate = (): void => {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#child-pugh-error-container');
@@ -136,10 +167,10 @@ export const childPugh = {
                 });
 
                 const resultBox = container.querySelector('#child-pugh-result') as HTMLElement;
-                const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
+                const resultContent = resultBox?.querySelector('.ui-result-content') as HTMLElement;
 
                 if (!allAnswered) {
-                    resultBox.classList.remove('show');
+                    if (resultBox) resultBox.classList.remove('show');
                     return;
                 }
 
@@ -149,45 +180,51 @@ export const childPugh = {
 
                 if (score <= 6) {
                     classification = 'Child Class A';
-                    prognosis = 'Well-compensated disease - Good prognosis\nLife Expectancy: 15-20 years\nSurgical Mortality: 10%';
+                    prognosis = 'Well-compensated disease - Good prognosis<br>Life Expectancy: 15-20 years<br>Surgical Mortality: 10%';
                     alertClass = 'ui-alert-success';
                 } else if (score <= 9) {
                     classification = 'Child Class B';
-                    prognosis = 'Significant functional compromise - Moderate prognosis\nLife Expectancy: 4-14 years\nSurgical Mortality: 30%';
+                    prognosis = 'Significant functional compromise - Moderate prognosis<br>Life Expectancy: 4-14 years<br>Surgical Mortality: 30%';
                     alertClass = 'ui-alert-warning';
                 } else {
                     classification = 'Child Class C';
-                    prognosis = 'Decompensated disease - Poor prognosis\nLife Expectancy: 1-3 years\nSurgical Mortality: 82%';
+                    prognosis = 'Decompensated disease - Poor prognosis<br>Life Expectancy: 1-3 years<br>Surgical Mortality: 82%';
                     alertClass = 'ui-alert-danger';
                 }
 
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                    label: 'Total Points',
-                    value: score,
-                    unit: 'points'
-                })}
-                    ${uiBuilder.createResultItem({
-                    label: 'Classification',
-                    value: classification,
-                    interpretation: prognosis.replace(/\n/g, '<br>'),
-                    alertClass: alertClass
-                })}
-                `;
+                if (resultContent) {
+                    resultContent.innerHTML = `
+                        ${uiBuilder.createResultItem({
+                            label: 'Total Points',
+                            value: score.toString(),
+                            unit: 'points'
+                        })}
+                        ${uiBuilder.createResultItem({
+                            label: 'Classification',
+                            value: classification,
+                            interpretation: prognosis,
+                            alertClass: alertClass
+                        })}
+                    `;
+                }
 
-                resultBox.classList.add('show');
-            } catch (error: any) {
+                if (resultBox) resultBox.classList.add('show');
+            } catch (error) {
+                console.error('Error calculating Child-Pugh:', error);
                 const errorContainer = container.querySelector('#child-pugh-error-container');
                 if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error);
-                } else {
-                    console.error(error);
+                    errorContainer.innerHTML = '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
                 }
-                logError(error, { calculator: 'child-pugh', action: 'calculate' });
             }
         };
 
-        const setRadioFromValue = (groupName: string, value: number, ranges: Array<{ condition: (v: number) => boolean, value: string }>, displayValue: string, unit: string) => {
+        const setRadioFromValue = (
+            groupName: string, 
+            value: number, 
+            ranges: RangeCondition[], 
+            displayValue: string, 
+            unit: string
+        ): void => {
             if (value === null || value === undefined) {
                 const displayEl = container.querySelector(`#current-${groupName}`);
                 if (displayEl) {
@@ -210,7 +247,6 @@ export const childPugh = {
                 ) as HTMLInputElement;
                 if (radio) {
                     radio.checked = true;
-                    // Trigger change event to update UI (if needed) and recalculate
                     radio.dispatchEvent(new Event('change'));
                 }
             }
@@ -218,23 +254,22 @@ export const childPugh = {
 
         // Fetch and set lab values
         if (client) {
+            // Bilirubin
             getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
                 .then(obs => {
-                    if (obs && obs.valueQuantity) {
+                    if (obs?.valueQuantity) {
                         const value = obs.valueQuantity.value;
                         setRadioFromValue(
                             'bilirubin',
                             value,
                             [
-                                { condition: v => v < 2, value: '1' },
-                                { condition: v => v >= 2 && v <= 3, value: '2' },
-                                { condition: v => v > 3, value: '3' }
+                                { condition: (v: number) => v < 2, value: '1' },
+                                { condition: (v: number) => v >= 2 && v <= 3, value: '2' },
+                                { condition: (v: number) => v > 3, value: '3' }
                             ],
                             value.toFixed(1),
                             'mg/dL'
                         );
-
-                        // Track staleness
                         stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
                     } else {
                         const el = container.querySelector('#current-bilirubin');
@@ -247,10 +282,11 @@ export const childPugh = {
                     if (el) el.textContent = 'Not available';
                 });
 
+            // Albumin
             getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
                 .then(obs => {
-                    if (obs && obs.valueQuantity) {
-                        // Check unit. If g/L, convert to g/dL. If g/dL, use as is.
+                    if (obs?.valueQuantity) {
+                        // Check unit. If g/L, convert to g/dL.
                         let valueGdL = obs.valueQuantity.value;
                         const unit = obs.valueQuantity.unit || 'g/dL';
 
@@ -263,15 +299,13 @@ export const childPugh = {
                             'albumin',
                             valueGdL,
                             [
-                                { condition: v => v > 3.5, value: '1' },
-                                { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
-                                { condition: v => v < 2.8, value: '3' }
+                                { condition: (v: number) => v > 3.5, value: '1' },
+                                { condition: (v: number) => v >= 2.8 && v <= 3.5, value: '2' },
+                                { condition: (v: number) => v < 2.8, value: '3' }
                             ],
                             valueGdL.toFixed(1),
                             'g/dL'
                         );
-
-                        // Track staleness
                         stalenessTracker.trackObservation('#current-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                     } else {
                         const el = container.querySelector('#current-albumin');
@@ -284,23 +318,22 @@ export const childPugh = {
                     if (el) el.textContent = 'Not available';
                 });
 
+            // INR
             getMostRecentObservation(client, LOINC_CODES.INR_COAG)
                 .then(obs => {
-                    if (obs && obs.valueQuantity) {
+                    if (obs?.valueQuantity) {
                         const value = obs.valueQuantity.value;
                         setRadioFromValue(
                             'inr',
                             value,
                             [
-                                { condition: v => v < 1.7, value: '1' },
-                                { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
-                                { condition: v => v > 2.3, value: '3' }
+                                { condition: (v: number) => v < 1.7, value: '1' },
+                                { condition: (v: number) => v >= 1.7 && v <= 2.3, value: '2' },
+                                { condition: (v: number) => v > 2.3, value: '3' }
                             ],
                             value.toFixed(2),
                             ''
                         );
-
-                        // Track staleness
                         stalenessTracker.trackObservation('#current-inr', obs, LOINC_CODES.INR_COAG, 'INR');
                     } else {
                         const el = container.querySelector('#current-inr');
@@ -312,10 +345,16 @@ export const childPugh = {
                     const el = container.querySelector('#current-inr');
                     if (el) el.textContent = 'Not available';
                 });
+        } else {
+            // No client - mark labs as not available
+            ['bilirubin', 'albumin', 'inr'].forEach(lab => {
+                const el = container.querySelector(`#current-${lab}`);
+                if (el) el.textContent = 'Not available';
+            });
         }
 
         // Event listeners for all radio buttons
-        container.addEventListener('change', (e) => {
+        container.addEventListener('change', (e: Event) => {
             const target = e.target as HTMLInputElement;
             if (target.type === 'radio') {
                 calculate();

@@ -1,15 +1,26 @@
+/**
+ * Charlson Comorbidity Index (CCI) Calculator
+ * 
+ * 這是一個複雜的計算器，包含：
+ * - 年齡分層評分
+ * - 多個 Yes/No 條件
+ * - 多層級條件（肝病、糖尿病、腫瘤）
+ * - 大量的 FHIR ICD 代碼自動填充
+ * 
+ * 由於複雜度高，保持自定義實現
+ */
+
 import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
 interface CalculatorModule {
     id: string;
     title: string;
     description: string;
     generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
+    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
 }
 
 interface ConditionMapItem {
@@ -25,8 +36,9 @@ export const charlson: CalculatorModule = {
     id: 'charlson',
     title: 'Charlson Comorbidity Index (CCI)',
     description: 'Predicts 10-year survival in patients with multiple comorbidities.',
+    
     generateHTML: function () {
-        const createConditionToggle = (id: string, title: string, subtitle: string, points: number) => {
+        const createConditionToggle = (id: string, title: string, subtitle: string, points: number): string => {
             return uiBuilder.createRadioGroup({
                 name: id,
                 label: title,
@@ -40,6 +52,7 @@ export const charlson: CalculatorModule = {
 
         const ageSection = uiBuilder.createSection({
             title: 'Age',
+            icon: '🎂',
             content: uiBuilder.createRadioGroup({
                 name: 'age',
                 options: [
@@ -104,6 +117,7 @@ export const charlson: CalculatorModule = {
 
         const conditionsSection = uiBuilder.createSection({
             title: 'Comorbidities',
+            icon: '🏥',
             content: conditionsContent
         });
 
@@ -111,6 +125,13 @@ export const charlson: CalculatorModule = {
             <div class="calculator-header">
                 <h3>${this.title}</h3>
                 <p class="description">${this.description}</p>
+            </div>
+            
+            <div class="alert info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-content">
+                    <p><strong>About CCI:</strong> The Charlson Comorbidity Index predicts 10-year mortality based on age and 17 comorbid conditions. Higher scores indicate more severe comorbidity burden.</p>
+                </div>
             </div>
             
             ${ageSection}
@@ -128,15 +149,21 @@ export const charlson: CalculatorModule = {
                     <div class="score-label">Estimated 10-year survival</div>
                 </div>
             </div>
+            
+            <div class="info-section mt-20">
+                <h4>📚 References</h4>
+                <p>Charlson ME, Pompei P, Ales KL, MacKenzie CR. A new method of classifying prognostic comorbidity in longitudinal studies: development and validation. <em>J Chronic Dis</em>. 1987;40(5):373-383.</p>
+            </div>
         `;
     },
-    initialize: function (client, patient, container) {
+    
+    initialize: function (client: unknown, patient: unknown, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
         const stalenessTracker = createStalenessTracker();
         stalenessTracker.setContainer(container);
 
-        const calculate = () => {
+        const calculate = (): void => {
             // Clear previous errors
             const errorContainer = container.querySelector('#cci-error-container');
             if (errorContainer) errorContainer.innerHTML = '';
@@ -149,7 +176,8 @@ export const charlson: CalculatorModule = {
 
                 if (isNaN(score)) throw new Error("Calculation Error");
 
-                const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9)); // Adjusted formula from literature
+                // Adjusted formula from literature
+                const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9));
 
                 const scoreEl = container.querySelector('#cci-score');
                 const survivalEl = container.querySelector('#cci-survival');
@@ -157,21 +185,25 @@ export const charlson: CalculatorModule = {
                 if (scoreEl) scoreEl.textContent = score.toString();
                 if (survivalEl) survivalEl.textContent = `${survival.toFixed(0)}%`;
             } catch (error) {
-                logError(error as Error, { calculator: 'charlson', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
+                console.error('Error calculating CCI:', error);
+                if (errorContainer) {
+                    errorContainer.innerHTML = '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
+                }
             }
         };
 
         // Attach change listener to container for event delegation
-        container.addEventListener('change', (e) => {
-            if ((e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type === 'radio') {
+        container.addEventListener('change', (e: Event) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'radio') {
                 calculate();
             }
         });
 
         // Auto-populate age
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
+        const typedPatient = patient as { birthDate?: string } | null;
+        if (typedPatient?.birthDate) {
+            const age = calculateAge(typedPatient.birthDate);
             let ageValue = 0;
             if (age >= 80) {
                 ageValue = 4;
@@ -215,12 +247,12 @@ export const charlson: CalculatorModule = {
                             radio.dispatchEvent(new Event('change'));
                         }
                     }
-                }).catch(e => console.warn(e));
+                }).catch(e => console.warn(`Error fetching ${key} conditions:`, e));
             }
 
             // Special handling for multi-level conditions
+            // Liver disease
             getPatientConditions(client, ['K70.3', 'K74', 'I85']).then(conditions => {
-                // Moderate/Severe Liver
                 if (conditions.length > 0) {
                     const radio = container.querySelector('input[name="liver"][value="3"]') as HTMLInputElement | null;
                     if (radio) {
@@ -229,7 +261,6 @@ export const charlson: CalculatorModule = {
                     }
                 } else {
                     getPatientConditions(client, ['K73', 'B18']).then(conditions => {
-                        // Mild Liver
                         if (conditions.length > 0) {
                             const radio = container.querySelector('input[name="liver"][value="1"]') as HTMLInputElement | null;
                             if (radio) {
@@ -237,15 +268,15 @@ export const charlson: CalculatorModule = {
                                 radio.dispatchEvent(new Event('change'));
                             }
                         }
-                    }).catch(e => console.warn(e));
+                    }).catch(e => console.warn('Error fetching mild liver conditions:', e));
                 }
-            }).catch(e => console.warn(e));
+            }).catch(e => console.warn('Error fetching severe liver conditions:', e));
 
+            // Diabetes
             getPatientConditions(client, [
                 'E10.2', 'E10.3', 'E10.4', 'E10.5',
                 'E11.2', 'E11.3', 'E11.4', 'E11.5'
             ]).then(conditions => {
-                // Diabetes w/ end-organ damage
                 if (conditions.length > 0) {
                     const radio = container.querySelector('input[name="diabetes"][value="2"]') as HTMLInputElement | null;
                     if (radio) {
@@ -254,7 +285,6 @@ export const charlson: CalculatorModule = {
                     }
                 } else {
                     getPatientConditions(client, ['E10', 'E11']).then(conditions => {
-                        // Uncomplicated Diabetes
                         if (conditions.length > 0) {
                             const radio = container.querySelector('input[name="diabetes"][value="1"]') as HTMLInputElement | null;
                             if (radio) {
@@ -262,16 +292,25 @@ export const charlson: CalculatorModule = {
                                 radio.dispatchEvent(new Event('change'));
                             }
                         }
-                    }).catch(e => console.warn(e));
+                    }).catch(e => console.warn('Error fetching uncomplicated diabetes conditions:', e));
                 }
-            }).catch(e => console.warn(e));
+            }).catch(e => console.warn('Error fetching diabetes w/ EOD conditions:', e));
 
+            // Solid tumor
+            interface FhirCondition {
+                code?: {
+                    coding?: Array<{
+                        code: string;
+                        system?: string;
+                    }>;
+                };
+            }
+            
             getPatientConditions(client, ['C00-C75', 'C76-C80']).then(conditions => {
-                // Solid tumor
                 if (conditions.length > 0) {
                     const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
-                    const isMetastatic = conditions.some((c: any) =>
-                        c.code.coding && c.code.coding[0] &&
+                    const isMetastatic = conditions.some((c: FhirCondition) =>
+                        c.code?.coding?.[0]?.code &&
                         metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
                     );
                     const value = isMetastatic ? 6 : 2;
@@ -281,9 +320,9 @@ export const charlson: CalculatorModule = {
                         radio.dispatchEvent(new Event('change'));
                     }
                 }
-            }).catch(e => console.warn(e));
+            }).catch(e => console.warn('Error fetching tumor conditions:', e));
 
-            // Check for CKD via labs or conditions
+            // CKD via conditions
             getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(conditions => {
                 if (conditions.length > 0) {
                     const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement | null;
@@ -292,11 +331,11 @@ export const charlson: CalculatorModule = {
                         radio.dispatchEvent(new Event('change'));
                     }
                 }
-            }).catch(e => console.warn(e));
+            }).catch(e => console.warn('Error fetching CKD conditions:', e));
 
+            // CKD via Creatinine
             getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                // Creatinine
-                if (obs && obs.valueQuantity && obs.valueQuantity.value > 3) {
+                if (obs?.valueQuantity && obs.valueQuantity.value > 3) {
                     const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement | null;
                     if (radio) {
                         radio.checked = true;
@@ -304,7 +343,7 @@ export const charlson: CalculatorModule = {
                     }
                     stalenessTracker.trackObservation('input[name="ckd"][value="2"]', obs, LOINC_CODES.CREATININE, 'Creatinine > 3 mg/dL');
                 }
-            }).catch(e => console.warn(e));
+            }).catch(e => console.warn('Error fetching creatinine:', e));
         }
 
         // Calculate initially
