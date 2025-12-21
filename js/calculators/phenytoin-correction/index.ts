@@ -85,7 +85,7 @@ export const phenytoinCorrection: CalculatorModule = {
             type: 'info',
             message: `
                     <h4>Therapeutic Range:</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li>10-20 mcg/mL</li>
                         <li>>20 mcg/mL: Toxic</li>
                         <li><10 mcg/mL: Subtherapeutic</li>

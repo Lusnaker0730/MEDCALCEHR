@@ -57,12 +57,12 @@ export const qsofaScore: CalculatorModule = {
             type: 'info',
             message: `
                     <h4>📊 Interpretation</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
                         <li><strong>Score < 2:</strong> Negative screen; lower risk but continue monitoring.</li>
                     </ul>
-                    <h4 style="margin-top: 15px;">Next Steps for Positive qSOFA:</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <h4 class="mt-15">Next Steps for Positive qSOFA:</h4>
+                    <ul class="info-list">
                         <li>Calculate full SOFA score</li>
                         <li>Measure serum lactate</li>
                         <li>Obtain blood cultures</li>

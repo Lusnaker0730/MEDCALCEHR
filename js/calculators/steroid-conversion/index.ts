@@ -44,8 +44,8 @@ export const steroidConversion: CalculatorModule = {
             ${uiBuilder.createSection({
             title: 'Conversion',
             content: `
-                    <div class="conversion-row" style="display: flex; gap: 1rem; align-items: flex-end;">
-                        <div style="flex: 1;">
+                    <div class="conversion-row flex-row gap-lg align-end">
+                        <div class="flex-1">
                             ${uiBuilder.createInput({
                 id: 'steroid-from-dose',
                 label: 'Dose',
@@ -54,7 +54,7 @@ export const steroidConversion: CalculatorModule = {
                 min: 0
             })}
                         </div>
-                        <div style="flex: 1;">
+                        <div class="flex-1">
                             ${uiBuilder.createSelect({
                 id: 'steroid-from-type',
                 label: 'Steroid',
@@ -62,9 +62,9 @@ export const steroidConversion: CalculatorModule = {
             })}
                         </div>
                     </div>
-                    <div style="text-align: center; margin: 1rem 0; font-weight: bold;">IS EQUIVALENT TO</div>
-                     <div class="conversion-row" style="display: flex; gap: 1rem; align-items: flex-end;">
-                        <div style="flex: 1;">
+                    <div class="text-center font-bold mb-10 mt-10">IS EQUIVALENT TO</div>
+                     <div class="conversion-row flex-row gap-lg align-end">
+                        <div class="flex-1">
                             ${uiBuilder.createInput({
                 id: 'steroid-to-dose',
                 label: 'Equivalent Dose',
@@ -73,7 +73,7 @@ export const steroidConversion: CalculatorModule = {
                 min: 0
             })}
                         </div>
-                        <div style="flex: 1;">
+                        <div class="flex-1">
                             ${uiBuilder.createSelect({
                 id: 'steroid-to-type',
                 label: 'Steroid',
@@ -92,7 +92,7 @@ export const steroidConversion: CalculatorModule = {
                 rows,
                 stickyFirstColumn: true
             })}
-                <p class="table-note" style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                <p class="table-note text-sm text-muted mt-10">
                     <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
                 </p>
             `

@@ -82,7 +82,7 @@ export const sodiumCorrection: CalculatorModule = {
             type: 'info',
             message: `
                     <h4>Normal Values:</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li>Normal Sodium: 136-145 mEq/L</li>
                         <li>Normal Glucose: 70-100 mg/dL</li>
                     </ul>

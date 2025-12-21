@@ -82,20 +82,20 @@ export const childPugh = {
                 </div>
             </div>
 
-            <div class="lab-values-summary" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">📋 Current Lab Values</h4>
-                <div class="lab-values-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div class="lab-values-summary">
+                <h4>📋 Current Lab Values</h4>
+                <div class="lab-values-grid">
                     <div class="lab-value-item">
-                        <div class="lab-label" style="color: #7f8c8d;">Bilirubin (Total)</div>
-                        <div class="lab-value" id="current-bilirubin" style="font-weight: 600;">Loading...</div>
+                        <div class="lab-label">Bilirubin (Total)</div>
+                        <div class="lab-value" id="current-bilirubin">Loading...</div>
                     </div>
                     <div class="lab-value-item">
-                        <div class="lab-label" style="color: #7f8c8d;">Albumin</div>
-                        <div class="lab-value" id="current-albumin" style="font-weight: 600;">Loading...</div>
+                        <div class="lab-label">Albumin</div>
+                        <div class="lab-value" id="current-albumin">Loading...</div>
                     </div>
                     <div class="lab-value-item">
-                        <div class="lab-label" style="color: #7f8c8d;">INR</div>
-                        <div class="lab-value" id="current-inr" style="font-weight: 600;">Loading...</div>
+                        <div class="lab-label">INR</div>
+                        <div class="lab-value" id="current-inr">Loading...</div>
                     </div>
                 </div>
             </div>

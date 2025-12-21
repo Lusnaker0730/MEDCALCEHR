@@ -154,7 +154,7 @@ export const calciumCorrection: CalculatorModule = {
                         interpretation: interpretation,
                         alertClass: alertClass
                     })}
-                        <div style="text-align: center; margin-top: 5px; color: #666;">
+                        <div class="text-center mt-5 text-muted">
                             (${correctedCalciumMmol.toFixed(2)} mmol/L)
                         </div>
                     `;

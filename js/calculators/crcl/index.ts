@@ -95,7 +95,7 @@ export const crcl: CalculatorModule = {
             type: 'info',
             message: `
                     <h4>Note:</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li>This formula estimates creatinine clearance, not GFR.</li>
                         <li>May overestimate clearance in elderly patients.</li>
                     </ul>

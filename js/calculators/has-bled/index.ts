@@ -138,9 +138,9 @@ export const hasBled = {
                         alertClass: alertClass
                     })}
                         
-                        <div class="result-item" style="margin-top: 10px; text-align: center;">
-                            <span class="label" style="color: #666;">Annual Bleeding Risk:</span>
-                            <span class="value" style="font-weight: 600;">${risk}</span>
+                        <div class="result-item mt-10 text-center">
+                            <span class="label text-muted">Annual Bleeding Risk:</span>
+                            <span class="value font-semibold">${risk}</span>
                         </div>
     
                         <div class="ui-alert ${alertClass} mt-10">

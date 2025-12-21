@@ -90,7 +90,7 @@ export const ethanolConcentration: CalculatorModule = {
                 { label: 'Concentration (mg/dL)', formula: '(Grams × 1000) / (Weight (kg) × Vd × 10)' }
             ]
         })}
-            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+            <p class="text-sm text-muted mt-10">
                 <strong>Notes:</strong> Vd (Volume of Distribution): Male 0.68 L/kg, Female 0.55 L/kg. Ethanol density: 0.789 g/mL.
             </p>
         `;

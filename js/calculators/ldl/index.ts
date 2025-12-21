@@ -79,7 +79,7 @@ export const ldl: CalculatorModule = {
                 }
             ]
         })}
-            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+            <p class="text-sm text-muted mt-10">
                 <strong>Note:</strong> All values in mg/dL
             </p>
             ${uiBuilder.createAlert({

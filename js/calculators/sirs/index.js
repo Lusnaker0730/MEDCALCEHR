@@ -48,13 +48,13 @@ export const sirs = {
                 <p class="description">${this.description}</p>
             </div>
             
-            <div class="lab-values-summary" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">📊 Current Vital Signs & Labs</h4>
-                <div class="lab-values-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">Temperature</div><div class="lab-value" id="current-temp" style="font-weight: 600;">Loading...</div></div>
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">Heart Rate</div><div class="lab-value" id="current-hr" style="font-weight: 600;">Loading...</div></div>
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">Respiratory Rate</div><div class="lab-value" id="current-rr" style="font-weight: 600;">Loading...</div></div>
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">WBC Count</div><div class="lab-value" id="current-wbc" style="font-weight: 600;">Loading...</div></div>
+            <div class="lab-values-summary">
+                <h4>📊 Current Vital Signs & Labs</h4>
+                <div class="lab-values-grid">
+                    <div class="lab-value-item"><div class="lab-label">Temperature</div><div class="lab-value" id="current-temp">Loading...</div></div>
+                    <div class="lab-value-item"><div class="lab-label">Heart Rate</div><div class="lab-value" id="current-hr">Loading...</div></div>
+                    <div class="lab-value-item"><div class="lab-label">Respiratory Rate</div><div class="lab-value" id="current-rr">Loading...</div></div>
+                    <div class="lab-value-item"><div class="lab-label">WBC Count</div><div class="lab-value" id="current-wbc">Loading...</div></div>
                 </div>
             </div>
 
@@ -139,9 +139,9 @@ export const sirs = {
                             alertClass: alertClass
                         })}
                         
-                        <div class="result-item" style="margin-top: 10px;">
-                            <span class="label" style="color: #666;">SIRS Criteria Met:</span>
-                            <span class="value" style="font-weight: 600;">${sirsCount} / 4</span>
+                        <div class="result-item mt-10">
+                            <span class="label text-muted">SIRS Criteria Met:</span>
+                            <span class="value font-semibold">${sirsCount} / 4</span>
                         </div>
 
                         <div class="ui-alert ${alertClass} mt-10">

@@ -56,7 +56,7 @@ export const hepScore: CalculatorModule = {
             <img src="js/calculators/4ts-hit/6-Table3-1.png" alt="HEP Score Table 2" class="reference-image" style="max-width: 100%; border-radius: 8px;" />
         </div>
 
-        <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
+        <div class="info-section mt-20 text-sm text-muted">
             <h4>📚 Reference</h4>
             <p>Cuker, A., et al. (2010). The HIT Expert Probability (HEP) Score. <em>J Thromb Haemost</em>.</p>
         </div>

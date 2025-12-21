@@ -558,7 +558,7 @@ export const apacheIi: CalculatorModule = {
                         alertClass: mortalityClass
                     })}
                     
-                    <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                    <div class="mt-15 text-sm text-muted">
                         <strong>Breakdown:</strong> APS ${aps} + Age ${agePoints} + Chronic Health ${chronicPoints}
                     </div>
                 `;

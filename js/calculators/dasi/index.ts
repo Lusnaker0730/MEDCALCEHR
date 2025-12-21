@@ -65,12 +65,12 @@ export const dasi: CalculatorModule = {
             
             <div class="info-section mt-20">
                 <h4>📚 Interpretation</h4>
-                <ul style="margin-top: 5px; padding-left: 20px;">
+                <ul class="info-list">
                     <li><strong>Poor:</strong> < 4 METs</li>
                     <li><strong>Moderate:</strong> 4 - 7 METs</li>
                     <li><strong>Good:</strong> > 7 METs</li>
                 </ul>
-                <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                <div class="text-sm text-muted mt-15">
                     <strong>Formula:</strong><br>
                     VO₂peak = (0.43 × DASI) + 9.6 mL/kg/min<br>
                     METs = VO₂peak / 3.5

@@ -85,7 +85,7 @@ export const freeWaterDeficit: CalculatorModule = {
             type: 'info',
             message: `
                     <h4>TBW Factors:</h4>
-                    <ul style="margin-top: 5px; padding-left: 20px;">
+                    <ul class="info-list">
                         <li>Adult Male: 0.6</li>
                         <li>Adult Female: 0.5</li>
                         <li>Elderly Male: 0.5</li>

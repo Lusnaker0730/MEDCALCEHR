@@ -26,8 +26,8 @@ export const mme: CalculatorModule = {
                     <div id="mme-opioid-list">
                         <!-- Dynamic rows will be added here -->
                     </div>
-                    <div style="margin-top: 15px;">
-                        <button id="add-opioid-btn" class="ui-button ui-button-secondary" style="width: 100%;">+ Add Opioid</button>
+                    <div class="mt-15">
+                        <button id="add-opioid-btn" class="ui-button ui-button-secondary full-width">+ Add Opioid</button>
                     </div>
                 `
         })}
@@ -71,7 +71,7 @@ export const mme: CalculatorModule = {
             type: 'warning',
             message: `
                     <h4>⚠️ CDC Recommendations</h4>
-                    <ul style="margin-top:5px; padding-left:20px;">
+                    <ul class="info-list">
                         <li><strong>≥50 MME/day:</strong> Increased risk. Reassess benefits/risks.</li>
                         <li><strong>≥90 MME/day:</strong> Avoid if possible. Consider specialist referral.</li>
                     </ul>
@@ -166,7 +166,7 @@ export const mme: CalculatorModule = {
             const rowId = `mme-row-${Date.now()}`;
             const div = document.createElement('div');
             div.className = 'mme-row';
-            div.style.cssText = 'display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; position: relative;';
+            div.className = 'mme-row flex-row gap-md align-center mb-10 p-10';
 
             const selectHTML = uiBuilder.createSelect({
                 id: `${rowId}-drug`,
@@ -182,9 +182,9 @@ export const mme: CalculatorModule = {
             });
 
             div.innerHTML = `
-                <div style="flex: 2;">${selectHTML}</div>
-                <div style="flex: 1;">${inputHTML}</div>
-                <button class="remove-btn" style="margin-top: 32px; padding: 8px; background: #ff5252; color: white; border: none; border-radius: 4px; cursor: pointer;">✕</button>
+                <div class="flex-1">${selectHTML}</div>
+                <div class="flex-1">${inputHTML}</div>
+                <button class="remove-btn ui-button ui-button-danger mt-20">✕</button>
             `;
 
             listContainer.appendChild(div);

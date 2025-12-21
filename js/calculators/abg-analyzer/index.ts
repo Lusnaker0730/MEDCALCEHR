@@ -132,7 +132,7 @@ export const abgAnalyzer: CalculatorModule = {
 
 
 
-            <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
+            <div class="info-section mt-20 text-sm text-muted">
                 <h4>📚 Reference</h4>
                 <p>Baillie, J K. (2008). Simple, easily memorised "rules of thumb" for the rapid assessment of physiological compensation for respiratory acid-base disorders. <em>Thorax</em>.</p>
             </div>

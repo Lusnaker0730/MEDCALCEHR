@@ -188,7 +188,7 @@ export const serumOsmolality: CalculatorModule = {
                         ${uiBuilder.createSection({
                             title: 'Calculation Breakdown',
                             content: `
-                                <div style="font-size: 0.9em; color: #555;">
+                                <div class="text-sm text-muted">
                                     <div>2 × Na: ${(2 * na!).toFixed(1)}</div>
                                     <div>Glucose / 18: ${(glucoseMgDl! / 18).toFixed(1)}</div>
                                     <div>BUN / 2.8: ${(bunMgDl! / 2.8).toFixed(1)}</div>

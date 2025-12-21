@@ -123,8 +123,8 @@ export const charlson: CalculatorModule = {
                     <div class="score-value" id="cci-score">0</div>
                     <div class="score-label">Charlson Comorbidity Index</div>
                 </div>
-                <div class="interpretation-section" style="margin-top: 15px; text-align: center;">
-                     <div class="score-value" id="cci-survival" style="font-size: 1.5em; color: #2c3e50;">98%</div>
+                <div class="interpretation-section mt-15 text-center">
+                     <div class="score-value" id="cci-survival">98%</div>
                     <div class="score-label">Estimated 10-year survival</div>
                 </div>
             </div>

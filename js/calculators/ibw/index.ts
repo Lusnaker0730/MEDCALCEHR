@@ -62,7 +62,7 @@ export const ibw: CalculatorModule = {
                 { label: 'ABW', formula: 'IBW + 0.4 × (Actual Weight - IBW)' }
             ]
         })}
-            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+            <p class="text-sm text-muted mt-10">
                 <strong>Note:</strong> ABW is calculated only when actual weight exceeds IBW.
             </p>
             ${uiBuilder.createAlert({

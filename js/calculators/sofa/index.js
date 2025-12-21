@@ -97,13 +97,13 @@ export const sofa = {
                 <p class="description">${this.description}</p>
             </div>
 
-            <div class="lab-values-summary" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em;">
-                <h4 style="margin-top: 0; margin-bottom: 10px; color: #2c3e50;">📊 Current Lab Values</h4>
-                <div class="lab-values-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">Platelets</div><div class="lab-value" id="current-platelets" style="font-weight: 600;">Loading...</div></div>
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">Creatinine</div><div class="lab-value" id="current-creatinine" style="font-weight: 600;">Loading...</div></div>
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">Bilirubin</div><div class="lab-value" id="current-bilirubin" style="font-weight: 600;">Loading...</div></div>
-                    <div class="lab-value-item"><div class="lab-label" style="color: #7f8c8d;">PaO₂/FiO₂</div><div class="lab-value" id="current-pao2fio2" style="font-weight: 600;">Manual entry</div></div>
+            <div class="lab-values-summary">
+                <h4>📊 Current Lab Values</h4>
+                <div class="lab-values-grid">
+                    <div class="lab-value-item"><div class="lab-label">Platelets</div><div class="lab-value" id="current-platelets">Loading...</div></div>
+                    <div class="lab-value-item"><div class="lab-label">Creatinine</div><div class="lab-value" id="current-creatinine">Loading...</div></div>
+                    <div class="lab-value-item"><div class="lab-label">Bilirubin</div><div class="lab-value" id="current-bilirubin">Loading...</div></div>
+                    <div class="lab-value-item"><div class="lab-label">PaO₂/FiO₂</div><div class="lab-value" id="current-pao2fio2">Manual entry</div></div>
                 </div>
             </div>
 

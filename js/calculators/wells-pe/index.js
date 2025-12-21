@@ -118,9 +118,9 @@ export const wellsPE = {
                             alertClass: alertClass
                         })}
                             
-                            <div class="result-item" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                                <span class="result-item-label" style="font-weight: 600; color: #555;">Two-Tier Model:</span>
-                                <span class="result-item-value" style="font-weight: bold; margin-left: 5px;">${twoTierModel}</span>
+                            <div class="result-item mt-15 p-10">
+                                <span class="result-item-label font-semibold text-muted">Two-Tier Model:</span>
+                                <span class="result-item-value font-bold">${twoTierModel}</span>
                             </div>
                             
                             <div class="ui-alert ${alertClass} mt-20">

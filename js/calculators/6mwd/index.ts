@@ -116,7 +116,7 @@ export const sixMwd: CalculatorModule = {
             ]
         })}
 
-            <div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
+            <div class="info-section mt-20 text-sm text-muted">
                 <h4>Reference</h4>
                 <p>Enright, P L, & Sherrill, D L. (1998). Reference equations for the six-minute walk in healthy adults. <em>American journal of respiratory and critical care medicine</em>, 158(5 Pt 1), 1384-7.</p>
             </div>

@@ -1,56 +1,214 @@
-/* ===== Start of Critical Overrides ===== */
+/* =============================================
+   MEDCALC EHR - Dark Tech Theme
+   Version: 2.0.0 (Refactored - No !important abuse)
+   
+   This file applies the dark tech theme styling.
+   Requires: variables.css to be loaded first.
+   Uses .tech-theme class for scoped specificity.
+   ============================================= */
 
-/* 1. Global Background Reset */
-/* Specific exclusion: inputs need their own background */
-div:not(.ui-input-wrapper):not(.ui-checkbox-option):not(.ui-radio-option):not(.check-item):not(.input-group):not(.calculator-card):not(.container):not(.ui-section-title):not(.ui-result-box):not(.ui-alert):not(.calculator-header):not(.formula-box):not(.reference-box):not(.ui-result-content):not(.ui-result-item),
-section,
-article,
-.therapy-group,
-.ui-section,
-.ui-formula-section,
-.ui-formula-item,
-[style*="background"] {
-    background-color: transparent !important;
-    background: transparent !important;
-    color: var(--tech-text-main);
+/* ===========================================
+   1. BASE OVERRIDES
+   =========================================== */
+
+.tech-theme {
+    background: var(--gradient-body-bg);
+    color: var(--color-text-main);
+    font-family: var(--font-sans);
+    line-height: var(--line-height-normal);
 }
 
-/* Force specific containers to have the glass panel bg */
-.calculator-card,
-.ui-section-content,
-#therapy-impact-section>div,
-.ui-formula-section {
-    background: transparent !important;
-    /* Let container handle it or make specific parts separate */
-    box-shadow: none !important;
-    border: none !important;
+/* Container */
+.tech-theme .container {
+    max-width: 1400px;
+    margin: auto;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    min-height: 90vh;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-/* 2. Global Font Resize */
-:root {
-    --tech-bg-dark: #0f172a;
-    --tech-bg-panel: rgba(30, 41, 59, 0.7);
-    --tech-primary: #3b82f6;
-    --tech-accent: #06b6d4;
-    --tech-glow: #22d3ee;
-    --tech-text-main: #e2e8f0;
-    --tech-text-muted: #94a3b8;
-    --tech-border: rgba(148, 163, 184, 0.2);
-    --tech-card-bg: rgba(15, 23, 42, 0.6);
-    /* Bump font size */
-    font-size: 18px;
+/* Sticky Header */
+.tech-theme .sticky-header {
+    position: sticky;
+    top: 0;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    z-index: var(--z-sticky);
+    padding: 40px 40px 20px 40px;
+    margin: -40px -40px 0 -40px;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
 }
 
-body {
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    color: var(--tech-text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    line-height: 1.6;
+.tech-theme .content-area {
+    flex: 1;
+    padding: 20px 0 0 0;
 }
 
-/* 3. Button-Style Radio Inputs (Replacing standard circles) */
-/* Hide the actual radio button */
-.ui-radio-option input[type="radio"] {
+/* ===========================================
+   2. TYPOGRAPHY
+   =========================================== */
+
+.tech-theme h1,
+.tech-theme h2,
+.tech-theme h3,
+.tech-theme h4,
+.tech-theme h5,
+.tech-theme h6,
+.tech-theme .list-item-title,
+.tech-theme .ui-section-title {
+    background: var(--gradient-header);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: var(--font-weight-extrabold);
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 30px rgba(34, 211, 238, 0.2);
+    margin-bottom: 1rem;
+}
+
+.tech-theme h1 {
+    font-size: var(--font-size-4xl);
+}
+
+.tech-theme h2 {
+    font-size: var(--font-size-3xl);
+}
+
+.tech-theme h3 {
+    font-size: var(--font-size-2xl);
+}
+
+/* Labels and Text - Use solid colors, not gradients */
+.tech-theme label,
+.tech-theme .input-group label,
+.tech-theme .ui-section-subtitle,
+.tech-theme .section-subtitle {
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: var(--color-text-main);
+    color: var(--color-text-main);
+    text-shadow: none;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: var(--font-size-lg);
+}
+
+/* General text */
+.tech-theme p,
+.tech-theme li,
+.tech-theme span,
+.tech-theme .description,
+.tech-theme .list-item-description,
+.tech-theme .checkbox-label,
+.tech-theme .help-text {
+    color: var(--color-text-main);
+    font-size: var(--font-size-lg);
+}
+
+.tech-theme .description,
+.tech-theme .list-item-description {
+    color: var(--color-text-muted);
+}
+
+/* Patient Info */
+.tech-theme #patient-info {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-normal);
+    border-left: 4px solid var(--color-accent);
+    padding: 15px;
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.15), transparent);
+    margin-bottom: 20px;
+}
+
+/* ===========================================
+   3. BUTTONS
+   =========================================== */
+
+.tech-theme button,
+.tech-theme .filter-btn,
+.tech-theme .language-toggle,
+.tech-theme .ui-btn {
+    background: var(--color-bg-panel);
+    border: 1px solid var(--color-border);
+    color: var(--color-accent);
+    backdrop-filter: blur(4px);
+    transition: var(--transition-normal);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--font-size-lg);
+    padding: 14px 24px;
+    cursor: pointer;
+}
+
+.tech-theme button:hover,
+.tech-theme .filter-btn:hover,
+.tech-theme .language-toggle:hover,
+.tech-theme .ui-btn:hover {
+    background: rgba(6, 182, 212, 0.15);
+    border-color: var(--color-glow);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3), inset 0 0 10px rgba(34, 211, 238, 0.1);
+    transform: translateY(-2px);
+    color: var(--color-text-main);
+    text-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
+}
+
+.tech-theme button.active,
+.tech-theme .filter-btn.active {
+    background: var(--gradient-primary);
+    color: var(--color-text-white);
+    border-color: transparent;
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+}
+
+/* ===========================================
+   4. INPUTS & SELECTS
+   =========================================== */
+
+.tech-theme input[type="text"],
+.tech-theme input[type="number"],
+.tech-theme input[type="search"],
+.tech-theme select,
+.tech-theme .ui-input,
+.tech-theme .ui-select {
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    padding: 14px 18px;
+}
+
+.tech-theme input:focus,
+.tech-theme select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.3);
+    outline: none;
+    background: var(--color-bg-hover);
+}
+
+/* ===========================================
+   5. RADIO BUTTONS (Button Style)
+   =========================================== */
+
+/* Hide actual radio button */
+.tech-theme .ui-radio-option input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
     position: absolute;
@@ -59,23 +217,23 @@ body {
     height: 0;
 }
 
-/* Style the container label as the button */
-.ui-radio-option {
+.tech-theme .ui-radio-option {
     display: inline-flex;
     margin-right: 10px;
     margin-bottom: 10px;
 }
 
-.ui-radio-option label {
+.tech-theme .ui-radio-option label,
+.tech-theme .ui-radio-option .radio-label {
     display: inline-block;
     padding: 12px 24px;
     background: rgba(30, 41, 59, 0.4);
-    border: 1px solid var(--tech-border);
-    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 600;
-    color: var(--tech-text-muted);
-    transition: all 0.3s ease;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-muted);
+    transition: var(--transition-normal);
     user-select: none;
     text-align: center;
     position: relative;
@@ -83,619 +241,35 @@ body {
     min-width: 80px;
 }
 
-/* Hover State */
-.ui-radio-option label:hover {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: var(--tech-accent);
-    color: var(--tech-glow);
+.tech-theme .ui-radio-option label:hover,
+.tech-theme .ui-radio-option .radio-label:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-accent);
+    color: var(--color-glow);
     box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
 }
 
-/* Selected State (Input Checked) */
-/* We target the label that comes after the checked input */
-.ui-radio-option input[type="radio"]:checked+label {
-    background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%) !important;
+.tech-theme .ui-radio-option input[type="radio"]:checked+label,
+.tech-theme .ui-radio-option input[type="radio"]:checked+.radio-label {
+    background: var(--gradient-primary);
     border-color: transparent;
-    color: white !important;
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
-    font-weight: 700;
+    color: var(--color-text-white);
+    box-shadow: var(--shadow-glow-strong);
+    font-weight: var(--font-weight-bold);
 }
 
-/* 4. Inputs and Text Areas */
-input[type="text"],
-input[type="number"],
-input[type="search"],
-select,
-.ui-input {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid var(--tech-border) !important;
-    color: white !important;
-    font-size: 1rem;
-    padding: 12px 16px;
-    border-radius: 8px;
-}
-
-/* Remove white background from formulas explicitly */
-.ui-formula-math,
-.formula-equation {
-    background: rgba(30, 41, 59, 0.5) !important;
-    color: var(--tech-glow) !important;
-    border: 1px solid var(--tech-border);
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 10px;
-}
-
-/* Fix specific white blocks from inline styles */
-[style*="background: #f5f7fa"],
-[style*="background: white"],
-[style*="background-color: white"] {
-    background: transparent !important;
-    border: none !important;
-    color: var(--tech-text-main) !important;
-}
-
-/* Fix text colors inside those blocks */
-[style*="font-family: monospace"] {
-    background: rgba(30, 41, 59, 0.5) !important;
-    color: var(--tech-glow) !important;
-    border: 1px solid var(--tech-border);
-}
-
-/* ===== End of Overrides ===== */
-
-/* Force dark transparent background on containers */
-.container,
-.calculator-card,
-.form-container,
-.calculator-section,
-.input-group {
-    background: rgba(15, 23, 42, 0.85) !important;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--tech-text-main);
-}
-
-.container {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
-/* Ensure UI Builder Radio Groups Layout Horizontal */
-.ui-radio-group {
+.tech-theme .ui-radio-group {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-/* Typography & Text Contrast */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.list-item-title,
-.ui-section-title {
-    background: linear-gradient(to right, #60a5fa, #22d3ee) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-shadow: 0 0 30px rgba(34, 211, 238, 0.2);
-    margin-bottom: 1rem;
-    font-size: 2rem;
-    /* Base header size increase */
-}
+/* ===========================================
+   6. CHECKBOXES (Button Style)
+   =========================================== */
 
-h1 {
-    font-size: 3rem;
-}
-
-h2 {
-    font-size: 2.5rem;
-}
-
-h3 {
-    font-size: 2rem;
-}
-
-/* All text minimum 1.5rem */
-label,
-.input-group label,
-p,
-li,
-span,
-.ui-section-subtitle,
-.description,
-.list-item-description,
-.checkbox-label,
-.help-text {
-    color: var(--tech-text-main);
-    font-size: 1.5rem !important;
-    /* Minimum 1.5rem for all text */
-}
-
-/* Fix invisible labels and subtitles - use SOLID color */
-.input-group label,
-label,
-.ui-section-subtitle,
-.section-subtitle {
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-    -webkit-text-fill-color: var(--tech-text-main) !important;
-    color: var(--tech-text-main) !important;
-    text-shadow: none !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.description,
-.list-item-description {
-    color: var(--tech-text-muted) !important;
-}
-
-#patient-info {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem !important;
-    /* Minimum 1.5rem */
-    line-height: 1.6;
-    border-left: 4px solid var(--tech-accent);
-    padding: 15px;
-    background: linear-gradient(90deg, rgba(6, 182, 212, 0.15), transparent);
-    margin-bottom: 20px;
-}
-
-/* Buttons */
-button,
-.filter-btn,
-.language-toggle,
-.ui-btn {
-    background: rgba(30, 41, 59, 0.8) !important;
-    border: 1px solid var(--tech-border) !important;
-    color: var(--tech-accent) !important;
-    backdrop-filter: blur(4px);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    font-size: 1.5rem !important;
-    /* Minimum 1.5rem */
-    padding: 14px 24px;
-    /* Increased padding for larger text */
-}
-
-button:hover,
-.filter-btn:hover,
-.language-toggle:hover,
-.ui-btn:hover {
-    background: rgba(6, 182, 212, 0.15) !important;
-    border-color: var(--tech-glow) !important;
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.3), inset 0 0 10px rgba(34, 211, 238, 0.1);
-    transform: translateY(-2px);
-    color: var(--tech-text-main) !important;
-    text-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
-}
-
-button.active,
-.filter-btn.active {
-    background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%) !important;
-    color: white !important;
-    border-color: transparent !important;
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
-}
-
-/* Inputs & Selects */
-input[type="text"],
-input[type="number"],
-input[type="search"],
-select,
-.ui-input,
-.ui-select {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border: 1px solid var(--tech-border) !important;
-    color: var(--tech-text-main) !important;
-    border-radius: 6px;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    font-weight: 600;
-    font-size: 1.5rem !important;
-    /* Minimum 1.5rem */
-    padding: 14px 18px;
-    /* Increased padding */
-}
-
-input:focus,
-select:focus {
-    border-color: var(--tech-accent) !important;
-    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.3) !important;
-    outline: none;
-    background: rgba(30, 41, 59, 0.9) !important;
-}
-
-/* Calculator List Items */
-.list-item {
-    background: rgba(30, 41, 59, 0.4) !important;
-    border: 1px solid var(--tech-border) !important;
-    border-left: 3px solid transparent !important;
-    transition: all 0.3s ease;
-    padding: 20px;
-    /* More padding */
-}
-
-.list-item:hover {
-    background: rgba(30, 41, 59, 0.9) !important;
-    transform: translateX(5px);
-    border-left-color: var(--tech-accent) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Calculator Title - Make it prominent and larger than category badge */
-.list-item-title {
-    font-size: 2rem !important;
-    /* Larger than category badge (1.5rem) */
-    font-weight: 700;
-    margin-bottom: 10px;
-    line-height: 1.3;
-}
-
-/* Category Badge */
-.category-badge {
-    background: rgba(16, 185, 129, 0.1) !important;
-    color: #34d399 !important;
-    border: 1px solid rgba(16, 185, 129, 0.2) !important;
-    font-size: 1.5rem !important;
-    /* Minimum 1.5rem */
-    padding: 8px 16px;
-}
-
-/* Result Box */
-.ui-result-box,
-.result-box,
-#bmi-result,
-.result {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-    border: 2px solid var(--tech-accent);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(34, 211, 238, 0.2);
-    position: relative;
-    overflow: hidden;
-    color: white !important;
-    font-size: 1.5rem !important;
-    padding: 25px;
-    margin-top: 30px;
-}
-
-.ui-result-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--tech-primary), var(--tech-accent));
-}
-
-/* Make Results Header VERY prominent and VISIBLE */
-.ui-result-header,
-.ui-result-box>.ui-result-header {
-    font-size: 2.5rem !important;
-    font-weight: 800;
-    text-align: center;
-    margin-bottom: 25px;
-    padding: 15px;
-    color: var(--tech-glow) !important;
-    /* Use solid color instead of gradient for visibility */
-    text-shadow: 0 0 20px rgba(34, 211, 238, 0.6), 0 0 40px rgba(34, 211, 238, 0.3);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border-bottom: 2px solid rgba(34, 211, 238, 0.3);
-    background: none !important;
-    -webkit-text-fill-color: currentColor !important;
-}
-
-/* Result Values - Make them HUGE and prominent */
-.ui-result-value,
-.result-item-value,
-.ui-result-score .ui-result-value {
-    color: var(--tech-glow) !important;
-    text-shadow: 0 0 20px rgba(34, 211, 238, 0.7), 0 0 40px rgba(34, 211, 238, 0.4);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 3.5rem !important;
-    /* Increased from 2.5rem to 3.5rem */
-    font-weight: 800;
-    display: block;
-    margin: 15px 0;
-    line-height: 1.2;
-    text-align: center;
-    /* Center the values */
-}
-
-/* Result Labels and Subtitles */
-.ui-result-score .ui-section-subtitle,
-.result-label {
-    font-size: 1.8rem !important;
-    /* Larger labels */
-    color: var(--tech-text-main) !important;
-    font-weight: 600;
-    margin-bottom: 10px;
-    text-align: center;
-    /* Center the labels */
-}
-
-/* Result Interpretation - Make it prominent */
-.ui-result-interpretation {
-    font-size: 2rem !important;
-    /* Increased from 1.5rem */
-    margin-top: 20px;
-    padding: 15px;
-    font-weight: 700;
-    border-radius: 8px;
-    text-align: center;
-}
-
-/* Alert-style interpretations */
-.ui-result-interpretation.ui-alert-success,
-.ui-result-interpretation.ui-alert-warning,
-.ui-result-interpretation.ui-alert-danger,
-.ui-result-interpretation.ui-alert-info {
-    font-size: 2rem !important;
-    padding: 20px;
-    margin: 15px 0;
-}
-
-/* Result unit text */
-.ui-result-unit {
-    font-size: 2rem !important;
-    /* Make units visible too */
-    margin-left: 10px;
-    opacity: 0.9;
-}
-
-/* Additional result items in the box */
-.ui-result-content>div,
-.ui-result-content {
-    margin: 20px 0;
-    font-size: 1.6rem !important;
-    text-align: center;
-    /* Center all result content */
-}
-
-/* Score display */
-.result-score,
-.ui-result-score {
-    font-size: 1.8rem !important;
-    margin: 15px 0;
-    text-align: center;
-    /* Center the score */
-}
-
-/* Result items wrapper */
-.ui-result-item {
-    text-align: center;
-    margin: 20px 0;
-}
-
-
-/* Alerts and Warnings - Tech Theme */
-.ui-alert,
-.warning,
-.alert,
-.ui-alert-content {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-left: 3px solid var(--tech-accent) !important;
-    color: var(--tech-text-main) !important;
-    border-radius: 8px;
-    font-size: 1.5rem !important;
-    padding: 18px;
-    line-height: 1.6;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--tech-border);
-}
-
-.ui-alert-warning {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-left: 3px solid #f59e0b !important;
-    color: #fbbf24 !important;
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
-}
-
-.ui-alert-danger {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-left: 3px solid #ef4444 !important;
-    color: var(--tech-glow) !important;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
-}
-
-.ui-alert-success {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-left: 3px solid #22c55e !important;
-    color: #86efac !important;
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
-}
-
-.ui-alert-info {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-left: 3px solid var(--tech-accent) !important;
-    color: var(--tech-glow) !important;
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
-}
-
-/* Alert icon glow */
-.ui-alert-icon {
-    filter: drop-shadow(0 0 5px currentColor);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.5);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--tech-border);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--tech-accent);
-}
-
-/* Checkboxes & Radios */
-input[type="checkbox"],
-input[type="radio"] {
-    accent-color: var(--tech-accent);
-}
-
-/* Back Link */
-.back-link {
-    color: var(--tech-text-muted);
-    font-weight: 600;
-    transition: color 0.3s;
-    font-size: 1.5rem !important;
-    /* Larger back link */
-}
-
-.back-link:hover {
-    color: var(--tech-accent);
-    text-decoration: none;
-}
-
-/* Additional UI Builder elements */
-.input-group label {
-    color: var(--tech-text-muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 1rem !important;
-    /* Larger label font */
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-    display: block;
-}
-
-/* Checkbox Labels */
-.checkbox-label {
-    font-size: 1.1rem !important;
-}
-
-/* Remove default checkbox scale since we style them or they are small */
-input[type="checkbox"] {
-    transform: scale(1.5);
-    /* Larger checkboxes */
-    accent-color: var(--tech-accent);
-    margin-right: 10px;
-}
-
-/* Formula & Reference Box overrides (forces dark) */
-.formula-box,
-.reference-box,
-.formula-notes,
-.reference-abstract {
-    background: rgba(30, 41, 59, 0.4) !important;
-    border-color: var(--tech-border) !important;
-    color: var(--tech-text-main) !important;
-    /* Brighter text */
-}
-
-.formula-equation {
-    background: rgba(15, 23, 42, 0.6) !important;
-    color: var(--tech-glow) !important;
-}
-
-/* Reference text - make it much brighter */
-.reference-citation,
-.reference-box p,
-.reference-abstract p,
-.reference-content {
-    color: var(--tech-text-main) !important;
-    /* Bright white text */
-    font-size: 1.5rem !important;
-    line-height: 1.8;
-}
-
-.reference-citation strong {
-    color: white !important;
-    font-weight: 700;
-}
-
-.reference-citation em {
-    color: var(--tech-glow) !important;
-    font-style: italic;
-}
-
-/* Reference icon */
-.reference-box::before {
-    content: '📚';
-    font-size: 2rem;
-    margin-right: 10px;
-}
-
-
-/* Sticky Header Background */
-.sticky-header {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border-bottom: 1px solid var(--tech-border);
-}
-
-/* Calculator Header - Result Box Style */
-.calculator-header {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    margin-bottom: 25px;
-    border: 1px solid var(--tech-border);
-    border-bottom: 2px solid var(--tech-accent);
-}
-
-.calculator-header h3,
-.calculator-header p {
-    background: none !important;
-    -webkit-text-fill-color: var(--tech-glow) !important;
-    color: var(--tech-glow) !important;
-    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
-}
-
-.calculator-header h3 {
-    font-weight: 700;
-    font-size: 2rem;
-    margin-bottom: 8px;
-}
-
-.calculator-header p {
-    opacity: 0.9;
-    font-size: 1.3rem;
-}
-
-/* Checklist items */
-.check-item {
-    background: rgba(30, 41, 59, 0.4);
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-}
-
-.check-item:hover {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: var(--tech-primary);
-}
-
-/* ===== Checkbox Button Styling ===== */
-
-/* Hide default checkbox */
-.ui-checkbox-option input[type="checkbox"],
-.check-item input[type="checkbox"],
-input[type="checkbox"].ui-checkbox {
+.tech-theme .ui-checkbox-option input[type="checkbox"],
+.tech-theme .check-item input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     position: absolute;
@@ -704,9 +278,8 @@ input[type="checkbox"].ui-checkbox {
     height: 0;
 }
 
-/* Style checkbox container as button */
-.ui-checkbox-option,
-.check-item {
+.tech-theme .ui-checkbox-option,
+.tech-theme .check-item {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
@@ -714,245 +287,736 @@ input[type="checkbox"].ui-checkbox {
     position: relative;
 }
 
-/* Style the label as a button/tile */
-.ui-checkbox-option label,
-.check-item label,
-.checkbox-label {
+.tech-theme .ui-checkbox-option label,
+.tech-theme .check-item label,
+.tech-theme .checkbox-label {
     display: flex;
     align-items: center;
     width: 100%;
     padding: 14px 20px;
     background: rgba(30, 41, 59, 0.4);
-    border: 1px solid var(--tech-border);
-    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 600;
-    font-size: 1.5rem !important;
-    color: var(--tech-text-muted);
-    transition: all 0.3s ease;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+    transition: var(--transition-normal);
     user-select: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     margin: 0;
 }
 
-/* Hover state for checkbox labels */
-.ui-checkbox-option label:hover,
-.check-item label:hover {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: var(--tech-accent);
-    color: var(--tech-glow);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.tech-theme .ui-checkbox-option label:hover,
+.tech-theme .check-item label:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-accent);
+    color: var(--color-glow);
+    box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
 
-/* Checked state - make it look like an active button */
-.ui-checkbox-option input[type="checkbox"]:checked+label,
-.check-item input[type="checkbox"]:checked+label,
-.ui-checkbox-option.selected label,
-.check-item.selected label {
-    background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%) !important;
+.tech-theme .ui-checkbox-option input[type="checkbox"]:checked+label,
+.tech-theme .check-item input[type="checkbox"]:checked+label,
+.tech-theme .ui-checkbox-option.selected label,
+.tech-theme .check-item.selected label {
+    background: var(--gradient-primary);
     border-color: transparent;
-    color: white !important;
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
-    font-weight: 700;
+    color: var(--color-text-white);
+    box-shadow: var(--shadow-glow-strong);
+    font-weight: var(--font-weight-bold);
 }
 
-/* Add checkmark icon when checked */
-.ui-checkbox-option input[type="checkbox"]:checked+label::before,
-.check-item input[type="checkbox"]:checked+label::before {
-    content: '✓';
-    display: inline-block;
-    margin-right: 10px;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: white;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-/* Unchecked state - show empty box icon */
-.ui-checkbox-option label::before,
-.check-item label::before {
+/* Checkbox icons */
+.tech-theme .ui-checkbox-option label::before,
+.tech-theme .check-item label::before {
     content: '☐';
     display: inline-block;
     margin-right: 10px;
-    font-size: 1.8rem;
-    color: var(--tech-text-muted);
-    transition: all 0.3s ease;
+    font-size: var(--font-size-xl);
+    color: var(--color-text-muted);
+    transition: var(--transition-normal);
 }
 
-/* Override the empty box when checked */
-.ui-checkbox-option input[type="checkbox"]:checked+label::before,
-.check-item input[type="checkbox"]:checked+label::before {
+.tech-theme .ui-checkbox-option input[type="checkbox"]:checked+label::before,
+.tech-theme .check-item input[type="checkbox"]:checked+label::before {
     content: '✓';
+    color: var(--color-text-white);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-/* Checkbox description styling */
-.checkbox-description {
-    font-size: 1.3rem !important;
-    color: var(--tech-text-muted);
-    margin-top: 5px;
-    font-weight: 400;
-}
-
-/* For checkbox groups */
-.ui-checkbox-group {
+.tech-theme .ui-checkbox-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-/* Override inline styles for calculator info/reference sections */
-.info-section,
-.info-section p,
-.info-section h4 {
-    color: var(--tech-text-main) !important;
-    background: transparent !important;
+/* ===========================================
+   7. CALCULATOR LIST ITEMS
+   =========================================== */
+
+.tech-theme .list-item {
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
+    transition: var(--transition-normal);
+    padding: 20px;
+    border-radius: var(--radius-md);
 }
 
-.info-section h4 {
-    color: var(--tech-glow) !important;
-    font-size: 1.3rem !important;
+.tech-theme .list-item:hover {
+    background: var(--color-bg-hover);
+    transform: translateX(5px);
+    border-left-color: var(--color-accent);
+    box-shadow: var(--shadow-lg);
 }
 
-.info-section p {
-    color: #ffffff !important;
-    /* Force bright white */
-    font-size: 1.2rem !important;
+.tech-theme .list-item-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 10px;
+    line-height: var(--line-height-tight);
+}
+
+.tech-theme .category-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    font-size: var(--font-size-lg);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+}
+
+/* ===========================================
+   8. RESULT BOX
+   =========================================== */
+
+.tech-theme .ui-result-box,
+.tech-theme .result-box,
+.tech-theme #bmi-result,
+.tech-theme .result {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(34, 211, 238, 0.2);
+    position: relative;
+    overflow: hidden;
+    color: var(--color-text-white);
+    font-size: var(--font-size-lg);
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.tech-theme .ui-result-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+/* Result Header */
+.tech-theme .ui-result-header {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-extrabold);
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    color: var(--color-glow);
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.6), 0 0 40px rgba(34, 211, 238, 0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 2px solid rgba(34, 211, 238, 0.3);
+    background: none;
+    -webkit-text-fill-color: currentColor;
+}
+
+/* Result Values */
+.tech-theme .ui-result-value,
+.tech-theme .result-item-value {
+    color: var(--color-glow);
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.7), 0 0 40px rgba(34, 211, 238, 0.4);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-result);
+    font-weight: var(--font-weight-extrabold);
+    display: block;
+    margin: 15px 0;
+    line-height: var(--line-height-tight);
+    text-align: center;
+}
+
+/* Result Labels */
+.tech-theme .ui-result-score .ui-section-subtitle,
+.tech-theme .result-label {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-main);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* Result Interpretation */
+.tech-theme .ui-result-interpretation {
+    font-size: var(--font-size-2xl);
+    margin-top: 20px;
+    padding: 15px;
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.tech-theme .ui-result-unit {
+    font-size: var(--font-size-2xl);
+    margin-left: 10px;
     opacity: 0.9;
 }
 
-/* Enlarge formulas */
-.ui-formula-math,
-.formula-equation {
-    font-size: 1.8rem !important;
-    padding: 20px !important;
+.tech-theme .ui-result-content>div,
+.tech-theme .ui-result-content {
+    margin: 20px 0;
+    font-size: 1.6rem;
+    text-align: center;
 }
 
-.ui-formula-item strong {
-    font-size: 1.6rem !important;
-    color: var(--tech-accent) !important;
+.tech-theme .result-score,
+.tech-theme .ui-result-score {
+    font-size: var(--font-size-xl);
+    margin: 15px 0;
+    text-align: center;
 }
 
-/* Formula Section Title - Result Box Style */
-.ui-formula-item h4,
-.ui-formula-item>strong:first-child,
-.ui-formula-section h4 {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-    color: var(--tech-glow) !important;
-    padding: 15px 20px !important;
-    margin: 0 0 15px 0 !important;
-    border-radius: 12px 12px 0 0 !important;
-    border-bottom: 2px solid var(--tech-accent) !important;
-    font-weight: 700 !important;
-    font-size: 1.6rem !important;
-    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3) !important;
-    letter-spacing: 0.5px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+.tech-theme .ui-result-item {
+    text-align: center;
+    margin: 20px 0;
 }
 
-/* Formula Item Container */
-.ui-formula-item {
-    background: rgba(30, 41, 59, 0.4) !important;
-    border-radius: 12px !important;
-    margin-bottom: 20px !important;
-    padding: 0 !important;
-    border: 1px solid var(--tech-border) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-    overflow: hidden !important;
+/* ===========================================
+   9. ALERTS
+   =========================================== */
+
+.tech-theme .ui-alert,
+.tech-theme .warning,
+.tech-theme .alert,
+.tech-theme .ui-alert-content {
+    background: var(--color-bg-input);
+    border-left: 3px solid var(--color-accent);
+    color: var(--color-text-main);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    padding: 18px;
+    line-height: var(--line-height-normal);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
 }
 
-/* Formula Content Padding */
-.ui-formula-item>div,
-.ui-formula-item>ul,
-.ui-formula-item>p {
-    padding: 15px 20px !important;
+.tech-theme .ui-alert-warning {
+    background: var(--color-bg-input);
+    border-left: 3px solid var(--color-warning);
+    color: var(--color-warning-light);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
 }
 
-/* ===== UI Table Styles ===== */
+.tech-theme .ui-alert-danger {
+    background: var(--color-bg-input);
+    border-left: 3px solid var(--color-danger);
+    color: var(--color-glow);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+}
 
-.ui-table-container {
+.tech-theme .ui-alert-success {
+    background: var(--color-bg-input);
+    border-left: 3px solid var(--color-success);
+    color: var(--color-success-light);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
+}
+
+.tech-theme .ui-alert-info {
+    background: var(--color-bg-input);
+    border-left: 3px solid var(--color-accent);
+    color: var(--color-glow);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+.tech-theme .ui-alert-icon {
+    filter: drop-shadow(0 0 5px currentColor);
+}
+
+/* ===========================================
+   10. SCROLLBAR
+   =========================================== */
+
+.tech-theme ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tech-theme ::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.tech-theme ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.tech-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
+
+/* ===========================================
+   11. MISC ELEMENTS
+   =========================================== */
+
+/* Back Link */
+.tech-theme .back-link {
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-semibold);
+    transition: color var(--transition-normal);
+    font-size: var(--font-size-lg);
+    text-decoration: none;
+}
+
+.tech-theme .back-link:hover {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+/* HR */
+.tech-theme hr {
+    border: 0;
+    height: 1px;
+    background: var(--color-border);
+    margin: 20px 0;
+}
+
+/* Calculator Header */
+.tech-theme .calculator-header {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 25px;
+    border: 1px solid var(--color-border);
+    border-bottom: 2px solid var(--color-accent);
+}
+
+.tech-theme .calculator-header h3,
+.tech-theme .calculator-header p {
+    background: none;
+    -webkit-text-fill-color: var(--color-glow);
+    color: var(--color-glow);
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+.tech-theme .calculator-header h3 {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-2xl);
+    margin-bottom: 8px;
+}
+
+.tech-theme .calculator-header p {
+    opacity: 0.9;
+    font-size: var(--font-size-md);
+}
+
+/* ===========================================
+   12. FORMULA & REFERENCE BOXES
+   =========================================== */
+
+.tech-theme .formula-box,
+.tech-theme .reference-box,
+.tech-theme .formula-notes,
+.tech-theme .reference-abstract {
+    background: rgba(30, 41, 59, 0.4);
+    border-color: var(--color-border);
+    color: var(--color-text-main);
+    border-radius: var(--radius-md);
+    padding: 15px;
+}
+
+.tech-theme .formula-equation,
+.tech-theme .ui-formula-math {
+    background: var(--color-bg-card);
+    color: var(--color-glow);
+    border: 1px solid var(--color-border);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xl);
+    margin-top: 10px;
+}
+
+.tech-theme .reference-citation,
+.tech-theme .reference-box p,
+.tech-theme .reference-abstract p,
+.tech-theme .reference-content {
+    color: var(--color-text-main);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+}
+
+.tech-theme .reference-citation strong {
+    color: var(--color-text-white);
+    font-weight: var(--font-weight-bold);
+}
+
+.tech-theme .reference-citation em {
+    color: var(--color-glow);
+    font-style: italic;
+}
+
+/* Formula Section Title */
+.tech-theme .ui-formula-item h4,
+.tech-theme .ui-formula-item>strong:first-child,
+.tech-theme .ui-formula-section h4 {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+    color: var(--color-glow);
+    padding: 15px 20px;
+    margin: 0 0 15px 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom: 2px solid var(--color-accent);
+    font-weight: var(--font-weight-bold);
+    font-size: 1.6rem;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-sm);
+}
+
+.tech-theme .ui-formula-item {
+    background: rgba(30, 41, 59, 0.4);
+    border-radius: var(--radius-lg);
+    margin-bottom: 20px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.tech-theme .ui-formula-item>div,
+.tech-theme .ui-formula-item>ul,
+.tech-theme .ui-formula-item>p {
+    padding: 15px 20px;
+}
+
+.tech-theme .ui-formula-item strong {
+    font-size: 1.6rem;
+    color: var(--color-accent);
+}
+
+/* ===========================================
+   13. TABLES
+   =========================================== */
+
+.tech-theme .ui-table-container {
     overflow-x: auto;
     margin: 20px 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     background: rgba(30, 41, 59, 0.4);
-    border: 1px solid var(--tech-border);
+    border: 1px solid var(--color-border);
 }
 
-.ui-table {
+.tech-theme .ui-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 1.4rem;
-    /* Standardized size */
 }
 
-/* Header Cells */
-.ui-table thead th {
+.tech-theme .ui-table thead th {
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-    color: var(--tech-glow);
+    color: var(--color-glow);
     padding: 16px 20px;
     text-align: left;
-    font-weight: 700;
-    border-bottom: 2px solid var(--tech-accent);
+    font-weight: var(--font-weight-bold);
+    border-bottom: 2px solid var(--color-accent);
     white-space: nowrap;
     text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
 }
 
-/* Body Cells */
-.ui-table tbody td {
+.tech-theme .ui-table tbody td {
     padding: 16px 20px;
-    border-bottom: 1px solid var(--tech-border);
-    color: var(--tech-text-main);
-    transition: all 0.2s;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    transition: var(--transition-fast);
 }
 
-/* Alternating rows handled by transparency but we add hover */
-.ui-table tbody tr:hover td {
+.tech-theme .ui-table tbody tr:hover td {
     background: rgba(6, 182, 212, 0.1);
-    color: white;
+    color: var(--color-text-white);
 }
 
-/* Sticky First Column */
-.ui-table th.sticky-col,
-.ui-table td.sticky-col {
+/* Sticky Column */
+.tech-theme .ui-table th.sticky-col,
+.tech-theme .ui-table td.sticky-col {
     position: sticky;
     left: 0;
     z-index: 10;
     background: rgba(15, 23, 42, 0.95);
-    /* Must have bg to hide scrolling content */
-    border-right: 2px solid var(--tech-border);
-    font-weight: 600;
-    color: var(--tech-accent);
+    border-right: 2px solid var(--color-border);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
 }
 
-.ui-table th.sticky-col {
+.tech-theme .ui-table th.sticky-col {
     z-index: 20;
-    /* Higher than data cells */
-    background: rgba(15, 23, 42, 1) !important;
-    /* Ensure header sticky is opaque */
+    background: rgba(15, 23, 42, 1);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
-.ui-table td.sticky-col {
+.tech-theme .ui-table td.sticky-col {
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Ensure data cells don't have bg that overrides row hover completely, 
-   except sticky one needs it. */
+/* ===========================================
+   14. INFO SECTIONS
+   =========================================== */
 
-/* Responsive Adjustments */
+.tech-theme .info-section,
+.tech-theme .info-section p,
+.tech-theme .info-section h4 {
+    color: var(--color-text-main);
+    background: transparent;
+}
+
+.tech-theme .info-section h4 {
+    color: var(--color-glow);
+    font-size: var(--font-size-md);
+}
+
+.tech-theme .info-section p {
+    color: var(--color-text-white);
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* ===========================================
+   15. RESPONSIVE
+   =========================================== */
+
 @media (max-width: 768px) {
-    .ui-table {
+    .tech-theme .ui-table {
         font-size: 1.2rem;
     }
 
-    .ui-table th,
-    .ui-table td {
+    .tech-theme .ui-table th,
+    .tech-theme .ui-table td {
         padding: 12px 15px;
+    }
+
+    .tech-theme .container {
+        padding: 20px;
+        border-radius: var(--radius-xl);
+    }
+
+    .tech-theme h1 {
+        font-size: var(--font-size-2xl);
+    }
+
+    .tech-theme button {
+        width: 100%;
+        padding: 18px 24px;
     }
 }
 
-.ui-formula-item strong {
-    font-size: 1.6rem !important;
-    color: var(--tech-accent) !important;
+/* ===========================================
+   16. SECTIONS & BACKGROUNDS (Global cleanup)
+   =========================================== */
+
+/* Reset backgrounds for sections that shouldn't have one */
+.tech-theme section,
+.tech-theme article,
+.tech-theme .therapy-group,
+.tech-theme .ui-section,
+.tech-theme .ui-formula-section {
+    background-color: transparent;
+    color: var(--color-text-main);
+}
+
+.tech-theme .calculator-card,
+.tech-theme .ui-section-content {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+/* Check items */
+.tech-theme .check-item {
+    background: rgba(30, 41, 59, 0.4);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    transition: var(--transition-fast);
+}
+
+.tech-theme .check-item:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-primary);
+}
+
+/* ===========================================
+   17. LAB VALUES DISPLAY
+   =========================================== */
+
+.tech-theme .lab-values-summary {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--color-bg-panel);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.tech-theme .lab-values-summary h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--color-glow);
+    background: none;
+    -webkit-text-fill-color: var(--color-glow);
+    font-size: var(--font-size-lg);
+}
+
+.tech-theme .lab-values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.tech-theme .lab-value-item {
+    padding: 8px;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: var(--radius-sm);
+}
+
+.tech-theme .lab-label {
+    color: var(--color-text-muted);
+    font-size: 0.9em;
+    margin-bottom: 4px;
+}
+
+.tech-theme .lab-value {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-main);
+    font-size: var(--font-size-md);
+}
+
+/* ===========================================
+   18. FLEX UTILITIES
+   =========================================== */
+
+.tech-theme .flex-row {
+    display: flex;
+}
+
+.tech-theme .flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.tech-theme .flex-1 {
+    flex: 1;
+}
+
+.tech-theme .gap-sm {
+    gap: 0.5rem;
+}
+
+.tech-theme .gap-md {
+    gap: 0.75rem;
+}
+
+.tech-theme .gap-lg {
+    gap: 1rem;
+}
+
+.tech-theme .align-center {
+    align-items: center;
+}
+
+.tech-theme .align-end {
+    align-items: flex-end;
+}
+
+.tech-theme .justify-center {
+    justify-content: center;
+}
+
+.tech-theme .justify-between {
+    justify-content: space-between;
+}
+
+/* ===========================================
+   19. INFO LISTS
+   =========================================== */
+
+.tech-theme .info-list {
+    margin-top: 5px;
+    padding-left: 20px;
+    color: var(--color-text-main);
+}
+
+.tech-theme .info-list li {
+    margin-bottom: 5px;
+}
+
+/* ===========================================
+   20. SPACING UTILITIES
+   =========================================== */
+
+.tech-theme .mt-5 {
+    margin-top: 5px;
+}
+
+.tech-theme .mt-10 {
+    margin-top: 10px;
+}
+
+.tech-theme .mt-15 {
+    margin-top: 15px;
+}
+
+.tech-theme .mt-20 {
+    margin-top: 20px;
+}
+
+.tech-theme .mb-10 {
+    margin-bottom: 10px;
+}
+
+.tech-theme .mb-20 {
+    margin-bottom: 20px;
+}
+
+.tech-theme .p-10 {
+    padding: 10px;
+}
+
+.tech-theme .p-15 {
+    padding: 15px;
+}
+
+.tech-theme .full-width {
+    width: 100%;
+}
+
+/* ===========================================
+   21. TEXT UTILITIES
+   =========================================== */
+
+.tech-theme .text-center {
+    text-align: center;
+}
+
+.tech-theme .font-bold {
+    font-weight: var(--font-weight-bold);
+}
+
+.tech-theme .font-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+.tech-theme .text-muted {
+    color: var(--color-text-muted);
+}
+
+.tech-theme .text-sm {
+    font-size: 0.9em;
 }
