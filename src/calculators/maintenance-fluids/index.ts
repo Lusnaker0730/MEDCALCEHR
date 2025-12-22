@@ -1,10 +1,9 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -73,8 +72,8 @@ export const maintenanceFluids: CalculatorModule = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const weightInput = container.querySelector('#weight-fluids') as HTMLInputElement;
         const resultBox = container.querySelector('#fluids-result');
@@ -151,22 +150,19 @@ export const maintenanceFluids: CalculatorModule = {
         weightInput.addEventListener('input', calculateAndUpdate);
         container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
 
+        // Auto-populate using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT)
-                .then(weightObs => {
-                    if (weightObs && weightObs.valueQuantity) {
-                        const val = weightObs.valueQuantity.value;
-                        const unit = weightObs.valueQuantity.unit || 'kg';
-                        const wInKg = UnitConverter.convert(val, unit, 'kg', 'weight');
-
-                        if (wInKg !== null) {
-                            weightInput.value = wInKg.toFixed(1);
-                            weightInput.dispatchEvent(new Event('input'));
-                            stalenessTracker.trackObservation('#weight-fluids', weightObs, LOINC_CODES.WEIGHT, 'Weight');
-                        }
-                    }
-                })
-                .catch(err => console.log('Weight data not available'));
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, {
+                trackStaleness: true,
+                stalenessLabel: 'Weight',
+                targetUnit: 'kg',
+                unitType: 'weight'
+            }).then(result => {
+                if (result.value !== null) {
+                    weightInput.value = result.value.toFixed(1);
+                    weightInput.dispatchEvent(new Event('input'));
+                }
+            }).catch(err => console.log('Weight data not available'));
         }
     }
 };

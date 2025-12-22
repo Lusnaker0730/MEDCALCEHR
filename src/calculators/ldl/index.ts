@@ -1,10 +1,9 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -114,8 +113,8 @@ export const ldl: CalculatorModule = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const tcInput = container.querySelector('#ldl-tc') as HTMLInputElement;
         const hdlInput = container.querySelector('#ldl-hdl') as HTMLInputElement;
@@ -240,46 +239,41 @@ export const ldl: CalculatorModule = {
             }
         };
 
+        // FHIR auto-population using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
-                if (obs?.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'cholesterol');
-                    if (converted !== null) {
-                        setInputValue(tcInput, converted.toFixed(0));
-                    } else {
-                        setInputValue(tcInput, val.toFixed(0));
-                    }
-                    stalenessTracker.trackObservation('#ldl-tc', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
+            // Total Cholesterol
+            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
+                trackStaleness: true,
+                stalenessLabel: 'Total Cholesterol',
+                targetUnit: 'mg/dL',
+                unitType: 'cholesterol'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(tcInput, result.value.toFixed(0));
                 }
             }).catch(e => console.warn(e));
 
-            getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
-                if (obs?.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'cholesterol');
-                    if (converted !== null) {
-                        setInputValue(hdlInput, converted.toFixed(0));
-                    } else {
-                        setInputValue(hdlInput, val.toFixed(0));
-                    }
-                    stalenessTracker.trackObservation('#ldl-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
+            // HDL Cholesterol
+            fhirDataService.getObservation(LOINC_CODES.HDL, {
+                trackStaleness: true,
+                stalenessLabel: 'HDL Cholesterol',
+                targetUnit: 'mg/dL',
+                unitType: 'cholesterol'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(hdlInput, result.value.toFixed(0));
                 }
             }).catch(e => console.warn(e));
 
-            getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
-                if (obs?.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'triglycerides');
-                    if (converted !== null) {
-                        setInputValue(trigInput, converted.toFixed(0));
-                    } else {
-                        setInputValue(trigInput, val.toFixed(0));
-                    }
-                    stalenessTracker.trackObservation('#ldl-trig', obs, LOINC_CODES.TRIGLYCERIDES, 'Triglycerides');
+            // Triglycerides
+            fhirDataService.getObservation(LOINC_CODES.TRIGLYCERIDES, {
+                trackStaleness: true,
+                stalenessLabel: 'Triglycerides',
+                targetUnit: 'mg/dL',
+                unitType: 'triglycerides'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(trigInput, result.value.toFixed(0));
                 }
             }).catch(e => console.warn(e));
         }

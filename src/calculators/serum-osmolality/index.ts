@@ -1,12 +1,9 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -98,9 +95,8 @@ export const serumOsmolality: CalculatorModule = {
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
 
-        // Initialize staleness tracker for this calculator
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const naInput = container.querySelector('#osmo-na') as HTMLInputElement;
         const glucoseInput = container.querySelector('#osmo-glucose') as HTMLInputElement;
@@ -212,41 +208,41 @@ export const serumOsmolality: CalculatorModule = {
             input.addEventListener('change', calculateAndUpdate);
         });
 
-        // Auto-populate
+        // Auto-populate using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    naInput.value = obs.valueQuantity.value.toFixed(0);
+            fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Sodium',
+                targetUnit: 'mEq/L',
+                unitType: 'sodium'
+            }).then(result => {
+                if (result.value !== null) {
+                    naInput.value = result.value.toFixed(0);
                     naInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#osmo-na', obs, LOINC_CODES.SODIUM, 'Sodium');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
-                    if (converted !== null) {
-                        glucoseInput.value = converted.toFixed(0);
-                    } else {
-                        glucoseInput.value = val.toFixed(0);
-                    }
+
+            fhirDataService.getObservation(LOINC_CODES.GLUCOSE, {
+                trackStaleness: true,
+                stalenessLabel: 'Glucose',
+                targetUnit: 'mg/dL',
+                unitType: 'glucose'
+            }).then(result => {
+                if (result.value !== null) {
+                    glucoseInput.value = result.value.toFixed(0);
                     glucoseInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#osmo-glucose', obs, LOINC_CODES.GLUCOSE, 'Glucose');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'bun');
-                    if (converted !== null) {
-                        bunInput.value = converted.toFixed(0);
-                    } else {
-                        bunInput.value = val.toFixed(0);
-                    }
+
+            fhirDataService.getObservation(LOINC_CODES.BUN, {
+                trackStaleness: true,
+                stalenessLabel: 'BUN',
+                targetUnit: 'mg/dL',
+                unitType: 'bun'
+            }).then(result => {
+                if (result.value !== null) {
+                    bunInput.value = result.value.toFixed(0);
                     bunInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#osmo-bun', obs, LOINC_CODES.BUN, 'BUN');
                 }
             }).catch(e => console.warn(e));
         }

@@ -1,10 +1,9 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -30,13 +29,6 @@ interface ABGInputs {
     sodium?: number | null;
     chloride?: number | null;
     albumin?: number | null;
-}
-
-interface ObservationConfig {
-    field: HTMLInputElement;
-    unit: string;
-    type?: string;
-    label: string;
 }
 
 export const abgAnalyzer: CalculatorModule = {
@@ -130,7 +122,37 @@ export const abgAnalyzer: CalculatorModule = {
                 <div class="ui-result-content"></div>
             </div>
 
+            ${uiBuilder.createFormulaSection({
+            items: [
+                { label: 'Anion Gap', formula: 'Na - (Cl + HCO₃⁻)', notes: 'All values in mEq/L' },
+                { label: 'Delta Gap', formula: 'Anion Gap - 12', notes: 'Normal anion gap is 10-12 mEq/L' },
+                { label: 'Albumin Corrected AG', formula: 'Anion Gap + [2.5 × (4 - Albumin)]', notes: 'Albumin in g/dL' },
+                { label: 'Albumin Corrected Delta Gap', formula: 'Albumin Corrected AG - 12' },
+                { label: 'Delta Ratio', formula: 'Delta Anion Gap / (24 - HCO₃⁻)' },
+                { label: 'Albumin Corrected Delta Ratio', formula: 'Albumin Corrected Delta Gap / (24 - HCO₃⁻)' }
+            ]
+        })}
 
+            ${uiBuilder.createAlert({
+            type: 'info',
+            message: `
+                <h4>📊 Delta Ratio Interpretation</h4>
+                <p class="text-sm mb-10">The delta ratio compares the amount of additional anion in the body to the amount of additional H⁺. The anion's volume of distribution and its excretion affect this ratio. Organic acids with a greater distribution may produce lower anion gaps compared to inorganic acids, which may be confined to the extracellular compartment.</p>
+                <div class="ui-data-table">
+                    <table>
+                        <thead>
+                            <tr><th>Delta Ratio</th><th>Suggests...</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>&lt;0.4</td><td>Pure normal anion gap acidosis</td></tr>
+                            <tr><td>0.4-0.8</td><td>Mixed high and normal anion gap acidosis</td></tr>
+                            <tr><td>0.8-2.0</td><td>Pure anion gap acidosis</td></tr>
+                            <tr><td>&gt;2</td><td>High anion gap acidosis with pre-existing metabolic alkalosis</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `
+        })}
 
             <div class="info-section mt-20 text-sm text-muted">
                 <h4>📚 Reference</h4>
@@ -141,8 +163,8 @@ export const abgAnalyzer: CalculatorModule = {
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
 
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const fields = {
             ph: container.querySelector('#abg-ph') as HTMLInputElement,
@@ -297,39 +319,77 @@ export const abgAnalyzer: CalculatorModule = {
             }
         };
 
-        // FHIR Auto-populate
+        // FHIR Auto-populate using FHIRDataService
         if (client) {
-            const mapping: { [key: string]: ObservationConfig } = {
-                '11558-4': { field: fields.ph, unit: 'pH', label: 'pH' }, // pH usually no unit or unitless
-                '11557-6': { field: fields.pco2, unit: 'mmHg', type: 'pressure', label: 'PaCO2' },
-                '14627-4': { field: fields.hco3, unit: 'mEq/L', type: 'electrolyte', label: 'HCO3' },
-                [LOINC_CODES.SODIUM]: { field: fields.sodium, unit: 'mEq/L', type: 'electrolyte', label: 'Sodium' },
-                '2075-0': { field: fields.chloride, unit: 'mEq/L', type: 'electrolyte', label: 'Chloride' },
-                [LOINC_CODES.ALBUMIN]: { field: fields.albumin, unit: 'g/dL', type: 'albumin', label: 'Albumin' }
-            };
+            // pH (11558-4)
+            fhirDataService.getObservation('11558-4', {
+                trackStaleness: true,
+                stalenessLabel: 'pH'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(fields.ph, result.value.toFixed(2));
+                }
+            }).catch(e => console.warn(e));
 
-            Object.entries(mapping).forEach(([code, config]) => {
-                getMostRecentObservation(client, code).then(obs => {
-                    if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                        let val = obs.valueQuantity.value;
-                        let unit = obs.valueQuantity.unit || config.unit; // Fallback to expected default
+            // PaCO2 (11557-6)
+            fhirDataService.getObservation('11557-6', {
+                trackStaleness: true,
+                stalenessLabel: 'PaCO2',
+                targetUnit: 'mmHg',
+                unitType: 'pressure'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(fields.pco2, result.value.toFixed(1));
+                }
+            }).catch(e => console.warn(e));
 
-                        if (config.type) {
-                            const converted = UnitConverter.convert(val, unit, config.unit, config.type);
-                            if (converted !== null) val = converted;
-                        }
+            // HCO3 (14627-4)
+            fhirDataService.getObservation('14627-4', {
+                trackStaleness: true,
+                stalenessLabel: 'HCO3',
+                targetUnit: 'mEq/L',
+                unitType: 'electrolyte'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(fields.hco3, result.value.toFixed(1));
+                }
+            }).catch(e => console.warn(e));
 
-                        // Formatting
-                        if (config.field === fields.ph) setInputValue(config.field, val.toFixed(2));
-                        else setInputValue(config.field, val.toFixed(1));
+            // Sodium
+            fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Sodium',
+                targetUnit: 'mEq/L',
+                unitType: 'electrolyte'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(fields.sodium, result.value.toFixed(1));
+                }
+            }).catch(e => console.warn(e));
 
-                        // Track staleness
-                        if (config.field && config.field.id) {
-                            stalenessTracker.trackObservation('#' + config.field.id, obs, code, config.label || 'Value');
-                        }
-                    }
-                }).catch(e => console.warn(e));
-            });
+            // Chloride (2075-0)
+            fhirDataService.getObservation('2075-0', {
+                trackStaleness: true,
+                stalenessLabel: 'Chloride',
+                targetUnit: 'mEq/L',
+                unitType: 'electrolyte'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(fields.chloride, result.value.toFixed(1));
+                }
+            }).catch(e => console.warn(e));
+
+            // Albumin
+            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
+                trackStaleness: true,
+                stalenessLabel: 'Albumin',
+                targetUnit: 'g/dL',
+                unitType: 'albumin'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(fields.albumin, result.value.toFixed(1));
+                }
+            }).catch(e => console.warn(e));
         }
     }
 };

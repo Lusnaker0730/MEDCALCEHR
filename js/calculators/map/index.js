@@ -1,10 +1,8 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const map = {
     id: 'map',
     title: 'Mean Arterial Pressure (MAP)',
@@ -57,8 +55,8 @@ export const map = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const sbpInput = container.querySelector('#map-sbp');
         const dbpInput = container.querySelector('#map-dbp');
         const resultBox = container.querySelector('#map-result');
@@ -159,25 +157,20 @@ export const map = {
         sbpInput.addEventListener('input', calculateAndUpdate);
         dbpInput.addEventListener('input', calculateAndUpdate);
         container.querySelectorAll('select').forEach(sel => sel.addEventListener('change', calculateAndUpdate));
+        // Auto-populate blood pressure using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BP_PANEL)
-                .then(bpPanel => {
-                if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find((c) => c.code.coding && c.code.coding.some((coding) => coding.code === LOINC_CODES.SYSTOLIC_BP || coding.code === '8480-6'));
-                    const dbpComp = bpPanel.component.find((c) => c.code.coding && c.code.coding.some((coding) => coding.code === LOINC_CODES.DIASTOLIC_BP || coding.code === '8462-4'));
-                    if (sbpComp && sbpComp.valueQuantity) {
-                        sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
-                        sbpInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#map-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-                    }
-                    if (dbpComp && dbpComp.valueQuantity) {
-                        dbpInput.value = dbpComp.valueQuantity.value.toFixed(0);
-                        dbpInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#map-dbp', bpPanel, LOINC_CODES.DIASTOLIC_BP, 'Diastolic BP');
-                    }
+            fhirDataService.getBloodPressure({
+                trackStaleness: true
+            }).then(result => {
+                if (result.systolic !== null) {
+                    sbpInput.value = result.systolic.toFixed(0);
+                    sbpInput.dispatchEvent(new Event('input'));
                 }
-            })
-                .catch(err => console.log('BP data not available'));
+                if (result.diastolic !== null) {
+                    dbpInput.value = result.diastolic.toFixed(0);
+                    dbpInput.dispatchEvent(new Event('input'));
+                }
+            }).catch(err => console.log('BP data not available'));
         }
     }
 };

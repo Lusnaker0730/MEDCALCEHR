@@ -1,10 +1,9 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const ttkg = {
     id: 'ttkg',
@@ -97,9 +96,8 @@ export const ttkg = {
     initialize: function (client: any, patient: any, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const urineKEl = container.querySelector('#ttkg-urine-k') as HTMLInputElement;
         const serumKEl = container.querySelector('#ttkg-serum-k') as HTMLInputElement;
@@ -228,30 +226,49 @@ export const ttkg = {
             }
         };
 
-        // FHIR auto-population
+        // FHIR auto-population using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.URINE_POTASSIUM).then(obs => {
-                if (obs?.valueQuantity) {
-                    setInputValue(urineKEl, obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#ttkg-urine-k', obs, LOINC_CODES.URINE_POTASSIUM, 'Urine K');
+            // Urine Potassium
+            fhirDataService.getObservation(LOINC_CODES.URINE_POTASSIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Urine K',
+                targetUnit: 'mEq/L',
+                unitType: 'electrolyte'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(urineKEl, result.value.toFixed(1));
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
-                if (obs?.valueQuantity) {
-                    setInputValue(serumKEl, obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#ttkg-serum-k', obs, LOINC_CODES.POTASSIUM, 'Serum K');
+
+            // Serum Potassium
+            fhirDataService.getObservation(LOINC_CODES.POTASSIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Serum K',
+                targetUnit: 'mEq/L',
+                unitType: 'electrolyte'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(serumKEl, result.value.toFixed(1));
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '2697-2').then(obs => { // Urine Osmolality
-                if (obs?.valueQuantity) {
-                    setInputValue(urineOsmoEl, obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#ttkg-urine-osmo', obs, '2697-2', 'Urine Osmolality');
+
+            // Urine Osmolality (2697-2)
+            fhirDataService.getObservation('2697-2', {
+                trackStaleness: true,
+                stalenessLabel: 'Urine Osmolality'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(urineOsmoEl, result.value.toFixed(1));
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '2695-6').then(obs => { // Serum Osmolality
-                if (obs?.valueQuantity) {
-                    setInputValue(serumOsmoEl, obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#ttkg-serum-osmo', obs, '2695-6', 'Serum Osmolality');
+
+            // Serum Osmolality (2695-6)
+            fhirDataService.getObservation('2695-6', {
+                trackStaleness: true,
+                stalenessLabel: 'Serum Osmolality'
+            }).then(result => {
+                if (result.value !== null) {
+                    setInputValue(serumOsmoEl, result.value.toFixed(1));
                 }
             }).catch(e => console.warn(e));
         }

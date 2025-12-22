@@ -2,7 +2,7 @@
 // Unified FHIR Data Management Layer
 // Consolidates data fetching, caching, staleness tracking, and UI feedback
 import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests } from './utils.js';
-import { getLoincName } from './fhir-codes.js';
+import { LOINC_CODES, getLoincName } from './fhir-codes.js';
 // @ts-ignore - no type declarations
 import { fhirCache } from './cache-manager.js';
 import { createStalenessTracker } from './data-staleness.js';
@@ -174,6 +174,66 @@ export class FHIRDataService {
         });
         await Promise.all(promises);
         return results;
+    }
+    /**
+     * Result of blood pressure fetch
+     */
+    /**
+     * Get blood pressure (systolic and diastolic)
+     * Blood pressure is stored as a panel with components
+     */
+    async getBloodPressure(options = {}) {
+        const result = {
+            systolic: null,
+            diastolic: null,
+            observation: null,
+            date: null,
+            isStale: false
+        };
+        if (!this.client) {
+            return result;
+        }
+        try {
+            // Fetch BP panel observation
+            const bpPanel = await getMostRecentObservation(this.client, LOINC_CODES.BP_PANEL);
+            if (bpPanel && bpPanel.component) {
+                result.observation = bpPanel;
+                // Extract systolic BP
+                const sbpComp = bpPanel.component.find((c) => c.code?.coding?.some((coding) => coding.code === LOINC_CODES.SYSTOLIC_BP || coding.code === '8480-6'));
+                if (sbpComp?.valueQuantity?.value !== undefined) {
+                    result.systolic = sbpComp.valueQuantity.value;
+                }
+                // Extract diastolic BP
+                const dbpComp = bpPanel.component.find((c) => c.code?.coding?.some((coding) => coding.code === LOINC_CODES.DIASTOLIC_BP || coding.code === '8462-4'));
+                if (dbpComp?.valueQuantity?.value !== undefined) {
+                    result.diastolic = dbpComp.valueQuantity.value;
+                }
+                // Extract date
+                const dateStr = bpPanel.effectiveDateTime || bpPanel.issued;
+                if (dateStr) {
+                    result.date = new Date(dateStr);
+                }
+                // Track staleness
+                if (options.trackStaleness && this.stalenessTracker) {
+                    const stalenessInfo = this.stalenessTracker.checkStaleness(bpPanel);
+                    if (stalenessInfo) {
+                        result.isStale = stalenessInfo.isStale;
+                    }
+                    // Track for both systolic and diastolic if container exists
+                    if (result.systolic !== null) {
+                        this.stalenessTracker.trackObservation('#map-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                    }
+                    if (result.diastolic !== null) {
+                        this.stalenessTracker.trackObservation('#map-dbp', bpPanel, LOINC_CODES.DIASTOLIC_BP, 'Diastolic BP');
+                    }
+                }
+            }
+            return result;
+        }
+        catch (error) {
+            console.error('Error fetching blood pressure:', error);
+            return result;
+        }
     }
     // ========================================================================
     // Auto-Population

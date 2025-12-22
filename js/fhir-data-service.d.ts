@@ -148,6 +148,23 @@ export declare class FHIRDataService {
      */
     getObservations(codes: string[], options?: GetObservationOptions): Promise<Map<string, ObservationResult>>;
     /**
+     * Result of blood pressure fetch
+     */
+    /**
+     * Get blood pressure (systolic and diastolic)
+     * Blood pressure is stored as a panel with components
+     */
+    getBloodPressure(options?: {
+        trackStaleness?: boolean;
+        skipCache?: boolean;
+    }): Promise<{
+        systolic: number | null;
+        diastolic: number | null;
+        observation: any | null;
+        date: Date | null;
+        isStale: boolean;
+    }>;
+    /**
      * Auto-populate a single input field from FHIR data
      */
     autoPopulateInput(inputId: string, code: string, options?: AutoPopulateOptions): Promise<ObservationResult>;

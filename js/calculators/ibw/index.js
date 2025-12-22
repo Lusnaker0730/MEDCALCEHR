@@ -1,10 +1,8 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const ibw = {
     id: 'ibw',
     title: 'Ideal & Adjusted Body Weight',
@@ -70,9 +68,8 @@ export const ibw = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const heightInput = container.querySelector('#ibw-height');
         const actualWeightInput = container.querySelector('#ibw-actual');
         const resultBox = container.querySelector('#ibw-result');
@@ -177,45 +174,38 @@ export const ibw = {
         };
         [heightInput, actualWeightInput].forEach(input => input.addEventListener('input', calculate));
         container.querySelectorAll('input[name="ibw-gender"]').forEach(radio => radio.addEventListener('change', calculate));
-        // Set gender from patient data
-        if (patient && patient.gender) {
-            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+        // Set gender from patient data using FHIRDataService
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            const genderValue = gender.toLowerCase() === 'female' ? 'female' : 'male';
             const genderRadio = container.querySelector(`input[name="ibw-gender"][value="${genderValue}"]`);
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.dispatchEvent(new Event('change'));
             }
         }
-        // Auto-populate from FHIR
+        // Auto-populate from FHIR using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.HEIGHT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'cm';
-                    const converted = UnitConverter.convert(val, unit, 'cm', 'height');
-                    if (converted !== null) {
-                        heightInput.value = converted.toFixed(1);
-                    }
-                    else {
-                        heightInput.value = val.toFixed(1);
-                    }
+            fhirDataService.getObservation(LOINC_CODES.HEIGHT, {
+                trackStaleness: true,
+                stalenessLabel: 'Height',
+                targetUnit: 'cm',
+                unitType: 'height'
+            }).then(result => {
+                if (result.value !== null) {
+                    heightInput.value = result.value.toFixed(1);
                     calculate();
-                    stalenessTracker.trackObservation('#ibw-height', obs, LOINC_CODES.HEIGHT, 'Height');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'kg';
-                    const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (converted !== null) {
-                        actualWeightInput.value = converted.toFixed(1);
-                    }
-                    else {
-                        actualWeightInput.value = val.toFixed(1);
-                    }
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, {
+                trackStaleness: true,
+                stalenessLabel: 'Weight',
+                targetUnit: 'kg',
+                unitType: 'weight'
+            }).then(result => {
+                if (result.value !== null) {
+                    actualWeightInput.value = result.value.toFixed(1);
                     calculate();
-                    stalenessTracker.trackObservation('#ibw-actual', obs, LOINC_CODES.WEIGHT, 'Weight');
                 }
             }).catch(e => console.warn(e));
         }
