@@ -1,14 +1,13 @@
 /**
  * Wells' Criteria for Pulmonary Embolism Calculator
  * 
- * 使用 Yes/No Calculator 工廠函數遷移
- * Estimates pre-test probability of pulmonary embolism (PE) to guide diagnostic workup.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 
 import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: YesNoCalculatorConfig = {
@@ -109,72 +108,51 @@ const config: YesNoCalculatorConfig = {
                 </div>
             </div>
         `;
-    }
-};
-
-// 創建基礎計算器
-const baseCalculator = createYesNoCalculator(config);
-
-// 導出帶有 FHIR 自動填入的計算器
-export const wellsPE = {
-    ...baseCalculator,
+    },
     
-    initialize(client: unknown, patient: unknown, container: HTMLElement): void {
-        uiBuilder.initializeComponents(container);
-        
-        // 初始化 staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-        
-        const setRadioValue = (name: string, value: string, obs?: any, loinc?: string, label?: string): void => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
+    // 使用 customInitialize 處理 FHIR 自動填充
+    customInitialize: async (client, patient, container, calculate) => {
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
-                if (obs && loinc && label) {
-                    stalenessTracker.trackObservation(`input[name="${name}"]`, obs, loinc, label);
-                }
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
         
-        // 計算函數
-        const calculate = (): void => {
-            let score = 0;
-            config.questions.forEach(q => {
-                const radio = container.querySelector(
-                    `input[name="${q.id}"]:checked`
-                ) as HTMLInputElement | null;
-                if (radio) {
-                    score += parseFloat(radio.value) || 0;
-                }
+        if (!fhirDataService.isReady()) return;
+        
+        const stalenessTracker = fhirDataService.getStalenessTracker();
+        
+        try {
+            // 自動填入心率 > 100 bpm
+            const hrResult = await fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Heart Rate'
             });
             
-            // 使用自定義渲染器
-            const resultBox = document.getElementById('wells-pe-result');
-            if (resultBox) {
-                const resultContent = resultBox.querySelector('.ui-result-content');
-                if (resultContent && config.customResultRenderer) {
-                    resultContent.innerHTML = config.customResultRenderer(score);
+            if (hrResult.value !== null && hrResult.value > 100) {
+                setRadioValue('wells-hr', '1.5');
+                if (stalenessTracker && hrResult.observation) {
+                    stalenessTracker.trackObservation('input[name="wells-hr"]', hrResult.observation, LOINC_CODES.HEART_RATE, 'Heart Rate');
                 }
-                resultBox.classList.add('show');
             }
-        };
-        
-        // 綁定事件
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', calculate);
-        });
-        
-        // FHIR 自動填入心率
-        if (client) {
-            getMostRecentObservation(client as any, LOINC_CODES.HEART_RATE).then(hrObs => {
-                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value > 100) {
-                    setRadioValue('wells-hr', '1.5', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
-                }
-            }).catch(e => console.warn(e));
+            
+            // 檢測 DVT/PE 病史
+            const hasDVTPE = await fhirDataService.hasCondition(['128053003', '59282003']);  // DVT, PE
+            if (hasDVTPE) {
+                setRadioValue('wells-prev', '1.5');
+            }
+            
+            // 檢測惡性腫瘤
+            const hasMalignancy = await fhirDataService.hasCondition(['363346000', '86049000']);
+            if (hasMalignancy) {
+                setRadioValue('wells-mal', '1');
+            }
+        } catch (error) {
+            console.warn('Error auto-populating Wells PE:', error);
         }
-        
-        // 初始計算
-        calculate();
     }
 };
+
+export const wellsPE = createYesNoCalculator(config);

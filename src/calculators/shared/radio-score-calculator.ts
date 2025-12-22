@@ -5,9 +5,17 @@
  * - GCS (格拉斯哥昏迷量表)
  * - PHQ-9 (憂鬱量表)
  * - GAD-7 (焦慮量表)
+ * 
+ * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  */
 
 import { uiBuilder } from '../../ui-builder.js';
+import { 
+    fhirDataService,
+    FieldDataRequirement,
+    FHIRClient,
+    Patient
+} from '../../fhir-data-service.js';
 
 // ==========================================
 // 類型定義
@@ -27,6 +35,13 @@ export interface RadioSection {
     icon?: string;
     subtitle?: string;
     options: RadioOption[];
+    /** LOINC 代碼（用於 FHIR 自動填充） */
+    loincCode?: string;
+    /** 數值範圍映射（用於將 FHIR 數值轉換為 radio 選項值） */
+    valueMapping?: Array<{
+        condition: (value: number) => boolean;
+        radioValue: string;
+    }>;
 }
 
 /** 風險等級 */
@@ -36,6 +51,24 @@ export interface RiskLevel {
     label: string;
     severity: 'success' | 'warning' | 'danger' | 'info';
     description?: string;
+}
+
+/** FHIR 數據需求配置 */
+export interface RadioFHIRDataRequirements {
+    /** 觀察值需求 */
+    observations?: FieldDataRequirement[];
+    /** 條件代碼（SNOMED） */
+    conditions?: string[];
+    /** 藥物代碼（RxNorm） */
+    medications?: string[];
+    /** 是否自動填充患者年齡 */
+    autoPopulateAge?: { inputId: string };
+    /** 是否自動填充患者性別 */
+    autoPopulateGender?: { 
+        radioName: string;
+        maleValue: string;
+        femaleValue: string;
+    };
 }
 
 /** Radio 評分計算器配置 */
@@ -48,10 +81,28 @@ export interface RadioScoreCalculatorConfig {
     infoAlert?: string;
     interpretationInfo?: string;
     references?: string[];
+    
+    /**
+     * FHIR 數據需求（聲明式配置）
+     */
+    dataRequirements?: RadioFHIRDataRequirements;
+    
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
-    /** 自定義初始化函數（用於 FHIR 自動填充等） */
-    customInitialize?: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => void;
+    
+    /** 
+     * 自定義初始化函數（用於 FHIR 自動填充等）
+     * @param client FHIR 客戶端
+     * @param patient 患者資料
+     * @param container 容器元素
+     * @param calculate 觸發重新計算的函數
+     */
+    customInitialize?: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => void | Promise<void>;
 }
 
 /** 計算器模組介面 */
@@ -130,6 +181,26 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
         initialize(client: unknown, patient: unknown, container: HTMLElement): void {
             uiBuilder.initializeComponents(container);
 
+            // 初始化 FHIR 數據服務（內部使用）
+            fhirDataService.initialize(
+                client as FHIRClient | null,
+                patient as Patient | null,
+                container
+            );
+
+            /**
+             * 設置 Radio 值
+             */
+            const setRadioValue = (name: string, value: string): void => {
+                const radio = container.querySelector(
+                    `input[name="${name}"][value="${value}"]`
+                ) as HTMLInputElement | null;
+                if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+
             const calculate = (): void => {
                 let totalScore = 0;
                 const sectionScores: Record<string, number> = {};
@@ -188,14 +259,79 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 radio.addEventListener('change', calculate);
             });
 
-            // 自定義初始化（如 FHIR 自動填充）
-            if (config.customInitialize) {
-                config.customInitialize(client, patient, container, calculate);
-            }
+            /**
+             * 執行 FHIR 數據自動填充
+             */
+            const performAutoPopulation = async (): Promise<void> => {
+                // 如果有 dataRequirements 配置，先執行自動填充
+                if (config.dataRequirements && fhirDataService.isReady()) {
+                    try {
+                        const dataReqs = config.dataRequirements;
+                        const stalenessTracker = fhirDataService.getStalenessTracker();
+                        
+                        // 自動填充患者性別
+                        if (dataReqs.autoPopulateGender) {
+                            const gender = fhirDataService.getPatientGender();
+                            if (gender) {
+                                const value = gender === 'male' 
+                                    ? dataReqs.autoPopulateGender.maleValue 
+                                    : dataReqs.autoPopulateGender.femaleValue;
+                                setRadioValue(dataReqs.autoPopulateGender.radioName, value);
+                            }
+                        }
+                        
+                        // 使用 sections 中的 loincCode 和 valueMapping 自動填充
+                        for (const section of config.sections) {
+                            if (section.loincCode && section.valueMapping) {
+                                try {
+                                    const result = await fhirDataService.getObservation(section.loincCode, {
+                                        trackStaleness: true,
+                                        stalenessLabel: section.title
+                                    });
+                                    
+                                    if (result.value !== null) {
+                                        // 根據 valueMapping 找到對應的 radio 值
+                                        const mapping = section.valueMapping.find(m => m.condition(result.value!));
+                                        if (mapping) {
+                                            setRadioValue(section.id, mapping.radioValue);
+                                        }
+                                        
+                                        // 追蹤陳舊狀態
+                                        if (stalenessTracker && result.observation) {
+                                            stalenessTracker.trackObservation(
+                                                `input[name="${section.id}"]`,
+                                                result.observation,
+                                                section.loincCode,
+                                                section.title
+                                            );
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.warn(`Error fetching observation for ${section.id}:`, e);
+                                }
+                            }
+                        }
+                        
+                        // 處理額外的觀察值需求
+                        if (dataReqs.observations && dataReqs.observations.length > 0) {
+                            await fhirDataService.autoPopulateFields(dataReqs.observations);
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error during FHIR auto-population:', error);
+                    }
+                }
+                
+                // 調用自定義初始化（傳遞原始的 client 和 patient）
+                if (config.customInitialize) {
+                    await config.customInitialize(client, patient, container, calculate);
+                }
+                
+                calculate();
+            };
 
-            // 初始計算
-            calculate();
+            // 執行自動填充
+            performAutoPopulation();
         }
     };
 }
-

@@ -1,10 +1,9 @@
-import { getMostRecentObservation, calculateAge, } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const crcl = {
     id: 'crcl',
     title: 'Creatinine Clearance (Cockcroft-Gault Equation)',
@@ -93,9 +92,8 @@ export const crcl = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const ageInput = container.querySelector('#crcl-age');
         const weightInput = container.querySelector('#crcl-weight');
         const scrInput = container.querySelector('#crcl-scr');
@@ -204,46 +202,56 @@ export const crcl = {
             input.addEventListener('input', calculateAndUpdate);
             input.addEventListener('change', calculateAndUpdate);
         });
-        if (patient) {
-            if (patient.birthDate) {
-                ageInput.value = calculateAge(patient.birthDate).toString();
-            }
-            if (patient.gender) {
-                const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-                const genderRadio = container.querySelector(`input[name="crcl-gender"][value="${genderValue}"]`);
-                if (genderRadio) {
-                    genderRadio.checked = true;
-                    genderRadio.dispatchEvent(new Event('change'));
-                }
-            }
-        }
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'kg';
-                    const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (converted !== null) {
-                        weightInput.value = converted.toFixed(1);
+        // Auto-populate using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    // Get age
+                    const age = await fhirDataService.getPatientAge();
+                    if (age !== null && ageInput) {
+                        ageInput.value = age.toString();
+                        ageInput.dispatchEvent(new Event('input'));
+                    }
+                    // Get gender
+                    const gender = await fhirDataService.getPatientGender();
+                    if (gender) {
+                        const genderValue = gender.toLowerCase() === 'female' ? 'female' : 'male';
+                        const genderRadio = container.querySelector(`input[name="crcl-gender"][value="${genderValue}"]`);
+                        if (genderRadio) {
+                            genderRadio.checked = true;
+                            genderRadio.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    // Get weight and creatinine in parallel
+                    const [weightResult, crResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.WEIGHT, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Weight',
+                            targetUnit: 'kg',
+                            unitType: 'weight'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Serum Creatinine',
+                            targetUnit: 'mg/dL',
+                            unitType: 'creatinine'
+                        })
+                    ]);
+                    if (weightResult.value !== null && weightInput) {
+                        weightInput.value = weightResult.value.toFixed(1);
                         weightInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#crcl-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                     }
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-                    if (converted !== null) {
-                        scrInput.value = converted.toFixed(2);
+                    if (crResult.value !== null && scrInput) {
+                        scrInput.value = crResult.value.toFixed(2);
                         scrInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#crcl-scr', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                     }
                 }
-            }).catch(e => console.warn(e));
-        }
-        // Initial calculation
-        calculateAndUpdate();
+                catch (e) {
+                    console.warn('Error auto-populating CrCl:', e);
+                }
+            }
+            calculateAndUpdate();
+        };
+        autoPopulate();
     }
 };

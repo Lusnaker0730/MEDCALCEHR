@@ -1,13 +1,12 @@
 /**
  * SOFA Score for Sepsis Organ Failure Calculator
  *
- * 使用 Radio Score Calculator 工廠函數遷移
- * Sequential Organ Failure Assessment (SOFA) Score predicts ICU mortality.
+ * 使用 Radio Score Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 const config = {
@@ -147,17 +146,16 @@ const config = {
             </div>
         `;
     },
-    customInitialize: (client, patient, container, calculate) => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+    // 使用 FHIRDataService 進行自動填充
+    customInitialize: async (client, patient, container, calculate) => {
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
                 radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        if (!client) {
+        if (!fhirDataService.isReady()) {
             // Mark all as not available if no client
             ['platelets', 'creatinine', 'bilirubin'].forEach(lab => {
                 const el = container.querySelector(`#current-${lab}`);
@@ -166,14 +164,21 @@ const config = {
             });
             return;
         }
-        // Platelets
-        getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
-            const el = container.querySelector('#current-platelets');
-            if (obs?.valueQuantity?.value !== undefined) {
-                const val = obs.valueQuantity.value;
-                if (el)
-                    el.textContent = `${val.toFixed(0)} ×10³/μL`;
-                stalenessTracker.trackObservation('#current-platelets', obs, LOINC_CODES.PLATELETS, 'Platelets');
+        const stalenessTracker = fhirDataService.getStalenessTracker();
+        try {
+            // Platelets
+            const plateletsResult = await fhirDataService.getObservation(LOINC_CODES.PLATELETS, {
+                trackStaleness: true,
+                stalenessLabel: 'Platelets'
+            });
+            const plateletsEl = container.querySelector('#current-platelets');
+            if (plateletsResult.value !== null) {
+                const val = plateletsResult.value;
+                if (plateletsEl)
+                    plateletsEl.textContent = `${val.toFixed(0)} ×10³/μL`;
+                if (stalenessTracker && plateletsResult.observation) {
+                    stalenessTracker.trackObservation('#current-platelets', plateletsResult.observation, LOINC_CODES.PLATELETS, 'Platelets');
+                }
                 let radioValue = '0';
                 if (val < 20)
                     radioValue = '4';
@@ -185,24 +190,36 @@ const config = {
                     radioValue = '1';
                 setRadioValue('sofa-coag', radioValue);
             }
-            else if (el) {
-                el.textContent = 'Not available';
+            else if (plateletsEl) {
+                plateletsEl.textContent = 'Not available';
             }
-        }).catch(e => console.warn('Error fetching platelets:', e));
-        // Creatinine
-        getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-            const el = container.querySelector('#current-creatinine');
-            if (obs?.valueQuantity?.value !== undefined) {
-                let val = obs.valueQuantity.value;
-                const unit = obs.valueQuantity.unit || 'mg/dL';
+        }
+        catch (e) {
+            console.warn('Error fetching platelets:', e);
+            const el = container.querySelector('#current-platelets');
+            if (el)
+                el.textContent = 'Not available';
+        }
+        try {
+            // Creatinine
+            const creatinineResult = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                stalenessLabel: 'Creatinine'
+            });
+            const creatinineEl = container.querySelector('#current-creatinine');
+            if (creatinineResult.value !== null) {
+                let val = creatinineResult.value;
+                const unit = creatinineResult.unit || 'mg/dL';
                 if (unit === 'mmol/L' || unit.toLowerCase() === 'umol/l') {
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
                     if (converted !== null)
                         val = converted;
                 }
-                if (el)
-                    el.textContent = `${val.toFixed(1)} mg/dL`;
-                stalenessTracker.trackObservation('#current-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
+                if (creatinineEl)
+                    creatinineEl.textContent = `${val.toFixed(1)} mg/dL`;
+                if (stalenessTracker && creatinineResult.observation) {
+                    stalenessTracker.trackObservation('#current-creatinine', creatinineResult.observation, LOINC_CODES.CREATININE, 'Creatinine');
+                }
                 let radioValue = '0';
                 if (val >= 5.0)
                     radioValue = '4';
@@ -214,24 +231,36 @@ const config = {
                     radioValue = '1';
                 setRadioValue('sofa-renal', radioValue);
             }
-            else if (el) {
-                el.textContent = 'Not available';
+            else if (creatinineEl) {
+                creatinineEl.textContent = 'Not available';
             }
-        }).catch(e => console.warn('Error fetching creatinine:', e));
-        // Bilirubin
-        getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL).then(obs => {
-            const el = container.querySelector('#current-bilirubin');
-            if (obs?.valueQuantity?.value !== undefined) {
-                let val = obs.valueQuantity.value;
-                const unit = obs.valueQuantity.unit || 'mg/dL';
+        }
+        catch (e) {
+            console.warn('Error fetching creatinine:', e);
+            const el = container.querySelector('#current-creatinine');
+            if (el)
+                el.textContent = 'Not available';
+        }
+        try {
+            // Bilirubin
+            const bilirubinResult = await fhirDataService.getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
+                trackStaleness: true,
+                stalenessLabel: 'Bilirubin'
+            });
+            const bilirubinEl = container.querySelector('#current-bilirubin');
+            if (bilirubinResult.value !== null) {
+                let val = bilirubinResult.value;
+                const unit = bilirubinResult.unit || 'mg/dL';
                 if (unit === 'mmol/L' || unit.toLowerCase() === 'umol/l') {
                     const converted = UnitConverter.convert(val, unit, 'mg/dL', 'bilirubin');
                     if (converted !== null)
                         val = converted;
                 }
-                if (el)
-                    el.textContent = `${val.toFixed(1)} mg/dL`;
-                stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
+                if (bilirubinEl)
+                    bilirubinEl.textContent = `${val.toFixed(1)} mg/dL`;
+                if (stalenessTracker && bilirubinResult.observation) {
+                    stalenessTracker.trackObservation('#current-bilirubin', bilirubinResult.observation, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
+                }
                 let radioValue = '0';
                 if (val >= 12.0)
                     radioValue = '4';
@@ -243,10 +272,16 @@ const config = {
                     radioValue = '1';
                 setRadioValue('sofa-liver', radioValue);
             }
-            else if (el) {
-                el.textContent = 'Not available';
+            else if (bilirubinEl) {
+                bilirubinEl.textContent = 'Not available';
             }
-        }).catch(e => console.warn('Error fetching bilirubin:', e));
+        }
+        catch (e) {
+            console.warn('Error fetching bilirubin:', e);
+            const el = container.querySelector('#current-bilirubin');
+            if (el)
+                el.textContent = 'Not available';
+        }
     }
 };
 export const sofa = createRadioScoreCalculator(config);

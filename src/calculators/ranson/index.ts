@@ -1,14 +1,13 @@
 /**
  * Ranson Score for Pancreatitis Calculator
  * 
- * 使用 Score Calculator 工廠函數遷移
- * Predicts severity and mortality of acute pancreatitis.
+ * 使用 Score Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 
 import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/score-calculator.js';
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: ScoreCalculatorConfig = {
@@ -103,99 +102,110 @@ const config: ScoreCalculatorConfig = {
             })}
         `;
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void): void => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-
-        // Auto-populate age
-        const typedPatient = patient as { birthDate?: string } | null;
-        if (typedPatient?.birthDate) {
-            const age = calculateAge(typedPatient.birthDate);
-            if (age > 55) {
-                const box = container.querySelector('#ranson-age') as HTMLInputElement;
-                if (box) {
-                    box.checked = true;
-                    box.dispatchEvent(new Event('change'));
-                }
+    
+    // 使用 customInitialize 處理 FHIR 自動填充
+    customInitialize: async (client, patient, container, calculate) => {
+        const setCheckbox = (id: string, checked: boolean) => {
+            const box = container.querySelector(`#${id}`) as HTMLInputElement;
+            if (box && checked) {
+                box.checked = true;
+                box.dispatchEvent(new Event('change', { bubbles: true }));
             }
+        };
+        
+        // 自動填充年齡
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age > 55) {
+            setCheckbox('ranson-age', true);
         }
 
-        if (!client) return;
+        if (!fhirDataService.isReady()) return;
+        
+        const stalenessTracker = fhirDataService.getStalenessTracker();
 
-        // WBC
-        getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
-            if (obs?.valueQuantity) {
-                let val = obs.valueQuantity.value;
+        try {
+            // WBC > 16,000/mm³
+            const wbcResult = await fhirDataService.getObservation(LOINC_CODES.WBC, {
+                trackStaleness: true,
+                stalenessLabel: 'WBC'
+            });
+            
+            if (wbcResult.value !== null) {
+                let val = wbcResult.value;
                 // Normalize to K/uL
                 if (val > 1000) val = val / 1000;
                 if (val > 16) {
-                    const box = container.querySelector('#ranson-wbc') as HTMLInputElement;
-                    if (box) {
-                        box.checked = true;
-                        box.dispatchEvent(new Event('change'));
-                    }
+                    setCheckbox('ranson-wbc', true);
                 }
-                stalenessTracker.trackObservation('#ranson-wbc', obs, LOINC_CODES.WBC, 'WBC Count');
+                if (stalenessTracker && wbcResult.observation) {
+                    stalenessTracker.trackObservation('#ranson-wbc', wbcResult.observation, LOINC_CODES.WBC, 'WBC Count');
+                }
             }
-        }).catch(e => console.warn('Error fetching WBC:', e));
-
-        // Glucose
-        getMostRecentObservation(client, LOINC_CODES.GLUCOSE).then(obs => {
-            if (obs?.valueQuantity) {
-                let val = obs.valueQuantity.value;
+            
+            // Blood glucose > 200 mg/dL
+            const glucoseResult = await fhirDataService.getObservation(LOINC_CODES.GLUCOSE, {
+                trackStaleness: true,
+                stalenessLabel: 'Glucose'
+            });
+            
+            if (glucoseResult.value !== null) {
+                let val = glucoseResult.value;
                 // Convert mmol/L to mg/dL if needed
-                if (obs.valueQuantity.unit === 'mmol/L') val = val * 18.0182;
+                if (glucoseResult.unit === 'mmol/L') val = val * 18.0182;
                 if (val > 200) {
-                    const box = container.querySelector('#ranson-glucose') as HTMLInputElement;
-                    if (box) {
-                        box.checked = true;
-                        box.dispatchEvent(new Event('change'));
-                    }
+                    setCheckbox('ranson-glucose', true);
                 }
-                stalenessTracker.trackObservation('#ranson-glucose', obs, LOINC_CODES.GLUCOSE, 'Blood Glucose');
-            }
-        }).catch(e => console.warn('Error fetching glucose:', e));
-
-        // AST
-        getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-            if (obs?.valueQuantity && obs.valueQuantity.value > 250) {
-                const box = container.querySelector('#ranson-ast') as HTMLInputElement;
-                if (box) {
-                    box.checked = true;
-                    box.dispatchEvent(new Event('change'));
+                if (stalenessTracker && glucoseResult.observation) {
+                    stalenessTracker.trackObservation('#ranson-glucose', glucoseResult.observation, LOINC_CODES.GLUCOSE, 'Blood Glucose');
                 }
-                stalenessTracker.trackObservation('#ranson-ast', obs, LOINC_CODES.AST, 'AST');
             }
-        }).catch(e => console.warn('Error fetching AST:', e));
-
-        // LDH
-        getMostRecentObservation(client, LOINC_CODES.LDH).then(obs => {
-            if (obs?.valueQuantity && obs.valueQuantity.value > 350) {
-                const box = container.querySelector('#ranson-ldh') as HTMLInputElement;
-                if (box) {
-                    box.checked = true;
-                    box.dispatchEvent(new Event('change'));
+            
+            // AST > 250 IU/L
+            const astResult = await fhirDataService.getObservation(LOINC_CODES.AST, {
+                trackStaleness: true,
+                stalenessLabel: 'AST'
+            });
+            
+            if (astResult.value !== null && astResult.value > 250) {
+                setCheckbox('ranson-ast', true);
+                if (stalenessTracker && astResult.observation) {
+                    stalenessTracker.trackObservation('#ranson-ast', astResult.observation, LOINC_CODES.AST, 'AST');
                 }
-                stalenessTracker.trackObservation('#ranson-ldh', obs, LOINC_CODES.LDH, 'LDH');
             }
-        }).catch(e => console.warn('Error fetching LDH:', e));
-
-        // Calcium
-        getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
-            if (obs?.valueQuantity) {
-                let val = obs.valueQuantity.value;
+            
+            // LDH > 350 IU/L
+            const ldhResult = await fhirDataService.getObservation(LOINC_CODES.LDH, {
+                trackStaleness: true,
+                stalenessLabel: 'LDH'
+            });
+            
+            if (ldhResult.value !== null && ldhResult.value > 350) {
+                setCheckbox('ranson-ldh', true);
+                if (stalenessTracker && ldhResult.observation) {
+                    stalenessTracker.trackObservation('#ranson-ldh', ldhResult.observation, LOINC_CODES.LDH, 'LDH');
+                }
+            }
+            
+            // Calcium < 8.0 mg/dL
+            const calciumResult = await fhirDataService.getObservation(LOINC_CODES.CALCIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Calcium'
+            });
+            
+            if (calciumResult.value !== null) {
+                let val = calciumResult.value;
                 // Convert mmol/L to mg/dL if needed
-                if (obs.valueQuantity.unit === 'mmol/L') val = val * 4.008;
+                if (calciumResult.unit === 'mmol/L') val = val * 4.008;
                 if (val < 8.0) {
-                    const box = container.querySelector('#ranson-calcium') as HTMLInputElement;
-                    if (box) {
-                        box.checked = true;
-                        box.dispatchEvent(new Event('change'));
-                    }
+                    setCheckbox('ranson-calcium', true);
                 }
-                stalenessTracker.trackObservation('#ranson-calcium', obs, LOINC_CODES.CALCIUM, 'Calcium');
+                if (stalenessTracker && calciumResult.observation) {
+                    stalenessTracker.trackObservation('#ranson-calcium', calciumResult.observation, LOINC_CODES.CALCIUM, 'Calcium');
+                }
             }
-        }).catch(e => console.warn('Error fetching calcium:', e));
+        } catch (error) {
+            console.warn('Error auto-populating Ranson score:', error);
+        }
     }
 };
 

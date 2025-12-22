@@ -1,12 +1,9 @@
-import {
-    getMostRecentObservation
-} from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { FHIRDataError, ValidationError, logError, displayError } from '../../errorHandler.js';
+import { ValidationError, logError, displayError } from '../../errorHandler.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -68,12 +65,10 @@ export const bmiBsa: CalculatorModule = {
         // Initialize UI Builder components (unit toggles, etc.)
         uiBuilder.initializeComponents(container);
 
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const resultEl = container.querySelector('#bmi-bsa-result') as HTMLElement;
-
 
         const weightInput = container.querySelector('#bmi-bsa-weight') as HTMLInputElement;
         const heightInput = container.querySelector('#bmi-bsa-height') as HTMLInputElement;
@@ -201,43 +196,42 @@ export const bmiBsa: CalculatorModule = {
         });
         container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
 
-        // Auto-populate from FHIR data
-        if (client) {
-            const weightPromise = getMostRecentObservation(client, LOINC_CODES.WEIGHT);
-            const heightPromise = getMostRecentObservation(client, LOINC_CODES.HEIGHT);
+        // Auto-populate from FHIR data using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    // Get weight and height in parallel
+                    const [weightResult, heightResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.WEIGHT, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Weight',
+                            targetUnit: 'kg',
+                            unitType: 'weight'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.HEIGHT, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Height',
+                            targetUnit: 'cm',
+                            unitType: 'height'
+                        })
+                    ]);
 
-            Promise.all([weightPromise, heightPromise])
-                .then(([weightObs, heightObs]) => {
-                    if (weightObs && weightObs.valueQuantity && weightInput) {
-                        const val = weightObs.valueQuantity.value;
-                        const unit = weightObs.valueQuantity.unit || 'kg';
-                        const wInKg = UnitConverter.convert(val, unit, 'kg', 'weight');
-                        if (wInKg !== null) {
-                            weightInput.value = wInKg.toFixed(1);
-                            weightInput.dispatchEvent(new Event('input'));
-                        }
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#bmi-bsa-weight', weightObs, LOINC_CODES.WEIGHT, 'Weight');
+                    if (weightResult.value !== null && weightInput) {
+                        weightInput.value = weightResult.value.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
                     }
 
-                    if (heightObs && heightObs.valueQuantity && heightInput) {
-                        const val = heightObs.valueQuantity.value;
-                        const unit = heightObs.valueQuantity.unit || 'cm';
-                        const hInCm = UnitConverter.convert(val, unit, 'cm', 'height');
-                        if (hInCm !== null) {
-                            heightInput.value = hInCm.toFixed(1);
-                            heightInput.dispatchEvent(new Event('input'));
-                        }
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#bmi-bsa-height', heightObs, LOINC_CODES.HEIGHT, 'Height');
+                    if (heightResult.value !== null && heightInput) {
+                        heightInput.value = heightResult.value.toFixed(1);
+                        heightInput.dispatchEvent(new Event('input'));
                     }
-                })
-                .catch(error => {
-                    // Quiet fail or warn
-                    console.warn('FHIR fetch failed', error);
-                });
-        }
+                } catch (error) {
+                    console.warn('Error auto-populating BMI-BSA:', error);
+                }
+            }
+            calculateAndUpdate();
+        };
+
+        autoPopulate();
     }
 };

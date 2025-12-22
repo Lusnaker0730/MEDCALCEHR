@@ -1,11 +1,11 @@
 /**
  * Revised Geneva Score (Simplified) Calculator
  *
+ * 已整合 FHIRDataService 進行自動填充
+ *
  * 這是一個混合計算器 - 有 checkbox 評分和 input 輸入（心率）
- * 需要自定義處理，因此不完全使用工廠函數
  */
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 export const genevaScore = {
@@ -71,8 +71,9 @@ export const genevaScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+        const stalenessTracker = fhirDataService.getStalenessTracker();
         const calculate = () => {
             let score = 0;
             // Sum checkbox values
@@ -152,27 +153,51 @@ export const genevaScore = {
             input.addEventListener('change', calculate);
             input.addEventListener('input', calculate);
         });
-        // Load FHIR data
-        if (client && patient) {
-            // Auto-populate age checkbox
-            const typedPatient = patient;
-            if (typedPatient.birthDate) {
-                const age = calculateAge(typedPatient.birthDate);
-                const ageCheckbox = container.querySelector('#geneva-age');
-                if (age > 65 && ageCheckbox) {
-                    ageCheckbox.checked = true;
-                    ageCheckbox.dispatchEvent(new Event('change'));
-                }
+        // Auto-populate using FHIRDataService
+        // Age > 65
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age > 65) {
+            const ageCheckbox = container.querySelector('#geneva-age');
+            if (ageCheckbox) {
+                ageCheckbox.checked = true;
+                ageCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            // Load heart rate
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
+        }
+        // Load heart rate
+        if (fhirDataService.isReady()) {
+            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Heart Rate'
+            }).then(result => {
                 const hrInput = container.querySelector('#geneva-hr');
-                if (hrInput && obs?.valueQuantity) {
-                    hrInput.value = Math.round(obs.valueQuantity.value).toString();
-                    hrInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#geneva-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                if (hrInput && result.value !== null) {
+                    hrInput.value = Math.round(result.value).toString();
+                    hrInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    if (stalenessTracker && result.observation) {
+                        stalenessTracker.trackObservation('#geneva-hr', result.observation, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                    }
                 }
             }).catch(e => console.warn('Error loading heart rate:', e));
+            // Check for previous DVT/PE
+            fhirDataService.hasCondition(['128053003', '59282003']).then(hasDVTPE => {
+                if (hasDVTPE) {
+                    const checkbox = container.querySelector('#geneva-prev-dvt');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            }).catch(e => console.warn('Error checking DVT/PE history:', e));
+            // Check for malignancy
+            fhirDataService.hasCondition(['363346000', '86049000']).then(hasMalignancy => {
+                if (hasMalignancy) {
+                    const checkbox = container.querySelector('#geneva-malignancy');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            }).catch(e => console.warn('Error checking malignancy:', e));
         }
         // Initial calculation
         calculate();

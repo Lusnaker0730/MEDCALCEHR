@@ -1,10 +1,9 @@
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const fib4 = {
     id: 'fib-4',
     title: 'Fibrosis-4 (FIB-4) Index',
@@ -62,16 +61,12 @@ export const fib4 = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const ageInput = container.querySelector('#fib4-age');
         const astInput = container.querySelector('#fib4-ast');
         const altInput = container.querySelector('#fib4-alt');
         const pltInput = container.querySelector('#fib4-plt');
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate).toString();
-        }
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#fib4-error-container');
@@ -171,32 +166,50 @@ export const fib4 = {
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
         });
-        // Auto-populate from FHIR
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    astInput.value = obs.valueQuantity.value.toFixed(0);
-                    astInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#fib4-ast', obs, LOINC_CODES.AST, 'AST');
+        // Auto-populate from FHIR using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    // Get age
+                    const age = await fhirDataService.getPatientAge();
+                    if (age !== null && ageInput) {
+                        ageInput.value = age.toString();
+                        ageInput.dispatchEvent(new Event('input'));
+                    }
+                    // Get lab values in parallel
+                    const [astResult, altResult, pltResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.AST, {
+                            trackStaleness: true,
+                            stalenessLabel: 'AST'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.ALT, {
+                            trackStaleness: true,
+                            stalenessLabel: 'ALT'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.PLATELETS, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Platelets'
+                        })
+                    ]);
+                    if (astResult.value !== null && astInput) {
+                        astInput.value = astResult.value.toFixed(0);
+                        astInput.dispatchEvent(new Event('input'));
+                    }
+                    if (altResult.value !== null && altInput) {
+                        altInput.value = altResult.value.toFixed(0);
+                        altInput.dispatchEvent(new Event('input'));
+                    }
+                    if (pltResult.value !== null && pltInput) {
+                        pltInput.value = pltResult.value.toFixed(0);
+                        pltInput.dispatchEvent(new Event('input'));
+                    }
                 }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    altInput.value = obs.valueQuantity.value.toFixed(0);
-                    altInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#fib4-alt', obs, LOINC_CODES.ALT, 'ALT');
+                catch (e) {
+                    console.warn('Error auto-populating FIB-4:', e);
                 }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    pltInput.value = obs.valueQuantity.value.toFixed(0);
-                    // Trigger input which handles unit conversion if needed (assuming standard)
-                    pltInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#fib4-plt', obs, LOINC_CODES.PLATELETS, 'Platelets');
-                }
-            }).catch(e => console.warn(e));
-        }
-        // Initial run
-        calculate();
+            }
+            calculate();
+        };
+        autoPopulate();
     }
 };

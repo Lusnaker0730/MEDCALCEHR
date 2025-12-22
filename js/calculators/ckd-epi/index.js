@@ -1,10 +1,9 @@
-import { getMostRecentObservation, calculateAge, } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const ckdEpi = {
     id: 'ckd-epi',
     title: 'CKD-EPI GFR (2021 Refit)',
@@ -79,9 +78,8 @@ export const ckdEpi = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker for this calculator
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const ageInput = container.querySelector('#ckd-epi-age');
         const creatinineInput = container.querySelector('#ckd-epi-creatinine');
         const resultBox = container.querySelector('#ckd-epi-result');
@@ -200,41 +198,44 @@ export const ckdEpi = {
             input.addEventListener('input', calculateAndUpdate);
             input.addEventListener('change', calculateAndUpdate);
         });
-        // Auto-populate
-        if (patient) {
-            if (patient.birthDate) {
-                ageInput.value = calculateAge(patient.birthDate).toString();
-            }
-            if (patient.gender) {
-                const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-                const genderRadio = container.querySelector(`input[name="ckd-epi-gender"][value="${genderValue}"]`);
-                if (genderRadio) {
-                    genderRadio.checked = true;
-                    genderRadio.dispatchEvent(new Event('change'));
-                }
-            }
-        }
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    // UnitConverter check
-                    // If UI is default mg/dL, convert if necessary
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-                    if (converted !== null) {
-                        creatinineInput.value = converted.toFixed(2);
+        // Auto-populate using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    // Get age
+                    const age = await fhirDataService.getPatientAge();
+                    if (age !== null && ageInput) {
+                        ageInput.value = age.toString();
+                        ageInput.dispatchEvent(new Event('input'));
+                    }
+                    // Get gender
+                    const gender = await fhirDataService.getPatientGender();
+                    if (gender) {
+                        const genderValue = gender.toLowerCase() === 'female' ? 'female' : 'male';
+                        const genderRadio = container.querySelector(`input[name="ckd-epi-gender"][value="${genderValue}"]`);
+                        if (genderRadio) {
+                            genderRadio.checked = true;
+                            genderRadio.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    // Get creatinine
+                    const crResult = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                        trackStaleness: true,
+                        stalenessLabel: 'Serum Creatinine',
+                        targetUnit: 'mg/dL',
+                        unitType: 'creatinine'
+                    });
+                    if (crResult.value !== null && creatinineInput) {
+                        creatinineInput.value = crResult.value.toFixed(2);
                         creatinineInput.dispatchEvent(new Event('input'));
                     }
-                    else {
-                        creatinineInput.value = val.toFixed(2); // Fallback
-                        creatinineInput.dispatchEvent(new Event('input'));
-                    }
-                    // Track staleness
-                    stalenessTracker.trackObservation('#ckd-epi-creatinine', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
                 }
-            }).catch(e => console.warn(e));
-        }
-        calculateAndUpdate();
+                catch (e) {
+                    console.warn('Error auto-populating CKD-EPI:', e);
+                }
+            }
+            calculateAndUpdate();
+        };
+        autoPopulate();
     }
 };

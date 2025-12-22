@@ -1,14 +1,13 @@
 /**
  * Duke Activity Status Index (DASI) Calculator
  * 
- * 使用 Score Calculator 工廠函數遷移
- * Estimates functional capacity.
+ * 使用 Score Calculator 工廠函數
+ * 功能容量評估計算器，不需要 FHIR 自動填充
  */
 
 import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/score-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-// DASI 使用加權分數，而非簡單整數，所以需要自定義渲染
 const config: ScoreCalculatorConfig = {
     id: 'dasi',
     title: 'Duke Activity Status Index (DASI)',
@@ -34,7 +33,6 @@ const config: ScoreCalculatorConfig = {
             ]
         }
     ],
-    // 這些 riskLevels 在 DASI 中是基於 METs 計算的，所以需要自定義渲染
     riskLevels: [
         { minScore: 0, maxScore: 9.7, risk: 'Poor', category: 'Poor', severity: 'danger', recommendation: '< 4 METs: Poor functional capacity' },
         { minScore: 9.8, maxScore: 28.2, risk: 'Moderate', category: 'Moderate', severity: 'warning', recommendation: '4-7 METs: Moderate functional capacity' },

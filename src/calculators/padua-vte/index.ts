@@ -1,15 +1,13 @@
 /**
  * Padua Prediction Score for Risk of VTE Calculator
  * 
- * 使用 Yes/No Calculator 工廠函數遷移
- * Determines anticoagulation need in hospitalized patients by risk of VTE.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 
 import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const paduaVTE = createYesNoCalculator({
     id: 'padua-vte',
@@ -45,88 +43,59 @@ export const paduaVTE = createYesNoCalculator({
             severity: 'danger',
             recommendation: 'Pharmacologic prophylaxis is recommended.'
         }
-    ]
-});
-
-// 為了支援 FHIR 自動填入，覆寫 initialize
-const baseInitialize = paduaVTE.initialize;
-paduaVTE.initialize = function(client: unknown, patient: any, container: HTMLElement): void {
-    uiBuilder.initializeComponents(container);
+    ],
     
-    const stalenessTracker = createStalenessTracker();
-    stalenessTracker.setContainer(container);
-    
-    const setRadioValue = (name: string, value: string, obs?: any, loinc?: string, label?: string): void => {
-        const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
-        if (radio) {
-            radio.checked = true;
-            radio.dispatchEvent(new Event('change'));
-            if (obs && loinc && label) {
-                stalenessTracker.trackObservation(`input[name="${name}"]`, obs, loinc, label);
+    // 使用 customInitialize 處理年齡和 BMI 自動填充
+    customInitialize: async (client, patient, container, calculate) => {
+        const setRadioValue = (name: string, value: string) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
-        }
-    };
-    
-    // 計算函數
-    const calculate = (): void => {
-        let score = 0;
-        const radios = container.querySelectorAll('input[type="radio"]:checked');
-
-        radios.forEach(radio => {
-            score += parseInt((radio as HTMLInputElement).value);
-        });
-
-        const isHighRisk = score >= 4;
-        const alertClass = isHighRisk ? 'ui-alert-danger' : 'ui-alert-success';
-        const riskLevel = isHighRisk ? 'High Risk for VTE' : 'Low Risk for VTE';
-        const recommendation = isHighRisk 
-            ? 'Pharmacologic prophylaxis is recommended.'
-            : 'Pharmacologic prophylaxis may not be necessary.';
-
-        const resultBox = document.getElementById('padua-vte-result');
-        if (resultBox) {
-            const resultContent = resultBox.querySelector('.ui-result-content');
-            if (resultContent) {
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                        label: 'Total Score',
-                        value: score.toString(),
-                        unit: 'points',
-                        interpretation: riskLevel,
-                        alertClass: alertClass
-                    })}
-                    
-                    ${uiBuilder.createAlert({
-                        type: isHighRisk ? 'warning' : 'info',
-                        message: `<strong>Recommendation:</strong> ${recommendation}`
-                    })}
-                `;
-            }
-            resultBox.classList.add('show');
-        }
-    };
-
-    // 綁定事件
-    container.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('change', calculate);
-    });
-
-    // FHIR 自動填入
-    if (patient && patient.birthDate) {
-        const age = calculateAge(patient.birthDate);
-        if (age >= 70) {
+        };
+        
+        // 自動填充年齡
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age >= 70) {
             setRadioValue('padua-age', '1');
         }
-    }
-
-    if (client) {
-        getMostRecentObservation(client as any, LOINC_CODES.BMI).then(obs => {
-            if (obs?.valueQuantity?.value >= 30) {
-                setRadioValue('padua-obesity', '1', obs, LOINC_CODES.BMI, 'BMI ≥ 30');
+        
+        if (!fhirDataService.isReady()) return;
+        
+        const stalenessTracker = fhirDataService.getStalenessTracker();
+        
+        try {
+            // 自動填充 BMI
+            const bmiResult = await fhirDataService.getObservation(LOINC_CODES.BMI, {
+                trackStaleness: true,
+                stalenessLabel: 'BMI'
+            });
+            
+            if (bmiResult.value !== null && bmiResult.value >= 30) {
+                setRadioValue('padua-obesity', '1');
+                if (stalenessTracker && bmiResult.observation) {
+                    stalenessTracker.trackObservation('input[name="padua-obesity"]', bmiResult.observation, LOINC_CODES.BMI, 'BMI ≥ 30');
+                }
             }
-        });
+            
+            // 自動檢測相關病史
+            const conditionsToCheck = [
+                { codes: ['363346000'], inputName: 'padua-cancer' },  // Cancer
+                { codes: ['111293003'], inputName: 'padua-prev-vte' }, // VTE
+                { codes: ['234467004'], inputName: 'padua-thromb' },  // Thrombophilia
+                { codes: ['84114007'], inputName: 'padua-heart-resp' }, // Heart failure
+                { codes: ['22298006'], inputName: 'padua-mi-stroke' }  // MI
+            ];
+            
+            for (const condition of conditionsToCheck) {
+                const hasCondition = await fhirDataService.hasCondition(condition.codes);
+                if (hasCondition) {
+                    setRadioValue(condition.inputName, '1');
+                }
+            }
+        } catch (error) {
+            console.warn('Error auto-populating Padua VTE:', error);
+        }
     }
-
-    // 初始計算
-    calculate();
-};
+});

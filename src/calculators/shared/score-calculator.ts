@@ -1,8 +1,10 @@
 /**
- * 評分計算器工廠函數
+ * 評分計算器工廠函數（Checkbox 類型）
  * 
  * 這個模組提供了一個簡化的方式來創建評分類計算器
  * 它可以大幅減少重複代碼，同時保持與現有系統的兼容性
+ * 
+ * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  * 
  * @example
  * import { createScoreCalculator } from '../shared/score-calculator.js';
@@ -17,6 +19,12 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
+import { 
+    fhirDataService,
+    FieldDataRequirement,
+    FHIRClient,
+    Patient
+} from '../../fhir-data-service.js';
 
 // ==========================================
 // 類型定義
@@ -32,6 +40,8 @@ export interface ScoreOption {
     value: number;
     /** 額外說明 */
     description?: string;
+    /** SNOMED 條件代碼（用於 FHIR 自動勾選） */
+    conditionCode?: string;
 }
 
 /** 評分區塊 */
@@ -72,6 +82,16 @@ export interface FormulaItem {
     notes?: string;
 }
 
+/** FHIR 數據需求配置 */
+export interface ScoreFHIRDataRequirements {
+    /** 觀察值需求 */
+    observations?: FieldDataRequirement[];
+    /** 條件代碼（SNOMED）- 用於自動勾選相關的 checkbox */
+    conditions?: string[];
+    /** 藥物代碼（RxNorm） */
+    medications?: string[];
+}
+
 /** 評分計算器配置 */
 export interface ScoreCalculatorConfig {
     /** 計算器 ID */
@@ -90,10 +110,28 @@ export interface ScoreCalculatorConfig {
     infoAlert?: string;
     /** 公式項目 */
     formulaItems?: FormulaItem[];
+    
+    /**
+     * FHIR 數據需求（聲明式配置）
+     */
+    dataRequirements?: ScoreFHIRDataRequirements;
+    
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
-    /** 自定義初始化函數 */
-    customInitialize?: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => void;
+    
+    /** 
+     * 自定義初始化函數
+     * @param client FHIR 客戶端
+     * @param patient 患者資料
+     * @param container 容器元素
+     * @param calculate 觸發重新計算的函數
+     */
+    customInitialize?: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => void | Promise<void>;
 }
 
 /** 計算器模組介面 */
@@ -181,6 +219,24 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
             // 初始化 UI 組件
             uiBuilder.initializeComponents(container);
 
+            // 初始化 FHIR 數據服務（內部使用）
+            fhirDataService.initialize(
+                client as FHIRClient | null,
+                patient as Patient | null,
+                container
+            );
+
+            /**
+             * 設置 Checkbox 狀態
+             */
+            const setCheckbox = (id: string, checked: boolean): void => {
+                const checkbox = container.querySelector(`#${id}`) as HTMLInputElement | null;
+                if (checkbox) {
+                    checkbox.checked = checked;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+
             // 計算函數
             const calculate = (): void => {
                 // 收集所有勾選的 checkbox 值
@@ -247,14 +303,64 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 box.addEventListener('change', calculate);
             });
 
-            // 自定義初始化（如果提供）
-            if (config.customInitialize) {
-                config.customInitialize(client, patient, container, calculate);
-            }
+            /**
+             * 執行 FHIR 數據自動填充
+             */
+            const performAutoPopulation = async (): Promise<void> => {
+                // 如果有 dataRequirements 配置，先執行自動填充
+                if (config.dataRequirements && fhirDataService.isReady()) {
+                    try {
+                        const dataReqs = config.dataRequirements;
+                        
+                        // 收集所有條件代碼
+                        const allConditionCodes: string[] = [...(dataReqs.conditions || [])];
+                        
+                        // 從選項中收集條件代碼
+                        const optionConditionMap = new Map<string, string>(); // conditionCode -> checkboxId
+                        config.sections.forEach(section => {
+                            section.options.forEach(opt => {
+                                if (opt.conditionCode) {
+                                    allConditionCodes.push(opt.conditionCode);
+                                    optionConditionMap.set(opt.conditionCode, opt.id);
+                                }
+                            });
+                        });
+                        
+                        // 獲取患者條件並自動勾選相關 checkbox
+                        if (allConditionCodes.length > 0) {
+                            const conditions = await fhirDataService.getConditions(allConditionCodes);
+                            
+                            conditions.forEach((condition: any) => {
+                                const codings = condition.code?.coding || [];
+                                codings.forEach((coding: any) => {
+                                    const checkboxId = optionConditionMap.get(coding.code);
+                                    if (checkboxId) {
+                                        setCheckbox(checkboxId, true);
+                                    }
+                                });
+                            });
+                        }
+                        
+                        // 處理觀察值需求
+                        if (dataReqs.observations && dataReqs.observations.length > 0) {
+                            await fhirDataService.autoPopulateFields(dataReqs.observations);
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error during FHIR auto-population:', error);
+                    }
+                }
+                
+                // 調用自定義初始化（傳遞原始的 client 和 patient）
+                if (config.customInitialize) {
+                    await config.customInitialize(client, patient, container, calculate);
+                }
+                
+                calculate();
+            };
 
-            // 初始計算
-            calculate();
+            // 執行自動填充
+            performAutoPopulation();
         }
     };
 }
-

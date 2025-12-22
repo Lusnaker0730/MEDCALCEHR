@@ -1,10 +1,9 @@
-import { getMostRecentObservation, } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const freeWaterDeficit = {
     id: 'free-water-deficit',
     title: 'Free Water Deficit in Hypernatremia',
@@ -87,8 +86,8 @@ export const freeWaterDeficit = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const weightInput = container.querySelector('#fwd-weight');
         const sodiumInput = container.querySelector('#fwd-sodium');
         const resultBox = container.querySelector('#fwd-result');
@@ -203,46 +202,48 @@ export const freeWaterDeficit = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculateAndUpdate);
         });
-        // Helper
-        const setInputValue = (el, val) => {
-            if (el) {
-                el.value = val; // Assuming already converted or raw if no conv needed
-                el.dispatchEvent(new Event('input'));
+        // Auto-populate from FHIR using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    // Get gender
+                    const gender = await fhirDataService.getPatientGender();
+                    if (gender) {
+                        const genderVal = gender.toLowerCase();
+                        const genderRadio = container.querySelector(`input[name="fwd-gender"][value="${genderVal}"]`);
+                        if (genderRadio) {
+                            genderRadio.checked = true;
+                            genderRadio.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    // Get weight and sodium in parallel
+                    const [weightResult, sodiumResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.WEIGHT, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Weight',
+                            targetUnit: 'kg',
+                            unitType: 'weight'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Sodium'
+                        })
+                    ]);
+                    if (weightResult.value !== null && weightInput) {
+                        weightInput.value = weightResult.value.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
+                    if (sodiumResult.value !== null && sodiumInput) {
+                        sodiumInput.value = sodiumResult.value.toFixed(0);
+                        sodiumInput.dispatchEvent(new Event('input'));
+                    }
+                }
+                catch (e) {
+                    console.warn('Error auto-populating Free Water Deficit:', e);
+                }
             }
+            calculateAndUpdate();
         };
-        // Auto-populate from FHIR
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'kg';
-                    const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (converted !== null) {
-                        setInputValue(weightInput, converted.toFixed(1));
-                    }
-                    else {
-                        setInputValue(weightInput, val.toFixed(1));
-                    }
-                    stalenessTracker.trackObservation('#fwd-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
-                }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    // Sodium usually mEq/L or mmol/L (1:1), so raw is fine
-                    setInputValue(sodiumInput, obs.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#fwd-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
-                }
-            }).catch(e => console.warn(e));
-        }
-        // Initial patient data (gender)
-        if (patient && patient.gender) {
-            const genderVal = patient.gender.toLowerCase();
-            // Simple mapping - try to check if radio exists
-            const genderRadio = container.querySelector(`input[name="fwd-gender"][value="${genderVal}"]`);
-            if (genderRadio) {
-                genderRadio.checked = true;
-                genderRadio.dispatchEvent(new Event('change'));
-            }
-        }
+        autoPopulate();
     }
 };

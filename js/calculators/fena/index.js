@@ -1,10 +1,9 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const fena = {
     id: 'fena',
     title: 'Fractional Excretion of Sodium (FENa)',
@@ -76,9 +75,8 @@ export const fena = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const resultBox = container.querySelector('#fena-result');
         const calculateAndUpdate = () => {
             // Clear previous errors
@@ -173,49 +171,51 @@ export const fena = {
                 el.dispatchEvent(new Event('input'));
             }
         };
-        // Auto-populate from FHIR
-        if (client) {
-            Promise.all([
-                getMostRecentObservation(client, '2955-3'), // Urine Na
-                getMostRecentObservation(client, LOINC_CODES.SODIUM), // Serum Na
-                getMostRecentObservation(client, LOINC_CODES.URINE_CREATININE),
-                getMostRecentObservation(client, LOINC_CODES.CREATININE)
-            ]).then(([uNa, sNa, uCr, sCr]) => {
-                if (uNa && uNa.valueQuantity && uNa.valueQuantity.value !== undefined) {
-                    // Urine Na usually mEq/L, matches default
-                    setInputValue('#fena-urine-na', uNa.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#fena-urine-na', uNa, '2955-3', 'Urine Na');
-                }
-                if (sNa && sNa.valueQuantity && sNa.valueQuantity.value !== undefined) {
-                    setInputValue('#fena-serum-na', sNa.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#fena-serum-na', sNa, LOINC_CODES.SODIUM, 'Serum Na');
-                }
-                if (uCr && uCr.valueQuantity && uCr.valueQuantity.value !== undefined) {
-                    // Check units for creatinine
-                    const val = uCr.valueQuantity.value;
-                    const unit = uCr.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-                    if (converted !== null) {
-                        setInputValue('#fena-urine-creat', converted.toFixed(1)); // Urine creat might be high, keep dec default
+        // Auto-populate from FHIR using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    const [uNaResult, sNaResult, uCrResult, sCrResult] = await Promise.all([
+                        fhirDataService.getObservation('2955-3', {
+                            trackStaleness: true,
+                            stalenessLabel: 'Urine Na'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Serum Na'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.URINE_CREATININE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Urine Creatinine',
+                            targetUnit: 'mg/dL',
+                            unitType: 'creatinine'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Serum Creatinine',
+                            targetUnit: 'mg/dL',
+                            unitType: 'creatinine'
+                        })
+                    ]);
+                    if (uNaResult.value !== null) {
+                        setInputValue('#fena-urine-na', uNaResult.value.toFixed(0));
                     }
-                    else {
-                        setInputValue('#fena-urine-creat', val.toFixed(1));
+                    if (sNaResult.value !== null) {
+                        setInputValue('#fena-serum-na', sNaResult.value.toFixed(0));
                     }
-                    stalenessTracker.trackObservation('#fena-urine-creat', uCr, LOINC_CODES.URINE_CREATININE, 'Urine Creatinine');
+                    if (uCrResult.value !== null) {
+                        setInputValue('#fena-urine-creat', uCrResult.value.toFixed(1));
+                    }
+                    if (sCrResult.value !== null) {
+                        setInputValue('#fena-serum-creat', sCrResult.value.toFixed(2));
+                    }
                 }
-                if (sCr && sCr.valueQuantity && sCr.valueQuantity.value !== undefined) {
-                    const val = sCr.valueQuantity.value;
-                    const unit = sCr.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-                    if (converted !== null) {
-                        setInputValue('#fena-serum-creat', converted.toFixed(2));
-                    }
-                    else {
-                        setInputValue('#fena-serum-creat', val.toFixed(2));
-                    }
-                    stalenessTracker.trackObservation('#fena-serum-creat', sCr, LOINC_CODES.CREATININE, 'Serum Creatinine');
+                catch (e) {
+                    console.warn('Error auto-populating FENa:', e);
                 }
-            }).catch(e => console.warn(e));
-        }
+            }
+            calculateAndUpdate();
+        };
+        autoPopulate();
     }
 };

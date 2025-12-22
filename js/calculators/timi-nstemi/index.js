@@ -1,11 +1,11 @@
 /**
  * TIMI Risk Score for UA/NSTEMI Calculator
  *
- * 使用 Yes/No Calculator 工廠函數遷移
- * Estimates mortality for patients with unstable angina and non-ST elevation MI.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
-import { calculateAge, getPatientConditions, getObservation } from '../../utils.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 const config = {
     id: 'timi-nstemi',
@@ -87,42 +87,54 @@ const config = {
             </div>
         `;
     },
-    customInitialize: (client, patient, container, calculate) => {
+    // 使用 customInitialize 處理 FHIR 自動填充
+    customInitialize: async (client, patient, container, calculate) => {
         const setYes = (name) => {
-            // Yes/No calculator 的 Yes 選項使用點數作為 value (在這個例子中是 "1")
             const radio = container.querySelector(`input[name="${name}"][value="1"]`);
             if (radio) {
                 radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        // Age (不需要 client)
-        const typedPatient = patient;
-        if (typedPatient?.birthDate) {
-            const age = calculateAge(typedPatient.birthDate);
-            if (age >= 65) {
-                setYes('timi-age');
-            }
+        // 自動填充年齡
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age >= 65) {
+            setYes('timi-age');
         }
-        if (!client)
+        if (!fhirDataService.isReady())
             return;
-        // Known CAD (simplified check using SNOMED code)
-        getPatientConditions(client, ['53741008']).then((conditions) => {
-            if (conditions && conditions.length > 0) {
+        try {
+            // 檢測已知冠心病
+            const hasCAD = await fhirDataService.hasCondition(['53741008', '414545008']); // CAD, IHD
+            if (hasCAD) {
                 setYes('timi-known-cad');
             }
-        }).catch(e => console.warn('Error fetching CAD conditions:', e));
-        // Smoking status check (LOINC 72166-2)
-        getObservation(client, '72166-2').then((obs) => {
-            const typedObs = obs;
-            if (typedObs?.valueCodeableConcept?.coding) {
-                const smokerCodes = ['449868002', '428041000124106'];
-                if (typedObs.valueCodeableConcept.coding.some(c => smokerCodes.includes(c.code))) {
-                    // Could be used as part of CAD risk factors
-                    console.log('Patient is a current smoker');
-                }
+            // 檢測 CAD 風險因素
+            let riskFactorCount = 0;
+            // 高血壓
+            const hasHTN = await fhirDataService.hasCondition(['38341003']);
+            if (hasHTN)
+                riskFactorCount++;
+            // 高血脂
+            const hasHyperlipidemia = await fhirDataService.hasCondition(['55822004']);
+            if (hasHyperlipidemia)
+                riskFactorCount++;
+            // 糖尿病
+            const hasDM = await fhirDataService.hasCondition(['73211009', 'E10', 'E11']);
+            if (hasDM)
+                riskFactorCount++;
+            if (riskFactorCount >= 3) {
+                setYes('timi-cad-risk');
             }
-        }).catch(e => console.warn('Error fetching smoking status:', e));
+            // 檢測阿斯匹靈使用
+            const onAspirin = await fhirDataService.isOnMedication(['1191']); // Aspirin RxNorm
+            if (onAspirin) {
+                setYes('timi-asa');
+            }
+        }
+        catch (error) {
+            console.warn('Error auto-populating TIMI-NSTEMI:', error);
+        }
     }
 };
 export const timiNstemi = createYesNoCalculator(config);

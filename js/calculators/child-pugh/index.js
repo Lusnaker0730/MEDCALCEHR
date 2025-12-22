@@ -1,16 +1,15 @@
 /**
  * Child-Pugh Score for Cirrhosis Mortality Calculator
  *
+ * 已整合 FHIRDataService 進行自動填充
+ *
  * 這是一個複雜的計算器，包含：
  * - 實驗室數值自動填充（Bilirubin, Albumin, INR）
  * - 臨床參數（Ascites, Encephalopathy）
  * - 數值區間自動選擇對應的 radio
- *
- * 由於複雜度高，保持自定義實現
  */
-import { getMostRecentObservation } from '../../utils.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 export const childPugh = {
     id: 'child-pugh',
@@ -121,13 +120,12 @@ export const childPugh = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+        const stalenessTracker = fhirDataService.getStalenessTracker();
         const groups = ['bilirubin', 'albumin', 'inr', 'ascites', 'encephalopathy'];
         const calculate = () => {
             try {
-                // Clear validation errors
                 const errorContainer = container.querySelector('#child-pugh-error-container');
                 if (errorContainer)
                     errorContainer.innerHTML = '';
@@ -210,43 +208,47 @@ export const childPugh = {
                 const radio = container.querySelector(`input[name="${groupName}"][value="${radioToSelect.value}"]`);
                 if (radio) {
                     radio.checked = true;
-                    radio.dispatchEvent(new Event('change'));
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
         };
-        // Fetch and set lab values
-        if (client) {
+        // Fetch and set lab values using FHIRDataService
+        if (fhirDataService.isReady()) {
             // Bilirubin
-            getMostRecentObservation(client, LOINC_CODES.BILIRUBIN_TOTAL)
-                .then(obs => {
-                if (obs?.valueQuantity) {
-                    const value = obs.valueQuantity.value;
-                    setRadioFromValue('bilirubin', value, [
+            fhirDataService.getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
+                trackStaleness: true,
+                stalenessLabel: 'Bilirubin'
+            }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('bilirubin', result.value, [
                         { condition: (v) => v < 2, value: '1' },
                         { condition: (v) => v >= 2 && v <= 3, value: '2' },
                         { condition: (v) => v > 3, value: '3' }
-                    ], value.toFixed(1), 'mg/dL');
-                    stalenessTracker.trackObservation('#current-bilirubin', obs, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
+                    ], result.value.toFixed(1), 'mg/dL');
+                    if (stalenessTracker && result.observation) {
+                        stalenessTracker.trackObservation('#current-bilirubin', result.observation, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
+                    }
                 }
                 else {
                     const el = container.querySelector('#current-bilirubin');
                     if (el)
                         el.textContent = 'Not available';
                 }
-            })
-                .catch(error => {
+            }).catch(error => {
                 console.error('Error fetching bilirubin:', error);
                 const el = container.querySelector('#current-bilirubin');
                 if (el)
                     el.textContent = 'Not available';
             });
             // Albumin
-            getMostRecentObservation(client, LOINC_CODES.ALBUMIN)
-                .then(obs => {
-                if (obs?.valueQuantity) {
+            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
+                trackStaleness: true,
+                stalenessLabel: 'Albumin'
+            }).then(result => {
+                if (result.value !== null) {
                     // Check unit. If g/L, convert to g/dL.
-                    let valueGdL = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'g/dL';
+                    let valueGdL = result.value;
+                    const unit = result.unit || 'g/dL';
                     if (unit.toLowerCase().includes('l') && !unit.toLowerCase().includes('dl')) {
                         // Assuming g/L
                         valueGdL = valueGdL / 10;
@@ -256,39 +258,42 @@ export const childPugh = {
                         { condition: (v) => v >= 2.8 && v <= 3.5, value: '2' },
                         { condition: (v) => v < 2.8, value: '3' }
                     ], valueGdL.toFixed(1), 'g/dL');
-                    stalenessTracker.trackObservation('#current-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
+                    if (stalenessTracker && result.observation) {
+                        stalenessTracker.trackObservation('#current-albumin', result.observation, LOINC_CODES.ALBUMIN, 'Albumin');
+                    }
                 }
                 else {
                     const el = container.querySelector('#current-albumin');
                     if (el)
                         el.textContent = 'Not available';
                 }
-            })
-                .catch(error => {
+            }).catch(error => {
                 console.error('Error fetching albumin:', error);
                 const el = container.querySelector('#current-albumin');
                 if (el)
                     el.textContent = 'Not available';
             });
             // INR
-            getMostRecentObservation(client, LOINC_CODES.INR_COAG)
-                .then(obs => {
-                if (obs?.valueQuantity) {
-                    const value = obs.valueQuantity.value;
-                    setRadioFromValue('inr', value, [
+            fhirDataService.getObservation(LOINC_CODES.INR_COAG, {
+                trackStaleness: true,
+                stalenessLabel: 'INR'
+            }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('inr', result.value, [
                         { condition: (v) => v < 1.7, value: '1' },
                         { condition: (v) => v >= 1.7 && v <= 2.3, value: '2' },
                         { condition: (v) => v > 2.3, value: '3' }
-                    ], value.toFixed(2), '');
-                    stalenessTracker.trackObservation('#current-inr', obs, LOINC_CODES.INR_COAG, 'INR');
+                    ], result.value.toFixed(2), '');
+                    if (stalenessTracker && result.observation) {
+                        stalenessTracker.trackObservation('#current-inr', result.observation, LOINC_CODES.INR_COAG, 'INR');
+                    }
                 }
                 else {
                     const el = container.querySelector('#current-inr');
                     if (el)
                         el.textContent = 'Not available';
                 }
-            })
-                .catch(error => {
+            }).catch(error => {
                 console.error('Error fetching INR:', error);
                 const el = container.querySelector('#current-inr');
                 if (el)

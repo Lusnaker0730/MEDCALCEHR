@@ -1,10 +1,9 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const meldNa = {
     id: 'meld-na',
@@ -91,9 +90,11 @@ export const meldNa = {
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement): void {
-        // Initialize staleness tracker for this calculator
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize UI components (unit toggles, etc.)
+        uiBuilder.initializeComponents(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const calculateAndUpdate = () => {
             // Clear previous errors
@@ -235,43 +236,13 @@ export const meldNa = {
         };
 
         // Helper to safely set value
-        const setInputValue = (id: string, val: string, checkUnit = false) => {
+        const setInputValue = (id: string, val: string) => {
             const input = container.querySelector(id) as HTMLInputElement;
-            // Logic to handle conversion if needed is omitted for brevity but should be consistent
             if (input && val) {
                 input.value = val;
                 input.dispatchEvent(new Event('input'));
             }
         };
-
-        // Auto-populate from FHIR data
-        if (client) {
-            const obsMap = [
-                { code: LOINC_CODES.BILIRUBIN_TOTAL, id: '#meld-na-bili', type: 'bilirubin', unit: 'mg/dL', label: 'Bilirubin' },
-                { code: LOINC_CODES.INR_COAG, id: '#meld-na-inr', type: 'inr', unit: '', label: 'INR' },
-                { code: LOINC_CODES.CREATININE, id: '#meld-na-creat', type: 'creatinine', unit: 'mg/dL', label: 'Creatinine' },
-                { code: LOINC_CODES.SODIUM, id: '#meld-na-sodium', type: 'sodium', unit: 'mEq/L', label: 'Sodium' }
-            ];
-
-            obsMap.forEach(item => {
-                getMostRecentObservation(client, item.code).then(obs => {
-                    if (obs?.valueQuantity) {
-                        const val = obs.valueQuantity.value;
-                        const unit = obs.valueQuantity.unit || item.unit;
-                        // Use unit converter to normalize if possible
-                        if (item.type && item.type !== 'inr') {
-                            const converted = UnitConverter.convert(val, unit, item.unit, item.type);
-                            if (converted !== null) setInputValue(item.id, converted.toFixed(item.type === 'sodium' ? 0 : 1));
-                        } else {
-                            setInputValue(item.id, val.toFixed(2));
-                        }
-
-                        // Track staleness
-                        stalenessTracker.trackObservation(item.id, obs, item.code, item.label);
-                    }
-                }).catch(e => console.warn(e));
-            });
-        }
 
         // Add event listeners
         const inputs = container.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
@@ -281,7 +252,55 @@ export const meldNa = {
         });
         container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
 
-        // Initial calculation
-        calculateAndUpdate();
+        // Auto-populate from FHIR data using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    const [biliResult, inrResult, creatResult, sodiumResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Bilirubin',
+                            targetUnit: 'mg/dL',
+                            unitType: 'bilirubin'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.INR_COAG, {
+                            trackStaleness: true,
+                            stalenessLabel: 'INR'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Creatinine',
+                            targetUnit: 'mg/dL',
+                            unitType: 'creatinine'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Sodium'
+                        })
+                    ]);
+
+                    if (biliResult.value !== null) {
+                        setInputValue('#meld-na-bili', biliResult.value.toFixed(1));
+                    }
+
+                    if (inrResult.value !== null) {
+                        setInputValue('#meld-na-inr', inrResult.value.toFixed(2));
+                    }
+
+                    if (creatResult.value !== null) {
+                        setInputValue('#meld-na-creat', creatResult.value.toFixed(1));
+                    }
+
+                    if (sodiumResult.value !== null) {
+                        setInputValue('#meld-na-sodium', sodiumResult.value.toFixed(0));
+                    }
+                } catch (e) {
+                    console.warn('Error auto-populating MELD-Na:', e);
+                }
+            }
+            calculateAndUpdate();
+        };
+
+        autoPopulate();
     }
 };

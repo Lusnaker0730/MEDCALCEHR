@@ -1,12 +1,12 @@
 /**
  * HEART Score for Major Cardiac Events Calculator
  * 
- * 使用 Radio Score Calculator 工廠函數遷移
- * Predicts 6-week risk of major adverse cardiac events in patients with chest pain.
+ * 使用 Radio Score Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 
 import { createRadioScoreCalculator, RadioScoreCalculatorConfig } from '../shared/radio-score-calculator.js';
-import { calculateAge } from '../../utils.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: RadioScoreCalculatorConfig = {
@@ -73,6 +73,7 @@ const config: RadioScoreCalculatorConfig = {
         { minScore: 4, maxScore: 6, label: 'Moderate Risk (4-6)', severity: 'warning', description: '12-16.6% MACE risk. Admit for clinical observation and further testing.' },
         { minScore: 7, maxScore: 10, label: 'High Risk (7-10)', severity: 'danger', description: '50-65% MACE risk. Candidate for early invasive measures.' }
     ],
+    
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         let riskCategory = '';
         let maceRate = '';
@@ -117,59 +118,21 @@ const config: RadioScoreCalculatorConfig = {
                 </div>
             </div>
         `;
-    }
-};
-
-// 創建基礎計算器
-const baseCalculator = createRadioScoreCalculator(config);
-
-// 導出帶有年齡自動填入的計算器
-export const heartScore = {
-    ...baseCalculator,
+    },
     
-    initialize(client: unknown, patient: any, container: HTMLElement): void {
-        uiBuilder.initializeComponents(container);
-        
+    // 使用 customInitialize 處理年齡分層邏輯
+    customInitialize: (client, patient, container, calculate) => {
         const setRadioValue = (name: string, value: string): void => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
         
-        // 計算函數
-        const calculate = (): void => {
-            let totalScore = 0;
-            const sectionScores: Record<string, number> = {};
-            
-            config.sections.forEach(section => {
-                const radio = container.querySelector(`input[name="${section.id}"]:checked`) as HTMLInputElement | null;
-                if (radio) {
-                    const value = parseInt(radio.value) || 0;
-                    sectionScores[section.id] = value;
-                    totalScore += value;
-                }
-            });
-            
-            const resultBox = document.getElementById('heart-score-result');
-            if (resultBox) {
-                const resultContent = resultBox.querySelector('.ui-result-content');
-                if (resultContent && config.customResultRenderer) {
-                    resultContent.innerHTML = config.customResultRenderer(totalScore, sectionScores);
-                }
-                resultBox.classList.add('show');
-            }
-        };
-        
-        // 綁定事件
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', calculate);
-        });
-        
-        // FHIR 自動填入年齡
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
+        // 使用 FHIRDataService 獲取年齡
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
             if (age < 45) {
                 setRadioValue('heart-age', '0');
             } else if (age <= 64) {
@@ -178,8 +141,7 @@ export const heartScore = {
                 setRadioValue('heart-age', '2');
             }
         }
-        
-        // 初始計算
-        calculate();
     }
 };
+
+export const heartScore = createRadioScoreCalculator(config);

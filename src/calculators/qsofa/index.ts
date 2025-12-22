@@ -1,17 +1,15 @@
 /**
  * qSOFA Score for Sepsis
  * 
- * 使用 Checkbox 工廠函數重構
- * 保留 FHIR 自動填充功能
+ * 使用 Checkbox 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 
 import { createScoreCalculator } from '../shared/score-calculator.js';
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
-// 基礎計算器配置
-const baseCalculator = createScoreCalculator({
+export const qsofaScore = createScoreCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
     description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
@@ -76,45 +74,50 @@ const baseCalculator = createScoreCalculator({
                 </ul>
             `
         }
-    ]
-});
-
-// 擴展計算器以支持 FHIR 自動填充
-export const qsofaScore = {
-    ...baseCalculator,
+    ],
     
-    initialize(client: any, patient: any, container: HTMLElement): void {
-        // 調用基礎初始化
-        baseCalculator.initialize(client, patient, container);
-
-        // 如果有 FHIR 客戶端，進行自動填充
-        if (client) {
-            const stalenessTracker = createStalenessTracker();
-            stalenessTracker.setContainer(container);
-
-            // 自動填充呼吸速率
-            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-                if (obs?.valueQuantity?.value >= 22) {
-                    const box = container.querySelector('#qsofa-rr') as HTMLInputElement;
-                    if (box) {
-                        box.checked = true;
-                        box.dispatchEvent(new Event('change'));
-                        stalenessTracker.trackObservation('#qsofa-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
-                    }
+    // 使用 customInitialize 進行 FHIR 自動填充
+    customInitialize: async (client, patient, container, calculate) => {
+        if (!fhirDataService.isReady()) return;
+        
+        const stalenessTracker = fhirDataService.getStalenessTracker();
+        
+        const setCheckbox = (id: string, checked: boolean) => {
+            const box = container.querySelector(`#${id}`) as HTMLInputElement;
+            if (box) {
+                box.checked = checked;
+                box.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+        
+        try {
+            // 獲取呼吸速率
+            const rrResult = await fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Respiratory Rate'
+            });
+            
+            if (rrResult.value !== null && rrResult.value >= 22) {
+                setCheckbox('qsofa-rr', true);
+                if (stalenessTracker && rrResult.observation) {
+                    stalenessTracker.trackObservation('#qsofa-rr', rrResult.observation, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
                 }
-            }).catch(e => console.warn(e));
-
-            // 自動填充收縮壓
-            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity?.value <= 100) {
-                    const box = container.querySelector('#qsofa-sbp') as HTMLInputElement;
-                    if (box) {
-                        box.checked = true;
-                        box.dispatchEvent(new Event('change'));
-                        stalenessTracker.trackObservation('#qsofa-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-                    }
+            }
+            
+            // 獲取收縮壓
+            const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
+                trackStaleness: true,
+                stalenessLabel: 'Systolic BP'
+            });
+            
+            if (sbpResult.value !== null && sbpResult.value <= 100) {
+                setCheckbox('qsofa-sbp', true);
+                if (stalenessTracker && sbpResult.observation) {
+                    stalenessTracker.trackObservation('#qsofa-sbp', sbpResult.observation, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                 }
-            }).catch(e => console.warn(e));
+            }
+        } catch (error) {
+            console.warn('Error auto-populating qSOFA:', error);
         }
     }
-};
+});

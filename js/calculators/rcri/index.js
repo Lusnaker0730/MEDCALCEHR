@@ -1,13 +1,12 @@
 /**
  * Revised Cardiac Risk Index (RCRI) for Pre-Operative Risk Calculator
  *
- * 使用 Yes/No Calculator 工廠函數遷移
- * Estimates risk of cardiac complications after noncardiac surgery.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 const config = {
@@ -57,14 +56,63 @@ const config = {
                 </div>
             </div>
         `;
+    },
+    // 使用 customInitialize 處理 FHIR 自動填充
+    customInitialize: async (client, patient, container, calculate) => {
+        const setRadioValue = (name, value) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+        if (!fhirDataService.isReady())
+            return;
+        const stalenessTracker = fhirDataService.getStalenessTracker();
+        try {
+            // 自動填入 Creatinine > 2.0 mg/dL
+            const crResult = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                stalenessLabel: 'Creatinine'
+            });
+            if (crResult.value !== null) {
+                const unit = crResult.unit || 'mg/dL';
+                const crMgDl = UnitConverter.convert(crResult.value, unit, 'mg/dL', 'creatinine');
+                if (crMgDl !== null && crMgDl > 2.0) {
+                    setRadioValue('rcri-creatinine', '1');
+                    if (stalenessTracker && crResult.observation) {
+                        stalenessTracker.trackObservation('input[name="rcri-creatinine"]', crResult.observation, LOINC_CODES.CREATININE, 'Serum Creatinine');
+                    }
+                }
+            }
+            // 檢測相關病史
+            const conditionsToCheck = [
+                { codes: ['22298006', '410429000'], inputName: 'rcri-ihd' }, // IHD, MI
+                { codes: ['84114007', '42343007'], inputName: 'rcri-hf' }, // Heart failure
+                { codes: ['230690007', '266257000'], inputName: 'rcri-cvd' } // Stroke, TIA
+            ];
+            for (const condition of conditionsToCheck) {
+                const hasCondition = await fhirDataService.hasCondition(condition.codes);
+                if (hasCondition) {
+                    setRadioValue(condition.inputName, '1');
+                }
+            }
+            // 檢測胰島素使用
+            const onInsulin = await fhirDataService.isOnMedication(['274783']); // Insulin RxNorm
+            if (onInsulin) {
+                setRadioValue('rcri-insulin', '1');
+            }
+        }
+        catch (error) {
+            console.warn('Error auto-populating RCRI:', error);
+        }
     }
 };
 // 創建基礎計算器
 const baseCalculator = createYesNoCalculator(config);
-// 導出帶有 FHIR 自動填入的計算器
+// 導出帶有參考圖片的計算器
 export const rcri = {
     ...baseCalculator,
-    // 添加參考圖片
     generateHTML() {
         let html = baseCalculator.generateHTML();
         const referenceSection = `
@@ -75,59 +123,5 @@ export const rcri = {
             </div>
         `;
         return html + referenceSection;
-    },
-    initialize(client, patient, container) {
-        uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-        const setRadioValue = (name, value, obs, loinc, label) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
-            if (radio) {
-                radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
-                if (obs && loinc && label) {
-                    stalenessTracker.trackObservation(`input[name="${name}"]`, obs, loinc, label);
-                }
-            }
-        };
-        // 計算函數
-        const calculate = () => {
-            let score = 0;
-            config.questions.forEach(q => {
-                const radio = container.querySelector(`input[name="${q.id}"]:checked`);
-                if (radio) {
-                    score += parseInt(radio.value) || 0;
-                }
-            });
-            const resultBox = document.getElementById('rcri-result');
-            if (resultBox) {
-                const resultContent = resultBox.querySelector('.ui-result-content');
-                if (resultContent && config.customResultRenderer) {
-                    resultContent.innerHTML = config.customResultRenderer(score);
-                }
-                resultBox.classList.add('show');
-            }
-        };
-        // 綁定事件
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', calculate);
-        });
-        // FHIR 自動填入 Creatinine
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity) {
-                    const crValue = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    if (crValue !== undefined && crValue !== null) {
-                        const convertedValue = UnitConverter.convert(crValue, unit, 'mg/dL', 'creatinine');
-                        if (convertedValue !== null && convertedValue > 2.0) {
-                            setRadioValue('rcri-creatinine', '1', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
-                        }
-                    }
-                }
-            }).catch(e => console.warn(e));
-        }
-        // 初始計算
-        calculate();
     }
 };

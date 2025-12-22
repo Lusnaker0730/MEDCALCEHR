@@ -1,10 +1,9 @@
-import { getMostRecentObservation, } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const serumAnionGap = {
     id: 'serum-anion-gap',
     title: 'Serum Anion Gap',
@@ -72,9 +71,8 @@ export const serumAnionGap = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const naInput = container.querySelector('#sag-na');
         const clInput = container.querySelector('#sag-cl');
         const hco3Input = container.querySelector('#sag-hco3');
@@ -169,29 +167,43 @@ export const serumAnionGap = {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
         });
-        // Auto-populate from FHIR
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    naInput.value = obs.valueQuantity.value.toFixed(0);
-                    naInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#sag-na', obs, LOINC_CODES.SODIUM, 'Sodium');
+        // Auto-populate from FHIR using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    const [naResult, clResult, hco3Result] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Sodium'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.CHLORIDE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Chloride'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.BICARBONATE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Bicarbonate'
+                        })
+                    ]);
+                    if (naResult.value !== null && naInput) {
+                        naInput.value = naResult.value.toFixed(0);
+                        naInput.dispatchEvent(new Event('input'));
+                    }
+                    if (clResult.value !== null && clInput) {
+                        clInput.value = clResult.value.toFixed(0);
+                        clInput.dispatchEvent(new Event('input'));
+                    }
+                    if (hco3Result.value !== null && hco3Input) {
+                        hco3Input.value = hco3Result.value.toFixed(0);
+                        hco3Input.dispatchEvent(new Event('input'));
+                    }
                 }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.CHLORIDE).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    clInput.value = obs.valueQuantity.value.toFixed(0);
-                    clInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#sag-cl', obs, LOINC_CODES.CHLORIDE, 'Chloride');
+                catch (e) {
+                    console.warn('Error auto-populating Anion Gap:', e);
                 }
-            }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.BICARBONATE).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    hco3Input.value = obs.valueQuantity.value.toFixed(0);
-                    hco3Input.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#sag-hco3', obs, LOINC_CODES.BICARBONATE, 'Bicarbonate');
-                }
-            }).catch(e => console.warn(e));
-        }
+            }
+            calculate();
+        };
+        autoPopulate();
     }
 };

@@ -1,10 +1,9 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const mdrdGfr = {
     id: 'mdrd-gfr',
     title: 'MDRD GFR Equation',
@@ -80,8 +79,8 @@ export const mdrdGfr = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const ageInput = container.querySelector('#mdrd-age');
         const resultEl = container.querySelector('#mdrd-result');
         const calculateAndUpdate = () => {
@@ -189,35 +188,6 @@ export const mdrdGfr = {
                     resultEl.classList.remove('show');
             }
         };
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate).toString();
-        }
-        if (patient && patient.gender) {
-            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="mdrd-gender"][value="${genderValue}"]`);
-            if (genderRadio) {
-                genderRadio.checked = true;
-                genderRadio.dispatchEvent(new Event('change'));
-            }
-        }
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const creatinineInput = container.querySelector('#mdrd-creatinine');
-                    if (creatinineInput) {
-                        const val = obs.valueQuantity.value;
-                        const unit = obs.valueQuantity.unit || 'mg/dL';
-                        const converted = UnitConverter.convert(val, unit, 'mg/dL', 'creatinine');
-                        if (converted !== null) {
-                            creatinineInput.value = converted.toFixed(2);
-                            creatinineInput.dispatchEvent(new Event('input'));
-                            stalenessTracker.trackObservation('#mdrd-creatinine', obs, LOINC_CODES.CREATININE, 'Serum Creatinine');
-                        }
-                    }
-                }
-                calculateAndUpdate();
-            }).catch(e => console.warn(e));
-        }
         container.addEventListener('change', (e) => {
             const target = e.target;
             if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
@@ -230,6 +200,45 @@ export const mdrdGfr = {
                 calculateAndUpdate();
             }
         });
-        calculateAndUpdate();
+        // Auto-populate using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    // Get age
+                    const age = await fhirDataService.getPatientAge();
+                    if (age !== null && ageInput) {
+                        ageInput.value = age.toString();
+                        ageInput.dispatchEvent(new Event('input'));
+                    }
+                    // Get gender
+                    const gender = await fhirDataService.getPatientGender();
+                    if (gender) {
+                        const genderValue = gender.toLowerCase() === 'female' ? 'female' : 'male';
+                        const genderRadio = container.querySelector(`input[name="mdrd-gender"][value="${genderValue}"]`);
+                        if (genderRadio) {
+                            genderRadio.checked = true;
+                            genderRadio.dispatchEvent(new Event('change'));
+                        }
+                    }
+                    // Get creatinine
+                    const crResult = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                        trackStaleness: true,
+                        stalenessLabel: 'Serum Creatinine',
+                        targetUnit: 'mg/dL',
+                        unitType: 'creatinine'
+                    });
+                    const creatinineInput = container.querySelector('#mdrd-creatinine');
+                    if (crResult.value !== null && creatinineInput) {
+                        creatinineInput.value = crResult.value.toFixed(2);
+                        creatinineInput.dispatchEvent(new Event('input'));
+                    }
+                }
+                catch (e) {
+                    console.warn('Error auto-populating MDRD GFR:', e);
+                }
+            }
+            calculateAndUpdate();
+        };
+        autoPopulate();
     }
 };

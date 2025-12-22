@@ -1,13 +1,12 @@
 /**
  * CURB-65 Score for Pneumonia Severity Calculator
  *
- * 使用 Yes/No Calculator 工廠函數遷移
- * Estimates mortality of community-acquired pneumonia to help determine inpatient vs. outpatient treatment.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
-import { calculateAge, getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 const config = {
@@ -19,8 +18,25 @@ const config = {
     sectionIcon: '🫁',
     questions: [
         { id: 'curb-confusion', label: '<strong>C</strong>onfusion (new disorientation to person, place, or time)', points: 1 },
-        { id: 'curb-bun', label: '<strong>U</strong>rea > 7 mmol/L (BUN > 19 mg/dL)', points: 1 },
-        { id: 'curb-rr', label: '<strong>R</strong>espiratory Rate ≥30 breaths/min', points: 1 },
+        {
+            id: 'curb-bun',
+            label: '<strong>U</strong>rea > 7 mmol/L (BUN > 19 mg/dL)',
+            points: 1,
+            // 使用觀察值閾值判斷
+            observationCriteria: {
+                code: LOINC_CODES.BUN,
+                condition: (value) => value > 19 // 假設單位是 mg/dL
+            }
+        },
+        {
+            id: 'curb-rr',
+            label: '<strong>R</strong>espiratory Rate ≥30 breaths/min',
+            points: 1,
+            observationCriteria: {
+                code: LOINC_CODES.RESPIRATORY_RATE,
+                condition: (value) => value >= 30
+            }
+        },
         { id: 'curb-bp', label: '<strong>B</strong>lood Pressure (SBP < 90 or DBP ≤60 mmHg)', points: 1 },
         { id: 'curb-age', label: 'Age ≥<strong>65</strong> years', points: 1 }
     ],
@@ -73,14 +89,66 @@ const config = {
                 </div>
             </div>
         `;
+    },
+    // 使用 customInitialize 處理年齡和血壓組合邏輯
+    customInitialize: async (client, patient, container, calculate) => {
+        const setRadioValue = (name, value) => {
+            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+        // 自動填充年齡
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age >= 65) {
+            setRadioValue('curb-age', '1');
+        }
+        if (!fhirDataService.isReady())
+            return;
+        const stalenessTracker = fhirDataService.getStalenessTracker();
+        try {
+            // 獲取血壓（需要組合 SBP 和 DBP）
+            const [sbpResult, dbpResult] = await Promise.all([
+                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }),
+                fhirDataService.getObservation(LOINC_CODES.DIASTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Diastolic BP' })
+            ]);
+            const sbpLow = sbpResult.value !== null && sbpResult.value < 90;
+            const dbpLow = dbpResult.value !== null && dbpResult.value <= 60;
+            if (sbpLow || dbpLow) {
+                setRadioValue('curb-bp', '1');
+                if (stalenessTracker) {
+                    if (sbpResult.observation) {
+                        stalenessTracker.trackObservation('input[name="curb-bp"]', sbpResult.observation, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure');
+                    }
+                }
+            }
+            // BUN 需要單位轉換
+            const bunResult = await fhirDataService.getObservation(LOINC_CODES.BUN, {
+                trackStaleness: true,
+                stalenessLabel: 'BUN'
+            });
+            if (bunResult.value !== null) {
+                const unit = bunResult.unit || 'mg/dL';
+                const bunMgDl = UnitConverter.convert(bunResult.value, unit, 'mg/dL', 'bun');
+                if (bunMgDl !== null && bunMgDl > 19) {
+                    setRadioValue('curb-bun', '1');
+                    if (stalenessTracker && bunResult.observation) {
+                        stalenessTracker.trackObservation('input[name="curb-bun"]', bunResult.observation, LOINC_CODES.BUN, 'BUN');
+                    }
+                }
+            }
+        }
+        catch (error) {
+            console.warn('Error auto-populating CURB-65:', error);
+        }
     }
 };
 // 創建基礎計算器
 const baseCalculator = createYesNoCalculator(config);
-// 導出帶有 FHIR 自動填入的計算器
+// 導出帶有評分解釋表格的計算器
 export const curb65 = {
     ...baseCalculator,
-    // 自定義 generateHTML 來添加評分解釋表格
     generateHTML() {
         let html = baseCalculator.generateHTML();
         const interpretationTable = `
@@ -99,83 +167,6 @@ export const curb65 = {
                 </table>
             </div>
         `;
-        // 在結尾添加表格
         return html + interpretationTable;
-    },
-    initialize(client, patient, container) {
-        uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-        const setRadioValue = (name, value, obs, loinc, label) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
-            if (radio) {
-                radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
-                if (obs && loinc && label) {
-                    stalenessTracker.trackObservation(`input[name="${name}"]`, obs, loinc, label);
-                }
-            }
-        };
-        // 計算函數
-        const calculate = () => {
-            let score = 0;
-            config.questions.forEach(q => {
-                const radio = container.querySelector(`input[name="${q.id}"]:checked`);
-                if (radio) {
-                    score += parseInt(radio.value) || 0;
-                }
-            });
-            const resultBox = document.getElementById('curb-65-result');
-            if (resultBox) {
-                const resultContent = resultBox.querySelector('.ui-result-content');
-                if (resultContent && config.customResultRenderer) {
-                    resultContent.innerHTML = config.customResultRenderer(score);
-                }
-                resultBox.classList.add('show');
-            }
-        };
-        // 綁定事件
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', calculate);
-        });
-        // FHIR 自動填入
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
-            if (age >= 65) {
-                setRadioValue('curb-age', '1');
-            }
-        }
-        if (client) {
-            // Respiratory Rate
-            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 30) {
-                    setRadioValue('curb-rr', '1', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
-                }
-            }).catch(e => console.warn(e));
-            // Blood Pressure
-            Promise.all([
-                getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).catch(() => null),
-                getMostRecentObservation(client, LOINC_CODES.DIASTOLIC_BP).catch(() => null)
-            ]).then(([sbpObs, dbpObs]) => {
-                const sbpLow = sbpObs?.valueQuantity?.value < 90;
-                const dbpLow = dbpObs?.valueQuantity?.value <= 60;
-                if (sbpLow || dbpLow) {
-                    setRadioValue('curb-bp', '1', sbpObs || dbpObs, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure');
-                }
-            });
-            // BUN
-            getMostRecentObservation(client, LOINC_CODES.BUN).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const bunMgDl = UnitConverter.convert(val, unit, 'mg/dL', 'bun');
-                    if (bunMgDl !== null && bunMgDl > 19) {
-                        setRadioValue('curb-bun', '1', obs, LOINC_CODES.BUN, 'BUN');
-                    }
-                }
-            }).catch(e => console.warn(e));
-        }
-        // 初始計算
-        calculate();
     }
 };

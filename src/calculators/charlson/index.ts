@@ -1,17 +1,16 @@
 /**
  * Charlson Comorbidity Index (CCI) Calculator
  * 
+ * 已整合 FHIRDataService 進行自動填充
+ * 
  * 這是一個複雜的計算器，包含：
  * - 年齡分層評分
  * - 多個 Yes/No 條件
  * - 多層級條件（肝病、糖尿病、腫瘤）
  * - 大量的 FHIR ICD 代碼自動填充
- * 
- * 由於複雜度高，保持自定義實現
  */
 
-import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 
@@ -160,11 +159,11 @@ export const charlson: CalculatorModule = {
     initialize: function (client: unknown, patient: unknown, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client as any, patient as any, container);
+        const stalenessTracker = fhirDataService.getStalenessTracker();
 
         const calculate = (): void => {
-            // Clear previous errors
             const errorContainer = container.querySelector('#cci-error-container');
             if (errorContainer) errorContainer.innerHTML = '';
 
@@ -200,10 +199,9 @@ export const charlson: CalculatorModule = {
             }
         });
 
-        // Auto-populate age
-        const typedPatient = patient as { birthDate?: string } | null;
-        if (typedPatient?.birthDate) {
-            const age = calculateAge(typedPatient.birthDate);
+        // Auto-populate age using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
             let ageValue = 0;
             if (age >= 80) {
                 ageValue = 4;
@@ -217,12 +215,12 @@ export const charlson: CalculatorModule = {
             const ageRadio = container.querySelector(`input[name="age"][value="${ageValue}"]`) as HTMLInputElement | null;
             if (ageRadio) {
                 ageRadio.checked = true;
-                ageRadio.dispatchEvent(new Event('change'));
+                ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
 
-        // Auto-populate conditions from FHIR
-        if (client) {
+        // Auto-populate conditions from FHIR using FHIRDataService
+        if (fhirDataService.isReady()) {
             const conditionMap: ConditionMap = {
                 mi: { codes: ['I21', 'I22'], value: 1 },
                 chf: { codes: ['I50'], value: 1 },
@@ -239,64 +237,64 @@ export const charlson: CalculatorModule = {
             };
 
             for (const [key, { codes, value }] of Object.entries(conditionMap)) {
-                getPatientConditions(client, codes).then(conditions => {
-                    if (conditions.length > 0) {
+                fhirDataService.hasCondition(codes).then(hasCondition => {
+                    if (hasCondition) {
                         const radio = container.querySelector(`input[name="${key}"][value="${value}"]`) as HTMLInputElement | null;
                         if (radio) {
                             radio.checked = true;
-                            radio.dispatchEvent(new Event('change'));
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                     }
                 }).catch(e => console.warn(`Error fetching ${key} conditions:`, e));
             }
 
             // Special handling for multi-level conditions
-            // Liver disease
-            getPatientConditions(client, ['K70.3', 'K74', 'I85']).then(conditions => {
-                if (conditions.length > 0) {
+            // Liver disease (moderate/severe first, then mild)
+            fhirDataService.hasCondition(['K70.3', 'K74', 'I85']).then(hasSevere => {
+                if (hasSevere) {
                     const radio = container.querySelector('input[name="liver"][value="3"]') as HTMLInputElement | null;
                     if (radio) {
                         radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 } else {
-                    getPatientConditions(client, ['K73', 'B18']).then(conditions => {
-                        if (conditions.length > 0) {
+                    fhirDataService.hasCondition(['K73', 'B18']).then(hasMild => {
+                        if (hasMild) {
                             const radio = container.querySelector('input[name="liver"][value="1"]') as HTMLInputElement | null;
                             if (radio) {
                                 radio.checked = true;
-                                radio.dispatchEvent(new Event('change'));
+                                radio.dispatchEvent(new Event('change', { bubbles: true }));
                             }
                         }
                     }).catch(e => console.warn('Error fetching mild liver conditions:', e));
                 }
             }).catch(e => console.warn('Error fetching severe liver conditions:', e));
 
-            // Diabetes
-            getPatientConditions(client, [
+            // Diabetes (with end-organ damage first, then uncomplicated)
+            fhirDataService.hasCondition([
                 'E10.2', 'E10.3', 'E10.4', 'E10.5',
                 'E11.2', 'E11.3', 'E11.4', 'E11.5'
-            ]).then(conditions => {
-                if (conditions.length > 0) {
+            ]).then(hasEOD => {
+                if (hasEOD) {
                     const radio = container.querySelector('input[name="diabetes"][value="2"]') as HTMLInputElement | null;
                     if (radio) {
                         radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 } else {
-                    getPatientConditions(client, ['E10', 'E11']).then(conditions => {
-                        if (conditions.length > 0) {
+                    fhirDataService.hasCondition(['E10', 'E11']).then(hasUncomplicated => {
+                        if (hasUncomplicated) {
                             const radio = container.querySelector('input[name="diabetes"][value="1"]') as HTMLInputElement | null;
                             if (radio) {
                                 radio.checked = true;
-                                radio.dispatchEvent(new Event('change'));
+                                radio.dispatchEvent(new Event('change', { bubbles: true }));
                             }
                         }
                     }).catch(e => console.warn('Error fetching uncomplicated diabetes conditions:', e));
                 }
             }).catch(e => console.warn('Error fetching diabetes w/ EOD conditions:', e));
 
-            // Solid tumor
+            // Solid tumor (check for metastatic vs localized)
             interface FhirCondition {
                 code?: {
                     coding?: Array<{
@@ -306,7 +304,7 @@ export const charlson: CalculatorModule = {
                 };
             }
             
-            getPatientConditions(client, ['C00-C75', 'C76-C80']).then(conditions => {
+            fhirDataService.getConditions(['C00-C75', 'C76-C80']).then(conditions => {
                 if (conditions.length > 0) {
                     const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
                     const isMetastatic = conditions.some((c: FhirCondition) =>
@@ -317,31 +315,36 @@ export const charlson: CalculatorModule = {
                     const radio = container.querySelector(`input[name="tumor"][value="${value}"]`) as HTMLInputElement | null;
                     if (radio) {
                         radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 }
             }).catch(e => console.warn('Error fetching tumor conditions:', e));
 
             // CKD via conditions
-            getPatientConditions(client, ['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(conditions => {
-                if (conditions.length > 0) {
+            fhirDataService.hasCondition(['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(hasCKD => {
+                if (hasCKD) {
                     const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement | null;
                     if (radio) {
                         radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 }
             }).catch(e => console.warn('Error fetching CKD conditions:', e));
 
-            // CKD via Creatinine
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity && obs.valueQuantity.value > 3) {
+            // CKD via Creatinine > 3 mg/dL
+            fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                stalenessLabel: 'Creatinine'
+            }).then(result => {
+                if (result.value !== null && result.value > 3) {
                     const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement | null;
                     if (radio) {
                         radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
                     }
-                    stalenessTracker.trackObservation('input[name="ckd"][value="2"]', obs, LOINC_CODES.CREATININE, 'Creatinine > 3 mg/dL');
+                    if (stalenessTracker && result.observation) {
+                        stalenessTracker.trackObservation('input[name="ckd"][value="2"]', result.observation, LOINC_CODES.CREATININE, 'Creatinine > 3 mg/dL');
+                    }
                 }
             }).catch(e => console.warn('Error fetching creatinine:', e));
         }

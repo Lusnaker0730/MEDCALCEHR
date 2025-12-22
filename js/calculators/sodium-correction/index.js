@@ -1,10 +1,9 @@
-import { getMostRecentObservation, } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const sodiumCorrection = {
     id: 'sodium-correction',
     title: 'Sodium Correction for Hyperglycemia',
@@ -81,9 +80,8 @@ export const sodiumCorrection = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const sodiumInput = container.querySelector('#measured-sodium');
         const glucoseInput = container.querySelector('#glucose');
         const resultBox = container.querySelector('#sodium-correction-result');
@@ -190,33 +188,37 @@ export const sodiumCorrection = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculateAndUpdate);
         });
-        if (client) {
-            const sodiumPromise = getMostRecentObservation(client, LOINC_CODES.SODIUM);
-            const glucosePromise = getMostRecentObservation(client, LOINC_CODES.GLUCOSE);
-            Promise.all([sodiumPromise, glucosePromise]).then(([sodiumObs, glucoseObs]) => {
-                if (sodiumObs && sodiumObs.valueQuantity && sodiumObs.valueQuantity.value !== undefined) {
-                    sodiumInput.value = sodiumObs.valueQuantity.value.toFixed(0);
-                    // Trigger input for unit handling if needed
-                    sodiumInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#measured-sodium', sodiumObs, LOINC_CODES.SODIUM, 'Measured Sodium');
-                }
-                if (glucoseObs && glucoseObs.valueQuantity && glucoseObs.valueQuantity.value !== undefined) {
-                    const val = glucoseObs.valueQuantity.value;
-                    const unit = glucoseObs.valueQuantity.unit || 'mg/dL';
-                    // Use unit converter to normalize if applicable
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
-                    if (converted !== null) {
-                        glucoseInput.value = converted.toFixed(0);
+        // Auto-populate from FHIR data using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    const [sodiumResult, glucoseResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Measured Sodium'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.GLUCOSE, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Serum Glucose',
+                            targetUnit: 'mg/dL',
+                            unitType: 'glucose'
+                        })
+                    ]);
+                    if (sodiumResult.value !== null && sodiumInput) {
+                        sodiumInput.value = sodiumResult.value.toFixed(0);
+                        sodiumInput.dispatchEvent(new Event('input'));
                     }
-                    else {
-                        glucoseInput.value = val.toFixed(0);
+                    if (glucoseResult.value !== null && glucoseInput) {
+                        glucoseInput.value = glucoseResult.value.toFixed(0);
+                        glucoseInput.dispatchEvent(new Event('input'));
                     }
-                    glucoseInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#glucose', glucoseObs, LOINC_CODES.GLUCOSE, 'Serum Glucose');
                 }
-                calculateAndUpdate();
-            }).catch(e => console.warn(e));
-        }
-        calculateAndUpdate();
+                catch (e) {
+                    console.warn('Error auto-populating Sodium Correction:', e);
+                }
+            }
+            calculateAndUpdate();
+        };
+        autoPopulate();
     }
 };

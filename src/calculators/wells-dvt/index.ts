@@ -1,12 +1,11 @@
 /**
  * Wells' Criteria for DVT Calculator
  * 
- * 使用 Yes/No Calculator 工廠函數遷移
- * Calculates risk of deep vein thrombosis (DVT) based on clinical criteria.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService，使用 dataRequirements 聲明式配置自動填充
  */
 
 import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
-import { uiBuilder } from '../../ui-builder.js';
 
 export const wellsDVT = createYesNoCalculator({
     id: 'wells-dvt',
@@ -20,12 +19,15 @@ export const wellsDVT = createYesNoCalculator({
         { 
             id: 'dvt-cancer', 
             label: 'Active cancer (treatment or palliation within 6 months)', 
-            points: 1 
+            points: 1,
+            // 使用 SNOMED 代碼自動檢測癌症
+            conditionCode: '363346000'  // Malignant neoplastic disease
         },
         { 
             id: 'dvt-paralysis', 
             label: 'Paralysis, paresis, or recent plaster immobilization of the lower extremities', 
-            points: 1 
+            points: 1,
+            conditionCode: '166001'  // Paralysis
         },
         { 
             id: 'dvt-bedridden', 
@@ -60,7 +62,9 @@ export const wellsDVT = createYesNoCalculator({
         { 
             id: 'dvt-previous', 
             label: 'Previously documented DVT', 
-            points: 1 
+            points: 1,
+            // 使用 SNOMED 代碼自動檢測 DVT 病史
+            conditionCode: '128053003'  // Deep venous thrombosis
         },
         { 
             id: 'dvt-alternative', 
@@ -68,6 +72,13 @@ export const wellsDVT = createYesNoCalculator({
             points: -2 
         }
     ],
+    
+    // 聲明式 FHIR 數據需求配置
+    dataRequirements: {
+        // 自動從患者條件中檢測並勾選相關問題
+        conditions: ['363346000', '166001', '128053003']
+    },
+    
     riskLevels: [
         {
             minScore: -2,

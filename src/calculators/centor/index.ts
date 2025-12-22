@@ -1,12 +1,12 @@
 /**
  * Centor Score (Modified/McIsaac) for Strep Pharyngitis Calculator
  * 
- * 使用 Yes/No Calculator 工廠函數遷移
- * Estimates probability that pharyngitis is streptococcal, and suggests management course.
+ * 使用 Yes/No Calculator 工廠函數
+ * 已整合 FHIRDataService 進行自動填充
  */
 
 import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
-import { calculateAge } from '../../utils.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: YesNoCalculatorConfig = {
@@ -143,11 +143,14 @@ export const centor = {
     initialize(client: unknown, patient: any, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
         
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client as any, patient as any, container);
+        
         const setRadioValue = (name: string, value: string): void => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
         
@@ -187,9 +190,9 @@ export const centor = {
             radio.addEventListener('change', calculate);
         });
         
-        // FHIR 自動填入年齡
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
+        // 使用 FHIRDataService 自動填入年齡
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
             if (age >= 3 && age <= 14) {
                 setRadioValue('centor-age', '1');
             } else if (age >= 45) {

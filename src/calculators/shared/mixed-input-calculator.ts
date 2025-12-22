@@ -5,9 +5,17 @@
  * - 4PEPS (年齡 + 多個 radio)
  * - GRACE ACS (多個數字輸入 + radio)
  * - GWTG-HF (數字輸入 + radio)
+ * 
+ * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  */
 
 import { uiBuilder } from '../../ui-builder.js';
+import { 
+    fhirDataService, 
+    FieldDataRequirement,
+    FHIRClient,
+    Patient
+} from '../../fhir-data-service.js';
 
 // ==========================================
 // 類型定義
@@ -24,6 +32,8 @@ export interface NumberInputConfig {
     min?: number;
     max?: number;
     helpText?: string;
+    /** LOINC 代碼（用於 FHIR 自動填充） */
+    loincCode?: string;
     /** 單位切換配置 */
     unitToggle?: {
         type: string;
@@ -90,6 +100,24 @@ export interface CalculationResult {
     values: Record<string, number | string | null>;
 }
 
+/** FHIR 數據需求配置 */
+export interface FHIRDataRequirements {
+    /** 觀察值需求（使用 loincCode 從輸入配置自動生成，或手動指定） */
+    observations?: FieldDataRequirement[];
+    /** 條件代碼（SNOMED） */
+    conditions?: string[];
+    /** 藥物代碼（RxNorm） */
+    medications?: string[];
+    /** 是否自動填充患者年齡 */
+    autoPopulateAge?: { inputId: string };
+    /** 是否自動填充患者性別 */
+    autoPopulateGender?: { 
+        radioName: string;
+        maleValue: string;
+        femaleValue: string;
+    };
+}
+
 /** 混合輸入計算器配置 */
 export interface MixedInputCalculatorConfig {
     id: string;
@@ -105,6 +133,12 @@ export interface MixedInputCalculatorConfig {
     references?: string[];
     /** 結果標題 */
     resultTitle?: string;
+    
+    /**
+     * FHIR 數據需求（聲明式配置）
+     * 使用此配置可自動從 FHIR 服務獲取數據並填充輸入
+     */
+    dataRequirements?: FHIRDataRequirements;
     
     /**
      * 計算函數
@@ -134,7 +168,7 @@ export interface MixedInputCalculatorConfig {
         container: HTMLElement,
         calculate: () => void,
         setValue: (id: string, value: string) => void
-    ) => void;
+    ) => void | Promise<void>;
 }
 
 /** 計算器模組介面 */
@@ -200,6 +234,30 @@ function getInputKey(input: InputItemConfig): string {
     return input.id;
 }
 
+/**
+ * 從配置中自動生成 FHIR 數據需求
+ */
+function generateDataRequirementsFromConfig(config: MixedInputCalculatorConfig): FieldDataRequirement[] {
+    const requirements: FieldDataRequirement[] = [];
+    
+    config.sections.forEach(section => {
+        section.inputs.forEach(input => {
+            if (input.type === 'number' && input.loincCode) {
+                requirements.push({
+                    code: input.loincCode,
+                    inputId: `#${input.id}`,
+                    label: input.label,
+                    targetUnit: input.unitToggle?.default || input.unit,
+                    decimals: input.step && input.step < 1 ? 
+                        Math.abs(Math.floor(Math.log10(input.step))) : 0
+                });
+            }
+        });
+    });
+    
+    return requirements;
+}
+
 // ==========================================
 // 工廠函數
 // ==========================================
@@ -262,6 +320,13 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
             const resultBox = document.getElementById(`${config.id}-result`);
             const errorContainer = document.getElementById(`${config.id}-error-container`);
 
+            // 初始化 FHIR 數據服務（內部使用）
+            fhirDataService.initialize(
+                client as FHIRClient | null, 
+                patient as Patient | null, 
+                container
+            );
+
             // 收集所有輸入項的 key
             const allInputKeys: { key: string; type: 'number' | 'radio' | 'select' }[] = [];
             config.sections.forEach(section => {
@@ -313,17 +378,6 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
 
                 // 嘗試找 radio
                 const radio = container.querySelector(`input[name="${id}"][value="${value}"]`) as HTMLInputElement | null;
-                if (radio) {
-                    radio.checked = true;
-                    radio.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            };
-
-            /**
-             * 設置 radio 值
-             */
-            const setRadioValue = (name: string, value: string): void => {
-                const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
                 if (radio) {
                     radio.checked = true;
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -385,14 +439,60 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 input.addEventListener('change', calculate);
             });
 
-            // 自定義初始化（FHIR 自動填充等）
-            if (config.customInitialize) {
-                config.customInitialize(client, patient, container, calculate, setValue);
-            }
+            /**
+             * 執行 FHIR 數據自動填充
+             */
+            const performAutoPopulation = async (): Promise<void> => {
+                // 如果有 dataRequirements 配置，先執行自動填充
+                if (config.dataRequirements && fhirDataService.isReady()) {
+                    try {
+                        const dataReqs = config.dataRequirements;
+                        
+                        // 自動填充患者年齡
+                        if (dataReqs.autoPopulateAge) {
+                            const age = fhirDataService.getPatientAge();
+                            if (age !== null) {
+                                setValue(dataReqs.autoPopulateAge.inputId, age.toString());
+                            }
+                        }
+                        
+                        // 自動填充患者性別
+                        if (dataReqs.autoPopulateGender) {
+                            const gender = fhirDataService.getPatientGender();
+                            if (gender) {
+                                const value = gender === 'male' 
+                                    ? dataReqs.autoPopulateGender.maleValue 
+                                    : dataReqs.autoPopulateGender.femaleValue;
+                                setValue(dataReqs.autoPopulateGender.radioName, value);
+                            }
+                        }
+                        
+                        // 從配置生成數據需求（如果沒有手動指定）
+                        let observations = dataReqs.observations || [];
+                        if (observations.length === 0) {
+                            observations = generateDataRequirementsFromConfig(config);
+                        }
+                        
+                        // 使用 FHIRDataService 自動填充觀察值
+                        if (observations.length > 0) {
+                            await fhirDataService.autoPopulateFields(observations);
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error during FHIR auto-population:', error);
+                    }
+                }
+                
+                // 調用自定義初始化（傳遞原始的 client 和 patient）
+                if (config.customInitialize) {
+                    await config.customInitialize(client, patient, container, calculate, setValue);
+                }
+                
+                calculate();
+            };
 
-            // 初始計算
-            calculate();
+            // 執行自動填充
+            performAutoPopulation();
         }
     };
 }
-

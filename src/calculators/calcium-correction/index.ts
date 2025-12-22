@@ -1,12 +1,9 @@
-import {
-    getMostRecentObservation
-} from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -83,9 +80,8 @@ export const calciumCorrection: CalculatorModule = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const calculateAndUpdate = () => {
             // Clear previous errors
@@ -183,37 +179,39 @@ export const calciumCorrection: CalculatorModule = {
             }
         };
 
-        // Auto-populate from FHIR data
-        if (client) {
-            getMostRecentObservation(client, LOINC_CODES.CALCIUM).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'calcium');
-                    if (converted !== null) {
-                        setInputValue('#ca-total', converted.toFixed(1));
-                    } else {
-                        setInputValue('#ca-total', val.toFixed(1));
-                    }
-                    stalenessTracker.trackObservation('#ca-total', obs, LOINC_CODES.CALCIUM, 'Total Calcium');
-                }
-            }).catch(e => console.warn(e));
+        // Auto-populate from FHIR data using FHIRDataService
+        const autoPopulate = async () => {
+            if (fhirDataService.isReady()) {
+                try {
+                    const [calciumResult, albuminResult] = await Promise.all([
+                        fhirDataService.getObservation(LOINC_CODES.CALCIUM, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Total Calcium',
+                            targetUnit: 'mg/dL',
+                            unitType: 'calcium'
+                        }),
+                        fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
+                            trackStaleness: true,
+                            stalenessLabel: 'Albumin',
+                            targetUnit: 'g/dL',
+                            unitType: 'albumin'
+                        })
+                    ]);
 
-            getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'g/dL';
-                    const converted = UnitConverter.convert(val, unit, 'g/dL', 'albumin');
-                    if (converted !== null) {
-                        setInputValue('#ca-albumin', converted.toFixed(1));
-                    } else {
-                        setInputValue('#ca-albumin', val.toFixed(1));
+                    if (calciumResult.value !== null) {
+                        setInputValue('#ca-total', calciumResult.value.toFixed(1));
                     }
-                    stalenessTracker.trackObservation('#ca-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
-                }
-            }).catch(e => console.warn(e));
-        }
 
-        calculateAndUpdate();
+                    if (albuminResult.value !== null) {
+                        setInputValue('#ca-albumin', albuminResult.value.toFixed(1));
+                    }
+                } catch (e) {
+                    console.warn('Error auto-populating Calcium Correction:', e);
+                }
+            }
+            calculateAndUpdate();
+        };
+
+        autoPopulate();
     }
 };
