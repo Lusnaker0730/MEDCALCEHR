@@ -4,7 +4,7 @@
  * 這個基類提供了所有計算器共用的功能：
  * - UI 初始化
  * - 事件綁定
- * - FHIR 數據獲取
+ * - FHIR 數據獲取（透過 FHIRDataService）
  * - 錯誤處理
  * - 結果顯示
  */
@@ -12,14 +12,15 @@
 import { uiBuilder } from '../../ui-builder.js';
 import { createStalenessTracker } from '../../data-staleness.js';
 import { displayError, logError } from '../../errorHandler.js';
-import type { 
-    CalculatorConfig, 
-    CalculatorInput, 
-    CalculatorResult, 
-    FHIRClient, 
-    Patient, 
+import { createFHIRDataService, FHIRDataService } from '../../../src/fhir-data-service.js';
+import type {
+    CalculatorConfig,
+    CalculatorInput,
+    CalculatorResult,
+    FHIRClient,
+    Patient,
     StalenessTracker,
-    Observation 
+    Observation
 } from '../../types/calculator.js';
 
 /**
@@ -38,6 +39,7 @@ export abstract class BaseCalculator<TInputs extends Record<string, any>, TResul
     protected client: FHIRClient | null = null;
     protected patient: Patient | null = null;
     protected stalenessTracker: StalenessTracker | null = null;
+    protected fhirService: FHIRDataService | null = null;
 
     constructor(config: CalculatorConfig) {
         this.id = config.id;
@@ -84,9 +86,12 @@ export abstract class BaseCalculator<TInputs extends Record<string, any>, TResul
         // 1. 初始化 UI 組件
         uiBuilder.initializeComponents(container);
 
-        // 2. 初始化數據過期追蹤器
-        this.stalenessTracker = createStalenessTracker();
-        this.stalenessTracker.setContainer(container);
+        // 2. 初始化 FHIR 數據服務（整合快取、過期追蹤、單位轉換）
+        this.fhirService = createFHIRDataService();
+        this.fhirService.initialize(client as any, patient as any, container);
+
+        // 使用服務的過期追蹤器
+        this.stalenessTracker = this.fhirService.getStalenessTracker() as unknown as StalenessTracker;
 
         // 3. 綁定事件監聽器
         this.bindEvents();
@@ -139,12 +144,45 @@ export abstract class BaseCalculator<TInputs extends Record<string, any>, TResul
     }
 
     /**
-     * 獲取 FHIR Observation
+     * 獲取 FHIR Observation（透過 FHIRDataService）
      */
     protected async getFHIRObservation(loincCode: string): Promise<any> {
-        // 實現 FHIR 查詢邏輯
-        // 這裡可以調用 getMostRecentObservation
-        return null;
+        if (!this.fhirService || !this.fhirService.isReady()) {
+            return null;
+        }
+        const result = await this.fhirService.getObservation(loincCode, {
+            trackStaleness: true
+        });
+        return result.observation;
+    }
+
+    /**
+     * 自動填充所有輸入欄位（使用 FHIRDataService）
+     * 這是一個簡化的方法，可以替代 fetchFHIRData
+     */
+    protected async autoPopulateAllInputs(): Promise<void> {
+        if (!this.fhirService || !this.container) return;
+
+        const inputConfigs = this.getInputConfig();
+
+        for (const config of inputConfigs) {
+            if (config.fhirCode) {
+                await this.fhirService.autoPopulateInput(
+                    `#${config.id}`,
+                    config.fhirCode,
+                    {
+                        label: config.label,
+                        decimals: (config as any).decimals,
+                        targetUnit: (config as any).targetUnit
+                    }
+                );
+            }
+
+            // 從 Patient 資源獲取數據
+            if (config.patientField && this.patient) {
+                this.populateFromPatient(config);
+            }
+        }
     }
 
     /**
