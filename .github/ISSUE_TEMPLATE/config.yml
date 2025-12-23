@@ -1,0 +1,6 @@
+# Issue 模板配置
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/Lusnaker0730/MEDCALCEHR#readme
+    about: 查看專案文檔和使用說明
