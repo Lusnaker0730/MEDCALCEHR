@@ -5,7 +5,7 @@
  * 與 FHIRDataService 整合，提供統一的快取、過期追蹤和單位轉換
  */
 
-import { createFHIRDataService, FHIRDataService, FieldDataRequirement } from '../../fhir-data-service.js';
+import { createFHIRDataService, FHIRDataService, FieldDataRequirement, FHIRClient, Patient } from '../../fhir-data-service.js';
 
 // ============================================================================
 // 類型定義
@@ -73,15 +73,15 @@ export interface CreateCustomInitializeOptions {
  */
 export function createFHIRAutoPopulate(options: CreateCustomInitializeOptions) {
     return async (
-        client: unknown,
-        patient: unknown,
+        client: FHIRClient | null,
+        patient: Patient | null,
         container: HTMLElement,
         calculate: () => void,
         setValue: (id: string, value: string) => void
     ): Promise<void> => {
         // 創建並初始化 FHIR 服務
         const fhirService = createFHIRDataService();
-        fhirService.initialize(client as any, patient as any, container);
+        fhirService.initialize(client, patient, container);
 
         // 自動填充患者資料
         if (options.patientFields) {
@@ -134,15 +134,15 @@ export function createFHIRAutoPopulate(options: CreateCustomInitializeOptions) {
  */
 export function createFHIRAutoPopulateSync(options: CreateCustomInitializeOptions) {
     return (
-        client: unknown,
-        patient: unknown,
+        client: FHIRClient | null,
+        patient: Patient | null,
         container: HTMLElement,
         calculate: () => void,
         setValue: (id: string, value: string) => void
     ): void => {
         // 創建並初始化 FHIR 服務
         const fhirService = createFHIRDataService();
-        fhirService.initialize(client as any, patient as any, container);
+        fhirService.initialize(client, patient, container);
 
         // 自動填充患者資料（同步）
         if (options.patientFields) {

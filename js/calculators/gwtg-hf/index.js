@@ -3,11 +3,10 @@
  *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 // 分數計算函數
 const getPoints = {
     sbp: (v) => {
@@ -220,35 +219,32 @@ const config = {
         `;
     },
     customInitialize: async (client, patient, container, calculate, setValue) => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-        // Age from patient
-        if (patient && patient.birthDate) {
-            setValue('gwtg-age', calculateAge(patient.birthDate).toString());
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+        // Age from patient using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            setValue('gwtg-age', age.toString());
         }
         if (client) {
-            // Fetch all observations in parallel
-            const [sbpObs, bunObs, sodiumObs, hrObs] = await Promise.all([
-                getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).catch(() => null),
-                getMostRecentObservation(client, LOINC_CODES.BUN).catch(() => null),
-                getMostRecentObservation(client, LOINC_CODES.SODIUM).catch(() => null),
-                getMostRecentObservation(client, LOINC_CODES.HEART_RATE).catch(() => null)
+            // Fetch all observations in parallel using FHIRDataService
+            const [sbpResult, bunResult, sodiumResult, hrResult] = await Promise.all([
+                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).catch(() => ({ value: null })),
+                fhirDataService.getObservation(LOINC_CODES.BUN, { trackStaleness: true, stalenessLabel: 'BUN', targetUnit: 'mg/dL' }).catch(() => ({ value: null })),
+                fhirDataService.getObservation(LOINC_CODES.SODIUM, { trackStaleness: true, stalenessLabel: 'Sodium', targetUnit: 'mEq/L' }).catch(() => ({ value: null })),
+                fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }).catch(() => ({ value: null }))
             ]);
-            if (sbpObs?.valueQuantity) {
-                setValue('gwtg-sbp', sbpObs.valueQuantity.value.toFixed(0));
-                stalenessTracker.trackObservation('#gwtg-sbp', sbpObs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+            if (sbpResult.value !== null) {
+                setValue('gwtg-sbp', sbpResult.value.toFixed(0));
             }
-            if (bunObs?.valueQuantity) {
-                setValue('gwtg-bun', bunObs.valueQuantity.value.toFixed(0));
-                stalenessTracker.trackObservation('#gwtg-bun', bunObs, LOINC_CODES.BUN, 'BUN');
+            if (bunResult.value !== null) {
+                setValue('gwtg-bun', bunResult.value.toFixed(0));
             }
-            if (sodiumObs?.valueQuantity) {
-                setValue('gwtg-sodium', sodiumObs.valueQuantity.value.toFixed(0));
-                stalenessTracker.trackObservation('#gwtg-sodium', sodiumObs, LOINC_CODES.SODIUM, 'Sodium');
+            if (sodiumResult.value !== null) {
+                setValue('gwtg-sodium', sodiumResult.value.toFixed(0));
             }
-            if (hrObs?.valueQuantity) {
-                setValue('gwtg-hr', hrObs.valueQuantity.value.toFixed(0));
-                stalenessTracker.trackObservation('#gwtg-hr', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+            if (hrResult.value !== null) {
+                setValue('gwtg-hr', hrResult.value.toFixed(0));
             }
         }
         calculate();

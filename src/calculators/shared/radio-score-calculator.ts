@@ -10,7 +10,7 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
+import {
     fhirDataService,
     FieldDataRequirement,
     FHIRClient,
@@ -64,7 +64,7 @@ export interface RadioFHIRDataRequirements {
     /** 是否自動填充患者年齡 */
     autoPopulateAge?: { inputId: string };
     /** 是否自動填充患者性別 */
-    autoPopulateGender?: { 
+    autoPopulateGender?: {
         radioName: string;
         maleValue: string;
         femaleValue: string;
@@ -81,15 +81,15 @@ export interface RadioScoreCalculatorConfig {
     infoAlert?: string;
     interpretationInfo?: string;
     references?: string[];
-    
+
     /**
      * FHIR 數據需求（聲明式配置）
      */
     dataRequirements?: RadioFHIRDataRequirements;
-    
+
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
-    
+
     /** 
      * 自定義初始化函數（用於 FHIR 自動填充等）
      * @param client FHIR 客戶端
@@ -98,8 +98,8 @@ export interface RadioScoreCalculatorConfig {
      * @param calculate 觸發重新計算的函數
      */
     customInitialize?: (
-        client: unknown,
-        patient: unknown,
+        client: FHIRClient | null,
+        patient: Patient | null,
         container: HTMLElement,
         calculate: () => void
     ) => void | Promise<void>;
@@ -111,7 +111,7 @@ export interface CalculatorModule {
     title: string;
     description: string;
     generateHTML: () => string;
-    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
+    initialize: (client: FHIRClient | null, patient: Patient | null, container: HTMLElement) => void;
 }
 
 // ==========================================
@@ -168,25 +168,21 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 ${infoAlertHTML}
                 ${sectionsHTML}
                 
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: `${config.title} Results` 
-                })}
+                ${uiBuilder.createResultBox({
+                id: `${config.id}-result`,
+                title: `${config.title} Results`
+            })}
                 
                 ${interpretationHTML}
                 ${referencesHTML}
             `;
         },
 
-        initialize(client: unknown, patient: unknown, container: HTMLElement): void {
+        initialize(client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
             uiBuilder.initializeComponents(container);
 
             // 初始化 FHIR 數據服務（內部使用）
-            fhirDataService.initialize(
-                client as FHIRClient | null,
-                patient as Patient | null,
-                container
-            );
+            fhirDataService.initialize(client, patient, container);
 
             /**
              * 設置 Radio 值
@@ -210,7 +206,7 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                     const radio = container.querySelector(
                         `input[name="${section.id}"]:checked`
                     ) as HTMLInputElement | null;
-                    
+
                     if (radio) {
                         const value = parseInt(radio.value) || 0;
                         sectionScores[section.id] = value;
@@ -234,13 +230,13 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         } else {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                    label: 'Total Score',
-                                    value: totalScore.toString(),
-                                    unit: 'points',
-                                    interpretation: riskLevel.label,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
-                                ${riskLevel.description 
+                                label: 'Total Score',
+                                value: totalScore.toString(),
+                                unit: 'points',
+                                interpretation: riskLevel.label,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
+                                ${riskLevel.description
                                     ? uiBuilder.createAlert({
                                         type: riskLevel.severity,
                                         message: riskLevel.description
@@ -268,18 +264,18 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                     try {
                         const dataReqs = config.dataRequirements;
                         const stalenessTracker = fhirDataService.getStalenessTracker();
-                        
+
                         // 自動填充患者性別
                         if (dataReqs.autoPopulateGender) {
                             const gender = fhirDataService.getPatientGender();
                             if (gender) {
-                                const value = gender === 'male' 
-                                    ? dataReqs.autoPopulateGender.maleValue 
+                                const value = gender === 'male'
+                                    ? dataReqs.autoPopulateGender.maleValue
                                     : dataReqs.autoPopulateGender.femaleValue;
                                 setRadioValue(dataReqs.autoPopulateGender.radioName, value);
                             }
                         }
-                        
+
                         // 使用 sections 中的 loincCode 和 valueMapping 自動填充
                         for (const section of config.sections) {
                             if (section.loincCode && section.valueMapping) {
@@ -288,14 +284,14 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                                         trackStaleness: true,
                                         stalenessLabel: section.title
                                     });
-                                    
+
                                     if (result.value !== null) {
                                         // 根據 valueMapping 找到對應的 radio 值
                                         const mapping = section.valueMapping.find(m => m.condition(result.value!));
                                         if (mapping) {
                                             setRadioValue(section.id, mapping.radioValue);
                                         }
-                                        
+
                                         // 追蹤陳舊狀態
                                         if (stalenessTracker && result.observation) {
                                             stalenessTracker.trackObservation(
@@ -311,22 +307,22 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                                 }
                             }
                         }
-                        
+
                         // 處理額外的觀察值需求
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-                        
+
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate);
                 }
-                
+
                 calculate();
             };
 

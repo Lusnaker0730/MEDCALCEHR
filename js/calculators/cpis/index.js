@@ -1,8 +1,7 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const cpis = createRadioScoreCalculator({
     id: 'cpis',
     title: 'Clinical Pulmonary Infection Score (CPIS) for VAP',
@@ -111,8 +110,9 @@ export const cpis = createRadioScoreCalculator({
         })}
         `;
     },
-    customInitialize: (client, _patient, container, calculate) => {
-        const fhirClient = client;
+    customInitialize: (client, patient, container, calculate) => {
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const setRadio = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -120,29 +120,22 @@ export const cpis = createRadioScoreCalculator({
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        if (fhirClient) {
+        if (client) {
             // Temperature
-            getMostRecentObservation(fhirClient, LOINC_CODES.TEMPERATURE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    let tempC = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || obs.valueQuantity.code;
-                    if (unit === 'degF' || unit === 'F' || (unit && unit.toLowerCase().includes('fahr'))) {
-                        tempC = UnitConverter.convert(tempC, 'degF', 'degC', 'temperature');
-                    }
-                    if (tempC !== null) {
-                        if (tempC >= 36.5 && tempC <= 38.4)
-                            setRadio('cpis-temperature', '0');
-                        else if (tempC >= 38.5 && tempC <= 38.9)
-                            setRadio('cpis-temperature', '1');
-                        else
-                            setRadio('cpis-temperature', '2');
-                    }
+            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, { trackStaleness: true, stalenessLabel: 'Temperature', targetUnit: 'degC', unitType: 'temperature' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value >= 36.5 && result.value <= 38.4)
+                        setRadio('cpis-temperature', '0');
+                    else if (result.value >= 38.5 && result.value <= 38.9)
+                        setRadio('cpis-temperature', '1');
+                    else
+                        setRadio('cpis-temperature', '2');
                 }
             }).catch(e => console.warn(e));
             // WBC
-            getMostRecentObservation(fhirClient, LOINC_CODES.WBC).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    let wbc = obs.valueQuantity.value;
+            fhirDataService.getObservation(LOINC_CODES.WBC, { trackStaleness: true, stalenessLabel: 'WBC' }).then(result => {
+                if (result.value !== null) {
+                    let wbc = result.value;
                     if (wbc > 1000)
                         wbc = wbc / 1000;
                     if (wbc >= 4 && wbc <= 11)

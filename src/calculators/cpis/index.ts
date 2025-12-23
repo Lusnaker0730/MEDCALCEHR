@@ -97,26 +97,26 @@ export const cpis = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'CPIS Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'CPIS Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: interpretation,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Interpretation:</strong> ${detail}`
-            })}
+            type: alertType,
+            message: `<strong>Interpretation:</strong> ${detail}`
+        })}
             ${uiBuilder.createSection({
-                title: 'Management Considerations',
-                content: management
-            })}
+            title: 'Management Considerations',
+            content: management
+        })}
         `;
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (client, patient, container, calculate) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadio = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
             if (radio) {

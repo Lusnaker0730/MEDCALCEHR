@@ -1,11 +1,10 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { calculateNAFLDScore } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const nafldFibrosisScore = {
     id: 'nafld-fibrosis-score',
     title: 'NAFLD (Non-Alcoholic Fatty Liver Disease) Fibrosis Score',
@@ -104,8 +103,8 @@ export const nafldFibrosisScore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const ageInput = container.querySelector('#nafld-age');
         const bmiInput = container.querySelector('#nafld-bmi');
         const astInput = container.querySelector('#nafld-ast');
@@ -206,45 +205,62 @@ export const nafldFibrosisScore = {
         container.querySelectorAll('input[name="nafld-diabetes"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-        // Auto-populate
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate).toString();
+        // Auto-populate using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            ageInput.value = age.toString();
         }
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BMI).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    bmiInput.value = obs.valueQuantity.value.toFixed(1);
+            // BMI
+            fhirDataService.getObservation(LOINC_CODES.BMI, {
+                trackStaleness: true,
+                stalenessLabel: 'BMI'
+            }).then(result => {
+                if (result.value !== null) {
+                    bmiInput.value = result.value.toFixed(1);
                     calculate();
-                    stalenessTracker.trackObservation('#nafld-bmi', obs, LOINC_CODES.BMI, 'BMI');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    astInput.value = obs.valueQuantity.value.toFixed(0);
+            // AST
+            fhirDataService.getObservation(LOINC_CODES.AST, {
+                trackStaleness: true,
+                stalenessLabel: 'AST'
+            }).then(result => {
+                if (result.value !== null) {
+                    astInput.value = result.value.toFixed(0);
                     calculate();
-                    stalenessTracker.trackObservation('#nafld-ast', obs, LOINC_CODES.AST, 'AST');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.ALT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    altInput.value = obs.valueQuantity.value.toFixed(0);
+            // ALT
+            fhirDataService.getObservation(LOINC_CODES.ALT, {
+                trackStaleness: true,
+                stalenessLabel: 'ALT'
+            }).then(result => {
+                if (result.value !== null) {
+                    altInput.value = result.value.toFixed(0);
                     calculate();
-                    stalenessTracker.trackObservation('#nafld-alt', obs, LOINC_CODES.ALT, 'ALT');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.PLATELETS).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    plateletInput.value = obs.valueQuantity.value.toFixed(0);
+            // Platelets
+            fhirDataService.getObservation(LOINC_CODES.PLATELETS, {
+                trackStaleness: true,
+                stalenessLabel: 'Platelets'
+            }).then(result => {
+                if (result.value !== null) {
+                    plateletInput.value = result.value.toFixed(0);
                     calculate();
-                    stalenessTracker.trackObservation('#nafld-platelet', obs, LOINC_CODES.PLATELETS, 'Platelets');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    // Using setInputValue logic or unit helper if needed
-                    albuminInput.value = obs.valueQuantity.value.toFixed(1);
+            // Albumin
+            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
+                trackStaleness: true,
+                stalenessLabel: 'Albumin',
+                targetUnit: 'g/dL',
+                unitType: 'albumin'
+            }).then(result => {
+                if (result.value !== null) {
+                    albuminInput.value = result.value.toFixed(1);
                     calculate();
-                    stalenessTracker.trackObservation('#nafld-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                 }
             }).catch(e => console.warn(e));
         }

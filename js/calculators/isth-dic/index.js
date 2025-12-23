@@ -1,8 +1,7 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const isthDic = {
     id: 'isth-dic',
     title: 'ISTH Criteria for Disseminated Intravascular Coagulation (DIC)',
@@ -112,8 +111,8 @@ export const isthDic = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const calculate = () => {
             const groups = ['isth-platelet', 'isth-fibrin_marker', 'isth-pt', 'isth-fibrinogen'];
             let score = 0;
@@ -162,10 +161,6 @@ export const isthDic = {
                 const radio = container.querySelector(`input[name="${groupName}"][value="${range.value}"]`);
                 if (radio) {
                     radio.checked = true;
-                    // calculate(); // Removing direct call here to avoid double calls if event bubbles, but radio change listener catches it? 
-                    // Actually, if we change checked programmatically, 'change' event DOES NOT fire automatically. We must dispatch it or call calculate.
-                    // But we don't want to dispatch change to avoid loops if listeners are set up weirdly. 
-                    // Safest is to call calculate directly or modify logic.
                     calculate();
                 }
             }
@@ -177,7 +172,7 @@ export const isthDic = {
         // Event listeners for inputs to auto-select radios
         if (plateletInput)
             plateletInput.addEventListener('input', function () {
-                const value = UnitConverter.getStandardValue(this, '×10⁹/L'); // Standard is 10^9/L (same as K/uL number-wise)
+                const value = UnitConverter.getStandardValue(this, '×10⁹/L');
                 setRadioFromValue('isth-platelet', value, [
                     { condition: v => v >= 100, value: '0' },
                     { condition: v => v >= 50 && v < 100, value: '1' },
@@ -186,7 +181,7 @@ export const isthDic = {
             });
         if (ddimerInput)
             ddimerInput.addEventListener('input', function () {
-                const value = UnitConverter.getStandardValue(this, 'mg/L'); // Standard is mg/L
+                const value = UnitConverter.getStandardValue(this, 'mg/L');
                 setRadioFromValue('isth-fibrin_marker', value, [
                     { condition: v => v < 0.5, value: '0' },
                     { condition: v => v >= 0.5 && v <= 5, value: '2' },
@@ -207,7 +202,7 @@ export const isthDic = {
             });
         if (fibrinogenInput)
             fibrinogenInput.addEventListener('input', function () {
-                const value = UnitConverter.getStandardValue(this, 'g/L'); // Standard is g/L
+                const value = UnitConverter.getStandardValue(this, 'g/L');
                 setRadioFromValue('isth-fibrinogen', value, [
                     { condition: v => v >= 1, value: '0' },
                     { condition: v => v < 1, value: '1' }
@@ -217,43 +212,46 @@ export const isthDic = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-        // FHIR Integration
+        // FHIR Integration using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, '26515-7').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    if (plateletInput) {
-                        plateletInput.value = obs.valueQuantity.value.toFixed(0);
-                        plateletInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#isth-platelet-input', obs, '26515-7', 'Platelets');
-                    }
+            // Platelets (LOINC 26515-7)
+            fhirDataService.getObservation('26515-7', {
+                trackStaleness: true,
+                stalenessLabel: 'Platelets'
+            }).then(result => {
+                if (result.value !== null && plateletInput) {
+                    plateletInput.value = result.value.toFixed(0);
+                    plateletInput.dispatchEvent(new Event('input'));
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '48065-7').then(obs => {
-                // Note: D-Dimer LOINC might vary, 48065-7 is Fibrin D-dimer DDU
-                if (obs && obs.valueQuantity) {
-                    if (ddimerInput) {
-                        ddimerInput.value = obs.valueQuantity.value.toFixed(2);
-                        ddimerInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#isth-ddimer-input', obs, '48065-7', 'D-dimer');
-                    }
+            // D-dimer (LOINC 48065-7)
+            fhirDataService.getObservation(LOINC_CODES.D_DIMER, {
+                trackStaleness: true,
+                stalenessLabel: 'D-dimer'
+            }).then(result => {
+                if (result.value !== null && ddimerInput) {
+                    ddimerInput.value = result.value.toFixed(2);
+                    ddimerInput.dispatchEvent(new Event('input'));
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.PT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    if (ptInput) {
-                        ptInput.value = obs.valueQuantity.value.toFixed(1);
-                        ptInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#isth-pt-input', obs, LOINC_CODES.PT, 'PT');
-                    }
+            // PT
+            fhirDataService.getObservation(LOINC_CODES.PT, {
+                trackStaleness: true,
+                stalenessLabel: 'PT'
+            }).then(result => {
+                if (result.value !== null && ptInput) {
+                    ptInput.value = result.value.toFixed(1);
+                    ptInput.dispatchEvent(new Event('input'));
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '3255-7').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    if (fibrinogenInput) {
-                        fibrinogenInput.value = obs.valueQuantity.value.toFixed(2);
-                        fibrinogenInput.dispatchEvent(new Event('input'));
-                        stalenessTracker.trackObservation('#isth-fibrinogen-input', obs, '3255-7', 'Fibrinogen');
-                    }
+            // Fibrinogen (LOINC 3255-7)
+            fhirDataService.getObservation(LOINC_CODES.FIBRINOGEN, {
+                trackStaleness: true,
+                stalenessLabel: 'Fibrinogen'
+            }).then(result => {
+                if (result.value !== null && fibrinogenInput) {
+                    fibrinogenInput.value = result.value.toFixed(2);
+                    fibrinogenInput.dispatchEvent(new Event('input'));
                 }
             }).catch(e => console.warn(e));
         }

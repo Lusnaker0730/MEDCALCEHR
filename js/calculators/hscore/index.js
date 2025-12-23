@@ -1,8 +1,7 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 const getProbability = (score) => {
     const probability = 1 / (1 + Math.exp(-(-4.3 + 0.03 * score)));
     return (probability * 100).toFixed(1);
@@ -119,8 +118,8 @@ export const hscore = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const groups = [
             'hscore-immuno',
             'hscore-temp',
@@ -192,80 +191,69 @@ export const hscore = {
         };
         if (client) {
             Promise.all([
-                getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN),
-                getMostRecentObservation(client, LOINC_CODES.WBC),
-                getMostRecentObservation(client, '26515-7') // Platelets
-            ]).then(([hgb, wbc, platelets]) => {
+                fhirDataService.getObservation(LOINC_CODES.HEMOGLOBIN, { trackStaleness: true, stalenessLabel: 'Hemoglobin' }),
+                fhirDataService.getObservation(LOINC_CODES.WBC, { trackStaleness: true, stalenessLabel: 'WBC' }),
+                fhirDataService.getObservation(LOINC_CODES.PLATELETS, { trackStaleness: true, stalenessLabel: 'Platelets' })
+            ]).then(([hgbResult, wbcResult, plateletsResult]) => {
                 let cytopeniaCount = 0;
-                if (hgb && hgb.valueQuantity && hgb.valueQuantity.value <= 9.2)
+                if (hgbResult.value !== null && hgbResult.value <= 9.2)
                     cytopeniaCount++;
-                if (wbc && wbc.valueQuantity && wbc.valueQuantity.value <= 5)
-                    cytopeniaCount++; // Assuming K/uL or similar scale
-                if (platelets && platelets.valueQuantity && platelets.valueQuantity.value <= 110)
-                    cytopeniaCount++; // Assuming K/uL or similar scale
+                if (wbcResult.value !== null && wbcResult.value <= 5)
+                    cytopeniaCount++;
+                if (plateletsResult.value !== null && plateletsResult.value <= 110)
+                    cytopeniaCount++;
                 setRadioFromValue('hscore-cytopenias', cytopeniaCount, [
                     { condition: v => v <= 1, value: '0' },
                     { condition: v => v === 2, value: '24' },
                     { condition: v => v >= 3, value: '34' }
                 ]);
-                if (platelets)
-                    stalenessTracker.trackObservation('input[name="hscore-cytopenias"]', platelets, '26515-7', 'Platelets (for Cytopenias)');
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    let tempF = obs.valueQuantity.value;
-                    // Convert C to F if needed
-                    if (obs.valueQuantity.unit && obs.valueQuantity.unit.includes('C')) {
-                        tempF = (tempF * 9 / 5) + 32;
-                    }
-                    setRadioFromValue('hscore-temp', tempF, [
+            // Temperature (convert to Fahrenheit)
+            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, { trackStaleness: true, stalenessLabel: 'Temperature', targetUnit: 'degF', unitType: 'temperature' }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('hscore-temp', result.value, [
                         { condition: v => v < 101.1, value: '0' },
                         { condition: v => v >= 101.1 && v <= 102.9, value: '33' },
                         { condition: v => v > 102.9, value: '49' }
                     ]);
-                    stalenessTracker.trackObservation('input[name="hscore-temp"]', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '2276-4').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    setRadioFromValue('hscore-ferritin', obs.valueQuantity.value, [
+            // Ferritin (LOINC 2276-4)
+            fhirDataService.getObservation('2276-4', { trackStaleness: true, stalenessLabel: 'Ferritin' }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('hscore-ferritin', result.value, [
                         { condition: v => v < 2000, value: '0' },
                         { condition: v => v >= 2000 && v <= 6000, value: '35' },
                         { condition: v => v > 6000, value: '50' }
                     ]);
-                    stalenessTracker.trackObservation('input[name="hscore-ferritin"]', obs, '2276-4', 'Ferritin');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.TRIGLYCERIDES).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    setRadioFromValue('hscore-trig', obs.valueQuantity.value, [
+            // Triglycerides
+            fhirDataService.getObservation(LOINC_CODES.TRIGLYCERIDES, { trackStaleness: true, stalenessLabel: 'Triglycerides' }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('hscore-trig', result.value, [
                         { condition: v => v < 132.7, value: '0' },
                         { condition: v => v >= 132.7 && v <= 354, value: '44' },
                         { condition: v => v > 354, value: '64' }
                     ]);
-                    stalenessTracker.trackObservation('input[name="hscore-trig"]', obs, LOINC_CODES.TRIGLYCERIDES, 'Triglycerides');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, '3255-7').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    // Convert g/L to mg/dL if needed (x100)
-                    let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'g/L')
-                        val *= 100;
-                    setRadioFromValue('hscore-fibrinogen', val, [
+            // Fibrinogen (LOINC 3255-7) - convert to mg/dL
+            fhirDataService.getObservation('3255-7', { trackStaleness: true, stalenessLabel: 'Fibrinogen', targetUnit: 'mg/dL', unitType: 'fibrinogen' }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('hscore-fibrinogen', result.value, [
                         { condition: v => v > 250, value: '0' },
                         { condition: v => v <= 250, value: '30' }
                     ]);
-                    stalenessTracker.trackObservation('input[name="hscore-fibrinogen"]', obs, '3255-7', 'Fibrinogen');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.AST).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    setRadioFromValue('hscore-ast', obs.valueQuantity.value, [
+            // AST
+            fhirDataService.getObservation(LOINC_CODES.AST, { trackStaleness: true, stalenessLabel: 'AST' }).then(result => {
+                if (result.value !== null) {
+                    setRadioFromValue('hscore-ast', result.value, [
                         { condition: v => v < 30, value: '0' },
                         { condition: v => v >= 30, value: '19' }
                     ]);
-                    stalenessTracker.trackObservation('input[name="hscore-ast"]', obs, LOINC_CODES.AST, 'AST');
                 }
             }).catch(e => console.warn(e));
         }

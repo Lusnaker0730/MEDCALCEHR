@@ -19,7 +19,7 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
+import {
     fhirDataService,
     FieldDataRequirement,
     FHIRClient,
@@ -110,15 +110,15 @@ export interface ScoreCalculatorConfig {
     infoAlert?: string;
     /** 公式項目 */
     formulaItems?: FormulaItem[];
-    
+
     /**
      * FHIR 數據需求（聲明式配置）
      */
     dataRequirements?: ScoreFHIRDataRequirements;
-    
+
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
-    
+
     /** 
      * 自定義初始化函數
      * @param client FHIR 客戶端
@@ -127,8 +127,8 @@ export interface ScoreCalculatorConfig {
      * @param calculate 觸發重新計算的函數
      */
     customInitialize?: (
-        client: unknown,
-        patient: unknown,
+        client: FHIRClient | null,
+        patient: Patient | null,
         container: HTMLElement,
         calculate: () => void
     ) => void | Promise<void>;
@@ -140,7 +140,7 @@ export interface CalculatorModule {
     title: string;
     description: string;
     generateHTML: () => string;
-    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
+    initialize: (client: FHIRClient | null, patient: Patient | null, container: HTMLElement) => void;
 }
 
 // ==========================================
@@ -205,26 +205,22 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 ${infoAlertHTML}
                 ${sectionsHTML}
                 
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: `${config.title} Results` 
-                })}
+                ${uiBuilder.createResultBox({
+                id: `${config.id}-result`,
+                title: `${config.title} Results`
+            })}
                 
                 ${formulaHTML}
                 ${referencesHTML}
             `;
         },
 
-        initialize(client: unknown, patient: unknown, container: HTMLElement): void {
+        initialize(client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
             // 初始化 UI 組件
             uiBuilder.initializeComponents(container);
 
             // 初始化 FHIR 數據服務（內部使用）
-            fhirDataService.initialize(
-                client as FHIRClient | null,
-                patient as Patient | null,
-                container
-            );
+            fhirDataService.initialize(client, patient, container);
 
             /**
              * 設置 Checkbox 狀態
@@ -243,14 +239,14 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 const checkboxes = container.querySelectorAll('input[type="checkbox"]');
                 let score = 0;
                 const sectionScores: Record<string, number> = {};
-                
+
                 checkboxes.forEach((box) => {
                     const checkbox = box as HTMLInputElement;
                     if (checkbox.checked) {
                         // 支援浮點數值（如 DASI）
                         const value = parseFloat(checkbox.value) || 0;
                         score += value;
-                        
+
                         // 追蹤各區塊的分數
                         const sectionId = checkbox.id.split('-')[0];
                         sectionScores[sectionId] = (sectionScores[sectionId] || 0) + value;
@@ -273,18 +269,18 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
 
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                    label: 'Total Score',
-                                    value: score.toString(),
-                                    unit: 'points',
-                                    interpretation: riskLevel.category,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
+                                label: 'Total Score',
+                                value: score.toString(),
+                                unit: 'points',
+                                interpretation: riskLevel.category,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
                                 ${uiBuilder.createResultItem({
-                                    label: 'Risk',
-                                    value: riskLevel.risk,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
-                                ${riskLevel.recommendation 
+                                label: 'Risk',
+                                value: riskLevel.risk,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
+                                ${riskLevel.recommendation
                                     ? uiBuilder.createAlert({
                                         type: riskLevel.severity,
                                         message: riskLevel.recommendation
@@ -311,10 +307,10 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 if (config.dataRequirements && fhirDataService.isReady()) {
                     try {
                         const dataReqs = config.dataRequirements;
-                        
+
                         // 收集所有條件代碼
                         const allConditionCodes: string[] = [...(dataReqs.conditions || [])];
-                        
+
                         // 從選項中收集條件代碼
                         const optionConditionMap = new Map<string, string>(); // conditionCode -> checkboxId
                         config.sections.forEach(section => {
@@ -325,11 +321,11 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                                 }
                             });
                         });
-                        
+
                         // 獲取患者條件並自動勾選相關 checkbox
                         if (allConditionCodes.length > 0) {
                             const conditions = await fhirDataService.getConditions(allConditionCodes);
-                            
+
                             conditions.forEach((condition: any) => {
                                 const codings = condition.code?.coding || [];
                                 codings.forEach((coding: any) => {
@@ -340,22 +336,22 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                                 });
                             });
                         }
-                        
+
                         // 處理觀察值需求
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-                        
+
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate);
                 }
-                
+
                 calculate();
             };
 

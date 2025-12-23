@@ -10,8 +10,8 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
-    fhirDataService, 
+import {
+    fhirDataService,
     FieldDataRequirement,
     FHIRClient,
     Patient
@@ -111,7 +111,7 @@ export interface FHIRDataRequirements {
     /** 是否自動填充患者年齡 */
     autoPopulateAge?: { inputId: string };
     /** 是否自動填充患者性別 */
-    autoPopulateGender?: { 
+    autoPopulateGender?: {
         radioName: string;
         maleValue: string;
         femaleValue: string;
@@ -133,27 +133,27 @@ export interface MixedInputCalculatorConfig {
     references?: string[];
     /** 結果標題 */
     resultTitle?: string;
-    
+
     /**
      * FHIR 數據需求（聲明式配置）
      * 使用此配置可自動從 FHIR 服務獲取數據並填充輸入
      */
     dataRequirements?: FHIRDataRequirements;
-    
+
     /**
      * 計算函數
      * @param values 所有輸入值（數字輸入為 number | null，radio/select 為 string）
      * @returns 計算結果分數，返回 null 表示輸入不完整
      */
     calculate: (values: Record<string, number | string | null>) => number | null;
-    
+
     /**
      * 自定義結果渲染函數
      * @param score 計算得出的分數
      * @param values 所有輸入值
      */
     customResultRenderer?: (score: number, values: Record<string, number | string | null>) => string;
-    
+
     /**
      * 自定義初始化函數（用於 FHIR 自動填充等）
      * @param client FHIR 客戶端
@@ -163,8 +163,8 @@ export interface MixedInputCalculatorConfig {
      * @param setValue 設置輸入值的輔助函數
      */
     customInitialize?: (
-        client: unknown,
-        patient: unknown,
+        client: FHIRClient | null,
+        patient: Patient | null,
         container: HTMLElement,
         calculate: () => void,
         setValue: (id: string, value: string) => void
@@ -177,7 +177,7 @@ export interface CalculatorModule {
     title: string;
     description: string;
     generateHTML: () => string;
-    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
+    initialize: (client: FHIRClient | null, patient: Patient | null, container: HTMLElement) => void;
 }
 
 // ==========================================
@@ -202,7 +202,7 @@ function generateInputHTML(input: InputItemConfig): string {
                 helpText: input.helpText,
                 unitToggle: input.unitToggle
             });
-        
+
         case 'radio':
             return uiBuilder.createRadioGroup({
                 name: input.name,
@@ -210,7 +210,7 @@ function generateInputHTML(input: InputItemConfig): string {
                 helpText: input.helpText,
                 options: input.options
             });
-        
+
         case 'select':
             return uiBuilder.createSelect({
                 id: input.id,
@@ -218,7 +218,7 @@ function generateInputHTML(input: InputItemConfig): string {
                 helpText: input.helpText,
                 options: input.options
             });
-        
+
         default:
             return '';
     }
@@ -239,7 +239,7 @@ function getInputKey(input: InputItemConfig): string {
  */
 function generateDataRequirementsFromConfig(config: MixedInputCalculatorConfig): FieldDataRequirement[] {
     const requirements: FieldDataRequirement[] = [];
-    
+
     config.sections.forEach(section => {
         section.inputs.forEach(input => {
             if (input.type === 'number' && input.loincCode) {
@@ -248,13 +248,13 @@ function generateDataRequirementsFromConfig(config: MixedInputCalculatorConfig):
                     inputId: `#${input.id}`,
                     label: input.label,
                     targetUnit: input.unitToggle?.default || input.unit,
-                    decimals: input.step && input.step < 1 ? 
+                    decimals: input.step && input.step < 1 ?
                         Math.abs(Math.floor(Math.log10(input.step))) : 0
                 });
             }
         });
     });
-    
+
     return requirements;
 }
 
@@ -275,7 +275,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
             // 生成區塊 HTML
             const sectionsHTML = config.sections.map(section => {
                 const inputsHTML = section.inputs.map(input => generateInputHTML(input)).join('');
-                
+
                 return uiBuilder.createSection({
                     title: section.title,
                     icon: section.icon,
@@ -298,34 +298,30 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 </div>
                 
                 ${config.infoAlert ? uiBuilder.createAlert({
-                    type: 'info',
-                    message: config.infoAlert
-                }) : ''}
+                type: 'info',
+                message: config.infoAlert
+            }) : ''}
                 
                 ${sectionsHTML}
                 
                 <div id="${config.id}-error-container"></div>
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: config.resultTitle || `${config.title} Results` 
-                })}
+                ${uiBuilder.createResultBox({
+                id: `${config.id}-result`,
+                title: config.resultTitle || `${config.title} Results`
+            })}
                 
                 ${referencesHTML}
             `;
         },
 
-        initialize(client: unknown, patient: unknown, container: HTMLElement): void {
+        initialize(client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
             uiBuilder.initializeComponents(container);
 
             const resultBox = document.getElementById(`${config.id}-result`);
             const errorContainer = document.getElementById(`${config.id}-error-container`);
 
             // 初始化 FHIR 數據服務（內部使用）
-            fhirDataService.initialize(
-                client as FHIRClient | null, 
-                patient as Patient | null, 
-                container
-            );
+            fhirDataService.initialize(client, patient, container);
 
             // 收集所有輸入項的 key
             const allInputKeys: { key: string; type: 'number' | 'radio' | 'select' }[] = [];
@@ -447,7 +443,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 if (config.dataRequirements && fhirDataService.isReady()) {
                     try {
                         const dataReqs = config.dataRequirements;
-                        
+
                         // 自動填充患者年齡
                         if (dataReqs.autoPopulateAge) {
                             const age = fhirDataService.getPatientAge();
@@ -455,39 +451,39 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                                 setValue(dataReqs.autoPopulateAge.inputId, age.toString());
                             }
                         }
-                        
+
                         // 自動填充患者性別
                         if (dataReqs.autoPopulateGender) {
                             const gender = fhirDataService.getPatientGender();
                             if (gender) {
-                                const value = gender === 'male' 
-                                    ? dataReqs.autoPopulateGender.maleValue 
+                                const value = gender === 'male'
+                                    ? dataReqs.autoPopulateGender.maleValue
                                     : dataReqs.autoPopulateGender.femaleValue;
                                 setValue(dataReqs.autoPopulateGender.radioName, value);
                             }
                         }
-                        
+
                         // 從配置生成數據需求（如果沒有手動指定）
                         let observations = dataReqs.observations || [];
                         if (observations.length === 0) {
                             observations = generateDataRequirementsFromConfig(config);
                         }
-                        
+
                         // 使用 FHIRDataService 自動填充觀察值
                         if (observations.length > 0) {
                             await fhirDataService.autoPopulateFields(observations);
                         }
-                        
+
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate, setValue);
                 }
-                
+
                 calculate();
             };
 

@@ -13,7 +13,7 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
+import {
     fhirDataService,
     FieldDataRequirement,
     FHIRClient,
@@ -62,12 +62,12 @@ export interface YesNoFHIRDataRequirements {
     /** 藥物代碼（RxNorm） */
     medications?: string[];
     /** 是否自動填充患者年齡 */
-    autoPopulateAge?: { 
+    autoPopulateAge?: {
         questionId: string;
         condition: (age: number) => boolean;
     };
     /** 是否自動填充患者性別 */
-    autoPopulateGender?: { 
+    autoPopulateGender?: {
         questionId: string;
         genderValue: 'male' | 'female';
     };
@@ -92,15 +92,15 @@ export interface YesNoCalculatorConfig {
     infoAlert?: string;
     /** 參考文獻 */
     references?: string[];
-    
+
     /**
      * FHIR 數據需求（聲明式配置）
      */
     dataRequirements?: YesNoFHIRDataRequirements;
-    
+
     /** 自定義結果渲染（第二個參數可選） */
     customResultRenderer?: (score: number, criteriaMet?: string[]) => string;
-    
+
     /** 
      * 自定義初始化函數
      * @param client FHIR 客戶端
@@ -109,12 +109,12 @@ export interface YesNoCalculatorConfig {
      * @param calculate 觸發重新計算的函數
      */
     customInitialize?: (
-        client: unknown,
-        patient: unknown,
+        client: FHIRClient | null,
+        patient: Patient | null,
         container: HTMLElement,
         calculate: () => void
     ) => void | Promise<void>;
-    
+
     /** 分數範圍說明 (例如 "-2 to +9 points") */
     scoreRange?: string;
 }
@@ -125,7 +125,7 @@ export interface CalculatorModule {
     title: string;
     description: string;
     generateHTML: () => string;
-    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
+    initialize: (client: FHIRClient | null, patient: Patient | null, container: HTMLElement) => void;
 }
 
 // ==========================================
@@ -189,24 +189,20 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                 ${sectionHTML}
                 
                 <div id="${config.id}-error-container"></div>
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: `${config.title} Results` 
-                })}
+                ${uiBuilder.createResultBox({
+                id: `${config.id}-result`,
+                title: `${config.title} Results`
+            })}
                 
                 ${referencesHTML}
             `;
         },
 
-        initialize(client: unknown, patient: unknown, container: HTMLElement): void {
+        initialize(client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
             uiBuilder.initializeComponents(container);
 
             // 初始化 FHIR 數據服務（內部使用）
-            fhirDataService.initialize(
-                client as FHIRClient | null,
-                patient as Patient | null,
-                container
-            );
+            fhirDataService.initialize(client, patient, container);
 
             /**
              * 設置 Radio 值
@@ -224,7 +220,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
             const calculate = (): void => {
                 let score = 0;
                 const criteriaMet: string[] = [];
-                
+
                 // 收集所有選中的 radio 值
                 questions.forEach(q => {
                     const radio = container.querySelector(
@@ -233,7 +229,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                     if (radio) {
                         const value = parseFloat(radio.value) || 0;
                         score += value;
-                        
+
                         // 如果選了「是」，記錄
                         if (value !== 0) {
                             criteriaMet.push(q.label);
@@ -256,12 +252,12 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                         } else {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                    label: 'Total Score',
-                                    value: score.toString(),
-                                    unit: config.scoreRange ? `${config.scoreRange}` : 'points',
-                                    interpretation: riskLevel.label,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
+                                label: 'Total Score',
+                                value: score.toString(),
+                                unit: config.scoreRange ? `${config.scoreRange}` : 'points',
+                                interpretation: riskLevel.label,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
                                 ${riskLevel.recommendation || riskLevel.description
                                     ? uiBuilder.createAlert({
                                         type: riskLevel.severity,
@@ -290,7 +286,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                     try {
                         const dataReqs = config.dataRequirements;
                         const stalenessTracker = fhirDataService.getStalenessTracker();
-                        
+
                         // 自動填充患者年齡
                         if (dataReqs.autoPopulateAge) {
                             const age = fhirDataService.getPatientAge();
@@ -301,7 +297,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 }
                             }
                         }
-                        
+
                         // 自動填充患者性別
                         if (dataReqs.autoPopulateGender) {
                             const gender = fhirDataService.getPatientGender();
@@ -312,7 +308,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 }
                             }
                         }
-                        
+
                         // 收集條件代碼並檢查
                         const conditionCodeMap = new Map<string, YesNoQuestion>();
                         questions.forEach(q => {
@@ -320,11 +316,11 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 conditionCodeMap.set(q.conditionCode, q);
                             }
                         });
-                        
+
                         if (conditionCodeMap.size > 0) {
                             const conditionCodes = Array.from(conditionCodeMap.keys());
                             const conditions = await fhirDataService.getConditions(conditionCodes);
-                            
+
                             conditions.forEach((condition: any) => {
                                 const codings = condition.code?.coding || [];
                                 codings.forEach((coding: any) => {
@@ -335,7 +331,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 });
                             });
                         }
-                        
+
                         // 處理觀察值條件
                         for (const q of questions) {
                             if (q.observationCriteria) {
@@ -344,10 +340,10 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                         trackStaleness: true,
                                         stalenessLabel: q.label
                                     });
-                                    
+
                                     if (result.value !== null && q.observationCriteria.condition(result.value)) {
                                         setRadioValue(q.id, q.points.toString());
-                                        
+
                                         if (stalenessTracker && result.observation) {
                                             stalenessTracker.trackObservation(
                                                 `input[name="${q.id}"]`,
@@ -362,22 +358,22 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 }
                             }
                         }
-                        
+
                         // 處理額外的觀察值需求
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-                        
+
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate);
                 }
-                
+
                 calculate();
             };
 

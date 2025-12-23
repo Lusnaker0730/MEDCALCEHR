@@ -3,11 +3,10 @@
  *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
-import { getPatientConditions, calculateAge, getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 const config = {
     id: '4peps',
     title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)',
@@ -251,8 +250,8 @@ const config = {
         `;
     },
     customInitialize: async (client, patient, container, calculate, setValue) => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const setRadio = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -261,43 +260,36 @@ const config = {
             }
         };
         try {
-            if (patient) {
-                if (patient.birthDate) {
-                    const age = calculateAge(patient.birthDate);
-                    setValue('fourpeps-age', age.toString());
-                }
-                if (patient.gender) {
-                    const genderVal = patient.gender === 'male' ? '2' : '0';
-                    setRadio('4peps-sex', genderVal);
-                }
+            // Age and gender from FHIRDataService
+            const age = fhirDataService.getPatientAge();
+            if (age !== null) {
+                setValue('fourpeps-age', age.toString());
+            }
+            const gender = fhirDataService.getPatientGender();
+            if (gender) {
+                setRadio('4peps-sex', gender === 'male' ? '2' : '0');
             }
             if (client) {
-                const chronicRespCodes = ['13645005', 'J44.9']; // COPD
-                const vteCodes = ['I82.90', '451574005']; // VTE history
-                const [conditions, hrObs, o2Obs] = await Promise.all([
-                    getPatientConditions(client, [...chronicRespCodes, ...vteCodes]),
-                    getMostRecentObservation(client, LOINC_CODES.HEART_RATE),
-                    getMostRecentObservation(client, LOINC_CODES.OXYGEN_SATURATION)
+                const chronicRespCodes = [SNOMED_CODES.COPD, '13645005', 'J44.9'];
+                const vteCodes = ['I82.90', '451574005'];
+                // Fetch conditions and observations using FHIRDataService
+                const [hasCOPD, hasVTE, hrResult, o2Result] = await Promise.all([
+                    fhirDataService.hasCondition(chronicRespCodes).catch(() => false),
+                    fhirDataService.hasCondition(vteCodes).catch(() => false),
+                    fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }).catch(() => ({ value: null })),
+                    fhirDataService.getObservation(LOINC_CODES.OXYGEN_SATURATION, { trackStaleness: true, stalenessLabel: 'O2 Saturation' }).catch(() => ({ value: null }))
                 ]);
-                if (conditions) {
-                    if (conditions.some((c) => c.code?.coding?.some((cod) => chronicRespCodes.includes(cod.code)))) {
-                        setRadio('4peps-resp_disease', '-1');
-                    }
-                    if (conditions.some((c) => c.code?.coding?.some((cod) => vteCodes.includes(cod.code)))) {
-                        setRadio('4peps-vte', '2');
-                    }
+                if (hasCOPD) {
+                    setRadio('4peps-resp_disease', '-1');
                 }
-                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value !== undefined) {
-                    if (hrObs.valueQuantity.value < 80) {
-                        setRadio('4peps-hr', '-1');
-                    }
-                    stalenessTracker.trackObservation('input[name="4peps-hr"]', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+                if (hasVTE) {
+                    setRadio('4peps-vte', '2');
                 }
-                if (o2Obs && o2Obs.valueQuantity && o2Obs.valueQuantity.value !== undefined) {
-                    if (o2Obs.valueQuantity.value < 95) {
-                        setRadio('4peps-o2_sat', '3');
-                    }
-                    stalenessTracker.trackObservation('input[name="4peps-o2_sat"]', o2Obs, LOINC_CODES.OXYGEN_SATURATION, 'O2 Saturation');
+                if (hrResult.value !== null && hrResult.value < 80) {
+                    setRadio('4peps-hr', '-1');
+                }
+                if (o2Result.value !== null && o2Result.value < 95) {
+                    setRadio('4peps-o2_sat', '3');
                 }
             }
         }

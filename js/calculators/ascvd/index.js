@@ -1,10 +1,9 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const ascvd = {
     id: 'ascvd',
     title: 'ASCVD Risk Calculator with Therapy Impact',
@@ -179,9 +178,9 @@ export const ascvd = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker for this calculator
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+        const stalenessTracker = fhirDataService.getStalenessTracker();
         const ageInput = container.querySelector('#ascvd-age');
         const sbpInput = container.querySelector('#ascvd-sbp');
         const tcInput = container.querySelector('#ascvd-tc');
@@ -191,53 +190,57 @@ export const ascvd = {
         const resultBox = container.querySelector('#ascvd-result');
         const resultContent = resultBox.querySelector('.ui-result-content');
         const therapySection = container.querySelector('#therapy-impact-section');
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate).toString();
+        // Set age from patient data using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            ageInput.value = age.toString();
         }
-        if (patient && patient.gender) {
-            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-            const genderRadio = container.querySelector(`input[name="ascvd-gender"][value="${genderValue}"]`);
+        // Set gender from patient data using FHIRDataService
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            const genderRadio = container.querySelector(`input[name="ascvd-gender"][value="${gender}"]`);
             if (genderRadio) {
                 genderRadio.checked = true;
             }
         }
-        // Try to load FHIR data
+        // Try to load FHIR data using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
-                if (bpPanel && bpPanel.component) {
-                    const sbpComp = bpPanel.component.find((c) => c.code.coding && c.code.coding.some((coding) => coding.code === LOINC_CODES.SYSTOLIC_BP));
-                    if (sbpComp && sbpComp.valueQuantity) {
-                        sbpInput.value = sbpComp.valueQuantity.value.toFixed(0);
-                        sbpInput.dispatchEvent(new Event('input'));
-                        // Track staleness
-                        stalenessTracker.trackObservation('#ascvd-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-                    }
+            // Blood Pressure
+            fhirDataService.getBloodPressure({ trackStaleness: true }).then(result => {
+                if (result.systolic !== null) {
+                    sbpInput.value = result.systolic.toFixed(0);
+                    sbpInput.dispatchEvent(new Event('input'));
                 }
             }).catch(console.log);
-            getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    UnitConverter.setInputValue(tcInput, obs.valueQuantity.value, obs.valueQuantity.unit);
-                    // Force 1 decimal place
-                    if (tcInput.value && !isNaN(parseFloat(tcInput.value))) {
-                        tcInput.value = parseFloat(tcInput.value).toFixed(1);
-                    }
-                    // Track staleness
-                    stalenessTracker.trackObservation('#ascvd-tc', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
+            // Total Cholesterol
+            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
+                trackStaleness: true,
+                stalenessLabel: 'Total Cholesterol',
+                targetUnit: 'mg/dL',
+                unitType: 'cholesterol'
+            }).then(result => {
+                if (result.value !== null) {
+                    tcInput.value = result.value.toFixed(1);
+                    tcInput.dispatchEvent(new Event('input'));
                 }
             }).catch(console.log);
-            getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    UnitConverter.setInputValue(hdlInput, obs.valueQuantity.value, obs.valueQuantity.unit);
-                    // Force 1 decimal place
-                    if (hdlInput.value && !isNaN(parseFloat(hdlInput.value))) {
-                        hdlInput.value = parseFloat(hdlInput.value).toFixed(1);
-                    }
-                    // Track staleness
-                    stalenessTracker.trackObservation('#ascvd-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
+            // HDL Cholesterol
+            fhirDataService.getObservation(LOINC_CODES.HDL, {
+                trackStaleness: true,
+                stalenessLabel: 'HDL Cholesterol',
+                targetUnit: 'mg/dL',
+                unitType: 'hdl'
+            }).then(result => {
+                if (result.value !== null) {
+                    hdlInput.value = result.value.toFixed(1);
+                    hdlInput.dispatchEvent(new Event('input'));
                 }
             }).catch(console.log);
-            getMostRecentObservation(client, LOINC_CODES.SMOKING_STATUS).then(obs => {
-                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
+            // Smoking Status
+            fhirDataService.getObservation(LOINC_CODES.SMOKING_STATUS, {
+                trackStaleness: false
+            }).then(result => {
+                if (result.observation && result.observation.valueCodeableConcept?.coding) {
                     const currentSmokerCodes = [
                         '449868002', // Current every day smoker
                         '428041000124106', // Current heavy tobacco smoker
@@ -245,7 +248,7 @@ export const ascvd = {
                         '428071000124103', // Current some day smoker
                         '77176002' // Smoker
                     ];
-                    const isCurrentSmoker = obs.valueCodeableConcept.coding.some((c) => currentSmokerCodes.includes(c.code) ||
+                    const isCurrentSmoker = result.observation.valueCodeableConcept.coding.some((c) => currentSmokerCodes.includes(c.code) ||
                         (c.display && c.display.toLowerCase().includes('current smoker')));
                     if (isCurrentSmoker) {
                         const smokerYes = container.querySelector('input[name="ascvd-smoker"][value="yes"]');

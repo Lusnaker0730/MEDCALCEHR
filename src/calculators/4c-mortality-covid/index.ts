@@ -121,18 +121,18 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total 4C Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskGroup,
-                alertClass: alertClass
-            })}
+            label: 'Total 4C Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskGroup,
+            alertClass: alertClass
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated In-Hospital Mortality',
-                value: mortality,
-                unit: '',
-                alertClass: alertClass
-            })}
+            label: 'Estimated In-Hospital Mortality',
+            value: mortality,
+            unit: '',
+            alertClass: alertClass
+        })}
         `;
     },
     interpretationInfo: `
@@ -170,10 +170,10 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
             </table>
         </div>
     `,
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (client, patient, container, calculate) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
             if (radio) {
@@ -191,7 +191,7 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
             else if (age <= 79) setRadioValue('4c-age', '6');
             else setRadioValue('4c-age', '7');
         }
-        
+
         const gender = fhirDataService.getPatientGender();
         if (gender === 'male') setRadioValue('4c-sex', '1');
         else if (gender === 'female') setRadioValue('4c-sex', '0');

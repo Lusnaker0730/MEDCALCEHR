@@ -1,6 +1,6 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 export const hepScore = {
     id: '4ts-hit',
     title: 'HIT Expert Probability (HEP) Score for Heparin-Induced Thrombocytopenia',
@@ -45,8 +45,8 @@ export const hepScore = {
     `,
     initialize: async (client, patient, container) => {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const criteriaContainer = container.querySelector('#hep-score-criteria');
         const onsetInputs = container.querySelectorAll('input[name="hit_onset_type"]');
         const criteria = {
@@ -206,19 +206,16 @@ export const hepScore = {
         // FHIR auto-population logic
         try {
             if (client) {
-                // LOINC code for Platelets is 26515-7, commonly
-                // We shouldn't hardcode magic string if possible, use LOINC_CODES if available
-                // 26515-7 is Platelets [#/volume] in Blood
-                const plateletObs = await getMostRecentObservation(client, '26515-7');
-                if (plateletObs && plateletObs.valueQuantity && plateletObs.valueQuantity.value !== undefined) {
+                // Use fhirDataService to get platelets
+                const plateletResult = await fhirDataService.getObservation(LOINC_CODES.PLATELETS, { trackStaleness: true, stalenessLabel: 'Platelets' });
+                if (plateletResult.value !== null) {
                     if (criteriaContainer) {
                         const nadirGroup = criteriaContainer.querySelector('input[name="nadir_platelet"]');
-                        if (nadirGroup) { // Check if rendered (always rendered as condition is undefined)
-                            const radioValue = plateletObs.valueQuantity.value < 20 ? '-2' : '2';
+                        if (nadirGroup) {
+                            const radioValue = plateletResult.value < 20 ? '-2' : '2';
                             const radioToCheck = criteriaContainer.querySelector(`input[name="nadir_platelet"][value="${radioValue}"]`);
                             if (radioToCheck) {
                                 radioToCheck.checked = true;
-                                stalenessTracker.trackObservation(`input[name="nadir_platelet"][value="${radioValue}"]`, plateletObs, '26515-7', 'Platelets');
                             }
                         }
                     }

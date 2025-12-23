@@ -144,10 +144,10 @@ export const regiscar = createRadioScoreCalculator({
             alertClass: `ui-alert-${alertType}`
         });
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (client, patient, container, calculate) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {

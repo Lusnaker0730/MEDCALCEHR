@@ -96,27 +96,27 @@ export const ariscat = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'ARISCAT Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskCategory,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'ARISCAT Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskCategory,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Pulmonary Complication Risk',
-                value: riskInfo,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Pulmonary Complication Risk',
+            value: riskInfo,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: 'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
-            })}
+            type: alertType,
+            message: 'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
+        })}
         `;
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (client, patient, container, calculate) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {

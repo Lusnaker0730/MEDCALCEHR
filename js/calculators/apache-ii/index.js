@@ -1,10 +1,9 @@
-import { getMostRecentObservation, getObservationValue, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
     temp: (v) => {
@@ -274,12 +273,14 @@ export const apacheIi = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker for this calculator
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+        const stalenessTracker = fhirDataService.getStalenessTracker();
         const ageInput = container.querySelector('#apache-ii-age');
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate).toString();
+        // Set age from patient data using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            ageInput.value = age.toString();
         }
         // Helper to safely set value if element exists
         const setValue = (id, value) => {
@@ -287,94 +288,108 @@ export const apacheIi = {
             if (el)
                 el.value = value;
         };
-        // Helper to set value and track staleness
-        const setValueWithTracking = (id, obs, code, customLabel = null) => {
-            if (obs?.valueQuantity) {
-                setValue(id, obs.valueQuantity.value.toFixed(1));
-                // Track staleness for this observation
-                stalenessTracker.trackObservation(id, obs, code, customLabel || undefined);
-            }
-        };
-        // Auto-populate from FHIR with staleness tracking
+        // Auto-populate from FHIR using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
-                const val = getObservationValue(obs, LOINC_CODES.TEMPERATURE);
-                if (val !== null) {
-                    setValue('#apache-ii-temp', val.toFixed(1));
-                    stalenessTracker.trackObservation('#apache-ii-temp', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
+            // Temperature
+            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, {
+                trackStaleness: true,
+                stalenessLabel: 'Temperature'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-temp', result.value.toFixed(1));
                 }
-            });
-            getMostRecentObservation(client, `${LOINC_CODES.SYSTOLIC_BP},${LOINC_CODES.BP_PANEL}`).then(obs => {
-                // Try to get Systolic BP (8480-6)
-                const val = getObservationValue(obs, LOINC_CODES.SYSTOLIC_BP);
-                if (val !== null) {
-                    setValue('#apache-ii-map', val.toFixed(0));
-                    stalenessTracker.trackObservation('#apache-ii-map', obs, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure (Systolic used for MAP)');
+            }).catch(e => console.warn(e));
+            // Blood Pressure (Systolic for MAP approximation)
+            fhirDataService.getBloodPressure({ trackStaleness: true }).then(result => {
+                if (result.systolic !== null) {
+                    setValue('#apache-ii-map', result.systolic.toFixed(0));
                 }
-                else if (obs?.valueQuantity) {
-                    // Fallback to top level if somehow mapped weirdly
-                    setValue('#apache-ii-map', obs.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#apache-ii-map', obs, LOINC_CODES.SYSTOLIC_BP, 'Blood Pressure');
+            }).catch(e => console.warn(e));
+            // Heart Rate
+            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Heart Rate'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-hr', result.value.toFixed(0));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-hr', obs.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#apache-ii-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
+            }).catch(e => console.warn(e));
+            // Respiratory Rate
+            fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Respiratory Rate'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-rr', result.value.toFixed(0));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-rr', obs.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#apache-ii-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
+            }).catch(e => console.warn(e));
+            // pH (using PH code)
+            fhirDataService.getObservation(LOINC_CODES.PH, {
+                trackStaleness: true,
+                stalenessLabel: 'Arterial pH'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-ph', result.value.toFixed(2));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.PO2).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-ph', obs.valueQuantity.value.toFixed(2));
-                    stalenessTracker.trackObservation('#apache-ii-ph', obs, LOINC_CODES.PO2, 'Arterial pH'); // PO2 for pH? 
-                    // Existing code used LOINC_CODES.PO2 for pH? That seems wrong. 
-                    // 11558-4 is pH. 
-                    // But I should check what LOINC_CODES.PO2 actually maps to in imports if I could see it.
-                    // Assuming existing logic is what I should migrate.
+            }).catch(e => console.warn(e));
+            // Sodium
+            fhirDataService.getObservation(LOINC_CODES.SODIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Sodium',
+                targetUnit: 'mmol/L'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-sodium', result.value.toFixed(0));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.SODIUM).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-sodium', obs.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#apache-ii-sodium', obs, LOINC_CODES.SODIUM, 'Sodium');
+            }).catch(e => console.warn(e));
+            // Potassium
+            fhirDataService.getObservation(LOINC_CODES.POTASSIUM, {
+                trackStaleness: true,
+                stalenessLabel: 'Potassium',
+                targetUnit: 'mmol/L'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-potassium', result.value.toFixed(1));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.POTASSIUM).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-potassium', obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#apache-ii-potassium', obs, LOINC_CODES.POTASSIUM, 'Potassium');
+            }).catch(e => console.warn(e));
+            // Creatinine
+            fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                stalenessLabel: 'Creatinine',
+                targetUnit: 'mg/dL',
+                unitType: 'creatinine'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-creatinine', result.value.toFixed(2));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-creatinine', obs.valueQuantity.value.toFixed(2));
-                    stalenessTracker.trackObservation('#apache-ii-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
+            }).catch(e => console.warn(e));
+            // Hematocrit
+            fhirDataService.getObservation(LOINC_CODES.HEMATOCRIT, {
+                trackStaleness: true,
+                stalenessLabel: 'Hematocrit'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-hct', result.value.toFixed(1));
                 }
-            });
-            getMostRecentObservation(client, LOINC_CODES.HEMATOCRIT).then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-hct', obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#apache-ii-hct', obs, LOINC_CODES.HEMATOCRIT, 'Hematocrit');
+            }).catch(e => console.warn(e));
+            // WBC
+            fhirDataService.getObservation(LOINC_CODES.WBC, {
+                trackStaleness: true,
+                stalenessLabel: 'WBC Count'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-wbc', result.value.toFixed(1));
                 }
-            });
-            getMostRecentObservation(client, '6764-2').then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-wbc', obs.valueQuantity.value.toFixed(1));
-                    stalenessTracker.trackObservation('#apache-ii-wbc', obs, '6764-2', 'WBC Count');
+            }).catch(e => console.warn(e));
+            // GCS
+            fhirDataService.getObservation(LOINC_CODES.GCS, {
+                trackStaleness: true,
+                stalenessLabel: 'Glasgow Coma Scale'
+            }).then(result => {
+                if (result.value !== null) {
+                    setValue('#apache-ii-gcs', result.value.toFixed(0));
                 }
-            });
-            getMostRecentObservation(client, '8478-0').then(obs => {
-                if (obs?.valueQuantity) {
-                    setValue('#apache-ii-gcs', obs.valueQuantity.value.toFixed(0));
-                    stalenessTracker.trackObservation('#apache-ii-gcs', obs, '8478-0', 'Glasgow Coma Scale');
-                }
-            });
+            }).catch(e => console.warn(e));
         }
         // Calculate function
         const calculate = () => {

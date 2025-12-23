@@ -68,21 +68,21 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Interpretation:</strong> ${interpretation}`
-            })}
+            type: alertType,
+            message: `<strong>Interpretation:</strong> ${interpretation}`
+        })}
         `;
     },
-    customInitialize: (client: unknown, _patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (client, _patient, container, calculate) => {
         const fhirClient = client as any;
-        
+
         const setRadio = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
