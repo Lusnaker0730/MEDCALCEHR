@@ -92,7 +92,7 @@ jobs:
         continue-on-error: true  # 測試正在調整中
 
       - name: 📊 Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: success()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
