@@ -10,7 +10,6 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { displayError, logError } from '../../errorHandler.js';
 import { createFHIRDataService, FHIRDataService } from '../../../src/fhir-data-service.js';
 import type {

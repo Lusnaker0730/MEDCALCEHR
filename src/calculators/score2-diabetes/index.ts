@@ -1,8 +1,7 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -102,10 +101,9 @@ export const score2Diabetes: CalculatorModule = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const calculate = () => {
             try {
@@ -238,53 +236,60 @@ export const score2Diabetes: CalculatorModule = {
             }
         };
 
-        // Auto-populate
-        if (patient && patient.birthDate) {
+        // Auto-populate using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
             const ageInput = container.querySelector('#score2d-age') as HTMLInputElement;
-            if (ageInput) ageInput.value = calculateAge(patient.birthDate).toString();
+            if (ageInput) ageInput.value = age.toString();
         }
-        if (patient && patient.gender) {
-            setRadioValue('score2d-sex', patient.gender);
+        
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            setRadioValue('score2d-sex', gender);
         }
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity) {
+            // Systolic BP
+            fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).then(result => {
+                if (result.value !== null) {
                     const sbpInput = container.querySelector('#score2d-sbp') as HTMLInputElement;
-                    if (sbpInput) sbpInput.value = obs.valueQuantity.value.toFixed(0);
-                    stalenessTracker.trackObservation('#score2d-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                    if (sbpInput) sbpInput.value = result.value.toFixed(0);
                 }
                 calculate();
             });
-            getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
-                if (obs?.valueQuantity) {
+            
+            // Total Cholesterol
+            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, { trackStaleness: true, stalenessLabel: 'Total Cholesterol' }).then(result => {
+                if (result.value !== null) {
                     const tcholInput = container.querySelector('#score2d-tchol') as HTMLInputElement;
-                    if (tcholInput) tcholInput.value = obs.valueQuantity.value.toFixed(0);
-                    stalenessTracker.trackObservation('#score2d-tchol', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
+                    if (tcholInput) tcholInput.value = result.value.toFixed(0);
                 }
                 calculate();
             });
-            getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
-                if (obs?.valueQuantity) {
+            
+            // HDL
+            fhirDataService.getObservation(LOINC_CODES.HDL, { trackStaleness: true, stalenessLabel: 'HDL Cholesterol' }).then(result => {
+                if (result.value !== null) {
                     const hdlInput = container.querySelector('#score2d-hdl') as HTMLInputElement;
-                    if (hdlInput) hdlInput.value = obs.valueQuantity.value.toFixed(0);
-                    stalenessTracker.trackObservation('#score2d-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
+                    if (hdlInput) hdlInput.value = result.value.toFixed(0);
                 }
                 calculate();
             });
-            getMostRecentObservation(client, LOINC_CODES.HBA1C).then(obs => {
-                if (obs?.valueQuantity) {
+            
+            // HbA1c
+            fhirDataService.getObservation(LOINC_CODES.HBA1C, { trackStaleness: true, stalenessLabel: 'HbA1c' }).then(result => {
+                if (result.value !== null) {
                     const hba1cInput = container.querySelector('#score2d-hba1c') as HTMLInputElement;
-                    if (hba1cInput) hba1cInput.value = obs.valueQuantity.value.toFixed(1);
-                    stalenessTracker.trackObservation('#score2d-hba1c', obs, LOINC_CODES.HBA1C, 'HbA1c');
+                    if (hba1cInput) hba1cInput.value = result.value.toFixed(1);
                 }
                 calculate();
             });
-            getMostRecentObservation(client, LOINC_CODES.EGFR).then(obs => {
-                if (obs?.valueQuantity) {
+            
+            // eGFR
+            fhirDataService.getObservation(LOINC_CODES.EGFR, { trackStaleness: true, stalenessLabel: 'eGFR' }).then(result => {
+                if (result.value !== null) {
                     const egfrInput = container.querySelector('#score2d-egfr') as HTMLInputElement;
-                    if (egfrInput) egfrInput.value = obs.valueQuantity.value.toFixed(0);
-                    stalenessTracker.trackObservation('#score2d-egfr', obs, LOINC_CODES.EGFR, 'eGFR');
+                    if (egfrInput) egfrInput.value = result.value.toFixed(0);
                 }
                 calculate();
             });

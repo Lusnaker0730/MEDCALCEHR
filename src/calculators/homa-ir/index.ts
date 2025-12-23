@@ -1,11 +1,9 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -72,9 +70,8 @@ export const homaIr: CalculatorModule = {
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
 
-        // Initialize staleness tracker for this calculator
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const insulinInput = container.querySelector('#homa-insulin') as HTMLInputElement;
         const glucoseInput = container.querySelector('#homa-glucose') as HTMLInputElement;
@@ -165,38 +162,31 @@ export const homaIr: CalculatorModule = {
             input.addEventListener('change', calculate);
         });
 
+        // Auto-populate using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, '2339-0').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    const converted = UnitConverter.convert(val, unit, 'mg/dL', 'glucose');
-                    if (converted !== null) {
-                        glucoseInput.value = converted.toFixed(0);
-                    } else {
-                        glucoseInput.value = val.toFixed(0);
-                    }
+            // Fasting Glucose (LOINC 2339-0)
+            fhirDataService.getObservation('2339-0', {
+                trackStaleness: true,
+                stalenessLabel: 'Fasting Glucose',
+                targetUnit: 'mg/dL',
+                unitType: 'glucose'
+            }).then(result => {
+                if (result.value !== null) {
+                    glucoseInput.value = result.value.toFixed(0);
                     glucoseInput.dispatchEvent(new Event('input'));
-
-                    // Track staleness
-                    stalenessTracker.trackObservation('#homa-glucose', obs, '2339-0', 'Fasting Glucose');
                 }
             }).catch(e => console.warn(e));
 
-            getMostRecentObservation(client, '20448-7').then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'µU/mL';
-                    const converted = UnitConverter.convert(val, unit, 'µU/mL', 'insulin');
-                    if (converted !== null) {
-                        insulinInput.value = converted.toFixed(1);
-                    } else {
-                        insulinInput.value = val.toFixed(1);
-                    }
+            // Fasting Insulin (LOINC 20448-7)
+            fhirDataService.getObservation('20448-7', {
+                trackStaleness: true,
+                stalenessLabel: 'Fasting Insulin',
+                targetUnit: 'µU/mL',
+                unitType: 'insulin'
+            }).then(result => {
+                if (result.value !== null) {
+                    insulinInput.value = result.value.toFixed(1);
                     insulinInput.dispatchEvent(new Event('input'));
-
-                    // Track staleness
-                    stalenessTracker.trackObservation('#homa-insulin', obs, '20448-7', 'Fasting Insulin');
                 }
             }).catch(e => console.warn(e));
         }

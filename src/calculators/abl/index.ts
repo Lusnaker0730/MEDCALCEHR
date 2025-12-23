@@ -1,10 +1,9 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -96,9 +95,9 @@ export const abl: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const weightInput = container.querySelector('#abl-weight') as HTMLInputElement;
         const hgbInitialInput = container.querySelector('#abl-hgb-initial') as HTMLInputElement;
@@ -205,47 +204,33 @@ export const abl: CalculatorModule = {
             }
         };
 
-        // Auto-populate from FHIR
+        // Auto-populate from FHIR using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'kg';
-                    const standardized = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (standardized !== null) {
-                        weightInput.value = standardized.toFixed(1);
-                        stalenessTracker.trackObservation('#abl-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
-                        weightInput.dispatchEvent(new Event('input'));
-                    }
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
+                if (result.value !== null) {
+                    weightInput.value = result.value.toFixed(1);
+                    weightInput.dispatchEvent(new Event('input'));
                 }
             }).catch(console.warn);
 
-            getMostRecentObservation(client, LOINC_CODES.HEMOGLOBIN).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'g/dL';
-                    const standardized = UnitConverter.convert(val, unit, 'g/dL', 'hemoglobin');
-                    if (standardized !== null) {
-                        hgbInitialInput.value = standardized.toFixed(1);
-                        stalenessTracker.trackObservation('#abl-hgb-initial', obs, LOINC_CODES.HEMOGLOBIN, 'Initial Hgb');
-                        hgbInitialInput.dispatchEvent(new Event('input'));
-                    }
+            fhirDataService.getObservation(LOINC_CODES.HEMOGLOBIN, { trackStaleness: true, stalenessLabel: 'Initial Hgb', targetUnit: 'g/dL', unitType: 'hemoglobin' }).then(result => {
+                if (result.value !== null) {
+                    hgbInitialInput.value = result.value.toFixed(1);
+                    hgbInitialInput.dispatchEvent(new Event('input'));
                 }
             }).catch(console.warn);
         }
 
-        // Pre-select category based on patient data
-        if (patient) {
-            const ageYear = patient.birthDate ? calculateAge(patient.birthDate) : 30;
-            if (ageYear > 18) {
-                categorySelect.value = patient.gender === 'female' ? '65' : '75';
-            } else if (ageYear <= 1) {
-                // Very rough heuristic, really implies infants
-                categorySelect.value = '80'; // Infant
-            }
-            // For neonates/premature, we can't easily guess without more info, leave default or as logic above
-            categorySelect.dispatchEvent(new Event('change'));
+        // Pre-select category based on patient data using FHIRDataService
+        const ageYear = fhirDataService.getPatientAge() || 30;
+        const gender = fhirDataService.getPatientGender();
+        
+        if (ageYear > 18) {
+            categorySelect.value = gender === 'female' ? '65' : '75';
+        } else if (ageYear <= 1) {
+            categorySelect.value = '80'; // Infant
         }
+        categorySelect.dispatchEvent(new Event('change'));
 
         // Add event listeners for auto-calculation
         container.querySelectorAll('input, select').forEach(el => {

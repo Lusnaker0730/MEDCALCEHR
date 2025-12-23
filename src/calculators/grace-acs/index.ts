@@ -4,12 +4,11 @@
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
 
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { createMixedInputCalculator, MixedInputCalculatorConfig } from '../shared/mixed-input-calculator.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 const config: MixedInputCalculatorConfig = {
     id: 'grace-acs',
@@ -203,106 +202,46 @@ const config: MixedInputCalculatorConfig = {
     },
     
     customInitialize: async (client, patient, container, calculate, setValue) => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         
         if (!client) {
             calculate();
             return;
         }
         
-        // Age from patient
-        if (patient && (patient as any).birthDate) {
-            setValue('grace-age', calculateAge((patient as any).birthDate).toString());
+        // Age from patient using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            setValue('grace-age', age.toString());
         }
         
-        // Fetch Heart Rate
-        const fetchHR = async () => {
-            let hrValue: number | null = null;
-            let hrObs: any = null;
-            
-            try {
-                const obs = await getMostRecentObservation(client as any, LOINC_CODES.HEART_RATE);
-                if (obs?.valueQuantity) {
-                    hrValue = Math.round(obs.valueQuantity.value!);
-                    hrObs = obs;
-                }
-            } catch (e) { console.warn('Error fetching HR standalone', e); }
-            
-            if (hrValue === null) {
-                try {
-                    const panel = await getMostRecentObservation(client as any, LOINC_CODES.BP_PANEL);
-                    if (panel?.component) {
-                        const hrComp = panel.component.find((c: any) =>
-                            c.code.coding && c.code.coding.some((coding: any) => coding.code === LOINC_CODES.HEART_RATE)
-                        );
-                        if (hrComp?.valueQuantity) {
-                            hrValue = Math.round(hrComp.valueQuantity.value!);
-                            hrObs = panel;
-                        }
-                    }
-                } catch (e) { console.warn('Error fetching HR from Panel', e); }
-            }
-            
-            if (hrValue !== null) {
-                setValue('grace-hr', hrValue.toString());
-                stalenessTracker.trackObservation('#grace-hr', hrObs, LOINC_CODES.HEART_RATE, 'Heart Rate');
-            }
-        };
+        // Fetch all observations in parallel using FHIRDataService
+        const [hrResult, bpResult, creatResult] = await Promise.all([
+            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Heart Rate'
+            }).catch(() => ({ value: null })),
+            fhirDataService.getBloodPressure({ trackStaleness: true }).catch(() => ({ systolic: null })),
+            fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                stalenessLabel: 'Creatinine',
+                targetUnit: 'mg/dL',
+                unitType: 'creatinine'
+            }).catch(() => ({ value: null }))
+        ]);
         
-        // Fetch Systolic BP
-        const fetchSBP = async () => {
-            let sbpValue: number | null = null;
-            let sbpObs: any = null;
-            
-            try {
-                const obs = await getMostRecentObservation(client as any, LOINC_CODES.SYSTOLIC_BP);
-                if (obs?.valueQuantity) {
-                    sbpValue = Math.round(obs.valueQuantity.value!);
-                    sbpObs = obs;
-                }
-            } catch (e) { console.warn('Error fetching SBP standalone', e); }
-            
-            if (sbpValue === null) {
-                try {
-                    const panel = await getMostRecentObservation(client as any, LOINC_CODES.BP_PANEL);
-                    if (panel?.component) {
-                        const sbpComp = panel.component.find((c: any) =>
-                            c.code.coding && c.code.coding.some((coding: any) => coding.code === LOINC_CODES.SYSTOLIC_BP)
-                        );
-                        if (sbpComp?.valueQuantity) {
-                            sbpValue = Math.round(sbpComp.valueQuantity.value!);
-                            sbpObs = panel;
-                        }
-                    }
-                } catch (e) { console.warn('Error fetching BP Panel', e); }
-            }
-            
-            if (sbpValue !== null) {
-                setValue('grace-sbp', sbpValue.toString());
-                stalenessTracker.trackObservation('#grace-sbp', sbpObs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
-            }
-        };
+        if (hrResult.value !== null) {
+            setValue('grace-hr', Math.round(hrResult.value).toString());
+        }
         
-        // Fetch Creatinine
-        const fetchCreatinine = async () => {
-            try {
-                const obs = await getMostRecentObservation(client as any, LOINC_CODES.CREATININE);
-                if (obs?.valueQuantity) {
-                    let val = obs.valueQuantity.value!;
-                    const unit = obs.valueQuantity.unit || 'mg/dL';
-                    
-                    if (unit === 'mmol/L' || unit === 'µmol/L' || unit === 'umol/L') {
-                        val = val / 88.4;
-                    }
-                    setValue('grace-creatinine', val.toFixed(2));
-                    stalenessTracker.trackObservation('#grace-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
-                }
-            } catch (e) { console.warn('Error fetching creatinine', e); }
-        };
+        if (bpResult.systolic !== null) {
+            setValue('grace-sbp', Math.round(bpResult.systolic).toString());
+        }
         
-        // Run all fetches in parallel
-        await Promise.all([fetchHR(), fetchSBP(), fetchCreatinine()]);
+        if (creatResult.value !== null) {
+            setValue('grace-creatinine', creatResult.value.toFixed(2));
+        }
         
         // Calculate after data population
         setTimeout(calculate, 100);

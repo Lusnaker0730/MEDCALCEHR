@@ -1,11 +1,10 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { calculateIntraopFluid } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const intraopFluid = {
     id: 'intraop-fluid',
@@ -69,9 +68,9 @@ export const intraopFluid = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
-
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const weightInput = container.querySelector('#ifd-weight') as HTMLInputElement;
         const npoInput = container.querySelector('#ifd-npo') as HTMLInputElement;
@@ -186,21 +185,19 @@ export const intraopFluid = {
         };
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    weightInput.value = obs.valueQuantity.value.toFixed(1);
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
+                if (result.value !== null) {
+                    weightInput.value = result.value.toFixed(1);
                     weightInput.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#ifd-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                 }
             });
         }
 
         container.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', calculate);
-            input.addEventListener('change', calculate); // For radio buttons and unit toggles (if they bubbled)
+            input.addEventListener('change', calculate);
         });
 
-        // Specifically listen to radio change since inputs selector might miss dynamic ones or behavior differs
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });

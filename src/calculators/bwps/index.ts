@@ -1,9 +1,8 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
-import { createStalenessTracker } from '../../data-staleness.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -125,10 +124,9 @@ export const bwps: CalculatorModule = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const fields = ['temp', 'cns', 'gi', 'hr', 'chf', 'afib', 'precip'];
 
@@ -185,22 +183,12 @@ export const bwps: CalculatorModule = {
             }
         };
 
-        // Auto-populate data
+        // Auto-populate data using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const tempVal = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'degF';
-
-                    // Convert to F for logic
-                    const converted = UnitConverter.convert(tempVal, unit, 'degF', 'temperature');
-                    let tempF = converted !== null ? converted : tempVal;
-
-                    // Simple heuristic fallback if no unit matching: if < 50, assume derived C
-                    if (converted === null && tempVal < 50) {
-                        tempF = (tempVal * 9 / 5) + 32;
-                    }
-
+            // Temperature (convert to Fahrenheit)
+            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, { trackStaleness: true, stalenessLabel: 'Temperature', targetUnit: 'degF', unitType: 'temperature' }).then(result => {
+                if (result.value !== null) {
+                    const tempF = result.value;
                     const tempSelect = container.querySelector('#bwps-temp') as HTMLSelectElement;
                     if (tempSelect) {
                         if (tempF < 99) tempSelect.value = '0';
@@ -212,16 +200,14 @@ export const bwps: CalculatorModule = {
                         else tempSelect.value = '30';
 
                         tempSelect.dispatchEvent(new Event('change'));
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#bwps-temp', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
                     }
                 }
             }).catch(e => console.warn(e));
 
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    const hr = obs.valueQuantity.value;
+            // Heart Rate
+            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }).then(result => {
+                if (result.value !== null) {
+                    const hr = result.value;
                     const hrSelect = container.querySelector('#bwps-hr') as HTMLSelectElement;
                     if (hrSelect) {
                         if (hr < 90) hrSelect.value = '0';
@@ -232,9 +218,6 @@ export const bwps: CalculatorModule = {
                         else hrSelect.value = '25';
 
                         hrSelect.dispatchEvent(new Event('change'));
-
-                        // Track staleness
-                        stalenessTracker.trackObservation('#bwps-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
                     }
                 }
             }).catch(e => console.warn(e));

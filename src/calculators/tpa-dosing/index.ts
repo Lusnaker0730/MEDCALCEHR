@@ -1,12 +1,9 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -67,9 +64,9 @@ export const tpaDosing: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const weightEl = container.querySelector('#tpa-weight') as HTMLInputElement;
         const resultBox = container.querySelector('#tpa-result');
@@ -153,16 +150,10 @@ export const tpaDosing: CalculatorModule = {
         weightEl.addEventListener('change', calculate);
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'kg';
-                    const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (converted !== null) {
-                        weightEl.value = converted.toFixed(1);
-                        calculate();
-                        stalenessTracker.trackObservation('#tpa-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
-                    }
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
+                if (result.value !== null) {
+                    weightEl.value = result.value.toFixed(1);
+                    calculate();
                 }
             }).catch(e => console.warn(e));
         }

@@ -1,9 +1,8 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -124,8 +123,9 @@ export const sixMwd: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const ageEl = container.querySelector('#mwd6-age') as HTMLInputElement;
         const heightEl = container.querySelector('#mwd6-height') as HTMLInputElement;
@@ -217,13 +217,15 @@ export const sixMwd: CalculatorModule = {
             input.addEventListener('change', calculate);
         });
 
-        // Auto-populate
-        if (patient && patient.birthDate) {
-            ageEl.value = calculateAge(patient.birthDate).toString(); // calculateAge might need date string
+        // Auto-populate using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            ageEl.value = age.toString();
         }
 
-        if (patient && patient.gender) {
-            const genderRadio = container.querySelector(`input[name="mwd6-gender"][value="${patient.gender}"]`) as HTMLInputElement | null;
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            const genderRadio = container.querySelector(`input[name="mwd6-gender"][value="${gender}"]`) as HTMLInputElement | null;
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.dispatchEvent(new Event('change'));
@@ -231,36 +233,17 @@ export const sixMwd: CalculatorModule = {
         }
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.HEIGHT).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'cm';
-                    const standardized = UnitConverter.convert(val, unit, 'cm', 'height');
-                    if (standardized !== null) {
-                        // Check current unit of input to decide whether to set directly or convert
-                        // But UnitConverter.getStandardValue reads the input unit.
-                        // Here we are SETTING the value.
-                        // Ideally we set it in the input's current unit or force the unit.
-                        // For simplicity, let's assume we set it in cm if default is cm, or just let unit converter handle display?
-                        // Actually better to just set value if we know the unit or convert to expected input default.
-                        heightEl.value = standardized.toFixed(1);
-                        stalenessTracker.trackObservation('#mwd6-height', obs, LOINC_CODES.HEIGHT, 'Height');
-                        // Trigger calc
-                        calculate();
-                    }
+            fhirDataService.getObservation(LOINC_CODES.HEIGHT, { trackStaleness: true, stalenessLabel: 'Height', targetUnit: 'cm', unitType: 'height' }).then(result => {
+                if (result.value !== null) {
+                    heightEl.value = result.value.toFixed(1);
+                    calculate();
                 }
             }).catch(console.warn);
 
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'kg';
-                    const standardized = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (standardized !== null) {
-                        weightEl.value = standardized.toFixed(1);
-                        stalenessTracker.trackObservation('#mwd6-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
-                        calculate();
-                    }
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
+                if (result.value !== null) {
+                    weightEl.value = result.value.toFixed(1);
+                    calculate();
                 }
             }).catch(console.warn);
         }

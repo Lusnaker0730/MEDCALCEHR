@@ -1,7 +1,7 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 const riskMap = [
     3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0,
@@ -123,8 +123,8 @@ export const actionIcu = createRadioScoreCalculator({
         `;
     },
     customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
-        const fhirClient = client as any;
-        const patientData = patient as any;
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         
         const setRadioWithValue = (name: string, value: number, conditions: ((v: number) => boolean)[]) => {
             if (value === null) return;
@@ -142,34 +142,35 @@ export const actionIcu = createRadioScoreCalculator({
             }
         };
 
-        if (patientData && patientData.birthDate) {
-            const patientAge = calculateAge(patientData.birthDate);
-            setRadioWithValue('action-age', patientAge, [v => v < 70, v => v >= 70]);
+        // Age from FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            setRadioWithValue('action-age', age, [v => v < 70, v => v >= 70]);
         }
 
-        if (fhirClient) {
+        if (client) {
             Promise.all([
-                getMostRecentObservation(fhirClient, LOINC_CODES.CREATININE),
-                getMostRecentObservation(fhirClient, LOINC_CODES.HEART_RATE),
-                getMostRecentObservation(fhirClient, LOINC_CODES.SYSTOLIC_BP)
-            ]).then(([creatObs, hrObs, sbpObs]) => {
-                if (creatObs && creatObs.valueQuantity && creatObs.valueQuantity.value !== undefined) {
-                    setRadioWithValue('action-creatinine', creatObs.valueQuantity.value, [
+                fhirDataService.getObservation(LOINC_CODES.CREATININE, { trackStaleness: true, stalenessLabel: 'Creatinine', targetUnit: 'mg/dL', unitType: 'creatinine' }),
+                fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }),
+                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' })
+            ]).then(([creatResult, hrResult, sbpResult]) => {
+                if (creatResult.value !== null) {
+                    setRadioWithValue('action-creatinine', creatResult.value, [
                         v => v < 1.1,
                         v => v >= 1.1
                     ]);
                 }
 
-                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value !== undefined) {
-                    setRadioWithValue('action-hr', hrObs.valueQuantity.value, [
+                if (hrResult.value !== null) {
+                    setRadioWithValue('action-hr', hrResult.value, [
                         v => v < 85,
                         v => v >= 85 && v <= 100,
                         v => v > 100
                     ]);
                 }
 
-                if (sbpObs && sbpObs.valueQuantity && sbpObs.valueQuantity.value !== undefined) {
-                    setRadioWithValue('action-sbp', sbpObs.valueQuantity.value, [
+                if (sbpResult.value !== null) {
+                    setRadioWithValue('action-sbp', sbpResult.value, [
                         v => v >= 145,
                         v => v >= 125 && v < 145,
                         v => v < 125

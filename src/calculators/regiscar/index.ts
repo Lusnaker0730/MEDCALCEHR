@@ -1,7 +1,7 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const regiscar = createRadioScoreCalculator({
     id: 'regiscar',
@@ -144,8 +144,9 @@ export const regiscar = createRadioScoreCalculator({
             alertClass: `ui-alert-${alertType}`
         });
     },
-    customInitialize: (client: unknown, _patient: unknown, container: HTMLElement, calculate: () => void) => {
-        const fhirClient = client as any;
+    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         
         const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
@@ -155,19 +156,20 @@ export const regiscar = createRadioScoreCalculator({
             }
         };
 
-        if (fhirClient) {
-            getMostRecentObservation(fhirClient, LOINC_CODES.TEMPERATURE).then(temp => {
-                if (temp?.valueQuantity?.value >= 38.5) {
+        if (client) {
+            // Temperature
+            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, { trackStaleness: true, stalenessLabel: 'Temperature', targetUnit: 'degC', unitType: 'temperature' }).then(result => {
+                if (result.value !== null && result.value >= 38.5) {
                     setRadioValue('regiscar-fever', '0');
                 }
             }).catch(e => console.warn(e));
 
-            getMostRecentObservation(fhirClient, LOINC_CODES.EOSINOPHILS).then(eos => {
-                if (eos?.valueQuantity) {
-                    const val = eos.valueQuantity.value;
-                    if (val >= 1500) {
+            // Eosinophils
+            fhirDataService.getObservation(LOINC_CODES.EOSINOPHILS, { trackStaleness: true, stalenessLabel: 'Eosinophils' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value >= 1500) {
                         setRadioValue('regiscar-eosinophilia', '2');
-                    } else if (val >= 700) {
+                    } else if (result.value >= 700) {
                         setRadioValue('regiscar-eosinophilia', '1');
                     }
                     calculate();

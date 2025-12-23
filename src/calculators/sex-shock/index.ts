@@ -1,8 +1,7 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -177,10 +176,9 @@ export const sexShock: CalculatorModule = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const calculate = () => {
             try {
@@ -345,44 +343,43 @@ export const sexShock: CalculatorModule = {
             }
         };
 
-        // Auto-populate
-        if (patient) {
-            if (patient.birthDate) {
-                const age = calculateAge(patient.birthDate);
-                if (age > 70) setRadioValue('sex-shock-age', '1');
-            }
-            if (patient.gender === 'female') setRadioValue('sex-shock-sex', '1');
+        // Auto-populate using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age > 70) {
+            setRadioValue('sex-shock-age', '1');
+        }
+        
+        const gender = fhirDataService.getPatientGender();
+        if (gender === 'female') {
+            setRadioValue('sex-shock-sex', '1');
         }
 
         // Populate from FHIR
         if (client) {
-            // HR (8867-4)
-            getMostRecentObservation(client, '8867-4').then(obs => {
-                if (obs?.valueQuantity?.value > 90) {
+            // Heart Rate
+            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }).then(result => {
+                if (result.value !== null && result.value > 90) {
                     setRadioValue('sex-shock-hr', '1');
-                    stalenessTracker.trackObservation('input[name="sex-shock-hr"]', obs, '8867-4', 'Heart Rate');
                 }
             }).catch(e => console.warn(e));
 
             // Creatinine
-            getMostRecentObservation(client, LOINC_CODES.CREATININE).then(obs => {
-                if (obs?.valueQuantity) {
+            fhirDataService.getObservation(LOINC_CODES.CREATININE, { trackStaleness: true, stalenessLabel: 'Creatinine', targetUnit: 'mg/dL', unitType: 'creatinine' }).then(result => {
+                if (result.value !== null) {
                     const el = container.querySelector('#sex-shock-creatinine') as HTMLInputElement;
                     if (el) {
-                        el.value = obs.valueQuantity.value.toFixed(1);
-                        stalenessTracker.trackObservation('#sex-shock-creatinine', obs, LOINC_CODES.CREATININE, 'Creatinine');
+                        el.value = result.value.toFixed(1);
                         calculate();
                     }
                 }
             }).catch(e => console.warn(e));
 
             // CRP
-            getMostRecentObservation(client, LOINC_CODES.CRP).then(obs => {
-                if (obs?.valueQuantity) {
+            fhirDataService.getObservation(LOINC_CODES.CRP, { trackStaleness: true, stalenessLabel: 'CRP' }).then(result => {
+                if (result.value !== null) {
                     const el = container.querySelector('#sex-shock-crp') as HTMLInputElement;
                     if (el) {
-                        el.value = obs.valueQuantity.value.toFixed(1);
-                        stalenessTracker.trackObservation('#sex-shock-crp', obs, LOINC_CODES.CRP, 'CRP');
+                        el.value = result.value.toFixed(1);
                         calculate();
                     }
                 }

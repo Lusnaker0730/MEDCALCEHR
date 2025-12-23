@@ -1,12 +1,9 @@
-import {
-    getMostRecentObservation,
-} from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -81,9 +78,9 @@ export const tpaDosing: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const weightInput = container.querySelector('#weight') as HTMLInputElement;
         const symptomOnsetInput = container.querySelector('#symptom-onset') as HTMLInputElement;
@@ -202,20 +199,10 @@ export const tpaDosing: CalculatorModule = {
         container.querySelectorAll('input, select').forEach(el => el.addEventListener('change', calculate));
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(weightObs => {
-                if (weightObs && weightObs.valueQuantity && weightObs.valueQuantity.value !== undefined) {
-                    // Try to populate correctly
-                    const val = weightObs.valueQuantity.value;
-                    const unit = weightObs.valueQuantity.unit || 'kg';
-                    // We can utilize UnitConverter to standardize to input's current unit if we want,
-                    // or just set value if we know it matches default.
-
-                    const kgValue = UnitConverter.convert(val, unit, 'kg', 'weight');
-                    if (kgValue !== null) {
-                        weightInput.value = kgValue.toFixed(1);
-                        calculate();
-                        stalenessTracker.trackObservation('#weight', weightObs, LOINC_CODES.WEIGHT, 'Weight');
-                    }
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
+                if (result.value !== null) {
+                    weightInput.value = result.value.toFixed(1);
+                    calculate();
                 }
             }).catch(e => console.warn(e));
         }

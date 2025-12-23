@@ -1,7 +1,7 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const fourCMortalityCovid = createRadioScoreCalculator({
     id: '4c-mortality-covid',
@@ -171,8 +171,8 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
         </div>
     `,
     customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
-        const fhirClient = client as any;
-        const patientData = patient as any;
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         
         const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
@@ -182,70 +182,60 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
             }
         };
 
-        if (patientData) {
-            if (patientData.birthDate) {
-                const age = calculateAge(patientData.birthDate);
-                if (age < 50) setRadioValue('4c-age', '0');
-                else if (age <= 59) setRadioValue('4c-age', '2');
-                else if (age <= 69) setRadioValue('4c-age', '4');
-                else if (age <= 79) setRadioValue('4c-age', '6');
-                else setRadioValue('4c-age', '7');
-            }
-            if (patientData.gender === 'male') setRadioValue('4c-sex', '1');
-            else if (patientData.gender === 'female') setRadioValue('4c-sex', '0');
+        // Age and gender from FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            if (age < 50) setRadioValue('4c-age', '0');
+            else if (age <= 59) setRadioValue('4c-age', '2');
+            else if (age <= 69) setRadioValue('4c-age', '4');
+            else if (age <= 79) setRadioValue('4c-age', '6');
+            else setRadioValue('4c-age', '7');
         }
+        
+        const gender = fhirDataService.getPatientGender();
+        if (gender === 'male') setRadioValue('4c-sex', '1');
+        else if (gender === 'female') setRadioValue('4c-sex', '0');
 
-        if (fhirClient) {
+        if (client) {
             // Respiratory Rate
-            getMostRecentObservation(fhirClient, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    if (val < 20) setRadioValue('4c-resp_rate', '0');
-                    else if (val < 30) setRadioValue('4c-resp_rate', '1');
+            fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, { trackStaleness: true, stalenessLabel: 'Respiratory Rate' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value < 20) setRadioValue('4c-resp_rate', '0');
+                    else if (result.value < 30) setRadioValue('4c-resp_rate', '1');
                     else setRadioValue('4c-resp_rate', '2');
                 }
             }).catch(console.warn);
 
             // Oxygen Saturation
-            getMostRecentObservation(fhirClient, LOINC_CODES.OXYGEN_SATURATION).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    if (val >= 92) setRadioValue('4c-oxygen_sat', '0');
+            fhirDataService.getObservation(LOINC_CODES.OXYGEN_SATURATION, { trackStaleness: true, stalenessLabel: 'O2 Saturation' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value >= 92) setRadioValue('4c-oxygen_sat', '0');
                     else setRadioValue('4c-oxygen_sat', '2');
                 }
             }).catch(console.warn);
 
             // GCS
-            getMostRecentObservation(fhirClient, LOINC_CODES.GCS).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    if (val === 15) setRadioValue('4c-gcs', '0');
+            fhirDataService.getObservation(LOINC_CODES.GCS, { trackStaleness: true, stalenessLabel: 'GCS' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value === 15) setRadioValue('4c-gcs', '0');
                     else setRadioValue('4c-gcs', '2');
                 }
             }).catch(console.warn);
 
             // BUN
-            getMostRecentObservation(fhirClient, LOINC_CODES.BUN).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    let val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit;
-
-                    if (unit && (unit.includes('mmol') || unit.toLowerCase() === 'mmol/l')) {
-                        val = val * 2.801;
-                    }
-
-                    if (val < 19.6) setRadioValue('4c-urea', '0');
-                    else if (val <= 39.2) setRadioValue('4c-urea', '1');
+            fhirDataService.getObservation(LOINC_CODES.BUN, { trackStaleness: true, stalenessLabel: 'BUN', targetUnit: 'mg/dL', unitType: 'bun' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value < 19.6) setRadioValue('4c-urea', '0');
+                    else if (result.value <= 39.2) setRadioValue('4c-urea', '1');
                     else setRadioValue('4c-urea', '3');
                 }
             }).catch(console.warn);
 
             // CRP
-            getMostRecentObservation(fhirClient, LOINC_CODES.CRP).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    if (val < 50) setRadioValue('4c-crp', '0');
-                    else if (val < 100) setRadioValue('4c-crp', '1');
+            fhirDataService.getObservation(LOINC_CODES.CRP, { trackStaleness: true, stalenessLabel: 'CRP' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value < 50) setRadioValue('4c-crp', '0');
+                    else if (result.value < 100) setRadioValue('4c-crp', '1');
                     else setRadioValue('4c-crp', '2');
                 }
             }).catch(console.warn);

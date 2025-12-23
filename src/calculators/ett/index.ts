@@ -1,7 +1,6 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -49,9 +48,9 @@ export const ett: CalculatorModule = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
         const heightEl = container.querySelector('#ett-height') as HTMLInputElement;
         const genderEl = container.querySelector('#ett-gender') as HTMLSelectElement;
@@ -108,16 +107,17 @@ export const ett: CalculatorModule = {
             }
         };
 
-        if (patient && patient.gender) {
-            genderEl.value = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+        // Auto-populate using FHIRDataService
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            genderEl.value = gender === 'female' ? 'female' : 'male';
         }
 
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.HEIGHT).then(obs => {
-                if (obs && obs.valueQuantity) {
-                    heightEl.value = obs.valueQuantity.value.toFixed(1);
+            fhirDataService.getObservation(LOINC_CODES.HEIGHT, { trackStaleness: true, stalenessLabel: 'Height', targetUnit: 'cm', unitType: 'height' }).then(result => {
+                if (result.value !== null) {
+                    heightEl.value = result.value.toFixed(1);
                     calculate();
-                    stalenessTracker.trackObservation('#ett-height', obs, LOINC_CODES.HEIGHT, 'Height');
                 }
             });
         }

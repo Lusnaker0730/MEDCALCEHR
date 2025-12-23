@@ -1,7 +1,7 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const ariscat = createRadioScoreCalculator({
     id: 'ariscat',
@@ -114,8 +114,8 @@ export const ariscat = createRadioScoreCalculator({
         `;
     },
     customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
-        const fhirClient = client as any;
-        const patientData = patient as any;
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         
         const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
@@ -124,30 +124,30 @@ export const ariscat = createRadioScoreCalculator({
             }
         };
 
-        if (patientData && patientData.birthDate) {
-            const patientAge = calculateAge(patientData.birthDate);
+        // Age from FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
             let ageValue = '0';
-            if (patientAge > 80) ageValue = '16';
-            else if (patientAge > 50) ageValue = '3';
-
+            if (age > 80) ageValue = '16';
+            else if (age > 50) ageValue = '3';
             setRadioValue('ariscat-age', ageValue);
         }
 
-        if (fhirClient) {
-            getMostRecentObservation(fhirClient, LOINC_CODES.O2_SAT).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const spo2 = obs.valueQuantity.value;
+        if (client) {
+            // O2 Saturation
+            fhirDataService.getObservation(LOINC_CODES.OXYGEN_SATURATION, { trackStaleness: true, stalenessLabel: 'SpO2' }).then(result => {
+                if (result.value !== null) {
                     let value = '0';
-                    if (spo2 <= 90) value = '24';
-                    else if (spo2 <= 95) value = '8';
+                    if (result.value <= 90) value = '24';
+                    else if (result.value <= 95) value = '8';
                     setRadioValue('ariscat-spo2', value);
                 }
             }).catch(console.error);
 
-            getMostRecentObservation(fhirClient, LOINC_CODES.HEMOGLOBIN).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const hgb = obs.valueQuantity.value;
-                    if (hgb <= 10) {
+            // Hemoglobin
+            fhirDataService.getObservation(LOINC_CODES.HEMOGLOBIN, { trackStaleness: true, stalenessLabel: 'Hemoglobin' }).then(result => {
+                if (result.value !== null) {
+                    if (result.value <= 10) {
                         setRadioValue('ariscat-anemia', '11');
                     } else {
                         setRadioValue('ariscat-anemia', '0');

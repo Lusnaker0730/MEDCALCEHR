@@ -1,8 +1,7 @@
-import { calculateAge, getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 interface CalculatorModule {
     id: string;
@@ -83,20 +82,15 @@ export const afRisk: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
+        
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
 
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-
-        const setRadioValue = (name: string, value: string, obs?: any, code?: string, label?: string) => {
+        const setRadioValue = (name: string, value: string) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
-
-                if (obs && code && label) {
-                    stalenessTracker.trackObservation(`input[name="${name}"][value="${value}"]`, obs, code, label);
-                }
             }
         };
 
@@ -209,17 +203,17 @@ export const afRisk: CalculatorModule = {
             }
         };
 
-        // Pre-fill Logic
-        const age = patient && patient.birthDate ? calculateAge(patient.birthDate) : 0;
+        // Pre-fill Logic using FHIRDataService
+        const age = fhirDataService.getPatientAge() || 0;
 
         if (age >= 75) {
             setRadioValue('age75', '2');
-            // Assuming we don't also check age65 to avoid confusion, but logic handles it.
         } else if (age >= 65) {
             setRadioValue('age65', '1');
         }
 
-        if (patient && patient.gender === 'female') {
+        const gender = fhirDataService.getPatientGender();
+        if (gender === 'female') {
             setRadioValue('female', '1');
         }
 
@@ -232,21 +226,12 @@ export const afRisk: CalculatorModule = {
             radio.addEventListener('change', calculate);
         });
 
-        // Async data population
+        // Async data population using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.BP_PANEL).then(bpPanel => {
-                if (bpPanel && bpPanel.component) {
-                    // Try to find correct component with LOIMCs logic
-                    const systolicCode = LOINC_CODES.SYSTOLIC_BP; // should be '8480-6'
-                    // Check if components exist
-                    const sbpComp = bpPanel.component.find((c: any) => {
-                        return c.code.coding && c.code.coding.some((coding: any) => coding.code === systolicCode);
-                    });
-
-                    if (sbpComp && sbpComp.valueQuantity && sbpComp.valueQuantity.value > 160) {
-                        setRadioValue('hasbled-htn', '1', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP (from Panel)');
-                        setRadioValue('htn', '1'); // For CHA2DS2-VASc too, though we only track source once for UX
-                    }
+            fhirDataService.getBloodPressure({ trackStaleness: true }).then(result => {
+                if (result.systolic !== null && result.systolic > 160) {
+                    setRadioValue('hasbled-htn', '1');
+                    setRadioValue('htn', '1');
                 }
             }).catch(e => console.warn(e));
         }
