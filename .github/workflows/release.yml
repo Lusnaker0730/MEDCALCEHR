@@ -107,7 +107,7 @@ jobs:
         continue-on-error: true  # 如果沒設定 secrets 則跳過
 
       - name: 🐳 Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ secrets.DOCKERHUB_USERNAME != '' }}
