@@ -1,0 +1,124 @@
+# Pull Request 檢查工作流
+# PR 提交時的快速驗證
+
+name: PR Check
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # 快速檢查
+  # ============================================
+  quick-check:
+    name: ⚡ Quick Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 🔧 TypeScript check
+        run: npx tsc --noEmit
+        continue-on-error: true
+
+      - name: 🔍 Lint check
+        run: npm run lint
+        continue-on-error: true
+
+  # ============================================
+  # 變更分析
+  # ============================================
+  analyze-changes:
+    name: 📊 Analyze Changes
+    runs-on: ubuntu-latest
+    outputs:
+      calculators-changed: ${{ steps.changes.outputs.calculators }}
+      core-changed: ${{ steps.changes.outputs.core }}
+      
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            calculators:
+              - 'src/calculators/**'
+              - 'js/calculators/**'
+            core:
+              - 'src/*.ts'
+              - 'js/*.js'
+            styles:
+              - 'css/**'
+            tests:
+              - 'tests/**'
+
+      - name: 📊 Summary
+        run: |
+          echo "## 📊 Change Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Area | Changed |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Calculators | ${{ steps.changes.outputs.calculators }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Core | ${{ steps.changes.outputs.core }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Styles | ${{ steps.changes.outputs.styles }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ steps.changes.outputs.tests }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 計算器影響範圍
+  # ============================================
+  calculator-impact:
+    name: 🏥 Calculator Impact
+    runs-on: ubuntu-latest
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.calculators-changed == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📋 List changed calculators
+        run: |
+          echo "## 🏥 Changed Calculators" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --name-only origin/main...HEAD | grep -E "calculators/" | head -20 >> $GITHUB_STEP_SUMMARY || echo "No specific calculators changed"
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # PR 標籤
+  # ============================================
+  label-pr:
+    name: 🏷️ Label PR
+    runs-on: ubuntu-latest
+    needs: analyze-changes
+    permissions:
+      pull-requests: write
+      
+    steps:
+      - name: 🏷️ Add labels
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

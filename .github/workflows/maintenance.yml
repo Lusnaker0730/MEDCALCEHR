@@ -1,0 +1,193 @@
+# 定期維護工作流
+# 每週執行依賴更新檢查和代碼健康度檢查
+
+name: Maintenance
+
+on:
+  schedule:
+    # 每週一 UTC 02:00 (台灣時間 10:00)
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # 依賴安全檢查
+  # ============================================
+  dependency-audit:
+    name: 🔒 Dependency Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 🔒 Security audit
+        run: |
+          echo "## 🔒 Security Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          npm audit --audit-level=moderate >> $GITHUB_STEP_SUMMARY 2>&1 || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: 📊 Check outdated packages
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Outdated Packages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          npm outdated >> $GITHUB_STEP_SUMMARY 2>&1 || echo "All packages up to date" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 代碼健康度報告
+  # ============================================
+  code-health:
+    name: 📊 Code Health
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 📊 Code statistics
+        run: |
+          echo "## 📊 Code Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### TypeScript Files" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          TS_FILES=$(find src -name "*.ts" | wc -l)
+          TS_LINES=$(find src -name "*.ts" -exec cat {} \; | wc -l)
+          CALC_COUNT=$(find src/calculators -name "index.ts" | wc -l)
+          
+          echo "| TypeScript files | $TS_FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total lines | $TS_LINES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Calculator modules | $CALC_COUNT |" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔍 Check for TODO/FIXME
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 TODO/FIXME Comments" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          TODO_COUNT=$(grep -r "TODO\|FIXME" src/ --include="*.ts" | wc -l || echo "0")
+          echo "Found $TODO_COUNT TODO/FIXME comments" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -r "TODO\|FIXME" src/ --include="*.ts" | head -10 >> $GITHUB_STEP_SUMMARY || true
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # 計算器驗證
+  # ============================================
+  calculator-validation:
+    name: 🏥 Calculator Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Compile TypeScript
+        run: npx tsc
+
+      - name: 🏥 Validate calculators
+        run: |
+          echo "## 🏥 Calculator Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Calculator Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 列出所有計算器
+          CALCULATORS=$(find src/calculators -mindepth 1 -maxdepth 1 -type d | wc -l)
+          echo "Total calculator directories: $CALCULATORS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 檢查每個計算器是否有必要的檔案
+          echo "### Missing Files Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          MISSING=0
+          for dir in src/calculators/*/; do
+            if [ ! -f "${dir}index.ts" ]; then
+              echo "⚠️ Missing index.ts: $(basename $dir)" >> $GITHUB_STEP_SUMMARY
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          
+          if [ "$MISSING" -eq 0 ]; then
+            echo "✅ All calculators have index.ts files" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # 產生維護報告
+  # ============================================
+  report:
+    name: 📋 Generate Report
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, code-health, calculator-validation]
+    
+    steps:
+      - name: 📋 Create Issue (if needed)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // 檢查是否需要建立 issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'maintenance',
+              state: 'open'
+            });
+            
+            // 如果已有開放的維護 issue，則不建立新的
+            if (issues.length > 0) {
+              console.log('Maintenance issue already exists');
+              return;
+            }
+            
+            // 建立新的維護報告 issue
+            const date = new Date().toISOString().split('T')[0];
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `週維護報告 - ${date}`,
+              body: `## 自動維護報告\n\n請查看 [workflow run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) 了解詳細資訊。`,
+              labels: ['maintenance', 'automated']
+            });
+        continue-on-error: true

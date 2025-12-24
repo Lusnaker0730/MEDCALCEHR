@@ -1,0 +1,194 @@
+# Release 工作流
+# 自動化版本發布
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.3)'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # 建置 Release
+  # ============================================
+  build-release:
+    name: 🏗️ Build Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔢 Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Building version: $VERSION"
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Build
+        run: |
+          npx tsc
+          echo "✅ TypeScript compiled successfully"
+
+      - name: 📦 Create release package
+        run: |
+          mkdir -p release
+          cp -r js/ release/
+          cp -r css/ release/
+          cp index.html release/
+          cp launch.html release/
+          cp README.md release/ || true
+          
+          # 創建版本資訊
+          echo "{
+            \"version\": \"${{ steps.version.outputs.version }}\",
+            \"buildDate\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+            \"commit\": \"${{ github.sha }}\"
+          }" > release/version.json
+          
+          # 打包
+          cd release && zip -r ../medcalcehr-${{ steps.version.outputs.version }}.zip .
+
+      - name: 📤 Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: medcalcehr-${{ steps.version.outputs.version }}.zip
+          retention-days: 30
+
+  # ============================================
+  # Docker Release
+  # ============================================
+  docker-release:
+    name: 🐳 Docker Release
+    runs-on: ubuntu-latest
+    needs: build-release
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        continue-on-error: true  # 如果沒設定 secrets 則跳過
+
+      - name: 🐳 Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ secrets.DOCKERHUB_USERNAME != '' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/medcalcehr:${{ needs.build-release.outputs.version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/medcalcehr:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+        continue-on-error: true
+
+  # ============================================
+  # GitHub Release
+  # ============================================
+  github-release:
+    name: 📦 GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-release, docker-release]
+    permissions:
+      contents: write
+      
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Download release artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: release-package
+
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          echo "## What's Changed" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          
+          # 取得上一個 tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            echo "### Commits since $PREV_TAG" >> CHANGELOG.md
+            git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" >> CHANGELOG.md
+          else
+            echo "### Initial Release" >> CHANGELOG.md
+            echo "First release of MedCalc EHR" >> CHANGELOG.md
+          fi
+          
+          echo "" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## Calculator Statistics" >> CHANGELOG.md
+          echo "- Total TypeScript calculators: $(find src/calculators -name 'index.ts' | wc -l)" >> CHANGELOG.md
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.build-release.outputs.version }}
+          name: MedCalc EHR v${{ needs.build-release.outputs.version }}
+          body_path: CHANGELOG.md
+          files: medcalcehr-${{ needs.build-release.outputs.version }}.zip
+          draft: false
+          prerelease: ${{ contains(needs.build-release.outputs.version, 'beta') || contains(needs.build-release.outputs.version, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================
+  # 通知
+  # ============================================
+  notify-release:
+    name: 📢 Notify Release
+    runs-on: ubuntu-latest
+    needs: [build-release, github-release]
+    
+    steps:
+      - name: 📢 Release Summary
+        run: |
+          echo "## 🎉 Release v${{ needs.build-release.outputs.version }} Published!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- 📦 Release package: medcalcehr-${{ needs.build-release.outputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐳 Docker image: medcalcehr:${{ needs.build-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.build-release.outputs.version }})" >> $GITHUB_STEP_SUMMARY
