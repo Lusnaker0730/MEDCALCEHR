@@ -1,9 +1,7 @@
-import { getMostRecentObservation } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { createStalenessTracker } from '../../data-staleness.js';
-import { UnitConverter } from '../../unit-converter.js';
 import { displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const sirs = {
     id: 'sirs',
     title: 'SIRS Criteria for Systemic Inflammatory Response',
@@ -67,9 +65,8 @@ export const sirs = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const setRadioValue = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -171,83 +168,75 @@ export const sirs = {
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-        // Auto-populate vital signs and labs
+        // Auto-populate vital signs and labs using FHIRDataService
         if (client) {
             // Temperature
-            getMostRecentObservation(client, LOINC_CODES.TEMPERATURE).then(obs => {
+            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, {
+                trackStaleness: true,
+                stalenessLabel: 'Temperature',
+                targetUnit: 'C',
+                unitType: 'temperature'
+            }).then(result => {
                 const el = container.querySelector('#current-temp');
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    let val = obs.valueQuantity.value;
-                    let unit = obs.valueQuantity.unit || 'degC';
-                    // Convert to Celcius if needed
-                    if (unit === 'degF' || unit === 'F' || unit.toLowerCase().includes('degf')) {
-                        const converted = UnitConverter.convert(val, 'degF', 'degC', 'temperature');
-                        if (converted !== null) {
-                            val = converted;
-                            unit = 'degC';
-                        }
-                    }
+                if (result.value !== null) {
                     if (el)
-                        el.textContent = `${val.toFixed(1)} °C`;
-                    if (val < 36 || val > 38) {
+                        el.textContent = `${result.value.toFixed(1)} °C`;
+                    if (result.value < 36 || result.value > 38) {
                         setRadioValue('sirs-temp', '1');
                     }
                 }
                 else if (el) {
                     el.textContent = 'Not available';
                 }
-                if (obs)
-                    stalenessTracker.trackObservation('#current-temp', obs, LOINC_CODES.TEMPERATURE, 'Temperature');
             }).catch(e => console.warn(e));
             // Heart Rate
-            getMostRecentObservation(client, LOINC_CODES.HEART_RATE).then(obs => {
+            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Heart Rate'
+            }).then(result => {
                 const el = container.querySelector('#current-hr');
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
+                if (result.value !== null) {
                     if (el)
-                        el.textContent = `${val.toFixed(0)} bpm`;
-                    if (val > 90) {
+                        el.textContent = `${result.value.toFixed(0)} bpm`;
+                    if (result.value > 90) {
                         setRadioValue('sirs-hr', '1');
                     }
                 }
                 else if (el) {
                     el.textContent = 'Not available';
                 }
-                if (obs)
-                    stalenessTracker.trackObservation('#current-hr', obs, LOINC_CODES.HEART_RATE, 'Heart Rate');
             }).catch(e => console.warn(e));
             // Respiratory Rate
-            getMostRecentObservation(client, LOINC_CODES.RESPIRATORY_RATE).then(obs => {
+            fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, {
+                trackStaleness: true,
+                stalenessLabel: 'Respiratory Rate'
+            }).then(result => {
                 const el = container.querySelector('#current-rr');
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
+                if (result.value !== null) {
                     if (el)
-                        el.textContent = `${val.toFixed(0)} /min`;
-                    if (val > 20) {
+                        el.textContent = `${result.value.toFixed(0)} /min`;
+                    if (result.value > 20) {
                         setRadioValue('sirs-rr', '1');
                     }
                 }
                 else if (el) {
                     el.textContent = 'Not available';
                 }
-                if (obs)
-                    stalenessTracker.trackObservation('#current-rr', obs, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
             }).catch(e => console.warn(e));
             // WBC
-            getMostRecentObservation(client, LOINC_CODES.WBC).then(obs => {
+            fhirDataService.getObservation(LOINC_CODES.WBC, {
+                trackStaleness: true,
+                stalenessLabel: 'WBC Count'
+            }).then(result => {
                 const el = container.querySelector('#current-wbc');
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    let unit = obs.valueQuantity.unit || 'cells/μL';
+                if (result.value !== null) {
+                    const unit = result.unit || 'cells/μL';
                     if (el)
-                        el.textContent = `${val} ${unit}`;
-                    // Standardize to cells/uL for logic check (assuming raw value is 10^3 or cells depending on unit string)
-                    // If unit usually '10*3/uL' or 'K/uL', value 12.0 = 12000
-                    let wbc = val;
-                    // Simply checking if value is small, likely needs scaling
-                    if ((unit && (unit.includes('10*3') || unit.includes('K'))) || (val < 100)) {
-                        // heuristics: WBC count usually > 1000. If < 100, likely K/uL.
-                        wbc = val * 1000;
+                        el.textContent = `${result.value} ${unit}`;
+                    // Standardize to cells/uL for logic check
+                    let wbc = result.value;
+                    if ((unit && (unit.includes('10*3') || unit.includes('K'))) || (result.value < 100)) {
+                        wbc = result.value * 1000;
                     }
                     if (wbc < 4000 || wbc > 12000) {
                         setRadioValue('sirs-wbc', '1');
@@ -256,8 +245,6 @@ export const sirs = {
                 else if (el) {
                     el.textContent = 'Not available';
                 }
-                if (obs)
-                    stalenessTracker.trackObservation('#current-wbc', obs, LOINC_CODES.WBC, 'WBC Count');
             }).catch(e => console.warn(e));
         }
         calculate();

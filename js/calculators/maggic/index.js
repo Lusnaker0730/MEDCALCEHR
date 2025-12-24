@@ -3,11 +3,10 @@
  *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
-import { getMostRecentObservation, calculateAge, getPatientConditions } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 // 分數計算函數
 const getPoints = {
     age: (v) => v * 0.08,
@@ -235,8 +234,8 @@ const config = {
         `;
     },
     customInitialize: async (client, patient, container, calculate, setValue) => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const setRadio = (name, value) => {
             const radio = container.querySelector(`input[name="${name}"][value="${value}"]`);
             if (radio) {
@@ -244,41 +243,37 @@ const config = {
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        // Age and gender from patient
-        if (patient) {
-            if (patient.birthDate) {
-                setValue('maggic-age', calculateAge(patient.birthDate).toString());
-            }
-            if (patient.gender) {
-                setRadio('maggic-gender', patient.gender === 'male' ? '1' : '0');
-            }
+        // Age and gender from patient using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            setValue('maggic-age', age.toString());
+        }
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            setRadio('maggic-gender', gender === 'male' ? '1' : '0');
         }
         if (client) {
-            // Fetch observations in parallel
-            const [bmiObs, sbpObs, creatObs] = await Promise.all([
-                getMostRecentObservation(client, LOINC_CODES.BMI).catch(() => null),
-                getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).catch(() => null),
-                getMostRecentObservation(client, LOINC_CODES.CREATININE).catch(() => null)
+            // Fetch observations in parallel using FHIRDataService
+            const [bmiResult, sbpResult, creatResult] = await Promise.all([
+                fhirDataService.getObservation(LOINC_CODES.BMI, { trackStaleness: true, stalenessLabel: 'BMI' }).catch(() => ({ value: null })),
+                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).catch(() => ({ value: null })),
+                fhirDataService.getObservation(LOINC_CODES.CREATININE, { trackStaleness: true, stalenessLabel: 'Creatinine', targetUnit: 'mg/dL', unitType: 'creatinine' }).catch(() => ({ value: null }))
             ]);
-            if (bmiObs?.valueQuantity) {
-                setValue('maggic-bmi', bmiObs.valueQuantity.value.toFixed(1));
-                stalenessTracker.trackObservation('#maggic-bmi', bmiObs, LOINC_CODES.BMI, 'BMI');
+            if (bmiResult.value !== null) {
+                setValue('maggic-bmi', bmiResult.value.toFixed(1));
             }
-            if (sbpObs?.valueQuantity) {
-                setValue('maggic-sbp', sbpObs.valueQuantity.value.toFixed(0));
-                stalenessTracker.trackObservation('#maggic-sbp', sbpObs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+            if (sbpResult.value !== null) {
+                setValue('maggic-sbp', sbpResult.value.toFixed(0));
             }
-            if (creatObs?.valueQuantity) {
-                setValue('maggic-creatinine', creatObs.valueQuantity.value.toFixed(2));
-                stalenessTracker.trackObservation('#maggic-creatinine', creatObs, LOINC_CODES.CREATININE, 'Creatinine');
+            if (creatResult.value !== null) {
+                setValue('maggic-creatinine', creatResult.value.toFixed(2));
             }
-            // Fetch conditions
+            // Fetch conditions using FHIRDataService
             try {
-                const conditions = await getPatientConditions(client, ['414990002', '195967001']);
-                const hasDiabetes = conditions.some((c) => c.code?.coding?.some((co) => co.code === '414990002'));
+                const hasDiabetes = await fhirDataService.hasCondition([SNOMED_CODES.DIABETES_MELLITUS, '414990002']);
                 if (hasDiabetes)
                     setRadio('maggic-diabetes', '3');
-                const hasCopd = conditions.some((c) => c.code?.coding?.some((co) => co.code === '195967001'));
+                const hasCopd = await fhirDataService.hasCondition([SNOMED_CODES.COPD, '195967001']);
                 if (hasCopd)
                     setRadio('maggic-copd', '2');
             }

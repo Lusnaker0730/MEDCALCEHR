@@ -87,7 +87,7 @@ export class FHIRDataService {
         try {
             // Check cache first
             if (!options.skipCache && this.patientId) {
-                const cached = fhirCache.getCachedObservation(this.patientId, code);
+                const cached = await fhirCache.getCachedObservation(this.patientId, code);
                 if (cached) {
                     return this.processObservation(cached, code, options);
                 }
@@ -96,7 +96,7 @@ export class FHIRDataService {
             const observation = await getMostRecentObservation(this.client, code);
             // Cache the result
             if (observation && this.patientId) {
-                fhirCache.cacheObservation(this.patientId, code, observation);
+                await fhirCache.cacheObservation(this.patientId, code, observation);
             }
             return this.processObservation(observation, code, options);
         }

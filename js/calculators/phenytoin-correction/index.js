@@ -1,10 +1,9 @@
-import { getMostRecentObservation, } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const phenytoinCorrection = {
     id: 'phenytoin-correction',
     title: 'Phenytoin (Dilantin) Correction for Albumin/Renal Failure',
@@ -85,9 +84,8 @@ export const phenytoinCorrection = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const totalEl = container.querySelector('#pheny-total');
         const albuminEl = container.querySelector('#pheny-albumin');
         const resultEl = container.querySelector('#phenytoin-result');
@@ -180,36 +178,20 @@ export const phenytoinCorrection = {
             input.addEventListener('input', calculateAndUpdate);
             input.addEventListener('change', calculateAndUpdate);
         });
-        // Auto-populate from FHIR
+        // Auto-populate from FHIR using FHIRDataService
         if (client) {
-            getMostRecentObservation(client, '4038-8').then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'mcg/mL';
-                    const converted = UnitConverter.convert(val, unit, 'mcg/mL', 'phenytoin');
-                    if (converted !== null) {
-                        totalEl.value = converted.toFixed(1);
-                    }
-                    else {
-                        totalEl.value = val.toFixed(1);
-                    }
+            // Phenytoin (LOINC 4038-8)
+            fhirDataService.getObservation('4038-8', { trackStaleness: true, stalenessLabel: 'Phenytoin', targetUnit: 'mcg/mL', unitType: 'phenytoin' }).then(result => {
+                if (result.value !== null) {
+                    totalEl.value = result.value.toFixed(1);
                     totalEl.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#pheny-total', obs, '4038-8', 'Phenytoin');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.ALBUMIN).then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value !== undefined) {
-                    const val = obs.valueQuantity.value;
-                    const unit = obs.valueQuantity.unit || 'g/dL';
-                    const converted = UnitConverter.convert(val, unit, 'g/dL', 'albumin');
-                    if (converted !== null) {
-                        albuminEl.value = converted.toFixed(1);
-                    }
-                    else {
-                        albuminEl.value = val.toFixed(1);
-                    }
+            // Albumin
+            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, { trackStaleness: true, stalenessLabel: 'Albumin', targetUnit: 'g/dL', unitType: 'albumin' }).then(result => {
+                if (result.value !== null) {
+                    albuminEl.value = result.value.toFixed(1);
                     albuminEl.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#pheny-albumin', obs, LOINC_CODES.ALBUMIN, 'Albumin');
                 }
             }).catch(e => console.warn(e));
         }

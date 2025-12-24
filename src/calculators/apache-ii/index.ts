@@ -250,7 +250,7 @@ export const apacheIi: CalculatorModule = {
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
         const ageInput = container.querySelector('#apache-ii-age') as HTMLInputElement;
-        
+
         // Set age from patient data using FHIRDataService
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
@@ -275,10 +275,17 @@ export const apacheIi: CalculatorModule = {
                 }
             }).catch(e => console.warn(e));
 
-            // Blood Pressure (Systolic for MAP approximation)
+            // Blood Pressure - Calculate MAP from systolic and diastolic
             fhirDataService.getBloodPressure({ trackStaleness: true }).then(result => {
-                if (result.systolic !== null) {
-                    setValue('#apache-ii-map', result.systolic.toFixed(0));
+                if (result.systolic !== null && result.diastolic !== null) {
+                    // MAP = (SBP + 2*DBP) / 3
+                    const map = (result.systolic + 2 * result.diastolic) / 3;
+                    setValue('#apache-ii-map', map.toFixed(0));
+                } else if (result.systolic !== null) {
+                    // Fallback: estimate MAP as ~1/3 off systolic if no diastolic
+                    // This is not ideal but better than nothing
+                    const estimatedMap = result.systolic * 0.7;
+                    setValue('#apache-ii-map', estimatedMap.toFixed(0));
                 }
             }).catch(e => console.warn(e));
 

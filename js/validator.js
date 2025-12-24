@@ -25,37 +25,37 @@ export function validateCalculatorInput(input, schema) {
         const value = input[key];
         const rule = schema[key];
 
-        // 必需字段验证
+        // Required field validation
         if (rule.required && (value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value)))) {
-            errors.push(rule.message || `${key} 是必需的`);
+            errors.push(rule.message || `${key} is required`);
             return;
         }
 
-        // 如果值为空且非必需，跳过后续验证
+        // Skip further validation if value is empty and not required
         if (value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value))) {
             return;
         }
 
-        // 最小值验证
+        // Minimum value validation
         if (rule.min !== undefined && Number(value) < rule.min) {
-            errors.push(rule.message || `${key} 必须大于等于 ${rule.min}`);
+            errors.push(rule.message || `${key} must be at least ${rule.min}`);
         }
 
-        // 最大值验证
+        // Maximum value validation
         if (rule.max !== undefined && Number(value) > rule.max) {
-            errors.push(rule.message || `${key} 必须小于等于 ${rule.max}`);
+            errors.push(rule.message || `${key} must be at most ${rule.max}`);
         }
 
-        // 正则表达式验证
+        // Pattern validation
         if (rule.pattern && !rule.pattern.test(String(value))) {
-            errors.push(rule.message || `${key} 格式不正确`);
+            errors.push(rule.message || `${key} format is incorrect`);
         }
 
-        // 自定义验证函数
+        // Custom validation function
         if (rule.custom && typeof rule.custom === 'function') {
             const customResult = rule.custom(value, input);
             if (customResult !== true) {
-                errors.push(customResult || rule.message || `${key} 验证失败`);
+                errors.push(customResult || rule.message || `${key} validation failed`);
             }
         }
     });
@@ -70,346 +70,346 @@ export function validateCalculatorInput(input, schema) {
  * 常用验证规则模板
  */
 export const ValidationRules = {
-    // 年龄验证
+    // Age validation
     age: {
         required: true,
         min: 0,
         max: 150,
-        message: '年龄必须在 0-150 岁之间'
+        message: 'Age must be between 0-150 years'
     },
 
-    // 体温验证 (°C)
+    // Temperature validation (°C)
     temperature: {
         required: true,
         min: 20,
         max: 45,
-        message: '体温必须在 20-45°C 之间'
+        message: 'Temperature must be between 20-45°C'
     },
 
-    // 血压验证
+    // Blood pressure validation
     bloodPressure: {
         systolic: {
             required: true,
             min: 50,
             max: 250,
-            message: '收缩压必须在 50-250 mmHg 之间'
+            message: 'Systolic BP must be between 50-250 mmHg'
         },
         diastolic: {
             required: true,
             min: 30,
             max: 150,
-            message: '舒张压必须在 30-150 mmHg 之间'
+            message: 'Diastolic BP must be between 30-150 mmHg'
         }
     },
 
-    // 心率验证
+    // Heart rate validation
     heartRate: {
         required: true,
         min: 20,
         max: 250,
-        message: '心率必须在 20-250 bpm 之间'
+        message: 'Heart rate must be between 20-250 bpm'
     },
 
-    // pH 验证
+    // pH validation
     pH: {
         required: true,
         min: 6.5,
         max: 8.0,
-        message: 'pH 必须在 6.5-8.0 之间'
+        message: 'pH must be between 6.5-8.0'
     },
 
-    // 体重验证 (kg)
+    // Weight validation (kg)
     weight: {
         required: true,
         min: 0.5,
         max: 500,
-        message: '体重必须在 0.5-500 kg 之间'
+        message: 'Weight must be between 0.5-500 kg'
     },
 
-    // 身高验证 (cm)
+    // Height validation (cm)
     height: {
         required: true,
         min: 30,
         max: 250,
-        message: '身高必须在 30-250 cm 之间'
+        message: 'Height must be between 30-250 cm'
     },
 
-    // GCS 验证
+    // GCS validation
     gcs: {
         required: true,
         min: 3,
         max: 15,
-        message: 'GCS 评分必须在 3-15 之间'
+        message: 'GCS score must be between 3-15'
     },
 
-    // 血糖验证 (mg/dL)
+    // Glucose validation (mg/dL)
     glucose: {
         required: true,
         min: 10,
         max: 2000,
-        message: '血糖必须在 10-2000 mg/dL 之间'
+        message: 'Glucose must be between 10-2000 mg/dL'
     },
 
-    // 尿素氮验证 (BUN) (mg/dL)
+    // BUN validation (mg/dL)
     bun: {
         required: true,
         min: 1,
         max: 200,
-        message: 'BUN 必须在 1-200 mg/dL 之间'
+        message: 'BUN must be between 1-200 mg/dL'
     },
 
-    // 尿钠验证 (mEq/L)
+    // Urine sodium validation (mEq/L)
     urineSodium: {
         required: true,
         min: 1,
         max: 1000,
-        message: '尿钠必须在 1-1000 mEq/L 之间'
+        message: 'Urine sodium must be between 1-1000 mEq/L'
     },
 
-    // 尿肌酐验证 (mg/dL)
+    // Urine creatinine validation (mg/dL)
     urineCreatinine: {
         required: true,
         min: 1,
         max: 2000,
-        message: '尿肌酐必须在 1-2000 mg/dL 之间'
+        message: 'Urine creatinine must be between 1-2000 mg/dL'
     },
 
-    // 肌酐验证 (mg/dL)
+    // Creatinine validation (mg/dL)
     creatinine: {
         required: true,
         min: 0.1,
         max: 20,
-        message: '肌酐必须在 0.1-20 mg/dL 之间'
+        message: 'Creatinine must be between 0.1-20 mg/dL'
     },
 
-    // 钠离子验证 (mEq/L)
+    // Sodium validation (mEq/L)
     sodium: {
         required: true,
         min: 100,
         max: 200,
-        message: '钠离子必须在 100-200 mEq/L 之间'
+        message: 'Sodium must be between 100-200 mEq/L'
     },
 
-    // 钾离子验证 (mEq/L)
+    // Potassium validation (mEq/L)
     potassium: {
         required: true,
         min: 1.5,
         max: 10,
-        message: '钾离子必须在 1.5-10 mEq/L 之间'
+        message: 'Potassium must be between 1.5-10 mEq/L'
     },
 
-    // 胆红素验证 (mg/dL)
+    // Bilirubin validation (mg/dL)
     bilirubin: {
         required: true,
         min: 0.1,
         max: 80,
-        message: '胆红素必须在 0.1-80 mg/dL 之间'
+        message: 'Bilirubin must be between 0.1-80 mg/dL'
     },
 
-    // 钙离子验证 (Total) (mg/dL)
+    // Calcium validation (Total) (mg/dL)
     calcium: {
         required: true,
         min: 2.0,
         max: 20.0,
-        message: '血钙必须在 2.0-20.0 mg/dL 之间'
+        message: 'Calcium must be between 2.0-20.0 mg/dL'
     },
 
-    // INR 验证
+    // INR validation
     inr: {
         required: true,
         min: 0.5,
         max: 20,
-        message: 'INR 必须在 0.5-20 之间'
+        message: 'INR must be between 0.5-20'
     },
 
-    // 白蛋白验证 (g/dL)
+    // Albumin validation (g/dL)
     albumin: {
         required: true,
         min: 0.5,
         max: 8.0,
-        message: '白蛋白必须在 0.5-8.0 g/dL 之间'
+        message: 'Albumin must be between 0.5-8.0 g/dL'
     },
 
-    // 肝功能验证 (AST/ALT) (U/L)
+    // Liver enzyme validation (AST/ALT) (U/L)
     liverEnzyme: {
         required: true,
         min: 1,
         max: 5000,
-        message: '酶数值必须在 1-5000 U/L 之间'
+        message: 'Enzyme level must be between 1-5000 U/L'
     },
 
-    // 血小板验证 (10^9/L)
+    // Platelet validation (10^9/L)
     platelets: {
         required: true,
         min: 1,
         max: 2000,
-        message: '血小板必须在 1-2000 ×10⁹/L 之间'
+        message: 'Platelets must be between 1-2000 ×10⁹/L'
     },
 
-    // 平均动脉压 (MAP) (mmHg)
+    // MAP validation (mmHg)
     map: {
         required: true,
         min: 20,
         max: 300,
-        message: 'MAP 必须在 20-300 mmHg 之间'
+        message: 'MAP must be between 20-300 mmHg'
     },
 
-    // 呼吸频率 (breaths/min)
+    // Respiratory rate (breaths/min)
     respiratoryRate: {
         required: true,
-        min: 0, // 允许插管病人
+        min: 0, // Allow for intubated patients
         max: 100,
-        message: '呼吸频率必须在 0-100 次/分之间'
+        message: 'Respiratory rate must be between 0-100 breaths/min'
     },
 
-    // 血细胞比容 (Hct) (%)
+    // Hematocrit (Hct) (%)
     hematocrit: {
         required: true,
         min: 5,
         max: 80,
-        message: 'Hct 必须在 5-80% 之间'
+        message: 'Hematocrit must be between 5-80%'
     },
 
-    // 白细胞计数 (WBC) (10^9/L)
+    // WBC count (10^9/L)
     wbc: {
         required: true,
         min: 0,
         max: 500,
-        message: 'WBC 必须在 0-500 ×10⁹/L 之间'
+        message: 'WBC must be between 0-500 ×10⁹/L'
     },
 
-    // QT 间期验证 (ms)
+    // QT interval validation (ms)
     qtInterval: {
         required: true,
         min: 200,
         max: 800,
-        message: 'QT 间期必须在 200-800 ms 之间'
+        message: 'QT interval must be between 200-800 ms'
     },
 
-    // 血气分析
+    // Arterial blood gas
     arterialGas: {
         paO2: {
             required: true,
             min: 10,
             max: 800,
-            message: 'PaO₂ 必须在 10-800 mmHg 之间'
+            message: 'PaO₂ must be between 10-800 mmHg'
         },
         paCO2: {
             required: true,
             min: 5,
             max: 200,
-            message: 'PaCO₂ 必须在 5-200 mmHg 之间'
+            message: 'PaCO₂ must be between 5-200 mmHg'
         },
         fiO2: {
             required: true,
             min: 0.21,
             max: 1.0,
-            message: 'FiO₂ 必须在 0.21-1.0 之间'
+            message: 'FiO₂ must be between 0.21-1.0'
         }
     },
 
-    // 苯妥英钠 (mcg/mL)
+    // Phenytoin (mcg/mL)
     phenytoin: {
         required: true,
         min: 0,
         max: 100,
-        message: '苯妥英钠水平必须在 0-100 mcg/mL 之间'
+        message: 'Phenytoin level must be between 0-100 mcg/mL'
     },
 
-    // 碳酸氢根验证 (mEq/L)
+    // Bicarbonate validation (mEq/L)
     bicarbonate: {
         required: true,
         min: 2,
         max: 60,
-        message: 'HCO₃⁻ 必须在 2-60 mEq/L 之间'
+        message: 'HCO₃⁻ must be between 2-60 mEq/L'
     },
 
-    // 氯离子验证 (mEq/L)
+    // Chloride validation (mEq/L)
     chloride: {
         required: true,
         min: 50,
         max: 150,
-        message: '氯离子必须在 50-150 mEq/L 之间'
+        message: 'Chloride must be between 50-150 mEq/L'
     },
 
-    // 胰岛素验证 (µU/mL)
+    // Insulin validation (µU/mL)
     insulin: {
         required: true,
         min: 0.1,
         max: 500,
-        message: '胰岛素必须在 0.1-500 µU/mL 之间'
+        message: 'Insulin must be between 0.1-500 µU/mL'
     },
 
-    // 乙醇验证 (mg/dL)
+    // Ethanol validation (mg/dL)
     ethanol: {
         required: false,
         min: 0,
         max: 1000,
-        message: '乙醇濃度必須在 0-1000 mg/dL 之間'
+        message: 'Ethanol concentration must be between 0-1000 mg/dL'
     },
 
-    // 總膽固醇 (Total Cholesterol) mg/dL
+    // Total Cholesterol (mg/dL)
     totalCholesterol: {
         required: true,
         min: 50,
         max: 1000,
-        message: '總膽固醇必須在 50-1000 mg/dL 之間'
+        message: 'Total cholesterol must be between 50-1000 mg/dL'
     },
 
-    // 高密度脂蛋白 (HDL) mg/dL
+    // HDL (mg/dL)
     hdl: {
         required: true,
         min: 10,
         max: 200,
-        message: 'HDL 必須在 10-200 mg/dL 之間'
+        message: 'HDL must be between 10-200 mg/dL'
     },
 
-    // 三酸甘油酯 (Triglycerides) mg/dL
+    // Triglycerides (mg/dL)
     triglycerides: {
         required: true,
         min: 10,
         max: 3000,
-        message: '三酸甘油酯必須在 10-3000 mg/dL 之間'
+        message: 'Triglycerides must be between 10-3000 mg/dL'
     },
 
-    // 滲透壓 (Osmolality) mOsm/kg
+    // Osmolality (mOsm/kg)
     osmolality: {
         required: true,
         min: 0,
         max: 2000,
-        message: '滲透壓必須在 0-2000 mOsm/kg 之間'
+        message: 'Osmolality must be between 0-2000 mOsm/kg'
     },
 
-    // 時間 (小時)
+    // Time (hours)
     hours: {
         required: true,
         min: 0,
         max: 168, // 1 week max reasonable cap
-        message: '時間必須在 0-168 小時之間'
+        message: 'Time must be between 0-168 hours'
     },
 
-    // 體積 (mL)
+    // Volume (mL)
     volume: {
         required: true,
         min: 0,
         max: 5000,
-        message: '體積必須在 0-5000 mL 之間'
+        message: 'Volume must be between 0-5000 mL'
     },
 
-    // 酒精濃度 (ABV) %
+    // Alcohol by volume (ABV) %
     abv: {
         required: true,
         min: 0,
         max: 100,
-        message: 'ABV 必須在 0-100% 之間'
+        message: 'ABV must be between 0-100%'
     },
 
-    // 血紅素 (Hemoglobin) g/dL
+    // Hemoglobin (g/dL)
     hemoglobin: {
         required: true,
         min: 1,
         max: 25,
-        message: '血紅素必須在 1-25 g/dL 之間'
+        message: 'Hemoglobin must be between 1-25 g/dL'
     }
 };
 
@@ -445,14 +445,15 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
             inputElement.classList.add('invalid');
             inputElement.setAttribute('aria-invalid', 'true');
 
-            // 显示错误消息
+            // Display error message
             let errorSpan = inputElement.nextElementSibling;
             if (!errorSpan || !errorSpan.classList.contains('error-text')) {
                 errorSpan = document.createElement('span');
                 errorSpan.className = 'error-text';
                 errorSpan.style.color = '#d32f2f';
-                errorSpan.style.fontSize = '0.85em';
-                errorSpan.style.marginTop = '4px';
+                errorSpan.style.fontSize = '1.1rem';
+                errorSpan.style.fontWeight = '500';
+                errorSpan.style.marginTop = '6px';
                 errorSpan.style.display = 'block';
                 inputElement.parentNode.insertBefore(errorSpan, inputElement.nextSibling);
             }

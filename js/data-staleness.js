@@ -190,9 +190,8 @@ export class DataStalenessTracker {
             <div class="staleness-warning ui-alert ui-alert-warning">
                 <span class="ui-alert-icon">⚠️</span>
                 <div class="ui-alert-content">
-                    <strong>過期數據警告 / Stale Data Warning</strong>
-                    <p style="margin: 8px 0 4px 0;">以下自動填入的數值已超過 3 個月，請確認是否需要更新：</p>
-                    <p style="margin: 0 0 8px 0; font-size: 1.2rem; color: #666;">
+                    <strong>Stale Data Warning</strong>
+                    <p style="margin: 8px 0 8px 0; font-size: 1.2rem;">
                         The following auto-populated values are older than 3 months. Please verify if updates are needed:
                     </p>
                     <ul class="staleness-list" style="margin: 0; padding-left: 20px;">
@@ -208,10 +207,10 @@ export class DataStalenessTracker {
      * @private
      */
     _formatDate(date) {
-        return date.toLocaleDateString('zh-TW', {
+        return date.toLocaleDateString('en-US', {
             year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
+            month: 'short',
+            day: 'numeric'
         });
     }
 
@@ -224,14 +223,14 @@ export class DataStalenessTracker {
             const years = Math.floor(days / 365);
             const months = Math.floor((days % 365) / 30);
             if (months > 0) {
-                return `${years} 年 ${months} 個月前`;
+                return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''} ago`;
             }
-            return `${years} 年前`;
+            return `${years} year${years > 1 ? 's' : ''} ago`;
         } else if (days >= 30) {
             const months = Math.floor(days / 30);
-            return `${months} 個月前`;
+            return `${months} month${months > 1 ? 's' : ''} ago`;
         } else {
-            return `${days} 天前`;
+            return `${days} day${days > 1 ? 's' : ''} ago`;
         }
     }
 

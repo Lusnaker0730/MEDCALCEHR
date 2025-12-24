@@ -117,7 +117,7 @@ export declare class FHIRDataService {
     /**
      * Initialize the service with FHIR client and patient
      */
-    initialize(client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void;
+    initialize(client: any, patient: any, container: HTMLElement): void;
     /**
      * Check if service is properly initialized
      */

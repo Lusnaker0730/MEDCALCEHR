@@ -145,9 +145,9 @@ export class FHIRDataService {
     /**
      * Initialize the service with FHIR client and patient
      */
-    initialize(client: FHIRClient | null, patient: Patient | null, container: HTMLElement): void {
-        this.client = client;
-        this.patient = patient;
+    initialize(client: any, patient: any, container: HTMLElement): void {
+        this.client = client as FHIRClient | null;
+        this.patient = patient as Patient | null;
         this.container = container;
         this.patientId = patient?.id || client?.patient?.id || null;
 
@@ -214,7 +214,7 @@ export class FHIRDataService {
         try {
             // Check cache first
             if (!options.skipCache && this.patientId) {
-                const cached = fhirCache.getCachedObservation(this.patientId, code);
+                const cached = await fhirCache.getCachedObservation(this.patientId, code);
                 if (cached) {
                     return this.processObservation(cached, code, options);
                 }
@@ -225,7 +225,7 @@ export class FHIRDataService {
 
             // Cache the result
             if (observation && this.patientId) {
-                fhirCache.cacheObservation(this.patientId, code, observation);
+                await fhirCache.cacheObservation(this.patientId, code, observation);
             }
 
             return this.processObservation(observation, code, options);

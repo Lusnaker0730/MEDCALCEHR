@@ -1,9 +1,8 @@
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const preventCVD = {
     id: 'prevent-cvd',
     title: 'QRISK3-Based CVD Risk (UK)',
@@ -90,9 +89,8 @@ export const preventCVD = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        // Initialize staleness tracker
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const ageInput = container.querySelector('#qrisk-age');
         const genderSelect = container.querySelector('#qrisk-gender');
         const sbpInput = container.querySelector('#qrisk-sbp');
@@ -242,52 +240,44 @@ export const preventCVD = {
             el.addEventListener('input', calculate);
             el.addEventListener('change', calculate);
         });
-        // Auto-populate
-        if (patient && patient.birthDate) {
-            ageInput.value = calculateAge(patient.birthDate).toString();
+        // Auto-populate using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            ageInput.value = age.toString();
         }
-        if (patient && patient.gender) {
-            genderSelect.value = patient.gender === 'male' ? 'male' : 'female';
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            genderSelect.value = gender === 'male' ? 'male' : 'female';
         }
         if (client) {
-            getMostRecentObservation(client, LOINC_CODES.SYSTOLIC_BP).then(obs => {
-                if (obs?.valueQuantity) {
-                    sbpInput.value = obs.valueQuantity.value.toFixed(0);
+            // Systolic BP
+            fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).then(result => {
+                if (result.value !== null) {
+                    sbpInput.value = result.value.toFixed(0);
                     calculate();
-                    stalenessTracker.trackObservation('#qrisk-sbp', obs, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.CHOLESTEROL_TOTAL).then(obs => {
-                if (obs?.valueQuantity) {
-                    // FHIR usually mg/dL, but we default to mmol/L.
-                    // Convert if needed.
-                    let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'mg/dL') {
-                        val = val / 38.67;
-                    }
+            // Total Cholesterol (convert to mmol/L)
+            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, { trackStaleness: true, stalenessLabel: 'Total Cholesterol', targetUnit: 'mmol/L', unitType: 'cholesterol' }).then(result => {
+                if (result.value !== null) {
                     const el = container.querySelector('#qrisk-cholesterol');
                     if (el)
-                        el.value = val.toFixed(2);
+                        el.value = result.value.toFixed(2);
                     calculate();
-                    stalenessTracker.trackObservation('#qrisk-cholesterol', obs, LOINC_CODES.CHOLESTEROL_TOTAL, 'Total Cholesterol');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.HDL).then(obs => {
-                if (obs?.valueQuantity) {
-                    let val = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'mg/dL') {
-                        val = val / 38.67;
-                    }
-                    hdlInput.value = val.toFixed(2);
+            // HDL (convert to mmol/L)
+            fhirDataService.getObservation(LOINC_CODES.HDL, { trackStaleness: true, stalenessLabel: 'HDL Cholesterol', targetUnit: 'mmol/L', unitType: 'cholesterol' }).then(result => {
+                if (result.value !== null) {
+                    hdlInput.value = result.value.toFixed(2);
                     calculate();
-                    stalenessTracker.trackObservation('#qrisk-hdl', obs, LOINC_CODES.HDL, 'HDL Cholesterol');
                 }
             }).catch(e => console.warn(e));
-            getMostRecentObservation(client, LOINC_CODES.EGFR).then(obs => {
-                if (obs?.valueQuantity) {
-                    egfrInput.value = obs.valueQuantity.value.toFixed(0);
+            // eGFR
+            fhirDataService.getObservation(LOINC_CODES.EGFR, { trackStaleness: true, stalenessLabel: 'eGFR' }).then(result => {
+                if (result.value !== null) {
+                    egfrInput.value = result.value.toFixed(0);
                     calculate();
-                    stalenessTracker.trackObservation('#qrisk-egfr', obs, LOINC_CODES.EGFR, 'eGFR');
                 }
             }).catch(e => console.warn(e));
         }

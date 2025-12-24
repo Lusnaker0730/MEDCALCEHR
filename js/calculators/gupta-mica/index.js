@@ -3,11 +3,10 @@
  *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
-import { calculateAge, getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 const config = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
@@ -167,24 +166,23 @@ const config = {
         `;
     },
     customInitialize: async (client, patient, container, calculate, setValue) => {
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
-        // Age from patient
-        if (patient && patient.birthDate) {
-            const age = calculateAge(patient.birthDate);
-            if (age > 0)
-                setValue('mica-age', age.toString());
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+        // Age from patient using FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null && age > 0) {
+            setValue('mica-age', age.toString());
         }
         if (client) {
             try {
-                const obs = await getMostRecentObservation(client, LOINC_CODES.CREATININE);
-                if (obs?.valueQuantity) {
-                    let crValue = obs.valueQuantity.value;
-                    if (obs.valueQuantity.unit === 'µmol/L' || obs.valueQuantity.unit === 'umol/L') {
-                        crValue = crValue / 88.4;
-                    }
-                    setValue('mica-creat', crValue.toFixed(2));
-                    stalenessTracker.trackObservation('#mica-creat', obs, LOINC_CODES.CREATININE, 'Creatinine');
+                const result = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Creatinine',
+                    targetUnit: 'mg/dL',
+                    unitType: 'creatinine'
+                });
+                if (result.value !== null) {
+                    setValue('mica-creat', result.value.toFixed(2));
                 }
             }
             catch (e) {

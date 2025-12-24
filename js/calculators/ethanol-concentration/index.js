@@ -1,11 +1,10 @@
-import { getMostRecentObservation } from '../../utils.js';
-import { createStalenessTracker } from '../../data-staleness.js';
 import { calculateEthanolConcentration } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 export const ethanolConcentration = {
     id: 'ethanol-concentration',
     title: 'Estimated Ethanol (and Toxic Alcohol) Serum Concentration Based on Ingestion',
@@ -88,8 +87,8 @@ export const ethanolConcentration = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        const stalenessTracker = createStalenessTracker();
-        stalenessTracker.setContainer(container);
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const amountEl = container.querySelector('#eth-amount');
         const abvEl = container.querySelector('#eth-abv');
         const weightEl = container.querySelector('#eth-weight');
@@ -165,9 +164,10 @@ export const ethanolConcentration = {
             input.addEventListener('change', calculate); // radio/checkbox/unitToggle
         });
         container.querySelectorAll('input[name="eth-gender"]').forEach(radio => radio.addEventListener('change', calculate));
-        // Set default gender based on patient
-        if (patient && patient.gender) {
-            const genderValue = patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+        // Set default gender based on patient using FHIRDataService
+        const gender = fhirDataService.getPatientGender();
+        if (gender) {
+            const genderValue = gender === 'female' ? 'female' : 'male';
             const genderRadio = container.querySelector(`input[name="eth-gender"][value="${genderValue}"]`);
             if (genderRadio) {
                 genderRadio.checked = true;
@@ -175,20 +175,13 @@ export const ethanolConcentration = {
             }
         }
         // FHIR auto-populate weight
-        getMostRecentObservation(client, LOINC_CODES.WEIGHT).then(obs => {
-            if (obs && obs.valueQuantity) {
-                const val = obs.valueQuantity.value;
-                const unit = obs.valueQuantity.unit || 'kg';
-                const converted = UnitConverter.convert(val, unit, 'kg', 'weight');
-                if (converted !== null) {
-                    weightEl.value = converted.toFixed(1);
+        if (client) {
+            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
+                if (result.value !== null) {
+                    weightEl.value = result.value.toFixed(1);
                     weightEl.dispatchEvent(new Event('input'));
-                    stalenessTracker.trackObservation('#eth-weight', obs, LOINC_CODES.WEIGHT, 'Weight');
                 }
-                else {
-                    console.warn('Could not convert weight unit:', unit);
-                }
-            }
-        }).catch(e => console.warn(e));
+            }).catch(e => console.warn(e));
+        }
     }
 };

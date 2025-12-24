@@ -131,7 +131,6 @@ export const ascvd = {
                             <div class="therapy-details" id="lifestyle-details" style="display:none; margin-left: 25px;">
                                 ${uiBuilder.createCheckbox({ id: 'smoking-cessation', label: 'Smoking Cessation' })}
                                 ${uiBuilder.createCheckbox({ id: 'bp-control', label: 'BP Control (target <130/80)' })}
-                                ${uiBuilder.createCheckbox({ id: 'weight-loss', label: 'Weight Loss (if BMI ≥25)' })}
                             </div>
                         </div>
                         
@@ -150,7 +149,7 @@ export const ascvd = {
                             </div>
                         </div>
                         
-                        <button id="calculate-therapy-impact" class="ui-btn" style="margin-top: 15px; width: 100%;">Calculate Therapy Impact</button>
+                        <button id="calculate-therapy-impact" class="ui-btn ui-btn-primary" style="margin-top: 15px; width: 100%; padding: 12px 24px; font-size: 1.1rem; font-weight: 600;">📊 Calculate Therapy Impact</button>
                         
                         <div id="therapy-results" class="therapy-results" style="display:none; margin-top: 20px;"></div>
                     `
@@ -200,7 +199,7 @@ export const ascvd = {
         if (age !== null) {
             ageInput.value = age.toString();
         }
-        
+
         // Set gender from patient data using FHIRDataService
         const gender = fhirDataService.getPatientGender();
         if (gender) {
@@ -529,10 +528,6 @@ export const ascvd = {
                         modifiedPatientData.sbp = 130;
                         modifiedPatientData.onHtnTx = true;
                         interventions.push('Blood pressure control');
-                    }
-                    // Weight loss has indirect effects, add to list but hard to quantify in PCE
-                    if ((container.querySelector('#weight-loss') as HTMLInputElement)?.checked) {
-                        interventions.push('Weight loss');
                     }
                 }
 

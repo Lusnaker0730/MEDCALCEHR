@@ -1,7 +1,7 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getMostRecentObservation, calculateAge } from '../../utils.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 const riskMap = [
     3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0,
     81.7, 86.6, 90.6
@@ -87,6 +87,63 @@ export const actionIcu = createRadioScoreCalculator({
     references: [
         '📚 Reference: Fanaroff, A. C., et al. (2018). Risk Score to Predict Need for Intensive Care in Initially Hemodynamically Stable Adults With Non–ST‐Segment–Elevation Myocardial Infarction. Journal of the American Heart Association, 7(11).'
     ],
+    interpretationInfo: `
+        <div style="margin-top: 20px;">
+            <h4 style="margin-bottom: 15px; color: #333;">📐 Scoring Formula</h4>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Variable</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">0 points</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">1 point</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">2 points</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">3 points</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">5 points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;">Age, years</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;70</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥70</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Serum creatinine, mg/dL</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;1.1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥1.1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;">Heart rate, bpm</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;85</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">85-100</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥100</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Systolic BP, mmHg</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥145</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">125-145</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;125</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;">Troponin ratio (×ULN)</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;12</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥12</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Heart failure signs/symptoms</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">No</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Yes</td></tr>
+                        <tr><td style="padding: 8px; border: 1px solid #ddd;">ST depression on EKG</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">No</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Yes</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Prior revascularization</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Yes</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">No</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h4 style="margin: 20px 0 15px 0; color: #333;">📊 Risk of Complications Requiring ICU Care</h4>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Score</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Risk %</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Score</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Risk %</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Score</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Risk %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: rgba(40, 167, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">0</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">3.4%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">6</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">16.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">55.4%</td></tr>
+                        <tr style="background: rgba(40, 167, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4.8%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">21.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">13</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">62.7%</td></tr>
+                        <tr style="background: rgba(40, 167, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">6.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">8</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">27.5%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">14</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">69.6%</td></tr>
+                        <tr style="background: rgba(255, 193, 7, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">3</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9.2%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">33.9%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">15</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">76.0%</td></tr>
+                        <tr style="background: rgba(255, 193, 7, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12.5%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">40.8%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">16</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">81.7%</td></tr>
+                        <tr style="background: rgba(220, 53, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">16.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">48.0%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&gt;14</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥39.3%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;">
+                *Cardiac arrest, shock, high-grade atrioventricular block, respiratory failure, stroke, or death during index admission.
+            </p>
+        </div>
+    `,
     customResultRenderer: (score) => {
         const riskPercent = score < riskMap.length ? riskMap[score] : riskMap[riskMap.length - 1];
         let riskLevel = 'Low Risk';
@@ -120,8 +177,8 @@ export const actionIcu = createRadioScoreCalculator({
         `;
     },
     customInitialize: (client, patient, container, calculate) => {
-        const fhirClient = client;
-        const patientData = patient;
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
         const setRadioWithValue = (name, value, conditions) => {
             if (value === null)
                 return;
@@ -137,31 +194,32 @@ export const actionIcu = createRadioScoreCalculator({
                 }
             }
         };
-        if (patientData && patientData.birthDate) {
-            const patientAge = calculateAge(patientData.birthDate);
-            setRadioWithValue('action-age', patientAge, [v => v < 70, v => v >= 70]);
+        // Age from FHIRDataService
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            setRadioWithValue('action-age', age, [v => v < 70, v => v >= 70]);
         }
-        if (fhirClient) {
+        if (client) {
             Promise.all([
-                getMostRecentObservation(fhirClient, LOINC_CODES.CREATININE),
-                getMostRecentObservation(fhirClient, LOINC_CODES.HEART_RATE),
-                getMostRecentObservation(fhirClient, LOINC_CODES.SYSTOLIC_BP)
-            ]).then(([creatObs, hrObs, sbpObs]) => {
-                if (creatObs && creatObs.valueQuantity && creatObs.valueQuantity.value !== undefined) {
-                    setRadioWithValue('action-creatinine', creatObs.valueQuantity.value, [
+                fhirDataService.getObservation(LOINC_CODES.CREATININE, { trackStaleness: true, stalenessLabel: 'Creatinine', targetUnit: 'mg/dL', unitType: 'creatinine' }),
+                fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }),
+                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' })
+            ]).then(([creatResult, hrResult, sbpResult]) => {
+                if (creatResult.value !== null) {
+                    setRadioWithValue('action-creatinine', creatResult.value, [
                         v => v < 1.1,
                         v => v >= 1.1
                     ]);
                 }
-                if (hrObs && hrObs.valueQuantity && hrObs.valueQuantity.value !== undefined) {
-                    setRadioWithValue('action-hr', hrObs.valueQuantity.value, [
+                if (hrResult.value !== null) {
+                    setRadioWithValue('action-hr', hrResult.value, [
                         v => v < 85,
                         v => v >= 85 && v <= 100,
                         v => v > 100
                     ]);
                 }
-                if (sbpObs && sbpObs.valueQuantity && sbpObs.valueQuantity.value !== undefined) {
-                    setRadioWithValue('action-sbp', sbpObs.valueQuantity.value, [
+                if (sbpResult.value !== null) {
+                    setRadioWithValue('action-sbp', sbpResult.value, [
                         v => v >= 145,
                         v => v >= 125 && v < 145,
                         v => v < 125
