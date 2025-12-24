@@ -6,14 +6,22 @@
   "main": "index.html",
   "scripts": {
     "start": "npx http-server -p 8000 -c-1",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "typecheck": "tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:ci": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests --forceExit",
     "lint": "eslint js/**/*.js",
     "lint:fix": "eslint js/**/*.js --fix",
     "format": "prettier --write \"js/**/*.js\" \"*.html\"",
     "format:check": "prettier --check \"js/**/*.js\" \"*.html\"",
-    "validate": "npm run lint && npm run format:check && npm run test"
+    "validate": "npm run typecheck && npm run lint && npm run format:check && npm run test:ci",
+    "ci": "npm run validate",
+    "stats": "echo 'TypeScript files:' && find src -name '*.ts' | wc -l && echo 'Calculators:' && find src/calculators -name 'index.ts' | wc -l",
+    "clean": "rimraf js/calculators js/*.js js/*.d.ts",
+    "prepare": "husky install || true"
   },
   "repository": {
     "type": "git",
