@@ -1,0 +1,71 @@
+# PR 自動標籤配置
+
+# 計算器相關
+calculators:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/calculators/**/*'
+      - 'js/calculators/**/*'
+
+# 核心模組
+core:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/*.ts'
+      - 'js/*.js'
+      - 'js/types/**/*'
+
+# FHIR 相關
+fhir:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/fhir*.ts'
+      - '**/fhir*.js'
+      - '**/utils.ts'
+      - '**/utils.js'
+
+# 樣式
+styles:
+  - changed-files:
+    - any-glob-to-any-file: 'css/**/*'
+
+# 測試
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**/*'
+
+# 文檔
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '*.md'
+      - 'docs/**/*'
+
+# CI/CD
+ci-cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+
+# 配置
+config:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.eslintrc.json'
+      - '.prettierrc'
+
+# TypeScript
+typescript:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.ts'
+
+# 驗證相關
+validation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/validator*'
+      - '**/errorHandler*'
