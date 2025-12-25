@@ -41,45 +41,31 @@ export const helps2bScore = createScoreCalculator({
         { minScore: 5, maxScore: 5, risk: '88%', category: 'Very High', severity: 'danger' },
         { minScore: 6, maxScore: 999, risk: '> 95%', category: 'Extremely High', severity: 'danger' }
     ],
-    // 公式說明
-    formulaItems: [
-        {
-            title: 'Scoring Criteria',
-            formulas: [
-                'Frequency > 2 Hz: +1 point',
-                'Sporadic epileptiform discharges: +1 point',
-                'LPD (Lateralized Periodic Discharges) / BIPD / LRDA: +1 point',
-                'Plus features (superimposed fast activity or rhythmic delta): +1 point',
-                'Prior seizure (before cEEG monitoring): +1 point',
-                'BIRDs (Brief Ictal Rhythmic Discharges): +2 points'
-            ]
-        },
-        {
-            title: 'Seizure Probability by Score',
-            content: `
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                        <thead>
-                            <tr style="background: rgba(102, 126, 234, 0.1);">
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Score</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Seizure Risk</th>
-                                <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Risk Category</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">0</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">< 5%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Very Low</td></tr>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Low</td></tr>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">27%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Moderate</td></tr>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">3</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">50%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Moderate-High</td></tr>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">73%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">High</td></tr>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">88%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Very High</td></tr>
-                            <tr><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥6</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">> 95%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Extremely High</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            `
-        }
-    ],
+    // 公式說明 - 使用新的統一格式
+    formulaSection: {
+        show: true,
+        title: 'Scoring Criteria',
+        calculationNote: 'Select applicable EEG findings. Each finding adds to the total score:',
+        scoringCriteria: [
+            { criteria: 'Frequency > 2 Hz', points: '+1' },
+            { criteria: 'Sporadic epileptiform discharges', points: '+1' },
+            { criteria: 'LPD (Lateralized Periodic Discharges) / BIPD / LRDA', points: '+1' },
+            { criteria: 'Plus features (superimposed fast activity or rhythmic delta)', points: '+1' },
+            { criteria: 'Prior seizure (before cEEG monitoring)', points: '+1' },
+            { criteria: 'BIRDs (Brief Ictal Rhythmic Discharges)', points: '+2' }
+        ],
+        interpretationTitle: 'Seizure Probability by Score',
+        tableHeaders: ['Score', 'Seizure Risk', 'Risk Category'],
+        interpretations: [
+            { score: '0', category: '< 5%', interpretation: 'Very Low', severity: 'success' },
+            { score: '1', category: '12%', interpretation: 'Low', severity: 'success' },
+            { score: '2', category: '27%', interpretation: 'Moderate', severity: 'warning' },
+            { score: '3', category: '50%', interpretation: 'Moderate-High', severity: 'warning' },
+            { score: '4', category: '73%', interpretation: 'High', severity: 'danger' },
+            { score: '5', category: '88%', interpretation: 'Very High', severity: 'danger' },
+            { score: '≥6', category: '> 95%', interpretation: 'Extremely High', severity: 'danger' }
+        ]
+    },
     // 參考文獻
     references: [
         'Struck, A. F., et al. (2017). Association of an Electroencephalography-Based Risk Score With Seizure Probability in Hospitalized Patients. <em>JAMA Neurology</em>, 74(12), 1419–1424.'

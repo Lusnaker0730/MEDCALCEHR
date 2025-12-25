@@ -1,0 +1,159 @@
+/* =============================================
+   MEDCALC EHR - 首頁專屬樣式
+   Version: 1.0.0
+   
+   從 style.css 提取
+   ============================================= */
+
+/* ===================
+   Sticky Header
+   =================== */
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+    padding: 0 0 20px 0;
+    margin: -40px -40px 0 -40px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 40px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    border-radius: 24px 24px 0 0;
+}
+
+.content-area {
+    flex: 1;
+    padding: 20px 0 0 0;
+}
+
+.calculators-header h2 {
+    margin-bottom: 0;
+}
+
+/* ===================
+   Patient Info
+   =================== */
+
+#patient-info p {
+    margin: 5px 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+/* ===================
+   Calculator Sections
+   =================== */
+
+.calculator-section {
+    margin-bottom: 15px;
+}
+
+.calculator-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background: #ddd;
+    margin: 15px 0;
+}
+
+/* ===================
+   Calculator Header
+   =================== */
+
+.calculator-header {
+    margin-bottom: 20px;
+}
+
+/* ===================
+   Calculator Card (舊版)
+   =================== */
+
+.calculator-card {
+    background: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.calculator-card h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* ===================
+   Checklist (舊版)
+   =================== */
+
+.checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+}
+
+.check-item input[type="checkbox"] {
+    margin-right: 10px;
+    height: 18px;
+    width: 18px;
+}
+
+.check-item label {
+    font-weight: normal;
+}
+
+/* ===================
+   Result (舊版)
+   =================== */
+
+.result {
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #005a9c;
+    background-color: #e7f3fe;
+    border-left: 4px solid #007bff;
+    padding: 10px;
+}
+
+#bmi-result {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* ===================
+   響應式
+   =================== */
+
+@media (max-width: 768px) {
+    .sticky-header {
+        padding: 20px 0 15px 0;
+        margin: -20px -20px 0 -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 20px;
+    }
+
+    .content-area {
+        padding: 15px 0 0 0;
+    }
+
+    #patient-info p {
+        font-size: 1.2rem;
+    }
+}

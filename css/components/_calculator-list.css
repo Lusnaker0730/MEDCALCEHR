@@ -1,0 +1,172 @@
+/* =============================================
+   MEDCALC EHR - 計算器列表組件樣式
+   Version: 1.0.0
+   
+   從 style.css 提取
+   ============================================= */
+
+/* ===================
+   計算器列表容器
+   =================== */
+
+.calculator-list,
+#calculator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ===================
+   列表項目
+   =================== */
+
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.list-item:hover {
+    background-color: #f1f1f1;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.list-item-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.list-item-title {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #2d3748;
+}
+
+.list-item-description {
+    color: #555;
+    font-size: 0.9em;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* ===================
+   星號收藏
+   =================== */
+
+.list-item-star {
+    font-size: 1.5em;
+    color: #ccc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 5px;
+}
+
+.list-item-star:hover {
+    color: #f3d11a;
+    transform: scale(1.2);
+}
+
+.list-item-star.active {
+    color: #f3d11a;
+}
+
+/* ===================
+   計算器連結 (舊版樣式)
+   =================== */
+
+.calculator-link {
+    display: block;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #667eea;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.calculator-link:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(5px);
+}
+
+/* ===================
+   返回連結
+   =================== */
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+.back-link:hover {
+    color: #764ba2;
+    transform: translateX(-5px);
+}
+
+/* ===================
+   無結果狀態
+   =================== */
+
+.no-results {
+    color: #666;
+    padding: 30px 15px;
+    text-align: center;
+    font-style: italic;
+}
+
+/* ===================
+   載入動畫
+   =================== */
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 2s infinite;
+}
+
+/* ===================
+   響應式
+   =================== */
+
+@media (max-width: 768px) {
+    .list-item {
+        padding: 12px;
+    }
+
+    .list-item-title {
+        font-size: 1em;
+    }
+
+    .list-item-description {
+        font-size: 0.85em;
+    }
+}

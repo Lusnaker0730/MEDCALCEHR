@@ -6,6 +6,9 @@
   "main": "index.html",
   "scripts": {
     "start": "npx http-server -p 8000 -c-1",
+    "build:ts": "npx tsc -p tsconfig.json",
+    "clean:ts": "powershell -ExecutionPolicy Bypass -File clean-ts-output.ps1",
+    "rebuild:ts": "npm run clean:ts && npm run build:ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",

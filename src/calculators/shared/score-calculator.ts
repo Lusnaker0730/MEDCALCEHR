@@ -19,12 +19,17 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
+import {
     fhirDataService,
     FieldDataRequirement,
     FHIRClient,
     Patient
 } from '../../fhir-data-service.js';
+import { FormulaSectionConfig, InterpretationItem, ScoringCriteriaItem } from './radio-score-calculator.js';
+
+// Re-export for convenience
+export { FormulaSectionConfig, InterpretationItem, ScoringCriteriaItem };
+
 
 // ==========================================
 // 類型定義
@@ -108,17 +113,22 @@ export interface ScoreCalculatorConfig {
     references?: string[];
     /** 提示訊息 */
     infoAlert?: string;
-    /** 公式項目 */
+    /** 公式項目 (舊格式，建議使用 formulaSection) */
     formulaItems?: FormulaItem[];
-    
+
+    /**
+     * Formula 區塊配置（評分表格和解釋）- 統一格式
+     */
+    formulaSection?: FormulaSectionConfig;
+
     /**
      * FHIR 數據需求（聲明式配置）
      */
     dataRequirements?: ScoreFHIRDataRequirements;
-    
+
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
-    
+
     /** 
      * 自定義初始化函數
      * @param client FHIR 客戶端
@@ -183,10 +193,130 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 ? uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
                 : '';
 
-            // 生成公式區塊（如果有）
-            const formulaHTML = config.formulaItems
-                ? uiBuilder.createFormulaSection({ items: config.formulaItems })
-                : '';
+            // 生成公式區塊 - 優先使用新的 formulaSection，否則使用舊的 formulaItems
+            let formulaHTML = '';
+
+            if (config.formulaSection?.show) {
+                // 使用新的統一 formulaSection 格式
+                const fs = config.formulaSection;
+                const formulaTitle = fs.title || 'FORMULA';
+                const calcNote = fs.calculationNote || '';
+
+                // 生成評分標準表格 (優先) 或 註腳列表
+                let scoringContentHTML = '';
+                if (fs.scoringCriteria?.length) {
+                    // 使用表格形式顯示評分標準
+                    const scoringRows = fs.scoringCriteria.map(item => {
+                        if (item.isHeader) {
+                            // 分類標題行
+                            return `
+                                <tr class="ui-scoring-table__category">
+                                    <td colspan="2">${item.criteria}</td>
+                                </tr>
+                            `;
+                        } else {
+                            // 普通項目行
+                            return `
+                                <tr class="ui-scoring-table__item">
+                                    <td class="ui-scoring-table__criteria">${item.criteria}</td>
+                                    <td class="ui-scoring-table__points">${item.points || ''}</td>
+                                </tr>
+                            `;
+                        }
+                    }).join('');
+
+                    scoringContentHTML = `
+                        <div class="ui-table-wrapper">
+                            <table class="ui-scoring-table">
+                                <thead>
+                                    <tr>
+                                        <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
+                                        <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${scoringRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else if (fs.footnotes?.length) {
+                    // 使用項目符號列表
+                    scoringContentHTML = `
+                        <div style="margin-top: 10px; font-size: 0.95em; color: #555;">
+                            ${fs.footnotes.map(fn => `<p style="margin: 5px 0;">${fn}</p>`).join('')}
+                        </div>
+                    `;
+                }
+
+                // 生成解釋表格 (使用 CSS 類別)
+                let interpretationTableHTML = '';
+                if (fs.interpretations?.length) {
+                    const interpTitle = fs.interpretationTitle || 'Interpretation';
+
+                    // 判斷是否有 category 欄位
+                    const hasCategory = fs.interpretations.some(item => item.category);
+
+                    // 預設表頭
+                    const defaultHeaders = hasCategory
+                        ? ['Score', 'Risk Category', 'Description']
+                        : ['Score', 'Interpretation'];
+                    const headers = fs.tableHeaders || defaultHeaders;
+
+                    const interpRows = fs.interpretations.map(item => {
+                        const severityClass = item.severity ? `ui-interpretation-table__row--${item.severity}` : '';
+
+                        if (hasCategory) {
+                            return `
+                                <tr class="ui-interpretation-table__row ${severityClass}">
+                                    <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
+                                    <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
+                                    <td class="ui-interpretation-table__cell">${item.interpretation}</td>
+                                </tr>
+                            `;
+                        } else {
+                            return `
+                                <tr class="ui-interpretation-table__row ${severityClass}">
+                                    <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
+                                    <td class="ui-interpretation-table__cell">${item.interpretation}</td>
+                                </tr>
+                            `;
+                        }
+                    }).join('');
+
+                    const headerCells = headers.map((h, i) =>
+                        `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                    ).join('');
+
+                    interpretationTableHTML = `
+                        <div class="ui-section" style="margin-top: 20px;">
+                            <div class="ui-section-title">📊 ${interpTitle}</div>
+                            <div class="ui-table-wrapper">
+                                <table class="ui-interpretation-table">
+                                    <thead>
+                                        <tr>${headerCells}</tr>
+                                    </thead>
+                                    <tbody>
+                                        ${interpRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                formulaHTML = `
+                    <div class="ui-section" style="margin-top: 20px;">
+                        <div class="ui-section-title">📐 ${formulaTitle}</div>
+                        ${calcNote ? `<p style="margin-bottom: 10px; color: #555;">${calcNote}</p>` : ''}
+                        ${scoringContentHTML}
+                    </div>
+                    ${interpretationTableHTML}
+                `;
+            } else if (config.formulaItems) {
+                // 舊格式兼容
+                formulaHTML = uiBuilder.createFormulaSection({ items: config.formulaItems });
+            }
 
             // 生成參考文獻（如果有）
             const referencesHTML = config.references?.length
@@ -205,10 +335,10 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 ${infoAlertHTML}
                 ${sectionsHTML}
                 
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: `${config.title} Results` 
-                })}
+                ${uiBuilder.createResultBox({
+                id: `${config.id}-result`,
+                title: `${config.title} Results`
+            })}
                 
                 ${formulaHTML}
                 ${referencesHTML}
@@ -243,14 +373,14 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 const checkboxes = container.querySelectorAll('input[type="checkbox"]');
                 let score = 0;
                 const sectionScores: Record<string, number> = {};
-                
+
                 checkboxes.forEach((box) => {
                     const checkbox = box as HTMLInputElement;
                     if (checkbox.checked) {
                         // 支援浮點數值（如 DASI）
                         const value = parseFloat(checkbox.value) || 0;
                         score += value;
-                        
+
                         // 追蹤各區塊的分數
                         const sectionId = checkbox.id.split('-')[0];
                         sectionScores[sectionId] = (sectionScores[sectionId] || 0) + value;
@@ -273,18 +403,18 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
 
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                    label: 'Total Score',
-                                    value: score.toString(),
-                                    unit: 'points',
-                                    interpretation: riskLevel.category,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
+                                label: 'Total Score',
+                                value: score.toString(),
+                                unit: 'points',
+                                interpretation: riskLevel.category,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
                                 ${uiBuilder.createResultItem({
-                                    label: 'Risk',
-                                    value: riskLevel.risk,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
-                                ${riskLevel.recommendation 
+                                label: 'Risk',
+                                value: riskLevel.risk,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
+                                ${riskLevel.recommendation
                                     ? uiBuilder.createAlert({
                                         type: riskLevel.severity,
                                         message: riskLevel.recommendation
@@ -311,10 +441,10 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 if (config.dataRequirements && fhirDataService.isReady()) {
                     try {
                         const dataReqs = config.dataRequirements;
-                        
+
                         // 收集所有條件代碼
                         const allConditionCodes: string[] = [...(dataReqs.conditions || [])];
-                        
+
                         // 從選項中收集條件代碼
                         const optionConditionMap = new Map<string, string>(); // conditionCode -> checkboxId
                         config.sections.forEach(section => {
@@ -325,11 +455,11 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                                 }
                             });
                         });
-                        
+
                         // 獲取患者條件並自動勾選相關 checkbox
                         if (allConditionCodes.length > 0) {
                             const conditions = await fhirDataService.getConditions(allConditionCodes);
-                            
+
                             conditions.forEach((condition: any) => {
                                 const codings = condition.code?.coding || [];
                                 codings.forEach((coding: any) => {
@@ -340,22 +470,22 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                                 });
                             });
                         }
-                        
+
                         // 處理觀察值需求
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-                        
+
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate);
                 }
-                
+
                 calculate();
             };
 

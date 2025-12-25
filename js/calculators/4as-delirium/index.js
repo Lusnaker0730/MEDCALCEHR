@@ -73,6 +73,39 @@ const config = {
             description: 'Likely delirium ± underlying cognitive impairment. Formal assessment for delirium is recommended.'
         }
     ],
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points:',
+        scoringCriteria: [
+            { criteria: '1. Alertness', isHeader: true },
+            { criteria: 'Normal (fully alert, not agitated)', points: '0' },
+            { criteria: 'Mild sleepiness for <10 seconds after waking, then normal', points: '0' },
+            { criteria: 'Clearly abnormal', points: '+4' },
+            { criteria: '2. AMT4 (Abbreviated Mental Test)', isHeader: true },
+            { criteria: 'No mistakes', points: '0' },
+            { criteria: '1 mistake', points: '+1' },
+            { criteria: '≥2 mistakes or untestable', points: '+2' },
+            { criteria: '3. Attention*', isHeader: true },
+            { criteria: 'Lists ≥7 months correctly', points: '0' },
+            { criteria: 'Starts but lists <7 months, or refuses to start', points: '+1' },
+            { criteria: 'Untestable (unwell, drowsy, inattentive)', points: '+2' },
+            { criteria: '4. Acute Change or Fluctuating Course**', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '+4' }
+        ],
+        footnotes: [
+            '*Instruct patient to list months in reverse order, starting at December.',
+            '**Evidence of significant change or fluctuation in mental status within the last 2 weeks and still persisting in the last 24 hours.'
+        ],
+        interpretationTitle: 'FACTS & FIGURES',
+        tableHeaders: ['4AT Score', 'Level of Impairment'],
+        interpretations: [
+            { score: '≥4', interpretation: 'Possible delirium and/or cognitive impairment', severity: 'danger' },
+            { score: '1-3', interpretation: 'Possible cognitive impairment', severity: 'warning' },
+            { score: '0', interpretation: 'Delirium or severe cognitive impairment unlikely (but delirium still possible if "acute change or fluctuating course" information is incomplete)', severity: 'success' }
+        ]
+    },
     references: [
         'Bellelli G, et al. Validation of the 4AT, a new instrument for rapid delirium screening: a study in 234 hospitalised older people. <em>Age and Ageing</em>. 2014;43(4):496-502.'
     ]

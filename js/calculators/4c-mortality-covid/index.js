@@ -135,41 +135,52 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
         })}
         `;
     },
-    interpretationInfo: `
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                <thead>
-                    <tr style="background: rgba(102, 126, 234, 0.1);">
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Score</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Risk Group</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">Mortality Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="background: rgba(40, 167, 69, 0.1);">
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">0-3</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Low</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1.2%</td>
-                    </tr>
-                    <tr style="background: rgba(255, 193, 7, 0.1);">
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4-8</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Intermediate</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9.9%</td>
-                    </tr>
-                    <tr style="background: rgba(255, 152, 0, 0.1);">
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9-14</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">High</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">31.4%</td>
-                    </tr>
-                    <tr style="background: rgba(220, 53, 69, 0.1);">
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥15</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Very High</td>
-                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">61.5%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    `,
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Sum of all category points (0-21 points):',
+        scoringCriteria: [
+            { criteria: 'Age (years)', isHeader: true },
+            { criteria: '<50', points: '0' },
+            { criteria: '50-59', points: '+2' },
+            { criteria: '60-69', points: '+4' },
+            { criteria: '70-79', points: '+6' },
+            { criteria: '≥80', points: '+7' },
+            { criteria: 'Sex at Birth', isHeader: true },
+            { criteria: 'Female', points: '0' },
+            { criteria: 'Male', points: '+1' },
+            { criteria: 'Number of Comorbidities', isHeader: true },
+            { criteria: '0', points: '0' },
+            { criteria: '1', points: '+1' },
+            { criteria: '≥2', points: '+2' },
+            { criteria: 'Respiratory Rate (breaths/min)', isHeader: true },
+            { criteria: '<20', points: '0' },
+            { criteria: '20-29', points: '+1' },
+            { criteria: '≥30', points: '+2' },
+            { criteria: 'Peripheral Oxygen Saturation (Room Air)', isHeader: true },
+            { criteria: '≥92%', points: '0' },
+            { criteria: '<92%', points: '+2' },
+            { criteria: 'Glasgow Coma Scale', isHeader: true },
+            { criteria: '15', points: '0' },
+            { criteria: '<15', points: '+2' },
+            { criteria: 'Urea / BUN', isHeader: true },
+            { criteria: 'Urea <7 mmol/L or BUN <19.6 mg/dL', points: '0' },
+            { criteria: 'Urea 7-14 mmol/L or BUN 19.6-39.2 mg/dL', points: '+1' },
+            { criteria: 'Urea >14 mmol/L or BUN >39.2 mg/dL', points: '+3' },
+            { criteria: 'C-Reactive Protein (mg/L)', isHeader: true },
+            { criteria: '<50', points: '0' },
+            { criteria: '50-99', points: '+1' },
+            { criteria: '≥100', points: '+2' }
+        ],
+        interpretationTitle: 'Interpretation',
+        tableHeaders: ['Score', 'Risk Group', 'Mortality Rate'],
+        interpretations: [
+            { score: '0-3', category: 'Low', interpretation: '1.2%', severity: 'success' },
+            { score: '4-8', category: 'Intermediate', interpretation: '9.9%', severity: 'warning' },
+            { score: '9-14', category: 'High', interpretation: '31.4%', severity: 'danger' },
+            { score: '≥15', category: 'Very High', interpretation: '61.5%', severity: 'danger' }
+        ]
+    },
     customInitialize: (client, patient, container, calculate) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
