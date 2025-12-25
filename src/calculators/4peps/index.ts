@@ -12,72 +12,89 @@ import {
 } from '../shared/mixed-input-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
-const formulaHTML = `
-<div class="formula-section mt-4">
-    <h3>FORMULA</h3>
-    <p><strong>Addition of the selected points:</strong></p>
-    ${uiBuilder.createTable({
-    headers: ['Variable', 'Points'],
-    rows: [
-        ['<strong>Age, years</strong>', ''],
-        ['&nbsp;&nbsp;<50', '-2'],
-        ['&nbsp;&nbsp;50-64', '-1'],
-        ['&nbsp;&nbsp;>64', '0'],
-        ['<strong>Sex</strong>', ''],
-        ['&nbsp;&nbsp;Female', '0'],
-        ['&nbsp;&nbsp;Male', '2'],
-        ['<strong>Chronic respiratory disease</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '-1'],
-        ['<strong>Heart rate <80</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '-1'],
-        ['<strong>Chest pain AND acute dyspnea</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '1'],
-        ['<strong>Current estrogen use</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '2'],
-        ['<strong>Prior history of VTE</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '2'],
-        ['<strong>Syncope</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '2'],
-        ['<strong>Immobility within the last four weeks*</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '2'],
-        ['<strong>O₂ saturation <95%</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '3'],
-        ['<strong>Calf pain and/or unilateral lower limb edema</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '3'],
-        ['<strong>PE is the most likely diagnosis</strong>', ''],
-        ['&nbsp;&nbsp;No', '0'],
-        ['&nbsp;&nbsp;Yes', '5']
-    ]
-})}
-    <p class="text-sm text-muted mt-2">*Surgery, lower limb plaster cast, or bedridden >3 days for acute medical condition within the last four weeks.</p>
-    
-    <h3 class="mt-4">FACTS & FIGURES</h3>
-    <p><strong>Interpretation:</strong></p>
-    ${uiBuilder.createTable({
-    headers: ['4PEPS Score for PE', 'Clinical probability of PE', 'PE diagnosis'],
-    rows: [
-        ['<0', 'Very low CPP (<2%)', 'PE can be ruled out'],
-        ['0-5', 'Low CPP (2-20%)', 'PE can be ruled out if D-dimer level <1.0 µg/mL'],
-        ['6-12', 'Moderate CPP (20-65%)', 'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL'],
-        ['≥13', 'High CPP (>65%)', 'PE cannot be ruled out without imaging testing']
-    ]
-})}
-</div>
-`;
-
 const config: MixedInputCalculatorConfig = {
     id: '4peps',
     title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)',
-    formulaHTML: formulaHTML,
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points:',
+        scoringCriteria: [
+            { criteria: 'Age, years', isHeader: true },
+            { criteria: '<50', points: '-2' },
+            { criteria: '50-64', points: '-1' },
+            { criteria: '>64', points: '0' },
+            { criteria: 'Sex', isHeader: true },
+            { criteria: 'Female', points: '0' },
+            { criteria: 'Male', points: '2' },
+            { criteria: 'Chronic respiratory disease', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '-1' },
+            { criteria: 'Heart rate <80', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '-1' },
+            { criteria: 'Chest pain AND acute dyspnea', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' },
+            { criteria: 'Current estrogen use', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '2' },
+            { criteria: 'Prior history of VTE', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '2' },
+            { criteria: 'Syncope', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '2' },
+            { criteria: 'Immobility within the last four weeks*', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '2' },
+            { criteria: 'O₂ saturation <95%', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '3' },
+            { criteria: 'Calf pain and/or unilateral lower limb edema', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '3' },
+            { criteria: 'PE is the most likely diagnosis', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '5' }
+        ],
+        footnotes: [
+            '*Surgery, lower limb plaster cast, or bedridden >3 days for acute medical condition within the last four weeks.'
+        ],
+        interpretationTitle: 'FACTS & FIGURES',
+        tableHeaders: [
+            '4PEPS Score for PE',
+            'Clinical probability of PE',
+            'PE diagnosis'
+        ],
+        interpretations: [
+            {
+                score: '<0',
+                category: 'Very low CPP (<2%)',
+                interpretation: 'PE can be ruled out',
+                severity: 'success'
+            },
+            {
+                score: '0-5',
+                category: 'Low CPP (2-20%)',
+                interpretation: 'PE can be ruled out if D-dimer level <1.0 µg/mL',
+                severity: 'success'
+            },
+            {
+                score: '6-12',
+                category: 'Moderate CPP (20-65%)',
+                interpretation:
+                    'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL',
+                severity: 'warning'
+            },
+            {
+                score: '≥13',
+                category: 'High CPP (>65%)',
+                interpretation: 'PE cannot be ruled out without imaging testing',
+                severity: 'danger'
+            }
+        ]
+    },
     description: 'Rules out PE based on clinical criteria.',
     infoAlert:
         '<strong>Instructions:</strong> Use clinician judgment to assess which vital sign should be used for the 4PEPS score.',

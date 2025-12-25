@@ -9,7 +9,7 @@
  * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  */
 
-import { uiBuilder } from '../../ui-builder.js';
+import { uiBuilder, UIFormulaItem } from '../../ui-builder.js';
 import {
     fhirDataService,
     FieldDataRequirement,
@@ -118,6 +118,33 @@ export interface FHIRDataRequirements {
     };
 }
 
+/** Scoring Criteria for Formula Section */
+export interface ScoringCriteriaItem {
+    criteria: string;
+    points?: string;
+    isHeader?: boolean;
+}
+
+/** Interpretation Item for Formula Section */
+export interface InterpretationItem {
+    score: string;
+    category?: string;
+    interpretation: string;
+    severity?: 'success' | 'warning' | 'danger' | 'info';
+}
+
+/** Formula Section Configuration */
+export interface FormulaSectionConfig {
+    show: boolean;
+    title?: string;
+    calculationNote?: string;
+    scoringCriteria?: ScoringCriteriaItem[];
+    footnotes?: string[];
+    interpretationTitle?: string;
+    tableHeaders?: string[];
+    interpretations?: InterpretationItem[];
+}
+
 /** 混合輸入計算器配置 */
 export interface MixedInputCalculatorConfig {
     id: string;
@@ -131,8 +158,13 @@ export interface MixedInputCalculatorConfig {
     riskLevels?: RiskLevel[];
     /** 參考文獻 */
     references?: string[];
-    /** 自定義公式 HTML */
-    formulaHTML?: string;
+    /** 公式內容（使用 UIBuilder 標準格式） */
+    formulas?: UIFormulaItem[];
+    /** 
+     * Formula Section Config (Match RadioScoreCalculator style) 
+     * If provided, takes precedence over `formulas`
+     */
+    formulaSection?: FormulaSectionConfig;
     /** 結果標題 */
     resultTitle?: string;
 
@@ -305,6 +337,135 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                    </div>`
                     : '';
 
+            // Render Formula Section (Prioritize specific config)
+            let formulaSectionHTML = '';
+
+            if (config.formulaSection?.show) {
+                const fs = config.formulaSection;
+                const formulaTitle = fs.title || 'FORMULA';
+                const calcNote = fs.calculationNote || 'Addition of the selected points:';
+
+                // Scoring Table
+                let scoringContentHTML = '';
+                if (fs.scoringCriteria?.length) {
+                    const scoringRows = fs.scoringCriteria
+                        .map(item => {
+                            if (item.isHeader) {
+                                return `
+                                <tr class="ui-scoring-table__category">
+                                    <td colspan="2">${item.criteria}</td>
+                                </tr>
+                            `;
+                            } else {
+                                return `
+                                <tr class="ui-scoring-table__item">
+                                    <td class="ui-scoring-table__criteria">${item.criteria}</td>
+                                    <td class="ui-scoring-table__points">${item.points || ''}</td>
+                                </tr>
+                            `;
+                            }
+                        })
+                        .join('');
+
+                    scoringContentHTML = `
+                        <div class="ui-table-wrapper">
+                            <table class="ui-scoring-table">
+                                <thead>
+                                    <tr>
+                                        <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
+                                        <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${scoringRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                // Footnotes
+                const footnotesHTML = fs.footnotes?.length
+                    ? `<div style="margin-top: 15px; font-size: 0.85em; color: #666;">
+                        ${fs.footnotes.map(fn => `<p style="margin: 5px 0;">${fn}</p>`).join('')}
+                       </div>`
+                    : '';
+
+                // Interpretation Table
+                let interpretationTableHTML = '';
+                if (fs.interpretations?.length) {
+                    const interpTitle = fs.interpretationTitle || 'FACTS & FIGURES';
+                    const hasCategory = fs.interpretations.some(item => item.category);
+                    const defaultHeaders = hasCategory
+                        ? ['Score', 'Risk Category', 'Description']
+                        : ['Score', 'Interpretation'];
+                    const headers = fs.tableHeaders || defaultHeaders;
+
+                    const interpRows = fs.interpretations
+                        .map(item => {
+                            const severityClass = item.severity
+                                ? `ui-interpretation-table__row--${item.severity}`
+                                : '';
+
+                            if (hasCategory) {
+                                return `
+                                <tr class="ui-interpretation-table__row ${severityClass}">
+                                    <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
+                                    <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
+                                    <td class="ui-interpretation-table__cell">${item.interpretation}</td>
+                                </tr>
+                            `;
+                            } else {
+                                return `
+                                <tr class="ui-interpretation-table__row ${severityClass}">
+                                    <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
+                                    <td class="ui-interpretation-table__cell">${item.interpretation}</td>
+                                </tr>
+                            `;
+                            }
+                        })
+                        .join('');
+
+                    const headerCells = headers
+                        .map(
+                            (h, i) =>
+                                `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                        )
+                        .join('');
+
+                    interpretationTableHTML = `
+                        <div class="ui-section" style="margin-top: 20px;">
+                            <div class="ui-section-title">📊 ${interpTitle}</div>
+                            <div class="ui-table-wrapper">
+                                <table class="ui-interpretation-table">
+                                    <thead>
+                                        <tr>${headerCells}</tr>
+                                    </thead>
+                                    <tbody>
+                                        ${interpRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                formulaSectionHTML = `
+                    <div class="ui-section" style="margin-top: 20px;">
+                        <div class="ui-section-title">📐 ${formulaTitle}</div>
+                        <p style="margin-bottom: 10px; color: #555;">${calcNote}</p>
+                        ${scoringContentHTML}
+                        ${footnotesHTML}
+                    </div>
+                    ${interpretationTableHTML}
+                `;
+            } else if (config.formulas) {
+                // Fallback to generic formula section
+                formulaSectionHTML = uiBuilder.createFormulaSection({
+                    items: config.formulas
+                });
+            }
+
             return `
                 <div class="calculator-header">
                     <h3>${config.title}</h3>
@@ -327,7 +488,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     title: config.resultTitle || `${config.title} Results`
                 })}
                 
-                ${config.formulaHTML || ''}
+                ${formulaSectionHTML}
                 
                 ${referencesHTML}
             `;

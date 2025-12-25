@@ -30,21 +30,21 @@ export const hepScore: CalculatorModule = {
         </div>
 
         ${uiBuilder.createAlert({
-            type: 'info',
-            message:
-                '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
-        })}
+        type: 'info',
+        message:
+            '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
+    })}
 
         ${uiBuilder.createSection({
-            title: 'Type of HIT onset suspected',
-            content: uiBuilder.createRadioGroup({
-                name: 'hit_onset_type',
-                options: [
-                    { value: 'typical', label: 'Typical onset', checked: true },
-                    { value: 'rapid', label: 'Rapid onset (re-exposure)' }
-                ]
-            })
-        })}
+        title: 'Type of HIT onset suspected',
+        content: uiBuilder.createRadioGroup({
+            name: 'hit_onset_type',
+            options: [
+                { value: 'typical', label: 'Typical onset', checked: true },
+                { value: 'rapid', label: 'Rapid onset (re-exposure)' }
+            ]
+        })
+    })}
 
         <div id="hep-score-criteria">
             <!-- JS will populate this section based on onset type -->
@@ -52,9 +52,109 @@ export const hepScore: CalculatorModule = {
 
         ${uiBuilder.createResultBox({ id: 'hep-score-result', title: 'HEP Score Results' })}
 
-        <div class="chart-container" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
-            <img src="js/calculators/4ts-hit/4HIT.png" alt="HEP Score Table 1" class="reference-image" style="max-width: 100%; border-radius: 8px;" />
-            <img src="js/calculators/4ts-hit/6-Table3-1.png" alt="HEP Score Table 2" class="reference-image" style="max-width: 100%; border-radius: 8px;" />
+        <div class="ui-section" style="margin-top: 20px;">
+            <div class="ui-section-title">📐 FORMULA</div>
+            <p style="margin-bottom: 10px; color: #555;">Addition of the selected points:</p>
+            <div class="ui-table-wrapper">
+                <table class="ui-scoring-table">
+                    <thead>
+                        <tr>
+                            <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
+                            <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Thrombocytopenia Features -->
+                        <tr class="ui-scoring-table__category">
+                            <td colspan="2">Thrombocytopenia Features</td>
+                        </tr>
+                        
+                        <!-- Magnitude of fall -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Magnitude of fall in platelet count</strong> (peak to nadir)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;<30%</td><td class="ui-scoring-table__points">-1</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;30-50%</td><td class="ui-scoring-table__points">1</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;>50%</td><td class="ui-scoring-table__points">3</td></tr>
+
+                        <!-- Timing (Typical) -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Timing of platelet count fall</strong> (typical HIT onset suspected)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins <4 days after heparin exposure</td><td class="ui-scoring-table__points">-2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins 4 days after heparin exposure</td><td class="ui-scoring-table__points">2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins 5-10 days after heparin exposure</td><td class="ui-scoring-table__points">3</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins 11-14 days after heparin exposure</td><td class="ui-scoring-table__points">2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins >14 days after heparin exposure</td><td class="ui-scoring-table__points">-1</td></tr>
+
+                        <!-- Timing (Rapid) -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Timing of platelet count fall</strong> (prior heparin exposure within 100 days)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins <48 hours after heparin re-exposure</td><td class="ui-scoring-table__points">2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Fall begins >48 hours after heparin re-exposure</td><td class="ui-scoring-table__points">-1</td></tr>
+
+                        <!-- Nadir -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Nadir platelet count</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;≤20 x 10⁹/L</td><td class="ui-scoring-table__points">-2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;>20 x 10⁹/L</td><td class="ui-scoring-table__points">2</td></tr>
+
+                        <!-- Thrombosis (Typical) -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Thrombosis</strong> (typical HIT onset suspected)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;New VTE or ATE ≥4 days after heparin exposure</td><td class="ui-scoring-table__points">3</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Progression of pre-existing VTE or ATE while receiving heparin</td><td class="ui-scoring-table__points">2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;None</td><td class="ui-scoring-table__points">0</td></tr>
+
+                        <!-- Thrombosis (Rapid) -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Thrombosis</strong> (prior heparin exposure within 100 days)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;New VTE or ATE after heparin exposure</td><td class="ui-scoring-table__points">3</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Progression of pre-existing VTE or ATE while receiving heparin</td><td class="ui-scoring-table__points">2</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;None</td><td class="ui-scoring-table__points">0</td></tr>
+
+                        <!-- Skin Necrosis -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Skin necrosis at subcutaneous heparin injection sites</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">3</td></tr>
+
+                        <!-- Systemic Reaction -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Acute systemic reaction after IV heparin bolus</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">2</td></tr>
+
+                        <!-- Bleeding -->
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Presence of bleeding, petechiae or extensive bruising</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-1</td></tr>
+
+                        <!-- Other Causes -->
+                        <tr class="ui-scoring-table__category">
+                            <td colspan="2">Other Causes of Thrombocytopenia</td>
+                        </tr>
+
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Presence of chronic thrombocytopenic disorder</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-1</td></tr>
+
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Newly initiated non-heparin medication known to cause thrombocytopenia</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-1</td></tr>
+
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Severe infection</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-2</td></tr>
+
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Severe DIC</strong> (fibrinogen <100 mg/dL and D-dimer >5 µg/mL)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-2</td></tr>
+
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Indwelling intra-arterial device</strong> (e.g. IABP, VAD, ECMO)</td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-2</td></tr>
+
+                         <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>Cardiopulmonary bypass within previous 96 hours</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">-1</td></tr>
+
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria"><strong>No other apparent cause</strong></td><td></td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;No</td><td class="ui-scoring-table__points">0</td></tr>
+                        <tr class="ui-scoring-table__item"><td class="ui-scoring-table__criteria">&nbsp;&nbsp;Yes</td><td class="ui-scoring-table__points">3</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="info-section mt-20 text-sm text-muted">
