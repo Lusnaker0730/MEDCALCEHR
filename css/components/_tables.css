@@ -1,11 +1,11 @@
 /* =============================================
    MEDCALC EHR - 表格組件樣式
-   Version: 1.0.0
+   Version: 1.1.0 (Updated)
    
    統一的表格樣式，用於：
    - 評分標準表格 (Scoring Criteria)
    - 解釋表格 (Interpretation)
-   - 一般數據表格
+   - 一般數據表格 (Reference Table)
    ============================================= */
 
 /* ===================
@@ -29,6 +29,20 @@
     -webkit-overflow-scrolling: touch;
 }
 
+/* Generic Table Styles (for tables without BEM classes) */
+.ui-table th,
+.ui-table td {
+    padding: var(--spacing-3, 12px);
+    border-bottom: 1px solid var(--color-border, #ddd);
+    text-align: left;
+}
+
+.ui-table th {
+    font-weight: 600;
+    color: #5f6368;
+    background: rgba(102, 126, 234, 0.1);
+}
+
 /* ===================
    表格行
    =================== */
@@ -37,7 +51,8 @@
     transition: background-color 0.2s ease;
 }
 
-.ui-table__row:hover {
+.ui-table__row:hover,
+.ui-table tr:hover {
     background-color: rgba(102, 126, 234, 0.05);
 }
 
@@ -154,10 +169,12 @@
    表格容器
    =================== */
 
-.ui-table-wrapper {
+.ui-table-wrapper,
+.ui-table-container {
     overflow-x: auto;
     margin-top: var(--spacing-3, 12px);
     border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--color-border, #ddd);
 }
 
 .ui-table-wrapper--shadow {
@@ -265,23 +282,124 @@
 }
 
 /* ===================
+   Reference Table 
+   (Used by uiBuilder.createTable with .reference-table class)
+   =================== */
+
+.reference-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e1e8ed;
+}
+
+.reference-table td {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.reference-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Alert Colors in Table Cells matching ui-alert classes */
+td .ui-alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+td .ui-alert-warning {
+    background-color: #fff3cd;
+    color: #664d03;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+td .ui-alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+td .ui-alert-info {
+    background-color: #cff4fc;
+    color: #055160;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* Stick Column Support */
+.ui-table.has-sticky-col th:first-child,
+.ui-table.has-sticky-col td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #fff;
+    z-index: 1;
+    border-right: 2px solid #e1e8ed;
+}
+
+.ui-table.has-sticky-col th:first-child {
+    background-color: #f8f9fa;
+    z-index: 2;
+}
+
+
+/* ===================
    深色主題覆蓋
    =================== */
 
 [data-theme="dark"] .ui-table__cell,
-[data-theme="dark"] .ui-table__header {
+[data-theme="dark"] .ui-table__header,
+[data-theme="dark"] .ui-table th,
+[data-theme="dark"] .ui-table td,
+[data-theme="dark"] .ui-table-wrapper,
+[data-theme="dark"] .ui-table-container,
+[data-theme="dark"] .ui-scoring-table__header,
+[data-theme="dark"] .ui-scoring-table__points,
+[data-theme="dark"] .ui-scoring-table__criteria,
+[data-theme="dark"] .ui-scoring-table__category td,
+[data-theme="dark"] .ui-interpretation-table__cell,
+[data-theme="dark"] .ui-interpretation-table__header {
     border-color: var(--color-border-dark, #444);
 }
 
 [data-theme="dark"] .ui-table__row--header,
-[data-theme="dark"] .ui-table__header {
+[data-theme="dark"] .ui-table__header,
+[data-theme="dark"] .ui-table th,
+[data-theme="dark"] .ui-scoring-table__header,
+[data-theme="dark"] .ui-interpretation-table__header {
     background: rgba(102, 126, 234, 0.2);
+    color: #e0e0e0;
 }
 
-[data-theme="dark"] .ui-table__row--category {
+[data-theme="dark"] .ui-table__row--category,
+[data-theme="dark"] .ui-scoring-table__category {
     background: rgba(102, 126, 234, 0.25);
 }
 
-[data-theme="dark"] .ui-table__row--category .ui-table__cell {
+[data-theme="dark"] .ui-table__row--category .ui-table__cell,
+[data-theme="dark"] .ui-scoring-table__category td {
     color: #e0e0e0;
+}
+
+[data-theme="dark"] .reference-table th {
+    background: rgba(102, 126, 234, 0.2);
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .ui-table td {
+    color: #dadada;
 }

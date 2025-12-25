@@ -338,7 +338,8 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                             code: i.loincCode!,
                             label: i.label,
                             targetUnit: i.unitConfig ? i.unitConfig.default : i.standardUnit,
-                            unitType: i.unitConfig?.type
+                            unitType: i.unitConfig?.type,
+                            decimals: 1 // Default to 1 decimal place
                         }));
 
                     await fhirDataService.autoPopulateFields(requirements);

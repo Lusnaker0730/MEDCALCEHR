@@ -1,242 +1,103 @@
+import { createFormulaCalculator } from '../shared/formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
-import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-import { fhirDataService } from '../../fhir-data-service.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-export const calciumCorrection: CalculatorModule = {
+export const calciumCorrection = createFormulaCalculator({
     id: 'calcium-correction',
     title: 'Calcium Correction for Albumin',
     description: 'Calculates corrected calcium for patients with hypoalbuminemia.',
-    generateHTML: function () {
-        const inputs = uiBuilder.createSection({
-            title: 'Lab Values',
-            content: [
-                uiBuilder.createInput({
-                    id: 'ca-total',
-                    label: 'Total Calcium',
-                    type: 'number',
-                    step: 0.1,
-                    unitToggle: { type: 'calcium', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' }
-                }),
-                uiBuilder.createInput({
-                    id: 'ca-albumin',
-                    label: 'Albumin',
-                    type: 'number',
-                    step: 0.1,
-                    unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' }
-                })
-            ].join('')
-        });
+    inputs: [
+        {
+            id: 'ca-total',
+            label: 'Total Calcium',
+            type: 'number',
+            standardUnit: 'mg/dL',
+            unitConfig: { type: 'calcium', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
+            loincCode: LOINC_CODES.CALCIUM,
+            min: 1,
+            max: 20,
+            step: 0.1
+        },
+        {
+            id: 'ca-albumin',
+            label: 'Albumin',
+            type: 'number',
+            standardUnit: 'g/dL',
+            unitConfig: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' },
+            loincCode: LOINC_CODES.ALBUMIN,
+            min: 0.1,
+            max: 10,
+            step: 0.1
+        }
+    ],
+    formulas: [
+        {
+            label: 'Corrected Calcium (mg/dL)',
+            formula: 'Total Calcium + 0.8 × (4.0 - Albumin)'
+        },
+        { label: 'Note', formula: 'Normal albumin reference: 4.0 g/dL' }
+    ],
+    calculate: (values) => {
+        const totalCalciumMgDl = values['ca-total'] as number;
+        const albuminGdl = values['ca-albumin'] as number;
 
-        const formulaSection = uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'Corrected Calcium (mg/dL)',
-                    formula: 'Total Calcium + 0.8 × (4.0 - Albumin)'
-                },
-                { label: 'Note', formula: 'Normal albumin reference: 4.0 g/dL' }
-            ]
-        });
+        if (!totalCalciumMgDl || !albuminGdl) return null;
+
+        const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
+        const correctedCalciumMmol = correctedCalcium * 0.2495;
+
+        let alertClass: 'success' | 'warning' | 'danger' | 'info' = 'success';
+        let interpretation = 'Normal Range';
+
+        if (correctedCalcium < 8.5) {
+            alertClass = 'warning'; // Hypocalcemia
+            interpretation = 'Hypocalcemia (< 8.5 mg/dL)';
+        } else if (correctedCalcium > 10.5) {
+            alertClass = 'danger'; // Hypercalcemia
+            interpretation = 'Hypercalcemia (> 10.5 mg/dL)';
+        }
+
+        return [
+            {
+                label: 'Corrected Calcium',
+                value: correctedCalcium.toFixed(2),
+                unit: 'mg/dL',
+                interpretation: interpretation,
+                alertClass: alertClass
+            },
+            {
+                label: 'Corrected Calcium (mmol/L)',
+                value: correctedCalciumMmol.toFixed(2),
+                unit: 'mmol/L'
+            }
+        ];
+    },
+    customResultRenderer: (results) => {
+        const [target, mmol] = results;
+
+        // Helper to generate result item HTML
+        const renderItem = (res: any) => `
+            <div class="ui-result-item ${res.alertClass ? 'ui-result-' + res.alertClass : ''}">
+                <div class="ui-result-label">${res.label}</div>
+                <div class="ui-result-value-container">
+                    <span class="ui-result-value">${res.value}</span>
+                    <span class="ui-result-unit">${res.unit}</span>
+                </div>
+                ${res.interpretation ? `<div class="ui-result-interpretation">${res.interpretation}</div>` : ''}
+            </div>
+        `;
 
         return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
+            ${renderItem(target)}
+            <div class="text-center mt-5 text-muted">
+                (${mmol.value} mmol/L)
             </div>
             
-            <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
-                <div class="alert-content">
-                    <p>Use this calculator when albumin levels are abnormal (< 4.0 g/dL). 40-50% of total blood calcium is bound to plasma proteins, primarily albumin.</p>
-                </div>
-            </div>
-            
-            ${inputs}
-            
-            <div id="ca-error-container"></div>
-            
-            <div id="ca-result" class="ui-result-box">
-                <div class="ui-result-header">Corrected Calcium</div>
-                <div class="ui-result-content"></div>
-            </div>
-            
-            ${formulaSection}
-            
-            <div class="alert warning mt-20">
-                <span class="alert-icon">⚠️</span>
-                <div class="alert-content">
+             <div class="ui-alert ui-alert-warning mt-10">
+                <span class="ui-alert-icon">⚠️</span>
+                <div class="ui-alert-content">
                     <p><strong>Clinical Note:</strong> This correction is an estimation. For critically ill patients or precise assessment, measurement of ionized calcium is preferred.</p>
                 </div>
             </div>
         `;
-    },
-    initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
-
-        // Initialize FHIRDataService
-        fhirDataService.initialize(client, patient, container);
-
-        const calculateAndUpdate = () => {
-            // Clear previous errors
-            const errorContainer = container.querySelector('#ca-error-container');
-            if (errorContainer) {
-                errorContainer.innerHTML = '';
-            }
-
-            const calciumInput = container.querySelector('#ca-total') as HTMLInputElement;
-            const albuminInput = container.querySelector('#ca-albumin') as HTMLInputElement;
-            const resultBox = container.querySelector('#ca-result');
-            if (!resultBox) {
-                return;
-            }
-            const resultContent = resultBox.querySelector('.ui-result-content');
-
-            if (!calciumInput || !albuminInput) {
-                return;
-            }
-
-            const totalCalciumMgDl = UnitConverter.getStandardValue(calciumInput, 'mg/dL');
-            const albuminGdl = UnitConverter.getStandardValue(albuminInput, 'g/dL');
-
-            try {
-                // Validation inputs
-                const inputs = { calcium: totalCalciumMgDl, albumin: albuminGdl };
-                const schema = {
-                    calcium: ValidationRules.calcium,
-                    albumin: ValidationRules.albumin
-                };
-
-                // @ts-ignore
-                const validation = validateCalculatorInput(inputs, schema);
-
-                if (!validation.isValid) {
-                    const hasInput = calciumInput.value || albuminInput.value;
-                    if (hasInput) {
-                        const valuesPresent =
-                            totalCalciumMgDl !== null &&
-                            !isNaN(totalCalciumMgDl) &&
-                            albuminGdl !== null &&
-                            !isNaN(albuminGdl);
-                        if (
-                            valuesPresent ||
-                            validation.errors.some((e: string) => !e.includes('required'))
-                        ) {
-                            if (errorContainer) {
-                                displayError(
-                                    errorContainer as HTMLElement,
-                                    new ValidationError(validation.errors[0], {
-                                        code: 'VALIDATION_ERROR'
-                                    })
-                                );
-                            }
-                        }
-                    }
-                    resultBox.classList.remove('show');
-                    return;
-                }
-
-                if (totalCalciumMgDl === null || albuminGdl === null) {
-                    resultBox.classList.remove('show');
-                    return;
-                }
-
-                const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
-                const correctedCalciumMmol = correctedCalcium * 0.2495;
-
-                let alertClass = 'ui-alert-success';
-                let interpretation = 'Normal Range';
-
-                if (correctedCalcium < 8.5) {
-                    alertClass = 'ui-alert-warning'; // Hypocalcemia
-                    interpretation = 'Hypocalcemia (< 8.5 mg/dL)';
-                } else if (correctedCalcium > 10.5) {
-                    alertClass = 'ui-alert-danger'; // Hypercalcemia
-                    interpretation = 'Hypercalcemia (> 10.5 mg/dL)';
-                }
-
-                if (resultContent) {
-                    resultContent.innerHTML = `
-                        ${uiBuilder.createResultItem({
-                            label: 'Corrected Calcium',
-                            value: correctedCalcium.toFixed(2),
-                            unit: 'mg/dL',
-                            interpretation: interpretation,
-                            alertClass: alertClass
-                        })}
-                        <div class="text-center mt-5 text-muted">
-                            (${correctedCalciumMmol.toFixed(2)} mmol/L)
-                        </div>
-                    `;
-                }
-
-                resultBox.classList.add('show');
-            } catch (error) {
-                logError(error as Error, { calculator: 'calcium-correction', action: 'calculate' });
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                }
-                resultBox.classList.remove('show');
-            }
-        };
-
-        // Event listeners for inputs
-        const inputs = container.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('input', calculateAndUpdate);
-        });
-
-        // Helper to set value safely
-        const setInputValue = (id: string, val: string) => {
-            const input = container.querySelector(id) as HTMLInputElement;
-            if (input && val) {
-                input.value = val;
-                input.dispatchEvent(new Event('input')); // Trigger calculation
-            }
-        };
-
-        // Auto-populate from FHIR data using FHIRDataService
-        const autoPopulate = async () => {
-            if (fhirDataService.isReady()) {
-                try {
-                    const [calciumResult, albuminResult] = await Promise.all([
-                        fhirDataService.getObservation(LOINC_CODES.CALCIUM, {
-                            trackStaleness: true,
-                            stalenessLabel: 'Total Calcium',
-                            targetUnit: 'mg/dL',
-                            unitType: 'calcium'
-                        }),
-                        fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
-                            trackStaleness: true,
-                            stalenessLabel: 'Albumin',
-                            targetUnit: 'g/dL',
-                            unitType: 'albumin'
-                        })
-                    ]);
-
-                    if (calciumResult.value !== null) {
-                        setInputValue('#ca-total', calciumResult.value.toFixed(1));
-                    }
-
-                    if (albuminResult.value !== null) {
-                        setInputValue('#ca-albumin', albuminResult.value.toFixed(1));
-                    }
-                } catch (e) {
-                    console.warn('Error auto-populating Calcium Correction:', e);
-                }
-            }
-            calculateAndUpdate();
-        };
-
-        autoPopulate();
     }
-};
+});
