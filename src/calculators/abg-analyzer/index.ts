@@ -43,78 +43,91 @@ export const abgAnalyzer: CalculatorModule = {
             </div>
 
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: '<strong>⚠️ Important</strong><br>This analyzer should not substitute for clinical context. Sodium, Chloride, and Albumin are required for accurate anion gap calculation.'
-        })}
+                type: 'warning',
+                message:
+                    '<strong>⚠️ Important</strong><br>This analyzer should not substitute for clinical context. Sodium, Chloride, and Albumin are required for accurate anion gap calculation.'
+            })}
 
             ${uiBuilder.createSection({
-            title: 'ABG Values',
-            icon: '🧪',
-            content: `
+                title: 'ABG Values',
+                icon: '🧪',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'abg-ph',
-                label: 'pH',
-                type: 'number',
-                step: 0.01,
-                placeholder: 'e.g., 7.40'
-            })}
+                        id: 'abg-ph',
+                        label: 'pH',
+                        type: 'number',
+                        step: 0.01,
+                        placeholder: 'e.g., 7.40'
+                    })}
                     ${uiBuilder.createInput({
-                id: 'abg-pco2',
-                label: 'PaCO₂',
-                type: 'number',
-                placeholder: 'e.g., 40',
-                unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' }
-            })}
+                        id: 'abg-pco2',
+                        label: 'PaCO₂',
+                        type: 'number',
+                        placeholder: 'e.g., 40',
+                        unitToggle: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'abg-hco3',
-                label: 'HCO₃⁻',
-                type: 'number',
-                placeholder: 'e.g., 24',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
-            })}
+                        id: 'abg-hco3',
+                        label: 'HCO₃⁻',
+                        type: 'number',
+                        placeholder: 'e.g., 24',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Electrolytes & Albumin (for Anion Gap)',
-            icon: '🧂',
-            content: `
+                title: 'Electrolytes & Albumin (for Anion Gap)',
+                icon: '🧂',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'abg-sodium',
-                label: 'Sodium (Na⁺)',
-                type: 'number',
-                placeholder: 'e.g., 140',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
-            })}
+                        id: 'abg-sodium',
+                        label: 'Sodium (Na⁺)',
+                        type: 'number',
+                        placeholder: 'e.g., 140',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'abg-chloride',
-                label: 'Chloride (Cl⁻)',
-                type: 'number',
-                placeholder: 'e.g., 100',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
-            })}
+                        id: 'abg-chloride',
+                        label: 'Chloride (Cl⁻)',
+                        type: 'number',
+                        placeholder: 'e.g., 100',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'abg-albumin',
-                label: 'Albumin',
-                type: 'number',
-                step: 0.1,
-                placeholder: 'e.g., 4.0',
-                unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' }
-            })}
+                        id: 'abg-albumin',
+                        label: 'Albumin',
+                        type: 'number',
+                        step: 0.1,
+                        placeholder: 'e.g., 4.0',
+                        unitToggle: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' }
+                    })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Chronicity (if respiratory)',
-            icon: '⏱️',
-            content: uiBuilder.createRadioGroup({
-                name: 'chronicity',
-                options: [
-                    { value: 'acute', label: 'Acute', checked: true },
-                    { value: 'chronic', label: 'Chronic' }
-                ]
-            })
-        })}
+                title: 'Chronicity (if respiratory)',
+                icon: '⏱️',
+                content: uiBuilder.createRadioGroup({
+                    name: 'chronicity',
+                    options: [
+                        { value: 'acute', label: 'Acute', checked: true },
+                        { value: 'chronic', label: 'Chronic' }
+                    ]
+                })
+            })}
             
             <div id="abg-error-container"></div>
             <div id="abg-result" class="ui-result-box">
@@ -123,19 +136,34 @@ export const abgAnalyzer: CalculatorModule = {
             </div>
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Anion Gap', formula: 'Na - (Cl + HCO₃⁻)', notes: 'All values in mEq/L' },
-                { label: 'Delta Gap', formula: 'Anion Gap - 12', notes: 'Normal anion gap is 10-12 mEq/L' },
-                { label: 'Albumin Corrected AG', formula: 'Anion Gap + [2.5 × (4 - Albumin)]', notes: 'Albumin in g/dL' },
-                { label: 'Albumin Corrected Delta Gap', formula: 'Albumin Corrected AG - 12' },
-                { label: 'Delta Ratio', formula: 'Delta Anion Gap / (24 - HCO₃⁻)' },
-                { label: 'Albumin Corrected Delta Ratio', formula: 'Albumin Corrected Delta Gap / (24 - HCO₃⁻)' }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'Anion Gap',
+                        formula: 'Na - (Cl + HCO₃⁻)',
+                        notes: 'All values in mEq/L'
+                    },
+                    {
+                        label: 'Delta Gap',
+                        formula: 'Anion Gap - 12',
+                        notes: 'Normal anion gap is 10-12 mEq/L'
+                    },
+                    {
+                        label: 'Albumin Corrected AG',
+                        formula: 'Anion Gap + [2.5 × (4 - Albumin)]',
+                        notes: 'Albumin in g/dL'
+                    },
+                    { label: 'Albumin Corrected Delta Gap', formula: 'Albumin Corrected AG - 12' },
+                    { label: 'Delta Ratio', formula: 'Delta Anion Gap / (24 - HCO₃⁻)' },
+                    {
+                        label: 'Albumin Corrected Delta Ratio',
+                        formula: 'Albumin Corrected Delta Gap / (24 - HCO₃⁻)'
+                    }
+                ]
+            })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                 <h4>📊 Delta Ratio Interpretation</h4>
                 <p class="text-sm mb-10">The delta ratio compares the amount of additional anion in the body to the amount of additional H⁺. The anion's volume of distribution and its excretion affect this ratio. Organic acids with a greater distribution may produce lower anion gaps compared to inorganic acids, which may be confined to the extracellular compartment.</p>
                 <div class="ui-data-table">
@@ -152,7 +180,7 @@ export const abgAnalyzer: CalculatorModule = {
                     </table>
                 </div>
             `
-        })}
+            })}
 
             <div class="info-section mt-20 text-sm text-muted">
                 <h4>📚 Reference</h4>
@@ -180,7 +208,9 @@ export const abgAnalyzer: CalculatorModule = {
         const interpret = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#abg-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const vals: ABGValues = {
                 ph: parseFloat(fields.ph.value),
@@ -200,9 +230,15 @@ export const abgAnalyzer: CalculatorModule = {
                 };
 
                 // Add optional fields to inputs if present to validate them too
-                if (vals.sodium !== null && !isNaN(vals.sodium)) inputs.sodium = vals.sodium;
-                if (vals.chloride !== null && !isNaN(vals.chloride)) inputs.chloride = vals.chloride;
-                if (vals.albumin !== null && !isNaN(vals.albumin)) inputs.albumin = vals.albumin;
+                if (vals.sodium !== null && !isNaN(vals.sodium)) {
+                    inputs.sodium = vals.sodium;
+                }
+                if (vals.chloride !== null && !isNaN(vals.chloride)) {
+                    inputs.chloride = vals.chloride;
+                }
+                if (vals.albumin !== null && !isNaN(vals.albumin)) {
+                    inputs.albumin = vals.albumin;
+                }
 
                 const schema: any = {
                     ph: ValidationRules.pH,
@@ -210,9 +246,15 @@ export const abgAnalyzer: CalculatorModule = {
                     bicarbonate: ValidationRules.bicarbonate
                 };
 
-                if (inputs.sodium !== undefined) schema.sodium = ValidationRules.sodium;
-                if (inputs.chloride !== undefined) schema.chloride = ValidationRules.chloride;
-                if (inputs.albumin !== undefined) schema.albumin = ValidationRules.albumin;
+                if (inputs.sodium !== undefined) {
+                    schema.sodium = ValidationRules.sodium;
+                }
+                if (inputs.chloride !== undefined) {
+                    schema.chloride = ValidationRules.chloride;
+                }
+                if (inputs.albumin !== undefined) {
+                    schema.albumin = ValidationRules.albumin;
+                }
 
                 const validation = validateCalculatorInput(inputs, schema);
 
@@ -221,20 +263,37 @@ export const abgAnalyzer: CalculatorModule = {
                     const hasInput = Object.values(fields).some(f => f.value !== '');
 
                     if (hasInput) {
-                        const corePresent = !isNaN(vals.ph) && vals.pco2 !== null && !isNaN(vals.pco2) && vals.hco3 !== null && !isNaN(vals.hco3);
+                        const corePresent =
+                            !isNaN(vals.ph) &&
+                            vals.pco2 !== null &&
+                            !isNaN(vals.pco2) &&
+                            vals.hco3 !== null &&
+                            !isNaN(vals.hco3);
                         // Validation errors are strings
-                        if (corePresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        if (
+                            corePresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
 
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
                 // Ensure required values are present
                 if (vals.pco2 === null || vals.hco3 === null) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -245,26 +304,42 @@ export const abgAnalyzer: CalculatorModule = {
                 // Primary Disorder Logic
                 if (vals.ph < 7.35) {
                     alertClass = 'ui-alert-danger';
-                    if (vals.pco2 > 45) primaryDisorder = 'Respiratory Acidosis';
-                    else if (vals.hco3 < 22) primaryDisorder = 'Metabolic Acidosis';
-                    else primaryDisorder = 'Mixed Acidosis';
+                    if (vals.pco2 > 45) {
+                        primaryDisorder = 'Respiratory Acidosis';
+                    } else if (vals.hco3 < 22) {
+                        primaryDisorder = 'Metabolic Acidosis';
+                    } else {
+                        primaryDisorder = 'Mixed Acidosis';
+                    }
                 } else if (vals.ph > 7.45) {
                     alertClass = 'ui-alert-danger';
-                    if (vals.pco2 < 35) primaryDisorder = 'Respiratory Alkalosis';
-                    else if (vals.hco3 > 26) primaryDisorder = 'Metabolic Alkalosis';
-                    else primaryDisorder = 'Mixed Alkalosis';
+                    if (vals.pco2 < 35) {
+                        primaryDisorder = 'Respiratory Alkalosis';
+                    } else if (vals.hco3 > 26) {
+                        primaryDisorder = 'Metabolic Alkalosis';
+                    } else {
+                        primaryDisorder = 'Mixed Alkalosis';
+                    }
                 } else {
                     alertClass = 'ui-alert-success';
-                    if (vals.pco2 > 45 && vals.hco3 > 26) primaryDisorder = 'Compensated Respiratory Acidosis/Metabolic Alkalosis';
-                    else if (vals.pco2 < 35 && vals.hco3 < 22) primaryDisorder = 'Compensated Metabolic Acidosis/Respiratory Alkalosis';
-                    else primaryDisorder = 'Normal Acid-Base Status';
+                    if (vals.pco2 > 45 && vals.hco3 > 26) {
+                        primaryDisorder = 'Compensated Respiratory Acidosis/Metabolic Alkalosis';
+                    } else if (vals.pco2 < 35 && vals.hco3 < 22) {
+                        primaryDisorder = 'Compensated Metabolic Acidosis/Respiratory Alkalosis';
+                    } else {
+                        primaryDisorder = 'Normal Acid-Base Status';
+                    }
                 }
 
                 // Anion Gap Logic
-                if (vals.sodium !== null && !isNaN(vals.sodium) &&
-                    vals.chloride !== null && !isNaN(vals.chloride) &&
-                    vals.hco3 !== null && !isNaN(vals.hco3)) {
-
+                if (
+                    vals.sodium !== null &&
+                    !isNaN(vals.sodium) &&
+                    vals.chloride !== null &&
+                    !isNaN(vals.chloride) &&
+                    vals.hco3 !== null &&
+                    !isNaN(vals.hco3)
+                ) {
                     const anionGap = vals.sodium - (vals.chloride + vals.hco3);
                     let correctedAG = anionGap;
 
@@ -275,8 +350,11 @@ export const abgAnalyzer: CalculatorModule = {
                     if (correctedAG > 12) {
                         anionGapInfo = `High Anion Gap (${correctedAG.toFixed(1)})`;
                         const deltaDelta = correctedAG - 12 + vals.hco3;
-                        if (deltaDelta > 28) anionGapInfo += ' + Metabolic Alkalosis';
-                        else if (deltaDelta < 22) anionGapInfo += ' + Non-Gap Acidosis';
+                        if (deltaDelta > 28) {
+                            anionGapInfo += ' + Metabolic Alkalosis';
+                        } else if (deltaDelta < 22) {
+                            anionGapInfo += ' + Non-Gap Acidosis';
+                        }
                     } else {
                         anionGapInfo = `Normal Anion Gap (${correctedAG.toFixed(1)})`;
                     }
@@ -289,17 +367,27 @@ export const abgAnalyzer: CalculatorModule = {
                         value: primaryDisorder,
                         alertClass: alertClass
                     })}
-                    ${anionGapInfo ? uiBuilder.createResultItem({
-                        label: 'Anion Gap Assessment',
-                        value: anionGapInfo
-                    }) : ''}
+                    ${
+                        anionGapInfo
+                            ? uiBuilder.createResultItem({
+                                  label: 'Anion Gap Assessment',
+                                  value: anionGapInfo
+                              })
+                            : ''
+                    }
                 `;
                 }
-                if (resultBox) resultBox.classList.add('show');
+                if (resultBox) {
+                    resultBox.classList.add('show');
+                }
             } catch (error) {
                 logError(error as Error, { calculator: 'abg-analyzer', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultBox) resultBox.classList.remove('show');
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
@@ -322,74 +410,92 @@ export const abgAnalyzer: CalculatorModule = {
         // FHIR Auto-populate using FHIRDataService
         if (client) {
             // pH (11558-4)
-            fhirDataService.getObservation('11558-4', {
-                trackStaleness: true,
-                stalenessLabel: 'pH'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(fields.ph, result.value.toFixed(2));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('11558-4', {
+                    trackStaleness: true,
+                    stalenessLabel: 'pH'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(fields.ph, result.value.toFixed(2));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // PaCO2 (11557-6)
-            fhirDataService.getObservation('11557-6', {
-                trackStaleness: true,
-                stalenessLabel: 'PaCO2',
-                targetUnit: 'mmHg',
-                unitType: 'pressure'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(fields.pco2, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('11557-6', {
+                    trackStaleness: true,
+                    stalenessLabel: 'PaCO2',
+                    targetUnit: 'mmHg',
+                    unitType: 'pressure'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(fields.pco2, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // HCO3 (14627-4)
-            fhirDataService.getObservation('14627-4', {
-                trackStaleness: true,
-                stalenessLabel: 'HCO3',
-                targetUnit: 'mEq/L',
-                unitType: 'electrolyte'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(fields.hco3, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('14627-4', {
+                    trackStaleness: true,
+                    stalenessLabel: 'HCO3',
+                    targetUnit: 'mEq/L',
+                    unitType: 'electrolyte'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(fields.hco3, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Sodium
-            fhirDataService.getObservation(LOINC_CODES.SODIUM, {
-                trackStaleness: true,
-                stalenessLabel: 'Sodium',
-                targetUnit: 'mEq/L',
-                unitType: 'electrolyte'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(fields.sodium, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.SODIUM, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Sodium',
+                    targetUnit: 'mEq/L',
+                    unitType: 'electrolyte'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(fields.sodium, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Chloride (2075-0)
-            fhirDataService.getObservation('2075-0', {
-                trackStaleness: true,
-                stalenessLabel: 'Chloride',
-                targetUnit: 'mEq/L',
-                unitType: 'electrolyte'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(fields.chloride, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('2075-0', {
+                    trackStaleness: true,
+                    stalenessLabel: 'Chloride',
+                    targetUnit: 'mEq/L',
+                    unitType: 'electrolyte'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(fields.chloride, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Albumin
-            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
-                trackStaleness: true,
-                stalenessLabel: 'Albumin',
-                targetUnit: 'g/dL',
-                unitType: 'albumin'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(fields.albumin, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.ALBUMIN, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Albumin',
+                    targetUnit: 'g/dL',
+                    unitType: 'albumin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(fields.albumin, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
         }
     }
 };

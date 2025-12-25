@@ -1,11 +1,15 @@
 /**
  * FHIR 數據整合輔助模組
- * 
+ *
  * 為計算器工廠提供簡化的 FHIR 數據自動填充功能
  * 與 FHIRDataService 整合，提供統一的快取、過期追蹤和單位轉換
  */
 
-import { createFHIRDataService, FHIRDataService, FieldDataRequirement } from '../../fhir-data-service.js';
+import {
+    createFHIRDataService,
+    FHIRDataService,
+    FieldDataRequirement
+} from '../../fhir-data-service.js';
 
 // ============================================================================
 // 類型定義
@@ -57,7 +61,7 @@ export interface CreateCustomInitializeOptions {
 
 /**
  * 創建可用於 customInitialize 的 FHIR 自動填充函數
- * 
+ *
  * @example
  * ```ts
  * const calculator = createMixedInputCalculator({

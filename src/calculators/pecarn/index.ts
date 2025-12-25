@@ -23,7 +23,11 @@ export const pecarn: CalculatorModule = {
             },
             { id: 'pecarn-palpable-fracture', label: 'Palpable skull fracture', value: 'fracture' },
             { id: 'pecarn-loc-5-sec', label: 'LOC ≥ 5 seconds', value: 'loc' },
-            { id: 'pecarn-not-acting-normally', label: 'Guardian feels child is not acting normally', value: 'acting' },
+            {
+                id: 'pecarn-not-acting-normally',
+                label: 'Guardian feels child is not acting normally',
+                value: 'acting'
+            },
             {
                 id: 'pecarn-severe-mechanism',
                 label: 'Severe mechanism of injury (e.g., fall >3ft, MVA, struck by high-impact object)',
@@ -46,7 +50,11 @@ export const pecarn: CalculatorModule = {
             { id: 'pecarn-loc', label: 'Any loss of consciousness', value: 'loc' },
             { id: 'pecarn-vomiting', label: 'Vomiting', value: 'vomiting' },
             { id: 'pecarn-severe-headache', label: 'Severe headache', value: 'headache' },
-            { id: 'pecarn-severe-mechanism-over2', label: 'Severe mechanism of injury', value: 'mechanism' }
+            {
+                id: 'pecarn-severe-mechanism-over2',
+                label: 'Severe mechanism of injury',
+                value: 'mechanism'
+            }
         ];
 
         return `
@@ -56,45 +64,45 @@ export const pecarn: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Patient Age',
-            icon: '👶',
-            content: uiBuilder.createRadioGroup({
-                name: 'pecarn-age',
-                options: [
-                    { value: 'under2', label: '< 2 years', checked: true },
-                    { value: 'over2', label: '≥ 2 years' }
-                ]
-            })
-        })}
+                title: 'Patient Age',
+                icon: '👶',
+                content: uiBuilder.createRadioGroup({
+                    name: 'pecarn-age',
+                    options: [
+                        { value: 'under2', label: '< 2 years', checked: true },
+                        { value: 'over2', label: '≥ 2 years' }
+                    ]
+                })
+            })}
 
             <div id="pecarn-group-under2">
                 ${uiBuilder.createSection({
-            title: 'Criteria for Children < 2 Years',
-            icon: '📋',
-            content: uiBuilder.createCheckboxGroup({
-                name: 'pecarn-criteria-under2',
-                options: criteriaUnder2
-            })
-        })}
+                    title: 'Criteria for Children < 2 Years',
+                    icon: '📋',
+                    content: uiBuilder.createCheckboxGroup({
+                        name: 'pecarn-criteria-under2',
+                        options: criteriaUnder2
+                    })
+                })}
             </div>
 
             <div id="pecarn-group-over2" style="display:none;">
                 ${uiBuilder.createSection({
-            title: 'Criteria for Children ≥ 2 Years',
-            icon: '📋',
-            content: uiBuilder.createCheckboxGroup({
-                name: 'pecarn-criteria-over2',
-                options: criteriaOver2
-            })
-        })}
+                    title: 'Criteria for Children ≥ 2 Years',
+                    icon: '📋',
+                    content: uiBuilder.createCheckboxGroup({
+                        name: 'pecarn-criteria-over2',
+                        options: criteriaOver2
+                    })
+                })}
             </div>
 
             <div id="pecarn-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'pecarn-result', title: 'PECARN Assessment' })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>📊 Risk Interpretation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -109,7 +117,7 @@ export const pecarn: CalculatorModule = {
                         </table>
                     </div>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -121,11 +129,19 @@ export const pecarn: CalculatorModule = {
 
         const setAgeGroup = (isUnder2: boolean) => {
             if (isUnder2) {
-                if (groupUnder2) groupUnder2.style.display = 'block';
-                if (groupOver2) groupOver2.style.display = 'none';
+                if (groupUnder2) {
+                    groupUnder2.style.display = 'block';
+                }
+                if (groupOver2) {
+                    groupOver2.style.display = 'none';
+                }
             } else {
-                if (groupUnder2) groupUnder2.style.display = 'none';
-                if (groupOver2) groupOver2.style.display = 'block';
+                if (groupUnder2) {
+                    groupUnder2.style.display = 'none';
+                }
+                if (groupOver2) {
+                    groupOver2.style.display = 'block';
+                }
             }
             calculate();
         };
@@ -134,9 +150,13 @@ export const pecarn: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#pecarn-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
-                const under2Radio = container.querySelector('input[name="pecarn-age"][value="under2"]') as HTMLInputElement;
+                const under2Radio = container.querySelector(
+                    'input[name="pecarn-age"][value="under2"]'
+                ) as HTMLInputElement;
                 const isUnder2 = under2Radio?.checked;
 
                 let recommendation = '';
@@ -145,7 +165,9 @@ export const pecarn: CalculatorModule = {
                 let detail = '';
 
                 if (isUnder2) {
-                    const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-under2"]:checked')).map(cb => (cb as HTMLInputElement).value);
+                    const criteria = Array.from(
+                        container.querySelectorAll('input[name="pecarn-criteria-under2"]:checked')
+                    ).map(cb => (cb as HTMLInputElement).value);
                     const hasGCS = criteria.includes('gcs');
                     const hasFracture = criteria.includes('fracture');
 
@@ -157,14 +179,17 @@ export const pecarn: CalculatorModule = {
                         recommendation = 'Observation vs. CT';
                         risk = '4.4% risk of ciTBI';
                         alertType = 'warning';
-                        detail = 'Clinical factors to consider: Physician experience, multiple findings, parental preference, age <3 months, worsening symptoms.';
+                        detail =
+                            'Clinical factors to consider: Physician experience, multiple findings, parental preference, age <3 months, worsening symptoms.';
                     } else {
                         recommendation = 'CT Not Recommended';
                         risk = '<0.02% risk of ciTBI';
                         alertType = 'success';
                     }
                 } else {
-                    const criteria = Array.from(container.querySelectorAll('input[name="pecarn-criteria-over2"]:checked')).map(cb => (cb as HTMLInputElement).value);
+                    const criteria = Array.from(
+                        container.querySelectorAll('input[name="pecarn-criteria-over2"]:checked')
+                    ).map(cb => (cb as HTMLInputElement).value);
                     const hasGCS = criteria.includes('gcs');
                     const hasBasilar = criteria.includes('basilar');
 
@@ -176,7 +201,8 @@ export const pecarn: CalculatorModule = {
                         recommendation = 'Observation vs. CT';
                         risk = '4.3% risk of ciTBI';
                         alertType = 'warning';
-                        detail = 'Clinical factors to consider: Physician experience, multiple findings, parental preference, worsening symptoms.';
+                        detail =
+                            'Clinical factors to consider: Physician experience, multiple findings, parental preference, worsening symptoms.';
                     } else {
                         recommendation = 'CT Not Recommended';
                         risk = '<0.05% risk of ciTBI';
@@ -227,7 +253,9 @@ export const pecarn: CalculatorModule = {
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             const isUnder2 = age < 2;
-            const radio = container.querySelector(`input[name="pecarn-age"][value="${isUnder2 ? 'under2' : 'over2'}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="pecarn-age"][value="${isUnder2 ? 'under2' : 'over2'}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 setAgeGroup(isUnder2);

@@ -25,38 +25,39 @@ export const maintenanceFluids: CalculatorModule = {
             </div>
             
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: 'Calculates maintenance fluid requirements by weight (Holliday-Segar method).'
-        })}
+                type: 'info',
+                message:
+                    'Calculates maintenance fluid requirements by weight (Holliday-Segar method).'
+            })}
             
             ${uiBuilder.createSection({
-            title: 'Patient Weight',
-            icon: '⚖️',
-            content: uiBuilder.createInput({
-                id: 'weight-fluids',
-                label: 'Weight',
-                type: 'number',
-                placeholder: 'e.g., 70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
-            })
-        })}
+                title: 'Patient Weight',
+                icon: '⚖️',
+                content: uiBuilder.createInput({
+                    id: 'weight-fluids',
+                    label: 'Weight',
+                    type: 'number',
+                    placeholder: 'e.g., 70',
+                    unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
+                })
+            })}
             
             <div id="fluids-error-container"></div>
             
             ${uiBuilder.createResultBox({ id: 'fluids-result', title: 'Maintenance Fluid Requirements' })}
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'First 10 kg', formula: '4 mL/kg/hr' },
-                { label: 'Next 10 kg (11-20 kg)', formula: '2 mL/kg/hr' },
-                { label: 'Each kg above 20 kg', formula: '1 mL/kg/hr' },
-                { label: 'Daily Total', content: 'Hourly Rate × 24' }
-            ]
-        })}
+                items: [
+                    { label: 'First 10 kg', formula: '4 mL/kg/hr' },
+                    { label: 'Next 10 kg (11-20 kg)', formula: '2 mL/kg/hr' },
+                    { label: 'Each kg above 20 kg', formula: '1 mL/kg/hr' },
+                    { label: 'Daily Total', content: 'Hourly Rate × 24' }
+                ]
+            })}
             
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: `
+                type: 'warning',
+                message: `
                     <h5>⚠️ Important Notes:</h5>
                     <ul>
                         <li>This calculates <strong>maintenance fluids only</strong>, not replacement for deficits or ongoing losses</li>
@@ -66,7 +67,7 @@ export const maintenanceFluids: CalculatorModule = {
                         <li>For critically ill patients, may need additional adjustment (e.g., 50-75% of calculated)</li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -80,7 +81,9 @@ export const maintenanceFluids: CalculatorModule = {
 
         const calculateAndUpdate = () => {
             const errorContainer = container.querySelector('#fluids-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
 
@@ -92,18 +95,29 @@ export const maintenanceFluids: CalculatorModule = {
 
                 if (!validation.isValid) {
                     if (weightInput.value) {
-                        const meaningfulErrors = validation.errors.filter((e: string) => !e.includes('required') || weightInput.value);
+                        const meaningfulErrors = validation.errors.filter(
+                            (e: string) => !e.includes('required') || weightInput.value
+                        );
                         if (meaningfulErrors.length > 0 && weightKg !== null && !isNaN(weightKg)) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
 
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
                 if (!weightKg || weightKg <= 0) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -122,15 +136,15 @@ export const maintenanceFluids: CalculatorModule = {
                     if (resultContent) {
                         resultContent.innerHTML = `
                             ${uiBuilder.createResultItem({
-                            label: 'IV Fluid Rate (Hourly)',
-                            value: hourlyRate.toFixed(1),
-                            unit: 'mL/hr'
-                        })}
+                                label: 'IV Fluid Rate (Hourly)',
+                                value: hourlyRate.toFixed(1),
+                                unit: 'mL/hr'
+                            })}
                             ${uiBuilder.createResultItem({
-                            label: 'Total Daily Fluids',
-                            value: dailyRate.toFixed(1),
-                            unit: 'mL/day'
-                        })}
+                                label: 'Total Daily Fluids',
+                                value: dailyRate.toFixed(1),
+                                unit: 'mL/day'
+                            })}
                         `;
                     }
                     resultBox.classList.add('show');
@@ -143,26 +157,33 @@ export const maintenanceFluids: CalculatorModule = {
                     console.error(error);
                 }
                 logError(error as Error, { calculator: 'maintenance-fluids', action: 'calculate' });
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
         weightInput.addEventListener('input', calculateAndUpdate);
-        container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
+        container
+            .querySelectorAll('select')
+            .forEach(s => s.addEventListener('change', calculateAndUpdate));
 
         // Auto-populate using FHIRDataService
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.WEIGHT, {
-                trackStaleness: true,
-                stalenessLabel: 'Weight',
-                targetUnit: 'kg',
-                unitType: 'weight'
-            }).then(result => {
-                if (result.value !== null) {
-                    weightInput.value = result.value.toFixed(1);
-                    weightInput.dispatchEvent(new Event('input'));
-                }
-            }).catch(err => console.log('Weight data not available'));
+            fhirDataService
+                .getObservation(LOINC_CODES.WEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Weight',
+                    targetUnit: 'kg',
+                    unitType: 'weight'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        weightInput.value = result.value.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(err => console.log('Weight data not available'));
         }
     }
 };

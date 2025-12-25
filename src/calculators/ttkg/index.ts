@@ -16,45 +16,45 @@ export const ttkg = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-            title: 'Lab Values',
-            content: `
+                title: 'Lab Values',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'ttkg-urine-k',
-                label: 'Urine Potassium',
-                type: 'number',
-                unitToggle: {
-                    type: 'electrolyte',
-                    units: ['mEq/L', 'mmol/L'],
-                    default: 'mEq/L'
-                }
-            })}
+                        id: 'ttkg-urine-k',
+                        label: 'Urine Potassium',
+                        type: 'number',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'ttkg-serum-k',
-                label: 'Serum Potassium',
-                type: 'number',
-                unitToggle: {
-                    type: 'electrolyte',
-                    units: ['mEq/L', 'mmol/L'],
-                    default: 'mEq/L'
-                },
-                placeholder: 'Norm: 3.5 - 5.2'
-            })}
+                        id: 'ttkg-serum-k',
+                        label: 'Serum Potassium',
+                        type: 'number',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        },
+                        placeholder: 'Norm: 3.5 - 5.2'
+                    })}
                     ${uiBuilder.createInput({
-                id: 'ttkg-urine-osmo',
-                label: 'Urine Osmolality',
-                type: 'number',
-                unit: 'mOsm/kg',
-                placeholder: 'Norm: 500 - 800'
-            })}
+                        id: 'ttkg-urine-osmo',
+                        label: 'Urine Osmolality',
+                        type: 'number',
+                        unit: 'mOsm/kg',
+                        placeholder: 'Norm: 500 - 800'
+                    })}
                     ${uiBuilder.createInput({
-                id: 'ttkg-serum-osmo',
-                label: 'Serum Osmolality',
-                type: 'number',
-                unit: 'mOsm/kg',
-                placeholder: 'Norm: 275 - 295'
-            })}
+                        id: 'ttkg-serum-osmo',
+                        label: 'Serum Osmolality',
+                        type: 'number',
+                        unit: 'mOsm/kg',
+                        placeholder: 'Norm: 275 - 295'
+                    })}
                 `
-        })}
+            })}
             
             <div id="ttkg-error-container"></div>
             <div id="ttkg-result" class="ui-result-box">
@@ -63,17 +63,18 @@ export const ttkg = {
             </div>
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'TTKG Formula',
-                    formula: 'TTKG = (Urine K × Serum Osmolality) / (Serum K × Urine Osmolality)',
-                    notes: 'Valid only when Urine Osmolality > Serum Osmolality.'
-                }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'TTKG Formula',
+                        formula:
+                            'TTKG = (Urine K × Serum Osmolality) / (Serum K × Urine Osmolality)',
+                        notes: 'Valid only when Urine Osmolality > Serum Osmolality.'
+                    }
+                ]
+            })}
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>Clinical Interpretation</h4>
                     <ul>
                         <li><strong>Hypokalemia (K < 3.5):</strong>
@@ -90,7 +91,7 @@ export const ttkg = {
                         </li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement): void {
@@ -109,7 +110,9 @@ export const ttkg = {
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#ttkg-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const urineK = UnitConverter.getStandardValue(urineKEl, 'mEq/L');
             const serumK = UnitConverter.getStandardValue(serumKEl, 'mEq/L');
@@ -129,7 +132,10 @@ export const ttkg = {
                 // @ts-ignore
                 const schema = {
                     // @ts-ignore
-                    urinePotassium: { ...ValidationRules.potassium, message: 'Urine K must be valid' },
+                    urinePotassium: {
+                        ...ValidationRules.potassium,
+                        message: 'Urine K must be valid'
+                    },
                     // @ts-ignore
                     potassium: ValidationRules.potassium,
                     // @ts-ignore
@@ -142,12 +148,24 @@ export const ttkg = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (urineKEl.value || serumKEl.value || urineOsmoEl.value || serumOsmoEl.value);
+                    const hasInput =
+                        urineKEl.value || serumKEl.value || urineOsmoEl.value || serumOsmoEl.value;
 
                     if (hasInput) {
-                        const valuesPresent = (urineK !== null && !isNaN(urineK)) && (serumK !== null && !isNaN(serumK)) && !isNaN(urineOsmo) && !isNaN(serumOsmo);
+                        const valuesPresent =
+                            urineK !== null &&
+                            !isNaN(urineK) &&
+                            serumK !== null &&
+                            !isNaN(serumK) &&
+                            !isNaN(urineOsmo) &&
+                            !isNaN(serumOsmo);
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
 
@@ -156,7 +174,10 @@ export const ttkg = {
                 }
 
                 if (serumK === 0 || urineOsmo === 0) {
-                    throw new ValidationError('Serum potassium and Urine osmolality cannot be zero.', 'CALCULATION_ERROR');
+                    throw new ValidationError(
+                        'Serum potassium and Urine osmolality cannot be zero.',
+                        'CALCULATION_ERROR'
+                    );
                 }
 
                 // @ts-ignore - TS might worry about nulls here even though validation passed
@@ -176,7 +197,8 @@ export const ttkg = {
                 if (serumK !== null && serumK < 3.5) {
                     // Hypokalemia
                     if (ttkgValue < 3) {
-                        interpretation = 'Suggests non-renal potassium loss (e.g., GI loss, transcellular shift).';
+                        interpretation =
+                            'Suggests non-renal potassium loss (e.g., GI loss, transcellular shift).';
                     } else {
                         interpretation = 'Suggests renal potassium wasting.';
                         alertType = 'warning';
@@ -184,13 +206,16 @@ export const ttkg = {
                 } else if (serumK !== null && serumK > 5.2) {
                     // Hyperkalemia
                     if (ttkgValue > 10) {
-                        interpretation = 'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
+                        interpretation =
+                            'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
                     } else if (ttkgValue < 7) {
-                        interpretation = 'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
+                        interpretation =
+                            'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
                         alertType = 'warning';
                     }
                 } else {
-                    interpretation = 'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
+                    interpretation =
+                        'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
                 }
 
                 if (urineOsmo <= serumOsmo) {
@@ -200,16 +225,18 @@ export const ttkg = {
 
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'TTKG',
-                    value: ttkgValue.toFixed(2),
-                    interpretation: interpretation,
-                    alertClass: `ui-alert-${alertType}`
-                })}
+                        label: 'TTKG',
+                        value: ttkgValue.toFixed(2),
+                        interpretation: interpretation,
+                        alertClass: `ui-alert-${alertType}`
+                    })}
                 `;
                 resultBox.classList.add('show');
             } catch (error: any) {
                 logError(error, { calculator: 'ttkg', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error);
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error);
+                }
                 resultBox.classList.remove('show');
             }
         };
@@ -229,48 +256,60 @@ export const ttkg = {
         // FHIR auto-population using FHIRDataService
         if (client) {
             // Urine Potassium
-            fhirDataService.getObservation(LOINC_CODES.URINE_POTASSIUM, {
-                trackStaleness: true,
-                stalenessLabel: 'Urine K',
-                targetUnit: 'mEq/L',
-                unitType: 'electrolyte'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(urineKEl, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.URINE_POTASSIUM, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Urine K',
+                    targetUnit: 'mEq/L',
+                    unitType: 'electrolyte'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(urineKEl, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Serum Potassium
-            fhirDataService.getObservation(LOINC_CODES.POTASSIUM, {
-                trackStaleness: true,
-                stalenessLabel: 'Serum K',
-                targetUnit: 'mEq/L',
-                unitType: 'electrolyte'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(serumKEl, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.POTASSIUM, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Serum K',
+                    targetUnit: 'mEq/L',
+                    unitType: 'electrolyte'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(serumKEl, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Urine Osmolality (2697-2)
-            fhirDataService.getObservation('2697-2', {
-                trackStaleness: true,
-                stalenessLabel: 'Urine Osmolality'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(urineOsmoEl, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('2697-2', {
+                    trackStaleness: true,
+                    stalenessLabel: 'Urine Osmolality'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(urineOsmoEl, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Serum Osmolality (2695-6)
-            fhirDataService.getObservation('2695-6', {
-                trackStaleness: true,
-                stalenessLabel: 'Serum Osmolality'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(serumOsmoEl, result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('2695-6', {
+                    trackStaleness: true,
+                    stalenessLabel: 'Serum Osmolality'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(serumOsmoEl, result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
         }
     }
 };

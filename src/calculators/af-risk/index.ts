@@ -35,36 +35,44 @@ export const afRisk: CalculatorModule = {
             { id: 'hasbled-bleed', label: 'Bleeding history or predisposition', points: 1 },
             { id: 'hasbled-inr', label: 'Labile INRs', points: 1 },
             { id: 'hasbled-elderly', label: 'Elderly (age > 65 years)', points: 1 },
-            { id: 'hasbled-drugs', label: 'Concomitant drugs (e.g., NSAIDs, antiplatelets)', points: 1 },
+            {
+                id: 'hasbled-drugs',
+                label: 'Concomitant drugs (e.g., NSAIDs, antiplatelets)',
+                points: 1
+            },
             { id: 'hasbled-alcohol', label: 'Alcohol abuse', points: 1 }
         ];
 
         const cha2ds2vascSection = uiBuilder.createSection({
             title: '💓 CHA₂DS₂-VASc Score (Stroke Risk)',
-            content: cha2ds2vascFactors.map(factor =>
-                uiBuilder.createRadioGroup({
-                    name: factor.id,
-                    label: factor.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: factor.points.toString(), label: 'Yes' }
-                    ]
-                })
-            ).join('')
+            content: cha2ds2vascFactors
+                .map(factor =>
+                    uiBuilder.createRadioGroup({
+                        name: factor.id,
+                        label: factor.label,
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: factor.points.toString(), label: 'Yes' }
+                        ]
+                    })
+                )
+                .join('')
         });
 
         const hasBledSection = uiBuilder.createSection({
             title: '🩸 HAS-BLED Score (Bleeding Risk)',
-            content: hasBledFactors.map(factor =>
-                uiBuilder.createRadioGroup({
-                    name: factor.id,
-                    label: factor.label,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes (+1)' }
-                    ]
-                })
-            ).join('')
+            content: hasBledFactors
+                .map(factor =>
+                    uiBuilder.createRadioGroup({
+                        name: factor.id,
+                        label: factor.label,
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes (+1)' }
+                        ]
+                    })
+                )
+                .join('')
         });
 
         return `
@@ -82,12 +90,14 @@ export const afRisk: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
         const setRadioValue = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -98,20 +108,30 @@ export const afRisk: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#af-risk-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 // Calculate CHA₂DS₂-VASc Score
                 let cha2ds2vasc_score = 0;
                 const cha2Ids = ['chf', 'htn', 'age75', 'dm', 'stroke', 'vasc', 'age65', 'female'];
 
                 cha2Ids.forEach(id => {
-                    const checked = container.querySelector(`input[name="${id}"]:checked`) as HTMLInputElement | null;
-                    if (checked) cha2ds2vasc_score += parseInt(checked.value);
+                    const checked = container.querySelector(
+                        `input[name="${id}"]:checked`
+                    ) as HTMLInputElement | null;
+                    if (checked) {
+                        cha2ds2vasc_score += parseInt(checked.value);
+                    }
                 });
 
                 // Double counting correction
-                const age75Radio = container.querySelector('input[name="age75"][value="2"]') as HTMLInputElement;
-                const age65Radio = container.querySelector('input[name="age65"][value="1"]') as HTMLInputElement;
+                const age75Radio = container.querySelector(
+                    'input[name="age75"][value="2"]'
+                ) as HTMLInputElement;
+                const age65Radio = container.querySelector(
+                    'input[name="age65"][value="1"]'
+                ) as HTMLInputElement;
 
                 const age75Yes = age75Radio && age75Radio.checked;
                 const age65Yes = age65Radio && age65Radio.checked;
@@ -120,23 +140,38 @@ export const afRisk: CalculatorModule = {
                     cha2ds2vasc_score -= 1; // Prioritize higher points but remove double count if both selected
                 }
 
-                // If 75 is selected, it's 2 points. If 65 is selected, it's 1. 
+                // If 75 is selected, it's 2 points. If 65 is selected, it's 1.
                 // CHA2DS2-VASc defines age criteria as mutually exclusive tiers.
                 // If user selected both YES, current logic substracts 1 point (2+1-1 = 2). Correct, giving max points for age category.
 
                 // Calculate HAS-BLED Score
                 let hasbled_score = 0;
-                const hasBledIds = ['hasbled-htn', 'hasbled-renal', 'hasbled-liver', 'hasbled-stroke', 'hasbled-bleed', 'hasbled-inr', 'hasbled-elderly', 'hasbled-drugs', 'hasbled-alcohol'];
+                const hasBledIds = [
+                    'hasbled-htn',
+                    'hasbled-renal',
+                    'hasbled-liver',
+                    'hasbled-stroke',
+                    'hasbled-bleed',
+                    'hasbled-inr',
+                    'hasbled-elderly',
+                    'hasbled-drugs',
+                    'hasbled-alcohol'
+                ];
 
                 hasBledIds.forEach(id => {
-                    const checked = container.querySelector(`input[name="${id}"]:checked`) as HTMLInputElement | null;
-                    if (checked) hasbled_score += parseInt(checked.value);
+                    const checked = container.querySelector(
+                        `input[name="${id}"]:checked`
+                    ) as HTMLInputElement | null;
+                    if (checked) {
+                        hasbled_score += parseInt(checked.value);
+                    }
                 });
 
                 // Treatment Recommendation
                 const isMale = patient && patient.gender === 'male';
                 // Adjust threshold logic? Original: male score, female score-1
-                const strokeRiskScoreForOAC = (patient && !isMale) ? cha2ds2vasc_score - 1 : cha2ds2vasc_score;
+                const strokeRiskScoreForOAC =
+                    patient && !isMale ? cha2ds2vasc_score - 1 : cha2ds2vasc_score;
                 // Note: female gender adds 1 point in score itself.
                 // Standard guideline: Men score >=2, Women score >=3 OAC recommended.
                 // If female, score is at least 1.
@@ -160,7 +195,8 @@ export const afRisk: CalculatorModule = {
                 if (hasbled_score >= 3) {
                     bleedNote = uiBuilder.createAlert({
                         type: 'danger',
-                        message: '<strong>High Bleeding Risk:</strong> HAS-BLED score is ≥3. Use anticoagulants with caution, address modifiable bleeding risk factors, and schedule regular follow-up.',
+                        message:
+                            '<strong>High Bleeding Risk:</strong> HAS-BLED score is ≥3. Use anticoagulants with caution, address modifiable bleeding risk factors, and schedule regular follow-up.',
                         icon: '⚠️'
                     });
                 }
@@ -171,15 +207,15 @@ export const afRisk: CalculatorModule = {
                     if (resultContent) {
                         resultContent.innerHTML = `
                             ${uiBuilder.createResultItem({
-                            label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
-                            value: cha2ds2vasc_score.toString(),
-                            unit: '/ 9 points'
-                        })}
+                                label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
+                                value: cha2ds2vasc_score.toString(),
+                                unit: '/ 9 points'
+                            })}
                             ${uiBuilder.createResultItem({
-                            label: 'HAS-BLED Score (Bleeding Risk)',
-                            value: hasbled_score.toString(),
-                            unit: '/ 9 points'
-                        })}
+                                label: 'HAS-BLED Score (Bleeding Risk)',
+                                value: hasbled_score.toString(),
+                                unit: '/ 9 points'
+                            })}
                             
                             <div class="ui-alert ${alertClass} mt-10">
                                 <span class="ui-alert-icon">${alertClass.includes('success') ? '✓' : '⚠️'}</span>
@@ -228,12 +264,15 @@ export const afRisk: CalculatorModule = {
 
         // Async data population using FHIRDataService
         if (client) {
-            fhirDataService.getBloodPressure({ trackStaleness: true }).then(result => {
-                if (result.systolic !== null && result.systolic > 160) {
-                    setRadioValue('hasbled-htn', '1');
-                    setRadioValue('htn', '1');
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getBloodPressure({ trackStaleness: true })
+                .then(result => {
+                    if (result.systolic !== null && result.systolic > 160) {
+                        setRadioValue('hasbled-htn', '1');
+                        setRadioValue('htn', '1');
+                    }
+                })
+                .catch(e => console.warn(e));
         }
 
         calculate();

@@ -30,20 +30,21 @@ export const hepScore: CalculatorModule = {
         </div>
 
         ${uiBuilder.createAlert({
-        type: 'info',
-        message: '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
-    })}
+            type: 'info',
+            message:
+                '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
+        })}
 
         ${uiBuilder.createSection({
-        title: 'Type of HIT onset suspected',
-        content: uiBuilder.createRadioGroup({
-            name: 'hit_onset_type',
-            options: [
-                { value: 'typical', label: 'Typical onset', checked: true },
-                { value: 'rapid', label: 'Rapid onset (re-exposure)' }
-            ]
-        })
-    })}
+            title: 'Type of HIT onset suspected',
+            content: uiBuilder.createRadioGroup({
+                name: 'hit_onset_type',
+                options: [
+                    { value: 'typical', label: 'Typical onset', checked: true },
+                    { value: 'rapid', label: 'Rapid onset (re-exposure)' }
+                ]
+            })
+        })}
 
         <div id="hep-score-criteria">
             <!-- JS will populate this section based on onset type -->
@@ -63,7 +64,7 @@ export const hepScore: CalculatorModule = {
     `,
     initialize: async (client: any, patient: any, container: HTMLElement) => {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -110,7 +111,10 @@ export const hepScore: CalculatorModule = {
                 condition: (type: string) => type === 'typical',
                 options: [
                     { label: 'New VTE/ATE ≥4 days after heparin exposure (+3)', value: '3' },
-                    { label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)', value: '2' },
+                    {
+                        label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)',
+                        value: '2'
+                    },
                     { label: 'None (0)', value: '0', checked: true }
                 ]
             },
@@ -119,19 +123,50 @@ export const hepScore: CalculatorModule = {
                 condition: (type: string) => type === 'rapid',
                 options: [
                     { label: 'New VTE/ATE after heparin exposure (+3)', value: '3' },
-                    { label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)', value: '2' },
+                    {
+                        label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)',
+                        value: '2'
+                    },
                     { label: 'None (0)', value: '0', checked: true }
                 ]
             },
-            skin_necrosis: { label: 'Skin necrosis at subcutaneous heparin injection sites', yes: '3', no: '0' },
-            systemic_reaction: { label: 'Acute systemic reaction after IV heparin bolus', yes: '2', no: '0' },
-            bleeding: { label: 'Presence of bleeding, petechiae or extensive bruising', yes: '-1', no: '0' },
-            chronic_thrombocytopenia: { label: 'Presence of chronic thrombocytopenic disorder', yes: '-1', no: '0' },
-            new_medication: { label: 'Newly initiated non-heparin medication known to cause thrombocytopenia', yes: '-1', no: '0' },
+            skin_necrosis: {
+                label: 'Skin necrosis at subcutaneous heparin injection sites',
+                yes: '3',
+                no: '0'
+            },
+            systemic_reaction: {
+                label: 'Acute systemic reaction after IV heparin bolus',
+                yes: '2',
+                no: '0'
+            },
+            bleeding: {
+                label: 'Presence of bleeding, petechiae or extensive bruising',
+                yes: '-1',
+                no: '0'
+            },
+            chronic_thrombocytopenia: {
+                label: 'Presence of chronic thrombocytopenic disorder',
+                yes: '-1',
+                no: '0'
+            },
+            new_medication: {
+                label: 'Newly initiated non-heparin medication known to cause thrombocytopenia',
+                yes: '-1',
+                no: '0'
+            },
             severe_infection: { label: 'Severe infection', yes: '-2', no: '0' },
-            dic: { label: 'Severe disseminated intravascular coagulation (DIC)', yes: '-2', no: '0' },
+            dic: {
+                label: 'Severe disseminated intravascular coagulation (DIC)',
+                yes: '-2',
+                no: '0'
+            },
             arterial_device: { label: 'Indwelling intra-arterial device', yes: '-2', no: '0' },
-            cardiopulmonary_bypass: { label: 'Cardiopulmonary bypass within previous 96 hours', yes: '-1', no: '0' },
+            cardiopulmonary_bypass: {
+                label: 'Cardiopulmonary bypass within previous 96 hours',
+                yes: '-1',
+                no: '0'
+            },
             no_other_cause: { label: 'No other apparent cause', yes: '3', no: '0' }
         };
 
@@ -139,7 +174,9 @@ export const hepScore: CalculatorModule = {
             let score = 0;
             if (criteriaContainer) {
                 criteriaContainer.querySelectorAll('.ui-radio-group').forEach(group => {
-                    const selected = group.querySelector('input[type="radio"]:checked') as HTMLInputElement;
+                    const selected = group.querySelector(
+                        'input[type="radio"]:checked'
+                    ) as HTMLInputElement;
                     if (selected) {
                         score += parseInt(selected.value);
                     }
@@ -200,7 +237,10 @@ export const hepScore: CalculatorModule = {
                     } else if (data.yes && data.no) {
                         options = [
                             { label: `No (${data.no})`, value: data.no, checked: true },
-                            { label: `Yes (${parseInt(data.yes) > 0 ? '+' : ''}${data.yes})`, value: data.yes }
+                            {
+                                label: `Yes (${parseInt(data.yes) > 0 ? '+' : ''}${data.yes})`,
+                                value: data.yes
+                            }
                         ];
                     }
 
@@ -224,7 +264,7 @@ export const hepScore: CalculatorModule = {
         };
 
         onsetInputs.forEach(radio => {
-            radio.addEventListener('change', (e) => {
+            radio.addEventListener('change', e => {
                 const target = e.target as HTMLInputElement;
                 renderCriteria(target.value);
             });
@@ -237,13 +277,20 @@ export const hepScore: CalculatorModule = {
         try {
             if (client) {
                 // Use fhirDataService to get platelets
-                const plateletResult = await fhirDataService.getObservation(LOINC_CODES.PLATELETS, { trackStaleness: true, stalenessLabel: 'Platelets' });
+                const plateletResult = await fhirDataService.getObservation(LOINC_CODES.PLATELETS, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Platelets'
+                });
                 if (plateletResult.value !== null) {
                     if (criteriaContainer) {
-                        const nadirGroup = criteriaContainer.querySelector('input[name="nadir_platelet"]');
+                        const nadirGroup = criteriaContainer.querySelector(
+                            'input[name="nadir_platelet"]'
+                        );
                         if (nadirGroup) {
                             const radioValue = plateletResult.value < 20 ? '-2' : '2';
-                            const radioToCheck = criteriaContainer.querySelector(`input[name="nadir_platelet"][value="${radioValue}"]`) as HTMLInputElement;
+                            const radioToCheck = criteriaContainer.querySelector(
+                                `input[name="nadir_platelet"][value="${radioValue}"]`
+                            ) as HTMLInputElement;
                             if (radioToCheck) {
                                 radioToCheck.checked = true;
                             }

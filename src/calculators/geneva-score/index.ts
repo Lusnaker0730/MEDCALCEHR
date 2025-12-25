@@ -1,8 +1,8 @@
 /**
  * Revised Geneva Score (Simplified) Calculator
- * 
+ *
  * 已整合 FHIRDataService 進行自動填充
- * 
+ *
  * 這是一個混合計算器 - 有 checkbox 評分和 input 輸入（心率）
  */
 
@@ -28,10 +28,26 @@ export const genevaScore: CalculatorModule = {
             title: 'Clinical Assessment',
             icon: '📋',
             content: [
-                uiBuilder.createCheckbox({ id: 'geneva-age', label: 'Age > 65 years (+1)', value: '1' }),
-                uiBuilder.createCheckbox({ id: 'geneva-prev-dvt', label: 'Previous DVT or PE (+1)', value: '1' }),
-                uiBuilder.createCheckbox({ id: 'geneva-surgery', label: 'Surgery or fracture within 1 month (+1)', value: '1' }),
-                uiBuilder.createCheckbox({ id: 'geneva-malignancy', label: 'Active malignancy (+1)', value: '1' })
+                uiBuilder.createCheckbox({
+                    id: 'geneva-age',
+                    label: 'Age > 65 years (+1)',
+                    value: '1'
+                }),
+                uiBuilder.createCheckbox({
+                    id: 'geneva-prev-dvt',
+                    label: 'Previous DVT or PE (+1)',
+                    value: '1'
+                }),
+                uiBuilder.createCheckbox({
+                    id: 'geneva-surgery',
+                    label: 'Surgery or fracture within 1 month (+1)',
+                    value: '1'
+                }),
+                uiBuilder.createCheckbox({
+                    id: 'geneva-malignancy',
+                    label: 'Active malignancy (+1)',
+                    value: '1'
+                })
             ].join('')
         });
 
@@ -39,9 +55,21 @@ export const genevaScore: CalculatorModule = {
             title: 'Clinical Signs',
             icon: '⚕️',
             content: [
-                uiBuilder.createCheckbox({ id: 'geneva-limb-pain', label: 'Unilateral lower limb pain (+1)', value: '1' }),
-                uiBuilder.createCheckbox({ id: 'geneva-hemoptysis', label: 'Hemoptysis (+1)', value: '1' }),
-                uiBuilder.createCheckbox({ id: 'geneva-palpation', label: 'Pain on deep vein palpation AND unilateral edema (+1)', value: '1' })
+                uiBuilder.createCheckbox({
+                    id: 'geneva-limb-pain',
+                    label: 'Unilateral lower limb pain (+1)',
+                    value: '1'
+                }),
+                uiBuilder.createCheckbox({
+                    id: 'geneva-hemoptysis',
+                    label: 'Hemoptysis (+1)',
+                    value: '1'
+                }),
+                uiBuilder.createCheckbox({
+                    id: 'geneva-palpation',
+                    label: 'Pain on deep vein palpation AND unilateral edema (+1)',
+                    value: '1'
+                })
             ].join('')
         });
 
@@ -95,7 +123,9 @@ export const genevaScore: CalculatorModule = {
             let score = 0;
 
             // Sum checkbox values
-            const checkedBoxes = container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
+            const checkedBoxes = container.querySelectorAll<HTMLInputElement>(
+                'input[type="checkbox"]:checked'
+            );
             checkedBoxes.forEach(box => {
                 score += parseInt(box.value, 10);
             });
@@ -114,7 +144,9 @@ export const genevaScore: CalculatorModule = {
             // Display result if heart rate is valid
             const resultBox = container.querySelector('#geneva-result');
             if (!hrInput || isNaN(hr)) {
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
                 return;
             }
 
@@ -125,12 +157,14 @@ export const genevaScore: CalculatorModule = {
                 riskLevel = 'Low Risk';
                 alertClass = 'ui-alert-success';
                 prevalence = '8%';
-                recommendation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
+                recommendation =
+                    'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
             } else if (score <= 4) {
                 riskLevel = 'Intermediate Risk';
                 alertClass = 'ui-alert-warning';
                 prevalence = '28%';
-                recommendation = 'Consider imaging (CT pulmonary angiography) or age-adjusted D-dimer.';
+                recommendation =
+                    'Consider imaging (CT pulmonary angiography) or age-adjusted D-dimer.';
             } else {
                 riskLevel = 'High Risk';
                 alertClass = 'ui-alert-danger';
@@ -187,42 +221,60 @@ export const genevaScore: CalculatorModule = {
 
         // Load heart rate
         if (fhirDataService.isReady()) {
-            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
-                trackStaleness: true,
-                stalenessLabel: 'Heart Rate'
-            }).then(result => {
-                const hrInput = container.querySelector('#geneva-hr') as HTMLInputElement;
-                if (hrInput && result.value !== null) {
-                    hrInput.value = Math.round(result.value).toString();
-                    hrInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    
-                    if (stalenessTracker && result.observation) {
-                        stalenessTracker.trackObservation('#geneva-hr', result.observation, LOINC_CODES.HEART_RATE, 'Heart Rate');
+            fhirDataService
+                .getObservation(LOINC_CODES.HEART_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Heart Rate'
+                })
+                .then(result => {
+                    const hrInput = container.querySelector('#geneva-hr') as HTMLInputElement;
+                    if (hrInput && result.value !== null) {
+                        hrInput.value = Math.round(result.value).toString();
+                        hrInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                        if (stalenessTracker && result.observation) {
+                            stalenessTracker.trackObservation(
+                                '#geneva-hr',
+                                result.observation,
+                                LOINC_CODES.HEART_RATE,
+                                'Heart Rate'
+                            );
+                        }
                     }
-                }
-            }).catch(e => console.warn('Error loading heart rate:', e));
-            
+                })
+                .catch(e => console.warn('Error loading heart rate:', e));
+
             // Check for previous DVT/PE
-            fhirDataService.hasCondition(['128053003', '59282003']).then(hasDVTPE => {
-                if (hasDVTPE) {
-                    const checkbox = container.querySelector('#geneva-prev-dvt') as HTMLInputElement;
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+            fhirDataService
+                .hasCondition(['128053003', '59282003'])
+                .then(hasDVTPE => {
+                    if (hasDVTPE) {
+                        const checkbox = container.querySelector(
+                            '#geneva-prev-dvt'
+                        ) as HTMLInputElement;
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     }
-                }
-            }).catch(e => console.warn('Error checking DVT/PE history:', e));
-            
+                })
+                .catch(e => console.warn('Error checking DVT/PE history:', e));
+
             // Check for malignancy
-            fhirDataService.hasCondition(['363346000', '86049000']).then(hasMalignancy => {
-                if (hasMalignancy) {
-                    const checkbox = container.querySelector('#geneva-malignancy') as HTMLInputElement;
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+            fhirDataService
+                .hasCondition(['363346000', '86049000'])
+                .then(hasMalignancy => {
+                    if (hasMalignancy) {
+                        const checkbox = container.querySelector(
+                            '#geneva-malignancy'
+                        ) as HTMLInputElement;
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     }
-                }
-            }).catch(e => console.warn('Error checking malignancy:', e));
+                })
+                .catch(e => console.warn('Error checking malignancy:', e));
         }
 
         // Initial calculation

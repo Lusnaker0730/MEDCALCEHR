@@ -1,7 +1,12 @@
 export declare class UIBuilder {
     constructor();
     injectStyles(): void;
-    createSection(options: { title?: string; subtitle?: string; icon?: string; content?: string }): string;
+    createSection(options: {
+        title?: string;
+        subtitle?: string;
+        icon?: string;
+        content?: string;
+    }): string;
     createInput(options: {
         id: string;
         label: string;
@@ -19,14 +24,27 @@ export declare class UIBuilder {
     createRadioGroup(options: {
         name: string;
         label?: string;
-        options?: Array<{ value: string; label: string; checked?: boolean; disabled?: boolean; id?: string }>;
+        options?: Array<{
+            value: string;
+            label: string;
+            checked?: boolean;
+            disabled?: boolean;
+            id?: string;
+        }>;
         required?: boolean;
         helpText?: string;
     }): string;
     createCheckboxGroup(options: {
         name: string;
         label?: string;
-        options?: Array<{ value: string; label: string; description?: string; checked?: boolean; disabled?: boolean; id?: string }>;
+        options?: Array<{
+            value: string;
+            label: string;
+            description?: string;
+            checked?: boolean;
+            disabled?: boolean;
+            id?: string;
+        }>;
         helpText?: string;
     }): string;
     createCheckbox(options: {
@@ -61,8 +79,21 @@ export declare class UIBuilder {
         interpretation?: string;
         alertClass?: string;
     }): string;
-    createAlert(options: { type?: 'info' | 'warning' | 'danger' | 'success'; message: string; icon?: string }): string;
-    createFormulaSection(options: { items?: Array<{ label?: string; title?: string; formula?: string; content?: string; formulas?: string[]; notes?: string }> }): string;
+    createAlert(options: {
+        type?: 'info' | 'warning' | 'danger' | 'success';
+        message: string;
+        icon?: string;
+    }): string;
+    createFormulaSection(options: {
+        items?: Array<{
+            label?: string;
+            title?: string;
+            formula?: string;
+            content?: string;
+            formulas?: string[];
+            notes?: string;
+        }>;
+    }): string;
     createTable(options: {
         id?: string;
         headers?: string[];
@@ -72,11 +103,7 @@ export declare class UIBuilder {
     }): string;
     setRadioValue(name: string, value: string): void;
     initializeComponents(container: HTMLElement): void;
-    createForm(options: {
-        fields?: any[];
-        submitLabel?: string;
-        showSubmit?: boolean;
-    }): string;
+    createForm(options: { fields?: any[]; submitLabel?: string; showSubmit?: boolean }): string;
 }
 
 export declare const uiBuilder: UIBuilder;

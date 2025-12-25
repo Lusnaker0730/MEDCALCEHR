@@ -7,7 +7,8 @@ export const regiscar = createRadioScoreCalculator({
     id: 'regiscar',
     title: 'RegiSCAR Score for DRESS',
     description: 'Diagnoses Drug Reaction with Eosinophilia and Systemic Symptoms (DRESS).',
-    infoAlert: '<strong>Note:</strong> DRESS is a severe drug hypersensitivity reaction. RegiSCAR helps standardize diagnosis.',
+    infoAlert:
+        '<strong>Note:</strong> DRESS is a severe drug hypersensitivity reaction. RegiSCAR helps standardize diagnosis.',
     sections: [
         {
             id: 'regiscar-fever',
@@ -144,12 +145,19 @@ export const regiscar = createRadioScoreCalculator({
             alertClass: `ui-alert-${alertType}`
         });
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadioValue = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -158,23 +166,37 @@ export const regiscar = createRadioScoreCalculator({
 
         if (client) {
             // Temperature
-            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, { trackStaleness: true, stalenessLabel: 'Temperature', targetUnit: 'degC', unitType: 'temperature' }).then(result => {
-                if (result.value !== null && result.value >= 38.5) {
-                    setRadioValue('regiscar-fever', '0');
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.TEMPERATURE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Temperature',
+                    targetUnit: 'degC',
+                    unitType: 'temperature'
+                })
+                .then(result => {
+                    if (result.value !== null && result.value >= 38.5) {
+                        setRadioValue('regiscar-fever', '0');
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Eosinophils
-            fhirDataService.getObservation(LOINC_CODES.EOSINOPHILS, { trackStaleness: true, stalenessLabel: 'Eosinophils' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value >= 1500) {
-                        setRadioValue('regiscar-eosinophilia', '2');
-                    } else if (result.value >= 700) {
-                        setRadioValue('regiscar-eosinophilia', '1');
+            fhirDataService
+                .getObservation(LOINC_CODES.EOSINOPHILS, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Eosinophils'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value >= 1500) {
+                            setRadioValue('regiscar-eosinophilia', '2');
+                        } else if (result.value >= 700) {
+                            setRadioValue('regiscar-eosinophilia', '1');
+                        }
+                        calculate();
                     }
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+                })
+                .catch(e => console.warn(e));
         }
 
         calculate();

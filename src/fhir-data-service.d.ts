@@ -95,8 +95,15 @@ export declare class FHIRDataService {
     getPatientId(): string | null;
     getStalenessTracker(): DataStalenessTracker | null;
     getObservation(code: string, options?: GetObservationOptions): Promise<ObservationResult>;
-    getObservations(codes: string[], options?: GetObservationOptions): Promise<Map<string, ObservationResult>>;
-    autoPopulateInput(inputId: string, code: string, options?: AutoPopulateOptions): Promise<ObservationResult>;
+    getObservations(
+        codes: string[],
+        options?: GetObservationOptions
+    ): Promise<Map<string, ObservationResult>>;
+    autoPopulateInput(
+        inputId: string,
+        code: string,
+        options?: AutoPopulateOptions
+    ): Promise<ObservationResult>;
     autoPopulateFields(fields: FieldDataRequirement[]): Promise<Map<string, ObservationResult>>;
     autoPopulateFromRequirements(requirements: CalculatorDataRequirements): Promise<void>;
     getConditions(snomedCodes: string[]): Promise<any[]>;

@@ -1,19 +1,23 @@
 /**
  * Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)
- * 
+ *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
 
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { createMixedInputCalculator, MixedInputCalculatorConfig } from '../shared/mixed-input-calculator.js';
+import {
+    createMixedInputCalculator,
+    MixedInputCalculatorConfig
+} from '../shared/mixed-input-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
 const config: MixedInputCalculatorConfig = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
-    description: 'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] × 100 where x = -5.25 + sum of selected variables.',
-    
+    description:
+        'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] × 100 where x = -5.25 + sum of selected variables.',
+
     sections: [
         {
             title: 'Patient Demographics',
@@ -49,7 +53,10 @@ const config: MixedInputCalculatorConfig = {
                         { value: '-6.17', label: 'Class 1 - Normal healthy patient' },
                         { value: '-3.29', label: 'Class 2 - Mild systemic disease' },
                         { value: '1.80', label: 'Class 3 - Severe systemic disease' },
-                        { value: '4.29', label: 'Class 4 - Severe systemic disease (threat to life)' },
+                        {
+                            value: '4.29',
+                            label: 'Class 4 - Severe systemic disease (threat to life)'
+                        },
                         { value: '0', label: 'Class 5 - Moribund' }
                     ]
                 }
@@ -98,21 +105,21 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    
+
     resultTitle: 'Gupta MICA Risk Assessment',
-    
-    calculate: (values) => {
+
+    calculate: values => {
         const age = values['mica-age'] as number | null;
         const creat = values['mica-creat'] as number | null;
-        
+
         if (age === null || creat === null) {
             return null;
         }
-        
-        const functionalStatus = parseFloat(values['mica-status'] as string || '0');
-        const asaClass = parseFloat(values['mica-asa'] as string || '-6.17');
-        const procedure = parseFloat(values['mica-procedure'] as string || '-0.74');
-        
+
+        const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
+        const asaClass = parseFloat((values['mica-asa'] as string) || '-6.17');
+        const procedure = parseFloat((values['mica-procedure'] as string) || '-0.74');
+
         let x = -5.25;
         x += age * 0.02;
         x += functionalStatus;
@@ -121,26 +128,26 @@ const config: MixedInputCalculatorConfig = {
             x += 0.61;
         }
         x += procedure;
-        
+
         // 返回 x 值以便在結果渲染器中計算風險百分比
         // 使用一個技巧：返回 x 乘以一個大數，然後在渲染器中還原
         return x;
     },
-    
+
     customResultRenderer: (x, values) => {
         const age = values['mica-age'] as number;
         const creat = values['mica-creat'] as number;
-        const functionalStatus = parseFloat(values['mica-status'] as string || '0');
-        const asaClass = parseFloat(values['mica-asa'] as string || '-6.17');
-        const procedure = parseFloat(values['mica-procedure'] as string || '-0.74');
-        
+        const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
+        const asaClass = parseFloat((values['mica-asa'] as string) || '-6.17');
+        const procedure = parseFloat((values['mica-procedure'] as string) || '-0.74');
+
         const risk = (1 / (1 + Math.exp(-x))) * 100;
         const riskPercent = risk.toFixed(2);
-        
+
         let riskLevel = 'Low Risk';
         let riskDescription = 'Low risk of postoperative MI or cardiac arrest';
         let alertType: 'success' | 'warning' | 'danger' = 'success';
-        
+
         if (risk > 5) {
             riskLevel = 'High Risk';
             riskDescription = 'High risk - Consider risk modification strategies';
@@ -150,7 +157,7 @@ const config: MixedInputCalculatorConfig = {
             riskDescription = 'Intermediate risk - Consider perioperative optimization';
             alertType = 'warning';
         }
-        
+
         return `
             ${uiBuilder.createResultItem({
                 label: 'Cardiac Risk',
@@ -178,17 +185,17 @@ const config: MixedInputCalculatorConfig = {
             })}
         `;
     },
-    
+
     customInitialize: async (client, patient, container, calculate, setValue) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         // Age from patient using FHIRDataService
         const age = fhirDataService.getPatientAge();
         if (age !== null && age > 0) {
             setValue('mica-age', age.toString());
         }
-        
+
         if (client) {
             try {
                 const result = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
@@ -197,7 +204,7 @@ const config: MixedInputCalculatorConfig = {
                     targetUnit: 'mg/dL',
                     unitType: 'creatinine'
                 });
-                
+
                 if (result.value !== null) {
                     setValue('mica-creat', result.value.toFixed(2));
                 }
@@ -205,7 +212,7 @@ const config: MixedInputCalculatorConfig = {
                 console.warn('Error fetching creatinine for Gupta MICA', e);
             }
         }
-        
+
         calculate();
     }
 };

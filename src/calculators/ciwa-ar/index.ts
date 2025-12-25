@@ -1,11 +1,14 @@
 /**
  * CIWA-Ar for Alcohol Withdrawal Calculator
- * 
+ *
  * 使用 Radio Score Calculator 工廠函數遷移
  * The CIWA-Ar objectifies severity of alcohol withdrawal.
  */
 
-import { createRadioScoreCalculator, RadioScoreCalculatorConfig } from '../shared/radio-score-calculator.js';
+import {
+    createRadioScoreCalculator,
+    RadioScoreCalculatorConfig
+} from '../shared/radio-score-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: RadioScoreCalculatorConfig = {
@@ -91,12 +94,19 @@ const config: RadioScoreCalculatorConfig = {
         {
             id: 'tactile',
             title: 'Tactile Disturbances',
-            subtitle: 'Ask "Have you any itching, pins and needles sensations, any burning, any numbness, or do you feel bugs crawling on or under your skin?"',
+            subtitle:
+                'Ask "Have you any itching, pins and needles sensations, any burning, any numbness, or do you feel bugs crawling on or under your skin?"',
             options: [
                 { value: '0', label: 'None (0)', checked: true },
-                { value: '1', label: 'Very mild itching, pins and needles, burning or numbness (1)' },
+                {
+                    value: '1',
+                    label: 'Very mild itching, pins and needles, burning or numbness (1)'
+                },
                 { value: '2', label: 'Mild itching, pins and needles, burning or numbness (2)' },
-                { value: '3', label: 'Moderate itching, pins and needles, burning or numbness (3)' },
+                {
+                    value: '3',
+                    label: 'Moderate itching, pins and needles, burning or numbness (3)'
+                },
                 { value: '4', label: 'Moderately severe hallucinations (4)' },
                 { value: '5', label: 'Severe hallucinations (5)' },
                 { value: '6', label: 'Extremely severe hallucinations (6)' },
@@ -106,7 +116,8 @@ const config: RadioScoreCalculatorConfig = {
         {
             id: 'auditory',
             title: 'Auditory Disturbances',
-            subtitle: 'Ask "Are you more aware of sounds around you? Are they harsh? Do they frighten you? Are you hearing anything that is disturbing to you?"',
+            subtitle:
+                'Ask "Are you more aware of sounds around you? Are they harsh? Do they frighten you? Are you hearing anything that is disturbing to you?"',
             options: [
                 { value: '0', label: 'Not present (0)', checked: true },
                 { value: '1', label: 'Very mild harshness or ability to frighten (1)' },
@@ -121,7 +132,8 @@ const config: RadioScoreCalculatorConfig = {
         {
             id: 'visual',
             title: 'Visual Disturbances',
-            subtitle: 'Ask "Does the light appear to be too bright? Is its color different? Does it hurt your eyes? Are you seeing things you know are not there?"',
+            subtitle:
+                'Ask "Does the light appear to be too bright? Is its color different? Does it hurt your eyes? Are you seeing things you know are not there?"',
             options: [
                 { value: '0', label: 'Not present (0)', checked: true },
                 { value: '1', label: 'Very mild sensitivity (1)' },
@@ -136,7 +148,8 @@ const config: RadioScoreCalculatorConfig = {
         {
             id: 'headache',
             title: 'Headache, Fullness in Head',
-            subtitle: 'Ask "Does your head feel different? Does it feel like there is a band around your head?" Do not rate dizziness or lightheadedness.',
+            subtitle:
+                'Ask "Does your head feel different? Does it feel like there is a band around your head?" Do not rate dizziness or lightheadedness.',
             options: [
                 { value: '0', label: 'Not present (0)', checked: true },
                 { value: '1', label: 'Very mild (1)' },
@@ -162,9 +175,28 @@ const config: RadioScoreCalculatorConfig = {
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 9, label: 'Absent or minimal withdrawal', severity: 'success', description: 'Supportive care. Medication may not be necessary.' },
-        { minScore: 10, maxScore: 15, label: 'Mild to moderate withdrawal', severity: 'warning', description: 'Medication is usually indicated.' },
-        { minScore: 16, maxScore: 999, label: 'Severe withdrawal', severity: 'danger', description: 'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.' }
+        {
+            minScore: 0,
+            maxScore: 9,
+            label: 'Absent or minimal withdrawal',
+            severity: 'success',
+            description: 'Supportive care. Medication may not be necessary.'
+        },
+        {
+            minScore: 10,
+            maxScore: 15,
+            label: 'Mild to moderate withdrawal',
+            severity: 'warning',
+            description: 'Medication is usually indicated.'
+        },
+        {
+            minScore: 16,
+            maxScore: 999,
+            label: 'Severe withdrawal',
+            severity: 'danger',
+            description:
+                'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.'
+        }
     ],
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         let severity = '';
@@ -181,7 +213,8 @@ const config: RadioScoreCalculatorConfig = {
             alertClass = 'warning';
         } else {
             severity = 'Severe withdrawal';
-            recommendation = 'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.';
+            recommendation =
+                'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.';
             alertClass = 'danger';
         }
 

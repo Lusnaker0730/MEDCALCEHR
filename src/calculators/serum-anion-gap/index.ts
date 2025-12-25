@@ -25,32 +25,44 @@ export const serumAnionGap: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Electrolytes',
-            icon: '🧪',
-            content: `
+                title: 'Electrolytes',
+                icon: '🧪',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'sag-na',
-                label: 'Sodium (Na⁺)',
-                type: 'number',
-                placeholder: 'e.g., 140',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
-            })}
+                        id: 'sag-na',
+                        label: 'Sodium (Na⁺)',
+                        type: 'number',
+                        placeholder: 'e.g., 140',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'sag-cl',
-                label: 'Chloride (Cl⁻)',
-                type: 'number',
-                placeholder: 'e.g., 100',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
-            })}
+                        id: 'sag-cl',
+                        label: 'Chloride (Cl⁻)',
+                        type: 'number',
+                        placeholder: 'e.g., 100',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'sag-hco3',
-                label: 'Bicarbonate (HCO₃⁻)',
-                type: 'number',
-                placeholder: 'e.g., 24',
-                unitToggle: { type: 'electrolyte', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' }
-            })}
+                        id: 'sag-hco3',
+                        label: 'Bicarbonate (HCO₃⁻)',
+                        type: 'number',
+                        placeholder: 'e.g., 24',
+                        unitToggle: {
+                            type: 'electrolyte',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                 `
-        })}
+            })}
             
             <div id="sag-error-container"></div>
             <div id="sag-result" class="ui-result-box">
@@ -59,14 +71,12 @@ export const serumAnionGap: CalculatorModule = {
             </div>
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Anion Gap', formula: 'Na⁺ - (Cl⁻ + HCO₃⁻)' }
-            ]
-        })}
+                items: [{ label: 'Anion Gap', formula: 'Na⁺ - (Cl⁻ + HCO₃⁻)' }]
+            })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>Interpretation:</h4>
                     <ul class="info-list">
                         <li><strong>Normal Range:</strong> 6-12 mEq/L</li>
@@ -75,7 +85,7 @@ export const serumAnionGap: CalculatorModule = {
                     </ul>
                     <p class="mt-10"><strong>Note:</strong> For every 1 g/dL decrease in albumin below 4 g/dL, add 2.5 mEq/L to the anion gap (corrected gap).</p>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
@@ -89,11 +99,12 @@ export const serumAnionGap: CalculatorModule = {
         const hco3Input = container.querySelector('#sag-hco3') as HTMLInputElement;
         const resultBox = container.querySelector('#sag-result');
 
-
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#sag-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const na = UnitConverter.getStandardValue(naInput, 'mEq/L');
             const cl = UnitConverter.getStandardValue(clInput, 'mEq/L');
@@ -115,12 +126,26 @@ export const serumAnionGap: CalculatorModule = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (naInput.value || clInput.value || hco3Input.value);
+                    const hasInput = naInput.value || clInput.value || hco3Input.value;
 
                     if (hasInput && resultBox) {
-                        const valuesPresent = na !== null && cl !== null && hco3 !== null && !isNaN(na) && !isNaN(cl) && !isNaN(hco3);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent =
+                            na !== null &&
+                            cl !== null &&
+                            hco3 !== null &&
+                            !isNaN(na) &&
+                            !isNaN(cl) &&
+                            !isNaN(hco3);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                         resultBox.classList.remove('show');
                     }
@@ -131,7 +156,9 @@ export const serumAnionGap: CalculatorModule = {
                     const resultContent = resultBox.querySelector('.ui-result-content');
                     const anionGap = na! - (cl! + hco3!);
 
-                    if (!isFinite(anionGap) || isNaN(anionGap)) throw new Error("Calculation Error");
+                    if (!isFinite(anionGap) || isNaN(anionGap)) {
+                        throw new Error('Calculation Error');
+                    }
 
                     let interpretation = '';
                     let alertClass = 'ui-alert-success';
@@ -142,17 +169,20 @@ export const serumAnionGap: CalculatorModule = {
                         interpretation = 'High Anion Gap';
                         alertClass = 'ui-alert-danger';
                         alertType = 'danger';
-                        alertMsg = 'Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions - MUDPILES).';
+                        alertMsg =
+                            'Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions - MUDPILES).';
                     } else if (anionGap < 6) {
                         interpretation = 'Low Anion Gap';
                         alertClass = 'ui-alert-warning';
                         alertType = 'warning';
-                        alertMsg = 'Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+                        alertMsg =
+                            'Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
                     } else {
                         interpretation = 'Normal Anion Gap';
                         alertClass = 'ui-alert-success';
                         alertType = 'success';
-                        alertMsg = 'Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+                        alertMsg =
+                            'Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
                     }
 
                     if (resultContent) {
@@ -174,8 +204,12 @@ export const serumAnionGap: CalculatorModule = {
                 }
             } catch (error) {
                 logError(error as Error, { calculator: 'serum-anion-gap', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultBox) resultBox.classList.remove('show');
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 

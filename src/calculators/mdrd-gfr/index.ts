@@ -64,9 +64,10 @@ export const mdrdGfr: CalculatorModule = {
             </div>
             
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: '<p><strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.</p>'
-        })}
+                type: 'warning',
+                message:
+                    '<p><strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.</p>'
+            })}
             
             ${patientSection}
             ${labSection}
@@ -79,12 +80,12 @@ export const mdrdGfr: CalculatorModule = {
             </div>
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Base Formula', formula: 'eGFR = 175 × (Scr)^-1.154 × (Age)^-0.203' },
-                { label: 'Gender Adjustment', content: 'If female: multiply by 0.742' },
-                { label: 'Race Adjustment', content: 'If African American: multiply by 1.212' }
-            ]
-        })}
+                items: [
+                    { label: 'Base Formula', formula: 'eGFR = 175 × (Scr)^-1.154 × (Age)^-0.203' },
+                    { label: 'Gender Adjustment', content: 'If female: multiply by 0.742' },
+                    { label: 'Race Adjustment', content: 'If African American: multiply by 1.212' }
+                ]
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -98,14 +99,20 @@ export const mdrdGfr: CalculatorModule = {
 
         const calculateAndUpdate = () => {
             const errorContainer = container.querySelector('#mdrd-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const creatinineInput = container.querySelector('#mdrd-creatinine') as HTMLInputElement;
             const creatinineMgDl = UnitConverter.getStandardValue(creatinineInput, 'mg/dL');
 
             const age = parseFloat(ageInput.value);
-            const genderRadio = container.querySelector('input[name="mdrd-gender"]:checked') as HTMLInputElement;
-            const raceRadio = container.querySelector('input[name="mdrd-race"]:checked') as HTMLInputElement;
+            const genderRadio = container.querySelector(
+                'input[name="mdrd-gender"]:checked'
+            ) as HTMLInputElement;
+            const raceRadio = container.querySelector(
+                'input[name="mdrd-race"]:checked'
+            ) as HTMLInputElement;
             const isFemale = genderRadio ? genderRadio.value === 'female' : false;
             const isAA = raceRadio ? raceRadio.value === 'aa' : false;
 
@@ -121,12 +128,23 @@ export const mdrdGfr: CalculatorModule = {
 
                 if (!validation.isValid) {
                     if (ageInput.value || creatinineInput.value) {
-                        const valuesPresent = !isNaN(age) && creatinineMgDl !== null && !isNaN(creatinineMgDl);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent =
+                            !isNaN(age) && creatinineMgDl !== null && !isNaN(creatinineMgDl);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl) {
+                        resultEl.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -158,11 +176,13 @@ export const mdrdGfr: CalculatorModule = {
                     } else if (gfr >= 30) {
                         stage = 'Stage 3b (Moderate to severe)';
                         alertType = 'warning';
-                        alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+                        alertMsg =
+                            'Moderate to severe reduction in kidney function. Consider nephrology referral.';
                     } else if (gfr >= 15) {
                         stage = 'Stage 4 (Severe)';
                         alertType = 'danger';
-                        alertMsg = 'Severe reduction in kidney function. Nephrology referral required.';
+                        alertMsg =
+                            'Severe reduction in kidney function. Nephrology referral required.';
                     } else {
                         stage = 'Stage 5 (Kidney failure)';
                         alertType = 'danger';
@@ -174,38 +194,44 @@ export const mdrdGfr: CalculatorModule = {
                         if (resultContent) {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                label: 'Estimated GFR',
-                                value: gfr.toFixed(0),
-                                unit: 'mL/min/1.73m²',
-                                interpretation: stage,
-                                alertClass: 'ui-alert-' + alertType
-                            })}
+                                    label: 'Estimated GFR',
+                                    value: gfr.toFixed(0),
+                                    unit: 'mL/min/1.73m²',
+                                    interpretation: stage,
+                                    alertClass: 'ui-alert-' + alertType
+                                })}
                                 ${uiBuilder.createAlert({
-                                type: alertType,
-                                message: alertMsg
-                            })}
+                                    type: alertType,
+                                    message: alertMsg
+                                })}
                             `;
                         }
                         resultEl.classList.add('show');
                     }
                 } else {
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl) {
+                        resultEl.classList.remove('show');
+                    }
                 }
             } catch (error) {
                 logError(error as Error, { calculator: 'mdrd-gfr', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultEl) resultEl.classList.remove('show');
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultEl) {
+                    resultEl.classList.remove('show');
+                }
             }
         };
 
-        container.addEventListener('change', (e) => {
+        container.addEventListener('change', e => {
             const target = e.target as HTMLElement;
             if (target.tagName === 'INPUT' || target.tagName === 'SELECT') {
                 calculateAndUpdate();
             }
         });
 
-        container.addEventListener('input', (e) => {
+        container.addEventListener('input', e => {
             const target = e.target as HTMLElement;
             if (target.tagName === 'INPUT') {
                 calculateAndUpdate();
@@ -227,7 +253,9 @@ export const mdrdGfr: CalculatorModule = {
                     const gender = await fhirDataService.getPatientGender();
                     if (gender) {
                         const genderValue = gender.toLowerCase() === 'female' ? 'female' : 'male';
-                        const genderRadio = container.querySelector(`input[name="mdrd-gender"][value="${genderValue}"]`) as HTMLInputElement | null;
+                        const genderRadio = container.querySelector(
+                            `input[name="mdrd-gender"][value="${genderValue}"]`
+                        ) as HTMLInputElement | null;
                         if (genderRadio) {
                             genderRadio.checked = true;
                             genderRadio.dispatchEvent(new Event('change'));
@@ -241,8 +269,10 @@ export const mdrdGfr: CalculatorModule = {
                         targetUnit: 'mg/dL',
                         unitType: 'creatinine'
                     });
-                    
-                    const creatinineInput = container.querySelector('#mdrd-creatinine') as HTMLInputElement;
+
+                    const creatinineInput = container.querySelector(
+                        '#mdrd-creatinine'
+                    ) as HTMLInputElement;
                     if (crResult.value !== null && creatinineInput) {
                         creatinineInput.value = crResult.value.toFixed(2);
                         creatinineInput.dispatchEvent(new Event('input'));

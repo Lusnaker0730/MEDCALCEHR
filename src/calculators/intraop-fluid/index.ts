@@ -18,47 +18,52 @@ export const intraopFluid = {
             </div>
 
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: '<strong>IMPORTANT:</strong> This dosing tool is intended to assist with calculation, not to provide comprehensive or definitive drug information. Always double-check dosing.'
-        })}
+                type: 'warning',
+                message:
+                    '<strong>IMPORTANT:</strong> This dosing tool is intended to assist with calculation, not to provide comprehensive or definitive drug information. Always double-check dosing.'
+            })}
             
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>INSTRUCTIONS:</strong> Use in patients undergoing surgery who weigh >10 kg and do not have conditions that could otherwise result in fluid overload such as heart failure, COPD, or kidney failure on dialysis.'
-        })}
+                type: 'info',
+                message:
+                    '<strong>INSTRUCTIONS:</strong> Use in patients undergoing surgery who weigh >10 kg and do not have conditions that could otherwise result in fluid overload such as heart failure, COPD, or kidney failure on dialysis.'
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Patient Parameters',
-            content: `
+                title: 'Patient Parameters',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'ifd-weight',
-                label: 'Weight',
-                type: 'number',
-                placeholder: 'e.g., 70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
-            })}
+                        id: 'ifd-weight',
+                        label: 'Weight',
+                        type: 'number',
+                        placeholder: 'e.g., 70',
+                        unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'ifd-npo',
-                label: 'Time spent NPO',
-                unit: 'hours',
-                type: 'number',
-                placeholder: 'e.g., 8'
-            })}
+                        id: 'ifd-npo',
+                        label: 'Time spent NPO',
+                        unit: 'hours',
+                        type: 'number',
+                        placeholder: 'e.g., 8'
+                    })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Surgical Factors',
-            content: uiBuilder.createRadioGroup({
-                name: 'ifd-trauma',
-                label: 'Estimated severity of trauma to tissue',
-                options: [
-                    { value: '4', label: 'Minimal (e.g. hernia repair, laparoscopy) (4 mL/kg/hr)' },
-                    { value: '6', label: 'Moderate (e.g. open cholecystectomy) (6 mL/kg/hr)' },
-                    { value: '8', label: 'Severe (e.g. bowel resection) (8 mL/kg/hr)' }
-                ]
-            })
-        })}
+                title: 'Surgical Factors',
+                content: uiBuilder.createRadioGroup({
+                    name: 'ifd-trauma',
+                    label: 'Estimated severity of trauma to tissue',
+                    options: [
+                        {
+                            value: '4',
+                            label: 'Minimal (e.g. hernia repair, laparoscopy) (4 mL/kg/hr)'
+                        },
+                        { value: '6', label: 'Moderate (e.g. open cholecystectomy) (6 mL/kg/hr)' },
+                        { value: '8', label: 'Severe (e.g. bowel resection) (8 mL/kg/hr)' }
+                    ]
+                })
+            })}
 
             <div id="ifd-result" class="ui-result-box">
                 <div class="ui-result-header">Fluid Requirements</div>
@@ -68,7 +73,7 @@ export const intraopFluid = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -80,17 +85,25 @@ export const intraopFluid = {
         const calculate = () => {
             // Clear previous errors
             const existingError = container.querySelector('#ifd-error');
-            if (existingError) existingError.remove();
+            if (existingError) {
+                existingError.remove();
+            }
 
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg');
             const npoHours = parseFloat(npoInput.value);
-            const traumaRadio = container.querySelector('input[name="ifd-trauma"]:checked') as HTMLInputElement | null;
+            const traumaRadio = container.querySelector(
+                'input[name="ifd-trauma"]:checked'
+            ) as HTMLInputElement | null;
 
             try {
                 // Validation inputs
                 const inputs = { weight: weightKg, hours: npoHours };
                 const schema = {
-                    weight: { ...ValidationRules.weight, min: 10, message: 'Weight must be > 10 kg for this calculator.' },
+                    weight: {
+                        ...ValidationRules.weight,
+                        min: 10,
+                        message: 'Weight must be > 10 kg for this calculator.'
+                    },
                     // @ts-ignore
                     hours: ValidationRules.hours
                 };
@@ -100,12 +113,22 @@ export const intraopFluid = {
                 if (!validation.isValid) {
                     // Filter required errors if empty
                     if (weightInput.value || npoInput.value) {
-                        const meaningfulErrors = validation.errors.filter(e => !e.includes('required') || (weightInput.value && npoInput.value));
-                        if (meaningfulErrors.length > 0 && weightKg !== null && !isNaN(weightKg) && !isNaN(npoHours)) {
-                            let errorContainer = document.createElement('div');
+                        const meaningfulErrors = validation.errors.filter(
+                            e => !e.includes('required') || (weightInput.value && npoInput.value)
+                        );
+                        if (
+                            meaningfulErrors.length > 0 &&
+                            weightKg !== null &&
+                            !isNaN(weightKg) &&
+                            !isNaN(npoHours)
+                        ) {
+                            const errorContainer = document.createElement('div');
                             errorContainer.id = 'ifd-error';
                             resultBox.parentNode?.insertBefore(errorContainer, resultBox);
-                            displayError(errorContainer, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                            displayError(
+                                errorContainer,
+                                new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR')
+                            );
                         }
                     }
 
@@ -113,7 +136,9 @@ export const intraopFluid = {
                     return;
                 }
 
-                if (!traumaRadio) return;
+                if (!traumaRadio) {
+                    return;
+                }
 
                 const traumaLevel = parseFloat(traumaRadio.value);
 
@@ -134,39 +159,39 @@ export const intraopFluid = {
 
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'Hourly Maintenance Fluid',
-                    value: maintenanceRate.toFixed(0),
-                    unit: 'mL/hr'
-                })}
+                        label: 'Hourly Maintenance Fluid',
+                        value: maintenanceRate.toFixed(0),
+                        unit: 'mL/hr'
+                    })}
                     ${uiBuilder.createResultItem({
-                    label: 'NPO Fluid Deficit',
-                    value: npoDeficit.toFixed(0),
-                    unit: 'mL'
-                })}
+                        label: 'NPO Fluid Deficit',
+                        value: npoDeficit.toFixed(0),
+                        unit: 'mL'
+                    })}
                     ${uiBuilder.createResultItem({
-                    label: '1st Hour Fluids',
-                    value: firstHourFluids.toFixed(0),
-                    unit: 'mL/hr',
-                    interpretation: '50% Deficit + Maint + Trauma'
-                })}
+                        label: '1st Hour Fluids',
+                        value: firstHourFluids.toFixed(0),
+                        unit: 'mL/hr',
+                        interpretation: '50% Deficit + Maint + Trauma'
+                    })}
                     ${uiBuilder.createResultItem({
-                    label: '2nd Hour Fluids',
-                    value: secondHourFluids.toFixed(0),
-                    unit: 'mL/hr',
-                    interpretation: '25% Deficit + Maint + Trauma'
-                })}
+                        label: '2nd Hour Fluids',
+                        value: secondHourFluids.toFixed(0),
+                        unit: 'mL/hr',
+                        interpretation: '25% Deficit + Maint + Trauma'
+                    })}
                     ${uiBuilder.createResultItem({
-                    label: '3rd Hour Fluids',
-                    value: thirdHourFluids.toFixed(0),
-                    unit: 'mL/hr',
-                    interpretation: '25% Deficit + Maint + Trauma'
-                })}
+                        label: '3rd Hour Fluids',
+                        value: thirdHourFluids.toFixed(0),
+                        unit: 'mL/hr',
+                        interpretation: '25% Deficit + Maint + Trauma'
+                    })}
                     ${uiBuilder.createResultItem({
-                    label: '4th Hour & Beyond',
-                    value: fourthHourFluids.toFixed(0),
-                    unit: 'mL/hr',
-                    interpretation: 'Maintenance + Trauma'
-                })}
+                        label: '4th Hour & Beyond',
+                        value: fourthHourFluids.toFixed(0),
+                        unit: 'mL/hr',
+                        interpretation: 'Maintenance + Trauma'
+                    })}
                 `;
                 resultBox.classList.add('show');
             } catch (error: any) {
@@ -185,12 +210,19 @@ export const intraopFluid = {
         };
 
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
-                if (result.value !== null) {
-                    weightInput.value = result.value.toFixed(1);
-                    weightInput.dispatchEvent(new Event('input'));
-                }
-            });
+            fhirDataService
+                .getObservation(LOINC_CODES.WEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Weight',
+                    targetUnit: 'kg',
+                    unitType: 'weight'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        weightInput.value = result.value.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
+                });
         }
 
         container.querySelectorAll('input').forEach(input => {

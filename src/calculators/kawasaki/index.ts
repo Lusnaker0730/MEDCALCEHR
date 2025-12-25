@@ -21,62 +21,63 @@ export const kawasaki: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'Clinical Criteria',
-            content: `
+                title: 'Clinical Criteria',
+                content: `
                     ${uiBuilder.createRadioGroup({
-                name: 'kawasaki-fever',
-                label: 'Fever for ≥5 days',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes' }
-                ]
-            })}
+                        name: 'kawasaki-fever',
+                        label: 'Fever for ≥5 days',
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes' }
+                        ]
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'kawasaki-extrem',
-                label: 'Changes in extremities',
-                helpText: 'Acute: Erythema of palms/soles, edema of hands/feet. Subacute: Periungual peeling.',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes' }
-                ]
-            })}
+                        name: 'kawasaki-extrem',
+                        label: 'Changes in extremities',
+                        helpText:
+                            'Acute: Erythema of palms/soles, edema of hands/feet. Subacute: Periungual peeling.',
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes' }
+                        ]
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'kawasaki-exanthem',
-                label: 'Polymorphous exanthem',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes' }
-                ]
-            })}
+                        name: 'kawasaki-exanthem',
+                        label: 'Polymorphous exanthem',
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes' }
+                        ]
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'kawasaki-conjunctival',
-                label: 'Bilateral bulbar conjunctival injection',
-                helpText: 'Without exudate',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes' }
-                ]
-            })}
+                        name: 'kawasaki-conjunctival',
+                        label: 'Bilateral bulbar conjunctival injection',
+                        helpText: 'Without exudate',
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes' }
+                        ]
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'kawasaki-oral',
-                label: 'Changes in lips and oral cavity',
-                helpText: 'Erythema, lips cracking, strawberry tongue',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes' }
-                ]
-            })}
+                        name: 'kawasaki-oral',
+                        label: 'Changes in lips and oral cavity',
+                        helpText: 'Erythema, lips cracking, strawberry tongue',
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes' }
+                        ]
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'kawasaki-lymph',
-                label: 'Cervical lymphadenopathy',
-                helpText: '>1.5 cm diameter, usually unilateral',
-                options: [
-                    { value: '0', label: 'No', checked: true },
-                    { value: '1', label: 'Yes' }
-                ]
-            })}
+                        name: 'kawasaki-lymph',
+                        label: 'Cervical lymphadenopathy',
+                        helpText: '>1.5 cm diameter, usually unilateral',
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: '1', label: 'Yes' }
+                        ]
+                    })}
                 `
-        })}
+            })}
 
             <div id="kawasaki-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'kawasaki-result', title: 'Diagnostic Result' })}
@@ -89,9 +90,13 @@ export const kawasaki: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#kawasaki-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
-                const feverEl = container.querySelector('input[name="kawasaki-fever"]:checked') as HTMLInputElement;
+                const feverEl = container.querySelector(
+                    'input[name="kawasaki-fever"]:checked'
+                ) as HTMLInputElement;
                 const fever = feverEl?.value === '1';
 
                 const features = [
@@ -104,7 +109,9 @@ export const kawasaki: CalculatorModule = {
 
                 let featureCount = 0;
                 features.forEach(feature => {
-                    const input = container.querySelector(`input[name="${feature}"]:checked`) as HTMLInputElement;
+                    const input = container.querySelector(
+                        `input[name="${feature}"]:checked`
+                    ) as HTMLInputElement;
                     if (input && input.value === '1') {
                         featureCount++;
                     }
@@ -118,10 +125,12 @@ export const kawasaki: CalculatorModule = {
                     let alertType: 'info' | 'warning' | 'danger' = 'info';
 
                     if (!fever) {
-                        interpretation = 'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
+                        interpretation =
+                            'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
                         alertType = 'warning';
                     } else if (featureCount >= 4) {
-                        interpretation = 'Positive for Kawasaki Disease (Fever + ≥4 principal features).';
+                        interpretation =
+                            'Positive for Kawasaki Disease (Fever + ≥4 principal features).';
                         alertType = 'danger';
                     } else {
                         interpretation = `Criteria Not Met (Fever + ${featureCount}/4 features). Consider Incomplete Kawasaki Disease if clinical suspicion is high.`;
@@ -131,14 +140,14 @@ export const kawasaki: CalculatorModule = {
                     if (resultContent) {
                         resultContent.innerHTML = `
                             ${uiBuilder.createResultItem({
-                            label: 'Principal Features Present',
-                            value: `${featureCount} / 5`,
-                            unit: ''
-                        })}
+                                label: 'Principal Features Present',
+                                value: `${featureCount} / 5`,
+                                unit: ''
+                            })}
                             ${uiBuilder.createAlert({
-                            type: alertType,
-                            message: interpretation
-                        })}
+                                type: alertType,
+                                message: interpretation
+                            })}
                         `;
                     }
                     resultBox.classList.add('show');

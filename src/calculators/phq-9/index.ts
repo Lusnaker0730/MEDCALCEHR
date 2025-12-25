@@ -1,6 +1,6 @@
 /**
  * PHQ-9 (Patient Health Questionnaire-9)
- * 
+ *
  * 使用 Radio Group 工廠函數重構
  * 代碼從 144 行減少到約 100 行
  */
@@ -34,7 +34,8 @@ export const phq9 = createRadioScoreCalculator({
     title: 'PHQ-9 (Patient Health Questionnaire-9)',
     description: 'Screens for depression and monitors treatment response.',
 
-    infoAlert: '<strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by any of the following problems?',
+    infoAlert:
+        '<strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by any of the following problems?',
 
     // 動態生成 9 個問題區塊
     sections: questions.map((q, i) => ({
@@ -44,40 +45,45 @@ export const phq9 = createRadioScoreCalculator({
     })),
 
     riskLevels: [
-        { 
-            minScore: 0, maxScore: 4, 
-            label: 'Minimal depression', 
+        {
+            minScore: 0,
+            maxScore: 4,
+            label: 'Minimal depression',
             severity: 'success',
             description: 'Monitor, may not require treatment.'
         },
-        { 
-            minScore: 5, maxScore: 9, 
-            label: 'Mild depression', 
+        {
+            minScore: 5,
+            maxScore: 9,
+            label: 'Mild depression',
             severity: 'info',
             description: 'Consider counseling, follow-up, and/or pharmacotherapy.'
         },
-        { 
-            minScore: 10, maxScore: 14, 
-            label: 'Moderate depression', 
+        {
+            minScore: 10,
+            maxScore: 14,
+            label: 'Moderate depression',
             severity: 'warning',
             description: 'Consider counseling, follow-up, and/or pharmacotherapy.'
         },
-        { 
-            minScore: 15, maxScore: 19, 
-            label: 'Moderately severe depression', 
+        {
+            minScore: 15,
+            maxScore: 19,
+            label: 'Moderately severe depression',
             severity: 'danger',
             description: 'Active treatment with pharmacotherapy and/or psychotherapy recommended.'
         },
-        { 
-            minScore: 20, maxScore: 27, 
-            label: 'Severe depression', 
+        {
+            minScore: 20,
+            maxScore: 27,
+            label: 'Severe depression',
             severity: 'danger',
             description: 'Active treatment with pharmacotherapy and/or psychotherapy recommended.'
         }
     ],
 
     // 自定義結果渲染器
-    customResultRenderer: (score) => {
+    customResultRenderer: score => {
         let severity = '';
         let alertClass = '';
         let recommendation = '';
@@ -97,11 +103,13 @@ export const phq9 = createRadioScoreCalculator({
         } else if (score <= 19) {
             severity = 'Moderately severe depression';
             alertClass = 'ui-alert-danger';
-            recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+            recommendation =
+                'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
         } else {
             severity = 'Severe depression';
             alertClass = 'ui-alert-danger';
-            recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+            recommendation =
+                'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
         }
 
         return `

@@ -11,7 +11,8 @@ interface CalculatorModule {
 export const dueDate: CalculatorModule = {
     id: 'due-date',
     title: 'Pregnancy Due Dates Calculator',
-    description: 'Calculates pregnancy dates from last period, gestational age, or date of conception.',
+    description:
+        'Calculates pregnancy dates from last period, gestational age, or date of conception.',
 
     generateHTML: function () {
         return `
@@ -21,20 +22,20 @@ export const dueDate: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'First Day of Last Menstrual Period (LMP)',
-            content: uiBuilder.createInput({
-                id: 'lmp-date',
-                label: 'LMP Date',
-                type: 'date',
-                placeholder: 'YYYY-MM-DD'
-            })
-        })}
+                title: 'First Day of Last Menstrual Period (LMP)',
+                content: uiBuilder.createInput({
+                    id: 'lmp-date',
+                    label: 'LMP Date',
+                    type: 'date',
+                    placeholder: 'YYYY-MM-DD'
+                })
+            })}
 
             ${uiBuilder.createResultBox({ id: 'due-date-result', title: 'Pregnancy Dating' })}
             
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <strong>Important Notes:</strong>
                     <ul class="info-list">
                         <li>Calculation assumes a 28-day cycle.</li>
@@ -42,7 +43,7 @@ export const dueDate: CalculatorModule = {
                         <li>Ultrasound is more accurate for dating in the first trimester.</li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
 
@@ -58,14 +59,18 @@ export const dueDate: CalculatorModule = {
 
         const calculate = () => {
             const lmpDateString = lmpInput.value;
-            if (!lmpDateString) return;
+            if (!lmpDateString) {
+                return;
+            }
 
             const [year, month, day] = lmpDateString.split('-').map(Number);
             const lmpDate = new Date(year, month - 1, day);
 
             const resultBox = container.querySelector('#due-date-result');
             if (isNaN(lmpDate.getTime())) {
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
                 return;
             }
 
@@ -81,12 +86,16 @@ export const dueDate: CalculatorModule = {
             const weeks = Math.floor(diffDays / 7);
             const days = diffDays % 7;
 
-
             if (resultBox) {
                 const resultContent = resultBox.querySelector('.ui-result-content');
 
                 // Format EDD
-                const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const options: Intl.DateTimeFormatOptions = {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
                 const eddStr = edd.toLocaleDateString(undefined, options);
 
                 let alertType: 'info' | 'success' | 'danger' = 'info';
@@ -95,7 +104,8 @@ export const dueDate: CalculatorModule = {
                 if (diffDays < 0) {
                     statusMessage = 'LMP is in the future.';
                     alertType = 'danger';
-                } else if (diffDays > 294) { // > 42 weeks
+                } else if (diffDays > 294) {
+                    // > 42 weeks
                     statusMessage = 'Post-term pregnancy (>42 weeks).';
                     alertType = 'danger';
                 } else {
@@ -106,22 +116,22 @@ export const dueDate: CalculatorModule = {
                 if (resultContent) {
                     resultContent.innerHTML = `
                         ${uiBuilder.createResultItem({
-                        label: 'Estimated Due Date (EDD)',
-                        value: eddStr,
-                        unit: '',
-                        alertClass: 'ui-alert-success'
-                    })}
+                            label: 'Estimated Due Date (EDD)',
+                            value: eddStr,
+                            unit: '',
+                            alertClass: 'ui-alert-success'
+                        })}
                         ${uiBuilder.createResultItem({
-                        label: 'Gestational Age',
-                        value: `${weeks} weeks, ${days} days`,
-                        unit: '',
-                        alertClass: `ui-alert-${alertType}`
-                    })}
+                            label: 'Gestational Age',
+                            value: `${weeks} weeks, ${days} days`,
+                            unit: '',
+                            alertClass: `ui-alert-${alertType}`
+                        })}
                         ${uiBuilder.createResultItem({
-                        label: 'Days Remaining',
-                        value: Math.max(0, 280 - diffDays).toString(),
-                        unit: 'days'
-                    })}
+                            label: 'Days Remaining',
+                            value: Math.max(0, 280 - diffDays).toString(),
+                            unit: 'days'
+                        })}
                         ${diffDays < 0 || diffDays > 294 ? uiBuilder.createAlert({ type: alertType, message: statusMessage }) : ''}
                     `;
                 }

@@ -1,19 +1,19 @@
 /**
  * Yes/No Radio 評分計算器工廠函數
- * 
+ *
  * 適用於使用 Yes/No 選項進行評分的計算器，如：
  * - Wells DVT
  * - Wells PE
  * - Centor Score
- * 
+ *
  * 這些計算器的每個問題都是「是/否」選擇，
  * 選「是」時加特定分數，選「否」時加 0 分
- * 
+ *
  * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
+import {
     fhirDataService,
     FieldDataRequirement,
     FHIRClient,
@@ -62,12 +62,12 @@ export interface YesNoFHIRDataRequirements {
     /** 藥物代碼（RxNorm） */
     medications?: string[];
     /** 是否自動填充患者年齡 */
-    autoPopulateAge?: { 
+    autoPopulateAge?: {
         questionId: string;
         condition: (age: number) => boolean;
     };
     /** 是否自動填充患者性別 */
-    autoPopulateGender?: { 
+    autoPopulateGender?: {
         questionId: string;
         genderValue: 'male' | 'female';
     };
@@ -92,16 +92,16 @@ export interface YesNoCalculatorConfig {
     infoAlert?: string;
     /** 參考文獻 */
     references?: string[];
-    
+
     /**
      * FHIR 數據需求（聲明式配置）
      */
     dataRequirements?: YesNoFHIRDataRequirements;
-    
+
     /** 自定義結果渲染（第二個參數可選） */
     customResultRenderer?: (score: number, criteriaMet?: string[]) => string;
-    
-    /** 
+
+    /**
      * 自定義初始化函數
      * @param client FHIR 客戶端
      * @param patient 患者資料
@@ -114,7 +114,7 @@ export interface YesNoCalculatorConfig {
         container: HTMLElement,
         calculate: () => void
     ) => void | Promise<void>;
-    
+
     /** 分數範圍說明 (例如 "-2 to +9 points") */
     scoreRange?: string;
 }
@@ -146,18 +146,20 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
 
         generateHTML(): string {
             // 生成問題的 Radio Group
-            const questionsHTML = questions.map(q => {
-                const pointsText = q.points >= 0 ? `+${q.points}` : `${q.points}`;
-                return uiBuilder.createRadioGroup({
-                    name: q.id,
-                    label: q.label,
-                    helpText: q.description,
-                    options: [
-                        { value: '0', label: 'No', checked: true },
-                        { value: q.points.toString(), label: `Yes (${pointsText})` }
-                    ]
-                });
-            }).join('');
+            const questionsHTML = questions
+                .map(q => {
+                    const pointsText = q.points >= 0 ? `+${q.points}` : `${q.points}`;
+                    return uiBuilder.createRadioGroup({
+                        name: q.id,
+                        label: q.label,
+                        helpText: q.description,
+                        options: [
+                            { value: '0', label: 'No', checked: true },
+                            { value: q.points.toString(), label: `Yes (${pointsText})` }
+                        ]
+                    });
+                })
+                .join('');
 
             // 包裝在區塊中
             const sectionHTML = uiBuilder.createSection({
@@ -189,9 +191,9 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                 ${sectionHTML}
                 
                 <div id="${config.id}-error-container"></div>
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: `${config.title} Results` 
+                ${uiBuilder.createResultBox({
+                    id: `${config.id}-result`,
+                    title: `${config.title} Results`
                 })}
                 
                 ${referencesHTML}
@@ -224,7 +226,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
             const calculate = (): void => {
                 let score = 0;
                 const criteriaMet: string[] = [];
-                
+
                 // 收集所有選中的 radio 值
                 questions.forEach(q => {
                     const radio = container.querySelector(
@@ -233,7 +235,7 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                     if (radio) {
                         const value = parseFloat(radio.value) || 0;
                         score += value;
-                        
+
                         // 如果選了「是」，記錄
                         if (value !== 0) {
                             criteriaMet.push(q.label);
@@ -242,9 +244,9 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                 });
 
                 // 找到對應的風險等級
-                const riskLevel = config.riskLevels.find(
-                    r => score >= r.minScore && score <= r.maxScore
-                ) || config.riskLevels[config.riskLevels.length - 1];
+                const riskLevel =
+                    config.riskLevels.find(r => score >= r.minScore && score <= r.maxScore) ||
+                    config.riskLevels[config.riskLevels.length - 1];
 
                 // 更新結果顯示
                 const resultBox = document.getElementById(`${config.id}-result`);
@@ -252,7 +254,10 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                     const resultContent = resultBox.querySelector('.ui-result-content');
                     if (resultContent) {
                         if (config.customResultRenderer) {
-                            resultContent.innerHTML = config.customResultRenderer(score, criteriaMet);
+                            resultContent.innerHTML = config.customResultRenderer(
+                                score,
+                                criteriaMet
+                            );
                         } else {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
@@ -262,12 +267,13 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                     interpretation: riskLevel.label,
                                     alertClass: `ui-alert-${riskLevel.severity}`
                                 })}
-                                ${riskLevel.recommendation || riskLevel.description
-                                    ? uiBuilder.createAlert({
-                                        type: riskLevel.severity,
-                                        message: `<strong>Recommendation:</strong> ${riskLevel.recommendation || riskLevel.description}`
-                                    })
-                                    : ''
+                                ${
+                                    riskLevel.recommendation || riskLevel.description
+                                        ? uiBuilder.createAlert({
+                                              type: riskLevel.severity,
+                                              message: `<strong>Recommendation:</strong> ${riskLevel.recommendation || riskLevel.description}`
+                                          })
+                                        : ''
                                 }
                             `;
                         }
@@ -290,29 +296,33 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                     try {
                         const dataReqs = config.dataRequirements;
                         const stalenessTracker = fhirDataService.getStalenessTracker();
-                        
+
                         // 自動填充患者年齡
                         if (dataReqs.autoPopulateAge) {
                             const age = fhirDataService.getPatientAge();
                             if (age !== null && dataReqs.autoPopulateAge.condition(age)) {
-                                const q = questions.find(q => q.id === dataReqs.autoPopulateAge!.questionId);
+                                const q = questions.find(
+                                    q => q.id === dataReqs.autoPopulateAge!.questionId
+                                );
                                 if (q) {
                                     setRadioValue(q.id, q.points.toString());
                                 }
                             }
                         }
-                        
+
                         // 自動填充患者性別
                         if (dataReqs.autoPopulateGender) {
                             const gender = fhirDataService.getPatientGender();
                             if (gender === dataReqs.autoPopulateGender.genderValue) {
-                                const q = questions.find(q => q.id === dataReqs.autoPopulateGender!.questionId);
+                                const q = questions.find(
+                                    q => q.id === dataReqs.autoPopulateGender!.questionId
+                                );
                                 if (q) {
                                     setRadioValue(q.id, q.points.toString());
                                 }
                             }
                         }
-                        
+
                         // 收集條件代碼並檢查
                         const conditionCodeMap = new Map<string, YesNoQuestion>();
                         questions.forEach(q => {
@@ -320,11 +330,11 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 conditionCodeMap.set(q.conditionCode, q);
                             }
                         });
-                        
+
                         if (conditionCodeMap.size > 0) {
                             const conditionCodes = Array.from(conditionCodeMap.keys());
                             const conditions = await fhirDataService.getConditions(conditionCodes);
-                            
+
                             conditions.forEach((condition: any) => {
                                 const codings = condition.code?.coding || [];
                                 codings.forEach((coding: any) => {
@@ -335,19 +345,25 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 });
                             });
                         }
-                        
+
                         // 處理觀察值條件
                         for (const q of questions) {
                             if (q.observationCriteria) {
                                 try {
-                                    const result = await fhirDataService.getObservation(q.observationCriteria.code, {
-                                        trackStaleness: true,
-                                        stalenessLabel: q.label
-                                    });
-                                    
-                                    if (result.value !== null && q.observationCriteria.condition(result.value)) {
+                                    const result = await fhirDataService.getObservation(
+                                        q.observationCriteria.code,
+                                        {
+                                            trackStaleness: true,
+                                            stalenessLabel: q.label
+                                        }
+                                    );
+
+                                    if (
+                                        result.value !== null &&
+                                        q.observationCriteria.condition(result.value)
+                                    ) {
                                         setRadioValue(q.id, q.points.toString());
-                                        
+
                                         if (stalenessTracker && result.observation) {
                                             stalenessTracker.trackObservation(
                                                 `input[name="${q.id}"]`,
@@ -362,22 +378,21 @@ export function createYesNoCalculator(config: YesNoCalculatorConfig): Calculator
                                 }
                             }
                         }
-                        
+
                         // 處理額外的觀察值需求
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-                        
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate);
                 }
-                
+
                 calculate();
             };
 

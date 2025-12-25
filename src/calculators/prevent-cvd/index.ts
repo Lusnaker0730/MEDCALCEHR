@@ -37,7 +37,8 @@ interface RiskPredictor {
 export const preventCVD: CalculatorModule = {
     id: 'prevent-cvd',
     title: 'QRISK3-Based CVD Risk (UK)',
-    description: 'Predicts 10-year risk of cardiovascular disease in patients aged 25-84 without known CVD.',
+    description:
+        'Predicts 10-year risk of cardiovascular disease in patients aged 25-84 without known CVD.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -45,23 +46,24 @@ export const preventCVD: CalculatorModule = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>Instructions:</strong> Valid for ages 25-84. Not applicable to patients with established CVD. Cholesterol values use mmol/L by default (UK standard).'
-        })}
+                type: 'info',
+                message:
+                    '<strong>Instructions:</strong> Valid for ages 25-84. Not applicable to patients with established CVD. Cholesterol values use mmol/L by default (UK standard).'
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Patient Characteristics',
-            icon: '👤',
-            content: `
+                title: 'Patient Characteristics',
+                icon: '👤',
+                content: `
                     ${uiBuilder.createInput({ id: 'qrisk-age', label: 'Age', unit: 'years', type: 'number', min: 25, max: 84 })}
                     ${uiBuilder.createSelect({
-                id: 'qrisk-gender',
-                label: 'Gender',
-                options: [
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' }
-                ]
-            })}
+                        id: 'qrisk-gender',
+                        label: 'Gender',
+                        options: [
+                            { value: 'male', label: 'Male' },
+                            { value: 'female', label: 'Female' }
+                        ]
+                    })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-smoker', label: 'Current Smoker' })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-diabetes', label: 'Diabetes' })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-bpad', label: 'On Blood Pressure Treatment' })}
@@ -69,58 +71,58 @@ export const preventCVD: CalculatorModule = {
                     ${uiBuilder.createCheckbox({ id: 'qrisk-chronic', label: 'Chronic Kidney Disease (Stage 3, 4 or 5)' })}
                     ${uiBuilder.createCheckbox({ id: 'qrisk-rheum', label: 'Rheumatoid Arthritis' })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Clinical Measurements',
-            icon: '🩺',
-            content: `
+                title: 'Clinical Measurements',
+                icon: '🩺',
+                content: `
                     ${uiBuilder.createInput({ id: 'qrisk-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number' })}
                     ${uiBuilder.createInput({
-                id: 'qrisk-cholesterol',
-                label: 'Total Cholesterol',
-                type: 'number',
-                step: 0.1,
-                unit: 'mmol/L',
-                unitToggle: {
-                    type: 'cholesterol',
-                    units: ['mmol/L', 'mg/dL'],
-                    default: 'mmol/L'
-                }
-            })}
+                        id: 'qrisk-cholesterol',
+                        label: 'Total Cholesterol',
+                        type: 'number',
+                        step: 0.1,
+                        unit: 'mmol/L',
+                        unitToggle: {
+                            type: 'cholesterol',
+                            units: ['mmol/L', 'mg/dL'],
+                            default: 'mmol/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'qrisk-hdl',
-                label: 'HDL Cholesterol',
-                type: 'number',
-                step: 0.1,
-                unit: 'mmol/L',
-                unitToggle: {
-                    type: 'cholesterol',
-                    units: ['mmol/L', 'mg/dL'],
-                    default: 'mmol/L'
-                }
-            })}
+                        id: 'qrisk-hdl',
+                        label: 'HDL Cholesterol',
+                        type: 'number',
+                        step: 0.1,
+                        unit: 'mmol/L',
+                        unitToggle: {
+                            type: 'cholesterol',
+                            units: ['mmol/L', 'mg/dL'],
+                            default: 'mmol/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({ id: 'qrisk-egfr', label: 'eGFR', unit: 'mL/min/1.73m²', type: 'number' })}
                 `
-        })}
+            })}
             
             <div id="prevent-cvd-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'qrisk-result', title: 'QRISK3 10-Year Risk' })}
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'QRISK3 Calculation',
-                    formula: 'Risk = 100 × (1 - S(t)^exp(index))',
-                    notes: 'Uses gender-specific coefficients and baseline survival S(t). Index = Σ(Coefficients × Values) - Mean.'
-                }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'QRISK3 Calculation',
+                        formula: 'Risk = 100 × (1 - S(t)^exp(index))',
+                        notes: 'Uses gender-specific coefficients and baseline survival S(t). Index = Σ(Coefficients × Values) - Mean.'
+                    }
+                ]
+            })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -136,7 +138,9 @@ export const preventCVD: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#prevent-cvd-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 const age = parseFloat(ageInput.value);
                 const gender = genderSelect.value;
@@ -145,15 +149,31 @@ export const preventCVD: CalculatorModule = {
                 const hdl = UnitConverter.getStandardValue(hdlInput, 'mmol/L');
                 const egfr = parseFloat(egfrInput.value);
 
-                const smoker = (container.querySelector('#qrisk-smoker') as HTMLInputElement).checked ? 1 : 0;
-                const diabetes = (container.querySelector('#qrisk-diabetes') as HTMLInputElement).checked ? 1 : 0;
-                const bpad = (container.querySelector('#qrisk-bpad') as HTMLInputElement).checked ? 1 : 0;
-                const fhcvd = (container.querySelector('#qrisk-fhcvd') as HTMLInputElement).checked ? 1 : 0;
-                const ckd = (container.querySelector('#qrisk-chronic') as HTMLInputElement).checked ? 1 : 0;
-                const rheum = (container.querySelector('#qrisk-rheum') as HTMLInputElement).checked ? 1 : 0;
+                const smoker = (container.querySelector('#qrisk-smoker') as HTMLInputElement)
+                    .checked
+                    ? 1
+                    : 0;
+                const diabetes = (container.querySelector('#qrisk-diabetes') as HTMLInputElement)
+                    .checked
+                    ? 1
+                    : 0;
+                const bpad = (container.querySelector('#qrisk-bpad') as HTMLInputElement).checked
+                    ? 1
+                    : 0;
+                const fhcvd = (container.querySelector('#qrisk-fhcvd') as HTMLInputElement).checked
+                    ? 1
+                    : 0;
+                const ckd = (container.querySelector('#qrisk-chronic') as HTMLInputElement).checked
+                    ? 1
+                    : 0;
+                const rheum = (container.querySelector('#qrisk-rheum') as HTMLInputElement).checked
+                    ? 1
+                    : 0;
 
                 if (isNaN(age) || isNaN(sbp) || chol === null || hdl === null || isNaN(egfr)) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -191,31 +211,42 @@ export const preventCVD: CalculatorModule = {
                 };
 
                 const c = coeffs[gender];
-                const d = c.constant +
-                    (c.age * Math.log(age)) +
-                    (c.chol * Math.log(chol)) +
-                    (c.hdl * Math.log(hdl)) +
-                    (c.sbp * sbp) +
-                    (c.smoker * smoker) +
-                    (c.diabetes * diabetes) +
-                    (c.egfr * Math.log(egfr)) +
-                    (c.bpad * bpad) +
-                    (c.fhcvd * fhcvd) +
-                    (c.ckd * ckd) +
-                    (c.rheum * rheum); // Note: Original code used rheum coefficient correctly
+                const d =
+                    c.constant +
+                    c.age * Math.log(age) +
+                    c.chol * Math.log(chol) +
+                    c.hdl * Math.log(hdl) +
+                    c.sbp * sbp +
+                    c.smoker * smoker +
+                    c.diabetes * diabetes +
+                    c.egfr * Math.log(egfr) +
+                    c.bpad * bpad +
+                    c.fhcvd * fhcvd +
+                    c.ckd * ckd +
+                    c.rheum * rheum; // Note: Original code used rheum coefficient correctly
 
                 // Baseline survival S0 logic (simplified approximation based on age/gender from original code)
                 let s0 = 0.97;
                 if (gender === 'male') {
-                    if (age < 50) s0 = 0.98;
-                    else if (age < 60) s0 = 0.975;
-                    else if (age < 70) s0 = 0.97;
-                    else s0 = 0.96;
+                    if (age < 50) {
+                        s0 = 0.98;
+                    } else if (age < 60) {
+                        s0 = 0.975;
+                    } else if (age < 70) {
+                        s0 = 0.97;
+                    } else {
+                        s0 = 0.96;
+                    }
                 } else {
-                    if (age < 50) s0 = 0.985;
-                    else if (age < 60) s0 = 0.98;
-                    else if (age < 70) s0 = 0.975;
-                    else s0 = 0.97;
+                    if (age < 50) {
+                        s0 = 0.985;
+                    } else if (age < 60) {
+                        s0 = 0.98;
+                    } else if (age < 70) {
+                        s0 = 0.975;
+                    } else {
+                        s0 = 0.97;
+                    }
                 }
 
                 const risk = 100 * (1 - Math.pow(s0, Math.exp(d - c.meanD)));
@@ -239,16 +270,16 @@ export const preventCVD: CalculatorModule = {
                     if (resultContent) {
                         resultContent.innerHTML = `
                             ${uiBuilder.createResultItem({
-                            label: '10-Year CVD Risk',
-                            value: riskVal.toFixed(1),
-                            unit: '%',
-                            interpretation: riskCategory,
-                            alertClass: `ui-alert-${alertType}`
-                        })}
+                                label: '10-Year CVD Risk',
+                                value: riskVal.toFixed(1),
+                                unit: '%',
+                                interpretation: riskCategory,
+                                alertClass: `ui-alert-${alertType}`
+                            })}
                             ${uiBuilder.createAlert({
-                            type: alertType,
-                            message: `<strong>Recommendation:</strong> ${riskVal >= 10 ? 'Consider statin therapy and lifestyle interventions.' : 'Focus on lifestyle modifications.'}`
-                        })}
+                                type: alertType,
+                                message: `<strong>Recommendation:</strong> ${riskVal >= 10 ? 'Consider statin therapy and lifestyle interventions.' : 'Focus on lifestyle modifications.'}`
+                            })}
                         `;
                     }
                     resultBox.classList.add('show');
@@ -275,7 +306,7 @@ export const preventCVD: CalculatorModule = {
         if (age !== null) {
             ageInput.value = age.toString();
         }
-        
+
         const gender = fhirDataService.getPatientGender();
         if (gender) {
             genderSelect.value = gender === 'male' ? 'male' : 'female';
@@ -283,37 +314,66 @@ export const preventCVD: CalculatorModule = {
 
         if (client) {
             // Systolic BP
-            fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).then(result => {
-                if (result.value !== null) {
-                    sbpInput.value = result.value.toFixed(0);
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.SYSTOLIC_BP, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Systolic BP'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        sbpInput.value = result.value.toFixed(0);
+                        calculate();
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Total Cholesterol (convert to mmol/L)
-            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, { trackStaleness: true, stalenessLabel: 'Total Cholesterol', targetUnit: 'mmol/L', unitType: 'cholesterol' }).then(result => {
-                if (result.value !== null) {
-                    const el = container.querySelector('#qrisk-cholesterol') as HTMLInputElement;
-                    if (el) el.value = result.value.toFixed(2);
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Total Cholesterol',
+                    targetUnit: 'mmol/L',
+                    unitType: 'cholesterol'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        const el = container.querySelector(
+                            '#qrisk-cholesterol'
+                        ) as HTMLInputElement;
+                        if (el) {
+                            el.value = result.value.toFixed(2);
+                        }
+                        calculate();
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // HDL (convert to mmol/L)
-            fhirDataService.getObservation(LOINC_CODES.HDL, { trackStaleness: true, stalenessLabel: 'HDL Cholesterol', targetUnit: 'mmol/L', unitType: 'cholesterol' }).then(result => {
-                if (result.value !== null) {
-                    hdlInput.value = result.value.toFixed(2);
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.HDL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'HDL Cholesterol',
+                    targetUnit: 'mmol/L',
+                    unitType: 'cholesterol'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        hdlInput.value = result.value.toFixed(2);
+                        calculate();
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // eGFR
-            fhirDataService.getObservation(LOINC_CODES.EGFR, { trackStaleness: true, stalenessLabel: 'eGFR' }).then(result => {
-                if (result.value !== null) {
-                    egfrInput.value = result.value.toFixed(0);
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.EGFR, { trackStaleness: true, stalenessLabel: 'eGFR' })
+                .then(result => {
+                    if (result.value !== null) {
+                        egfrInput.value = result.value.toFixed(0);
+                        calculate();
+                    }
+                })
+                .catch(e => console.warn(e));
         }
     }
 };

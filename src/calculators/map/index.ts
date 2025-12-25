@@ -16,7 +16,8 @@ interface CalculatorModule {
 export const map: CalculatorModule = {
     id: 'map',
     title: 'Mean Arterial Pressure (MAP)',
-    description: 'Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.',
+    description:
+        'Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.',
     generateHTML: function () {
         const inputs = uiBuilder.createSection({
             title: 'Blood Pressure Measurements',
@@ -60,9 +61,10 @@ export const map: CalculatorModule = {
             ${formulaSection}
             
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<p><strong>Clinical Note:</strong> MAP > 65 mmHg is generally required to maintain adequate organ perfusion.</p>'
-        })}
+                type: 'info',
+                message:
+                    '<p><strong>Clinical Note:</strong> MAP > 65 mmHg is generally required to maintain adequate organ perfusion.</p>'
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -77,7 +79,9 @@ export const map: CalculatorModule = {
 
         const calculateAndUpdate = () => {
             const errorContainer = container.querySelector('#map-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const sbp = UnitConverter.getStandardValue(sbpInput, 'mmHg');
             const dbp = UnitConverter.getStandardValue(dbpInput, 'mmHg');
@@ -97,26 +101,42 @@ export const map: CalculatorModule = {
                 const validation = validateCalculatorInput(flatInputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (sbpInput.value || dbpInput.value);
+                    const hasInput = sbpInput.value || dbpInput.value;
                     if (hasInput && errorContainer) {
-                        const valuesPresent = sbp !== null && !isNaN(sbp) && dbp !== null && !isNaN(dbp);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent =
+                            sbp !== null && !isNaN(sbp) && dbp !== null && !isNaN(dbp);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            displayError(
+                                errorContainer as HTMLElement,
+                                new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                            );
                         }
                     }
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
-                if (sbp === null || dbp === null) return;
+                if (sbp === null || dbp === null) {
+                    return;
+                }
 
                 if (sbp < dbp) {
-                    throw new ValidationError('Systolic BP must be greater than Diastolic BP', 'VALIDATION_ERROR');
+                    throw new ValidationError(
+                        'Systolic BP must be greater than Diastolic BP',
+                        'VALIDATION_ERROR'
+                    );
                 }
 
                 const mapCalc = dbp + (sbp - dbp) / 3;
 
-                if (!isFinite(mapCalc) || isNaN(mapCalc)) throw new Error("Calculation Error");
+                if (!isFinite(mapCalc) || isNaN(mapCalc)) {
+                    throw new Error('Calculation Error');
+                }
 
                 let severity = '';
                 let interpretation = '';
@@ -124,7 +144,8 @@ export const map: CalculatorModule = {
 
                 if (mapCalc < 60) {
                     severity = 'Critically Low (Shock Risk)';
-                    interpretation = 'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.';
+                    interpretation =
+                        'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.';
                     alertClass = 'ui-alert-danger';
                 } else if (mapCalc < 70) {
                     severity = 'Below Normal';
@@ -145,12 +166,12 @@ export const map: CalculatorModule = {
                     if (resultContent) {
                         resultContent.innerHTML = `
                             ${uiBuilder.createResultItem({
-                            label: 'Mean Arterial Pressure',
-                            value: mapCalc.toFixed(1),
-                            unit: 'mmHg',
-                            interpretation: severity,
-                            alertClass: alertClass
-                        })}
+                                label: 'Mean Arterial Pressure',
+                                value: mapCalc.toFixed(1),
+                                unit: 'mmHg',
+                                interpretation: severity,
+                                alertClass: alertClass
+                            })}
                             
                             <div class="ui-alert ${alertClass.replace('ui-alert-', '') === 'success' ? 'ui-alert-info' : alertClass} mt-10">
                                 <span class="ui-alert-icon">${mapCalc < 60 ? '⚠️' : 'ℹ️'}</span>
@@ -168,28 +189,35 @@ export const map: CalculatorModule = {
                     console.error(error);
                 }
                 logError(error as Error, { calculator: 'map', action: 'calculate' });
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
         sbpInput.addEventListener('input', calculateAndUpdate);
         dbpInput.addEventListener('input', calculateAndUpdate);
-        container.querySelectorAll('select').forEach(sel => sel.addEventListener('change', calculateAndUpdate));
+        container
+            .querySelectorAll('select')
+            .forEach(sel => sel.addEventListener('change', calculateAndUpdate));
 
         // Auto-populate blood pressure using FHIRDataService
         if (client) {
-            fhirDataService.getBloodPressure({
-                trackStaleness: true
-            }).then(result => {
-                if (result.systolic !== null) {
-                    sbpInput.value = result.systolic.toFixed(0);
-                    sbpInput.dispatchEvent(new Event('input'));
-                }
-                if (result.diastolic !== null) {
-                    dbpInput.value = result.diastolic.toFixed(0);
-                    dbpInput.dispatchEvent(new Event('input'));
-                }
-            }).catch(err => console.log('BP data not available'));
+            fhirDataService
+                .getBloodPressure({
+                    trackStaleness: true
+                })
+                .then(result => {
+                    if (result.systolic !== null) {
+                        sbpInput.value = result.systolic.toFixed(0);
+                        sbpInput.dispatchEvent(new Event('input'));
+                    }
+                    if (result.diastolic !== null) {
+                        dbpInput.value = result.diastolic.toFixed(0);
+                        dbpInput.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(err => console.log('BP data not available'));
         }
     }
 };

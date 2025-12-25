@@ -16,7 +16,8 @@ interface CalculatorModule {
 export const tpaDosing: CalculatorModule = {
     id: 'tpa-dosing',
     title: 'tPA (Alteplase) Dosing for Ischemic Stroke',
-    description: 'Calculates tPA (alteplase) dosing for acute ischemic stroke based on patient weight.',
+    description:
+        'Calculates tPA (alteplase) dosing for acute ischemic stroke based on patient weight.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -24,47 +25,47 @@ export const tpaDosing: CalculatorModule = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-            title: 'Patient Details',
-            content: `
+                title: 'Patient Details',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'tpa-weight',
-                label: 'Weight',
-                type: 'number',
-                unit: 'kg',
-                placeholder: 'Enter weight',
-                unitToggle: {
-                    type: 'weight',
-                    units: ['kg', 'lbs'],
-                    default: 'kg'
-                }
-            })}
+                        id: 'tpa-weight',
+                        label: 'Weight',
+                        type: 'number',
+                        unit: 'kg',
+                        placeholder: 'Enter weight',
+                        unitToggle: {
+                            type: 'weight',
+                            units: ['kg', 'lbs'],
+                            default: 'kg'
+                        }
+                    })}
                 `
-        })}
+            })}
             
             <div id="tpa-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'tpa-result', title: 'Dosing Guidelines' })}
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'Total Dose',
-                    formula: '0.9 mg/kg (Max 90 mg)'
-                },
-                {
-                    label: 'Bolus Dose',
-                    formula: '10% of total dose over 1 minute'
-                },
-                {
-                    label: 'Infusion Dose',
-                    formula: '90% of total dose over 60 minutes'
-                }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'Total Dose',
+                        formula: '0.9 mg/kg (Max 90 mg)'
+                    },
+                    {
+                        label: 'Bolus Dose',
+                        formula: '10% of total dose over 1 minute'
+                    },
+                    {
+                        label: 'Infusion Dose',
+                        formula: '90% of total dose over 60 minutes'
+                    }
+                ]
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -74,7 +75,9 @@ export const tpaDosing: CalculatorModule = {
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#tpa-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const weight = UnitConverter.getStandardValue(weightEl, 'kg');
 
@@ -92,8 +95,16 @@ export const tpaDosing: CalculatorModule = {
                 if (!validation.isValid) {
                     if (weightEl.value && resultBox) {
                         const valuesPresent = weight !== null && !isNaN(weight);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                         resultBox.classList.remove('show');
                     }
@@ -141,8 +152,12 @@ export const tpaDosing: CalculatorModule = {
                 }
             } catch (error) {
                 logError(error as Error, { calculator: 'tpa-dosing', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultBox) resultBox.classList.remove('show');
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
@@ -150,12 +165,20 @@ export const tpaDosing: CalculatorModule = {
         weightEl.addEventListener('change', calculate);
 
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
-                if (result.value !== null) {
-                    weightEl.value = result.value.toFixed(1);
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.WEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Weight',
+                    targetUnit: 'kg',
+                    unitType: 'weight'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        weightEl.value = result.value.toFixed(1);
+                        calculate();
+                    }
+                })
+                .catch(e => console.warn(e));
         }
 
         calculate();

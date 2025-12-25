@@ -6,7 +6,8 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const ariscat = createRadioScoreCalculator({
     id: 'ariscat',
     title: 'ARISCAT Score for Postoperative Pulmonary Complications',
-    description: 'Predicts risk of pulmonary complications after surgery, including respiratory failure.',
+    description:
+        'Predicts risk of pulmonary complications after surgery, including respiratory failure.',
     sections: [
         {
             id: 'ariscat-age',
@@ -29,7 +30,8 @@ export const ariscat = createRadioScoreCalculator({
         {
             id: 'ariscat-resp',
             title: 'Respiratory infection in the last month',
-            subtitle: 'Either upper or lower (i.e., URI, bronchitis, pneumonia), with fever and antibiotic treatment',
+            subtitle:
+                'Either upper or lower (i.e., URI, bronchitis, pneumonia), with fever and antibiotic treatment',
             options: [
                 { value: '0', label: 'No (0)', checked: true },
                 { value: '17', label: 'Yes (+17)' }
@@ -71,9 +73,27 @@ export const ariscat = createRadioScoreCalculator({
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 25, label: 'Low risk', severity: 'success', description: 'Risk: 1.6%' },
-        { minScore: 26, maxScore: 44, label: 'Intermediate risk', severity: 'warning', description: 'Risk: 13.3%' },
-        { minScore: 45, maxScore: 123, label: 'High risk', severity: 'danger', description: 'Risk: 42.1%' }
+        {
+            minScore: 0,
+            maxScore: 25,
+            label: 'Low risk',
+            severity: 'success',
+            description: 'Risk: 1.6%'
+        },
+        {
+            minScore: 26,
+            maxScore: 44,
+            label: 'Intermediate risk',
+            severity: 'warning',
+            description: 'Risk: 13.3%'
+        },
+        {
+            minScore: 45,
+            maxScore: 123,
+            label: 'High risk',
+            severity: 'danger',
+            description: 'Risk: 42.1%'
+        }
     ],
     customResultRenderer: (score: number) => {
         let riskCategory = '';
@@ -109,16 +129,24 @@ export const ariscat = createRadioScoreCalculator({
             })}
             ${uiBuilder.createAlert({
                 type: alertType,
-                message: 'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
+                message:
+                    'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
             })}
         `;
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadioValue = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
             }
@@ -128,32 +156,50 @@ export const ariscat = createRadioScoreCalculator({
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
             let ageValue = '0';
-            if (age > 80) ageValue = '16';
-            else if (age > 50) ageValue = '3';
+            if (age > 80) {
+                ageValue = '16';
+            } else if (age > 50) {
+                ageValue = '3';
+            }
             setRadioValue('ariscat-age', ageValue);
         }
 
         if (client) {
             // O2 Saturation
-            fhirDataService.getObservation(LOINC_CODES.OXYGEN_SATURATION, { trackStaleness: true, stalenessLabel: 'SpO2' }).then(result => {
-                if (result.value !== null) {
-                    let value = '0';
-                    if (result.value <= 90) value = '24';
-                    else if (result.value <= 95) value = '8';
-                    setRadioValue('ariscat-spo2', value);
-                }
-            }).catch(console.error);
+            fhirDataService
+                .getObservation(LOINC_CODES.OXYGEN_SATURATION, {
+                    trackStaleness: true,
+                    stalenessLabel: 'SpO2'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        let value = '0';
+                        if (result.value <= 90) {
+                            value = '24';
+                        } else if (result.value <= 95) {
+                            value = '8';
+                        }
+                        setRadioValue('ariscat-spo2', value);
+                    }
+                })
+                .catch(console.error);
 
             // Hemoglobin
-            fhirDataService.getObservation(LOINC_CODES.HEMOGLOBIN, { trackStaleness: true, stalenessLabel: 'Hemoglobin' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value <= 10) {
-                        setRadioValue('ariscat-anemia', '11');
-                    } else {
-                        setRadioValue('ariscat-anemia', '0');
+            fhirDataService
+                .getObservation(LOINC_CODES.HEMOGLOBIN, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Hemoglobin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value <= 10) {
+                            setRadioValue('ariscat-anemia', '11');
+                        } else {
+                            setRadioValue('ariscat-anemia', '0');
+                        }
                     }
-                }
-            }).catch(console.error);
+                })
+                .catch(console.error);
         }
 
         calculate();

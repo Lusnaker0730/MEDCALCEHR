@@ -1,4 +1,3 @@
-
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -9,92 +8,178 @@ import { fhirDataService } from '../../fhir-data-service.js';
 // Point allocation functions based on APACHE II score algorithm
 const getPoints = {
     temp: (v: number) => {
-        if (v >= 41 || v <= 29.9) return 4;
-        if (v >= 39 || v <= 31.9) return 3;
-        if (v <= 33.9) return 2;
-        if (v >= 38.5 || v <= 35.9) return 1;
+        if (v >= 41 || v <= 29.9) {
+            return 4;
+        }
+        if (v >= 39 || v <= 31.9) {
+            return 3;
+        }
+        if (v <= 33.9) {
+            return 2;
+        }
+        if (v >= 38.5 || v <= 35.9) {
+            return 1;
+        }
         return 0;
     },
     map: (v: number) => {
-        if (v >= 160 || v <= 49) return 4;
-        if (v >= 130) return 3;
-        if (v >= 110 || v <= 69) return 2;
+        if (v >= 160 || v <= 49) {
+            return 4;
+        }
+        if (v >= 130) {
+            return 3;
+        }
+        if (v >= 110 || v <= 69) {
+            return 2;
+        }
         return 0;
     },
     ph: (v: number) => {
-        if (v >= 7.7 || v < 7.15) return 4;
-        if (v >= 7.6 || v < 7.25) return 3;
-        if (v < 7.33) return 2;
-        if (v >= 7.5) return 1;
+        if (v >= 7.7 || v < 7.15) {
+            return 4;
+        }
+        if (v >= 7.6 || v < 7.25) {
+            return 3;
+        }
+        if (v < 7.33) {
+            return 2;
+        }
+        if (v >= 7.5) {
+            return 1;
+        }
         return 0;
     },
     hr: (v: number) => {
-        if (v >= 180 || v <= 39) return 4;
-        if (v >= 140 || v <= 54) return 3;
-        if (v >= 110 || v <= 69) return 2;
+        if (v >= 180 || v <= 39) {
+            return 4;
+        }
+        if (v >= 140 || v <= 54) {
+            return 3;
+        }
+        if (v >= 110 || v <= 69) {
+            return 2;
+        }
         return 0;
     },
     rr: (v: number) => {
-        if (v >= 50 || v <= 5) return 4;
-        if (v >= 35) return 3;
-        if (v <= 9) return 2;
-        if (v >= 25 || v <= 11) return 1;
+        if (v >= 50 || v <= 5) {
+            return 4;
+        }
+        if (v >= 35) {
+            return 3;
+        }
+        if (v <= 9) {
+            return 2;
+        }
+        if (v >= 25 || v <= 11) {
+            return 1;
+        }
         return 0;
     },
     sodium: (v: number) => {
-        if (v >= 180 || v <= 110) return 4;
-        if (v >= 160 || v <= 119) return 3;
-        if (v >= 155 || v <= 129) return 2;
-        if (v >= 150) return 1;
+        if (v >= 180 || v <= 110) {
+            return 4;
+        }
+        if (v >= 160 || v <= 119) {
+            return 3;
+        }
+        if (v >= 155 || v <= 129) {
+            return 2;
+        }
+        if (v >= 150) {
+            return 1;
+        }
         return 0;
     },
     potassium: (v: number) => {
-        if (v >= 7 || v < 2.5) return 4;
-        if (v >= 6) return 3;
-        if (v <= 2.9) return 2;
-        if (v >= 5.5 || v <= 3.4) return 1;
+        if (v >= 7 || v < 2.5) {
+            return 4;
+        }
+        if (v >= 6) {
+            return 3;
+        }
+        if (v <= 2.9) {
+            return 2;
+        }
+        if (v >= 5.5 || v <= 3.4) {
+            return 1;
+        }
         return 0;
     },
     creatinine: (v: number, arf: boolean) => {
         // v expected in mg/dL
         let score = 0;
-        if (v >= 3.5) score = 4;
-        else if (v >= 2.0) score = 3;
-        else if (v >= 1.5 || v < 0.6) score = 2;
+        if (v >= 3.5) {
+            score = 4;
+        } else if (v >= 2.0) {
+            score = 3;
+        } else if (v >= 1.5 || v < 0.6) {
+            score = 2;
+        }
         return arf ? score * 2 : score;
     },
     hct: (v: number) => {
-        if (v >= 60 || v < 20) return 4;
-        if (v >= 50 || v < 30) return 2;
+        if (v >= 60 || v < 20) {
+            return 4;
+        }
+        if (v >= 50 || v < 30) {
+            return 2;
+        }
         return 0;
     },
     wbc: (v: number) => {
-        if (v >= 40 || v < 1) return 4;
-        if (v >= 20 || v < 3) return 2;
-        if (v >= 15) return 1;
+        if (v >= 40 || v < 1) {
+            return 4;
+        }
+        if (v >= 20 || v < 3) {
+            return 2;
+        }
+        if (v >= 15) {
+            return 1;
+        }
         return 0;
     },
     gcs: (v: number) => 15 - v,
     oxygenation: (fio2: number, pao2: number | null, paco2: number | null) => {
         if (fio2 >= 0.5 && paco2 !== null && pao2 !== null) {
             const A_a_gradient = fio2 * 713 - paco2 / 0.8 - pao2;
-            if (A_a_gradient >= 500) return 4;
-            if (A_a_gradient >= 350) return 3;
-            if (A_a_gradient >= 200) return 2;
+            if (A_a_gradient >= 500) {
+                return 4;
+            }
+            if (A_a_gradient >= 350) {
+                return 3;
+            }
+            if (A_a_gradient >= 200) {
+                return 2;
+            }
             return 0;
         } else if (pao2 !== null) {
-            if (pao2 < 55) return 4;
-            if (pao2 <= 60) return 3;
-            if (pao2 <= 70) return 1;
+            if (pao2 < 55) {
+                return 4;
+            }
+            if (pao2 <= 60) {
+                return 3;
+            }
+            if (pao2 <= 70) {
+                return 1;
+            }
             return 0;
         }
         return 0;
     },
     age: (v: number) => {
-        if (v >= 75) return 6;
-        if (v >= 65) return 5;
-        if (v >= 55) return 3;
-        if (v >= 45) return 2;
+        if (v >= 75) {
+            return 6;
+        }
+        if (v >= 65) {
+            return 5;
+        }
+        if (v >= 55) {
+            return 3;
+        }
+        if (v >= 45) {
+            return 2;
+        }
         return 0;
     }
 };
@@ -118,7 +203,11 @@ export const apacheIi: CalculatorModule = {
             content: uiBuilder.createRadioGroup({
                 name: 'chronic',
                 options: [
-                    { value: '5', label: 'Yes - Non-operative or emergency postoperative (+5)', checked: true },
+                    {
+                        value: '5',
+                        label: 'Yes - Non-operative or emergency postoperative (+5)',
+                        checked: true
+                    },
                     { value: '2', label: 'Yes - Elective postoperative (+2)' },
                     { value: '0', label: 'No (0)' }
                 ]
@@ -132,20 +221,40 @@ export const apacheIi: CalculatorModule = {
                 uiBuilder.createInput({
                     id: 'apache-ii-temp',
                     label: 'Temperature',
-                    step: 0.1, // Number type needed? step is usually string in HTML but uiBuilder might handle either. 
+                    step: 0.1, // Number type needed? step is usually string in HTML but uiBuilder might handle either.
                     placeholder: '36.1 - 37.8',
                     unitToggle: { type: 'temperature', units: ['C', 'F'], default: 'C' }
                 }),
-                uiBuilder.createInput({ id: 'apache-ii-map', label: 'Mean Arterial Pressure', unit: 'mmHg', placeholder: '70 - 100' }),
-                uiBuilder.createInput({ id: 'apache-ii-hr', label: 'Heart Rate', unit: 'bpm', placeholder: '60 - 100' }),
-                uiBuilder.createInput({ id: 'apache-ii-rr', label: 'Respiratory Rate', unit: 'breaths/min', placeholder: '12 - 20' })
+                uiBuilder.createInput({
+                    id: 'apache-ii-map',
+                    label: 'Mean Arterial Pressure',
+                    unit: 'mmHg',
+                    placeholder: '70 - 100'
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-hr',
+                    label: 'Heart Rate',
+                    unit: 'bpm',
+                    placeholder: '60 - 100'
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-rr',
+                    label: 'Respiratory Rate',
+                    unit: 'breaths/min',
+                    placeholder: '12 - 20'
+                })
             ].join('')
         });
 
         const labsSection = uiBuilder.createSection({
             title: 'Laboratory Values',
             content: [
-                uiBuilder.createInput({ id: 'apache-ii-ph', label: 'Arterial pH', step: 0.01, placeholder: '7.38 - 7.44' }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-ph',
+                    label: 'Arterial pH',
+                    step: 0.01,
+                    placeholder: '7.38 - 7.44'
+                }),
                 uiBuilder.createInput({
                     id: 'apache-ii-sodium',
                     label: 'Sodium',
@@ -166,8 +275,20 @@ export const apacheIi: CalculatorModule = {
                     placeholder: '0.7 - 1.3',
                     unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 }),
-                uiBuilder.createInput({ id: 'apache-ii-hct', label: 'Hematocrit', unit: '%', step: 0.1, placeholder: '36 - 51' }),
-                uiBuilder.createInput({ id: 'apache-ii-wbc', label: 'WBC Count', unit: 'x 10⁹/L', step: 0.1, placeholder: '3.7 - 10.7' }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-hct',
+                    label: 'Hematocrit',
+                    unit: '%',
+                    step: 0.1,
+                    placeholder: '36 - 51'
+                }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-wbc',
+                    label: 'WBC Count',
+                    unit: 'x 10⁹/L',
+                    step: 0.1,
+                    placeholder: '3.7 - 10.7'
+                }),
                 uiBuilder.createRadioGroup({
                     name: 'arf',
                     label: 'Acute Renal Failure',
@@ -199,12 +320,23 @@ export const apacheIi: CalculatorModule = {
                     name: 'oxy_method',
                     label: 'Measurement Method',
                     options: [
-                        { value: 'fio2_pao2', label: 'FiO₂ ≥ 0.5 (uses A-a gradient)', checked: true },
+                        {
+                            value: 'fio2_pao2',
+                            label: 'FiO₂ ≥ 0.5 (uses A-a gradient)',
+                            checked: true
+                        },
                         { value: 'pao2_only', label: 'FiO₂ < 0.5 (uses PaO₂ only)' }
                     ]
                 }),
                 '<div id="fio2_pao2_inputs">',
-                uiBuilder.createInput({ id: 'apache-ii-fio2', label: 'FiO₂', step: 0.01, placeholder: 'e.g. 0.5', min: 0, max: 1 }),
+                uiBuilder.createInput({
+                    id: 'apache-ii-fio2',
+                    label: 'FiO₂',
+                    step: 0.01,
+                    placeholder: 'e.g. 0.5',
+                    min: 0,
+                    max: 1
+                }),
                 uiBuilder.createInput({ id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg' }),
                 uiBuilder.createInput({ id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg' }),
                 '</div>',
@@ -260,128 +392,163 @@ export const apacheIi: CalculatorModule = {
         // Helper to safely set value if element exists
         const setValue = (id: string, value: string) => {
             const el = container.querySelector(id) as HTMLInputElement;
-            if (el) el.value = value;
+            if (el) {
+                el.value = value;
+            }
         };
 
         // Auto-populate from FHIR using FHIRDataService
         if (client) {
             // Temperature
-            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, {
-                trackStaleness: true,
-                stalenessLabel: 'Temperature'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-temp', result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.TEMPERATURE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Temperature'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-temp', result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Blood Pressure - Calculate MAP from systolic and diastolic
-            fhirDataService.getBloodPressure({ trackStaleness: true }).then(result => {
-                if (result.systolic !== null && result.diastolic !== null) {
-                    // MAP = (SBP + 2*DBP) / 3
-                    const map = (result.systolic + 2 * result.diastolic) / 3;
-                    setValue('#apache-ii-map', map.toFixed(0));
-                } else if (result.systolic !== null) {
-                    // Fallback: estimate MAP as ~1/3 off systolic if no diastolic
-                    // This is not ideal but better than nothing
-                    const estimatedMap = result.systolic * 0.7;
-                    setValue('#apache-ii-map', estimatedMap.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getBloodPressure({ trackStaleness: true })
+                .then(result => {
+                    if (result.systolic !== null && result.diastolic !== null) {
+                        // MAP = (SBP + 2*DBP) / 3
+                        const map = (result.systolic + 2 * result.diastolic) / 3;
+                        setValue('#apache-ii-map', map.toFixed(0));
+                    } else if (result.systolic !== null) {
+                        // Fallback: estimate MAP as ~1/3 off systolic if no diastolic
+                        // This is not ideal but better than nothing
+                        const estimatedMap = result.systolic * 0.7;
+                        setValue('#apache-ii-map', estimatedMap.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Heart Rate
-            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
-                trackStaleness: true,
-                stalenessLabel: 'Heart Rate'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-hr', result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.HEART_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Heart Rate'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-hr', result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Respiratory Rate
-            fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, {
-                trackStaleness: true,
-                stalenessLabel: 'Respiratory Rate'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-rr', result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.RESPIRATORY_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Respiratory Rate'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-rr', result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // pH (using PH code)
-            fhirDataService.getObservation(LOINC_CODES.PH, {
-                trackStaleness: true,
-                stalenessLabel: 'Arterial pH'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-ph', result.value.toFixed(2));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.PH, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Arterial pH'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-ph', result.value.toFixed(2));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Sodium
-            fhirDataService.getObservation(LOINC_CODES.SODIUM, {
-                trackStaleness: true,
-                stalenessLabel: 'Sodium',
-                targetUnit: 'mmol/L'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-sodium', result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.SODIUM, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Sodium',
+                    targetUnit: 'mmol/L'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-sodium', result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Potassium
-            fhirDataService.getObservation(LOINC_CODES.POTASSIUM, {
-                trackStaleness: true,
-                stalenessLabel: 'Potassium',
-                targetUnit: 'mmol/L'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-potassium', result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.POTASSIUM, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Potassium',
+                    targetUnit: 'mmol/L'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-potassium', result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Creatinine
-            fhirDataService.getObservation(LOINC_CODES.CREATININE, {
-                trackStaleness: true,
-                stalenessLabel: 'Creatinine',
-                targetUnit: 'mg/dL',
-                unitType: 'creatinine'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-creatinine', result.value.toFixed(2));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.CREATININE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Creatinine',
+                    targetUnit: 'mg/dL',
+                    unitType: 'creatinine'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-creatinine', result.value.toFixed(2));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Hematocrit
-            fhirDataService.getObservation(LOINC_CODES.HEMATOCRIT, {
-                trackStaleness: true,
-                stalenessLabel: 'Hematocrit'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-hct', result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.HEMATOCRIT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Hematocrit'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-hct', result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // WBC
-            fhirDataService.getObservation(LOINC_CODES.WBC, {
-                trackStaleness: true,
-                stalenessLabel: 'WBC Count'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-wbc', result.value.toFixed(1));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.WBC, {
+                    trackStaleness: true,
+                    stalenessLabel: 'WBC Count'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-wbc', result.value.toFixed(1));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // GCS
-            fhirDataService.getObservation(LOINC_CODES.GCS, {
-                trackStaleness: true,
-                stalenessLabel: 'Glasgow Coma Scale'
-            }).then(result => {
-                if (result.value !== null) {
-                    setValue('#apache-ii-gcs', result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.GCS, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Glasgow Coma Scale'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setValue('#apache-ii-gcs', result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
         }
 
         // Calculate function
@@ -390,13 +557,19 @@ export const apacheIi: CalculatorModule = {
             const resultBox = container.querySelector('#apache-ii-result');
             const resultContent = resultBox ? resultBox.querySelector('.ui-result-content') : null;
             const errorContainer = container.querySelector('#apache-ii-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             try {
-                const arfRadio = container.querySelector('input[name="arf"]:checked') as HTMLInputElement;
+                const arfRadio = container.querySelector(
+                    'input[name="arf"]:checked'
+                ) as HTMLInputElement;
                 const arf = arfRadio?.value === '1';
 
-                const chronicRadio = container.querySelector('input[name="chronic"]:checked') as HTMLInputElement;
+                const chronicRadio = container.querySelector(
+                    'input[name="chronic"]:checked'
+                ) as HTMLInputElement;
                 const chronic = chronicRadio?.value === '5'; // What about value '2'?
                 // Original: const chronic = container.querySelector('input[name="chronic"]:checked')?.value === '5';
                 // Wait, logic: const chronicPoints = chronic ? 5 : 0;
@@ -425,7 +598,9 @@ export const apacheIi: CalculatorModule = {
                 const chronicVal = chronicRadio ? parseInt(chronicRadio.value) : 0;
                 // Actually, let's use the value directly for points.
 
-                const oxyMethodRadio = container.querySelector('input[name="oxy_method"]:checked') as HTMLInputElement;
+                const oxyMethodRadio = container.querySelector(
+                    'input[name="oxy_method"]:checked'
+                ) as HTMLInputElement;
                 const oxyMethod = oxyMethodRadio?.value;
 
                 // Helper to get float value or null if empty
@@ -438,7 +613,9 @@ export const apacheIi: CalculatorModule = {
                 // Use UnitConverter for toggle fields
                 const getStdValue = (id: string, unit: string) => {
                     const el = container.querySelector(id) as HTMLInputElement;
-                    if (!el || el.value === '') return null;
+                    if (!el || el.value === '') {
+                        return null;
+                    }
                     // UnitConverter.getStandardValue returns number (or NaN if invalid?)
                     // Type signature says number.
                     return UnitConverter.getStandardValue(el, unit);
@@ -509,24 +686,37 @@ export const apacheIi: CalculatorModule = {
                 // Show errors if present and relevant (user typed something invalid)
                 if (!validation.isValid) {
                     // logic from original: if meaningful errors exist
-                    const hasInput = Object.values(inputs).some(v => v !== null && !isNaN(v as number));
+                    const hasInput = Object.values(inputs).some(
+                        v => v !== null && !isNaN(v as number)
+                    );
 
                     if (hasInput) {
                         // Show error if we have inputs
-                        if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        if (errorContainer) {
+                            displayError(
+                                errorContainer as HTMLElement,
+                                new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                            );
+                        }
                     }
 
-                    if (resultBox) (resultBox as HTMLElement).style.display = 'none';
+                    if (resultBox) {
+                        (resultBox as HTMLElement).style.display = 'none';
+                    }
                     return;
                 }
 
                 // Check missing required fields
                 // We need all fields for APACHE II?
                 const requiredKeys = Object.keys(schema);
-                const missing = requiredKeys.filter(key => inputs[key] === null || isNaN(inputs[key]));
+                const missing = requiredKeys.filter(
+                    key => inputs[key] === null || isNaN(inputs[key])
+                );
 
                 if (missing.length > 0) {
-                    if (resultBox) (resultBox as HTMLElement).style.display = 'none';
+                    if (resultBox) {
+                        (resultBox as HTMLElement).style.display = 'none';
+                    }
                     return;
                 }
 
@@ -596,7 +786,6 @@ export const apacheIi: CalculatorModule = {
                     resultBox.classList.add('show');
                     (resultBox as HTMLElement).style.display = 'block';
                 }
-
             } catch (e) {
                 logError(e as Error, { calculator: 'apache-ii', action: 'calculate' });
                 const errorContainer = container.querySelector('#apache-ii-error-container');
@@ -607,14 +796,18 @@ export const apacheIi: CalculatorModule = {
         };
 
         // Attach event listeners
-        container.addEventListener('change', (e) => {
+        container.addEventListener('change', e => {
             const target = e.target as HTMLInputElement;
-            if (target.type === 'radio' || target.type === 'checkbox') calculate();
+            if (target.type === 'radio' || target.type === 'checkbox') {
+                calculate();
+            }
         });
 
-        container.addEventListener('input', (e) => {
+        container.addEventListener('input', e => {
             const target = e.target as HTMLInputElement;
-            if (target.type === 'number') calculate();
+            if (target.type === 'number') {
+                calculate();
+            }
         });
 
         // Handle oxygen method switching
@@ -626,11 +819,19 @@ export const apacheIi: CalculatorModule = {
             input.addEventListener('change', () => {
                 const target = input as HTMLInputElement;
                 if (target.value === 'fio2_pao2') {
-                    if (fio2Inputs) fio2Inputs.style.display = 'block';
-                    if (pao2OnlyInputs) pao2OnlyInputs.style.display = 'none';
+                    if (fio2Inputs) {
+                        fio2Inputs.style.display = 'block';
+                    }
+                    if (pao2OnlyInputs) {
+                        pao2OnlyInputs.style.display = 'none';
+                    }
                 } else {
-                    if (fio2Inputs) fio2Inputs.style.display = 'none';
-                    if (pao2OnlyInputs) pao2OnlyInputs.style.display = 'block';
+                    if (fio2Inputs) {
+                        fio2Inputs.style.display = 'none';
+                    }
+                    if (pao2OnlyInputs) {
+                        pao2OnlyInputs.style.display = 'block';
+                    }
                 }
                 calculate();
             });

@@ -51,9 +51,19 @@ export const meldNa = {
 
         const formulaSection = uiBuilder.createFormulaSection({
             items: [
-                { label: 'MELD Score', formula: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643' },
-                { label: 'MELD-Na Score (if MELD > 11)', formula: 'MELD + 1.32 × (137 - Na) - [0.033 × MELD × (137 - Na)]' },
-                { label: 'Constraints', formula: 'Min lab values: 1.0; Max Creat: 4.0; Na capped: 125-137; Score range: 6-40' }
+                {
+                    label: 'MELD Score',
+                    formula: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643'
+                },
+                {
+                    label: 'MELD-Na Score (if MELD > 11)',
+                    formula: 'MELD + 1.32 × (137 - Na) - [0.033 × MELD × (137 - Na)]'
+                },
+                {
+                    label: 'Constraints',
+                    formula:
+                        'Min lab values: 1.0; Max Creat: 4.0; Na capped: 125-137; Score range: 6-40'
+                }
             ]
         });
 
@@ -92,20 +102,24 @@ export const meldNa = {
     initialize: function (client: any, patient: any, container: HTMLElement): void {
         // Initialize UI components (unit toggles, etc.)
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#meld-na-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const biliInput = container.querySelector('#meld-na-bili') as HTMLInputElement;
             const inrInput = container.querySelector('#meld-na-inr') as HTMLInputElement;
             const creatInput = container.querySelector('#meld-na-creat') as HTMLInputElement;
             const sodiumInput = container.querySelector('#meld-na-sodium') as HTMLInputElement;
-            const dialysisCheckbox = container.querySelector('#meld-na-dialysis') as HTMLInputElement;
+            const dialysisCheckbox = container.querySelector(
+                '#meld-na-dialysis'
+            ) as HTMLInputElement;
 
             const resultBox = container.querySelector('#meld-na-result') as HTMLElement;
             const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
@@ -131,17 +145,30 @@ export const meldNa = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (biliInput.value || inrInput.value || creatInput.value || sodiumInput.value);
+                    const hasInput =
+                        biliInput.value || inrInput.value || creatInput.value || sodiumInput.value;
 
                     if (hasInput) {
                         const meaningfulErrors = validation.errors.filter(() => true);
 
                         // Show error if we have data presence
-                        const valuesPresent = bili !== null && !isNaN(bili) && !isNaN(inr) && creat !== null && !isNaN(creat) && sodium !== null && !isNaN(sodium);
+                        const valuesPresent =
+                            bili !== null &&
+                            !isNaN(bili) &&
+                            !isNaN(inr) &&
+                            creat !== null &&
+                            !isNaN(creat) &&
+                            sodium !== null &&
+                            !isNaN(sodium);
 
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
                             if (meaningfulErrors.length > 0) {
-                                if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                                if (errorContainer) {
+                                    displayError(
+                                        errorContainer as HTMLElement,
+                                        new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR')
+                                    );
+                                }
                             }
                         }
                     }
@@ -150,7 +177,9 @@ export const meldNa = {
                     return;
                 }
 
-                if (bili === null || inr === null || creat === null || sodium === null) return;
+                if (bili === null || inr === null || creat === null || sodium === null) {
+                    return;
+                }
 
                 // Apply UNOS/OPTN rules
                 const adjustedBili = Math.max(bili, 1.0);
@@ -211,12 +240,12 @@ export const meldNa = {
 
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'MELD-Na Score',
-                    value: meldNaScore,
-                    unit: 'points',
-                    interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
-                    alertClass: alertClass
-                })}
+                        label: 'MELD-Na Score',
+                        value: meldNaScore,
+                        unit: 'points',
+                        interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
+                        alertClass: alertClass
+                    })}
                     
                     <div class="mt-15 text-sm text-muted p-10">
                         <strong>Calculation Breakdown:</strong><br>
@@ -230,7 +259,9 @@ export const meldNa = {
                 resultBox.classList.add('show');
             } catch (error: any) {
                 logError(error, { calculator: 'meld-na', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error);
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error);
+                }
                 resultBox.classList.remove('show');
             }
         };
@@ -250,7 +281,9 @@ export const meldNa = {
             const eventType = input.type === 'checkbox' ? 'change' : 'input';
             input.addEventListener(eventType, calculateAndUpdate);
         });
-        container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
+        container
+            .querySelectorAll('select')
+            .forEach(s => s.addEventListener('change', calculateAndUpdate));
 
         // Auto-populate from FHIR data using FHIRDataService
         const autoPopulate = async () => {

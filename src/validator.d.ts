@@ -12,7 +12,10 @@ export interface ValidationResult {
     errors: string[];
 }
 
-export declare function validateCalculatorInput(input: any, schema: { [key: string]: ValidationRule }): ValidationResult;
+export declare function validateCalculatorInput(
+    input: any,
+    schema: { [key: string]: ValidationRule }
+): ValidationResult;
 export declare const ValidationRules: {
     age: ValidationRule;
     temperature: ValidationRule;
@@ -63,6 +66,16 @@ export declare const ValidationRules: {
     hemoglobin: ValidationRule;
     [key: string]: ValidationRule | { [key: string]: ValidationRule };
 };
-export declare function validateOrThrow(input: any, schema: { [key: string]: ValidationRule }): void;
-export declare function setupLiveValidation(inputElement: HTMLInputElement, rule: ValidationRule, onError?: (errors: string[]) => void): void;
-export declare function setupFormValidation(formElement: HTMLFormElement, schema: { [key: string]: ValidationRule }): void;
+export declare function validateOrThrow(
+    input: any,
+    schema: { [key: string]: ValidationRule }
+): void;
+export declare function setupLiveValidation(
+    inputElement: HTMLInputElement,
+    rule: ValidationRule,
+    onError?: (errors: string[]) => void
+): void;
+export declare function setupFormValidation(
+    formElement: HTMLFormElement,
+    schema: { [key: string]: ValidationRule }
+): void;

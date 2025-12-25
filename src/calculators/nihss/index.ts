@@ -1,18 +1,22 @@
 /**
  * NIH Stroke Scale/Score (NIHSS) Calculator
- * 
+ *
  * 使用 Radio Score Calculator 工廠函數遷移
  * Quantifies stroke severity and monitors for neurological changes over time.
  */
 
-import { createRadioScoreCalculator, RadioScoreCalculatorConfig } from '../shared/radio-score-calculator.js';
+import {
+    createRadioScoreCalculator,
+    RadioScoreCalculatorConfig
+} from '../shared/radio-score-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: RadioScoreCalculatorConfig = {
     id: 'nihss',
     title: 'NIH Stroke Scale/Score (NIHSS)',
     description: 'Quantifies stroke severity and monitors for neurological changes over time.',
-    infoAlert: '<strong>Clinical Use:</strong> Perform assessments within 24 hours of symptom onset and repeat serially to monitor progression or recovery.',
+    infoAlert:
+        '<strong>Clinical Use:</strong> Perform assessments within 24 hours of symptom onset and repeat serially to monitor progression or recovery.',
     sections: [
         {
             id: 'nihss-1a',
@@ -163,11 +167,42 @@ const config: RadioScoreCalculatorConfig = {
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 0, label: 'No Stroke', severity: 'success', description: 'No stroke symptoms detected.' },
-        { minScore: 1, maxScore: 4, label: 'Minor Stroke', severity: 'info', description: 'Minor stroke. Consider outpatient management with close follow-up.' },
-        { minScore: 5, maxScore: 15, label: 'Moderate Stroke', severity: 'warning', description: 'Moderate stroke. Requires inpatient monitoring and treatment.' },
-        { minScore: 16, maxScore: 20, label: 'Moderate-to-Severe Stroke', severity: 'danger', description: 'Moderate-to-severe stroke. Intensive monitoring and intervention required.' },
-        { minScore: 21, maxScore: 999, label: 'Severe Stroke', severity: 'danger', description: 'Severe stroke. Critical care and aggressive intervention needed.' }
+        {
+            minScore: 0,
+            maxScore: 0,
+            label: 'No Stroke',
+            severity: 'success',
+            description: 'No stroke symptoms detected.'
+        },
+        {
+            minScore: 1,
+            maxScore: 4,
+            label: 'Minor Stroke',
+            severity: 'info',
+            description: 'Minor stroke. Consider outpatient management with close follow-up.'
+        },
+        {
+            minScore: 5,
+            maxScore: 15,
+            label: 'Moderate Stroke',
+            severity: 'warning',
+            description: 'Moderate stroke. Requires inpatient monitoring and treatment.'
+        },
+        {
+            minScore: 16,
+            maxScore: 20,
+            label: 'Moderate-to-Severe Stroke',
+            severity: 'danger',
+            description:
+                'Moderate-to-severe stroke. Intensive monitoring and intervention required.'
+        },
+        {
+            minScore: 21,
+            maxScore: 999,
+            label: 'Severe Stroke',
+            severity: 'danger',
+            description: 'Severe stroke. Critical care and aggressive intervention needed.'
+        }
     ],
     references: [
         'Brott T, Adams HP Jr, Olinger CP, et al. Measurements of acute cerebral infarction: a clinical examination scale. <em>Stroke</em>. 1989;20(7):864-870.'
@@ -192,7 +227,8 @@ const config: RadioScoreCalculatorConfig = {
         } else if (score <= 20) {
             severity = 'Moderate-to-Severe Stroke';
             alertClass = 'danger';
-            interpretation = 'Moderate-to-severe stroke. Intensive monitoring and intervention required.';
+            interpretation =
+                'Moderate-to-severe stroke. Intensive monitoring and intervention required.';
         } else {
             severity = 'Severe Stroke';
             alertClass = 'danger';

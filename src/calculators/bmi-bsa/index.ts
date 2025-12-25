@@ -16,7 +16,8 @@ interface CalculatorModule {
 export const bmiBsa: CalculatorModule = {
     id: 'bmi-bsa',
     title: 'BMI & Body Surface Area (BSA)',
-    description: 'Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.',
+    description:
+        'Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.',
     generateHTML: function () {
         const inputSection = uiBuilder.createSection({
             title: 'Patient Measurements',
@@ -54,11 +55,15 @@ export const bmiBsa: CalculatorModule = {
             </div>
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'BMI (Body Mass Index)', formula: 'Weight (kg) / Height² (m²)' },
-                { label: 'BSA (Du Bois Formula)', formula: '0.007184 × Weight<sup>0.425</sup> (kg) × Height<sup>0.725</sup> (cm)' }
-            ]
-        })}
+                items: [
+                    { label: 'BMI (Body Mass Index)', formula: 'Weight (kg) / Height² (m²)' },
+                    {
+                        label: 'BSA (Du Bois Formula)',
+                        formula:
+                            '0.007184 × Weight<sup>0.425</sup> (kg) × Height<sup>0.725</sup> (cm)'
+                    }
+                ]
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -73,11 +78,12 @@ export const bmiBsa: CalculatorModule = {
         const weightInput = container.querySelector('#bmi-bsa-weight') as HTMLInputElement;
         const heightInput = container.querySelector('#bmi-bsa-height') as HTMLInputElement;
 
-
         // Function to calculate and update results
         const calculateAndUpdate = () => {
             const errorContainer = container.querySelector('#bmi-bsa-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             try {
                 // Get values in standard units (kg and cm)
@@ -99,12 +105,25 @@ export const bmiBsa: CalculatorModule = {
                 if (!validation.isValid) {
                     // Filter required errors if empty
                     if (weightInput.value || heightInput.value) {
-                        const meaningfulErrors = validation.errors.filter((e: string) => (!e.includes('required') || (weightInput.value && heightInput.value)));
-                        if (meaningfulErrors.length > 0 && (weightKg !== null || heightCm !== null)) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR'));
+                        const meaningfulErrors = validation.errors.filter(
+                            (e: string) =>
+                                !e.includes('required') || (weightInput.value && heightInput.value)
+                        );
+                        if (
+                            meaningfulErrors.length > 0 &&
+                            (weightKg !== null || heightCm !== null)
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl) {
+                        resultEl.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -150,30 +169,33 @@ export const bmiBsa: CalculatorModule = {
                         if (resultContent) {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                label: 'Body Mass Index (BMI)',
-                                value: bmi.toFixed(1),
-                                unit: 'kg/m²',
-                                interpretation: bmiCategory,
-                                alertClass: 'ui-alert-' + alertClass
-                            })}
+                                    label: 'Body Mass Index (BMI)',
+                                    value: bmi.toFixed(1),
+                                    unit: 'kg/m²',
+                                    interpretation: bmiCategory,
+                                    alertClass: 'ui-alert-' + alertClass
+                                })}
                                 
                                 ${uiBuilder.createResultItem({
-                                label: 'Body Surface Area (BSA)',
-                                value: bsa.toFixed(2),
-                                unit: 'm²'
-                            })}
+                                    label: 'Body Surface Area (BSA)',
+                                    value: bsa.toFixed(2),
+                                    unit: 'm²'
+                                })}
                                 
                                 ${uiBuilder.createAlert({
-                                type: 'info',
-                                message: 'BSA calculated using Du Bois formula. Used for medication dosing and cardiac index calculation.'
-                            })}
+                                    type: 'info',
+                                    message:
+                                        'BSA calculated using Du Bois formula. Used for medication dosing and cardiac index calculation.'
+                                })}
                             `;
                         }
                         resultEl.classList.add('show');
                     }
                 } else {
                     // Hide result if inputs are invalid (0 or negative that slipped through)
-                    if (resultEl) resultEl.classList.remove('show');
+                    if (resultEl) {
+                        resultEl.classList.remove('show');
+                    }
                 }
             } catch (error) {
                 logError(error as Error, {
@@ -182,10 +204,14 @@ export const bmiBsa: CalculatorModule = {
                 });
 
                 // Display error message
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
 
                 // Reset result display
-                if (resultEl) resultEl.classList.remove('show');
+                if (resultEl) {
+                    resultEl.classList.remove('show');
+                }
             }
         };
 
@@ -194,7 +220,9 @@ export const bmiBsa: CalculatorModule = {
         inputs.forEach(input => {
             input.addEventListener('input', calculateAndUpdate);
         });
-        container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculateAndUpdate));
+        container
+            .querySelectorAll('select')
+            .forEach(s => s.addEventListener('change', calculateAndUpdate));
 
         // Auto-populate from FHIR data using FHIRDataService
         const autoPopulate = async () => {

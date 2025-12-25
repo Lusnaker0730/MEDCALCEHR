@@ -15,7 +15,8 @@ interface CalculatorModule {
 export const sixMwd: CalculatorModule = {
     id: '6mwd',
     title: '6 Minute Walk Distance',
-    description: 'Calculates reference values for distance walked, as a measure of functional status.',
+    description:
+        'Calculates reference values for distance walked, as a measure of functional status.',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -24,61 +25,61 @@ export const sixMwd: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'Patient Information',
-            icon: '👤',
-            content: `
+                title: 'Patient Information',
+                icon: '👤',
+                content: `
                     ${uiBuilder.createRadioGroup({
-                name: 'mwd6-gender',
-                label: 'Sex',
-                options: [
-                    { value: 'male', label: 'Male', checked: true },
-                    { value: 'female', label: 'Female' }
-                ]
-            })}
+                        name: 'mwd6-gender',
+                        label: 'Sex',
+                        options: [
+                            { value: 'male', label: 'Male', checked: true },
+                            { value: 'female', label: 'Female' }
+                        ]
+                    })}
                     ${uiBuilder.createInput({
-                id: 'mwd6-age',
-                label: 'Age',
-                type: 'number',
-                unit: 'years',
-                placeholder: 'e.g., 62'
-            })}
+                        id: 'mwd6-age',
+                        label: 'Age',
+                        type: 'number',
+                        unit: 'years',
+                        placeholder: 'e.g., 62'
+                    })}
                     ${uiBuilder.createInput({
-                id: 'mwd6-height',
-                label: 'Height',
-                type: 'number',
-                placeholder: 'e.g., 175',
-                unitToggle: {
-                    type: 'height',
-                    units: ['cm', 'in'],
-                    default: 'cm'
-                }
-            })}
+                        id: 'mwd6-height',
+                        label: 'Height',
+                        type: 'number',
+                        placeholder: 'e.g., 175',
+                        unitToggle: {
+                            type: 'height',
+                            units: ['cm', 'in'],
+                            default: 'cm'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'mwd6-weight',
-                label: 'Weight',
-                type: 'number',
-                placeholder: 'e.g., 88',
-                unitToggle: {
-                    type: 'weight',
-                    units: ['kg', 'lbs'],
-                    default: 'kg'
-                }
-            })}
+                        id: 'mwd6-weight',
+                        label: 'Weight',
+                        type: 'number',
+                        placeholder: 'e.g., 88',
+                        unitToggle: {
+                            type: 'weight',
+                            units: ['kg', 'lbs'],
+                            default: 'kg'
+                        }
+                    })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Test Result',
-            icon: '🚶',
-            content: uiBuilder.createInput({
-                id: 'mwd6-distance',
-                label: 'Distance Walked (optional)',
-                type: 'number',
-                unit: 'm',
-                placeholder: 'e.g., 400',
-                helpText: 'Enter actual distance to see % of expected'
-            })
-        })}
+                title: 'Test Result',
+                icon: '🚶',
+                content: uiBuilder.createInput({
+                    id: 'mwd6-distance',
+                    label: 'Distance Walked (optional)',
+                    type: 'number',
+                    unit: 'm',
+                    placeholder: 'e.g., 400',
+                    helpText: 'Enter actual distance to see % of expected'
+                })
+            })}
 
             <div id="mwd6-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'mwd6-result', title: '6 Minute Walk Distance Results' })}
@@ -86,34 +87,33 @@ export const sixMwd: CalculatorModule = {
 
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    title: 'Men',
-                    formulas: [
-                        '6MWD = (7.57 × height<sub>cm</sub>) - (5.02 × age) - (1.76 × weight<sub>kg</sub>) - 309 m',
-                        'Alternate: 6MWD = 1,140 m - (5.61 × BMI) - (6.94 × age)'
-                    ]
-                },
-                {
-                    title: 'Women',
-                    formulas: [
-                        '6MWD = (2.11 × height<sub>cm</sub>) - (2.29 × weight<sub>kg</sub>) - (5.78 × age) + 667 m',
-                        'Alternate: 6MWD = 1,017 m - (6.24 × BMI) - (5.83 × age)'
-                    ]
-                },
-                {
-                    title: 'Lower Limit of Normal',
-                    formulas: [
-                        'LLN = Expected Distance - 153 m'
-                    ],
-                    notes: 'When using either equation, subtract 153 m for the LLN'
-                },
-                {
-                    label: 'Abbreviations',
-                    content: 'BMI = body mass index (kg/m²); 6MWD = 6-min walk distance; LLN = lower limit of normal'
-                }
-            ]
-        })}
+                items: [
+                    {
+                        title: 'Men',
+                        formulas: [
+                            '6MWD = (7.57 × height<sub>cm</sub>) - (5.02 × age) - (1.76 × weight<sub>kg</sub>) - 309 m',
+                            'Alternate: 6MWD = 1,140 m - (5.61 × BMI) - (6.94 × age)'
+                        ]
+                    },
+                    {
+                        title: 'Women',
+                        formulas: [
+                            '6MWD = (2.11 × height<sub>cm</sub>) - (2.29 × weight<sub>kg</sub>) - (5.78 × age) + 667 m',
+                            'Alternate: 6MWD = 1,017 m - (6.24 × BMI) - (5.83 × age)'
+                        ]
+                    },
+                    {
+                        title: 'Lower Limit of Normal',
+                        formulas: ['LLN = Expected Distance - 153 m'],
+                        notes: 'When using either equation, subtract 153 m for the LLN'
+                    },
+                    {
+                        label: 'Abbreviations',
+                        content:
+                            'BMI = body mass index (kg/m²); 6MWD = 6-min walk distance; LLN = lower limit of normal'
+                    }
+                ]
+            })}
 
             <div class="info-section mt-20 text-sm text-muted">
                 <h4>Reference</h4>
@@ -123,7 +123,7 @@ export const sixMwd: CalculatorModule = {
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -137,10 +137,14 @@ export const sixMwd: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#mwd6-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 const age = parseInt(ageEl.value);
-                const genderRadio = container.querySelector('input[name="mwd6-gender"]:checked') as HTMLInputElement | null;
+                const genderRadio = container.querySelector(
+                    'input[name="mwd6-gender"]:checked'
+                ) as HTMLInputElement | null;
 
                 // Get standardized values including unit conversion
                 const heightCm = UnitConverter.getStandardValue(heightEl, 'cm');
@@ -148,7 +152,9 @@ export const sixMwd: CalculatorModule = {
                 const actualDistance = distanceEl.value ? parseInt(distanceEl.value) : NaN;
 
                 if (isNaN(age) || !genderRadio || heightCm === null || weightKg === null) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -189,13 +195,18 @@ export const sixMwd: CalculatorModule = {
                             value: lowerLimitNormal.toFixed(0),
                             unit: 'meters'
                         })}
-                        ${!isNaN(percentage) ? uiBuilder.createResultItem({
-                            label: '% of Expected',
-                            value: percentage.toFixed(0),
-                            unit: '%',
-                            interpretation: percentage < 80 ? 'Reduced' : 'Normal',
-                            alertClass: percentage < 80 ? 'ui-alert-warning' : 'ui-alert-success'
-                        }) : ''}
+                        ${
+                            !isNaN(percentage)
+                                ? uiBuilder.createResultItem({
+                                      label: '% of Expected',
+                                      value: percentage.toFixed(0),
+                                      unit: '%',
+                                      interpretation: percentage < 80 ? 'Reduced' : 'Normal',
+                                      alertClass:
+                                          percentage < 80 ? 'ui-alert-warning' : 'ui-alert-success'
+                                  })
+                                : ''
+                        }
                     `;
                     }
                     resultBox.classList.add('show');
@@ -225,7 +236,9 @@ export const sixMwd: CalculatorModule = {
 
         const gender = fhirDataService.getPatientGender();
         if (gender) {
-            const genderRadio = container.querySelector(`input[name="mwd6-gender"][value="${gender}"]`) as HTMLInputElement | null;
+            const genderRadio = container.querySelector(
+                `input[name="mwd6-gender"][value="${gender}"]`
+            ) as HTMLInputElement | null;
             if (genderRadio) {
                 genderRadio.checked = true;
                 genderRadio.dispatchEvent(new Event('change'));
@@ -233,19 +246,35 @@ export const sixMwd: CalculatorModule = {
         }
 
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.HEIGHT, { trackStaleness: true, stalenessLabel: 'Height', targetUnit: 'cm', unitType: 'height' }).then(result => {
-                if (result.value !== null) {
-                    heightEl.value = result.value.toFixed(1);
-                    calculate();
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.HEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Height',
+                    targetUnit: 'cm',
+                    unitType: 'height'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        heightEl.value = result.value.toFixed(1);
+                        calculate();
+                    }
+                })
+                .catch(console.warn);
 
-            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
-                if (result.value !== null) {
-                    weightEl.value = result.value.toFixed(1);
-                    calculate();
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.WEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Weight',
+                    targetUnit: 'kg',
+                    unitType: 'weight'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        weightEl.value = result.value.toFixed(1);
+                        calculate();
+                    }
+                })
+                .catch(console.warn);
         }
 
         calculate();

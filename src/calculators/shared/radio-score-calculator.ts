@@ -1,11 +1,11 @@
 /**
  * Radio Group 評分計算器工廠函數
- * 
+ *
  * 適用於使用 Radio Group 進行評分的計算器，如：
  * - GCS (格拉斯哥昏迷量表)
  * - PHQ-9 (憂鬱量表)
  * - GAD-7 (焦慮量表)
- * 
+ *
  * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  */
 
@@ -137,7 +137,7 @@ export interface RadioScoreCalculatorConfig {
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
 
-    /** 
+    /**
      * 自定義初始化函數（用於 FHIR 自動填充等）
      * @param client FHIR 客戶端
      * @param patient 患者資料
@@ -176,17 +176,19 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
 
         generateHTML(): string {
             // 生成所有 Radio Group 區塊
-            const sectionsHTML = config.sections.map(section =>
-                uiBuilder.createSection({
-                    title: section.title,
-                    icon: section.icon,
-                    subtitle: section.subtitle,
-                    content: uiBuilder.createRadioGroup({
-                        name: section.id,
-                        options: section.options
+            const sectionsHTML = config.sections
+                .map(section =>
+                    uiBuilder.createSection({
+                        title: section.title,
+                        icon: section.icon,
+                        subtitle: section.subtitle,
+                        content: uiBuilder.createRadioGroup({
+                            name: section.id,
+                            options: section.options
+                        })
                     })
-                })
-            ).join('');
+                )
+                .join('');
 
             // 生成提示框
             const infoAlertHTML = config.infoAlert
@@ -218,24 +220,26 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
 
                 if (fs.scoringCriteria?.length) {
                     // 使用明確定義的 scoringCriteria 表格
-                    const scoringRows = fs.scoringCriteria.map(item => {
-                        if (item.isHeader) {
-                            // 分類標題行
-                            return `
+                    const scoringRows = fs.scoringCriteria
+                        .map(item => {
+                            if (item.isHeader) {
+                                // 分類標題行
+                                return `
                                 <tr class="ui-scoring-table__category">
                                     <td colspan="2">${item.criteria}</td>
                                 </tr>
                             `;
-                        } else {
-                            // 普通項目行
-                            return `
+                            } else {
+                                // 普通項目行
+                                return `
                                 <tr class="ui-scoring-table__item">
                                     <td class="ui-scoring-table__criteria">${item.criteria}</td>
                                     <td class="ui-scoring-table__points">${item.points || ''}</td>
                                 </tr>
                             `;
-                        }
-                    }).join('');
+                            }
+                        })
+                        .join('');
 
                     scoringContentHTML = `
                         <div class="ui-table-wrapper">
@@ -254,13 +258,18 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                     `;
                 } else {
                     // 從 sections 自動提取評分表格
-                    const scoringRows = config.sections.map(section => {
-                        const optionRows = section.options.map(opt => {
-                            const displayLabel = opt.label.replace(/\s*\([+-]?\d+\)\s*$/, '').replace(/\s*\(\+?\d+\)\s*$/, '');
-                            return `<tr><td style="padding-left: 20px; color: #555;">${displayLabel}</td><td style="text-align: center; font-weight: 600;">${opt.value}</td></tr>`;
-                        }).join('');
+                    const scoringRows = config.sections
+                        .map(section => {
+                            const optionRows = section.options
+                                .map(opt => {
+                                    const displayLabel = opt.label
+                                        .replace(/\s*\([+-]?\d+\)\s*$/, '')
+                                        .replace(/\s*\(\+?\d+\)\s*$/, '');
+                                    return `<tr><td style="padding-left: 20px; color: #555;">${displayLabel}</td><td style="text-align: center; font-weight: 600;">${opt.value}</td></tr>`;
+                                })
+                                .join('');
 
-                        return `
+                            return `
                             <tr style="background: #f8f9fa;">
                                 <td style="font-weight: 600;">${section.title.replace(/^\d+\.\s*/, '')}</td>
                                 <td></td>
@@ -268,7 +277,8 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                             ${section.subtitle ? `<tr><td colspan="2" style="padding-left: 10px; font-size: 0.85em; color: #666; font-style: italic;">${section.subtitle}</td></tr>` : ''}
                             ${optionRows}
                         `;
-                    }).join('');
+                        })
+                        .join('');
 
                     scoringContentHTML = `
                         <table class="ui-table" style="width: 100%;">
@@ -306,30 +316,37 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         : ['Score', 'Interpretation'];
                     const headers = fs.tableHeaders || defaultHeaders;
 
-                    const interpRows = fs.interpretations.map(item => {
-                        const severityClass = item.severity ? `ui-interpretation-table__row--${item.severity}` : '';
+                    const interpRows = fs.interpretations
+                        .map(item => {
+                            const severityClass = item.severity
+                                ? `ui-interpretation-table__row--${item.severity}`
+                                : '';
 
-                        if (hasCategory) {
-                            return `
+                            if (hasCategory) {
+                                return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
                                     <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
-                        } else {
-                            return `
+                            } else {
+                                return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
-                        }
-                    }).join('');
+                            }
+                        })
+                        .join('');
 
-                    const headerCells = headers.map((h, i) =>
-                        `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
-                    ).join('');
+                    const headerCells = headers
+                        .map(
+                            (h, i) =>
+                                `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                        )
+                        .join('');
 
                     interpretationTableHTML = `
                         <div class="ui-section" style="margin-top: 20px;">
@@ -369,9 +386,9 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 ${sectionsHTML}
                 
                 ${uiBuilder.createResultBox({
-                id: `${config.id}-result`,
-                title: `${config.title} Results`
-            })}
+                    id: `${config.id}-result`,
+                    title: `${config.title} Results`
+                })}
                 
                 ${formulaSectionHTML}
                 ${interpretationHTML}
@@ -420,9 +437,10 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 });
 
                 // 找到對應的風險等級
-                const riskLevel = config.riskLevels.find(
-                    r => totalScore >= r.minScore && totalScore <= r.maxScore
-                ) || config.riskLevels[config.riskLevels.length - 1];
+                const riskLevel =
+                    config.riskLevels.find(
+                        r => totalScore >= r.minScore && totalScore <= r.maxScore
+                    ) || config.riskLevels[config.riskLevels.length - 1];
 
                 // 更新結果顯示
                 const resultBox = document.getElementById(`${config.id}-result`);
@@ -431,22 +449,26 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                     if (resultContent) {
                         // 使用自定義渲染器或默認渲染
                         if (config.customResultRenderer) {
-                            resultContent.innerHTML = config.customResultRenderer(totalScore, sectionScores);
+                            resultContent.innerHTML = config.customResultRenderer(
+                                totalScore,
+                                sectionScores
+                            );
                         } else {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                label: 'Total Score',
-                                value: totalScore.toString(),
-                                unit: 'points',
-                                interpretation: riskLevel.label,
-                                alertClass: `ui-alert-${riskLevel.severity}`
-                            })}
-                                ${riskLevel.description
-                                    ? uiBuilder.createAlert({
-                                        type: riskLevel.severity,
-                                        message: riskLevel.description
-                                    })
-                                    : ''
+                                    label: 'Total Score',
+                                    value: totalScore.toString(),
+                                    unit: 'points',
+                                    interpretation: riskLevel.label,
+                                    alertClass: `ui-alert-${riskLevel.severity}`
+                                })}
+                                ${
+                                    riskLevel.description
+                                        ? uiBuilder.createAlert({
+                                              type: riskLevel.severity,
+                                              message: riskLevel.description
+                                          })
+                                        : ''
                                 }
                             `;
                         }
@@ -474,9 +496,10 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         if (dataReqs.autoPopulateGender) {
                             const gender = fhirDataService.getPatientGender();
                             if (gender) {
-                                const value = gender === 'male'
-                                    ? dataReqs.autoPopulateGender.maleValue
-                                    : dataReqs.autoPopulateGender.femaleValue;
+                                const value =
+                                    gender === 'male'
+                                        ? dataReqs.autoPopulateGender.maleValue
+                                        : dataReqs.autoPopulateGender.femaleValue;
                                 setRadioValue(dataReqs.autoPopulateGender.radioName, value);
                             }
                         }
@@ -485,14 +508,19 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         for (const section of config.sections) {
                             if (section.loincCode && section.valueMapping) {
                                 try {
-                                    const result = await fhirDataService.getObservation(section.loincCode, {
-                                        trackStaleness: true,
-                                        stalenessLabel: section.title
-                                    });
+                                    const result = await fhirDataService.getObservation(
+                                        section.loincCode,
+                                        {
+                                            trackStaleness: true,
+                                            stalenessLabel: section.title
+                                        }
+                                    );
 
                                     if (result.value !== null) {
                                         // 根據 valueMapping 找到對應的 radio 值
-                                        const mapping = section.valueMapping.find(m => m.condition(result.value!));
+                                        const mapping = section.valueMapping.find(m =>
+                                            m.condition(result.value!)
+                                        );
                                         if (mapping) {
                                             setRadioValue(section.id, mapping.radioValue);
                                         }
@@ -508,7 +536,10 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                                         }
                                     }
                                 } catch (e) {
-                                    console.warn(`Error fetching observation for ${section.id}:`, e);
+                                    console.warn(
+                                        `Error fetching observation for ${section.id}:`,
+                                        e
+                                    );
                                 }
                             }
                         }
@@ -517,7 +548,6 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }

@@ -2,7 +2,12 @@
 // Unified FHIR Data Management Layer
 // Consolidates data fetching, caching, staleness tracking, and UI feedback
 
-import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests } from './utils.js';
+import {
+    getMostRecentObservation,
+    getObservationValue,
+    getPatientConditions,
+    getMedicationRequests
+} from './utils.js';
 import { LOINC_CODES, SNOMED_CODES, getLoincName } from './fhir-codes.js';
 // @ts-ignore - no type declarations
 import { fhirCache } from './cache-manager.js';
@@ -194,7 +199,10 @@ export class FHIRDataService {
      * Get the most recent observation for a LOINC code
      * Includes caching, staleness tracking, and unit conversion
      */
-    async getObservation(code: string, options: GetObservationOptions = {}): Promise<ObservationResult> {
+    async getObservation(
+        code: string,
+        options: GetObservationOptions = {}
+    ): Promise<ObservationResult> {
         const result: ObservationResult = {
             observation: null,
             value: null,
@@ -294,7 +302,12 @@ export class FHIRDataService {
         if (options.targetUnit && result.value !== null && result.unit) {
             // Use provided unitType or determine measurement type from LOINC code
             const measurementType = options.unitType || this.getMeasurementTypeFromCode(code);
-            const converted = UnitConverter.convert(result.value, result.unit, options.targetUnit, measurementType);
+            const converted = UnitConverter.convert(
+                result.value,
+                result.unit,
+                options.targetUnit,
+                measurementType
+            );
             if (converted !== null) {
                 result.value = converted;
                 result.unit = options.targetUnit;
@@ -313,7 +326,7 @@ export class FHIRDataService {
     ): Promise<Map<string, ObservationResult>> {
         const results = new Map<string, ObservationResult>();
 
-        const promises = codes.map(async (code) => {
+        const promises = codes.map(async code => {
             const result = await this.getObservation(code, options);
             results.set(code, result);
         });
@@ -329,10 +342,12 @@ export class FHIRDataService {
      * Get blood pressure (systolic and diastolic)
      * Blood pressure is stored as a panel with components
      */
-    async getBloodPressure(options: {
-        trackStaleness?: boolean;
-        skipCache?: boolean;
-    } = {}): Promise<{
+    async getBloodPressure(
+        options: {
+            trackStaleness?: boolean;
+            skipCache?: boolean;
+        } = {}
+    ): Promise<{
         systolic: number | null;
         diastolic: number | null;
         observation: any | null;
@@ -360,8 +375,9 @@ export class FHIRDataService {
 
                 // Extract systolic BP
                 const sbpComp = bpPanel.component.find((c: any) =>
-                    c.code?.coding?.some((coding: any) =>
-                        coding.code === LOINC_CODES.SYSTOLIC_BP || coding.code === '8480-6'
+                    c.code?.coding?.some(
+                        (coding: any) =>
+                            coding.code === LOINC_CODES.SYSTOLIC_BP || coding.code === '8480-6'
                     )
                 );
                 if (sbpComp?.valueQuantity?.value !== undefined) {
@@ -370,8 +386,9 @@ export class FHIRDataService {
 
                 // Extract diastolic BP
                 const dbpComp = bpPanel.component.find((c: any) =>
-                    c.code?.coding?.some((coding: any) =>
-                        coding.code === LOINC_CODES.DIASTOLIC_BP || coding.code === '8462-4'
+                    c.code?.coding?.some(
+                        (coding: any) =>
+                            coding.code === LOINC_CODES.DIASTOLIC_BP || coding.code === '8462-4'
                     )
                 );
                 if (dbpComp?.valueQuantity?.value !== undefined) {
@@ -393,10 +410,20 @@ export class FHIRDataService {
 
                     // Track for both systolic and diastolic if container exists
                     if (result.systolic !== null) {
-                        this.stalenessTracker.trackObservation('#map-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                        this.stalenessTracker.trackObservation(
+                            '#map-sbp',
+                            bpPanel,
+                            LOINC_CODES.SYSTOLIC_BP,
+                            'Systolic BP'
+                        );
                     }
                     if (result.diastolic !== null) {
-                        this.stalenessTracker.trackObservation('#map-dbp', bpPanel, LOINC_CODES.DIASTOLIC_BP, 'Diastolic BP');
+                        this.stalenessTracker.trackObservation(
+                            '#map-dbp',
+                            bpPanel,
+                            LOINC_CODES.DIASTOLIC_BP,
+                            'Diastolic BP'
+                        );
                     }
                 }
             }
@@ -479,7 +506,7 @@ export class FHIRDataService {
         }
 
         try {
-            const promises = fields.map(async (field) => {
+            const promises = fields.map(async field => {
                 const result = await this.autoPopulateInput(field.inputId, field.code, {
                     label: field.label,
                     targetUnit: field.targetUnit,
@@ -493,8 +520,12 @@ export class FHIRDataService {
 
             // Show summary
             if (this.container) {
-                const loaded = fields.filter(f => results.get(f.code)?.value !== null).map(f => f.label);
-                const missing = fields.filter(f => results.get(f.code)?.value === null).map(f => f.label);
+                const loaded = fields
+                    .filter(f => results.get(f.code)?.value !== null)
+                    .map(f => f.label);
+                const missing = fields
+                    .filter(f => results.get(f.code)?.value === null)
+                    .map(f => f.label);
 
                 fhirFeedback.createDataSummary(this.container, {
                     loaded,
@@ -639,46 +670,46 @@ export class FHIRDataService {
         // Map LOINC codes to measurement types
         const codeMap: Record<string, string> = {
             // Vital Signs
-            '8310-5': 'temperature',    // Body temperature
-            '8331-1': 'temperature',    // Oral temperature
+            '8310-5': 'temperature', // Body temperature
+            '8331-1': 'temperature', // Oral temperature
 
             // Cholesterol/Lipids
-            '2093-3': 'cholesterol',    // Total cholesterol
-            '2085-9': 'hdl',            // HDL
-            '2089-1': 'ldl',            // LDL  
-            '2571-8': 'triglycerides',  // Triglycerides
+            '2093-3': 'cholesterol', // Total cholesterol
+            '2085-9': 'hdl', // HDL
+            '2089-1': 'ldl', // LDL
+            '2571-8': 'triglycerides', // Triglycerides
 
             // Glucose
-            '2345-7': 'glucose',        // Glucose
-            '2339-0': 'glucose',        // Fasting glucose
+            '2345-7': 'glucose', // Glucose
+            '2339-0': 'glucose', // Fasting glucose
 
             // Creatinine
-            '2160-0': 'creatinine',     // Creatinine
-            '38483-4': 'creatinine',    // Creatinine (blood)
+            '2160-0': 'creatinine', // Creatinine
+            '38483-4': 'creatinine', // Creatinine (blood)
 
             // Calcium
-            '17861-6': 'calcium',       // Calcium
+            '17861-6': 'calcium', // Calcium
 
             // Albumin
-            '1751-7': 'albumin',        // Albumin
+            '1751-7': 'albumin', // Albumin
 
             // Bilirubin
-            '1975-2': 'bilirubin',      // Bilirubin total
-            '1968-7': 'bilirubin',      // Bilirubin direct
+            '1975-2': 'bilirubin', // Bilirubin total
+            '1968-7': 'bilirubin', // Bilirubin direct
 
             // Hemoglobin
-            '718-7': 'hemoglobin',      // Hemoglobin
+            '718-7': 'hemoglobin', // Hemoglobin
 
             // BUN
-            '6299-2': 'bun',            // BUN
+            '6299-2': 'bun', // BUN
 
             // Electrolytes (Na, K)
-            '2951-2': 'electrolyte',    // Sodium
-            '2823-3': 'electrolyte',    // Potassium
+            '2951-2': 'electrolyte', // Sodium
+            '2823-3': 'electrolyte', // Potassium
 
             // Weight/Height
-            '29463-7': 'weight',        // Body weight
-            '8302-2': 'height',         // Body height
+            '29463-7': 'weight', // Body weight
+            '8302-2': 'height' // Body height
         };
 
         return codeMap[primaryCode] || 'concentration';

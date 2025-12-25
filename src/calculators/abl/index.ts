@@ -32,51 +32,59 @@ export const abl: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'Patient Category',
-            content: `
+                title: 'Patient Category',
+                content: `
                     ${uiBuilder.createSelect({
-                id: 'abl-age-category',
-                label: 'Category',
-                options: [
-                    { value: '75', label: 'Adult man (75 mL/kg)' },
-                    { value: '65', label: 'Adult woman (65 mL/kg)' },
-                    { value: '80', label: 'Infant (80 mL/kg)' },
-                    { value: '85', label: 'Neonate (85 mL/kg)' },
-                    { value: '96', label: 'Premature neonate (96 mL/kg)' }
-                ],
-                helpText: 'Blood volume (mL/kg) varies by age and sex'
-            })}
+                        id: 'abl-age-category',
+                        label: 'Category',
+                        options: [
+                            { value: '75', label: 'Adult man (75 mL/kg)' },
+                            { value: '65', label: 'Adult woman (65 mL/kg)' },
+                            { value: '80', label: 'Infant (80 mL/kg)' },
+                            { value: '85', label: 'Neonate (85 mL/kg)' },
+                            { value: '96', label: 'Premature neonate (96 mL/kg)' }
+                        ],
+                        helpText: 'Blood volume (mL/kg) varies by age and sex'
+                    })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Parameters',
-            content: `
+                title: 'Parameters',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'abl-weight',
-                label: 'Weight',
-                type: 'number',
-                placeholder: 'e.g., 70',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
-            })}
+                        id: 'abl-weight',
+                        label: 'Weight',
+                        type: 'number',
+                        placeholder: 'e.g., 70',
+                        unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'abl-hgb-initial',
-                label: 'Initial Hemoglobin',
-                type: 'number',
-                step: 0.1,
-                placeholder: 'e.g., 14',
-                unitToggle: { type: 'hemoglobin', units: ['g/dL', 'g/L', 'mmol/L'], default: 'g/dL' }
-            })}
+                        id: 'abl-hgb-initial',
+                        label: 'Initial Hemoglobin',
+                        type: 'number',
+                        step: 0.1,
+                        placeholder: 'e.g., 14',
+                        unitToggle: {
+                            type: 'hemoglobin',
+                            units: ['g/dL', 'g/L', 'mmol/L'],
+                            default: 'g/dL'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'abl-hgb-final',
-                label: 'Target/Allowable Hemoglobin',
-                type: 'number',
-                step: 0.1,
-                placeholder: 'e.g., 7',
-                unitToggle: { type: 'hemoglobin', units: ['g/dL', 'g/L', 'mmol/L'], default: 'g/dL' }
-            })}
+                        id: 'abl-hgb-final',
+                        label: 'Target/Allowable Hemoglobin',
+                        type: 'number',
+                        step: 0.1,
+                        placeholder: 'e.g., 7',
+                        unitToggle: {
+                            type: 'hemoglobin',
+                            units: ['g/dL', 'g/L', 'mmol/L'],
+                            default: 'g/dL'
+                        }
+                    })}
                 `
-        })}
+            })}
 
             <div id="abl-error-container"></div>
             <div id="abl-result" class="ui-result-box">
@@ -85,17 +93,27 @@ export const abl: CalculatorModule = {
             </div>
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Estimated Blood Volume (EBV)', content: 'Weight (kg) × Blood Volume (mL/kg)' },
-                { label: 'Allowable Blood Loss (ABL)', content: 'EBV × (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub>' },
-                { label: 'Average Hgb', content: '(Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2' }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'Estimated Blood Volume (EBV)',
+                        content: 'Weight (kg) × Blood Volume (mL/kg)'
+                    },
+                    {
+                        label: 'Allowable Blood Loss (ABL)',
+                        content:
+                            'EBV × (Hgb<sub>initial</sub> - Hgb<sub>final</sub>) / Hgb<sub>average</sub>'
+                    },
+                    {
+                        label: 'Average Hgb',
+                        content: '(Hgb<sub>initial</sub> + Hgb<sub>final</sub>) / 2'
+                    }
+                ]
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -108,7 +126,9 @@ export const abl: CalculatorModule = {
 
         const calculate = () => {
             const errorContainer = container.querySelector('#abl-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const weightKg = UnitConverter.getStandardValue(weightInput, 'kg'); // Returns null if invalid input
             const hgbInitial = UnitConverter.getStandardValue(hgbInitialInput, 'g/dL');
@@ -121,7 +141,7 @@ export const abl: CalculatorModule = {
                 // We should cast null values to something invalid or check existence first if strictly typed.
                 // Assuming validateCalculatorInput handles null or isNaN checks if defined in rules.
 
-                // If weightKg is null, it means input is empty or invalid. 
+                // If weightKg is null, it means input is empty or invalid.
                 // We treat it as NaN/undefined for validation purpose if needed?
                 // Actually, if we pass null, validation might fail type check if rules expect number.
 
@@ -140,14 +160,23 @@ export const abl: CalculatorModule = {
 
                 if (!validation.isValid) {
                     // Only show if fields have values
-                    const hasInput = (weightInput.value || hgbInitialInput.value || hgbFinalInput.value);
+                    const hasInput =
+                        weightInput.value || hgbInitialInput.value || hgbFinalInput.value;
                     if (hasInput) {
-                        const valuesPresent = weightKg !== null && hgbInitial !== null && hgbFinal !== null;
+                        const valuesPresent =
+                            weightKg !== null && hgbInitial !== null && hgbFinal !== null;
                         if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -156,14 +185,23 @@ export const abl: CalculatorModule = {
                 if (hgbInitial !== null && hgbFinal !== null && hgbInitial <= hgbFinal) {
                     if (errorContainer) {
                         // We can create a custom ValidationError or just display message
-                        displayError(errorContainer as HTMLElement, new Error("Initial hemoglobin must be greater than final/target hemoglobin."));
+                        displayError(
+                            errorContainer as HTMLElement,
+                            new Error(
+                                'Initial hemoglobin must be greater than final/target hemoglobin.'
+                            )
+                        );
                     }
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
                 if (weightKg === null || hgbInitial === null || hgbFinal === null) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -191,7 +229,9 @@ export const abl: CalculatorModule = {
                     })}
                 `;
                 }
-                if (resultBox) resultBox.classList.add('show');
+                if (resultBox) {
+                    resultBox.classList.add('show');
+                }
             } catch (error) {
                 logError(error as Error, { calculator: 'abl', action: 'calculate' });
                 // Only show system errors, validation handled above
@@ -200,31 +240,49 @@ export const abl: CalculatorModule = {
                         displayError(errorContainer as HTMLElement, error);
                     }
                 }
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
         // Auto-populate from FHIR using FHIRDataService
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
-                if (result.value !== null) {
-                    weightInput.value = result.value.toFixed(1);
-                    weightInput.dispatchEvent(new Event('input'));
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.WEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Weight',
+                    targetUnit: 'kg',
+                    unitType: 'weight'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        weightInput.value = result.value.toFixed(1);
+                        weightInput.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(console.warn);
 
-            fhirDataService.getObservation(LOINC_CODES.HEMOGLOBIN, { trackStaleness: true, stalenessLabel: 'Initial Hgb', targetUnit: 'g/dL', unitType: 'hemoglobin' }).then(result => {
-                if (result.value !== null) {
-                    hgbInitialInput.value = result.value.toFixed(1);
-                    hgbInitialInput.dispatchEvent(new Event('input'));
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.HEMOGLOBIN, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Initial Hgb',
+                    targetUnit: 'g/dL',
+                    unitType: 'hemoglobin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        hgbInitialInput.value = result.value.toFixed(1);
+                        hgbInitialInput.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(console.warn);
         }
 
         // Pre-select category based on patient data using FHIRDataService
         const ageYear = fhirDataService.getPatientAge() || 30;
         const gender = fhirDataService.getPatientGender();
-        
+
         if (ageYear > 18) {
             categorySelect.value = gender === 'female' ? '65' : '75';
         } else if (ageYear <= 1) {

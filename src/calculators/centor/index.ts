@@ -1,6 +1,6 @@
 /**
  * Centor Score (Modified/McIsaac) for Strep Pharyngitis Calculator
- * 
+ *
  * 使用 Yes/No Calculator 工廠函數
  * 已整合 FHIRDataService 進行自動填充
  */
@@ -12,7 +12,8 @@ import { uiBuilder } from '../../ui-builder.js';
 const config: YesNoCalculatorConfig = {
     id: 'centor',
     title: 'Centor Score (Modified/McIsaac) for Strep Pharyngitis',
-    description: 'Estimates probability that pharyngitis is streptococcal, and suggests management course.',
+    description:
+        'Estimates probability that pharyngitis is streptococcal, and suggests management course.',
     sectionTitle: 'Clinical Criteria',
     sectionIcon: '🩺',
     questions: [
@@ -48,7 +49,8 @@ const config: YesNoCalculatorConfig = {
             maxScore: 3,
             label: '≈56% probability',
             severity: 'warning',
-            recommendation: 'Consider throat culture or rapid antigen testing. May treat empirically.'
+            recommendation:
+                'Consider throat culture or rapid antigen testing. May treat empirically.'
         },
         {
             minScore: 4,
@@ -77,14 +79,15 @@ const config: YesNoCalculatorConfig = {
             alertClass = 'warning';
         } else if (score === 3) {
             probability = '≈56%';
-            recommendation = 'Consider throat culture or rapid antigen testing. May treat empirically.';
+            recommendation =
+                'Consider throat culture or rapid antigen testing. May treat empirically.';
             alertClass = 'warning';
         } else {
             probability = '>85%';
             recommendation = 'Empiric antibiotic treatment is justified.';
             alertClass = 'danger';
         }
-        
+
         return `
             ${uiBuilder.createResultItem({
                 label: 'Total Score',
@@ -112,11 +115,11 @@ export const centor = {
     id: 'centor',
     title: config.title,
     description: config.description,
-    
+
     generateHTML(): string {
         // 先用基礎計算器生成 HTML
         let html = baseCalculator.generateHTML();
-        
+
         // 在結果框之前插入年齡區塊
         const ageSection = uiBuilder.createSection({
             title: 'McIsaac Modification (Age)',
@@ -130,34 +133,36 @@ export const centor = {
                 ]
             })
         });
-        
+
         // 插入年齡區塊在 error-container 之前
         html = html.replace(
             '<div id="centor-error-container"></div>',
             `${ageSection}<div id="centor-error-container"></div>`
         );
-        
+
         return html;
     },
-    
+
     initialize(client: unknown, patient: any, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client as any, patient as any, container);
-        
+
         const setRadioValue = (name: string, value: string): void => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        
+
         // 計算函數
         const calculate = (): void => {
             let score = 0;
-            
+
             // 計算臨床標準分數
             config.questions.forEach(q => {
                 const radio = container.querySelector(
@@ -167,13 +172,15 @@ export const centor = {
                     score += parseInt(radio.value) || 0;
                 }
             });
-            
+
             // 計算年齡分數
-            const ageRadio = container.querySelector('input[name="centor-age"]:checked') as HTMLInputElement | null;
+            const ageRadio = container.querySelector(
+                'input[name="centor-age"]:checked'
+            ) as HTMLInputElement | null;
             if (ageRadio) {
                 score += parseInt(ageRadio.value) || 0;
             }
-            
+
             // 使用自定義渲染器
             const resultBox = document.getElementById('centor-result');
             if (resultBox) {
@@ -184,12 +191,12 @@ export const centor = {
                 resultBox.classList.add('show');
             }
         };
-        
+
         // 綁定事件
         container.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', calculate);
         });
-        
+
         // 使用 FHIRDataService 自動填入年齡
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
@@ -201,7 +208,7 @@ export const centor = {
                 setRadioValue('centor-age', '0');
             }
         }
-        
+
         // 初始計算
         calculate();
     }

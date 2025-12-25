@@ -1,24 +1,35 @@
 /**
  * 4 A's Test (4AT) for Delirium Screening Calculator
- * 
+ *
  * 使用 Radio Score Calculator 工廠函數遷移
  * Diagnoses delirium in older patients.
  */
 
-import { createRadioScoreCalculator, RadioScoreCalculatorConfig } from '../shared/radio-score-calculator.js';
+import {
+    createRadioScoreCalculator,
+    RadioScoreCalculatorConfig
+} from '../shared/radio-score-calculator.js';
 
 const config: RadioScoreCalculatorConfig = {
     id: '4as-delirium',
     title: "4 A's Test (4AT) for Delirium Screening",
-    description: 'Diagnoses delirium in older patients. A rapid assessment tool for detection of delirium and cognitive impairment.',
+    description:
+        'Diagnoses delirium in older patients. A rapid assessment tool for detection of delirium and cognitive impairment.',
     sections: [
         {
             id: 'alertness',
             title: '1. Alertness',
             subtitle: 'May ask patient to state name and address to help with rating',
             options: [
-                { value: '0', label: 'Normal (fully alert, but not agitated, throughout assessment) (0)', checked: true },
-                { value: '0', label: 'Mild sleepiness for <10 seconds after waking, then normal (0)' },
+                {
+                    value: '0',
+                    label: 'Normal (fully alert, but not agitated, throughout assessment) (0)',
+                    checked: true
+                },
+                {
+                    value: '0',
+                    label: 'Mild sleepiness for <10 seconds after waking, then normal (0)'
+                },
                 { value: '4', label: 'Clearly abnormal (+4)' }
             ]
         },
@@ -39,13 +50,17 @@ const config: RadioScoreCalculatorConfig = {
             options: [
                 { value: '0', label: 'Lists ≥7 months correctly (0)', checked: true },
                 { value: '1', label: 'Starts but lists <7 months, or refuses to start (+1)' },
-                { value: '2', label: 'Untestable (cannot start because unwell, drowsy, inattentive) (+2)' }
+                {
+                    value: '2',
+                    label: 'Untestable (cannot start because unwell, drowsy, inattentive) (+2)'
+                }
             ]
         },
         {
             id: 'acute_change',
             title: '4. Acute Change or Fluctuating Course',
-            subtitle: 'Evidence of significant change or fluctuation in mental status within the last 2 weeks and still persisting in the last 24 hours',
+            subtitle:
+                'Evidence of significant change or fluctuation in mental status within the last 2 weeks and still persisting in the last 24 hours',
             options: [
                 { value: '0', label: 'No (0)', checked: true },
                 { value: '4', label: 'Yes (+4)' }
@@ -58,7 +73,8 @@ const config: RadioScoreCalculatorConfig = {
             maxScore: 0,
             label: 'Delirium Unlikely',
             severity: 'success',
-            description: 'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.'
+            description:
+                'Delirium or severe cognitive impairment unlikely. Note that delirium is still possible if "acute change or fluctuating course" is questionable.'
         },
         {
             minScore: 1,
@@ -72,7 +88,8 @@ const config: RadioScoreCalculatorConfig = {
             maxScore: 12,
             label: 'Likely Delirium',
             severity: 'danger',
-            description: 'Likely delirium ± underlying cognitive impairment. Formal assessment for delirium is recommended.'
+            description:
+                'Likely delirium ± underlying cognitive impairment. Formal assessment for delirium is recommended.'
         }
     ],
     formulaSection: {
@@ -103,9 +120,18 @@ const config: RadioScoreCalculatorConfig = {
         interpretationTitle: 'FACTS & FIGURES',
         tableHeaders: ['4AT Score', 'Level of Impairment'],
         interpretations: [
-            { score: '≥4', interpretation: 'Possible delirium and/or cognitive impairment', severity: 'danger' },
+            {
+                score: '≥4',
+                interpretation: 'Possible delirium and/or cognitive impairment',
+                severity: 'danger'
+            },
             { score: '1-3', interpretation: 'Possible cognitive impairment', severity: 'warning' },
-            { score: '0', interpretation: 'Delirium or severe cognitive impairment unlikely (but delirium still possible if "acute change or fluctuating course" information is incomplete)', severity: 'success' }
+            {
+                score: '0',
+                interpretation:
+                    'Delirium or severe cognitive impairment unlikely (but delirium still possible if "acute change or fluctuating course" information is incomplete)',
+                severity: 'success'
+            }
         ]
     },
     references: [

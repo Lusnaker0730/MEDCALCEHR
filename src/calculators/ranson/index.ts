@@ -1,6 +1,6 @@
 /**
  * Ranson Score for Pancreatitis Calculator
- * 
+ *
  * 使用 Score Calculator 工廠函數
  * 已整合 FHIRDataService 進行自動填充
  */
@@ -14,7 +14,8 @@ const config: ScoreCalculatorConfig = {
     id: 'ranson',
     title: 'Ranson Score for Pancreatitis',
     description: 'Predicts severity and mortality of acute pancreatitis (for non-gallstone cases).',
-    infoAlert: '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.',
+    infoAlert:
+        '<strong>Note:</strong> This score applies to non-gallstone pancreatitis. Different criteria exist for gallstone pancreatitis.',
     sections: [
         {
             title: 'At Admission or Diagnosis',
@@ -31,7 +32,11 @@ const config: ScoreCalculatorConfig = {
             title: 'During Initial 48 Hours',
             icon: '⏱️',
             options: [
-                { id: 'ranson-calcium', label: 'Serum calcium < 8.0 mg/dL (<2.0 mmol/L)', value: 1 },
+                {
+                    id: 'ranson-calcium',
+                    label: 'Serum calcium < 8.0 mg/dL (<2.0 mmol/L)',
+                    value: 1
+                },
                 { id: 'ranson-hct', label: 'Hematocrit fall > 10%', value: 1 },
                 { id: 'ranson-paO2', label: 'PaO₂ < 60 mmHg', value: 1 },
                 { id: 'ranson-bun', label: 'BUN increase > 5 mg/dL (>1.8 mmol/L)', value: 1 },
@@ -41,10 +46,38 @@ const config: ScoreCalculatorConfig = {
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 2, risk: 'Low Risk', category: 'Low', severity: 'success', recommendation: 'Mortality: 0-3%' },
-        { minScore: 3, maxScore: 4, risk: 'Moderate Risk', category: 'Moderate', severity: 'warning', recommendation: 'Mortality: 15-20%' },
-        { minScore: 5, maxScore: 6, risk: 'High Risk', category: 'High', severity: 'danger', recommendation: 'Mortality: ~40%' },
-        { minScore: 7, maxScore: 11, risk: 'Very High Risk', category: 'Very High', severity: 'danger', recommendation: 'Mortality: >50%' }
+        {
+            minScore: 0,
+            maxScore: 2,
+            risk: 'Low Risk',
+            category: 'Low',
+            severity: 'success',
+            recommendation: 'Mortality: 0-3%'
+        },
+        {
+            minScore: 3,
+            maxScore: 4,
+            risk: 'Moderate Risk',
+            category: 'Moderate',
+            severity: 'warning',
+            recommendation: 'Mortality: 15-20%'
+        },
+        {
+            minScore: 5,
+            maxScore: 6,
+            risk: 'High Risk',
+            category: 'High',
+            severity: 'danger',
+            recommendation: 'Mortality: ~40%'
+        },
+        {
+            minScore: 7,
+            maxScore: 11,
+            risk: 'Very High Risk',
+            category: 'Very High',
+            severity: 'danger',
+            recommendation: 'Mortality: >50%'
+        }
     ],
     formulaItems: [
         {
@@ -102,7 +135,7 @@ const config: ScoreCalculatorConfig = {
             })}
         `;
     },
-    
+
     // 使用 customInitialize 處理 FHIR 自動填充
     customInitialize: async (client, patient, container, calculate) => {
         const setCheckbox = (id: string, checked: boolean) => {
@@ -112,15 +145,17 @@ const config: ScoreCalculatorConfig = {
                 box.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        
+
         // 自動填充年齡
         const age = fhirDataService.getPatientAge();
         if (age !== null && age > 55) {
             setCheckbox('ranson-age', true);
         }
 
-        if (!fhirDataService.isReady()) return;
-        
+        if (!fhirDataService.isReady()) {
+            return;
+        }
+
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
         try {
@@ -129,78 +164,109 @@ const config: ScoreCalculatorConfig = {
                 trackStaleness: true,
                 stalenessLabel: 'WBC'
             });
-            
+
             if (wbcResult.value !== null) {
                 let val = wbcResult.value;
                 // Normalize to K/uL
-                if (val > 1000) val = val / 1000;
+                if (val > 1000) {
+                    val = val / 1000;
+                }
                 if (val > 16) {
                     setCheckbox('ranson-wbc', true);
                 }
                 if (stalenessTracker && wbcResult.observation) {
-                    stalenessTracker.trackObservation('#ranson-wbc', wbcResult.observation, LOINC_CODES.WBC, 'WBC Count');
+                    stalenessTracker.trackObservation(
+                        '#ranson-wbc',
+                        wbcResult.observation,
+                        LOINC_CODES.WBC,
+                        'WBC Count'
+                    );
                 }
             }
-            
+
             // Blood glucose > 200 mg/dL
             const glucoseResult = await fhirDataService.getObservation(LOINC_CODES.GLUCOSE, {
                 trackStaleness: true,
                 stalenessLabel: 'Glucose'
             });
-            
+
             if (glucoseResult.value !== null) {
                 let val = glucoseResult.value;
                 // Convert mmol/L to mg/dL if needed
-                if (glucoseResult.unit === 'mmol/L') val = val * 18.0182;
+                if (glucoseResult.unit === 'mmol/L') {
+                    val = val * 18.0182;
+                }
                 if (val > 200) {
                     setCheckbox('ranson-glucose', true);
                 }
                 if (stalenessTracker && glucoseResult.observation) {
-                    stalenessTracker.trackObservation('#ranson-glucose', glucoseResult.observation, LOINC_CODES.GLUCOSE, 'Blood Glucose');
+                    stalenessTracker.trackObservation(
+                        '#ranson-glucose',
+                        glucoseResult.observation,
+                        LOINC_CODES.GLUCOSE,
+                        'Blood Glucose'
+                    );
                 }
             }
-            
+
             // AST > 250 IU/L
             const astResult = await fhirDataService.getObservation(LOINC_CODES.AST, {
                 trackStaleness: true,
                 stalenessLabel: 'AST'
             });
-            
+
             if (astResult.value !== null && astResult.value > 250) {
                 setCheckbox('ranson-ast', true);
                 if (stalenessTracker && astResult.observation) {
-                    stalenessTracker.trackObservation('#ranson-ast', astResult.observation, LOINC_CODES.AST, 'AST');
+                    stalenessTracker.trackObservation(
+                        '#ranson-ast',
+                        astResult.observation,
+                        LOINC_CODES.AST,
+                        'AST'
+                    );
                 }
             }
-            
+
             // LDH > 350 IU/L
             const ldhResult = await fhirDataService.getObservation(LOINC_CODES.LDH, {
                 trackStaleness: true,
                 stalenessLabel: 'LDH'
             });
-            
+
             if (ldhResult.value !== null && ldhResult.value > 350) {
                 setCheckbox('ranson-ldh', true);
                 if (stalenessTracker && ldhResult.observation) {
-                    stalenessTracker.trackObservation('#ranson-ldh', ldhResult.observation, LOINC_CODES.LDH, 'LDH');
+                    stalenessTracker.trackObservation(
+                        '#ranson-ldh',
+                        ldhResult.observation,
+                        LOINC_CODES.LDH,
+                        'LDH'
+                    );
                 }
             }
-            
+
             // Calcium < 8.0 mg/dL
             const calciumResult = await fhirDataService.getObservation(LOINC_CODES.CALCIUM, {
                 trackStaleness: true,
                 stalenessLabel: 'Calcium'
             });
-            
+
             if (calciumResult.value !== null) {
                 let val = calciumResult.value;
                 // Convert mmol/L to mg/dL if needed
-                if (calciumResult.unit === 'mmol/L') val = val * 4.008;
+                if (calciumResult.unit === 'mmol/L') {
+                    val = val * 4.008;
+                }
                 if (val < 8.0) {
                     setCheckbox('ranson-calcium', true);
                 }
                 if (stalenessTracker && calciumResult.observation) {
-                    stalenessTracker.trackObservation('#ranson-calcium', calciumResult.observation, LOINC_CODES.CALCIUM, 'Calcium');
+                    stalenessTracker.trackObservation(
+                        '#ranson-calcium',
+                        calciumResult.observation,
+                        LOINC_CODES.CALCIUM,
+                        'Calcium'
+                    );
                 }
             }
         } catch (error) {

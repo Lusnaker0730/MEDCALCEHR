@@ -1,13 +1,16 @@
 /**
  * MAGGIC Risk Calculator for Heart Failure
- * 
+ *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
 
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { createMixedInputCalculator, MixedInputCalculatorConfig } from '../shared/mixed-input-calculator.js';
+import {
+    createMixedInputCalculator,
+    MixedInputCalculatorConfig
+} from '../shared/mixed-input-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
 // 分數計算函數
@@ -16,17 +19,33 @@ const getPoints = {
     ef: (v: number) => v * -0.05,
     sbp: (v: number) => v * -0.02,
     bmi: (v: number) => {
-        if (v < 20) return 2;
-        if (v >= 20 && v < 25) return 1;
-        if (v >= 25 && v < 30) return 0;
-        if (v >= 30) return -1;
+        if (v < 20) {
+            return 2;
+        }
+        if (v >= 20 && v < 25) {
+            return 1;
+        }
+        if (v >= 25 && v < 30) {
+            return 0;
+        }
+        if (v >= 30) {
+            return -1;
+        }
         return 0;
     },
     creatinine: (v: number) => {
-        if (v <= 0.9) return 0;
-        if (v > 0.9 && v <= 1.3) return 1;
-        if (v > 1.3 && v <= 2.2) return 3;
-        if (v > 2.2) return 5;
+        if (v <= 0.9) {
+            return 0;
+        }
+        if (v > 0.9 && v <= 1.3) {
+            return 1;
+        }
+        if (v > 1.3 && v <= 2.2) {
+            return 3;
+        }
+        if (v > 2.2) {
+            return 5;
+        }
         return 0;
     }
 };
@@ -42,9 +61,10 @@ const config: MixedInputCalculatorConfig = {
     id: 'maggic',
     title: 'MAGGIC Risk Calculator for Heart Failure',
     description: 'Estimates 1- and 3- year mortality in heart failure.',
-    
-    infoAlert: '<strong>Instructions:</strong> Use in adult patients (≥18 years). Use with caution in patients with reduced ejection fraction (not yet externally validated in this population).',
-    
+
+    infoAlert:
+        '<strong>Instructions:</strong> Use in adult patients (≥18 years). Use with caution in patients with reduced ejection fraction (not yet externally validated in this population).',
+
     sections: [
         {
             title: 'Patient Characteristics',
@@ -121,7 +141,10 @@ const config: MixedInputCalculatorConfig = {
                         { value: '0', label: 'Class I (No limitation)' },
                         { value: '2', label: 'Class II (Slight limitation) (+2)' },
                         { value: '6', label: 'Class III (Marked limitation) (+6)' },
-                        { value: '8', label: 'Class IV (Unable to carry on any physical activity) (+8)' }
+                        {
+                            value: '8',
+                            label: 'Class IV (Unable to carry on any physical activity) (+8)'
+                        }
                     ]
                 }
             ]
@@ -184,44 +207,60 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    
+
     resultTitle: 'MAGGIC Risk Score',
-    
-    calculate: (values) => {
+
+    calculate: values => {
         const age = values['maggic-age'] as number | null;
         const ef = values['maggic-ef'] as number | null;
         const sbp = values['maggic-sbp'] as number | null;
         const bmi = values['maggic-bmi'] as number | null;
         const creatinine = values['maggic-creatinine'] as number | null;
         const nyha = values['maggic-nyha'] as string | null;
-        
+
         // 需要所有輸入
-        if (age === null || ef === null || sbp === null || bmi === null || creatinine === null || nyha === null) {
+        if (
+            age === null ||
+            ef === null ||
+            sbp === null ||
+            bmi === null ||
+            creatinine === null ||
+            nyha === null
+        ) {
             return null;
         }
-        
+
         let score = 0;
         score += getPoints.age(age);
         score += getPoints.ef(ef);
         score += getPoints.sbp(sbp);
         score += getPoints.bmi(bmi);
         score += getPoints.creatinine(creatinine);
-        
+
         // Radio values
-        const radios = ['maggic-gender', 'maggic-smoker', 'maggic-nyha', 'maggic-diabetes', 'maggic-copd', 'maggic-hfdx', 'maggic-bb', 'maggic-acei'];
+        const radios = [
+            'maggic-gender',
+            'maggic-smoker',
+            'maggic-nyha',
+            'maggic-diabetes',
+            'maggic-copd',
+            'maggic-hfdx',
+            'maggic-bb',
+            'maggic-acei'
+        ];
         radios.forEach(name => {
             const val = values[name];
             if (val !== null && val !== undefined) {
                 score += parseInt(val as string);
             }
         });
-        
+
         return score;
     },
-    
+
     customResultRenderer: (score, values) => {
         const mortality = getMortality(score);
-        
+
         return `
             ${uiBuilder.createResultItem({
                 label: 'Total MAGGIC Score',
@@ -240,62 +279,91 @@ const config: MixedInputCalculatorConfig = {
             })}
         `;
     },
-    
+
     customInitialize: async (client, patient, container, calculate, setValue) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadio = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        
+
         // Age and gender from patient using FHIRDataService
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
             setValue('maggic-age', age.toString());
         }
-        
+
         const gender = fhirDataService.getPatientGender();
         if (gender) {
             setRadio('maggic-gender', gender === 'male' ? '1' : '0');
         }
-        
+
         if (client) {
             // Fetch observations in parallel using FHIRDataService
             const [bmiResult, sbpResult, creatResult] = await Promise.all([
-                fhirDataService.getObservation(LOINC_CODES.BMI, { trackStaleness: true, stalenessLabel: 'BMI' }).catch(() => ({ value: null })),
-                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).catch(() => ({ value: null })),
-                fhirDataService.getObservation(LOINC_CODES.CREATININE, { trackStaleness: true, stalenessLabel: 'Creatinine', targetUnit: 'mg/dL', unitType: 'creatinine' }).catch(() => ({ value: null }))
+                fhirDataService
+                    .getObservation(LOINC_CODES.BMI, {
+                        trackStaleness: true,
+                        stalenessLabel: 'BMI'
+                    })
+                    .catch(() => ({ value: null })),
+                fhirDataService
+                    .getObservation(LOINC_CODES.SYSTOLIC_BP, {
+                        trackStaleness: true,
+                        stalenessLabel: 'Systolic BP'
+                    })
+                    .catch(() => ({ value: null })),
+                fhirDataService
+                    .getObservation(LOINC_CODES.CREATININE, {
+                        trackStaleness: true,
+                        stalenessLabel: 'Creatinine',
+                        targetUnit: 'mg/dL',
+                        unitType: 'creatinine'
+                    })
+                    .catch(() => ({ value: null }))
             ]);
-            
+
             if (bmiResult.value !== null) {
                 setValue('maggic-bmi', bmiResult.value.toFixed(1));
             }
-            
+
             if (sbpResult.value !== null) {
                 setValue('maggic-sbp', sbpResult.value.toFixed(0));
             }
-            
+
             if (creatResult.value !== null) {
                 setValue('maggic-creatinine', creatResult.value.toFixed(2));
             }
-            
+
             // Fetch conditions using FHIRDataService
             try {
-                const hasDiabetes = await fhirDataService.hasCondition([SNOMED_CODES.DIABETES_MELLITUS, '414990002']);
-                if (hasDiabetes) setRadio('maggic-diabetes', '3');
-                
-                const hasCopd = await fhirDataService.hasCondition([SNOMED_CODES.COPD, '195967001']);
-                if (hasCopd) setRadio('maggic-copd', '2');
+                const hasDiabetes = await fhirDataService.hasCondition([
+                    SNOMED_CODES.DIABETES_MELLITUS,
+                    '414990002'
+                ]);
+                if (hasDiabetes) {
+                    setRadio('maggic-diabetes', '3');
+                }
+
+                const hasCopd = await fhirDataService.hasCondition([
+                    SNOMED_CODES.COPD,
+                    '195967001'
+                ]);
+                if (hasCopd) {
+                    setRadio('maggic-copd', '2');
+                }
             } catch (e) {
                 console.warn('Error fetching conditions for MAGGIC', e);
             }
         }
-        
+
         calculate();
     }
 };

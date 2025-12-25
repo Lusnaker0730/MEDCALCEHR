@@ -1,8 +1,8 @@
 /**
  * Charlson Comorbidity Index (CCI) Calculator
- * 
+ *
  * 已整合 FHIRDataService 進行自動填充
- * 
+ *
  * 這是一個複雜的計算器，包含：
  * - 年齡分層評分
  * - 多個 Yes/No 條件
@@ -35,9 +35,14 @@ export const charlson: CalculatorModule = {
     id: 'charlson',
     title: 'Charlson Comorbidity Index (CCI)',
     description: 'Predicts 10-year survival in patients with multiple comorbidities.',
-    
+
     generateHTML: function () {
-        const createConditionToggle = (id: string, title: string, subtitle: string, points: number): string => {
+        const createConditionToggle = (
+            id: string,
+            title: string,
+            subtitle: string,
+            points: number
+        ): string => {
             return uiBuilder.createRadioGroup({
                 name: id,
                 label: title,
@@ -65,19 +70,35 @@ export const charlson: CalculatorModule = {
         });
 
         const conditionsContent = [
-            createConditionToggle('mi', 'Myocardial infarction', 'History of definite or probable MI', 1),
+            createConditionToggle(
+                'mi',
+                'Myocardial infarction',
+                'History of definite or probable MI',
+                1
+            ),
             createConditionToggle('chf', 'CHF', 'Exertional or paroxysmal nocturnal dyspnea', 1),
-            createConditionToggle('pvd', 'Peripheral vascular disease', 'Intermittent claudication, past bypass, gangrene, or aneurysm', 1),
+            createConditionToggle(
+                'pvd',
+                'Peripheral vascular disease',
+                'Intermittent claudication, past bypass, gangrene, or aneurysm',
+                1
+            ),
             createConditionToggle('cva', 'CVA or TIA', 'History of a cerebrovascular accident', 1),
             createConditionToggle('dementia', 'Dementia', 'Chronic cognitive deficit', 1),
             createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
             createConditionToggle('ctd', 'Connective tissue disease', '', 1),
-            createConditionToggle('pud', 'Peptic ulcer disease', 'Any history of treatment for ulcer disease', 1),
+            createConditionToggle(
+                'pud',
+                'Peptic ulcer disease',
+                'Any history of treatment for ulcer disease',
+                1
+            ),
 
             uiBuilder.createRadioGroup({
                 name: 'liver',
                 label: 'Liver disease',
-                helpText: 'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
+                helpText:
+                    'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
                 options: [
                     { value: '0', label: 'None (+0)', checked: true },
                     { value: '1', label: 'Mild (+1)' },
@@ -97,7 +118,12 @@ export const charlson: CalculatorModule = {
             }),
 
             createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
-            createConditionToggle('ckd', 'Moderate to severe CKD', 'Severe on dialysis, uremia, or creatinine >3 mg/dL', 2),
+            createConditionToggle(
+                'ckd',
+                'Moderate to severe CKD',
+                'Severe on dialysis, uremia, or creatinine >3 mg/dL',
+                2
+            ),
 
             uiBuilder.createRadioGroup({
                 name: 'tumor',
@@ -155,7 +181,7 @@ export const charlson: CalculatorModule = {
             </div>
         `;
     },
-    
+
     initialize: function (client: unknown, patient: unknown, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
@@ -165,15 +191,21 @@ export const charlson: CalculatorModule = {
 
         const calculate = (): void => {
             const errorContainer = container.querySelector('#cci-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             try {
                 let score = 0;
-                container.querySelectorAll<HTMLInputElement>('input[type="radio"]:checked').forEach(radio => {
-                    score += parseInt(radio.value, 10);
-                });
+                container
+                    .querySelectorAll<HTMLInputElement>('input[type="radio"]:checked')
+                    .forEach(radio => {
+                        score += parseInt(radio.value, 10);
+                    });
 
-                if (isNaN(score)) throw new Error("Calculation Error");
+                if (isNaN(score)) {
+                    throw new Error('Calculation Error');
+                }
 
                 // Adjusted formula from literature
                 const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9));
@@ -181,12 +213,17 @@ export const charlson: CalculatorModule = {
                 const scoreEl = container.querySelector('#cci-score');
                 const survivalEl = container.querySelector('#cci-survival');
 
-                if (scoreEl) scoreEl.textContent = score.toString();
-                if (survivalEl) survivalEl.textContent = `${survival.toFixed(0)}%`;
+                if (scoreEl) {
+                    scoreEl.textContent = score.toString();
+                }
+                if (survivalEl) {
+                    survivalEl.textContent = `${survival.toFixed(0)}%`;
+                }
             } catch (error) {
                 console.error('Error calculating CCI:', error);
                 if (errorContainer) {
-                    errorContainer.innerHTML = '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
+                    errorContainer.innerHTML =
+                        '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
                 }
             }
         };
@@ -212,7 +249,9 @@ export const charlson: CalculatorModule = {
             } else if (age >= 50) {
                 ageValue = 1;
             }
-            const ageRadio = container.querySelector(`input[name="age"][value="${ageValue}"]`) as HTMLInputElement | null;
+            const ageRadio = container.querySelector(
+                `input[name="age"][value="${ageValue}"]`
+            ) as HTMLInputElement | null;
             if (ageRadio) {
                 ageRadio.checked = true;
                 ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -237,62 +276,95 @@ export const charlson: CalculatorModule = {
             };
 
             for (const [key, { codes, value }] of Object.entries(conditionMap)) {
-                fhirDataService.hasCondition(codes).then(hasCondition => {
-                    if (hasCondition) {
-                        const radio = container.querySelector(`input[name="${key}"][value="${value}"]`) as HTMLInputElement | null;
-                        if (radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                fhirDataService
+                    .hasCondition(codes)
+                    .then(hasCondition => {
+                        if (hasCondition) {
+                            const radio = container.querySelector(
+                                `input[name="${key}"][value="${value}"]`
+                            ) as HTMLInputElement | null;
+                            if (radio) {
+                                radio.checked = true;
+                                radio.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
                         }
-                    }
-                }).catch(e => console.warn(`Error fetching ${key} conditions:`, e));
+                    })
+                    .catch(e => console.warn(`Error fetching ${key} conditions:`, e));
             }
 
             // Special handling for multi-level conditions
             // Liver disease (moderate/severe first, then mild)
-            fhirDataService.hasCondition(['K70.3', 'K74', 'I85']).then(hasSevere => {
-                if (hasSevere) {
-                    const radio = container.querySelector('input[name="liver"][value="3"]') as HTMLInputElement | null;
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                } else {
-                    fhirDataService.hasCondition(['K73', 'B18']).then(hasMild => {
-                        if (hasMild) {
-                            const radio = container.querySelector('input[name="liver"][value="1"]') as HTMLInputElement | null;
-                            if (radio) {
-                                radio.checked = true;
-                                radio.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
+            fhirDataService
+                .hasCondition(['K70.3', 'K74', 'I85'])
+                .then(hasSevere => {
+                    if (hasSevere) {
+                        const radio = container.querySelector(
+                            'input[name="liver"][value="3"]'
+                        ) as HTMLInputElement | null;
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
                         }
-                    }).catch(e => console.warn('Error fetching mild liver conditions:', e));
-                }
-            }).catch(e => console.warn('Error fetching severe liver conditions:', e));
+                    } else {
+                        fhirDataService
+                            .hasCondition(['K73', 'B18'])
+                            .then(hasMild => {
+                                if (hasMild) {
+                                    const radio = container.querySelector(
+                                        'input[name="liver"][value="1"]'
+                                    ) as HTMLInputElement | null;
+                                    if (radio) {
+                                        radio.checked = true;
+                                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                                    }
+                                }
+                            })
+                            .catch(e => console.warn('Error fetching mild liver conditions:', e));
+                    }
+                })
+                .catch(e => console.warn('Error fetching severe liver conditions:', e));
 
             // Diabetes (with end-organ damage first, then uncomplicated)
-            fhirDataService.hasCondition([
-                'E10.2', 'E10.3', 'E10.4', 'E10.5',
-                'E11.2', 'E11.3', 'E11.4', 'E11.5'
-            ]).then(hasEOD => {
-                if (hasEOD) {
-                    const radio = container.querySelector('input[name="diabetes"][value="2"]') as HTMLInputElement | null;
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                } else {
-                    fhirDataService.hasCondition(['E10', 'E11']).then(hasUncomplicated => {
-                        if (hasUncomplicated) {
-                            const radio = container.querySelector('input[name="diabetes"][value="1"]') as HTMLInputElement | null;
-                            if (radio) {
-                                radio.checked = true;
-                                radio.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
+            fhirDataService
+                .hasCondition([
+                    'E10.2',
+                    'E10.3',
+                    'E10.4',
+                    'E10.5',
+                    'E11.2',
+                    'E11.3',
+                    'E11.4',
+                    'E11.5'
+                ])
+                .then(hasEOD => {
+                    if (hasEOD) {
+                        const radio = container.querySelector(
+                            'input[name="diabetes"][value="2"]'
+                        ) as HTMLInputElement | null;
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
                         }
-                    }).catch(e => console.warn('Error fetching uncomplicated diabetes conditions:', e));
-                }
-            }).catch(e => console.warn('Error fetching diabetes w/ EOD conditions:', e));
+                    } else {
+                        fhirDataService
+                            .hasCondition(['E10', 'E11'])
+                            .then(hasUncomplicated => {
+                                if (hasUncomplicated) {
+                                    const radio = container.querySelector(
+                                        'input[name="diabetes"][value="1"]'
+                                    ) as HTMLInputElement | null;
+                                    if (radio) {
+                                        radio.checked = true;
+                                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                                    }
+                                }
+                            })
+                            .catch(e =>
+                                console.warn('Error fetching uncomplicated diabetes conditions:', e)
+                            );
+                    }
+                })
+                .catch(e => console.warn('Error fetching diabetes w/ EOD conditions:', e));
 
             // Solid tumor (check for metastatic vs localized)
             interface FhirCondition {
@@ -303,50 +375,71 @@ export const charlson: CalculatorModule = {
                     }>;
                 };
             }
-            
-            fhirDataService.getConditions(['C00-C75', 'C76-C80']).then(conditions => {
-                if (conditions.length > 0) {
-                    const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
-                    const isMetastatic = conditions.some((c: FhirCondition) =>
-                        c.code?.coding?.[0]?.code &&
-                        metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
-                    );
-                    const value = isMetastatic ? 6 : 2;
-                    const radio = container.querySelector(`input[name="tumor"][value="${value}"]`) as HTMLInputElement | null;
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+
+            fhirDataService
+                .getConditions(['C00-C75', 'C76-C80'])
+                .then(conditions => {
+                    if (conditions.length > 0) {
+                        const metastaticCodes = ['C77', 'C78', 'C79', 'C80'];
+                        const isMetastatic = conditions.some(
+                            (c: FhirCondition) =>
+                                c.code?.coding?.[0]?.code &&
+                                metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
+                        );
+                        const value = isMetastatic ? 6 : 2;
+                        const radio = container.querySelector(
+                            `input[name="tumor"][value="${value}"]`
+                        ) as HTMLInputElement | null;
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     }
-                }
-            }).catch(e => console.warn('Error fetching tumor conditions:', e));
+                })
+                .catch(e => console.warn('Error fetching tumor conditions:', e));
 
             // CKD via conditions
-            fhirDataService.hasCondition(['N18.3', 'N18.4', 'N18.5', 'Z99.2']).then(hasCKD => {
-                if (hasCKD) {
-                    const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement | null;
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+            fhirDataService
+                .hasCondition(['N18.3', 'N18.4', 'N18.5', 'Z99.2'])
+                .then(hasCKD => {
+                    if (hasCKD) {
+                        const radio = container.querySelector(
+                            'input[name="ckd"][value="2"]'
+                        ) as HTMLInputElement | null;
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     }
-                }
-            }).catch(e => console.warn('Error fetching CKD conditions:', e));
+                })
+                .catch(e => console.warn('Error fetching CKD conditions:', e));
 
             // CKD via Creatinine > 3 mg/dL
-            fhirDataService.getObservation(LOINC_CODES.CREATININE, {
-                trackStaleness: true,
-                stalenessLabel: 'Creatinine'
-            }).then(result => {
-                if (result.value !== null && result.value > 3) {
-                    const radio = container.querySelector('input[name="ckd"][value="2"]') as HTMLInputElement | null;
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+            fhirDataService
+                .getObservation(LOINC_CODES.CREATININE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Creatinine'
+                })
+                .then(result => {
+                    if (result.value !== null && result.value > 3) {
+                        const radio = container.querySelector(
+                            'input[name="ckd"][value="2"]'
+                        ) as HTMLInputElement | null;
+                        if (radio) {
+                            radio.checked = true;
+                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                        if (stalenessTracker && result.observation) {
+                            stalenessTracker.trackObservation(
+                                'input[name="ckd"][value="2"]',
+                                result.observation,
+                                LOINC_CODES.CREATININE,
+                                'Creatinine > 3 mg/dL'
+                            );
+                        }
                     }
-                    if (stalenessTracker && result.observation) {
-                        stalenessTracker.trackObservation('input[name="ckd"][value="2"]', result.observation, LOINC_CODES.CREATININE, 'Creatinine > 3 mg/dL');
-                    }
-                }
-            }).catch(e => console.warn('Error fetching creatinine:', e));
+                })
+                .catch(e => console.warn('Error fetching creatinine:', e));
         }
 
         // Calculate initially

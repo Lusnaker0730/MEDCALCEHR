@@ -1,17 +1,17 @@
 /**
  * 混合輸入評分計算器工廠函數
- * 
+ *
  * 適用於同時包含數字輸入和 Radio/Select 的計算器，如：
  * - 4PEPS (年齡 + 多個 radio)
  * - GRACE ACS (多個數字輸入 + radio)
  * - GWTG-HF (數字輸入 + radio)
- * 
+ *
  * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
  */
 
 import { uiBuilder } from '../../ui-builder.js';
-import { 
-    fhirDataService, 
+import {
+    fhirDataService,
     FieldDataRequirement,
     FHIRClient,
     Patient
@@ -111,7 +111,7 @@ export interface FHIRDataRequirements {
     /** 是否自動填充患者年齡 */
     autoPopulateAge?: { inputId: string };
     /** 是否自動填充患者性別 */
-    autoPopulateGender?: { 
+    autoPopulateGender?: {
         radioName: string;
         maleValue: string;
         femaleValue: string;
@@ -133,27 +133,30 @@ export interface MixedInputCalculatorConfig {
     references?: string[];
     /** 結果標題 */
     resultTitle?: string;
-    
+
     /**
      * FHIR 數據需求（聲明式配置）
      * 使用此配置可自動從 FHIR 服務獲取數據並填充輸入
      */
     dataRequirements?: FHIRDataRequirements;
-    
+
     /**
      * 計算函數
      * @param values 所有輸入值（數字輸入為 number | null，radio/select 為 string）
      * @returns 計算結果分數，返回 null 表示輸入不完整
      */
     calculate: (values: Record<string, number | string | null>) => number | null;
-    
+
     /**
      * 自定義結果渲染函數
      * @param score 計算得出的分數
      * @param values 所有輸入值
      */
-    customResultRenderer?: (score: number, values: Record<string, number | string | null>) => string;
-    
+    customResultRenderer?: (
+        score: number,
+        values: Record<string, number | string | null>
+    ) => string;
+
     /**
      * 自定義初始化函數（用於 FHIR 自動填充等）
      * @param client FHIR 客戶端
@@ -202,7 +205,7 @@ function generateInputHTML(input: InputItemConfig): string {
                 helpText: input.helpText,
                 unitToggle: input.unitToggle
             });
-        
+
         case 'radio':
             return uiBuilder.createRadioGroup({
                 name: input.name,
@@ -210,7 +213,7 @@ function generateInputHTML(input: InputItemConfig): string {
                 helpText: input.helpText,
                 options: input.options
             });
-        
+
         case 'select':
             return uiBuilder.createSelect({
                 id: input.id,
@@ -218,7 +221,7 @@ function generateInputHTML(input: InputItemConfig): string {
                 helpText: input.helpText,
                 options: input.options
             });
-        
+
         default:
             return '';
     }
@@ -237,9 +240,11 @@ function getInputKey(input: InputItemConfig): string {
 /**
  * 從配置中自動生成 FHIR 數據需求
  */
-function generateDataRequirementsFromConfig(config: MixedInputCalculatorConfig): FieldDataRequirement[] {
+function generateDataRequirementsFromConfig(
+    config: MixedInputCalculatorConfig
+): FieldDataRequirement[] {
     const requirements: FieldDataRequirement[] = [];
-    
+
     config.sections.forEach(section => {
         section.inputs.forEach(input => {
             if (input.type === 'number' && input.loincCode) {
@@ -248,13 +253,15 @@ function generateDataRequirementsFromConfig(config: MixedInputCalculatorConfig):
                     inputId: `#${input.id}`,
                     label: input.label,
                     targetUnit: input.unitToggle?.default || input.unit,
-                    decimals: input.step && input.step < 1 ? 
-                        Math.abs(Math.floor(Math.log10(input.step))) : 0
+                    decimals:
+                        input.step && input.step < 1
+                            ? Math.abs(Math.floor(Math.log10(input.step)))
+                            : 0
                 });
             }
         });
     });
-    
+
     return requirements;
 }
 
@@ -273,23 +280,28 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
 
         generateHTML(): string {
             // 生成區塊 HTML
-            const sectionsHTML = config.sections.map(section => {
-                const inputsHTML = section.inputs.map(input => generateInputHTML(input)).join('');
-                
-                return uiBuilder.createSection({
-                    title: section.title,
-                    icon: section.icon,
-                    content: inputsHTML
-                });
-            }).join('');
+            const sectionsHTML = config.sections
+                .map(section => {
+                    const inputsHTML = section.inputs
+                        .map(input => generateInputHTML(input))
+                        .join('');
+
+                    return uiBuilder.createSection({
+                        title: section.title,
+                        icon: section.icon,
+                        content: inputsHTML
+                    });
+                })
+                .join('');
 
             // 生成參考文獻
-            const referencesHTML = config.references && config.references.length > 0
-                ? `<div class="info-section mt-20 text-sm text-muted">
+            const referencesHTML =
+                config.references && config.references.length > 0
+                    ? `<div class="info-section mt-20 text-sm text-muted">
                     <h4>📚 Reference</h4>
                     ${config.references.map(ref => `<p>${ref}</p>`).join('')}
                    </div>`
-                : '';
+                    : '';
 
             return `
                 <div class="calculator-header">
@@ -297,17 +309,21 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${config.infoAlert ? uiBuilder.createAlert({
-                    type: 'info',
-                    message: config.infoAlert
-                }) : ''}
+                ${
+                    config.infoAlert
+                        ? uiBuilder.createAlert({
+                              type: 'info',
+                              message: config.infoAlert
+                          })
+                        : ''
+                }
                 
                 ${sectionsHTML}
                 
                 <div id="${config.id}-error-container"></div>
-                ${uiBuilder.createResultBox({ 
-                    id: `${config.id}-result`, 
-                    title: config.resultTitle || `${config.title} Results` 
+                ${uiBuilder.createResultBox({
+                    id: `${config.id}-result`,
+                    title: config.resultTitle || `${config.title} Results`
                 })}
                 
                 ${referencesHTML}
@@ -322,8 +338,8 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
 
             // 初始化 FHIR 數據服務（內部使用）
             fhirDataService.initialize(
-                client as FHIRClient | null, 
-                patient as Patient | null, 
+                client as FHIRClient | null,
+                patient as Patient | null,
                 container
             );
 
@@ -353,10 +369,14 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                             values[key] = null;
                         }
                     } else if (type === 'radio') {
-                        const checked = container.querySelector(`input[name="${key}"]:checked`) as HTMLInputElement | null;
+                        const checked = container.querySelector(
+                            `input[name="${key}"]:checked`
+                        ) as HTMLInputElement | null;
                         values[key] = checked ? checked.value : null;
                     } else if (type === 'select') {
-                        const select = container.querySelector(`#${key}`) as HTMLSelectElement | null;
+                        const select = container.querySelector(
+                            `#${key}`
+                        ) as HTMLSelectElement | null;
                         values[key] = select ? select.value : null;
                     }
                 });
@@ -369,7 +389,10 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
              */
             const setValue = (id: string, value: string): void => {
                 // 嘗試找數字輸入或 select
-                const input = container.querySelector(`#${id}`) as HTMLInputElement | HTMLSelectElement | null;
+                const input = container.querySelector(`#${id}`) as
+                    | HTMLInputElement
+                    | HTMLSelectElement
+                    | null;
                 if (input) {
                     input.value = value;
                     input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -377,7 +400,9 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 }
 
                 // 嘗試找 radio
-                const radio = container.querySelector(`input[name="${id}"][value="${value}"]`) as HTMLInputElement | null;
+                const radio = container.querySelector(
+                    `input[name="${id}"][value="${value}"]`
+                ) as HTMLInputElement | null;
                 if (radio) {
                     radio.checked = true;
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -389,13 +414,17 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
              */
             const calculate = (): void => {
                 // 清除錯誤
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 const values = getAllValues();
                 const score = config.calculate(values);
 
                 if (score === null) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -447,7 +476,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 if (config.dataRequirements && fhirDataService.isReady()) {
                     try {
                         const dataReqs = config.dataRequirements;
-                        
+
                         // 自動填充患者年齡
                         if (dataReqs.autoPopulateAge) {
                             const age = fhirDataService.getPatientAge();
@@ -455,39 +484,39 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                                 setValue(dataReqs.autoPopulateAge.inputId, age.toString());
                             }
                         }
-                        
+
                         // 自動填充患者性別
                         if (dataReqs.autoPopulateGender) {
                             const gender = fhirDataService.getPatientGender();
                             if (gender) {
-                                const value = gender === 'male' 
-                                    ? dataReqs.autoPopulateGender.maleValue 
-                                    : dataReqs.autoPopulateGender.femaleValue;
+                                const value =
+                                    gender === 'male'
+                                        ? dataReqs.autoPopulateGender.maleValue
+                                        : dataReqs.autoPopulateGender.femaleValue;
                                 setValue(dataReqs.autoPopulateGender.radioName, value);
                             }
                         }
-                        
+
                         // 從配置生成數據需求（如果沒有手動指定）
                         let observations = dataReqs.observations || [];
                         if (observations.length === 0) {
                             observations = generateDataRequirementsFromConfig(config);
                         }
-                        
+
                         // 使用 FHIRDataService 自動填充觀察值
                         if (observations.length > 0) {
                             await fhirDataService.autoPopulateFields(observations);
                         }
-                        
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }
                 }
-                
+
                 // 調用自定義初始化（傳遞原始的 client 和 patient）
                 if (config.customInitialize) {
                     await config.customInitialize(client, patient, container, calculate, setValue);
                 }
-                
+
                 calculate();
             };
 

@@ -1,6 +1,6 @@
 /**
  * GAD-7 (General Anxiety Disorder-7)
- * 
+ *
  * 使用 Radio Group 工廠函數重構
  */
 
@@ -31,7 +31,8 @@ export const gad7 = createRadioScoreCalculator({
     title: 'GAD-7 (General Anxiety Disorder-7)',
     description: 'Screens for generalized anxiety disorder and monitors treatment response.',
 
-    infoAlert: '<strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by the following problems?',
+    infoAlert:
+        '<strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by the following problems?',
 
     // 動態生成 7 個問題區塊
     sections: questions.map((q, i) => ({
@@ -41,34 +42,38 @@ export const gad7 = createRadioScoreCalculator({
     })),
 
     riskLevels: [
-        { 
-            minScore: 0, maxScore: 4, 
-            label: 'Minimal anxiety', 
+        {
+            minScore: 0,
+            maxScore: 4,
+            label: 'Minimal anxiety',
             severity: 'success',
             description: 'Monitor, may not require treatment.'
         },
-        { 
-            minScore: 5, maxScore: 9, 
-            label: 'Mild anxiety', 
+        {
+            minScore: 5,
+            maxScore: 9,
+            label: 'Mild anxiety',
             severity: 'info',
             description: 'Watchful waiting, reassessment in 4 weeks.'
         },
-        { 
-            minScore: 10, maxScore: 14, 
-            label: 'Moderate anxiety', 
+        {
+            minScore: 10,
+            maxScore: 14,
+            label: 'Moderate anxiety',
             severity: 'warning',
             description: 'Active treatment with counseling and/or pharmacotherapy.'
         },
-        { 
-            minScore: 15, maxScore: 21, 
-            label: 'Severe anxiety', 
+        {
+            minScore: 15,
+            maxScore: 21,
+            label: 'Severe anxiety',
             severity: 'danger',
             description: 'Active treatment with pharmacotherapy and/or psychotherapy recommended.'
         }
     ],
 
     // 自定義結果渲染器
-    customResultRenderer: (score) => {
+    customResultRenderer: score => {
         let severity = '';
         let alertClass = '';
         let recommendation = '';
@@ -88,7 +93,8 @@ export const gad7 = createRadioScoreCalculator({
         } else {
             severity = 'Severe anxiety';
             alertClass = 'ui-alert-danger';
-            recommendation = 'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
+            recommendation =
+                'Active treatment with pharmacotherapy and/or psychotherapy recommended.';
         }
 
         return `

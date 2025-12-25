@@ -54,39 +54,41 @@ export const benzoConversion: CalculatorModule = {
             </div>
 
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: '<strong>IMPORTANT:</strong> This calculator should be used as a reference for oral benzodiazepine conversions. Equipotent benzodiazepine doses are reported as ranges due to paucity of literature supporting exact conversions.'
-        })}
+                type: 'warning',
+                message:
+                    '<strong>IMPORTANT:</strong> This calculator should be used as a reference for oral benzodiazepine conversions. Equipotent benzodiazepine doses are reported as ranges due to paucity of literature supporting exact conversions.'
+            })}
             
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>INSTRUCTIONS:</strong> Do not use to calculate initial dose for a benzo-naïve patient.'
-        })}
+                type: 'info',
+                message:
+                    '<strong>INSTRUCTIONS:</strong> Do not use to calculate initial dose for a benzo-naïve patient.'
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Conversion Parameters',
-            content: `
+                title: 'Conversion Parameters',
+                content: `
                     ${uiBuilder.createRadioGroup({
-                name: 'benzo-from',
-                label: 'Converting from:',
-                options: drugs.map(d => ({ ...d, checked: d.value === 'alprazolam' }))
-            })}
+                        name: 'benzo-from',
+                        label: 'Converting from:',
+                        options: drugs.map(d => ({ ...d, checked: d.value === 'alprazolam' }))
+                    })}
                     
                     ${uiBuilder.createInput({
-                id: 'benzo-dosage',
-                label: 'Total daily drug dosage',
-                unit: 'mg',
-                type: 'number',
-                defaultValue: '10'
-            })}
+                        id: 'benzo-dosage',
+                        label: 'Total daily drug dosage',
+                        unit: 'mg',
+                        type: 'number',
+                        defaultValue: '10'
+                    })}
                     
                     ${uiBuilder.createRadioGroup({
-                name: 'benzo-to',
-                label: 'Converting to:',
-                options: drugs.map(d => ({ ...d, checked: d.value === 'diazepam' }))
-            })}
+                        name: 'benzo-to',
+                        label: 'Converting to:',
+                        options: drugs.map(d => ({ ...d, checked: d.value === 'diazepam' }))
+                    })}
                 `
-        })}
+            })}
             
             <div id="benzo-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'benzo-result', title: 'Conversion Result' })}
@@ -185,41 +187,60 @@ export const benzoConversion: CalculatorModule = {
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#benzo-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
             const resultBox = container.querySelector('#benzo-result');
-            if (!resultBox) return; // Guard
+            if (!resultBox) {
+                return;
+            } // Guard
 
             try {
-                const fromDrugRadio = container.querySelector('input[name="benzo-from"]:checked') as HTMLInputElement;
-                const toDrugRadio = container.querySelector('input[name="benzo-to"]:checked') as HTMLInputElement;
+                const fromDrugRadio = container.querySelector(
+                    'input[name="benzo-from"]:checked'
+                ) as HTMLInputElement;
+                const toDrugRadio = container.querySelector(
+                    'input[name="benzo-to"]:checked'
+                ) as HTMLInputElement;
                 const dosageInput = container.querySelector('#benzo-dosage') as HTMLInputElement;
 
-                if (!fromDrugRadio || !toDrugRadio || !dosageInput) return;
+                if (!fromDrugRadio || !toDrugRadio || !dosageInput) {
+                    return;
+                }
 
                 const fromDrugKey = fromDrugRadio.value;
                 const toDrugKey = toDrugRadio.value;
                 const dosage = parseFloat(dosageInput.value) || 0;
 
                 const resultContent = resultBox.querySelector('.ui-result-content');
-                const fromDrugName = drugs[fromDrugKey] ? drugs[fromDrugKey].split(' ')[0] : fromDrugKey;
+                const fromDrugName = drugs[fromDrugKey]
+                    ? drugs[fromDrugKey].split(' ')[0]
+                    : fromDrugKey;
                 const toDrugName = drugs[toDrugKey] ? drugs[toDrugKey].split(' ')[0] : toDrugKey;
 
                 // Validate
                 if (dosageInput.value) {
                     // @ts-ignore - ValidationRules type mismatch with custom schema, but it works
-                    const validation = validateCalculatorInput({ dosage }, {
-                        // @ts-ignore
-                        dosage: {
-                            required: true,
-                            min: 0,
-                            max: 1000,
-                            message: "Dosage must be a positive number less than 1000mg."
+                    const validation = validateCalculatorInput(
+                        { dosage },
+                        {
+                            // @ts-ignore
+                            dosage: {
+                                required: true,
+                                min: 0,
+                                max: 1000,
+                                message: 'Dosage must be a positive number less than 1000mg.'
+                            }
                         }
-                    });
+                    );
 
                     if (!validation.isValid) {
-                        if (errorContainer)
-                            displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        if (errorContainer) {
+                            displayError(
+                                errorContainer as HTMLElement,
+                                new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                            );
+                        }
                         resultBox.classList.remove('show');
                         return;
                     }
@@ -269,7 +290,9 @@ export const benzoConversion: CalculatorModule = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error as Error, { calculator: 'benzo-conversion', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
             }
         };
 

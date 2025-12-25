@@ -13,20 +13,100 @@ interface CalculatorModule {
 
 const score2DiabetesData: any = {
     low: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9765, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9859, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9765,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9859,
+            mean_x: 5.215
+        }
     },
     moderate: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9626, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9782, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9626,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9782,
+            mean_x: 5.215
+        }
     },
     high: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9388, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9661, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9388,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9661,
+            mean_x: 5.215
+        }
     },
     very_high: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9038, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9472, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9038,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9472,
+            mean_x: 5.215
+        }
     }
 };
 
@@ -41,59 +121,60 @@ export const score2Diabetes: CalculatorModule = {
                 <p class="description">${this.description}</p>
                     </div>
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>Instructions:</strong> Select risk region and enter patient details. Validated for European populations aged 40-69.'
-        })}
-
-            ${uiBuilder.createSection({
-            title: 'Geographic Risk Region',
-            icon: '🌍',
-            content: uiBuilder.createRadioGroup({
-                name: 'score2d-region',
-                options: [
-                    { value: 'low', label: 'Low Risk (e.g., France, Spain, Italy)' },
-                    { value: 'moderate', label: 'Moderate Risk (e.g., Germany, UK)' },
-                    { value: 'high', label: 'High Risk (e.g., Poland, Hungary)' },
-                    { value: 'very_high', label: 'Very High Risk (e.g., Romania, Turkey)' }
-                ]
-            })
-        })}
-
-            ${uiBuilder.createSection({
-            title: 'Demographics & History',
-            icon: '👤',
-            content: `
-                    ${uiBuilder.createRadioGroup({
-                name: 'score2d-sex',
-                label: 'Gender',
-                options: [
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' }
-                ]
+                type: 'info',
+                message:
+                    '<strong>Instructions:</strong> Select risk region and enter patient details. Validated for European populations aged 40-69.'
             })}
+
+            ${uiBuilder.createSection({
+                title: 'Geographic Risk Region',
+                icon: '🌍',
+                content: uiBuilder.createRadioGroup({
+                    name: 'score2d-region',
+                    options: [
+                        { value: 'low', label: 'Low Risk (e.g., France, Spain, Italy)' },
+                        { value: 'moderate', label: 'Moderate Risk (e.g., Germany, UK)' },
+                        { value: 'high', label: 'High Risk (e.g., Poland, Hungary)' },
+                        { value: 'very_high', label: 'Very High Risk (e.g., Romania, Turkey)' }
+                    ]
+                })
+            })}
+
+            ${uiBuilder.createSection({
+                title: 'Demographics & History',
+                icon: '👤',
+                content: `
+                    ${uiBuilder.createRadioGroup({
+                        name: 'score2d-sex',
+                        label: 'Gender',
+                        options: [
+                            { value: 'male', label: 'Male' },
+                            { value: 'female', label: 'Female' }
+                        ]
+                    })}
                     ${uiBuilder.createInput({ id: 'score2d-age', label: 'Age', unit: 'years', type: 'number', min: 40, max: 69 })}
                     ${uiBuilder.createRadioGroup({
-                name: 'score2d-smoking',
-                label: 'Smoking Status',
-                options: [
-                    { value: '0', label: 'Non-smoker', checked: true },
-                    { value: '1', label: 'Current Smoker' }
-                ]
-            })}
+                        name: 'score2d-smoking',
+                        label: 'Smoking Status',
+                        options: [
+                            { value: '0', label: 'Non-smoker', checked: true },
+                            { value: '1', label: 'Current Smoker' }
+                        ]
+                    })}
                 `
-        })}
+            })}
 
             ${uiBuilder.createSection({
-            title: 'Clinical & Lab Values',
-            icon: '🧪',
-            content: `
+                title: 'Clinical & Lab Values',
+                icon: '🧪',
+                content: `
                     ${uiBuilder.createInput({ id: 'score2d-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'score2d-tchol', label: 'Total Cholesterol', unit: 'mg/dL', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'score2d-hdl', label: 'HDL Cholesterol', unit: 'mg/dL', type: 'number' })}
                     ${uiBuilder.createInput({ id: 'score2d-hba1c', label: 'HbA1c', unit: '%', type: 'number', step: 0.1 })}
                     ${uiBuilder.createInput({ id: 'score2d-egfr', label: 'eGFR', unit: 'mL/min', type: 'number' })}
                 `
-        })}
+            })}
             
             <div id="score2d-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'score2d-result', title: '10-Year CVD Risk' })}
@@ -101,7 +182,7 @@ export const score2Diabetes: CalculatorModule = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -109,17 +190,25 @@ export const score2Diabetes: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#score2d-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
-                const regionInput = container.querySelector('input[name="score2d-region"]:checked') as HTMLInputElement;
+                const regionInput = container.querySelector(
+                    'input[name="score2d-region"]:checked'
+                ) as HTMLInputElement;
                 const region = regionInput?.value;
-                const sexInput = container.querySelector('input[name="score2d-sex"]:checked') as HTMLInputElement;
+                const sexInput = container.querySelector(
+                    'input[name="score2d-sex"]:checked'
+                ) as HTMLInputElement;
                 const sex = sexInput?.value;
 
                 const ageInput = container.querySelector('#score2d-age') as HTMLInputElement;
                 const age = parseFloat(ageInput.value);
 
-                const smokingInput = container.querySelector('input[name="score2d-smoking"]:checked') as HTMLInputElement;
+                const smokingInput = container.querySelector(
+                    'input[name="score2d-smoking"]:checked'
+                ) as HTMLInputElement;
                 const smoking = smokingInput ? parseInt(smokingInput.value) : 0;
 
                 const sbpInput = container.querySelector('#score2d-sbp') as HTMLInputElement;
@@ -139,8 +228,19 @@ export const score2Diabetes: CalculatorModule = {
 
                 const resultBox = container.querySelector('#score2d-result');
 
-                if (!region || !sex || isNaN(age) || isNaN(sbp) || isNaN(tchol) || isNaN(hdl) || isNaN(hba1c) || isNaN(egfr)) {
-                    if (resultBox) resultBox.classList.remove('show');
+                if (
+                    !region ||
+                    !sex ||
+                    isNaN(age) ||
+                    isNaN(sbp) ||
+                    isNaN(tchol) ||
+                    isNaN(hdl) ||
+                    isNaN(hba1c) ||
+                    isNaN(egfr)
+                ) {
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -165,7 +265,8 @@ export const score2Diabetes: CalculatorModule = {
                 const hdl_mmol = hdl / 38.67;
                 const hba1c_mmol = hba1c * 10.93 - 23.5;
 
-                const ind_x = coeffs.age * age +
+                const ind_x =
+                    coeffs.age * age +
                     coeffs.sbp * sbp +
                     coeffs.tchol * tchol_mmol +
                     coeffs.hdl * hdl_mmol +
@@ -216,20 +317,21 @@ export const score2Diabetes: CalculatorModule = {
             }
         };
 
-        container.addEventListener('change', (e) => {
+        container.addEventListener('change', e => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) {
                 calculate();
             }
         });
-        container.addEventListener('input', (e) => {
+        container.addEventListener('input', e => {
             if (e.target instanceof HTMLInputElement) {
                 calculate();
             }
         });
 
-
         const setRadioValue = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -240,9 +342,11 @@ export const score2Diabetes: CalculatorModule = {
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
             const ageInput = container.querySelector('#score2d-age') as HTMLInputElement;
-            if (ageInput) ageInput.value = age.toString();
+            if (ageInput) {
+                ageInput.value = age.toString();
+            }
         }
-        
+
         const gender = fhirDataService.getPatientGender();
         if (gender) {
             setRadioValue('score2d-sex', gender);
@@ -250,49 +354,91 @@ export const score2Diabetes: CalculatorModule = {
 
         if (client) {
             // Systolic BP
-            fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' }).then(result => {
-                if (result.value !== null) {
-                    const sbpInput = container.querySelector('#score2d-sbp') as HTMLInputElement;
-                    if (sbpInput) sbpInput.value = result.value.toFixed(0);
-                }
-                calculate();
-            });
-            
+            fhirDataService
+                .getObservation(LOINC_CODES.SYSTOLIC_BP, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Systolic BP'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        const sbpInput = container.querySelector(
+                            '#score2d-sbp'
+                        ) as HTMLInputElement;
+                        if (sbpInput) {
+                            sbpInput.value = result.value.toFixed(0);
+                        }
+                    }
+                    calculate();
+                });
+
             // Total Cholesterol
-            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, { trackStaleness: true, stalenessLabel: 'Total Cholesterol' }).then(result => {
-                if (result.value !== null) {
-                    const tcholInput = container.querySelector('#score2d-tchol') as HTMLInputElement;
-                    if (tcholInput) tcholInput.value = result.value.toFixed(0);
-                }
-                calculate();
-            });
-            
+            fhirDataService
+                .getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Total Cholesterol'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        const tcholInput = container.querySelector(
+                            '#score2d-tchol'
+                        ) as HTMLInputElement;
+                        if (tcholInput) {
+                            tcholInput.value = result.value.toFixed(0);
+                        }
+                    }
+                    calculate();
+                });
+
             // HDL
-            fhirDataService.getObservation(LOINC_CODES.HDL, { trackStaleness: true, stalenessLabel: 'HDL Cholesterol' }).then(result => {
-                if (result.value !== null) {
-                    const hdlInput = container.querySelector('#score2d-hdl') as HTMLInputElement;
-                    if (hdlInput) hdlInput.value = result.value.toFixed(0);
-                }
-                calculate();
-            });
-            
+            fhirDataService
+                .getObservation(LOINC_CODES.HDL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'HDL Cholesterol'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        const hdlInput = container.querySelector(
+                            '#score2d-hdl'
+                        ) as HTMLInputElement;
+                        if (hdlInput) {
+                            hdlInput.value = result.value.toFixed(0);
+                        }
+                    }
+                    calculate();
+                });
+
             // HbA1c
-            fhirDataService.getObservation(LOINC_CODES.HBA1C, { trackStaleness: true, stalenessLabel: 'HbA1c' }).then(result => {
-                if (result.value !== null) {
-                    const hba1cInput = container.querySelector('#score2d-hba1c') as HTMLInputElement;
-                    if (hba1cInput) hba1cInput.value = result.value.toFixed(1);
-                }
-                calculate();
-            });
-            
+            fhirDataService
+                .getObservation(LOINC_CODES.HBA1C, {
+                    trackStaleness: true,
+                    stalenessLabel: 'HbA1c'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        const hba1cInput = container.querySelector(
+                            '#score2d-hba1c'
+                        ) as HTMLInputElement;
+                        if (hba1cInput) {
+                            hba1cInput.value = result.value.toFixed(1);
+                        }
+                    }
+                    calculate();
+                });
+
             // eGFR
-            fhirDataService.getObservation(LOINC_CODES.EGFR, { trackStaleness: true, stalenessLabel: 'eGFR' }).then(result => {
-                if (result.value !== null) {
-                    const egfrInput = container.querySelector('#score2d-egfr') as HTMLInputElement;
-                    if (egfrInput) egfrInput.value = result.value.toFixed(0);
-                }
-                calculate();
-            });
+            fhirDataService
+                .getObservation(LOINC_CODES.EGFR, { trackStaleness: true, stalenessLabel: 'eGFR' })
+                .then(result => {
+                    if (result.value !== null) {
+                        const egfrInput = container.querySelector(
+                            '#score2d-egfr'
+                        ) as HTMLInputElement;
+                        if (egfrInput) {
+                            egfrInput.value = result.value.toFixed(0);
+                        }
+                    }
+                    calculate();
+                });
         }
     }
 };

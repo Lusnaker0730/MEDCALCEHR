@@ -25,42 +25,43 @@ export const sodiumCorrection: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Lab Values',
-            icon: '🧪',
-            content: `
+                title: 'Lab Values',
+                icon: '🧪',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'measured-sodium',
-                label: 'Measured Sodium',
-                type: 'number',
-                placeholder: 'e.g., 135',
-                unitToggle: {
-                    type: 'sodium',
-                    units: ['mEq/L', 'mmol/L'],
-                    default: 'mEq/L'
-                }
-            })}
+                        id: 'measured-sodium',
+                        label: 'Measured Sodium',
+                        type: 'number',
+                        placeholder: 'e.g., 135',
+                        unitToggle: {
+                            type: 'sodium',
+                            units: ['mEq/L', 'mmol/L'],
+                            default: 'mEq/L'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'glucose',
-                label: 'Serum Glucose',
-                type: 'number',
-                placeholder: 'e.g., 400',
-                unitToggle: {
-                    type: 'glucose',
-                    units: ['mg/dL', 'mmol/L'],
-                    default: 'mg/dL'
-                }
-            })}
+                        id: 'glucose',
+                        label: 'Serum Glucose',
+                        type: 'number',
+                        placeholder: 'e.g., 400',
+                        unitToggle: {
+                            type: 'glucose',
+                            units: ['mg/dL', 'mmol/L'],
+                            default: 'mg/dL'
+                        }
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'correction-factor',
-                label: 'Correction Factor',
-                options: [
-                    { value: '1.6', label: '1.6 (Standard, Hillier)', checked: true },
-                    { value: '2.4', label: '2.4 (Katz, suggested for Glucose > 400 mg/dL)' }
-                ],
-                helpText: 'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
-            })}
+                        name: 'correction-factor',
+                        label: 'Correction Factor',
+                        options: [
+                            { value: '1.6', label: '1.6 (Standard, Hillier)', checked: true },
+                            { value: '2.4', label: '2.4 (Katz, suggested for Glucose > 400 mg/dL)' }
+                        ],
+                        helpText:
+                            'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
+                    })}
                 `
-        })}
+            })}
             
             <div id="sodium-correction-error-container"></div>
             
@@ -70,21 +71,24 @@ export const sodiumCorrection: CalculatorModule = {
             </div>
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Corrected Na', formula: 'Measured Na + [Correction Factor × (Glucose - 100) / 100]' }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'Corrected Na',
+                        formula: 'Measured Na + [Correction Factor × (Glucose - 100) / 100]'
+                    }
+                ]
+            })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>Normal Values:</h4>
                     <ul class="info-list">
                         <li>Normal Sodium: 136-145 mEq/L</li>
                         <li>Normal Glucose: 70-100 mg/dL</li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
@@ -100,11 +104,15 @@ export const sodiumCorrection: CalculatorModule = {
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#sodium-correction-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const measuredSodium = UnitConverter.getStandardValue(sodiumInput, 'mEq/L');
             const glucoseMgDl = UnitConverter.getStandardValue(glucoseInput, 'mg/dL');
-            const correctionFactorEl = container.querySelector('input[name="correction-factor"]:checked') as HTMLInputElement;
+            const correctionFactorEl = container.querySelector(
+                'input[name="correction-factor"]:checked'
+            ) as HTMLInputElement;
             const correctionFactor = parseFloat(correctionFactorEl?.value || '1.6');
 
             try {
@@ -121,12 +129,24 @@ export const sodiumCorrection: CalculatorModule = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (sodiumInput.value || glucoseInput.value);
+                    const hasInput = sodiumInput.value || glucoseInput.value;
 
                     if (hasInput && resultBox) {
-                        const valuesPresent = measuredSodium !== null && glucoseMgDl !== null && !isNaN(measuredSodium) && !isNaN(glucoseMgDl);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent =
+                            measuredSodium !== null &&
+                            glucoseMgDl !== null &&
+                            !isNaN(measuredSodium) &&
+                            !isNaN(glucoseMgDl);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                         resultBox.classList.remove('show');
                     }
@@ -136,9 +156,12 @@ export const sodiumCorrection: CalculatorModule = {
                 if (resultBox) {
                     // Note: measuredSodium and glucoseMgDl are guaranteed not null by isNaN check above if we use '!' but logic is cleaner with 'valuesPresent' guard if strictly followed.
                     // However, we need '!' for TS inside here.
-                    const correctedSodium = measuredSodium! + correctionFactor * ((glucoseMgDl! - 100) / 100);
+                    const correctedSodium =
+                        measuredSodium! + correctionFactor * ((glucoseMgDl! - 100) / 100);
 
-                    if (!isFinite(correctedSodium) || isNaN(correctedSodium)) throw new Error("Calculation Error");
+                    if (!isFinite(correctedSodium) || isNaN(correctedSodium)) {
+                        throw new Error('Calculation Error');
+                    }
 
                     let status = '';
                     let alertType: 'success' | 'warning' | 'danger' | 'info' = 'success';
@@ -183,7 +206,8 @@ export const sodiumCorrection: CalculatorModule = {
                         if (correctionFactor === 1.6 && glucoseMgDl! > 400) {
                             resultContent.innerHTML += uiBuilder.createAlert({
                                 type: 'warning',
-                                message: 'Glucose > 400 mg/dL. Consider using correction factor of 2.4.'
+                                message:
+                                    'Glucose > 400 mg/dL. Consider using correction factor of 2.4.'
                             });
                         }
                     }
@@ -192,8 +216,12 @@ export const sodiumCorrection: CalculatorModule = {
                 }
             } catch (error) {
                 logError(error as Error, { calculator: 'sodium-correction', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultBox) resultBox.classList.remove('show');
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 

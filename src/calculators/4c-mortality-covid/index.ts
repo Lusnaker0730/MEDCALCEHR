@@ -34,7 +34,8 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
             id: '4c-comorbidities',
             title: 'Number of Comorbidities',
             icon: '🏥',
-            subtitle: 'Includes chronic cardiac/respiratory/renal/liver/neurological disease, dementia, malignancy, obesity, etc.',
+            subtitle:
+                'Includes chronic cardiac/respiratory/renal/liver/neurological disease, dementia, malignancy, obesity, etc.',
             options: [
                 { value: '0', label: '0', checked: true },
                 { value: '1', label: '1 (+1)' },
@@ -91,10 +92,34 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 3, label: 'Low Risk', severity: 'success', description: 'Mortality 1.2%' },
-        { minScore: 4, maxScore: 8, label: 'Intermediate Risk', severity: 'warning', description: 'Mortality 9.9%' },
-        { minScore: 9, maxScore: 14, label: 'High Risk', severity: 'danger', description: 'Mortality 31.4%' },
-        { minScore: 15, maxScore: 21, label: 'Very High Risk', severity: 'danger', description: 'Mortality 61.5%' }
+        {
+            minScore: 0,
+            maxScore: 3,
+            label: 'Low Risk',
+            severity: 'success',
+            description: 'Mortality 1.2%'
+        },
+        {
+            minScore: 4,
+            maxScore: 8,
+            label: 'Intermediate Risk',
+            severity: 'warning',
+            description: 'Mortality 9.9%'
+        },
+        {
+            minScore: 9,
+            maxScore: 14,
+            label: 'High Risk',
+            severity: 'danger',
+            description: 'Mortality 31.4%'
+        },
+        {
+            minScore: 15,
+            maxScore: 21,
+            label: 'Very High Risk',
+            severity: 'danger',
+            description: 'Mortality 61.5%'
+        }
     ],
     customResultRenderer: (score: number) => {
         let riskGroup = '';
@@ -121,18 +146,18 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total 4C Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskGroup,
-            alertClass: alertClass
-        })}
+                label: 'Total 4C Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskGroup,
+                alertClass: alertClass
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Estimated In-Hospital Mortality',
-            value: mortality,
-            unit: '',
-            alertClass: alertClass
-        })}
+                label: 'Estimated In-Hospital Mortality',
+                value: mortality,
+                unit: '',
+                alertClass: alertClass
+            })}
         `;
     },
     formulaSection: {
@@ -181,12 +206,19 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
             { score: '≥15', category: 'Very High', interpretation: '61.5%', severity: 'danger' }
         ]
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
         const setRadioValue = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -196,60 +228,113 @@ export const fourCMortalityCovid = createRadioScoreCalculator({
         // Age and gender from FHIRDataService
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
-            if (age < 50) setRadioValue('4c-age', '0');
-            else if (age <= 59) setRadioValue('4c-age', '2');
-            else if (age <= 69) setRadioValue('4c-age', '4');
-            else if (age <= 79) setRadioValue('4c-age', '6');
-            else setRadioValue('4c-age', '7');
+            if (age < 50) {
+                setRadioValue('4c-age', '0');
+            } else if (age <= 59) {
+                setRadioValue('4c-age', '2');
+            } else if (age <= 69) {
+                setRadioValue('4c-age', '4');
+            } else if (age <= 79) {
+                setRadioValue('4c-age', '6');
+            } else {
+                setRadioValue('4c-age', '7');
+            }
         }
 
         const gender = fhirDataService.getPatientGender();
-        if (gender === 'male') setRadioValue('4c-sex', '1');
-        else if (gender === 'female') setRadioValue('4c-sex', '0');
+        if (gender === 'male') {
+            setRadioValue('4c-sex', '1');
+        } else if (gender === 'female') {
+            setRadioValue('4c-sex', '0');
+        }
 
         if (client) {
             // Respiratory Rate
-            fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, { trackStaleness: true, stalenessLabel: 'Respiratory Rate' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value < 20) setRadioValue('4c-resp_rate', '0');
-                    else if (result.value < 30) setRadioValue('4c-resp_rate', '1');
-                    else setRadioValue('4c-resp_rate', '2');
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.RESPIRATORY_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Respiratory Rate'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value < 20) {
+                            setRadioValue('4c-resp_rate', '0');
+                        } else if (result.value < 30) {
+                            setRadioValue('4c-resp_rate', '1');
+                        } else {
+                            setRadioValue('4c-resp_rate', '2');
+                        }
+                    }
+                })
+                .catch(console.warn);
 
             // Oxygen Saturation
-            fhirDataService.getObservation(LOINC_CODES.OXYGEN_SATURATION, { trackStaleness: true, stalenessLabel: 'O2 Saturation' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value >= 92) setRadioValue('4c-oxygen_sat', '0');
-                    else setRadioValue('4c-oxygen_sat', '2');
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.OXYGEN_SATURATION, {
+                    trackStaleness: true,
+                    stalenessLabel: 'O2 Saturation'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value >= 92) {
+                            setRadioValue('4c-oxygen_sat', '0');
+                        } else {
+                            setRadioValue('4c-oxygen_sat', '2');
+                        }
+                    }
+                })
+                .catch(console.warn);
 
             // GCS
-            fhirDataService.getObservation(LOINC_CODES.GCS, { trackStaleness: true, stalenessLabel: 'GCS' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value === 15) setRadioValue('4c-gcs', '0');
-                    else setRadioValue('4c-gcs', '2');
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.GCS, { trackStaleness: true, stalenessLabel: 'GCS' })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value === 15) {
+                            setRadioValue('4c-gcs', '0');
+                        } else {
+                            setRadioValue('4c-gcs', '2');
+                        }
+                    }
+                })
+                .catch(console.warn);
 
             // BUN
-            fhirDataService.getObservation(LOINC_CODES.BUN, { trackStaleness: true, stalenessLabel: 'BUN', targetUnit: 'mg/dL', unitType: 'bun' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value < 19.6) setRadioValue('4c-urea', '0');
-                    else if (result.value <= 39.2) setRadioValue('4c-urea', '1');
-                    else setRadioValue('4c-urea', '3');
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.BUN, {
+                    trackStaleness: true,
+                    stalenessLabel: 'BUN',
+                    targetUnit: 'mg/dL',
+                    unitType: 'bun'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value < 19.6) {
+                            setRadioValue('4c-urea', '0');
+                        } else if (result.value <= 39.2) {
+                            setRadioValue('4c-urea', '1');
+                        } else {
+                            setRadioValue('4c-urea', '3');
+                        }
+                    }
+                })
+                .catch(console.warn);
 
             // CRP
-            fhirDataService.getObservation(LOINC_CODES.CRP, { trackStaleness: true, stalenessLabel: 'CRP' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value < 50) setRadioValue('4c-crp', '0');
-                    else if (result.value < 100) setRadioValue('4c-crp', '1');
-                    else setRadioValue('4c-crp', '2');
-                }
-            }).catch(console.warn);
+            fhirDataService
+                .getObservation(LOINC_CODES.CRP, { trackStaleness: true, stalenessLabel: 'CRP' })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value < 50) {
+                            setRadioValue('4c-crp', '0');
+                        } else if (result.value < 100) {
+                            setRadioValue('4c-crp', '1');
+                        } else {
+                            setRadioValue('4c-crp', '2');
+                        }
+                    }
+                })
+                .catch(console.warn);
         }
 
         calculate();

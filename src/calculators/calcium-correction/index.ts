@@ -40,7 +40,10 @@ export const calciumCorrection: CalculatorModule = {
 
         const formulaSection = uiBuilder.createFormulaSection({
             items: [
-                { label: 'Corrected Calcium (mg/dL)', formula: 'Total Calcium + 0.8 × (4.0 - Albumin)' },
+                {
+                    label: 'Corrected Calcium (mg/dL)',
+                    formula: 'Total Calcium + 0.8 × (4.0 - Albumin)'
+                },
                 { label: 'Note', formula: 'Normal albumin reference: 4.0 g/dL' }
             ]
         });
@@ -86,15 +89,21 @@ export const calciumCorrection: CalculatorModule = {
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#ca-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const calciumInput = container.querySelector('#ca-total') as HTMLInputElement;
             const albuminInput = container.querySelector('#ca-albumin') as HTMLInputElement;
             const resultBox = container.querySelector('#ca-result');
-            if (!resultBox) return;
+            if (!resultBox) {
+                return;
+            }
             const resultContent = resultBox.querySelector('.ui-result-content');
 
-            if (!calciumInput || !albuminInput) return;
+            if (!calciumInput || !albuminInput) {
+                return;
+            }
 
             const totalCalciumMgDl = UnitConverter.getStandardValue(calciumInput, 'mg/dL');
             const albuminGdl = UnitConverter.getStandardValue(albuminInput, 'g/dL');
@@ -113,9 +122,23 @@ export const calciumCorrection: CalculatorModule = {
                 if (!validation.isValid) {
                     const hasInput = calciumInput.value || albuminInput.value;
                     if (hasInput) {
-                        const valuesPresent = totalCalciumMgDl !== null && !isNaN(totalCalciumMgDl) && albuminGdl !== null && !isNaN(albuminGdl);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], { code: 'VALIDATION_ERROR' }));
+                        const valuesPresent =
+                            totalCalciumMgDl !== null &&
+                            !isNaN(totalCalciumMgDl) &&
+                            albuminGdl !== null &&
+                            !isNaN(albuminGdl);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], {
+                                        code: 'VALIDATION_ERROR'
+                                    })
+                                );
+                            }
                         }
                     }
                     resultBox.classList.remove('show');
@@ -144,12 +167,12 @@ export const calciumCorrection: CalculatorModule = {
                 if (resultContent) {
                     resultContent.innerHTML = `
                         ${uiBuilder.createResultItem({
-                        label: 'Corrected Calcium',
-                        value: correctedCalcium.toFixed(2),
-                        unit: 'mg/dL',
-                        interpretation: interpretation,
-                        alertClass: alertClass
-                    })}
+                            label: 'Corrected Calcium',
+                            value: correctedCalcium.toFixed(2),
+                            unit: 'mg/dL',
+                            interpretation: interpretation,
+                            alertClass: alertClass
+                        })}
                         <div class="text-center mt-5 text-muted">
                             (${correctedCalciumMmol.toFixed(2)} mmol/L)
                         </div>
@@ -159,7 +182,9 @@ export const calciumCorrection: CalculatorModule = {
                 resultBox.classList.add('show');
             } catch (error) {
                 logError(error as Error, { calculator: 'calcium-correction', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
                 resultBox.classList.remove('show');
             }
         };

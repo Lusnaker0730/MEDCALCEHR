@@ -1,14 +1,14 @@
 /**
  * 評分計算器工廠函數（Checkbox 類型）
- * 
+ *
  * 這個模組提供了一個簡化的方式來創建評分類計算器
  * 它可以大幅減少重複代碼，同時保持與現有系統的兼容性
- * 
+ *
  * 支援 FHIRDataService 整合，可使用聲明式 dataRequirements 配置
- * 
+ *
  * @example
  * import { createScoreCalculator } from '../shared/score-calculator.js';
- * 
+ *
  * export const myCalculator = createScoreCalculator({
  *     id: 'my-score',
  *     title: 'My Score',
@@ -25,11 +25,14 @@ import {
     FHIRClient,
     Patient
 } from '../../fhir-data-service.js';
-import { FormulaSectionConfig, InterpretationItem, ScoringCriteriaItem } from './radio-score-calculator.js';
+import {
+    FormulaSectionConfig,
+    InterpretationItem,
+    ScoringCriteriaItem
+} from './radio-score-calculator.js';
 
 // Re-export for convenience
 export { FormulaSectionConfig, InterpretationItem, ScoringCriteriaItem };
-
 
 // ==========================================
 // 類型定義
@@ -129,7 +132,7 @@ export interface ScoreCalculatorConfig {
     /** 自定義結果渲染函數 */
     customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
 
-    /** 
+    /**
      * 自定義初始化函數
      * @param client FHIR 客戶端
      * @param patient 患者資料
@@ -159,7 +162,7 @@ export interface CalculatorModule {
 
 /**
  * 創建評分計算器
- * 
+ *
  * @param config - 計算器配置
  * @returns 計算器模組
  */
@@ -171,22 +174,26 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
 
         generateHTML(): string {
             // 生成所有 checkbox 區塊
-            const sectionsHTML = config.sections.map(section => {
-                const checkboxesHTML = section.options.map(opt =>
-                    uiBuilder.createCheckbox({
-                        id: opt.id,
-                        label: opt.label,
-                        value: String(opt.value),
-                        description: opt.description
-                    })
-                ).join('');
+            const sectionsHTML = config.sections
+                .map(section => {
+                    const checkboxesHTML = section.options
+                        .map(opt =>
+                            uiBuilder.createCheckbox({
+                                id: opt.id,
+                                label: opt.label,
+                                value: String(opt.value),
+                                description: opt.description
+                            })
+                        )
+                        .join('');
 
-                return uiBuilder.createSection({
-                    title: section.title,
-                    icon: section.icon,
-                    content: checkboxesHTML
-                });
-            }).join('');
+                    return uiBuilder.createSection({
+                        title: section.title,
+                        icon: section.icon,
+                        content: checkboxesHTML
+                    });
+                })
+                .join('');
 
             // 生成提示框（如果有）
             const infoAlertHTML = config.infoAlert
@@ -206,24 +213,26 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 let scoringContentHTML = '';
                 if (fs.scoringCriteria?.length) {
                     // 使用表格形式顯示評分標準
-                    const scoringRows = fs.scoringCriteria.map(item => {
-                        if (item.isHeader) {
-                            // 分類標題行
-                            return `
+                    const scoringRows = fs.scoringCriteria
+                        .map(item => {
+                            if (item.isHeader) {
+                                // 分類標題行
+                                return `
                                 <tr class="ui-scoring-table__category">
                                     <td colspan="2">${item.criteria}</td>
                                 </tr>
                             `;
-                        } else {
-                            // 普通項目行
-                            return `
+                            } else {
+                                // 普通項目行
+                                return `
                                 <tr class="ui-scoring-table__item">
                                     <td class="ui-scoring-table__criteria">${item.criteria}</td>
                                     <td class="ui-scoring-table__points">${item.points || ''}</td>
                                 </tr>
                             `;
-                        }
-                    }).join('');
+                            }
+                        })
+                        .join('');
 
                     scoringContentHTML = `
                         <div class="ui-table-wrapper">
@@ -263,30 +272,37 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                         : ['Score', 'Interpretation'];
                     const headers = fs.tableHeaders || defaultHeaders;
 
-                    const interpRows = fs.interpretations.map(item => {
-                        const severityClass = item.severity ? `ui-interpretation-table__row--${item.severity}` : '';
+                    const interpRows = fs.interpretations
+                        .map(item => {
+                            const severityClass = item.severity
+                                ? `ui-interpretation-table__row--${item.severity}`
+                                : '';
 
-                        if (hasCategory) {
-                            return `
+                            if (hasCategory) {
+                                return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
                                     <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
-                        } else {
-                            return `
+                            } else {
+                                return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
-                        }
-                    }).join('');
+                            }
+                        })
+                        .join('');
 
-                    const headerCells = headers.map((h, i) =>
-                        `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
-                    ).join('');
+                    const headerCells = headers
+                        .map(
+                            (h, i) =>
+                                `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                        )
+                        .join('');
 
                     interpretationTableHTML = `
                         <div class="ui-section" style="margin-top: 20px;">
@@ -336,9 +352,9 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 ${sectionsHTML}
                 
                 ${uiBuilder.createResultBox({
-                id: `${config.id}-result`,
-                title: `${config.title} Results`
-            })}
+                    id: `${config.id}-result`,
+                    title: `${config.title} Results`
+                })}
                 
                 ${formulaHTML}
                 ${referencesHTML}
@@ -374,7 +390,7 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 let score = 0;
                 const sectionScores: Record<string, number> = {};
 
-                checkboxes.forEach((box) => {
+                checkboxes.forEach(box => {
                     const checkbox = box as HTMLInputElement;
                     if (checkbox.checked) {
                         // 支援浮點數值（如 DASI）
@@ -394,32 +410,37 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                     if (resultContent) {
                         // 使用自定義渲染器（如果提供）
                         if (config.customResultRenderer) {
-                            resultContent.innerHTML = config.customResultRenderer(score, sectionScores);
+                            resultContent.innerHTML = config.customResultRenderer(
+                                score,
+                                sectionScores
+                            );
                         } else {
                             // 使用默認渲染
-                            const riskLevel = config.riskLevels.find(
-                                r => score >= r.minScore && score <= r.maxScore
-                            ) || config.riskLevels[config.riskLevels.length - 1];
+                            const riskLevel =
+                                config.riskLevels.find(
+                                    r => score >= r.minScore && score <= r.maxScore
+                                ) || config.riskLevels[config.riskLevels.length - 1];
 
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                label: 'Total Score',
-                                value: score.toString(),
-                                unit: 'points',
-                                interpretation: riskLevel.category,
-                                alertClass: `ui-alert-${riskLevel.severity}`
-                            })}
+                                    label: 'Total Score',
+                                    value: score.toString(),
+                                    unit: 'points',
+                                    interpretation: riskLevel.category,
+                                    alertClass: `ui-alert-${riskLevel.severity}`
+                                })}
                                 ${uiBuilder.createResultItem({
-                                label: 'Risk',
-                                value: riskLevel.risk,
-                                alertClass: `ui-alert-${riskLevel.severity}`
-                            })}
-                                ${riskLevel.recommendation
-                                    ? uiBuilder.createAlert({
-                                        type: riskLevel.severity,
-                                        message: riskLevel.recommendation
-                                    })
-                                    : ''
+                                    label: 'Risk',
+                                    value: riskLevel.risk,
+                                    alertClass: `ui-alert-${riskLevel.severity}`
+                                })}
+                                ${
+                                    riskLevel.recommendation
+                                        ? uiBuilder.createAlert({
+                                              type: riskLevel.severity,
+                                              message: riskLevel.recommendation
+                                          })
+                                        : ''
                                 }
                             `;
                         }
@@ -458,7 +479,8 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
 
                         // 獲取患者條件並自動勾選相關 checkbox
                         if (allConditionCodes.length > 0) {
-                            const conditions = await fhirDataService.getConditions(allConditionCodes);
+                            const conditions =
+                                await fhirDataService.getConditions(allConditionCodes);
 
                             conditions.forEach((condition: any) => {
                                 const codings = condition.code?.coding || [];
@@ -475,7 +497,6 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                         if (dataReqs.observations && dataReqs.observations.length > 0) {
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
-
                     } catch (error) {
                         console.error('Error during FHIR auto-population:', error);
                     }

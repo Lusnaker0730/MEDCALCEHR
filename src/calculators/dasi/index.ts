@@ -1,6 +1,6 @@
 /**
  * Duke Activity Status Index (DASI) Calculator
- * 
+ *
  * 使用 Score Calculator 工廠函數
  * 功能容量評估計算器，不需要 FHIR 自動填充
  */
@@ -18,25 +18,86 @@ const config: ScoreCalculatorConfig = {
             title: 'Activity Assessment',
             icon: '🏃',
             options: [
-                { id: 'dasi-care', label: 'Can you take care of yourself (eating, dressing, bathing, using toilet)?', value: 2.75 },
-                { id: 'dasi-walk-indoors', label: 'Can you walk indoors, such as around your house?', value: 1.75 },
-                { id: 'dasi-walk-flat', label: 'Can you walk a block or two on level ground?', value: 2.75 },
-                { id: 'dasi-climb-stairs', label: 'Can you climb a flight of stairs or walk up a hill?', value: 5.5 },
+                {
+                    id: 'dasi-care',
+                    label: 'Can you take care of yourself (eating, dressing, bathing, using toilet)?',
+                    value: 2.75
+                },
+                {
+                    id: 'dasi-walk-indoors',
+                    label: 'Can you walk indoors, such as around your house?',
+                    value: 1.75
+                },
+                {
+                    id: 'dasi-walk-flat',
+                    label: 'Can you walk a block or two on level ground?',
+                    value: 2.75
+                },
+                {
+                    id: 'dasi-climb-stairs',
+                    label: 'Can you climb a flight of stairs or walk up a hill?',
+                    value: 5.5
+                },
                 { id: 'dasi-run', label: 'Can you run a short distance?', value: 8.0 },
-                { id: 'dasi-light-housework', label: 'Can you do light work around the house (dusting, washing dishes)?', value: 2.7 },
-                { id: 'dasi-moderate-housework', label: 'Can you do moderate work (vacuuming, sweeping, carrying groceries)?', value: 3.5 },
-                { id: 'dasi-heavy-housework', label: 'Can you do heavy work (scrubbing floors, lifting/moving heavy furniture)?', value: 8.0 },
-                { id: 'dasi-yardwork', label: 'Can you do yardwork (raking leaves, weeding, pushing mower)?', value: 4.5 },
+                {
+                    id: 'dasi-light-housework',
+                    label: 'Can you do light work around the house (dusting, washing dishes)?',
+                    value: 2.7
+                },
+                {
+                    id: 'dasi-moderate-housework',
+                    label: 'Can you do moderate work (vacuuming, sweeping, carrying groceries)?',
+                    value: 3.5
+                },
+                {
+                    id: 'dasi-heavy-housework',
+                    label: 'Can you do heavy work (scrubbing floors, lifting/moving heavy furniture)?',
+                    value: 8.0
+                },
+                {
+                    id: 'dasi-yardwork',
+                    label: 'Can you do yardwork (raking leaves, weeding, pushing mower)?',
+                    value: 4.5
+                },
                 { id: 'dasi-sex', label: 'Can you have sexual relations?', value: 5.25 },
-                { id: 'dasi-recreation-mild', label: 'Can you participate in mild recreational activities (bowling, dancing)?', value: 6.0 },
-                { id: 'dasi-recreation-strenuous', label: 'Can you participate in strenuous sports (swimming, tennis, basketball)?', value: 7.5 }
+                {
+                    id: 'dasi-recreation-mild',
+                    label: 'Can you participate in mild recreational activities (bowling, dancing)?',
+                    value: 6.0
+                },
+                {
+                    id: 'dasi-recreation-strenuous',
+                    label: 'Can you participate in strenuous sports (swimming, tennis, basketball)?',
+                    value: 7.5
+                }
             ]
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 9.7, risk: 'Poor', category: 'Poor', severity: 'danger', recommendation: '< 4 METs: Poor functional capacity' },
-        { minScore: 9.8, maxScore: 28.2, risk: 'Moderate', category: 'Moderate', severity: 'warning', recommendation: '4-7 METs: Moderate functional capacity' },
-        { minScore: 28.3, maxScore: 58.2, risk: 'Good', category: 'Good', severity: 'success', recommendation: '> 7 METs: Good functional capacity' }
+        {
+            minScore: 0,
+            maxScore: 9.7,
+            risk: 'Poor',
+            category: 'Poor',
+            severity: 'danger',
+            recommendation: '< 4 METs: Poor functional capacity'
+        },
+        {
+            minScore: 9.8,
+            maxScore: 28.2,
+            risk: 'Moderate',
+            category: 'Moderate',
+            severity: 'warning',
+            recommendation: '4-7 METs: Moderate functional capacity'
+        },
+        {
+            minScore: 28.3,
+            maxScore: 58.2,
+            risk: 'Good',
+            category: 'Good',
+            severity: 'success',
+            recommendation: '> 7 METs: Good functional capacity'
+        }
     ],
     formulaItems: [
         {

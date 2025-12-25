@@ -1,20 +1,24 @@
 /**
  * GRACE ACS Risk Score
- * 
+ *
  * 使用 createMixedInputCalculator 工廠函數遷移
  */
 
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import { createMixedInputCalculator, MixedInputCalculatorConfig } from '../shared/mixed-input-calculator.js';
+import {
+    createMixedInputCalculator,
+    MixedInputCalculatorConfig
+} from '../shared/mixed-input-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
 const config: MixedInputCalculatorConfig = {
     id: 'grace-acs',
     title: 'GRACE ACS Risk Score',
-    description: 'Estimates admission to 6 month mortality for patients with acute coronary syndrome.',
-    
+    description:
+        'Estimates admission to 6 month mortality for patients with acute coronary syndrome.',
+
     sections: [
         {
             title: 'Vital Signs & Demographics',
@@ -100,84 +104,115 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    
+
     resultTitle: 'GRACE ACS Risk Assessment',
-    
-    calculate: (values) => {
+
+    calculate: values => {
         const age = values['grace-age'] as number | null;
         const hr = values['grace-hr'] as number | null;
         const sbp = values['grace-sbp'] as number | null;
         const creatinine = values['grace-creatinine'] as number | null;
-        
+
         // Require all numeric inputs
         if (age === null || hr === null || sbp === null || creatinine === null) {
             return null;
         }
-        
+
         // Age points
         let agePoints = 0;
-        if (age >= 40 && age <= 49) agePoints = 18;
-        else if (age >= 50 && age <= 59) agePoints = 36;
-        else if (age >= 60 && age <= 69) agePoints = 55;
-        else if (age >= 70 && age <= 79) agePoints = 73;
-        else if (age >= 80) agePoints = 91;
-        
+        if (age >= 40 && age <= 49) {
+            agePoints = 18;
+        } else if (age >= 50 && age <= 59) {
+            agePoints = 36;
+        } else if (age >= 60 && age <= 69) {
+            agePoints = 55;
+        } else if (age >= 70 && age <= 79) {
+            agePoints = 73;
+        } else if (age >= 80) {
+            agePoints = 91;
+        }
+
         // HR points
         let hrPoints = 0;
-        if (hr >= 50 && hr <= 69) hrPoints = 0;
-        else if (hr >= 70 && hr <= 89) hrPoints = 3;
-        else if (hr >= 90 && hr <= 109) hrPoints = 7;
-        else if (hr >= 110 && hr <= 149) hrPoints = 13;
-        else if (hr >= 150 && hr <= 199) hrPoints = 23;
-        else if (hr >= 200) hrPoints = 36;
-        
+        if (hr >= 50 && hr <= 69) {
+            hrPoints = 0;
+        } else if (hr >= 70 && hr <= 89) {
+            hrPoints = 3;
+        } else if (hr >= 90 && hr <= 109) {
+            hrPoints = 7;
+        } else if (hr >= 110 && hr <= 149) {
+            hrPoints = 13;
+        } else if (hr >= 150 && hr <= 199) {
+            hrPoints = 23;
+        } else if (hr >= 200) {
+            hrPoints = 36;
+        }
+
         // SBP points
         let sbpPoints = 0;
-        if (sbp >= 200) sbpPoints = 0;
-        else if (sbp >= 160 && sbp <= 199) sbpPoints = 10;
-        else if (sbp >= 140 && sbp <= 159) sbpPoints = 18;
-        else if (sbp >= 120 && sbp <= 139) sbpPoints = 24;
-        else if (sbp >= 100 && sbp <= 119) sbpPoints = 34;
-        else if (sbp >= 80 && sbp <= 99) sbpPoints = 43;
-        else if (sbp < 80) sbpPoints = 53;
-        
+        if (sbp >= 200) {
+            sbpPoints = 0;
+        } else if (sbp >= 160 && sbp <= 199) {
+            sbpPoints = 10;
+        } else if (sbp >= 140 && sbp <= 159) {
+            sbpPoints = 18;
+        } else if (sbp >= 120 && sbp <= 139) {
+            sbpPoints = 24;
+        } else if (sbp >= 100 && sbp <= 119) {
+            sbpPoints = 34;
+        } else if (sbp >= 80 && sbp <= 99) {
+            sbpPoints = 43;
+        } else if (sbp < 80) {
+            sbpPoints = 53;
+        }
+
         // Creatinine points
         let crPoints = 0;
-        if (creatinine >= 0 && creatinine <= 0.39) crPoints = 1;
-        else if (creatinine >= 0.4 && creatinine <= 0.79) crPoints = 4;
-        else if (creatinine >= 0.8 && creatinine <= 1.19) crPoints = 7;
-        else if (creatinine >= 1.2 && creatinine <= 1.59) crPoints = 10;
-        else if (creatinine >= 1.6 && creatinine <= 1.99) crPoints = 13;
-        else if (creatinine >= 2.0 && creatinine <= 3.99) crPoints = 21;
-        else if (creatinine >= 4.0) crPoints = 28;
-        
+        if (creatinine >= 0 && creatinine <= 0.39) {
+            crPoints = 1;
+        } else if (creatinine >= 0.4 && creatinine <= 0.79) {
+            crPoints = 4;
+        } else if (creatinine >= 0.8 && creatinine <= 1.19) {
+            crPoints = 7;
+        } else if (creatinine >= 1.2 && creatinine <= 1.59) {
+            crPoints = 10;
+        } else if (creatinine >= 1.6 && creatinine <= 1.99) {
+            crPoints = 13;
+        } else if (creatinine >= 2.0 && creatinine <= 3.99) {
+            crPoints = 21;
+        } else if (creatinine >= 4.0) {
+            crPoints = 28;
+        }
+
         // Radio points
-        const killip = parseInt(values['grace-killip'] as string || '0');
-        const arrest = parseInt(values['grace-cardiac-arrest'] as string || '0');
-        const st = parseInt(values['grace-st-deviation'] as string || '0');
-        const enzymes = parseInt(values['grace-cardiac-enzymes'] as string || '0');
-        
+        const killip = parseInt((values['grace-killip'] as string) || '0');
+        const arrest = parseInt((values['grace-cardiac-arrest'] as string) || '0');
+        const st = parseInt((values['grace-st-deviation'] as string) || '0');
+        const enzymes = parseInt((values['grace-cardiac-enzymes'] as string) || '0');
+
         return agePoints + hrPoints + sbpPoints + crPoints + killip + arrest + st + enzymes;
     },
-    
+
     customResultRenderer: (score, values) => {
         let inHospitalMortality = '<1%';
         let riskLevel = 'Low Risk';
         let alertClass = 'ui-alert-success';
         let riskDescription = 'Low risk of in-hospital mortality';
-        
+
         if (score > 140) {
             inHospitalMortality = '>3%';
             riskLevel = 'High Risk';
             alertClass = 'ui-alert-danger';
-            riskDescription = 'High risk of in-hospital mortality - Consider intensive monitoring and aggressive intervention';
+            riskDescription =
+                'High risk of in-hospital mortality - Consider intensive monitoring and aggressive intervention';
         } else if (score > 118) {
             inHospitalMortality = '1-3%';
             riskLevel = 'Intermediate Risk';
             alertClass = 'ui-alert-warning';
-            riskDescription = 'Intermediate risk of in-hospital mortality - Close monitoring recommended';
+            riskDescription =
+                'Intermediate risk of in-hospital mortality - Close monitoring recommended';
         }
-        
+
         return `
             ${uiBuilder.createResultItem({
                 label: 'Total GRACE Score',
@@ -200,49 +235,55 @@ const config: MixedInputCalculatorConfig = {
             </div>
         `;
     },
-    
+
     customInitialize: async (client, patient, container, calculate, setValue) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         if (!client) {
             calculate();
             return;
         }
-        
+
         // Age from patient using FHIRDataService
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
             setValue('grace-age', age.toString());
         }
-        
+
         // Fetch all observations in parallel using FHIRDataService
         const [hrResult, bpResult, creatResult] = await Promise.all([
-            fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
-                trackStaleness: true,
-                stalenessLabel: 'Heart Rate'
-            }).catch(() => ({ value: null })),
-            fhirDataService.getBloodPressure({ trackStaleness: true }).catch(() => ({ systolic: null })),
-            fhirDataService.getObservation(LOINC_CODES.CREATININE, {
-                trackStaleness: true,
-                stalenessLabel: 'Creatinine',
-                targetUnit: 'mg/dL',
-                unitType: 'creatinine'
-            }).catch(() => ({ value: null }))
+            fhirDataService
+                .getObservation(LOINC_CODES.HEART_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Heart Rate'
+                })
+                .catch(() => ({ value: null })),
+            fhirDataService
+                .getBloodPressure({ trackStaleness: true })
+                .catch(() => ({ systolic: null })),
+            fhirDataService
+                .getObservation(LOINC_CODES.CREATININE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Creatinine',
+                    targetUnit: 'mg/dL',
+                    unitType: 'creatinine'
+                })
+                .catch(() => ({ value: null }))
         ]);
-        
+
         if (hrResult.value !== null) {
             setValue('grace-hr', Math.round(hrResult.value).toString());
         }
-        
+
         if (bpResult.systolic !== null) {
             setValue('grace-sbp', Math.round(bpResult.systolic).toString());
         }
-        
+
         if (creatResult.value !== null) {
             setValue('grace-creatinine', creatResult.value.toFixed(2));
         }
-        
+
         // Calculate after data population
         setTimeout(calculate, 100);
     }

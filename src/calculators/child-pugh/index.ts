@@ -1,8 +1,8 @@
 /**
  * Child-Pugh Score for Cirrhosis Mortality Calculator
- * 
+ *
  * 已整合 FHIRDataService 進行自動填充
- * 
+ *
  * 這是一個複雜的計算器，包含：
  * - 實驗室數值自動填充（Bilirubin, Albumin, INR）
  * - 臨床參數（Ascites, Encephalopathy）
@@ -30,7 +30,7 @@ export const childPugh: CalculatorModule = {
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
     description: 'Estimates cirrhosis severity and prognosis.',
-    
+
     generateHTML: function (): string {
         const labSection = uiBuilder.createSection({
             title: 'Laboratory Parameters',
@@ -136,7 +136,7 @@ export const childPugh: CalculatorModule = {
             </div>
         `;
     },
-    
+
     initialize: function (client: unknown, patient: unknown, container: HTMLElement): void {
         uiBuilder.initializeComponents(container);
 
@@ -149,7 +149,9 @@ export const childPugh: CalculatorModule = {
         const calculate = (): void => {
             try {
                 const errorContainer = container.querySelector('#child-pugh-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 let score = 0;
                 const allAnswered = groups.every(group =>
@@ -157,7 +159,9 @@ export const childPugh: CalculatorModule = {
                 );
 
                 groups.forEach(group => {
-                    const selected = container.querySelector(`input[name="${group}"]:checked`) as HTMLInputElement | null;
+                    const selected = container.querySelector(
+                        `input[name="${group}"]:checked`
+                    ) as HTMLInputElement | null;
                     if (selected) {
                         const value = parseInt(selected.value);
                         score += value;
@@ -168,7 +172,9 @@ export const childPugh: CalculatorModule = {
                 const resultContent = resultBox?.querySelector('.ui-result-content') as HTMLElement;
 
                 if (!allAnswered) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -178,15 +184,18 @@ export const childPugh: CalculatorModule = {
 
                 if (score <= 6) {
                     classification = 'Child Class A';
-                    prognosis = 'Well-compensated disease - Good prognosis<br>Life Expectancy: 15-20 years<br>Surgical Mortality: 10%';
+                    prognosis =
+                        'Well-compensated disease - Good prognosis<br>Life Expectancy: 15-20 years<br>Surgical Mortality: 10%';
                     alertClass = 'ui-alert-success';
                 } else if (score <= 9) {
                     classification = 'Child Class B';
-                    prognosis = 'Significant functional compromise - Moderate prognosis<br>Life Expectancy: 4-14 years<br>Surgical Mortality: 30%';
+                    prognosis =
+                        'Significant functional compromise - Moderate prognosis<br>Life Expectancy: 4-14 years<br>Surgical Mortality: 30%';
                     alertClass = 'ui-alert-warning';
                 } else {
                     classification = 'Child Class C';
-                    prognosis = 'Decompensated disease - Poor prognosis<br>Life Expectancy: 1-3 years<br>Surgical Mortality: 82%';
+                    prognosis =
+                        'Decompensated disease - Poor prognosis<br>Life Expectancy: 1-3 years<br>Surgical Mortality: 82%';
                     alertClass = 'ui-alert-danger';
                 }
 
@@ -206,21 +215,24 @@ export const childPugh: CalculatorModule = {
                     `;
                 }
 
-                if (resultBox) resultBox.classList.add('show');
+                if (resultBox) {
+                    resultBox.classList.add('show');
+                }
             } catch (error) {
                 console.error('Error calculating Child-Pugh:', error);
                 const errorContainer = container.querySelector('#child-pugh-error-container');
                 if (errorContainer) {
-                    errorContainer.innerHTML = '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
+                    errorContainer.innerHTML =
+                        '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
                 }
             }
         };
 
         const setRadioFromValue = (
-            groupName: string, 
-            value: number, 
-            ranges: RangeCondition[], 
-            displayValue: string, 
+            groupName: string,
+            value: number,
+            ranges: RangeCondition[],
+            displayValue: string,
             unit: string
         ): void => {
             if (value === null || value === undefined) {
@@ -253,108 +265,149 @@ export const childPugh: CalculatorModule = {
         // Fetch and set lab values using FHIRDataService
         if (fhirDataService.isReady()) {
             // Bilirubin
-            fhirDataService.getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
-                trackStaleness: true,
-                stalenessLabel: 'Bilirubin'
-            }).then(result => {
-                if (result.value !== null) {
-                    setRadioFromValue(
-                        'bilirubin',
-                        result.value,
-                        [
-                            { condition: (v: number) => v < 2, value: '1' },
-                            { condition: (v: number) => v >= 2 && v <= 3, value: '2' },
-                            { condition: (v: number) => v > 3, value: '3' }
-                        ],
-                        result.value.toFixed(1),
-                        'mg/dL'
-                    );
-                    if (stalenessTracker && result.observation) {
-                        stalenessTracker.trackObservation('#current-bilirubin', result.observation, LOINC_CODES.BILIRUBIN_TOTAL, 'Bilirubin');
+            fhirDataService
+                .getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Bilirubin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setRadioFromValue(
+                            'bilirubin',
+                            result.value,
+                            [
+                                { condition: (v: number) => v < 2, value: '1' },
+                                { condition: (v: number) => v >= 2 && v <= 3, value: '2' },
+                                { condition: (v: number) => v > 3, value: '3' }
+                            ],
+                            result.value.toFixed(1),
+                            'mg/dL'
+                        );
+                        if (stalenessTracker && result.observation) {
+                            stalenessTracker.trackObservation(
+                                '#current-bilirubin',
+                                result.observation,
+                                LOINC_CODES.BILIRUBIN_TOTAL,
+                                'Bilirubin'
+                            );
+                        }
+                    } else {
+                        const el = container.querySelector('#current-bilirubin');
+                        if (el) {
+                            el.textContent = 'Not available';
+                        }
                     }
-                } else {
+                })
+                .catch(error => {
+                    console.error('Error fetching bilirubin:', error);
                     const el = container.querySelector('#current-bilirubin');
-                    if (el) el.textContent = 'Not available';
-                }
-            }).catch(error => {
-                console.error('Error fetching bilirubin:', error);
-                const el = container.querySelector('#current-bilirubin');
-                if (el) el.textContent = 'Not available';
-            });
+                    if (el) {
+                        el.textContent = 'Not available';
+                    }
+                });
 
             // Albumin
-            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, {
-                trackStaleness: true,
-                stalenessLabel: 'Albumin'
-            }).then(result => {
-                if (result.value !== null) {
-                    // Check unit. If g/L, convert to g/dL.
-                    let valueGdL = result.value;
-                    const unit = result.unit || 'g/dL';
+            fhirDataService
+                .getObservation(LOINC_CODES.ALBUMIN, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Albumin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        // Check unit. If g/L, convert to g/dL.
+                        let valueGdL = result.value;
+                        const unit = result.unit || 'g/dL';
 
-                    if (unit.toLowerCase().includes('l') && !unit.toLowerCase().includes('dl')) {
-                        // Assuming g/L
-                        valueGdL = valueGdL / 10;
-                    }
+                        if (
+                            unit.toLowerCase().includes('l') &&
+                            !unit.toLowerCase().includes('dl')
+                        ) {
+                            // Assuming g/L
+                            valueGdL = valueGdL / 10;
+                        }
 
-                    setRadioFromValue(
-                        'albumin',
-                        valueGdL,
-                        [
-                            { condition: (v: number) => v > 3.5, value: '1' },
-                            { condition: (v: number) => v >= 2.8 && v <= 3.5, value: '2' },
-                            { condition: (v: number) => v < 2.8, value: '3' }
-                        ],
-                        valueGdL.toFixed(1),
-                        'g/dL'
-                    );
-                    if (stalenessTracker && result.observation) {
-                        stalenessTracker.trackObservation('#current-albumin', result.observation, LOINC_CODES.ALBUMIN, 'Albumin');
+                        setRadioFromValue(
+                            'albumin',
+                            valueGdL,
+                            [
+                                { condition: (v: number) => v > 3.5, value: '1' },
+                                { condition: (v: number) => v >= 2.8 && v <= 3.5, value: '2' },
+                                { condition: (v: number) => v < 2.8, value: '3' }
+                            ],
+                            valueGdL.toFixed(1),
+                            'g/dL'
+                        );
+                        if (stalenessTracker && result.observation) {
+                            stalenessTracker.trackObservation(
+                                '#current-albumin',
+                                result.observation,
+                                LOINC_CODES.ALBUMIN,
+                                'Albumin'
+                            );
+                        }
+                    } else {
+                        const el = container.querySelector('#current-albumin');
+                        if (el) {
+                            el.textContent = 'Not available';
+                        }
                     }
-                } else {
+                })
+                .catch(error => {
+                    console.error('Error fetching albumin:', error);
                     const el = container.querySelector('#current-albumin');
-                    if (el) el.textContent = 'Not available';
-                }
-            }).catch(error => {
-                console.error('Error fetching albumin:', error);
-                const el = container.querySelector('#current-albumin');
-                if (el) el.textContent = 'Not available';
-            });
+                    if (el) {
+                        el.textContent = 'Not available';
+                    }
+                });
 
             // INR
-            fhirDataService.getObservation(LOINC_CODES.INR_COAG, {
-                trackStaleness: true,
-                stalenessLabel: 'INR'
-            }).then(result => {
-                if (result.value !== null) {
-                    setRadioFromValue(
-                        'inr',
-                        result.value,
-                        [
-                            { condition: (v: number) => v < 1.7, value: '1' },
-                            { condition: (v: number) => v >= 1.7 && v <= 2.3, value: '2' },
-                            { condition: (v: number) => v > 2.3, value: '3' }
-                        ],
-                        result.value.toFixed(2),
-                        ''
-                    );
-                    if (stalenessTracker && result.observation) {
-                        stalenessTracker.trackObservation('#current-inr', result.observation, LOINC_CODES.INR_COAG, 'INR');
+            fhirDataService
+                .getObservation(LOINC_CODES.INR_COAG, {
+                    trackStaleness: true,
+                    stalenessLabel: 'INR'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setRadioFromValue(
+                            'inr',
+                            result.value,
+                            [
+                                { condition: (v: number) => v < 1.7, value: '1' },
+                                { condition: (v: number) => v >= 1.7 && v <= 2.3, value: '2' },
+                                { condition: (v: number) => v > 2.3, value: '3' }
+                            ],
+                            result.value.toFixed(2),
+                            ''
+                        );
+                        if (stalenessTracker && result.observation) {
+                            stalenessTracker.trackObservation(
+                                '#current-inr',
+                                result.observation,
+                                LOINC_CODES.INR_COAG,
+                                'INR'
+                            );
+                        }
+                    } else {
+                        const el = container.querySelector('#current-inr');
+                        if (el) {
+                            el.textContent = 'Not available';
+                        }
                     }
-                } else {
+                })
+                .catch(error => {
+                    console.error('Error fetching INR:', error);
                     const el = container.querySelector('#current-inr');
-                    if (el) el.textContent = 'Not available';
-                }
-            }).catch(error => {
-                console.error('Error fetching INR:', error);
-                const el = container.querySelector('#current-inr');
-                if (el) el.textContent = 'Not available';
-            });
+                    if (el) {
+                        el.textContent = 'Not available';
+                    }
+                });
         } else {
             // No client - mark labs as not available
             ['bilirubin', 'albumin', 'inr'].forEach(lab => {
                 const el = container.querySelector(`#current-${lab}`);
-                if (el) el.textContent = 'Not available';
+                if (el) {
+                    el.textContent = 'Not available';
+                }
             });
         }
 

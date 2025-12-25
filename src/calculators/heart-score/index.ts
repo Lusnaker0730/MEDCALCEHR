@@ -1,19 +1,24 @@
 /**
  * HEART Score for Major Cardiac Events Calculator
- * 
+ *
  * 使用 Radio Score Calculator 工廠函數
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createRadioScoreCalculator, RadioScoreCalculatorConfig } from '../shared/radio-score-calculator.js';
+import {
+    createRadioScoreCalculator,
+    RadioScoreCalculatorConfig
+} from '../shared/radio-score-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: RadioScoreCalculatorConfig = {
     id: 'heart-score',
     title: 'HEART Score for Major Cardiac Events',
-    description: 'Predicts 6-week risk of major adverse cardiac events in patients with chest pain.',
-    infoAlert: '<strong>Inclusion Criteria:</strong> Patients ≥21 years old with symptoms suggestive of ACS. <strong>Do not use if:</strong> new ST-elevation ≥1 mm, hypotension, life expectancy <1 year, or noncardiac illness requiring admission.',
+    description:
+        'Predicts 6-week risk of major adverse cardiac events in patients with chest pain.',
+    infoAlert:
+        '<strong>Inclusion Criteria:</strong> Patients ≥21 years old with symptoms suggestive of ACS. <strong>Do not use if:</strong> new ST-elevation ≥1 mm, hypotension, life expectancy <1 year, or noncardiac illness requiring admission.',
     sections: [
         {
             id: 'heart-history',
@@ -49,7 +54,8 @@ const config: RadioScoreCalculatorConfig = {
             id: 'heart-risk',
             title: 'Risk Factors',
             icon: '⚡',
-            subtitle: 'HTN, hyperlipidemia, DM, obesity (BMI>30), smoking, family history, atherosclerotic disease',
+            subtitle:
+                'HTN, hyperlipidemia, DM, obesity (BMI>30), smoking, family history, atherosclerotic disease',
             options: [
                 { value: '0', label: 'No known risk factors', checked: true },
                 { value: '1', label: '1-2 risk factors' },
@@ -69,11 +75,29 @@ const config: RadioScoreCalculatorConfig = {
         }
     ],
     riskLevels: [
-        { minScore: 0, maxScore: 3, label: 'Low Risk (0-3)', severity: 'success', description: '0.9-1.7% MACE risk. Supports early discharge.' },
-        { minScore: 4, maxScore: 6, label: 'Moderate Risk (4-6)', severity: 'warning', description: '12-16.6% MACE risk. Admit for clinical observation and further testing.' },
-        { minScore: 7, maxScore: 10, label: 'High Risk (7-10)', severity: 'danger', description: '50-65% MACE risk. Candidate for early invasive measures.' }
+        {
+            minScore: 0,
+            maxScore: 3,
+            label: 'Low Risk (0-3)',
+            severity: 'success',
+            description: '0.9-1.7% MACE risk. Supports early discharge.'
+        },
+        {
+            minScore: 4,
+            maxScore: 6,
+            label: 'Moderate Risk (4-6)',
+            severity: 'warning',
+            description: '12-16.6% MACE risk. Admit for clinical observation and further testing.'
+        },
+        {
+            minScore: 7,
+            maxScore: 10,
+            label: 'High Risk (7-10)',
+            severity: 'danger',
+            description: '50-65% MACE risk. Candidate for early invasive measures.'
+        }
     ],
-    
+
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         let riskCategory = '';
         let maceRate = '';
@@ -119,17 +143,19 @@ const config: RadioScoreCalculatorConfig = {
             </div>
         `;
     },
-    
+
     // 使用 customInitialize 處理年齡分層邏輯
     customInitialize: (client, patient, container, calculate) => {
         const setRadioValue = (name: string, value: string): void => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        
+
         // 使用 FHIRDataService 獲取年齡
         const age = fhirDataService.getPatientAge();
         if (age !== null) {

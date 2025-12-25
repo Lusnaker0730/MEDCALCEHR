@@ -1,6 +1,6 @@
 /**
  * APGAR Score Calculator
- * 
+ *
  * 使用 Radio Score Calculator 工廠函數遷移
  * Assesses neonates 1 and 5 minutes after birth.
  */
@@ -39,7 +39,11 @@ export const apgarScore = createRadioScoreCalculator({
             title: 'Grimace (Reflex Irritability)',
             icon: '😣',
             options: [
-                { value: '2', label: 'Pulling away, sneezes, coughs, or cries with stimulation', checked: true },
+                {
+                    value: '2',
+                    label: 'Pulling away, sneezes, coughs, or cries with stimulation',
+                    checked: true
+                },
                 { value: '1', label: 'Facial movement only (grimace) with stimulation' },
                 { value: '0', label: 'Absent (no response to stimulation)' }
             ]
@@ -78,7 +82,8 @@ export const apgarScore = createRadioScoreCalculator({
             maxScore: 6,
             label: 'Moderately Abnormal',
             severity: 'warning',
-            description: 'May need some intervention. Consider stimulation, oxygen, or airway clearance.'
+            description:
+                'May need some intervention. Consider stimulation, oxygen, or airway clearance.'
         },
         {
             minScore: 0,
@@ -90,13 +95,24 @@ export const apgarScore = createRadioScoreCalculator({
     ],
     customResultRenderer: (score, sectionScores) => {
         const riskLevels = [
-            { minScore: 7, maxScore: 10, label: 'Reassuring (Normal)', severity: 'success' as const },
-            { minScore: 4, maxScore: 6, label: 'Moderately Abnormal', severity: 'warning' as const },
+            {
+                minScore: 7,
+                maxScore: 10,
+                label: 'Reassuring (Normal)',
+                severity: 'success' as const
+            },
+            {
+                minScore: 4,
+                maxScore: 6,
+                label: 'Moderately Abnormal',
+                severity: 'warning' as const
+            },
             { minScore: 0, maxScore: 3, label: 'Low (Critical)', severity: 'danger' as const }
         ];
-        
-        const riskLevel = riskLevels.find(r => score >= r.minScore && score <= r.maxScore) || riskLevels[2];
-        
+
+        const riskLevel =
+            riskLevels.find(r => score >= r.minScore && score <= r.maxScore) || riskLevels[2];
+
         // Build component breakdown
         const components = [
             { key: 'apgar-appearance', name: 'A (Appearance)' },
@@ -105,20 +121,25 @@ export const apgarScore = createRadioScoreCalculator({
             { key: 'apgar-activity', name: 'A (Activity)' },
             { key: 'apgar-respiration', name: 'R (Respiration)' }
         ];
-        
-        const breakdownHTML = components.map(c => 
-            `<span style="margin-right: 10px;">${c.name}: ${sectionScores[c.key] ?? '-'}</span>`
-        ).join('');
-        
+
+        const breakdownHTML = components
+            .map(
+                c =>
+                    `<span style="margin-right: 10px;">${c.name}: ${sectionScores[c.key] ?? '-'}</span>`
+            )
+            .join('');
+
         let interpretation = '';
         if (score >= 7) {
             interpretation = 'Baby is in good condition. Continue routine care and monitoring.';
         } else if (score >= 4) {
-            interpretation = 'May need some intervention. Consider stimulation, oxygen, or airway clearance.';
+            interpretation =
+                'May need some intervention. Consider stimulation, oxygen, or airway clearance.';
         } else {
-            interpretation = 'Immediate medical intervention required. Begin neonatal resuscitation.';
+            interpretation =
+                'Immediate medical intervention required. Begin neonatal resuscitation.';
         }
-        
+
         return `
             ${uiBuilder.createResultItem({
                 label: 'Total APGAR Score',

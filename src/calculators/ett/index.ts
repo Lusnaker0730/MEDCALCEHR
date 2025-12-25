@@ -23,32 +23,32 @@ export const ett: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'Patient Parameters',
-            content: `
+                title: 'Patient Parameters',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'ett-height',
-                label: 'Height',
-                unit: 'cm',
-                type: 'number',
-                placeholder: 'e.g. 170'
-            })}
+                        id: 'ett-height',
+                        label: 'Height',
+                        unit: 'cm',
+                        type: 'number',
+                        placeholder: 'e.g. 170'
+                    })}
                     ${uiBuilder.createSelect({
-                id: 'ett-gender',
-                label: 'Gender',
-                options: [
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' }
-                ]
-            })}
+                        id: 'ett-gender',
+                        label: 'Gender',
+                        options: [
+                            { value: 'male', label: 'Male' },
+                            { value: 'female', label: 'Female' }
+                        ]
+                    })}
                 `
-        })}
+            })}
             
             ${uiBuilder.createResultBox({ id: 'ett-result', title: 'ETT & Ventilation Settings' })}
         `;
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -61,7 +61,9 @@ export const ett: CalculatorModule = {
 
             const resultBox = container.querySelector('#ett-result');
             if (isNaN(heightCm)) {
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
                 return;
             }
 
@@ -87,20 +89,20 @@ export const ett: CalculatorModule = {
                 if (resultContent) {
                     resultContent.innerHTML = `
                         ${uiBuilder.createResultItem({
-                        label: 'Estimated ETT Depth (at lips)',
-                        value: originalFormulaDepth.toFixed(1),
-                        unit: 'cm'
-                    })}
+                            label: 'Estimated ETT Depth (at lips)',
+                            value: originalFormulaDepth.toFixed(1),
+                            unit: 'cm'
+                        })}
                         ${uiBuilder.createResultItem({
-                        label: 'Ideal Body Weight (IBW)',
-                        value: ibw.toFixed(1),
-                        unit: 'kg'
-                    })}
+                            label: 'Ideal Body Weight (IBW)',
+                            value: ibw.toFixed(1),
+                            unit: 'kg'
+                        })}
                         ${uiBuilder.createResultItem({
-                        label: 'Target Tidal Volume (6-8 mL/kg)',
-                        value: `${tidalVolumeLow.toFixed(0)} - ${tidalVolumeHigh.toFixed(0)}`,
-                        unit: 'mL'
-                    })}
+                            label: 'Target Tidal Volume (6-8 mL/kg)',
+                            value: `${tidalVolumeLow.toFixed(0)} - ${tidalVolumeHigh.toFixed(0)}`,
+                            unit: 'mL'
+                        })}
                     `;
                 }
                 resultBox.classList.add('show');
@@ -114,12 +116,19 @@ export const ett: CalculatorModule = {
         }
 
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.HEIGHT, { trackStaleness: true, stalenessLabel: 'Height', targetUnit: 'cm', unitType: 'height' }).then(result => {
-                if (result.value !== null) {
-                    heightEl.value = result.value.toFixed(1);
-                    calculate();
-                }
-            });
+            fhirDataService
+                .getObservation(LOINC_CODES.HEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Height',
+                    targetUnit: 'cm',
+                    unitType: 'height'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        heightEl.value = result.value.toFixed(1);
+                        calculate();
+                    }
+                });
         }
 
         heightEl.addEventListener('input', calculate);

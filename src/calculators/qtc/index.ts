@@ -15,7 +15,8 @@ interface CalculatorModule {
 export const qtc: CalculatorModule = {
     id: 'qtc',
     title: 'Corrected QT Interval (QTc)',
-    description: 'Calculates corrected QT interval using various formulas to assess risk of arrhythmias.',
+    description:
+        'Calculates corrected QT interval using various formulas to assess risk of arrhythmias.',
     generateHTML: function () {
         const inputSection = uiBuilder.createSection({
             title: 'Measurements',
@@ -100,17 +101,25 @@ export const qtc: CalculatorModule = {
         const calculate = () => {
             try {
                 // Clear previous errors
-                const errorContainer = container.querySelector('#qtc-error-container') as HTMLElement;
-                if (errorContainer) errorContainer.innerHTML = '';
+                const errorContainer = container.querySelector(
+                    '#qtc-error-container'
+                ) as HTMLElement;
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 const qtInput = container.querySelector('#qtc-qt') as HTMLInputElement;
                 const hrInput = container.querySelector('#qtc-hr') as HTMLInputElement;
 
-                if (!qtInput || !hrInput) return;
+                if (!qtInput || !hrInput) {
+                    return;
+                }
 
                 const qt = parseFloat(qtInput.value);
                 const hr = parseFloat(hrInput.value);
-                const formulaRadio = container.querySelector('input[name="qtc-formula"]:checked') as HTMLInputElement;
+                const formulaRadio = container.querySelector(
+                    'input[name="qtc-formula"]:checked'
+                ) as HTMLInputElement;
                 const formula = formulaRadio ? formulaRadio.value : 'bazett';
 
                 // Validate inputs
@@ -123,18 +132,23 @@ export const qtc: CalculatorModule = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (qtInput.value || hrInput.value);
+                    const hasInput = qtInput.value || hrInput.value;
 
                     if (hasInput && errorContainer) {
                         const valuesPresent = !isNaN(qt) && !isNaN(hr);
                         // Only show specific validation errors if values are present but invalid,
                         // or if required fields are missing but user started typing (simplistic check)
                         if (validation.errors.some(e => !e.includes('required'))) {
-                            displayError(errorContainer, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                            displayError(
+                                errorContainer,
+                                new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                            );
                         }
                     }
 
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -161,7 +175,9 @@ export const qtc: CalculatorModule = {
                         break;
                 }
 
-                if (!isFinite(qtcValue) || isNaN(qtcValue)) throw new Error("Calculation resulted in invalid value");
+                if (!isFinite(qtcValue) || isNaN(qtcValue)) {
+                    throw new Error('Calculation resulted in invalid value');
+                }
 
                 // Determine risk level
                 let alertClass = 'ui-alert-success';
@@ -171,7 +187,8 @@ export const qtc: CalculatorModule = {
                 if (qtcValue > 500) {
                     alertClass = 'ui-alert-danger';
                     riskText = 'Prolonged';
-                    interpretation = 'QTc >500ms significantly increases risk of Torsades de Pointes and sudden cardiac death.';
+                    interpretation =
+                        'QTc >500ms significantly increases risk of Torsades de Pointes and sudden cardiac death.';
                 } else if (qtcValue > 460) {
                     alertClass = 'ui-alert-warning';
                     riskText = 'Borderline';
@@ -180,7 +197,9 @@ export const qtc: CalculatorModule = {
 
                 // Update title dynamically
                 const resultHeader = resultBox?.querySelector('.ui-result-header');
-                if (resultHeader) resultHeader.textContent = `QTc Results (${formulaName})`;
+                if (resultHeader) {
+                    resultHeader.textContent = `QTc Results (${formulaName})`;
+                }
 
                 if (resultContent) {
                     resultContent.innerHTML = `
@@ -202,14 +221,18 @@ export const qtc: CalculatorModule = {
                     resultBox?.classList.add('show');
                 }
             } catch (error) {
-                const errorContainer = container.querySelector('#qtc-error-container') as HTMLElement;
+                const errorContainer = container.querySelector(
+                    '#qtc-error-container'
+                ) as HTMLElement;
                 if (errorContainer) {
                     displayError(errorContainer, error as Error);
                 } else {
                     console.error(error);
                 }
                 logError(error as Error, { calculator: 'qtc', action: 'calculate' });
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 

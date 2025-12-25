@@ -10,7 +10,12 @@ export declare class DataStalenessTracker {
     constructor(options?: { thresholdMs?: number; warningContainerId?: string });
     setContainer(container: HTMLElement): void;
     checkStaleness(observation: any): StalenessInfo | null;
-    trackObservation(fieldId: string, observation: any, code: string, customLabel?: string | null): StalenessInfo | null;
+    trackObservation(
+        fieldId: string,
+        observation: any,
+        code: string,
+        customLabel?: string | null
+    ): StalenessInfo | null;
     clearField(fieldId: string): void;
     clearAll(): void;
     getStaleCount(): number;

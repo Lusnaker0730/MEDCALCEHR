@@ -1,6 +1,6 @@
 /**
  * Glasgow Coma Scale (GCS)
- * 
+ *
  * 使用 Radio Group 工廠函數重構
  * 代碼從 172 行減少到約 80 行
  */
@@ -19,7 +19,11 @@ export const gcs = createRadioScoreCalculator({
             title: 'Eye Opening Response',
             icon: '👁️',
             options: [
-                { value: '4', label: 'Spontaneous - open with blinking at baseline (4)', checked: true },
+                {
+                    value: '4',
+                    label: 'Spontaneous - open with blinking at baseline (4)',
+                    checked: true
+                },
                 { value: '3', label: 'To verbal stimuli, command, speech (3)' },
                 { value: '2', label: 'To pain only (not applied to face) (2)' },
                 { value: '1', label: 'No response (1)' }
@@ -73,12 +77,18 @@ export const gcs = createRadioScoreCalculator({
             label: 'Total GCS Score',
             value: score.toString(),
             unit: 'points',
-            interpretation: score >= 13 ? 'Mild Brain Injury' 
-                : score >= 9 ? 'Moderate Brain Injury' 
-                : 'Severe Brain Injury (Coma)',
-            alertClass: score >= 13 ? 'ui-alert-success' 
-                : score >= 9 ? 'ui-alert-warning' 
-                : 'ui-alert-danger'
+            interpretation:
+                score >= 13
+                    ? 'Mild Brain Injury'
+                    : score >= 9
+                      ? 'Moderate Brain Injury'
+                      : 'Severe Brain Injury (Coma)',
+            alertClass:
+                score >= 13
+                    ? 'ui-alert-success'
+                    : score >= 9
+                      ? 'ui-alert-warning'
+                      : 'ui-alert-danger'
         })}
         <div class="mt-15 text-center font-semibold text-muted">
             Component Breakdown: E${sectionScores['eye'] || 0} V${sectionScores['verbal'] || 0} M${sectionScores['motor'] || 0}

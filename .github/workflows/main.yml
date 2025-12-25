@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  quality-check:
-    name: 🛡️ Code Quality & Build
+  build-and-test:
+    name: 🛡️ Build, Lint & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +19,7 @@ jobs:
     - name: 🟢 Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
 
     - name: 📦 Install dependencies
@@ -32,36 +32,18 @@ jobs:
       run: npm run lint
 
     - name: 🔨 TypeScript Build
-      # 這一步非常重要，確保所有 TS 檔案都能正確編譯，沒有型別錯誤
+      # 編譯 TypeScript 確保沒有型別錯誤
       run: npm run build:ts
 
     - name: 🧹 Artifact Check
-      # 確保編譯後的檔案 (.js, .d.ts in js/) 沒有被追蹤
-      # 如果這些檔案存在於 repo 中，腳本會報錯，提示開發者應該將其加入 .gitignore
+      # 確保編譯後的檔案 (.js) 沒有被錯誤地提交到版本控制中
       run: |
         if git ls-files --error-unmatch js/calculators/**/*.js > /dev/null 2>&1; then
-          echo "❌ Error: Compiled JS files in js/calculators/ are tracked by Git. They should be ignored."
+          echo "❌ Error: js/calculators/ 目錄下的編譯檔案被 Git 追蹤了。請將其移除並加入 .gitignore。"
           exit 1
         fi
         echo "✅ No compiled artifacts tracked in git."
 
-  # 執行測試 (測試 src/ 下的 TypeScript 源碼)
-  test:
-    name: 🧪 Run Tests
-    needs: quality-check
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🧪 Execute Tests
-        run: npm test
+    - name: 🧪 Run Tests
+      # 執行測試 (包含新的 Smoke Test)
+      run: npm test

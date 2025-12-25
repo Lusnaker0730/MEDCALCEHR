@@ -18,7 +18,10 @@ export const caprini = {
                 { id: 'caprini-swollen-legs', label: 'Swollen legs (current)' },
                 { id: 'caprini-varicose', label: 'Varicose veins' },
                 { id: 'caprini-sepsis', label: 'Sepsis (<1 month)' },
-                { id: 'caprini-pneumonia', label: 'Serious lung disease incl. pneumonia (<1 month)' },
+                {
+                    id: 'caprini-pneumonia',
+                    label: 'Serious lung disease incl. pneumonia (<1 month)'
+                },
                 { id: 'caprini-bed-rest', label: 'Confined to bed (>72 hours)' },
                 { id: 'caprini-cast', label: 'Immobilizing plaster cast' },
                 { id: 'caprini-central-venous', label: 'Central venous access' }
@@ -35,13 +38,19 @@ export const caprini = {
             ],
             '5 Points': [
                 { id: 'caprini-stroke-paralysis', label: 'Stroke with paralysis (<1 month)' },
-                { id: 'caprini-elective-hip-knee', label: 'Elective major lower extremity arthroplasty' },
-                { id: 'caprini-hip-pelvis-fracture', label: 'Hip, pelvis, or leg fracture (<1 month)' },
+                {
+                    id: 'caprini-elective-hip-knee',
+                    label: 'Elective major lower extremity arthroplasty'
+                },
+                {
+                    id: 'caprini-hip-pelvis-fracture',
+                    label: 'Hip, pelvis, or leg fracture (<1 month)'
+                },
                 { id: 'caprini-spinal-cord-injury', label: 'Acute spinal cord injury (<1 month)' }
             ]
         };
 
-        let sections: string[] = [];
+        const sections: string[] = [];
 
         // Create Age Section manually to make it a single choice radio group
         const ageOptions = [
@@ -51,34 +60,43 @@ export const caprini = {
             { value: '3', label: 'Age ≥ 75 (+3)' }
         ];
 
-        sections.push(uiBuilder.createSection({
-            title: 'Age',
-            content: uiBuilder.createRadioGroup({
-                name: 'caprini-age',
-                options: ageOptions
+        sections.push(
+            uiBuilder.createSection({
+                title: 'Age',
+                content: uiBuilder.createRadioGroup({
+                    name: 'caprini-age',
+                    options: ageOptions
+                })
             })
-        }));
+        );
 
         for (const [points, factors] of Object.entries(riskFactors)) {
             // Skip age items as we handled them separately
             const filteredFactors = factors.filter(f => !f.id.includes('age'));
 
             if (filteredFactors.length > 0) {
-                const sectionContent = filteredFactors.map(factor =>
-                    uiBuilder.createRadioGroup({
-                        name: factor.id,
-                        label: factor.label,
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: String(points.split(' ')[0]), label: `Yes (+${points.split(' ')[0]})` }
-                        ]
-                    })
-                ).join('');
+                const sectionContent = filteredFactors
+                    .map(factor =>
+                        uiBuilder.createRadioGroup({
+                            name: factor.id,
+                            label: factor.label,
+                            options: [
+                                { value: '0', label: 'No', checked: true },
+                                {
+                                    value: String(points.split(' ')[0]),
+                                    label: `Yes (+${points.split(' ')[0]})`
+                                }
+                            ]
+                        })
+                    )
+                    .join('');
 
-                sections.push(uiBuilder.createSection({
-                    title: `${points} Risk Factors`,
-                    content: sectionContent
-                }));
+                sections.push(
+                    uiBuilder.createSection({
+                        title: `${points} Risk Factors`,
+                        content: sectionContent
+                    })
+                );
             }
         }
 
@@ -98,7 +116,9 @@ export const caprini = {
         uiBuilder.initializeComponents(container);
 
         const setRadioValue = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change'));
@@ -108,18 +128,24 @@ export const caprini = {
         const calculate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#caprini-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             try {
                 let score = 0;
 
                 // Sum all checked radio buttons
-                const radios = container.querySelectorAll<HTMLInputElement>('input[type="radio"]:checked');
+                const radios = container.querySelectorAll<HTMLInputElement>(
+                    'input[type="radio"]:checked'
+                );
                 radios.forEach(radio => {
                     score += parseInt(radio.value);
                 });
 
-                if (isNaN(score)) throw new Error("Calculation Error");
+                if (isNaN(score)) {
+                    throw new Error('Calculation Error');
+                }
 
                 let riskCategory = '';
                 let recommendation = '';
@@ -131,15 +157,18 @@ export const caprini = {
                     alertClass = 'ui-alert-success';
                 } else if (score >= 1 && score <= 2) {
                     riskCategory = 'Low Risk';
-                    recommendation = 'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
+                    recommendation =
+                        'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
                     alertClass = 'ui-alert-info';
                 } else if (score >= 3 && score <= 4) {
                     riskCategory = 'Moderate Risk';
-                    recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
+                    recommendation =
+                        'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
                     alertClass = 'ui-alert-warning';
                 } else {
                     riskCategory = 'High Risk';
-                    recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
+                    recommendation =
+                        'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
                     alertClass = 'ui-alert-danger';
                 }
 
@@ -148,12 +177,12 @@ export const caprini = {
 
                 resultContent.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'Total Score',
-                    value: score,
-                    unit: 'points',
-                    interpretation: riskCategory,
-                    alertClass: alertClass
-                })}
+                        label: 'Total Score',
+                        value: score,
+                        unit: 'points',
+                        interpretation: riskCategory,
+                        alertClass: alertClass
+                    })}
                     
                     <div class="ui-alert ${alertClass} mt-10">
                         <span class="ui-alert-icon">💊</span>
@@ -166,7 +195,9 @@ export const caprini = {
                 resultBox.classList.add('show');
             } catch (error: any) {
                 logError(error, { calculator: 'caprini', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error);
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error);
+                }
             }
         };
 

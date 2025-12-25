@@ -42,65 +42,65 @@ export const steroidConversion: CalculatorModule = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-            title: 'Conversion',
-            content: `
+                title: 'Conversion',
+                content: `
                     <div class="conversion-row flex-row gap-lg align-end">
                         <div class="flex-1">
                             ${uiBuilder.createInput({
-                id: 'steroid-from-dose',
-                label: 'Dose',
-                type: 'number',
-                placeholder: 'Enter dose',
-                min: 0
-            })}
+                                id: 'steroid-from-dose',
+                                label: 'Dose',
+                                type: 'number',
+                                placeholder: 'Enter dose',
+                                min: 0
+                            })}
                         </div>
                         <div class="flex-1">
                             ${uiBuilder.createSelect({
-                id: 'steroid-from-type',
-                label: 'Steroid',
-                options: steroidOptions
-            })}
+                                id: 'steroid-from-type',
+                                label: 'Steroid',
+                                options: steroidOptions
+                            })}
                         </div>
                     </div>
                     <div class="text-center font-bold mb-10 mt-10">IS EQUIVALENT TO</div>
                      <div class="conversion-row flex-row gap-lg align-end">
                         <div class="flex-1">
                             ${uiBuilder.createInput({
-                id: 'steroid-to-dose',
-                label: 'Equivalent Dose',
-                type: 'text', // Readonly usually
-                placeholder: 'Result',
-                min: 0
-            })}
+                                id: 'steroid-to-dose',
+                                label: 'Equivalent Dose',
+                                type: 'text', // Readonly usually
+                                placeholder: 'Result',
+                                min: 0
+                            })}
                         </div>
                         <div class="flex-1">
                             ${uiBuilder.createSelect({
-                id: 'steroid-to-type',
-                label: 'Steroid',
-                options: steroidOptions
-            })}
+                                id: 'steroid-to-type',
+                                label: 'Steroid',
+                                options: steroidOptions
+                            })}
                         </div>
                     </div>
                 `
-        })}
+            })}
             
             ${uiBuilder.createSection({
-            title: 'Steroid Equivalence Table',
-            content: `
+                title: 'Steroid Equivalence Table',
+                content: `
                 ${uiBuilder.createTable({
-                headers,
-                rows,
-                stickyFirstColumn: true
-            })}
+                    headers,
+                    rows,
+                    stickyFirstColumn: true
+                })}
                 <p class="table-note text-sm text-muted mt-10">
                     <strong>Note:</strong> These are approximate glucocorticoid potency equivalents. Individual patient response may vary.
                 </p>
             `
-        })}
+            })}
 
              ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                 type: 'info',
+                 message: `
                     <h4>Relative Potency Information</h4>
                     <ul>
                         <li><strong>Highest Potency:</strong> Dexamethasone (0.75 mg)</li>
@@ -115,7 +115,7 @@ export const steroidConversion: CalculatorModule = {
                          <li><strong>Dexamethasone</strong> longest half-life (36-54 hrs) - useful once daily dosing</li>
                     </ul>
                 `
-        })}
+             })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -127,7 +127,9 @@ export const steroidConversion: CalculatorModule = {
         const toTypeEl = container.querySelector('#steroid-to-type') as HTMLSelectElement;
 
         // Make result readonly
-        if (toDoseEl) toDoseEl.readOnly = true;
+        if (toDoseEl) {
+            toDoseEl.readOnly = true;
+        }
 
         const calculateConversion = () => {
             const fromDose = parseFloat(fromDoseEl.value);
@@ -140,17 +142,27 @@ export const steroidConversion: CalculatorModule = {
                 isNaN(toEquivalent) ||
                 fromEquivalent === 0
             ) {
-                if (toDoseEl) toDoseEl.value = '';
+                if (toDoseEl) {
+                    toDoseEl.value = '';
+                }
                 return;
             }
 
             const toDose = (fromDose / fromEquivalent) * toEquivalent;
-            if (toDoseEl) toDoseEl.value = toDose.toFixed(2);
+            if (toDoseEl) {
+                toDoseEl.value = toDose.toFixed(2);
+            }
         };
 
-        if (fromDoseEl) fromDoseEl.addEventListener('input', calculateConversion);
-        if (fromTypeEl) fromTypeEl.addEventListener('change', calculateConversion);
-        if (toTypeEl) toTypeEl.addEventListener('change', calculateConversion);
+        if (fromDoseEl) {
+            fromDoseEl.addEventListener('input', calculateConversion);
+        }
+        if (fromTypeEl) {
+            fromTypeEl.addEventListener('change', calculateConversion);
+        }
+        if (toTypeEl) {
+            toTypeEl.addEventListener('change', calculateConversion);
+        }
 
         calculateConversion();
     }

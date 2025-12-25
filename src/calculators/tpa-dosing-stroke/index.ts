@@ -24,35 +24,35 @@ export const tpaDosing: CalculatorModule = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createSection({
-            title: 'Patient & Event Details',
-            content: `
+                title: 'Patient & Event Details',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'weight',
-                label: 'Weight',
-                type: 'number',
-                placeholder: 'Enter weight',
-                unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' },
-                min: 0
-            })}
+                        id: 'weight',
+                        label: 'Weight',
+                        type: 'number',
+                        placeholder: 'Enter weight',
+                        unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' },
+                        min: 0
+                    })}
                     ${uiBuilder.createInput({
-                id: 'symptom-onset',
-                label: 'Time from symptom onset',
-                type: 'number',
-                unit: 'hours',
-                placeholder: 'e.g., 2.5',
-                min: 0,
-                max: 4.5,
-                helpText: 'Must be ≤ 4.5 hours for IV tPA eligibility'
-            })}
+                        id: 'symptom-onset',
+                        label: 'Time from symptom onset',
+                        type: 'number',
+                        unit: 'hours',
+                        placeholder: 'e.g., 2.5',
+                        min: 0,
+                        max: 4.5,
+                        helpText: 'Must be ≤ 4.5 hours for IV tPA eligibility'
+                    })}
                 `
-        })}
+            })}
             
             <div id="tpa-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'tpa-stroke-result', title: 'Dosing & Eligibility' })}
             
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: `
+                type: 'warning',
+                message: `
                     <h4>Important Reminders</h4>
                     <ul>
                         <li>Verify all inclusion/exclusion criteria before administration</li>
@@ -61,24 +61,23 @@ export const tpaDosing: CalculatorModule = {
                         <li>Have reversal agents available (cryoprecipitate, aminocaproic acid)</li>
                     </ul>
                 `
-        })}
+            })}
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Total Dose', formula: '0.9 mg/kg (Max 90 mg)' },
-                { label: 'Bolus', formula: '10% of Total Dose (over 1 min)' },
-                { label: 'Infusion', formula: '90% of Total Dose (over 60 min)' }
-            ],
-        })}
+                items: [
+                    { label: 'Total Dose', formula: '0.9 mg/kg (Max 90 mg)' },
+                    { label: 'Bolus', formula: '10% of Total Dose (over 1 min)' },
+                    { label: 'Infusion', formula: '90% of Total Dose (over 60 min)' }
+                ]
+            })}
         ${uiBuilder.createAlert({
             type: 'info',
             message: 'Maximum dose is 90 mg regardless of weight.'
-        })
-            }
+        })}
 `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -90,7 +89,9 @@ export const tpaDosing: CalculatorModule = {
             try {
                 // Clear validation errors
                 const errorContainer = container.querySelector('#tpa-error-container');
-                if (errorContainer) errorContainer.innerHTML = '';
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
 
                 // Unit Conversion
                 const weight = UnitConverter.getStandardValue(weightInput, 'kg');
@@ -103,15 +104,27 @@ export const tpaDosing: CalculatorModule = {
 
                 if (!validation.isValid) {
                     // Check if empty specifically
-                    if (weightInput.value !== '' && validation.errors.some((e: string) => !e.includes('required'))) {
-                        if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                    if (
+                        weightInput.value !== '' &&
+                        validation.errors.some((e: string) => !e.includes('required'))
+                    ) {
+                        if (errorContainer) {
+                            displayError(
+                                errorContainer as HTMLElement,
+                                new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                            );
+                        }
                     }
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
                 if (weight === null || isNaN(weight) || weight <= 0) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
@@ -128,20 +141,23 @@ export const tpaDosing: CalculatorModule = {
                         if (symptomOnset <= 4.5) {
                             eligibilityHtml = uiBuilder.createAlert({
                                 type: 'success',
-                                message: '<strong>Eligibility:</strong> Within time window for IV tPA (≤ 4.5 hours)'
+                                message:
+                                    '<strong>Eligibility:</strong> Within time window for IV tPA (≤ 4.5 hours)'
                             });
                             alertType = 'success';
                         } else {
                             eligibilityHtml = uiBuilder.createAlert({
                                 type: 'danger',
-                                message: '<strong>Eligibility:</strong> Outside time window for IV tPA (> 4.5 hours)'
+                                message:
+                                    '<strong>Eligibility:</strong> Outside time window for IV tPA (> 4.5 hours)'
                             });
                             alertType = 'danger';
                         }
                     } else {
                         eligibilityHtml = uiBuilder.createAlert({
                             type: 'warning',
-                            message: '<strong>Note:</strong> Please enter time from symptom onset to check eligibility.'
+                            message:
+                                '<strong>Note:</strong> Please enter time from symptom onset to check eligibility.'
                         });
                         alertType = 'warning';
                     }
@@ -155,23 +171,20 @@ export const tpaDosing: CalculatorModule = {
                             value: totalDose.toFixed(1),
                             unit: 'mg',
                             interpretation: '0.9 mg/kg, max 90 mg'
-                        })
-                            }
+                        })}
 <hr>
     ${uiBuilder.createResultItem({
-                                label: 'Step 1: IV Bolus',
-                                value: bolus.toFixed(1),
-                                unit: 'mg',
-                                interpretation: 'IV push over 1 minute'
-                            })
-                            }
+        label: 'Step 1: IV Bolus',
+        value: bolus.toFixed(1),
+        unit: 'mg',
+        interpretation: 'IV push over 1 minute'
+    })}
                         ${uiBuilder.createResultItem({
-                                label: 'Step 2: Continuous Infusion',
-                                value: infusion.toFixed(1),
-                                unit: 'mg',
-                                interpretation: `Rate: ${infusionRate.toFixed(1)} mg/hr over 60 minutes`
-                            })
-                            }
+                            label: 'Step 2: Continuous Infusion',
+                            value: infusion.toFixed(1),
+                            unit: 'mg',
+                            interpretation: `Rate: ${infusionRate.toFixed(1)} mg/hr over 60 minutes`
+                        })}
 `;
                     }
                     resultBox.classList.add('show');
@@ -184,7 +197,9 @@ export const tpaDosing: CalculatorModule = {
                     console.error(error);
                 }
                 logError(error as Error, { calculator: 'tpa-dosing-stroke', action: 'calculate' });
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
@@ -193,18 +208,28 @@ export const tpaDosing: CalculatorModule = {
         weightInput.addEventListener('change', calculate); // Ensure changes trigger calc, especially unit toggle
         // Also listen for unit changes if feasible, normally unitToggle doesn't expose clean event without deeper UI integration
         // container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculate)); // ui-builder usually attaches change to inputs if they have conversion? No, typically we need to listen.
-        // Assuming UnitConverter integration in uiBuilder might handle some, but manual listening is safer if structure is known. 
-        // With createInput unitToggle, uiBuilder usually handles unit change logic internally or exposes select. 
-        // Adding a general change listener to the container inputs covers most cases. 
-        container.querySelectorAll('input, select').forEach(el => el.addEventListener('change', calculate));
+        // Assuming UnitConverter integration in uiBuilder might handle some, but manual listening is safer if structure is known.
+        // With createInput unitToggle, uiBuilder usually handles unit change logic internally or exposes select.
+        // Adding a general change listener to the container inputs covers most cases.
+        container
+            .querySelectorAll('input, select')
+            .forEach(el => el.addEventListener('change', calculate));
 
         if (client) {
-            fhirDataService.getObservation(LOINC_CODES.WEIGHT, { trackStaleness: true, stalenessLabel: 'Weight', targetUnit: 'kg', unitType: 'weight' }).then(result => {
-                if (result.value !== null) {
-                    weightInput.value = result.value.toFixed(1);
-                    calculate();
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.WEIGHT, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Weight',
+                    targetUnit: 'kg',
+                    unitType: 'weight'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        weightInput.value = result.value.toFixed(1);
+                        calculate();
+                    }
+                })
+                .catch(e => console.warn(e));
         }
 
         calculate();

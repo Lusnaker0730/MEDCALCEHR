@@ -1,6 +1,6 @@
 /**
  * qSOFA Score for Sepsis
- * 
+ *
  * 使用 Checkbox 工廠函數
  * 已整合 FHIRDataService 進行自動填充
  */
@@ -12,9 +12,11 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const qsofaScore = createScoreCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
-    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
+    description:
+        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
 
-    infoAlert: 'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.',
+    infoAlert:
+        'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.',
 
     sections: [
         {
@@ -29,26 +31,31 @@ export const qsofaScore = createScoreCalculator({
     ],
 
     riskLevels: [
-        { 
-            minScore: 0, maxScore: 0, 
-            risk: 'Negative Screen', 
-            category: 'Lower Risk', 
+        {
+            minScore: 0,
+            maxScore: 0,
+            risk: 'Negative Screen',
+            category: 'Lower Risk',
             severity: 'success',
             recommendation: 'Lower risk, but continue to monitor if infection is suspected.'
         },
-        { 
-            minScore: 1, maxScore: 1, 
-            risk: 'Intermediate', 
-            category: 'Monitor Closely', 
+        {
+            minScore: 1,
+            maxScore: 1,
+            risk: 'Intermediate',
+            category: 'Monitor Closely',
             severity: 'warning',
-            recommendation: 'Monitor closely. Consider early intervention if clinical suspicion is high.'
+            recommendation:
+                'Monitor closely. Consider early intervention if clinical suspicion is high.'
         },
-        { 
-            minScore: 2, maxScore: 3, 
-            risk: 'Positive Screen', 
-            category: 'High Risk', 
+        {
+            minScore: 2,
+            maxScore: 3,
+            risk: 'Positive Screen',
+            category: 'High Risk',
             severity: 'danger',
-            recommendation: 'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).'
+            recommendation:
+                'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).'
         }
     ],
 
@@ -75,13 +82,15 @@ export const qsofaScore = createScoreCalculator({
             `
         }
     ],
-    
+
     // 使用 customInitialize 進行 FHIR 自動填充
     customInitialize: async (client, patient, container, calculate) => {
-        if (!fhirDataService.isReady()) return;
-        
+        if (!fhirDataService.isReady()) {
+            return;
+        }
+
         const stalenessTracker = fhirDataService.getStalenessTracker();
-        
+
         const setCheckbox = (id: string, checked: boolean) => {
             const box = container.querySelector(`#${id}`) as HTMLInputElement;
             if (box) {
@@ -89,31 +98,41 @@ export const qsofaScore = createScoreCalculator({
                 box.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
-        
+
         try {
             // 獲取呼吸速率
             const rrResult = await fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, {
                 trackStaleness: true,
                 stalenessLabel: 'Respiratory Rate'
             });
-            
+
             if (rrResult.value !== null && rrResult.value >= 22) {
                 setCheckbox('qsofa-rr', true);
                 if (stalenessTracker && rrResult.observation) {
-                    stalenessTracker.trackObservation('#qsofa-rr', rrResult.observation, LOINC_CODES.RESPIRATORY_RATE, 'Respiratory Rate');
+                    stalenessTracker.trackObservation(
+                        '#qsofa-rr',
+                        rrResult.observation,
+                        LOINC_CODES.RESPIRATORY_RATE,
+                        'Respiratory Rate'
+                    );
                 }
             }
-            
+
             // 獲取收縮壓
             const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
                 trackStaleness: true,
                 stalenessLabel: 'Systolic BP'
             });
-            
+
             if (sbpResult.value !== null && sbpResult.value <= 100) {
                 setCheckbox('qsofa-sbp', true);
                 if (stalenessTracker && sbpResult.observation) {
-                    stalenessTracker.trackObservation('#qsofa-sbp', sbpResult.observation, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                    stalenessTracker.trackObservation(
+                        '#qsofa-sbp',
+                        sbpResult.observation,
+                        LOINC_CODES.SYSTOLIC_BP,
+                        'Systolic BP'
+                    );
                 }
             }
         } catch (error) {

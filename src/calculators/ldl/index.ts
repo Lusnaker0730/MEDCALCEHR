@@ -24,73 +24,74 @@ export const ldl: CalculatorModule = {
                 <p class="description">${this.description}</p>
             </div>
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: '<strong>Instructions:</strong> Enter Total Cholesterol, HDL-C, and Triglycerides. LDL-C will be calculated using Friedewald Equation.'
-        })}
+                type: 'info',
+                message:
+                    '<strong>Instructions:</strong> Enter Total Cholesterol, HDL-C, and Triglycerides. LDL-C will be calculated using Friedewald Equation.'
+            })}
             ${uiBuilder.createSection({
-            title: 'Lipid Panel Inputs',
-            icon: '🧪',
-            content: `
+                title: 'Lipid Panel Inputs',
+                icon: '🧪',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'ldl-tc',
-                label: 'Total Cholesterol',
-                type: 'number',
-                placeholder: 'Enter Total Cholesterol',
-                unitToggle: {
-                    type: 'cholesterol',
-                    units: ['mg/dL', 'mmol/L'],
-                    default: 'mg/dL'
-                }
-            })}
+                        id: 'ldl-tc',
+                        label: 'Total Cholesterol',
+                        type: 'number',
+                        placeholder: 'Enter Total Cholesterol',
+                        unitToggle: {
+                            type: 'cholesterol',
+                            units: ['mg/dL', 'mmol/L'],
+                            default: 'mg/dL'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'ldl-hdl',
-                label: 'HDL Cholesterol',
-                type: 'number',
-                placeholder: 'Enter HDL Cholesterol',
-                unitToggle: {
-                    type: 'cholesterol',
-                    units: ['mg/dL', 'mmol/L'],
-                    default: 'mg/dL'
-                }
-            })}
+                        id: 'ldl-hdl',
+                        label: 'HDL Cholesterol',
+                        type: 'number',
+                        placeholder: 'Enter HDL Cholesterol',
+                        unitToggle: {
+                            type: 'cholesterol',
+                            units: ['mg/dL', 'mmol/L'],
+                            default: 'mg/dL'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'ldl-trig',
-                label: 'Triglycerides',
-                type: 'number',
-                placeholder: 'Enter Triglycerides',
-                unitToggle: {
-                    type: 'triglycerides',
-                    units: ['mg/dL', 'mmol/L'],
-                    default: 'mg/dL'
-                }
-            })}
+                        id: 'ldl-trig',
+                        label: 'Triglycerides',
+                        type: 'number',
+                        placeholder: 'Enter Triglycerides',
+                        unitToggle: {
+                            type: 'triglycerides',
+                            units: ['mg/dL', 'mmol/L'],
+                            default: 'mg/dL'
+                        }
+                    })}
                 `
-        })}
+            })}
             
              <div id="ldl-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'ldl-result', title: 'LDL Cholesterol Result' })}
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    title: 'Friedewald Equation',
-                    formulas: ['LDL = Total Cholesterol - HDL - (Triglycerides / 5)']
-                }
-            ]
-        })}
+                items: [
+                    {
+                        title: 'Friedewald Equation',
+                        formulas: ['LDL = Total Cholesterol - HDL - (Triglycerides / 5)']
+                    }
+                ]
+            })}
             <p class="text-sm text-muted mt-10">
                 <strong>Note:</strong> All values in mg/dL
             </p>
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: `
+                type: 'warning',
+                message: `
                     <strong>Limitation:</strong> This formula is not accurate when triglycerides ≥400 mg/dL (≥4.52 mmol/L). 
                     Consider direct LDL measurement in such cases.
                 `
-        })}
+            })}
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>📊 LDL Cholesterol Goals (Adults)</h4>
                     <div class="ui-data-table">
                         <table>
@@ -107,7 +108,7 @@ export const ldl: CalculatorModule = {
                         </table>
                     </div>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -123,7 +124,9 @@ export const ldl: CalculatorModule = {
 
         const calculate = () => {
             const errorContainer = container.querySelector('#ldl-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const tcVal = UnitConverter.getStandardValue(tcInput, 'mg/dL');
             const hdlVal = UnitConverter.getStandardValue(hdlInput, 'mg/dL');
@@ -145,20 +148,38 @@ export const ldl: CalculatorModule = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (tcInput.value || hdlInput.value || trigInput.value);
+                    const hasInput = tcInput.value || hdlInput.value || trigInput.value;
 
                     if (hasInput) {
-                        const valuesPresent = tcVal !== null && !isNaN(tcVal) && hdlVal !== null && !isNaN(hdlVal) && trigVal !== null && !isNaN(trigVal);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent =
+                            tcVal !== null &&
+                            !isNaN(tcVal) &&
+                            hdlVal !== null &&
+                            !isNaN(hdlVal) &&
+                            trigVal !== null &&
+                            !isNaN(trigVal);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                     }
 
-                    if (resultBox) resultBox.classList.remove('show');
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                    }
                     return;
                 }
 
-                if (tcVal === null || hdlVal === null || trigVal === null) return;
+                if (tcVal === null || hdlVal === null || trigVal === null) {
+                    return;
+                }
 
                 if (trigVal >= 400) {
                     if (resultBox) {
@@ -166,7 +187,8 @@ export const ldl: CalculatorModule = {
                         if (resultContent) {
                             resultContent.innerHTML = uiBuilder.createAlert({
                                 type: 'danger',
-                                message: '<strong>Cannot Calculate:</strong> Triglycerides ≥400 mg/dL. Friedewald equation is invalid. Please order Direct LDL.'
+                                message:
+                                    '<strong>Cannot Calculate:</strong> Triglycerides ≥400 mg/dL. Friedewald equation is invalid. Please order Direct LDL.'
                             });
                         }
                         resultBox.classList.add('show');
@@ -174,9 +196,11 @@ export const ldl: CalculatorModule = {
                     return;
                 }
 
-                const ldlVal = tcVal - hdlVal - (trigVal / 5);
+                const ldlVal = tcVal - hdlVal - trigVal / 5;
 
-                if (!isFinite(ldlVal) || isNaN(ldlVal)) throw new Error("Calculation Error");
+                if (!isFinite(ldlVal) || isNaN(ldlVal)) {
+                    throw new Error('Calculation Error');
+                }
 
                 const ldlMmol = UnitConverter.convert(ldlVal, 'mg/dL', 'mmol/L', 'cholesterol');
 
@@ -205,25 +229,29 @@ export const ldl: CalculatorModule = {
                     if (resultContent) {
                         resultContent.innerHTML = `
                             ${uiBuilder.createResultItem({
-                            label: 'Calculated LDL',
-                            value: ldlVal.toFixed(1),
-                            unit: 'mg/dL',
-                            interpretation: riskCategory,
-                            alertClass: `ui-alert-${alertType}`
-                        })}
+                                label: 'Calculated LDL',
+                                value: ldlVal.toFixed(1),
+                                unit: 'mg/dL',
+                                interpretation: riskCategory,
+                                alertClass: `ui-alert-${alertType}`
+                            })}
                             ${uiBuilder.createResultItem({
-                            label: 'Calculated LDL (mmol/L)',
-                            value: ldlMmol ? ldlMmol.toFixed(2) : '-',
-                            unit: 'mmol/L'
-                        })}
+                                label: 'Calculated LDL (mmol/L)',
+                                value: ldlMmol ? ldlMmol.toFixed(2) : '-',
+                                unit: 'mmol/L'
+                            })}
                         `;
                     }
                     resultBox.classList.add('show');
                 }
             } catch (error) {
                 logError(error as Error, { calculator: 'ldl', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultBox) resultBox.classList.remove('show');
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
             }
         };
 
@@ -242,40 +270,49 @@ export const ldl: CalculatorModule = {
         // FHIR auto-population using FHIRDataService
         if (client) {
             // Total Cholesterol
-            fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
-                trackStaleness: true,
-                stalenessLabel: 'Total Cholesterol',
-                targetUnit: 'mg/dL',
-                unitType: 'cholesterol'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(tcInput, result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Total Cholesterol',
+                    targetUnit: 'mg/dL',
+                    unitType: 'cholesterol'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(tcInput, result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // HDL Cholesterol
-            fhirDataService.getObservation(LOINC_CODES.HDL, {
-                trackStaleness: true,
-                stalenessLabel: 'HDL Cholesterol',
-                targetUnit: 'mg/dL',
-                unitType: 'cholesterol'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(hdlInput, result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.HDL, {
+                    trackStaleness: true,
+                    stalenessLabel: 'HDL Cholesterol',
+                    targetUnit: 'mg/dL',
+                    unitType: 'cholesterol'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(hdlInput, result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Triglycerides
-            fhirDataService.getObservation(LOINC_CODES.TRIGLYCERIDES, {
-                trackStaleness: true,
-                stalenessLabel: 'Triglycerides',
-                targetUnit: 'mg/dL',
-                unitType: 'triglycerides'
-            }).then(result => {
-                if (result.value !== null) {
-                    setInputValue(trigInput, result.value.toFixed(0));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.TRIGLYCERIDES, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Triglycerides',
+                    targetUnit: 'mg/dL',
+                    unitType: 'triglycerides'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        setInputValue(trigInput, result.value.toFixed(0));
+                    }
+                })
+                .catch(e => console.warn(e));
         }
     }
 };

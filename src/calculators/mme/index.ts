@@ -20,9 +20,9 @@ export const mme: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Opioid Medications',
-            icon: '💊',
-            content: `
+                title: 'Opioid Medications',
+                icon: '💊',
+                content: `
                     <div id="mme-opioid-list">
                         <!-- Dynamic rows will be added here -->
                     </div>
@@ -30,23 +30,23 @@ export const mme: CalculatorModule = {
                         <button id="add-opioid-btn" class="ui-button ui-button-secondary full-width">+ Add Opioid</button>
                     </div>
                 `
-        })}
+            })}
 
             ${uiBuilder.createResultBox({ id: 'mme-result', title: 'Total Daily MME' })}
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'MME Calculation',
-                    formula: 'Total MME/day = Σ (Daily Dose × Conversion Factor)',
-                    notes: 'Each opioid has a specific conversion factor representing its potency relative to morphine.'
-                }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'MME Calculation',
+                        formula: 'Total MME/day = Σ (Daily Dose × Conversion Factor)',
+                        notes: 'Each opioid has a specific conversion factor representing its potency relative to morphine.'
+                    }
+                ]
+            })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>📊 Conversion Factors</h4>
                     <div class="ui-data-table">
                         <table>
@@ -65,18 +65,18 @@ export const mme: CalculatorModule = {
                         </table>
                     </div>
                 `
-        })}
+            })}
 
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: `
+                type: 'warning',
+                message: `
                     <h4>⚠️ CDC Recommendations</h4>
                     <ul class="info-list">
                         <li><strong>≥50 MME/day:</strong> Increased risk. Reassess benefits/risks.</li>
                         <li><strong>≥90 MME/day:</strong> Avoid if possible. Consider specialist referral.</li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -107,7 +107,9 @@ export const mme: CalculatorModule = {
             const rows = listContainer.querySelectorAll('.mme-row');
 
             if (rows.length === 0) {
-                if (resultBox) resultBox.classList.remove('show');
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                }
                 return;
             }
 
@@ -134,11 +136,13 @@ export const mme: CalculatorModule = {
             } else if (totalMME < 90) {
                 riskLevel = 'Moderate Risk (50-90 MME)';
                 alertType = 'warning';
-                recommendation = 'Reassess evidence of benefits and risks. Consider offering naloxone.';
+                recommendation =
+                    'Reassess evidence of benefits and risks. Consider offering naloxone.';
             } else {
                 riskLevel = 'High Risk (≥90 MME)';
                 alertType = 'danger';
-                recommendation = 'Avoid increasing dosage. Justify decision to titrate >90 MME/day. Consider specialist referral.';
+                recommendation =
+                    'Avoid increasing dosage. Justify decision to titrate >90 MME/day. Consider specialist referral.';
             }
 
             if (resultBox) {
@@ -146,16 +150,16 @@ export const mme: CalculatorModule = {
                 if (resultContent) {
                     resultContent.innerHTML = `
                         ${uiBuilder.createResultItem({
-                        label: 'Total Daily MME',
-                        value: totalMME.toFixed(1),
-                        unit: 'MME/day',
-                        interpretation: riskLevel,
-                        alertClass: `ui-alert-${alertType}`
-                    })}
+                            label: 'Total Daily MME',
+                            value: totalMME.toFixed(1),
+                            unit: 'MME/day',
+                            interpretation: riskLevel,
+                            alertClass: `ui-alert-${alertType}`
+                        })}
                         ${uiBuilder.createAlert({
-                        type: alertType,
-                        message: `<strong>Recommendation:</strong> ${recommendation}`
-                    })}
+                            type: alertType,
+                            message: `<strong>Recommendation:</strong> ${recommendation}`
+                        })}
                     `;
                 }
                 resultBox.classList.add('show');

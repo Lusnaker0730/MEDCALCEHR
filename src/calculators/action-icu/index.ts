@@ -4,15 +4,17 @@ import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
 const riskMap = [
-    3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0,
-    81.7, 86.6, 90.6
+    3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0, 81.7,
+    86.6, 90.6
 ];
 
 export const actionIcu = createRadioScoreCalculator({
     id: 'action-icu',
     title: 'ACTION ICU Score for Intensive Care in NSTEMI',
-    description: 'Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI.',
-    infoAlert: '<strong>📋 NSTEMI Risk Assessment</strong><br>For initially hemodynamically stable adults with NSTEMI',
+    description:
+        'Risk of complications requiring ICU care among initially uncomplicated patients with NSTEMI.',
+    infoAlert:
+        '<strong>📋 NSTEMI Risk Assessment</strong><br>For initially hemodynamically stable adults with NSTEMI',
     sections: [
         {
             id: 'action-age',
@@ -161,30 +163,42 @@ export const actionIcu = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskLevel,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'ICU Risk',
-            value: riskPercent.toFixed(1),
-            unit: '%',
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'ICU Risk',
+                value: riskPercent.toFixed(1),
+                unit: '%',
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
-        })}
+                type: alertType,
+                message:
+                    '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
+            })}
         `;
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
-        const setRadioWithValue = (name: string, value: number, conditions: ((v: number) => boolean)[]) => {
-            if (value === null) return;
+        const setRadioWithValue = (
+            name: string,
+            value: number,
+            conditions: ((v: number) => boolean)[]
+        ) => {
+            if (value === null) {
+                return;
+            }
 
             for (const [radioIndex, condition] of conditions.entries()) {
                 if (condition(value)) {
@@ -207,35 +221,48 @@ export const actionIcu = createRadioScoreCalculator({
 
         if (client) {
             Promise.all([
-                fhirDataService.getObservation(LOINC_CODES.CREATININE, { trackStaleness: true, stalenessLabel: 'Creatinine', targetUnit: 'mg/dL', unitType: 'creatinine' }),
-                fhirDataService.getObservation(LOINC_CODES.HEART_RATE, { trackStaleness: true, stalenessLabel: 'Heart Rate' }),
-                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, { trackStaleness: true, stalenessLabel: 'Systolic BP' })
-            ]).then(([creatResult, hrResult, sbpResult]) => {
-                if (creatResult.value !== null) {
-                    setRadioWithValue('action-creatinine', creatResult.value, [
-                        v => v < 1.1,
-                        v => v >= 1.1
-                    ]);
-                }
+                fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Creatinine',
+                    targetUnit: 'mg/dL',
+                    unitType: 'creatinine'
+                }),
+                fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Heart Rate'
+                }),
+                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Systolic BP'
+                })
+            ])
+                .then(([creatResult, hrResult, sbpResult]) => {
+                    if (creatResult.value !== null) {
+                        setRadioWithValue('action-creatinine', creatResult.value, [
+                            v => v < 1.1,
+                            v => v >= 1.1
+                        ]);
+                    }
 
-                if (hrResult.value !== null) {
-                    setRadioWithValue('action-hr', hrResult.value, [
-                        v => v < 85,
-                        v => v >= 85 && v <= 100,
-                        v => v > 100
-                    ]);
-                }
+                    if (hrResult.value !== null) {
+                        setRadioWithValue('action-hr', hrResult.value, [
+                            v => v < 85,
+                            v => v >= 85 && v <= 100,
+                            v => v > 100
+                        ]);
+                    }
 
-                if (sbpResult.value !== null) {
-                    setRadioWithValue('action-sbp', sbpResult.value, [
-                        v => v >= 145,
-                        v => v >= 125 && v < 145,
-                        v => v < 125
-                    ]);
-                }
+                    if (sbpResult.value !== null) {
+                        setRadioWithValue('action-sbp', sbpResult.value, [
+                            v => v >= 145,
+                            v => v >= 125 && v < 145,
+                            v => v < 125
+                        ]);
+                    }
 
-                calculate();
-            }).catch(e => console.error("Error fetching observations for ACTION ICU", e));
+                    calculate();
+                })
+                .catch(e => console.error('Error fetching observations for ACTION ICU', e));
         }
 
         calculate();

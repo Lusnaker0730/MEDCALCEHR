@@ -25,45 +25,45 @@ export const phenytoinCorrection: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Lab Values & Clinical Status',
-            icon: '🧪',
-            content: `
+                title: 'Lab Values & Clinical Status',
+                icon: '🧪',
+                content: `
                     ${uiBuilder.createInput({
-                id: 'pheny-total',
-                label: 'Total Phenytoin Level',
-                type: 'number',
-                // step is not in interface but was used. Removing to satisfy TS.
-                placeholder: 'e.g., 8.0',
-                unit: 'mcg/mL',
-                unitToggle: {
-                    type: 'phenytoin',
-                    units: ['mcg/mL', 'µmol/L', 'mg/L'],
-                    default: 'mcg/mL'
-                }
-            })}
+                        id: 'pheny-total',
+                        label: 'Total Phenytoin Level',
+                        type: 'number',
+                        // step is not in interface but was used. Removing to satisfy TS.
+                        placeholder: 'e.g., 8.0',
+                        unit: 'mcg/mL',
+                        unitToggle: {
+                            type: 'phenytoin',
+                            units: ['mcg/mL', 'µmol/L', 'mg/L'],
+                            default: 'mcg/mL'
+                        }
+                    })}
                     ${uiBuilder.createInput({
-                id: 'pheny-albumin',
-                label: 'Serum Albumin',
-                type: 'number',
-                // step is not in interface using it may cause error.
-                placeholder: 'e.g., 3.0',
-                unitToggle: {
-                    type: 'albumin',
-                    units: ['g/dL', 'g/L'],
-                    default: 'g/dL'
-                }
-            })}
+                        id: 'pheny-albumin',
+                        label: 'Serum Albumin',
+                        type: 'number',
+                        // step is not in interface using it may cause error.
+                        placeholder: 'e.g., 3.0',
+                        unitToggle: {
+                            type: 'albumin',
+                            units: ['g/dL', 'g/L'],
+                            default: 'g/dL'
+                        }
+                    })}
                     ${uiBuilder.createRadioGroup({
-                name: 'pheny-renal',
-                label: 'Renal Status (CrCl < 10 mL/min)',
-                options: [
-                    { value: 'no', label: 'No (Normal Function)', checked: true },
-                    { value: 'yes', label: 'Yes (Renal Failure)' }
-                ],
-                helpText: 'Select Yes if CrCl < 10 mL/min, ESRD, or on dialysis.'
-            })}
+                        name: 'pheny-renal',
+                        label: 'Renal Status (CrCl < 10 mL/min)',
+                        options: [
+                            { value: 'no', label: 'No (Normal Function)', checked: true },
+                            { value: 'yes', label: 'Yes (Renal Failure)' }
+                        ],
+                        helpText: 'Select Yes if CrCl < 10 mL/min, ESRD, or on dialysis.'
+                    })}
                 `
-        })}
+            })}
             
             <div id="pheny-error-container"></div>
             <div id="phenytoin-result" class="ui-result-box">
@@ -72,15 +72,18 @@ export const phenytoinCorrection: CalculatorModule = {
             </div>
             
             ${uiBuilder.createFormulaSection({
-            items: [
-                { label: 'Corrected Level', formula: 'Total Phenytoin / [((1-K) × Albumin/4.4) + K]' },
-                { label: 'K', formula: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)' }
-            ]
-        })}
+                items: [
+                    {
+                        label: 'Corrected Level',
+                        formula: 'Total Phenytoin / [((1-K) × Albumin/4.4) + K]'
+                    },
+                    { label: 'K', formula: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)' }
+                ]
+            })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>Therapeutic Range:</h4>
                     <ul class="info-list">
                         <li>10-20 mcg/mL</li>
@@ -88,12 +91,12 @@ export const phenytoinCorrection: CalculatorModule = {
                         <li><10 mcg/mL: Subtherapeutic</li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement) {
         uiBuilder.initializeComponents(container);
-        
+
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
 
@@ -104,11 +107,15 @@ export const phenytoinCorrection: CalculatorModule = {
         const calculateAndUpdate = () => {
             // Clear previous errors
             const errorContainer = container.querySelector('#pheny-error-container');
-            if (errorContainer) errorContainer.innerHTML = '';
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
 
             const totalPhenytoin = UnitConverter.getStandardValue(totalEl, 'mcg/mL');
             const albuminGdl = UnitConverter.getStandardValue(albuminEl, 'g/dL');
-            const hasRenalFailure = (container.querySelector('input[name="pheny-renal"]:checked') as HTMLInputElement)?.value === 'yes';
+            const hasRenalFailure =
+                (container.querySelector('input[name="pheny-renal"]:checked') as HTMLInputElement)
+                    ?.value === 'yes';
 
             try {
                 // Validation
@@ -124,11 +131,23 @@ export const phenytoinCorrection: CalculatorModule = {
                 const validation = validateCalculatorInput(inputs, schema);
 
                 if (!validation.isValid) {
-                    const hasInput = (totalEl.value || albuminEl.value);
+                    const hasInput = totalEl.value || albuminEl.value;
                     if (hasInput && resultEl) {
-                        const valuesPresent = totalPhenytoin !== null && albuminGdl !== null && !isNaN(totalPhenytoin) && !isNaN(albuminGdl);
-                        if (valuesPresent || validation.errors.some((e: string) => !e.includes('required'))) {
-                            if (errorContainer) displayError(errorContainer as HTMLElement, new ValidationError(validation.errors[0], 'VALIDATION_ERROR'));
+                        const valuesPresent =
+                            totalPhenytoin !== null &&
+                            albuminGdl !== null &&
+                            !isNaN(totalPhenytoin) &&
+                            !isNaN(albuminGdl);
+                        if (
+                            valuesPresent ||
+                            validation.errors.some((e: string) => !e.includes('required'))
+                        ) {
+                            if (errorContainer) {
+                                displayError(
+                                    errorContainer as HTMLElement,
+                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                                );
+                            }
                         }
                         resultEl.classList.remove('show');
                     }
@@ -137,9 +156,12 @@ export const phenytoinCorrection: CalculatorModule = {
 
                 if (resultEl) {
                     const K = hasRenalFailure ? 0.2 : 0.1;
-                    const correctedPhenytoin = totalPhenytoin! / (((1 - K) * albuminGdl!) / 4.4 + K);
+                    const correctedPhenytoin =
+                        totalPhenytoin! / (((1 - K) * albuminGdl!) / 4.4 + K);
 
-                    if (!isFinite(correctedPhenytoin) || isNaN(correctedPhenytoin)) throw new Error("Calculation Error");
+                    if (!isFinite(correctedPhenytoin) || isNaN(correctedPhenytoin)) {
+                        throw new Error('Calculation Error');
+                    }
 
                     // Determine therapeutic status
                     let status = '';
@@ -183,9 +205,16 @@ export const phenytoinCorrection: CalculatorModule = {
                     resultEl.classList.add('show');
                 }
             } catch (error) {
-                logError(error as Error, { calculator: 'phenytoin-correction', action: 'calculate' });
-                if (errorContainer) displayError(errorContainer as HTMLElement, error as Error);
-                if (resultEl) resultEl.classList.remove('show');
+                logError(error as Error, {
+                    calculator: 'phenytoin-correction',
+                    action: 'calculate'
+                });
+                if (errorContainer) {
+                    displayError(errorContainer as HTMLElement, error as Error);
+                }
+                if (resultEl) {
+                    resultEl.classList.remove('show');
+                }
             }
         };
 
@@ -197,20 +226,36 @@ export const phenytoinCorrection: CalculatorModule = {
         // Auto-populate from FHIR using FHIRDataService
         if (client) {
             // Phenytoin (LOINC 4038-8)
-            fhirDataService.getObservation('4038-8', { trackStaleness: true, stalenessLabel: 'Phenytoin', targetUnit: 'mcg/mL', unitType: 'phenytoin' }).then(result => {
-                if (result.value !== null) {
-                    totalEl.value = result.value.toFixed(1);
-                    totalEl.dispatchEvent(new Event('input'));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation('4038-8', {
+                    trackStaleness: true,
+                    stalenessLabel: 'Phenytoin',
+                    targetUnit: 'mcg/mL',
+                    unitType: 'phenytoin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        totalEl.value = result.value.toFixed(1);
+                        totalEl.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Albumin
-            fhirDataService.getObservation(LOINC_CODES.ALBUMIN, { trackStaleness: true, stalenessLabel: 'Albumin', targetUnit: 'g/dL', unitType: 'albumin' }).then(result => {
-                if (result.value !== null) {
-                    albuminEl.value = result.value.toFixed(1);
-                    albuminEl.dispatchEvent(new Event('input'));
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.ALBUMIN, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Albumin',
+                    targetUnit: 'g/dL',
+                    unitType: 'albumin'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        albuminEl.value = result.value.toFixed(1);
+                        albuminEl.dispatchEvent(new Event('input'));
+                    }
+                })
+                .catch(e => console.warn(e));
         }
 
         calculateAndUpdate();

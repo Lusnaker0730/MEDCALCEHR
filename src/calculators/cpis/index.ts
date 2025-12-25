@@ -7,8 +7,10 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const cpis = createRadioScoreCalculator({
     id: 'cpis',
     title: 'Clinical Pulmonary Infection Score (CPIS) for VAP',
-    description: 'Predicts ventilator-associated pneumonia (VAP) likelihood in patients on mechanical ventilation.',
-    infoAlert: '<strong>Instructions:</strong> Use in mechanically ventilated patients to assess for ventilator-associated pneumonia (VAP).<br><strong>Interpretation:</strong> Score ≥6 suggests high likelihood of VAP. Consider in patients with new or worsening infiltrate on chest imaging.',
+    description:
+        'Predicts ventilator-associated pneumonia (VAP) likelihood in patients on mechanical ventilation.',
+    infoAlert:
+        '<strong>Instructions:</strong> Use in mechanically ventilated patients to assess for ventilator-associated pneumonia (VAP).<br><strong>Interpretation:</strong> Score ≥6 suggests high likelihood of VAP. Consider in patients with new or worsening infiltrate on chest imaging.',
     sections: [
         {
             id: 'cpis-temperature',
@@ -82,7 +84,9 @@ export const cpis = createRadioScoreCalculator({
         const isLow = score < 6;
         const interpretation = isLow ? 'Low likelihood of VAP' : 'High likelihood of VAP';
         const alertType = isLow ? 'success' : 'danger';
-        const detail = isLow ? 'Score <6 suggests VAP is less likely' : 'Score ≥6 suggests VAP is likely';
+        const detail = isLow
+            ? 'Score <6 suggests VAP is less likely'
+            : 'Score ≥6 suggests VAP is likely';
         const management = isLow
             ? `<ul>
                 <li><strong>Continue monitoring:</strong> Serial clinical assessments</li>
@@ -113,12 +117,19 @@ export const cpis = createRadioScoreCalculator({
             })}
         `;
     },
-    customInitialize: (client: unknown, patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (
+        client: unknown,
+        patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
-        
+
         const setRadio = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement | null;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement | null;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -127,24 +138,44 @@ export const cpis = createRadioScoreCalculator({
 
         if (client) {
             // Temperature
-            fhirDataService.getObservation(LOINC_CODES.TEMPERATURE, { trackStaleness: true, stalenessLabel: 'Temperature', targetUnit: 'degC', unitType: 'temperature' }).then(result => {
-                if (result.value !== null) {
-                    if (result.value >= 36.5 && result.value <= 38.4) setRadio('cpis-temperature', '0');
-                    else if (result.value >= 38.5 && result.value <= 38.9) setRadio('cpis-temperature', '1');
-                    else setRadio('cpis-temperature', '2');
-                }
-            }).catch(e => console.warn(e));
+            fhirDataService
+                .getObservation(LOINC_CODES.TEMPERATURE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Temperature',
+                    targetUnit: 'degC',
+                    unitType: 'temperature'
+                })
+                .then(result => {
+                    if (result.value !== null) {
+                        if (result.value >= 36.5 && result.value <= 38.4) {
+                            setRadio('cpis-temperature', '0');
+                        } else if (result.value >= 38.5 && result.value <= 38.9) {
+                            setRadio('cpis-temperature', '1');
+                        } else {
+                            setRadio('cpis-temperature', '2');
+                        }
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // WBC
-            fhirDataService.getObservation(LOINC_CODES.WBC, { trackStaleness: true, stalenessLabel: 'WBC' }).then(result => {
-                if (result.value !== null) {
-                    let wbc = result.value;
-                    if (wbc > 1000) wbc = wbc / 1000;
+            fhirDataService
+                .getObservation(LOINC_CODES.WBC, { trackStaleness: true, stalenessLabel: 'WBC' })
+                .then(result => {
+                    if (result.value !== null) {
+                        let wbc = result.value;
+                        if (wbc > 1000) {
+                            wbc = wbc / 1000;
+                        }
 
-                    if (wbc >= 4 && wbc <= 11) setRadio('cpis-wbc', '0');
-                    else setRadio('cpis-wbc', '1');
-                }
-            }).catch(e => console.warn(e));
+                        if (wbc >= 4 && wbc <= 11) {
+                            setRadio('cpis-wbc', '0');
+                        } else {
+                            setRadio('cpis-wbc', '1');
+                        }
+                    }
+                })
+                .catch(e => console.warn(e));
         }
 
         calculate();

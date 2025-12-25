@@ -63,7 +63,9 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
     ],
     customResultRenderer: (score: number) => {
         const isLowRisk = score === 0;
-        const interpretation = isLowRisk ? 'Very low risk for bacterial meningitis.' : 'NOT very low risk for bacterial meningitis.';
+        const interpretation = isLowRisk
+            ? 'Very low risk for bacterial meningitis.'
+            : 'NOT very low risk for bacterial meningitis.';
         const alertType = isLowRisk ? 'success' : 'danger';
 
         return `
@@ -80,11 +82,18 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
             })}
         `;
     },
-    customInitialize: (client: unknown, _patient: unknown, container: HTMLElement, calculate: () => void) => {
+    customInitialize: (
+        client: unknown,
+        _patient: unknown,
+        container: HTMLElement,
+        calculate: () => void
+    ) => {
         const fhirClient = client as any;
-        
+
         const setRadio = (name: string, value: string) => {
-            const radio = container.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -93,37 +102,45 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
 
         if (fhirClient) {
             // CSF Gram Stain (LOINC: 664-3)
-            getObservation(fhirClient, '664-3').then(obs => {
-                if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
-                    const isPositive = obs.valueCodeableConcept.coding.some(
-                        (c: any) => c.code === '260348003'
-                    );
-                    if (isPositive) {
-                        setRadio('gram_stain', '2');
+            getObservation(fhirClient, '664-3')
+                .then(obs => {
+                    if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
+                        const isPositive = obs.valueCodeableConcept.coding.some(
+                            (c: any) => c.code === '260348003'
+                        );
+                        if (isPositive) {
+                            setRadio('gram_stain', '2');
+                        }
                     }
-                }
-            }).catch(e => console.warn(e));
+                })
+                .catch(e => console.warn(e));
 
             // CSF ANC (LOINC: 26485-3)
-            getObservation(fhirClient, '26485-3').then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 1000) {
-                    setRadio('csf_anc', '1');
-                }
-            }).catch(e => console.warn(e));
+            getObservation(fhirClient, '26485-3')
+                .then(obs => {
+                    if (obs && obs.valueQuantity && obs.valueQuantity.value >= 1000) {
+                        setRadio('csf_anc', '1');
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // CSF Protein (LOINC: 3137-7)
-            getObservation(fhirClient, '3137-7').then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 80) {
-                    setRadio('csf_protein', '1');
-                }
-            }).catch(e => console.warn(e));
+            getObservation(fhirClient, '3137-7')
+                .then(obs => {
+                    if (obs && obs.valueQuantity && obs.valueQuantity.value >= 80) {
+                        setRadio('csf_protein', '1');
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Peripheral Blood ANC (LOINC: 751-8)
-            getObservation(fhirClient, '751-8').then(obs => {
-                if (obs && obs.valueQuantity && obs.valueQuantity.value >= 10000) {
-                    setRadio('blood_anc', '1');
-                }
-            }).catch(e => console.warn(e));
+            getObservation(fhirClient, '751-8')
+                .then(obs => {
+                    if (obs && obs.valueQuantity && obs.valueQuantity.value >= 10000) {
+                        setRadio('blood_anc', '1');
+                    }
+                })
+                .catch(e => console.warn(e));
 
             // Seizure (SNOMED: 91175000)
             getPatientConditions(fhirClient, ['91175000'])
