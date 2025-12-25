@@ -5,7 +5,8 @@ import { ValidationRules } from '../../validator.js';
 export const bmiBsa = createFormulaCalculator({
     id: 'bmi-bsa',
     title: 'BMI & Body Surface Area (BSA)',
-    description: 'Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.',
+    description:
+        'Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.',
     inputs: [
         {
             id: 'bmi-bsa-weight',
@@ -32,9 +33,12 @@ export const bmiBsa = createFormulaCalculator({
     ],
     formulas: [
         { label: 'BMI (Body Mass Index)', formula: 'Weight (kg) / Height² (m²)' },
-        { label: 'BSA (Du Bois Formula)', formula: '0.007184 × Weight<sup>0.425</sup> (kg) × Height<sup>0.725</sup> (cm)' }
+        {
+            label: 'BSA (Du Bois Formula)',
+            formula: '0.007184 × Weight<sup>0.425</sup> (kg) × Height<sup>0.725</sup> (cm)'
+        }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const weightKg = values['bmi-bsa-weight'] as number;
         const heightCm = values['bmi-bsa-height'] as number;
 
@@ -83,7 +87,7 @@ export const bmiBsa = createFormulaCalculator({
             }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         // We want to add the info alert about BSA formula
         // But we can reuse the default item generation if we want, or just custom build it.
         // Let's manually rebuild to include the BSA note which was in the original.

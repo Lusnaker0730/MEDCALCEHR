@@ -1,4 +1,3 @@
-
 import { escapeHTML } from './security.js';
 
 /**
@@ -41,8 +40,8 @@ export function getObservationValue(observation: any, code?: string): number | n
 
     // 2. Check components if code is provided
     if (observation.component && code) {
-        const component = observation.component.find((c: any) =>
-            c.code.coding && c.code.coding.some((coding: any) => coding.code === code)
+        const component = observation.component.find(
+            (c: any) => c.code.coding && c.code.coding.some((coding: any) => coding.code === code)
         );
         if (component && component.valueQuantity) {
             return component.valueQuantity.value;
@@ -78,7 +77,8 @@ export function displayPatientInfo(client: any, patientInfoDiv: HTMLElement): Pr
     const renderPatient = (patient: any) => {
         const name = patient.name[0];
         // Prioritize text field (Taiwanese format), if missing use given and family names
-        const formattedName = name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
+        const formattedName =
+            name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
         const age = calculateAge(patient.birthDate);
 
         // Use escapeHTML to prevent XSS attacks from FHIR data
@@ -157,7 +157,8 @@ export function getPatient(client: any): Promise<any> {
     if (!client || !client.patient) {
         return Promise.resolve(null);
     }
-    return client.patient.read()
+    return client.patient
+        .read()
         .then((patient: any) => patient || null)
         .catch((error: any) => {
             console.error('Error fetching patient:', error);
@@ -372,7 +373,12 @@ export const UNIT_CONVERSIONS: any = {
  * @param {string} measurementType - The type of measurement (e.g., 'glucose', 'cholesterol')
  * @returns {number|null} The converted value, or null if conversion not possible
  */
-export function convertUnit(value: number, fromUnit: string, toUnit: string, measurementType: string): number | null {
+export function convertUnit(
+    value: number,
+    fromUnit: string,
+    toUnit: string,
+    measurementType: string
+): number | null {
     if (fromUnit === toUnit) {
         return value;
     }
@@ -403,7 +409,12 @@ export function convertUnit(value: number, fromUnit: string, toUnit: string, mea
  * @param {string} defaultUnit - Default unit to display
  * @returns {string} HTML string for unit selector
  */
-export function createUnitSelector(inputId: string, measurementType: string, units: string[], defaultUnit: string = units[0]): string {
+export function createUnitSelector(
+    inputId: string,
+    measurementType: string,
+    units: string[],
+    defaultUnit: string = units[0]
+): string {
     const unitOptions = units
         .map(
             unit =>
@@ -428,13 +439,17 @@ export function createUnitSelector(inputId: string, measurementType: string, uni
  * @param {string} inputId - ID of the input field
  * @param {Function} onChangeCallback - Callback function when value changes
  */
-export function initializeUnitConversion(container: HTMLElement, inputId: string, onChangeCallback?: () => void): () => void {
+export function initializeUnitConversion(
+    container: HTMLElement,
+    inputId: string,
+    onChangeCallback?: () => void
+): () => void {
     const input = container.querySelector(`#${inputId}`) as HTMLInputElement;
     const unitSelect = container.querySelector(`#${inputId}-unit`) as HTMLSelectElement;
     const convertedDisplay = container.querySelector(`#${inputId}-converted`) as HTMLElement;
 
     if (!input || !unitSelect) {
-        return () => { };
+        return () => {};
     }
 
     const measurementType = unitSelect.dataset.measurement || '';
@@ -484,7 +499,11 @@ export function initializeUnitConversion(container: HTMLElement, inputId: string
  * @param {string} standardUnit - The standard unit to convert to
  * @returns {number|null} Value in standard unit, or null if invalid
  */
-export function getValueInStandardUnit(container: HTMLElement, inputId: string, standardUnit: string): number | null {
+export function getValueInStandardUnit(
+    container: HTMLElement,
+    inputId: string,
+    standardUnit: string
+): number | null {
     const input = container.querySelector(`#${inputId}`) as HTMLInputElement;
     const unitSelect = container.querySelector(`#${inputId}-unit`) as HTMLSelectElement;
 

@@ -4,7 +4,8 @@ import { LOINC_CODES } from '../../fhir-codes.js';
 export const qtc = createFormulaCalculator({
     id: 'qtc',
     title: 'Corrected QT Interval (QTc)',
-    description: 'Calculates corrected QT interval using various formulas to assess risk of arrhythmias.',
+    description:
+        'Calculates corrected QT interval using various formulas to assess risk of arrhythmias.',
     inputs: [
         {
             id: 'qtc-qt',
@@ -14,7 +15,7 @@ export const qtc = createFormulaCalculator({
             min: 100,
             max: 1000,
             placeholder: 'e.g. 400',
-            unitConfig: { type: 'time', units: ['ms'], default: 'ms' },
+            unitConfig: { type: 'time', units: ['ms'], default: 'ms' }
             // Note: FHIR usually doesn't have standalone QT, often part of ECG.
         },
         {
@@ -46,10 +47,10 @@ export const qtc = createFormulaCalculator({
         { label: 'Hodges', formula: 'QTc = QT + 1.75 × (HR - 60)' },
         { label: 'Framingham', formula: 'QTc = QT + 154 × (1 - RR)' }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const qt = values['qtc-qt'] as number;
         const hr = values['qtc-hr'] as number;
-        const formula = values['qtc-formula'] as string || 'bazett';
+        const formula = (values['qtc-formula'] as string) || 'bazett';
 
         if (!qt || !hr) return null;
 
@@ -82,7 +83,8 @@ export const qtc = createFormulaCalculator({
         if (qtcValue > 500) {
             interpretation = 'Prolonged (>500ms)';
             alertClass = 'danger';
-        } else if (qtcValue > 460) { // Generic cutoff, arguably different for M/F
+        } else if (qtcValue > 460) {
+            // Generic cutoff, arguably different for M/F
             interpretation = 'Borderline Prolonged';
             alertClass = 'warning';
         } else {
@@ -100,7 +102,7 @@ export const qtc = createFormulaCalculator({
             }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const res = results[0];
         const val = parseInt(res.value as string);
 
@@ -121,7 +123,7 @@ export const qtc = createFormulaCalculator({
             </div>
             
              <div class="ui-alert ui-alert-${res.alertClass} mt-10">
-                <span class="ui-alert-icon">${val > 500 ? '⚠️' : (val > 450 ? '⚠️' : '✓')}</span>
+                <span class="ui-alert-icon">${val > 500 ? '⚠️' : val > 450 ? '⚠️' : '✓'}</span>
                 <div class="ui-alert-content">${note}</div>
             </div>
         `;

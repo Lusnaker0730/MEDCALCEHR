@@ -12,10 +12,10 @@ export const CACHE_NAMES = {
 };
 
 export const CACHE_EXPIRY = {
-    static: 7 * 24 * 60 * 60 * 1000,        // 7 days
-    calculators: 24 * 60 * 60 * 1000,       // 1 day
-    fhir: 5 * 60 * 1000,                     // 5 minutes
-    images: 30 * 24 * 60 * 60 * 1000         // 30 days
+    static: 7 * 24 * 60 * 60 * 1000, // 7 days
+    calculators: 24 * 60 * 60 * 1000, // 1 day
+    fhir: 5 * 60 * 1000, // 5 minutes
+    images: 30 * 24 * 60 * 60 * 1000 // 30 days
 };
 
 /**
@@ -40,7 +40,12 @@ export class CacheManager {
     /**
      * Store item in cache with expiry
      */
-    async set(cacheName: string, key: string, data: any, expiryMs: number | null = null): Promise<boolean> {
+    async set(
+        cacheName: string,
+        key: string,
+        data: any,
+        expiryMs: number | null = null
+    ): Promise<boolean> {
         // Memory cache
         const expiryTime = expiryMs ? Date.now() + expiryMs : null;
         this.memoryCache.set(key, {
@@ -52,16 +57,19 @@ export class CacheManager {
         if (this.cacheEnabled) {
             try {
                 const cache = await caches.open(cacheName);
-                const response = new Response(JSON.stringify({
-                    data,
-                    timestamp: Date.now(),
-                    expiry: expiryTime
-                }), {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Cache-Timestamp': Date.now().toString()
+                const response = new Response(
+                    JSON.stringify({
+                        data,
+                        timestamp: Date.now(),
+                        expiry: expiryTime
+                    }),
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Cache-Timestamp': Date.now().toString()
+                        }
                     }
-                });
+                );
                 await cache.put(key, response);
             } catch (error) {
                 console.warn('Failed to write to cache:', error);
@@ -233,12 +241,7 @@ export class CalculatorCacheManager extends CacheManager {
      */
     async cacheCalculator(calculatorId: string, moduleData: string): Promise<void> {
         const key = `/js/calculators/${calculatorId}/index.js`;
-        await this.set(
-            CACHE_NAMES.calculators,
-            key,
-            moduleData,
-            CACHE_EXPIRY.calculators
-        );
+        await this.set(CACHE_NAMES.calculators, key, moduleData, CACHE_EXPIRY.calculators);
     }
 
     /**
@@ -253,7 +256,7 @@ export class CalculatorCacheManager extends CacheManager {
      * Preload popular calculators
      */
     async preloadPopularCalculators(calculatorIds: string[]): Promise<void> {
-        const promises = calculatorIds.map(async (id) => {
+        const promises = calculatorIds.map(async id => {
             try {
                 const response = await fetch(`/js/calculators/${id}/index.js`);
                 if (response.ok) {
@@ -278,12 +281,7 @@ export class FHIRCacheManager extends CacheManager {
      */
     async cachePatient(patientId: string, patientData: any): Promise<void> {
         const key = `patient-${patientId}`;
-        await this.set(
-            CACHE_NAMES.fhir,
-            key,
-            patientData,
-            CACHE_EXPIRY.fhir
-        );
+        await this.set(CACHE_NAMES.fhir, key, patientData, CACHE_EXPIRY.fhir);
     }
 
     /**
@@ -297,14 +295,13 @@ export class FHIRCacheManager extends CacheManager {
     /**
      * Cache observation data
      */
-    async cacheObservation(patientId: string, observationCode: string, observationData: any): Promise<void> {
+    async cacheObservation(
+        patientId: string,
+        observationCode: string,
+        observationData: any
+    ): Promise<void> {
         const key = `observation-${patientId}-${observationCode}`;
-        await this.set(
-            CACHE_NAMES.fhir,
-            key,
-            observationData,
-            CACHE_EXPIRY.fhir
-        );
+        await this.set(CACHE_NAMES.fhir, key, observationData, CACHE_EXPIRY.fhir);
     }
 
     /**
@@ -327,8 +324,10 @@ export class FHIRCacheManager extends CacheManager {
 
             for (const request of requests) {
                 const url = request.url;
-                if (url.includes(`patient-${patientId}`) ||
-                    url.includes(`observation-${patientId}`)) {
+                if (
+                    url.includes(`patient-${patientId}`) ||
+                    url.includes(`observation-${patientId}`)
+                ) {
                     await cache.delete(request);
                 }
             }
@@ -360,12 +359,7 @@ export class StaticCacheManager extends CacheManager {
      * Cache image
      */
     async cacheImage(url: string, imageData: any): Promise<void> {
-        await this.set(
-            CACHE_NAMES.images,
-            url,
-            imageData,
-            CACHE_EXPIRY.images
-        );
+        await this.set(CACHE_NAMES.images, url, imageData, CACHE_EXPIRY.images);
     }
 
     /**
@@ -389,7 +383,9 @@ export const staticCache = new StaticCacheManager();
  */
 function getPopularCalculators(): string[] {
     try {
-        const usage: Record<string, number> = JSON.parse(localStorage.getItem('calculator-usage') || '{}');
+        const usage: Record<string, number> = JSON.parse(
+            localStorage.getItem('calculator-usage') || '{}'
+        );
         return Object.entries(usage)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10)

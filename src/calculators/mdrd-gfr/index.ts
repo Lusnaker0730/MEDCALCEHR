@@ -6,8 +6,10 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const mdrdGfr = createFormulaCalculator({
     id: 'mdrd-gfr',
     title: 'MDRD GFR Equation',
-    description: 'Estimates GFR using the MDRD equation. Note: CKD-EPI is now preferred for most patients.',
-    infoAlert: '<strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.',
+    description:
+        'Estimates GFR using the MDRD equation. Note: CKD-EPI is now preferred for most patients.',
+    infoAlert:
+        '<strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.',
     inputs: [
         {
             type: 'radio',
@@ -50,7 +52,7 @@ export const mdrdGfr = createFormulaCalculator({
         { label: 'Gender Adjustment', formula: 'If female: multiply by 0.742' },
         { label: 'Race Adjustment', formula: 'If African American: multiply by 1.212' }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const age = values['mdrd-age'] as number;
         const creatinine = values['mdrd-creatinine'] as number;
         const gender = values['mdrd-gender'] as string;
@@ -84,7 +86,8 @@ export const mdrdGfr = createFormulaCalculator({
         } else if (gfr >= 30) {
             stage = 'Stage 3b (Moderate to severe)';
             alertType = 'warning';
-            alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+            alertMsg =
+                'Moderate to severe reduction in kidney function. Consider nephrology referral.';
         } else if (gfr >= 15) {
             stage = 'Stage 4 (Severe)';
             alertType = 'danger';
@@ -111,7 +114,7 @@ export const mdrdGfr = createFormulaCalculator({
             }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const gfrResult = results.find(r => r.label !== '__ALERT__');
         const alertResult = results.find(r => r.label === '__ALERT__');
 
@@ -140,8 +143,12 @@ export const mdrdGfr = createFormulaCalculator({
         // If getPatientAge is async, we handle promise.
 
         const ageInput = container.querySelector('#mdrd-age') as HTMLInputElement;
-        const genderMale = container.querySelector('input[name="mdrd-gender"][value="male"]') as HTMLInputElement;
-        const genderFemale = container.querySelector('input[name="mdrd-gender"][value="female"]') as HTMLInputElement;
+        const genderMale = container.querySelector(
+            'input[name="mdrd-gender"][value="male"]'
+        ) as HTMLInputElement;
+        const genderFemale = container.querySelector(
+            'input[name="mdrd-gender"][value="female"]'
+        ) as HTMLInputElement;
 
         const populate = async () => {
             try {

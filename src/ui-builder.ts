@@ -211,11 +211,12 @@ export class UIBuilder {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
 
-        const optionsHTML = options.map((opt, index) => {
-            const checked = opt.checked ? 'checked' : '';
-            const disabled = opt.disabled ? 'disabled' : '';
-            const id = opt.id || `${name}-${opt.value}-${index}`;
-            return `
+        const optionsHTML = options
+            .map((opt, index) => {
+                const checked = opt.checked ? 'checked' : '';
+                const disabled = opt.disabled ? 'disabled' : '';
+                const id = opt.id || `${name}-${opt.value}-${index}`;
+                return `
                 <div class="ui-radio-option">
                     <input type="radio" 
                            id="${id}" 
@@ -228,7 +229,8 @@ export class UIBuilder {
                     </label>
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
 
         return `
             <div class="ui-input-group">
@@ -253,13 +255,16 @@ export class UIBuilder {
     }: UICheckboxGroupOptions): string {
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
 
-        const optionsHTML = options.map((opt, index) => {
-            const checked = opt.checked ? 'checked' : '';
-            const disabled = opt.disabled ? 'disabled' : '';
-            const id = opt.id || `${name}-${index}`;
-            const descHTML = opt.description ? `<div class="checkbox-description">${opt.description}</div>` : '';
+        const optionsHTML = options
+            .map((opt, index) => {
+                const checked = opt.checked ? 'checked' : '';
+                const disabled = opt.disabled ? 'disabled' : '';
+                const id = opt.id || `${name}-${index}`;
+                const descHTML = opt.description
+                    ? `<div class="checkbox-description">${opt.description}</div>`
+                    : '';
 
-            return `
+                return `
                 <div class="ui-checkbox-option">
                     <input type="checkbox" 
                            id="${id}" 
@@ -273,7 +278,8 @@ export class UIBuilder {
                     ${descHTML}
                 </div>
             `;
-        }).join('');
+            })
+            .join('');
 
         return `
             <div class="ui-input-group">
@@ -298,7 +304,9 @@ export class UIBuilder {
         description = ''
     }: UICheckboxOptions): string {
         const checkedAttr = checked ? 'checked' : '';
-        const descHTML = description ? `<div class="checkbox-description">${description}</div>` : '';
+        const descHTML = description
+            ? `<div class="checkbox-description">${description}</div>`
+            : '';
 
         return `
             <div class="ui-checkbox-option">
@@ -328,10 +336,12 @@ export class UIBuilder {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
 
-        const optionsHTML = options.map(opt => {
-            const selected = opt.selected ? 'selected' : '';
-            return `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
-        }).join('');
+        const optionsHTML = options
+            .map(opt => {
+                const selected = opt.selected ? 'selected' : '';
+                return `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
+            })
+            .join('');
 
         return `
             <div class="ui-input-group">
@@ -391,7 +401,13 @@ export class UIBuilder {
     /**
      * Helper to create result item HTML
      */
-    createResultItem({ label, value, unit = '', interpretation = '', alertClass = '' }: UIResultItemOptions): string {
+    createResultItem({
+        label,
+        value,
+        unit = '',
+        interpretation = '',
+        alertClass = ''
+    }: UIResultItemOptions): string {
         let html = `
             <div class="ui-result-score">
                 ${label ? `<div class="ui-section-subtitle" style="text-align:center; margin-top:0;">${label}</div>` : ''}
@@ -431,22 +447,27 @@ export class UIBuilder {
      * @param {Object} options - { items: [{ label, formula, notes }] }
      */
     createFormulaSection({ items = [] }: UIFormulaSectionOptions): string {
-        const itemsHTML = items.map(item => {
-            const label = item.label || item.title || 'Formula';
-            const formulaText = item.formula || item.content || '';
-            const formulaContent = Array.isArray(item.formulas)
-                ? item.formulas.map(f => `<div>${f}</div>`).join('')
-                : formulaText;
+        const itemsHTML = items
+            .map(item => {
+                const label = item.label || item.title || 'Formula';
+                const formulaText = item.formula || item.content || '';
+                const formulaContent = Array.isArray(item.formulas)
+                    ? item.formulas.map(f => `<div>${f}</div>`).join('')
+                    : formulaText;
 
-            const notesHTML = item.notes ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>` : '';
+                const notesHTML = item.notes
+                    ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>`
+                    : '';
 
-            return `
+                return `
             <div class="ui-formula-item">
                 <strong>${label}:</strong>
                 <div class="ui-formula-math">${formulaContent}</div>
                 ${notesHTML}
             </div>
-        `}).join('');
+        `;
+            })
+            .join('');
 
         return `
             <div class="ui-formula-section">
@@ -462,7 +483,9 @@ export class UIBuilder {
      * @param {string} value - The value to select
      */
     setRadioValue(name: string, value: string): void {
-        const radio = document.querySelector(`input[name="${name}"][value="${value}"]`) as HTMLInputElement;
+        const radio = document.querySelector(
+            `input[name="${name}"][value="${value}"]`
+        ) as HTMLInputElement;
         if (radio) {
             radio.checked = true;
             radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -483,7 +506,9 @@ export class UIBuilder {
             let config: any = null;
             try {
                 config = JSON.parse((wrapper as HTMLElement).dataset.unitToggle || 'null');
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                /* ignore */
+            }
 
             // Ensure config is a proper object with units before attempting to enhance
             if (input && config && typeof config === 'object' && Array.isArray(config.units)) {
@@ -501,7 +526,7 @@ export class UIBuilder {
         rangeSliders.forEach(slider => {
             const valueDisplay = container.querySelector(`#${slider.id}-value`);
             if (valueDisplay) {
-                slider.addEventListener('input', (e) => {
+                slider.addEventListener('input', e => {
                     const unit = valueDisplay.textContent?.replace(/[0-9.-]/g, '') || '';
                     valueDisplay.textContent = (e.target as HTMLInputElement).value + unit;
                 });
@@ -513,7 +538,9 @@ export class UIBuilder {
         radioInputs.forEach(radio => {
             radio.addEventListener('change', () => {
                 // Remove 'selected' class from all options in the same group
-                const group = container.querySelectorAll(`input[name="${(radio as HTMLInputElement).name}"]`);
+                const group = container.querySelectorAll(
+                    `input[name="${(radio as HTMLInputElement).name}"]`
+                );
                 group.forEach(r => {
                     if (r.parentElement) r.parentElement.classList.remove('selected');
                 });
@@ -525,7 +552,9 @@ export class UIBuilder {
         });
 
         // Add visual feedback for checkbox selections
-        const checkboxInputs = container.querySelectorAll('.ui-checkbox-option input[type="checkbox"]');
+        const checkboxInputs = container.querySelectorAll(
+            '.ui-checkbox-option input[type="checkbox"]'
+        );
         checkboxInputs.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 if ((checkbox as HTMLInputElement).checked && checkbox.parentElement) {
@@ -545,37 +574,49 @@ export class UIBuilder {
      * Create a complete form with multiple fields
      * @param {Object} options - { fields: [], onSubmit }
      */
-    createForm({ fields = [], submitLabel = 'Calculate', showSubmit = false }: { fields: any[], submitLabel?: string, showSubmit?: boolean }): string {
-        const fieldsHTML = fields.map(field => {
-            switch (field.type) {
-                case 'input':
-                case 'number':
-                case 'text':
-                    return this.createInput(field as UIInputOptions);
-                case 'radio':
-                    return this.createRadioGroup(field as UIRadioGroupOptions);
-                case 'checkbox':
-                    if ((field as any).options) {
-                        return this.createCheckboxGroup(field as UICheckboxGroupOptions);
-                    } else {
-                        return this.createCheckbox(field as UICheckboxOptions);
-                    }
-                case 'select':
-                    return this.createSelect(field as UISelectOptions);
-                case 'range':
-                    return this.createRange(field as UIRangeOptions);
-                case 'section':
-                    return this.createSection(field as UISectionOptions);
-                default:
-                    return '';
-            }
-        }).join('');
+    createForm({
+        fields = [],
+        submitLabel = 'Calculate',
+        showSubmit = false
+    }: {
+        fields: any[];
+        submitLabel?: string;
+        showSubmit?: boolean;
+    }): string {
+        const fieldsHTML = fields
+            .map(field => {
+                switch (field.type) {
+                    case 'input':
+                    case 'number':
+                    case 'text':
+                        return this.createInput(field as UIInputOptions);
+                    case 'radio':
+                        return this.createRadioGroup(field as UIRadioGroupOptions);
+                    case 'checkbox':
+                        if ((field as any).options) {
+                            return this.createCheckboxGroup(field as UICheckboxGroupOptions);
+                        } else {
+                            return this.createCheckbox(field as UICheckboxOptions);
+                        }
+                    case 'select':
+                        return this.createSelect(field as UISelectOptions);
+                    case 'range':
+                        return this.createRange(field as UIRangeOptions);
+                    case 'section':
+                        return this.createSection(field as UISectionOptions);
+                    default:
+                        return '';
+                }
+            })
+            .join('');
 
-        const submitHTML = showSubmit ? `
+        const submitHTML = showSubmit
+            ? `
             <div class="ui-button-group">
                 <button type="submit" class="ui-button ui-button-primary">${submitLabel}</button>
             </div>
-        ` : '';
+        `
+            : '';
 
         return `
             <form class="ui-form">
@@ -592,22 +633,28 @@ export class UIBuilder {
     createTable({
         id,
         headers = [], // ['Col 1', 'Col 2']
-        rows = [],    // [['r1c1', 'r1c2'], ['r2c1', 'r2c2']]
+        rows = [], // [['r1c1', 'r1c2'], ['r2c1', 'r2c2']]
         className = '',
         stickyFirstColumn = false
     }: UITableOptions): string {
-        const headerHTML = headers.map((h, i) => {
-            const stickyClass = (stickyFirstColumn && i === 0) ? 'sticky-col' : '';
-            return `<th class="${stickyClass}">${h}</th>`;
-        }).join('');
+        const headerHTML = headers
+            .map((h, i) => {
+                const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
+                return `<th class="${stickyClass}">${h}</th>`;
+            })
+            .join('');
 
-        const rowsHTML = rows.map(row => {
-            const cellsHTML = row.map((cell, i) => {
-                const stickyClass = (stickyFirstColumn && i === 0) ? 'sticky-col' : '';
-                return `<td class="${stickyClass}">${cell}</td>`;
-            }).join('');
-            return `<tr>${cellsHTML}</tr>`;
-        }).join('');
+        const rowsHTML = rows
+            .map(row => {
+                const cellsHTML = row
+                    .map((cell, i) => {
+                        const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
+                        return `<td class="${stickyClass}">${cell}</td>`;
+                    })
+                    .join('');
+                return `<tr>${cellsHTML}</tr>`;
+            })
+            .join('');
 
         const tableClass = `ui-table ${className} ${stickyFirstColumn ? 'has-sticky-col' : ''}`;
         const wrapperId = id ? `id="${id}"` : '';

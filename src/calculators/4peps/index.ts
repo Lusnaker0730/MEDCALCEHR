@@ -62,11 +62,7 @@ const config: MixedInputCalculatorConfig = {
             '*Surgery, lower limb plaster cast, or bedridden >3 days for acute medical condition within the last four weeks.'
         ],
         interpretationTitle: 'FACTS & FIGURES',
-        tableHeaders: [
-            '4PEPS Score for PE',
-            'Clinical probability of PE',
-            'PE diagnosis'
-        ],
+        tableHeaders: ['4PEPS Score for PE', 'Clinical probability of PE', 'PE diagnosis'],
         interpretations: [
             {
                 score: '<0',
@@ -346,21 +342,21 @@ const config: MixedInputCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: '4PEPS Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskLevel,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: '4PEPS Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Clinical Pretest Probability',
-            value: probability,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Clinical Pretest Probability',
+                value: probability,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertType,
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
         `;
     },
 

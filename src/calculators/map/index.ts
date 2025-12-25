@@ -4,7 +4,8 @@ import { LOINC_CODES } from '../../fhir-codes.js';
 export const map = createFormulaCalculator({
     id: 'map',
     title: 'Mean Arterial Pressure (MAP)',
-    description: 'Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.',
+    description:
+        'Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.',
     inputs: [
         {
             id: 'map-sbp',
@@ -31,7 +32,7 @@ export const map = createFormulaCalculator({
         { label: 'Formula', formula: 'MAP = DBP + (1/3 × (SBP - DBP))' },
         { label: 'Equivalent', formula: 'MAP = (SBP + 2 × DBP) / 3' }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const sbp = values['map-sbp'] as number;
         const dbp = values['map-dbp'] as number;
 
@@ -67,12 +68,13 @@ export const map = createFormulaCalculator({
             }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const res = results[0];
         const val = parseFloat(res.value as string);
 
         let note = '';
-        if (val < 60) note = 'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.';
+        if (val < 60)
+            note = 'MAP <60 mmHg indicates severe hypotension and risk of organ hypoperfusion.';
         else if (val < 70) note = 'Borderline low MAP. Monitor closely.';
         else if (val <= 100) note = 'Normal MAP (70-100 mmHg) indicates adequate organ perfusion.';
         else note = 'Sustained MAP >100 mmHg requires management.';

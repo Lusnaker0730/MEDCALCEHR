@@ -36,7 +36,7 @@ export const calciumCorrection = createFormulaCalculator({
         },
         { label: 'Note', formula: 'Normal albumin reference: 4.0 g/dL' }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const totalCalciumMgDl = values['ca-total'] as number;
         const albuminGdl = values['ca-albumin'] as number;
 
@@ -71,7 +71,7 @@ export const calciumCorrection = createFormulaCalculator({
             }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const [target, mmol] = results;
 
         // Helper to generate result item HTML

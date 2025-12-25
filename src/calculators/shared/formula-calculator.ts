@@ -1,6 +1,6 @@
 /**
  * Formula Calculator Factory
- * 
+ *
  * Specifically designed for "pure calculation" calculators like BMI, QTc, etc.
  * Key features:
  * - Handles numeric inputs with unit conversions
@@ -13,10 +13,7 @@
 
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
-import {
-    fhirDataService,
-    FieldDataRequirement
-} from '../../fhir-data-service.js';
+import { fhirDataService, FieldDataRequirement } from '../../fhir-data-service.js';
 import { ValidationError, displayError } from '../../errorHandler.js';
 
 // ==========================================
@@ -61,7 +58,10 @@ export interface FormulaSelectInputConfig {
     helpText?: string;
 }
 
-export type FormulaInputConfig = FormulaNumberInputConfig | FormulaRadioInputConfig | FormulaSelectInputConfig;
+export type FormulaInputConfig =
+    | FormulaNumberInputConfig
+    | FormulaRadioInputConfig
+    | FormulaSelectInputConfig;
 
 export interface FormulaResultItem {
     label: string;
@@ -112,7 +112,12 @@ export interface FormulaConfig {
     /**
      * Custom initialization logic (e.g. for specialized FHIR auto-population)
      */
-    customInitialize?: (client: any, patient: any, container: HTMLElement, calculate: () => void) => void;
+    customInitialize?: (
+        client: any,
+        patient: any,
+        container: HTMLElement,
+        calculate: () => void
+    ) => void;
 }
 
 export interface CalculatorModule {
@@ -135,44 +140,48 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
 
         generateHTML(): string {
             // Generate Input Section
-            const inputsHTML = config.inputs.map(input => {
-                if (input.type === 'number') {
-                    return uiBuilder.createInput({
-                        id: input.id,
-                        label: input.label,
-                        type: 'number',
-                        placeholder: input.placeholder,
-                        min: input.min,
-                        max: input.max,
-                        step: input.step,
-                        helpText: input.helpText,
-                        // If unit toggle is enabled, do NOT pass 'unit' to uiBuilder, otherwise it renders both static text AND the toggle button
-                        unit: input.unitConfig ? undefined : input.standardUnit,
-                        unitToggle: input.unitConfig ? {
-                            type: input.unitConfig.type,
-                            units: input.unitConfig.units,
-                            default: input.unitConfig.default
-                        } : undefined,
-                        required: input.required !== false
-                    });
-                } else if (input.type === 'radio') {
-                    // Manually generating radio HTML as uiBuilder might not have perfect flexible method or ensuring structure
-                    return uiBuilder.createRadioGroup({
-                        name: input.id,
-                        label: input.label,
-                        options: input.options,
-                        helpText: input.helpText
-                    });
-                } else if (input.type === 'select') {
-                    return uiBuilder.createSelect({
-                        id: input.id,
-                        label: input.label,
-                        options: input.options,
-                        helpText: input.helpText
-                    });
-                }
-                return '';
-            }).join('');
+            const inputsHTML = config.inputs
+                .map(input => {
+                    if (input.type === 'number') {
+                        return uiBuilder.createInput({
+                            id: input.id,
+                            label: input.label,
+                            type: 'number',
+                            placeholder: input.placeholder,
+                            min: input.min,
+                            max: input.max,
+                            step: input.step,
+                            helpText: input.helpText,
+                            // If unit toggle is enabled, do NOT pass 'unit' to uiBuilder, otherwise it renders both static text AND the toggle button
+                            unit: input.unitConfig ? undefined : input.standardUnit,
+                            unitToggle: input.unitConfig
+                                ? {
+                                      type: input.unitConfig.type,
+                                      units: input.unitConfig.units,
+                                      default: input.unitConfig.default
+                                  }
+                                : undefined,
+                            required: input.required !== false
+                        });
+                    } else if (input.type === 'radio') {
+                        // Manually generating radio HTML as uiBuilder might not have perfect flexible method or ensuring structure
+                        return uiBuilder.createRadioGroup({
+                            name: input.id,
+                            label: input.label,
+                            options: input.options,
+                            helpText: input.helpText
+                        });
+                    } else if (input.type === 'select') {
+                        return uiBuilder.createSelect({
+                            id: input.id,
+                            label: input.label,
+                            options: input.options,
+                            helpText: input.helpText
+                        });
+                    }
+                    return '';
+                })
+                .join('');
 
             const inputSection = uiBuilder.createSection({
                 title: 'Measurements',
@@ -180,9 +189,11 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
             });
 
             // Generate Formula Reference Section
-            const formulaSection = config.formulas ? uiBuilder.createFormulaSection({
-                items: config.formulas
-            }) : '';
+            const formulaSection = config.formulas
+                ? uiBuilder.createFormulaSection({
+                      items: config.formulas
+                  })
+                : '';
 
             return `
                 <div class="calculator-header">
@@ -190,19 +201,23 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                     <p class="description">${config.description}</p>
                 </div>
 
-                ${config.infoAlert ? uiBuilder.createAlert({
-                type: 'info',
-                message: config.infoAlert
-            }) : ''}
+                ${
+                    config.infoAlert
+                        ? uiBuilder.createAlert({
+                              type: 'info',
+                              message: config.infoAlert
+                          })
+                        : ''
+                }
 
                 ${inputSection}
 
                 <div id="${config.id}-error-container"></div>
                 
                 ${uiBuilder.createResultBox({
-                id: `${config.id}-result`,
-                title: 'Results'
-            })}
+                    id: `${config.id}-result`,
+                    title: 'Results'
+                })}
                 
                 ${formulaSection}
 
@@ -218,7 +233,9 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
             fhirDataService.initialize(client, patient, container);
 
             const resultBox = container.querySelector(`#${config.id}-result`) as HTMLElement;
-            const errorContainer = container.querySelector(`#${config.id}-error-container`) as HTMLElement;
+            const errorContainer = container.querySelector(
+                `#${config.id}-error-container`
+            ) as HTMLElement;
 
             // ----------------------------------------------------------------
             // Calculation Logic
@@ -235,7 +252,9 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
 
                 config.inputs.forEach(inputConfig => {
                     if (inputConfig.type === 'number') {
-                        const inputEl = container.querySelector(`#${inputConfig.id}`) as HTMLInputElement;
+                        const inputEl = container.querySelector(
+                            `#${inputConfig.id}`
+                        ) as HTMLInputElement;
                         if (!inputEl) return;
 
                         // Skip empty fields
@@ -257,7 +276,10 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                         // Handle Unit Conversion to Standard Unit using custom helper
                         if (inputConfig.standardUnit) {
                             try {
-                                const standardVal = UnitConverter.getStandardValue(inputEl, inputConfig.standardUnit);
+                                const standardVal = UnitConverter.getStandardValue(
+                                    inputEl,
+                                    inputConfig.standardUnit
+                                );
                                 if (standardVal !== null) {
                                     val = standardVal;
                                 }
@@ -275,14 +297,17 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                         }
 
                         values[inputConfig.id] = val;
-
                     } else if (inputConfig.type === 'radio') {
-                        const checked = container.querySelector(`input[name="${inputConfig.id}"]:checked`) as HTMLInputElement;
+                        const checked = container.querySelector(
+                            `input[name="${inputConfig.id}"]:checked`
+                        ) as HTMLInputElement;
                         if (checked) {
                             values[inputConfig.id] = checked.value;
                         }
                     } else if (inputConfig.type === 'select') {
-                        const select = container.querySelector(`#${inputConfig.id}`) as HTMLSelectElement;
+                        const select = container.querySelector(
+                            `#${inputConfig.id}`
+                        ) as HTMLSelectElement;
                         if (select) {
                             values[inputConfig.id] = select.value;
                         }
@@ -313,13 +338,19 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                             if (config.customResultRenderer) {
                                 contentEl.innerHTML = config.customResultRenderer(results);
                             } else {
-                                contentEl.innerHTML = results.map(r => uiBuilder.createResultItem({
-                                    label: r.label,
-                                    value: r.value,
-                                    unit: r.unit,
-                                    interpretation: r.interpretation,
-                                    alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
-                                })).join('');
+                                contentEl.innerHTML = results
+                                    .map(r =>
+                                        uiBuilder.createResultItem({
+                                            label: r.label,
+                                            value: r.value,
+                                            unit: r.unit,
+                                            interpretation: r.interpretation,
+                                            alertClass: r.alertClass
+                                                ? `ui-alert-${r.alertClass}`
+                                                : ''
+                                        })
+                                    )
+                                    .join('');
                             }
                         }
                         resultBox.classList.add('show');
@@ -354,15 +385,14 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                 if (fhirInputs.length === 0) return;
 
                 if (fhirDataService.isReady()) {
-                    const requirements: FieldDataRequirement[] = fhirInputs
-                        .map(i => ({
-                            inputId: `#${i.id}`,
-                            code: i.loincCode!,
-                            label: i.label,
-                            targetUnit: i.unitConfig ? i.unitConfig.default : i.standardUnit,
-                            unitType: i.unitConfig?.type,
-                            decimals: 1 // Default to 1 decimal place
-                        }));
+                    const requirements: FieldDataRequirement[] = fhirInputs.map(i => ({
+                        inputId: `#${i.id}`,
+                        code: i.loincCode!,
+                        label: i.label,
+                        targetUnit: i.unitConfig ? i.unitConfig.default : i.standardUnit,
+                        unitType: i.unitConfig?.type,
+                        decimals: 1 // Default to 1 decimal place
+                    }));
 
                     await fhirDataService.autoPopulateFields(requirements);
                     performCalculation();

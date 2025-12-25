@@ -60,7 +60,10 @@ export function logError(error: any, context: any = {}): any {
     };
 
     // Log details in development environment
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    if (
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ) {
         console.group('🚨 Error Logged');
         console.error('Error:', error);
         console.log('Context:', context);
@@ -83,7 +86,11 @@ export function logError(error: any, context: any = {}): any {
  * @param {Error} error - Error object
  * @param {string} userMessage - User-friendly error message
  */
-export function displayError(container: HTMLElement, error: any, userMessage: string | null = null): void {
+export function displayError(
+    container: HTMLElement,
+    error: any,
+    userMessage: string | null = null
+): void {
     if (!container) {
         console.error('displayError: container element is null');
         return;
@@ -105,8 +112,9 @@ export function displayError(container: HTMLElement, error: any, userMessage: st
             <div style="color: #555; font-size: 0.9em;">
                 ${message}
             </div>
-            ${typeof window !== 'undefined' && window.location.hostname === 'localhost'
-            ? `
+            ${
+                typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                    ? `
                 <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
                     <summary style="cursor: pointer;">Technical Details</summary>
                     <pre style="margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 3px; overflow-x: auto;">
@@ -114,8 +122,8 @@ ${error.stack || error.message}
                     </pre>
                 </details>
             `
-            : ''
-        }
+                    : ''
+            }
         </div>
     `;
 }
@@ -148,7 +156,10 @@ function getUserFriendlyMessage(error: any): string {
  * @param {Object} context - Error context
  * @returns {Function} Wrapped function
  */
-export function withErrorHandling(fn: (...args: any[]) => Promise<any>, context: any = {}): (...args: any[]) => Promise<any> {
+export function withErrorHandling(
+    fn: (...args: any[]) => Promise<any>,
+    context: any = {}
+): (...args: any[]) => Promise<any> {
     return async function (this: any, ...args: any[]) {
         try {
             return await fn.apply(this, args);

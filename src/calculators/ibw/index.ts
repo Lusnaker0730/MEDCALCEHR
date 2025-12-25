@@ -6,7 +6,8 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const ibw = createFormulaCalculator({
     id: 'ibw',
     title: 'Ideal & Adjusted Body Weight',
-    description: 'Calculates ideal body weight (IBW) and adjusted body weight (ABW) using the Devine formula.',
+    description:
+        'Calculates ideal body weight (IBW) and adjusted body weight (ABW) using the Devine formula.',
     infoAlert: `
         <h4>Clinical Applications</h4>
         <ul>
@@ -53,7 +54,7 @@ export const ibw = createFormulaCalculator({
         { label: 'ABW', formula: 'IBW + 0.4 × (Actual Weight - IBW)' },
         { label: 'Note', formula: 'ABW is calculated only when actual weight exceeds IBW.' }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const heightCm = values['ibw-height'] as number;
         const actualWeight = values['ibw-actual'] as number;
         const gender = values['ibw-gender'] as string;
@@ -65,9 +66,7 @@ export const ibw = createFormulaCalculator({
 
         let ibw = 0;
         if (heightIn > 60) {
-            ibw = isMale
-                ? 50 + 2.3 * (heightIn - 60)
-                : 45.5 + 2.3 * (heightIn - 60);
+            ibw = isMale ? 50 + 2.3 * (heightIn - 60) : 45.5 + 2.3 * (heightIn - 60);
         } else {
             ibw = isMale ? 50 : 45.5;
         }
@@ -117,17 +116,21 @@ export const ibw = createFormulaCalculator({
 
         return results;
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const standardResults = results.filter(r => r.label !== '__ALERT__');
         const alertResult = results.find(r => r.label === '__ALERT__');
 
-        let html = standardResults.map(r => uiBuilder.createResultItem({
-            label: r.label,
-            value: r.value.toString(),
-            unit: r.unit,
-            interpretation: r.interpretation,
-            alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
-        })).join('');
+        let html = standardResults
+            .map(r =>
+                uiBuilder.createResultItem({
+                    label: r.label,
+                    value: r.value.toString(),
+                    unit: r.unit,
+                    interpretation: r.interpretation,
+                    alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
+                })
+            )
+            .join('');
 
         if (alertResult) {
             html += uiBuilder.createAlert({

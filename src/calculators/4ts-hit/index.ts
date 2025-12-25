@@ -30,21 +30,21 @@ export const hepScore: CalculatorModule = {
         </div>
 
         ${uiBuilder.createAlert({
-        type: 'info',
-        message:
-            '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
-    })}
+            type: 'info',
+            message:
+                '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.'
+        })}
 
         ${uiBuilder.createSection({
-        title: 'Type of HIT onset suspected',
-        content: uiBuilder.createRadioGroup({
-            name: 'hit_onset_type',
-            options: [
-                { value: 'typical', label: 'Typical onset', checked: true },
-                { value: 'rapid', label: 'Rapid onset (re-exposure)' }
-            ]
-        })
-    })}
+            title: 'Type of HIT onset suspected',
+            content: uiBuilder.createRadioGroup({
+                name: 'hit_onset_type',
+                options: [
+                    { value: 'typical', label: 'Typical onset', checked: true },
+                    { value: 'rapid', label: 'Rapid onset (re-exposure)' }
+                ]
+            })
+        })}
 
         <div id="hep-score-criteria">
             <!-- JS will populate this section based on onset type -->

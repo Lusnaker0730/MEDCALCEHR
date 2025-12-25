@@ -88,7 +88,11 @@ export function sanitizeHTML(html: string): string {
  * @param {Object} attributes - Optional attributes to set
  * @returns {HTMLElement} The created element
  */
-export function createSafeElement(tag: string, content: string | { html: string } = '', attributes: Record<string, string> = {}): HTMLElement {
+export function createSafeElement(
+    tag: string,
+    content: string | { html: string } = '',
+    attributes: Record<string, string> = {}
+): HTMLElement {
     const element = document.createElement(tag);
 
     // Set text content safely (no HTML parsing)
@@ -191,13 +195,11 @@ export function sanitizeFHIRField(fhirData: any, field: string): string {
  * @param {Object} options - Validation options
  * @returns {Object} { isValid: boolean, sanitized: string, error: string }
  */
-export function validateInput(input: string, options: { maxLength?: number; allowHTML?: boolean; pattern?: RegExp; required?: boolean } = {}): { isValid: boolean; sanitized: string; error: string | null } {
-    const {
-        maxLength = 1000,
-        allowHTML = false,
-        pattern = null,
-        required = false
-    } = options;
+export function validateInput(
+    input: string,
+    options: { maxLength?: number; allowHTML?: boolean; pattern?: RegExp; required?: boolean } = {}
+): { isValid: boolean; sanitized: string; error: string | null } {
+    const { maxLength = 1000, allowHTML = false, pattern = null, required = false } = options;
 
     const result = {
         isValid: true,

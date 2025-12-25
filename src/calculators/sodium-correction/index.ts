@@ -38,7 +38,8 @@ export const sodiumCorrection = createFormulaCalculator({
                 { value: '1.6', label: '1.6 (Standard, Hillier)', checked: true },
                 { value: '2.4', label: '2.4 (Katz, suggested for Glucose > 400 mg/dL)' }
             ],
-            helpText: 'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
+            helpText:
+                'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
         }
     ],
     formulas: [
@@ -47,10 +48,10 @@ export const sodiumCorrection = createFormulaCalculator({
             formula: 'Measured Na + [Correction Factor × (Glucose - 100) / 100]'
         }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const measuredSodium = values['measured-sodium'] as number;
         const glucoseMgDl = values['glucose'] as number;
-        const correctionFactor = parseFloat(values['correction-factor'] as string || '1.6');
+        const correctionFactor = parseFloat((values['correction-factor'] as string) || '1.6');
 
         if (!measuredSodium || !glucoseMgDl) return null;
 
@@ -89,7 +90,7 @@ export const sodiumCorrection = createFormulaCalculator({
             { label: '_factor', value: correctionFactor }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const mainRes = results[0];
         const amountRes = results[1];
         const glucose = results[2].value as number;

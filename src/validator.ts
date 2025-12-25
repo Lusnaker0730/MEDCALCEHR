@@ -18,7 +18,10 @@ export type ValidationSchema = Record<string, ValidationRule>;
  * @param {Object<string, ValidationRule>} schema - 验证规则
  * @returns {{isValid: boolean, errors: Array<string>}} 验证结果
  */
-export function validateCalculatorInput(input: Record<string, any>, schema: ValidationSchema): { isValid: boolean; errors: string[] } {
+export function validateCalculatorInput(
+    input: Record<string, any>,
+    schema: ValidationSchema
+): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     Object.keys(schema).forEach(key => {
@@ -26,13 +29,24 @@ export function validateCalculatorInput(input: Record<string, any>, schema: Vali
         const rule = schema[key];
 
         // Required field validation
-        if (rule.required && (value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value)))) {
+        if (
+            rule.required &&
+            (value === null ||
+                value === undefined ||
+                value === '' ||
+                (typeof value === 'number' && Number.isNaN(value)))
+        ) {
             errors.push(rule.message || `${key} is required`);
             return;
         }
 
         // Skip further validation if value is empty and not required
-        if (value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value))) {
+        if (
+            value === null ||
+            value === undefined ||
+            value === '' ||
+            (typeof value === 'number' && Number.isNaN(value))
+        ) {
             return;
         }
 
@@ -432,7 +446,11 @@ export function validateOrThrow(input: Record<string, any>, schema: ValidationSc
  * @param {ValidationRule} rule - 验证规则
  * @param {Function} onError - 错误回调函数
  */
-export function setupLiveValidation(inputElement: HTMLInputElement, rule: ValidationRule, onError: ((errors: string[]) => void) | null = null): void {
+export function setupLiveValidation(
+    inputElement: HTMLInputElement,
+    rule: ValidationRule,
+    onError: ((errors: string[]) => void) | null = null
+): void {
     if (!inputElement) {
         return;
     }

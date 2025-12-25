@@ -54,7 +54,8 @@ export class DataStalenessTracker {
         // - effectiveInstant (precise point in time)
         // - effectivePeriod.start or effectivePeriod.end
         // - issued (when the observation was made available)
-        const dateStr = observation.effectiveDateTime ||
+        const dateStr =
+            observation.effectiveDateTime ||
             observation.effectiveInstant ||
             observation.effectivePeriod?.end ||
             observation.effectivePeriod?.start ||
@@ -84,7 +85,12 @@ export class DataStalenessTracker {
      * @param {string} customLabel - Optional custom label
      * @returns {Object|null} - Staleness info if stale, null otherwise
      */
-    trackObservation(fieldId: string, observation: any, code: string, customLabel: string | null = null): StalenessInfo | null {
+    trackObservation(
+        fieldId: string,
+        observation: any,
+        code: string,
+        customLabel: string | null = null
+    ): StalenessInfo | null {
         const stalenessInfo = this.checkStaleness(observation);
 
         if (stalenessInfo && stalenessInfo.isStale) {
@@ -178,7 +184,9 @@ export class DataStalenessTracker {
     private _updateWarningDisplay(): void {
         if (!this.container) return;
 
-        const warningContainer = this.container.querySelector(`#${this.warningContainerId}`) as HTMLElement;
+        const warningContainer = this.container.querySelector(
+            `#${this.warningContainerId}`
+        ) as HTMLElement;
         if (!warningContainer) return;
 
         if (this.staleItems.size === 0) {
@@ -190,13 +198,17 @@ export class DataStalenessTracker {
         warningContainer.style.display = 'block';
 
         const items = this.getStaleItems();
-        const itemsHtml = items.map(item => `
+        const itemsHtml = items
+            .map(
+                item => `
             <li class="staleness-item" data-field="${item.fieldId}">
                 <strong>${item.label}</strong>: 
                 <span class="staleness-date">${item.dateStr}</span>
                 <span class="staleness-age">(${item.ageFormatted})</span>
             </li>
-        `).join('');
+        `
+            )
+            .join('');
 
         warningContainer.innerHTML = `
             <div class="staleness-warning ui-alert ui-alert-warning">
@@ -266,7 +278,8 @@ export class DataStalenessTracker {
 export function getObservationDate(observation: any): Date | null {
     if (!observation) return null;
 
-    const dateStr = observation.effectiveDateTime ||
+    const dateStr =
+        observation.effectiveDateTime ||
         observation.effectiveInstant ||
         observation.effectivePeriod?.end ||
         observation.effectivePeriod?.start ||
@@ -281,11 +294,14 @@ export function getObservationDate(observation: any): Date | null {
  * @param {number} thresholdMs - Staleness threshold in milliseconds (default: 90 days)
  * @returns {boolean}
  */
-export function isObservationStale(observation: any, thresholdMs: number = DEFAULT_STALENESS_THRESHOLD_MS): boolean {
+export function isObservationStale(
+    observation: any,
+    thresholdMs: number = DEFAULT_STALENESS_THRESHOLD_MS
+): boolean {
     const date = getObservationDate(observation);
     if (!date) return false;
 
-    return (new Date().getTime() - date.getTime()) > thresholdMs;
+    return new Date().getTime() - date.getTime() > thresholdMs;
 }
 
 /**
@@ -293,7 +309,9 @@ export function isObservationStale(observation: any, thresholdMs: number = DEFAU
  * @param {Object} options - Tracker options
  * @returns {DataStalenessTracker}
  */
-export function createStalenessTracker(options: { thresholdMs?: number; warningContainerId?: string } = {}): DataStalenessTracker {
+export function createStalenessTracker(
+    options: { thresholdMs?: number; warningContainerId?: string } = {}
+): DataStalenessTracker {
     return new DataStalenessTracker(options);
 }
 

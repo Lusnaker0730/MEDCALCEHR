@@ -51,7 +51,7 @@ export const ldl = createFormulaCalculator({
             formula: 'LDL = Total Cholesterol - HDL - (Triglycerides / 5)'
         }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const tcVal = values['ldl-tc'] as number;
         const hdlVal = values['ldl-hdl'] as number;
         const trigVal = values['ldl-trig'] as number;
@@ -64,7 +64,7 @@ export const ldl = createFormulaCalculator({
         // A better approach is to throw an error or return a specific error result item?
         // Or we handle it in customResultRenderer check.
 
-        // Let's return a special object that indicates high triglycerides if needed, 
+        // Let's return a special object that indicates high triglycerides if needed,
         // or just return the values and let renderer decide.
 
         let ldlVal = 0;
@@ -115,7 +115,7 @@ export const ldl = createFormulaCalculator({
             { label: '_trig', value: trigVal }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const ldlRes = results[0];
         const ldlMmolRes = results[1];
         const trigVal = results[2].value as number;
@@ -123,7 +123,8 @@ export const ldl = createFormulaCalculator({
         if (trigVal >= 400) {
             return uiBuilder.createAlert({
                 type: 'danger',
-                message: '<strong>Cannot Calculate:</strong> Triglycerides ≥400 mg/dL. Friedewald equation is invalid. Please order Direct LDL.'
+                message:
+                    '<strong>Cannot Calculate:</strong> Triglycerides ≥400 mg/dL. Friedewald equation is invalid. Please order Direct LDL.'
             });
         }
 
@@ -154,27 +155,27 @@ export const ldl = createFormulaCalculator({
             </p>
             
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: `
+                type: 'warning',
+                message: `
                     <strong>Limitation:</strong> This formula is not accurate when triglycerides ≥400 mg/dL (≥4.52 mmol/L). 
                     Consider direct LDL measurement in such cases.
                 `
-        })}
+            })}
             
             ${uiBuilder.createSection({
-            title: 'LDL Cholesterol Goals (Adults)',
-            content: uiBuilder.createTable({
-                headers: ['Category', 'mg/dL', 'mmol/L'],
-                rows: [
-                    ['Optimal', '< 100', '< 2.59'],
-                    ['Near Optimal', '100 - 129', '2.59 - 3.34'],
-                    ['Borderline High', '130 - 159', '3.37 - 4.12'],
-                    ['High', '160 - 189', '4.15 - 4.90'],
-                    ['Very High', '≥ 190', '≥ 4.92']
-                ],
-                className: 'reference-table'
-            })
-        })}
+                title: 'LDL Cholesterol Goals (Adults)',
+                content: uiBuilder.createTable({
+                    headers: ['Category', 'mg/dL', 'mmol/L'],
+                    rows: [
+                        ['Optimal', '< 100', '< 2.59'],
+                        ['Near Optimal', '100 - 129', '2.59 - 3.34'],
+                        ['Borderline High', '130 - 159', '3.37 - 4.12'],
+                        ['High', '160 - 189', '4.15 - 4.90'],
+                        ['Very High', '≥ 190', '≥ 4.92']
+                    ],
+                    className: 'reference-table'
+                })
+            })}
         `;
     }
 });

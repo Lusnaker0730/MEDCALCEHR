@@ -283,7 +283,11 @@ export class FHIRFeedback {
      * @param {string} label
      * @param {string} message - Custom warning message
      */
-    showWarning(inputElement: HTMLElement, label: string = 'data', message: string | null = null): void {
+    showWarning(
+        inputElement: HTMLElement,
+        label: string = 'data',
+        message: string | null = null
+    ): void {
         this.removeAllIndicators(inputElement);
 
         const wrapper = this.ensureWrapper(inputElement);
@@ -341,7 +345,11 @@ export class FHIRFeedback {
      * @param {string} message
      * @param {string} type - 'success', 'warning', 'info'
      */
-    addFieldFeedback(inputElement: HTMLElement, message: string, type: 'success' | 'warning' | 'info' = 'info'): void {
+    addFieldFeedback(
+        inputElement: HTMLElement,
+        message: string,
+        type: 'success' | 'warning' | 'info' = 'info'
+    ): void {
         const inputGroup = inputElement.closest('.ui-input-group');
         if (!inputGroup) return;
 
@@ -362,7 +370,8 @@ export class FHIRFeedback {
             <span>${message}</span>
         `;
 
-        const wrapper = inputElement.closest('.ui-input-wrapper') ||
+        const wrapper =
+            inputElement.closest('.ui-input-wrapper') ||
             inputElement.closest('.fhir-feedback-wrapper');
         if (wrapper && wrapper.parentNode) {
             wrapper.parentNode.insertBefore(feedback, wrapper.nextSibling);
@@ -377,7 +386,10 @@ export class FHIRFeedback {
      * @param {string} message
      * @returns {HTMLElement} The banner element
      */
-    createLoadingBanner(container: HTMLElement, message: string = 'Loading patient data from EHR...'): HTMLElement {
+    createLoadingBanner(
+        container: HTMLElement,
+        message: string = 'Loading patient data from EHR...'
+    ): HTMLElement {
         const banner = document.createElement('div');
         banner.className = 'fhir-loading-banner';
         banner.id = 'fhir-loading-banner';
@@ -538,7 +550,7 @@ export class FHIRFeedback {
         // Show loading banner
         this.createLoadingBanner(container);
 
-        const results: { loaded: string[], missing: string[], failed: string[] } = {
+        const results: { loaded: string[]; missing: string[]; failed: string[] } = {
             loaded: [],
             missing: [],
             failed: []
@@ -554,7 +566,7 @@ export class FHIRFeedback {
 
         // Process all promises
         await Promise.allSettled(
-            dataFields.map(async (field) => {
+            dataFields.map(async field => {
                 const input = container.querySelector(`#${field.inputId}`) as HTMLInputElement;
                 if (!input) return;
 

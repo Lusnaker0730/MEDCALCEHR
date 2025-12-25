@@ -6,7 +6,8 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const ckdEpi = createFormulaCalculator({
     id: 'ckd-epi',
     title: 'CKD-EPI GFR (2021 Refit)',
-    description: 'Estimates GFR using the CKD-EPI 2021 race-free equation, the recommended method for assessing kidney function.',
+    description:
+        'Estimates GFR using the CKD-EPI 2021 race-free equation, the recommended method for assessing kidney function.',
     infoAlert: `
         <h4>Note:</h4>
         <p>Scr = serum creatinine (mg/dL)</p>
@@ -40,14 +41,16 @@ export const ckdEpi = createFormulaCalculator({
     formulas: [
         {
             label: 'Female',
-            formula: '142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012'
+            formula:
+                '142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012'
         },
         {
             label: 'Male',
-            formula: '142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup>'
+            formula:
+                '142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup>'
         }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const age = values['ckd-epi-age'] as number;
         const creatinine = values['ckd-epi-creatinine'] as number;
         const gender = values['ckd-epi-gender'] as string;
@@ -58,7 +61,8 @@ export const ckdEpi = createFormulaCalculator({
         const alpha = gender === 'female' ? -0.241 : -0.302;
         const genderFactor = gender === 'female' ? 1.012 : 1;
 
-        const gfr = 142 *
+        const gfr =
+            142 *
             Math.pow(Math.min(creatinine / kappa, 1), alpha) *
             Math.pow(Math.max(creatinine / kappa, 1), -1.2) *
             Math.pow(0.9938, age) *
@@ -83,7 +87,8 @@ export const ckdEpi = createFormulaCalculator({
         } else if (gfr >= 30) {
             stage = 'Stage 3b (Moderate to severe)';
             alertType = 'warning';
-            alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+            alertMsg =
+                'Moderate to severe reduction in kidney function. Consider nephrology referral.';
         } else if (gfr >= 15) {
             stage = 'Stage 4 (Severe)';
             alertType = 'danger';
@@ -110,7 +115,7 @@ export const ckdEpi = createFormulaCalculator({
             }
         ];
     },
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const gfrResult = results.find(r => r.label !== '__ALERT__');
         const alertResult = results.find(r => r.label === '__ALERT__');
 
@@ -134,8 +139,12 @@ export const ckdEpi = createFormulaCalculator({
     },
     customInitialize: (client, patient, container) => {
         const ageInput = container.querySelector('#ckd-epi-age') as HTMLInputElement;
-        const genderMale = container.querySelector('input[name="ckd-epi-gender"][value="male"]') as HTMLInputElement;
-        const genderFemale = container.querySelector('input[name="ckd-epi-gender"][value="female"]') as HTMLInputElement;
+        const genderMale = container.querySelector(
+            'input[name="ckd-epi-gender"][value="male"]'
+        ) as HTMLInputElement;
+        const genderFemale = container.querySelector(
+            'input[name="ckd-epi-gender"][value="female"]'
+        ) as HTMLInputElement;
 
         const populate = async () => {
             try {

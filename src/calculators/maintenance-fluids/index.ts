@@ -39,7 +39,7 @@ export const maintenanceFluids = createFormulaCalculator({
             </ul>
         `
     }),
-    calculate: (values) => {
+    calculate: values => {
         const weightKg = values['weight-fluids'] as number;
 
         if (weightKg === undefined || weightKg <= 0) return null;

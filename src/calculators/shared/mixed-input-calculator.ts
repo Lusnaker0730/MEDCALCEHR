@@ -160,8 +160,8 @@ export interface MixedInputCalculatorConfig {
     references?: string[];
     /** 公式內容（使用 UIBuilder 標準格式） */
     formulas?: UIFormulaItem[];
-    /** 
-     * Formula Section Config (Match RadioScoreCalculator style) 
+    /**
+     * Formula Section Config (Match RadioScoreCalculator style)
      * If provided, takes precedence over `formulas`
      */
     formulaSection?: FormulaSectionConfig;
@@ -472,12 +472,13 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${config.infoAlert
-                    ? uiBuilder.createAlert({
-                        type: 'info',
-                        message: config.infoAlert
-                    })
-                    : ''
+                ${
+                    config.infoAlert
+                        ? uiBuilder.createAlert({
+                              type: 'info',
+                              message: config.infoAlert
+                          })
+                        : ''
                 }
                 
                 ${sectionsHTML}

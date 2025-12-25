@@ -8,45 +8,45 @@ export const UnitConverter = {
     conversions: {
         // Weight
         weight: {
-            'kg': { 'lbs': 2.20462, 'g': 1000 },
-            'lbs': { 'kg': 0.453592, 'g': 453.592 },
-            'g': { 'kg': 0.001, 'lbs': 0.00220462 }
+            kg: { lbs: 2.20462, g: 1000 },
+            lbs: { kg: 0.453592, g: 453.592 },
+            g: { kg: 0.001, lbs: 0.00220462 }
         },
         // Height/Length
         height: {
-            'cm': { 'in': 0.393701, 'ft': 0.0328084, 'm': 0.01 },
-            'in': { 'cm': 2.54, 'ft': 0.0833333, 'm': 0.0254 },
-            'ft': { 'cm': 30.48, 'in': 12, 'm': 0.3048 },
-            'm': { 'cm': 100, 'in': 39.3701, 'ft': 3.28084 }
+            cm: { in: 0.393701, ft: 0.0328084, m: 0.01 },
+            in: { cm: 2.54, ft: 0.0833333, m: 0.0254 },
+            ft: { cm: 30.48, in: 12, m: 0.3048 },
+            m: { cm: 100, in: 39.3701, ft: 3.28084 }
         },
         // Temperature
         temperature: {
-            'C': {
-                'F': (val: number) => (val * 9 / 5) + 32,
-                'K': (val: number) => val + 273.15
+            C: {
+                F: (val: number) => (val * 9) / 5 + 32,
+                K: (val: number) => val + 273.15
             },
-            'F': {
-                'C': (val: number) => (val - 32) * 5 / 9,
-                'K': (val: number) => (val - 32) * 5 / 9 + 273.15
+            F: {
+                C: (val: number) => ((val - 32) * 5) / 9,
+                K: (val: number) => ((val - 32) * 5) / 9 + 273.15
             },
-            'K': {
-                'C': (val: number) => val - 273.15,
-                'F': (val: number) => (val - 273.15) * 9 / 5 + 32
+            K: {
+                C: (val: number) => val - 273.15,
+                F: (val: number) => ((val - 273.15) * 9) / 5 + 32
             }
         },
         // Blood Pressure
         pressure: {
-            'mmHg': { 'kPa': 0.133322, 'bar': 0.00133322, 'mm[Hg]': 1 },
-            'kPa': { 'mmHg': 7.50062, 'bar': 0.01, 'mm[Hg]': 7.50062 },
-            'bar': { 'mmHg': 750.062, 'kPa': 100, 'mm[Hg]': 750.062 },
-            'mm[Hg]': { 'mmHg': 1, 'kPa': 0.133322, 'bar': 0.00133322 }
+            mmHg: { kPa: 0.133322, bar: 0.00133322, 'mm[Hg]': 1 },
+            kPa: { mmHg: 7.50062, bar: 0.01, 'mm[Hg]': 7.50062 },
+            bar: { mmHg: 750.062, kPa: 100, 'mm[Hg]': 750.062 },
+            'mm[Hg]': { mmHg: 1, kPa: 0.133322, bar: 0.00133322 }
         },
         // Volume
         volume: {
-            'mL': { 'L': 0.001, 'fl oz': 0.033814, 'cup': 0.00422675 },
-            'L': { 'mL': 1000, 'fl oz': 33.814, 'cup': 4.22675 },
-            'fl oz': { 'mL': 29.5735, 'L': 0.0295735, 'cup': 0.125 },
-            'cup': { 'mL': 236.588, 'L': 0.236588, 'fl oz': 8 }
+            mL: { L: 0.001, 'fl oz': 0.033814, cup: 0.00422675 },
+            L: { mL: 1000, 'fl oz': 33.814, cup: 4.22675 },
+            'fl oz': { mL: 29.5735, L: 0.0295735, cup: 0.125 },
+            cup: { mL: 236.588, L: 0.236588, 'fl oz': 8 }
         },
         // Concentration (generic)
         concentration: {
@@ -199,7 +199,12 @@ export const UnitConverter = {
      * @param {string} defaultUnit - The default unit
      * @returns {HTMLElement} - The toggle button element
      */
-    createUnitToggle(inputElement: HTMLInputElement, type: string, units: string[] = [], defaultUnit: string = units[0]): HTMLElement {
+    createUnitToggle(
+        inputElement: HTMLInputElement,
+        type: string,
+        units: string[] = [],
+        defaultUnit: string = units[0]
+    ): HTMLElement {
         const toggleBtn = document.createElement('button');
         toggleBtn.type = 'button';
         toggleBtn.className = 'unit-toggle-btn';
@@ -213,7 +218,7 @@ export const UnitConverter = {
         let storedValue: number | null = null;
         let currentUnitIndex = 0;
 
-        toggleBtn.addEventListener('click', (e) => {
+        toggleBtn.addEventListener('click', e => {
             e.preventDefault();
 
             const currentValue = parseFloat(inputElement.value);
@@ -255,9 +260,9 @@ export const UnitConverter = {
      */
     getDecimalPlaces(type: string, unit: string): number {
         const decimalMap: Record<string, Record<string, number>> = {
-            weight: { 'kg': 1, 'lbs': 1, 'g': 0 },
-            height: { 'cm': 1, 'in': 1, 'ft': 2, 'm': 2 },
-            temperature: { 'C': 1, 'F': 1, 'K': 1 },
+            weight: { kg: 1, lbs: 1, g: 0 },
+            height: { cm: 1, in: 1, ft: 2, m: 2 },
+            temperature: { C: 1, F: 1, K: 1 },
             cholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
             totalCholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
             hdl: { 'mg/dL': 0, 'mmol/L': 2 },
@@ -266,8 +271,8 @@ export const UnitConverter = {
             sodium: { 'mEq/L': 0, 'mmol/L': 0 },
             insulin: { 'µU/mL': 1, 'pmol/L': 0, 'mU/L': 1 },
             phenytoin: { 'mcg/mL': 1, 'µmol/L': 0, 'mg/L': 1 },
-            pressure: { 'mmHg': 0, 'kPa': 2, 'bar': 3, 'mm[Hg]': 0 },
-            volume: { 'mL': 0, 'L': 2, 'fl oz': 1, 'cup': 2 },
+            pressure: { mmHg: 0, kPa: 2, bar: 3, 'mm[Hg]': 0 },
+            volume: { mL: 0, L: 2, 'fl oz': 1, cup: 2 },
             glucose: { 'mmol/L': 1, 'mg/dL': 0 },
             creatinine: { 'mg/dL': 2, 'µmol/L': 0, 'umol/L': 0 },
             calcium: { 'mg/dL': 2, 'mmol/L': 2 },
@@ -287,7 +292,12 @@ export const UnitConverter = {
      * @param {string} defaultUnit - The default unit
      * @returns {HTMLElement} - The wrapper container
      */
-    enhanceInput(inputElement: HTMLInputElement, type: string, units: string[], defaultUnit: string = units[0]): HTMLElement {
+    enhanceInput(
+        inputElement: HTMLInputElement,
+        type: string,
+        units: string[],
+        defaultUnit: string = units[0]
+    ): HTMLElement {
         // Check if already enhanced
         if (inputElement.parentElement?.classList.contains('unit-converter-wrapper')) {
             return inputElement.parentElement;
@@ -334,8 +344,14 @@ export const UnitConverter = {
 
         // Find and enhance matching inputs
         Object.entries(finalConfig).forEach(([key, spec]: [string, any]) => {
-            const input = container.querySelector(`#${key}, input[name="${key}"], #${key}-input, .${key}-input`);
-            if (input && (input as HTMLInputElement).type !== 'checkbox' && (input as HTMLInputElement).type !== 'radio') {
+            const input = container.querySelector(
+                `#${key}, input[name="${key}"], #${key}-input, .${key}-input`
+            );
+            if (
+                input &&
+                (input as HTMLInputElement).type !== 'checkbox' &&
+                (input as HTMLInputElement).type !== 'radio'
+            ) {
                 this.enhanceInput(
                     input as HTMLInputElement,
                     spec.type,
@@ -367,7 +383,7 @@ export const UnitConverter = {
         if (!inputElement || value === null || value === undefined) return;
 
         // Clean up unit string (sometimes FHIR returns messy units or variations)
-        // Basic normalization if needed, or rely on exact map. 
+        // Basic normalization if needed, or rely on exact map.
         // For now, assume exact or close enough mapping in conversions.
 
         const currentUnit = this.getCurrentUnit(inputElement);
@@ -384,10 +400,12 @@ export const UnitConverter = {
                     const decimals = this.getDecimalPlaces(type, currentUnit);
                     inputElement.value = converted.toFixed(decimals);
                 } else {
-                    // Conversion failed, fall back to raw value? 
+                    // Conversion failed, fall back to raw value?
                     // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
                     // Just set raw value as fallback.
-                    console.warn(`Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`);
+                    console.warn(
+                        `Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`
+                    );
                     inputElement.value = value.toString();
                 }
             } else {
