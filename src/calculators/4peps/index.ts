@@ -12,9 +12,72 @@ import {
 } from '../shared/mixed-input-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
+const formulaHTML = `
+<div class="formula-section mt-4">
+    <h3>FORMULA</h3>
+    <p><strong>Addition of the selected points:</strong></p>
+    ${uiBuilder.createTable({
+    headers: ['Variable', 'Points'],
+    rows: [
+        ['<strong>Age, years</strong>', ''],
+        ['&nbsp;&nbsp;<50', '-2'],
+        ['&nbsp;&nbsp;50-64', '-1'],
+        ['&nbsp;&nbsp;>64', '0'],
+        ['<strong>Sex</strong>', ''],
+        ['&nbsp;&nbsp;Female', '0'],
+        ['&nbsp;&nbsp;Male', '2'],
+        ['<strong>Chronic respiratory disease</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '-1'],
+        ['<strong>Heart rate <80</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '-1'],
+        ['<strong>Chest pain AND acute dyspnea</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '1'],
+        ['<strong>Current estrogen use</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '2'],
+        ['<strong>Prior history of VTE</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '2'],
+        ['<strong>Syncope</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '2'],
+        ['<strong>Immobility within the last four weeks*</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '2'],
+        ['<strong>O₂ saturation <95%</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '3'],
+        ['<strong>Calf pain and/or unilateral lower limb edema</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '3'],
+        ['<strong>PE is the most likely diagnosis</strong>', ''],
+        ['&nbsp;&nbsp;No', '0'],
+        ['&nbsp;&nbsp;Yes', '5']
+    ]
+})}
+    <p class="text-sm text-muted mt-2">*Surgery, lower limb plaster cast, or bedridden >3 days for acute medical condition within the last four weeks.</p>
+    
+    <h3 class="mt-4">FACTS & FIGURES</h3>
+    <p><strong>Interpretation:</strong></p>
+    ${uiBuilder.createTable({
+    headers: ['4PEPS Score for PE', 'Clinical probability of PE', 'PE diagnosis'],
+    rows: [
+        ['<0', 'Very low CPP (<2%)', 'PE can be ruled out'],
+        ['0-5', 'Low CPP (2-20%)', 'PE can be ruled out if D-dimer level <1.0 µg/mL'],
+        ['6-12', 'Moderate CPP (20-65%)', 'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL'],
+        ['≥13', 'High CPP (>65%)', 'PE cannot be ruled out without imaging testing']
+    ]
+})}
+</div>
+`;
+
 const config: MixedInputCalculatorConfig = {
     id: '4peps',
     title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)',
+    formulaHTML: formulaHTML,
     description: 'Rules out PE based on clinical criteria.',
     infoAlert:
         '<strong>Instructions:</strong> Use clinician judgment to assess which vital sign should be used for the 4PEPS score.',
@@ -30,7 +93,7 @@ const config: MixedInputCalculatorConfig = {
                     label: 'Age',
                     unit: 'years',
                     placeholder: 'e.g., 70',
-                    helpText: '+2 points if >74 years'
+                    helpText: '-2 (<50), -1 (50-64), 0 (>64)'
                 }
             ]
         },
@@ -201,8 +264,13 @@ const config: MixedInputCalculatorConfig = {
 
         // Age scoring
         const age = values['fourpeps-age'] as number | null;
-        if (age !== null && age > 74) {
-            score += 2;
+        if (age !== null) {
+            if (age < 50) {
+                score += -2;
+            } else if (age <= 64) {
+                score += -1;
+            }
+            // >64 is 0 points
         }
 
         // Radio group scoring
@@ -236,42 +304,46 @@ const config: MixedInputCalculatorConfig = {
         let recommendation = '';
         let alertType: 'success' | 'warning' | 'danger' | 'info' = 'info';
 
-        if (score <= 3) {
-            probability = '2-7%';
+        if (score < 0) {
+            probability = '<2%';
+            riskLevel = 'Very low CPP';
+            alertType = 'success';
+            recommendation = 'PE can be ruled out.';
+        } else if (score <= 5) {
+            probability = '2-20%';
             riskLevel = 'Low CPP';
             alertType = 'success';
-            recommendation =
-                'PE can be ruled out if 4PEPS score is 0-3 and D-dimer is negative (using age-adjusted threshold).';
-        } else if (score <= 9) {
+            recommendation = 'PE can be ruled out if D-dimer level <1.0 µg/mL.';
+        } else if (score <= 12) {
             probability = '20-65%';
             riskLevel = 'Moderate CPP';
             alertType = 'warning';
             recommendation =
-                'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL';
+                'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL.';
         } else {
-            probability = '66-95%';
+            probability = '>65%';
             riskLevel = 'High CPP';
             alertType = 'danger';
-            recommendation = 'Imaging (e.g., CTPA) is recommended.';
+            recommendation = 'PE cannot be ruled out without imaging testing.';
         }
 
         return `
             ${uiBuilder.createResultItem({
-                label: '4PEPS Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: '4PEPS Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskLevel,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Clinical Pretest Probability',
-                value: probability,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Clinical Pretest Probability',
+            value: probability,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+            type: alertType,
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     },
 

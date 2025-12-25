@@ -131,6 +131,8 @@ export interface MixedInputCalculatorConfig {
     riskLevels?: RiskLevel[];
     /** 參考文獻 */
     references?: string[];
+    /** 自定義公式 HTML */
+    formulaHTML?: string;
     /** 結果標題 */
     resultTitle?: string;
 
@@ -309,13 +311,12 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${
-                    config.infoAlert
-                        ? uiBuilder.createAlert({
-                              type: 'info',
-                              message: config.infoAlert
-                          })
-                        : ''
+                ${config.infoAlert
+                    ? uiBuilder.createAlert({
+                        type: 'info',
+                        message: config.infoAlert
+                    })
+                    : ''
                 }
                 
                 ${sectionsHTML}
@@ -325,6 +326,8 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     id: `${config.id}-result`,
                     title: config.resultTitle || `${config.title} Results`
                 })}
+                
+                ${config.formulaHTML || ''}
                 
                 ${referencesHTML}
             `;

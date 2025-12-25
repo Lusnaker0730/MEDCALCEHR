@@ -98,6 +98,21 @@ export interface FormulaConfig {
      * Optional custom result renderer if the standard list of items is insufficient
      */
     customResultRenderer?: (results: FormulaResultItem[]) => string;
+
+    /**
+     * Optional info alert to display at the top of the calculator
+     */
+    infoAlert?: string;
+
+    /**
+     * Optional HTML to display at the bottom of the calculator (e.g. warnings, notes)
+     */
+    footerHTML?: string;
+
+    /**
+     * Custom initialization logic (e.g. for specialized FHIR auto-population)
+     */
+    customInitialize?: (client: any, patient: any, container: HTMLElement, calculate: () => void) => void;
 }
 
 export interface CalculatorModule {
@@ -175,6 +190,11 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
                     <p class="description">${config.description}</p>
                 </div>
 
+                ${config.infoAlert ? uiBuilder.createAlert({
+                type: 'info',
+                message: config.infoAlert
+            }) : ''}
+
                 ${inputSection}
 
                 <div id="${config.id}-error-container"></div>
@@ -185,6 +205,8 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
             })}
                 
                 ${formulaSection}
+
+                ${config.footerHTML || ''}
             `;
         },
 
@@ -348,6 +370,10 @@ export function createFormulaCalculator(config: FormulaConfig): CalculatorModule
             };
 
             autoPopulate();
+
+            if (config.customInitialize) {
+                config.customInitialize(client, patient, container, performCalculation);
+            }
         }
     };
 }

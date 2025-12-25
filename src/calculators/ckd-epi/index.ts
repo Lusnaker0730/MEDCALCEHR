@@ -1,298 +1,164 @@
+import { createFormulaCalculator } from '../shared/formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
-import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-export const ckdEpi: CalculatorModule = {
+export const ckdEpi = createFormulaCalculator({
     id: 'ckd-epi',
     title: 'CKD-EPI GFR (2021 Refit)',
-    description:
-        'Estimates GFR using the CKD-EPI 2021 race-free equation, the recommended method for assessing kidney function.',
-    generateHTML: function () {
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-            
-            ${uiBuilder.createSection({
-                title: 'Patient Information',
-                icon: '👤',
-                content: `
-                    ${uiBuilder.createRadioGroup({
-                        name: 'ckd-epi-gender',
-                        label: 'Gender',
-                        options: [
-                            { value: 'male', label: 'Male', checked: true },
-                            { value: 'female', label: 'Female' }
-                        ]
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'ckd-epi-age',
-                        label: 'Age',
-                        type: 'number',
-                        unit: 'years',
-                        placeholder: 'Enter age'
-                    })}
-                `
-            })}
-            
-            ${uiBuilder.createSection({
-                title: 'Lab Values',
-                icon: '🧪',
-                content: uiBuilder.createInput({
-                    id: 'ckd-epi-creatinine',
-                    label: 'Serum Creatinine',
-                    type: 'number',
-                    placeholder: 'Enter creatinine',
-                    unitToggle: {
-                        type: 'creatinine',
-                        units: ['mg/dL', 'µmol/L'],
-                        default: 'mg/dL'
-                    }
-                })
-            })}
-            
-            <div id="ckd-epi-error-container"></div>
-            
-            <div id="ckd-epi-result" class="ui-result-box">
-                <div class="ui-result-header">eGFR Results (CKD-EPI 2021)</div>
-                <div class="ui-result-content"></div>
-            </div>
+    description: 'Estimates GFR using the CKD-EPI 2021 race-free equation, the recommended method for assessing kidney function.',
+    infoAlert: `
+        <h4>Note:</h4>
+        <p>Scr = serum creatinine (mg/dL)</p>
+    `,
+    inputs: [
+        {
+            type: 'radio',
+            id: 'ckd-epi-gender',
+            label: 'Gender',
+            options: [
+                { value: 'male', label: 'Male', checked: true },
+                { value: 'female', label: 'Female' }
+            ]
+        },
+        {
+            type: 'number',
+            id: 'ckd-epi-age',
+            label: 'Age',
+            standardUnit: 'years',
+            placeholder: 'Enter age'
+        },
+        {
+            type: 'number',
+            id: 'ckd-epi-creatinine',
+            label: 'Serum Creatinine',
+            standardUnit: 'mg/dL',
+            unitConfig: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+            loincCode: LOINC_CODES.CREATININE
+        }
+    ],
+    formulas: [
+        {
+            label: 'Female',
+            formula: '142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012'
+        },
+        {
+            label: 'Male',
+            formula: '142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup>'
+        }
+    ],
+    calculate: (values) => {
+        const age = values['ckd-epi-age'] as number;
+        const creatinine = values['ckd-epi-creatinine'] as number;
+        const gender = values['ckd-epi-gender'] as string;
 
-            ${uiBuilder.createFormulaSection({
-                items: [
-                    {
-                        label: 'Female',
-                        formula:
-                            '142 × min(Scr/0.7, 1)<sup>-0.241</sup> × max(Scr/0.7, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup> × 1.012'
-                    },
-                    {
-                        label: 'Male',
-                        formula:
-                            '142 × min(Scr/0.9, 1)<sup>-0.302</sup> × max(Scr/0.9, 1)<sup>-1.200</sup> × 0.9938<sup>Age</sup>'
-                    }
-                ]
-            })}
+        if (!age || !creatinine) return null;
 
-            ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
-                    <h4>Note:</h4>
-                    <p>Scr = serum creatinine (mg/dL)</p>
-                `
-            })}
-        `;
+        const kappa = gender === 'female' ? 0.7 : 0.9;
+        const alpha = gender === 'female' ? -0.241 : -0.302;
+        const genderFactor = gender === 'female' ? 1.012 : 1;
+
+        const gfr = 142 *
+            Math.pow(Math.min(creatinine / kappa, 1), alpha) *
+            Math.pow(Math.max(creatinine / kappa, 1), -1.2) *
+            Math.pow(0.9938, age) *
+            genderFactor;
+
+        let stage = '';
+        let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
+        let alertMsg = '';
+
+        if (gfr >= 90) {
+            stage = 'Stage 1 (Normal or high)';
+            alertType = 'success';
+            alertMsg = 'Normal kidney function.';
+        } else if (gfr >= 60) {
+            stage = 'Stage 2 (Mild)';
+            alertType = 'success';
+            alertMsg = 'Mildly decreased kidney function.';
+        } else if (gfr >= 45) {
+            stage = 'Stage 3a (Mild to moderate)';
+            alertType = 'warning';
+            alertMsg = 'Mild to moderate reduction in kidney function.';
+        } else if (gfr >= 30) {
+            stage = 'Stage 3b (Moderate to severe)';
+            alertType = 'warning';
+            alertMsg = 'Moderate to severe reduction in kidney function. Consider nephrology referral.';
+        } else if (gfr >= 15) {
+            stage = 'Stage 4 (Severe)';
+            alertType = 'danger';
+            alertMsg = 'Severe reduction in kidney function. Nephrology referral required.';
+        } else {
+            stage = 'Stage 5 (Kidney failure)';
+            alertType = 'danger';
+            alertMsg = 'Kidney failure. Consider dialysis or transplantation.';
+        }
+
+        return [
+            {
+                label: 'eGFR',
+                value: gfr.toFixed(0),
+                unit: 'mL/min/1.73m²',
+                interpretation: stage,
+                alertClass: alertType
+            },
+            {
+                label: '__ALERT__',
+                value: '',
+                interpretation: alertMsg,
+                alertClass: alertType
+            }
+        ];
     },
-    initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
+    customResultRenderer: (results) => {
+        const gfrResult = results.find(r => r.label !== '__ALERT__');
+        const alertResult = results.find(r => r.label === '__ALERT__');
 
-        // Initialize FHIRDataService
-        fhirDataService.initialize(client, patient, container);
+        if (!gfrResult) return '';
 
-        const ageInput = container.querySelector('#ckd-epi-age') as HTMLInputElement;
-        const creatinineInput = container.querySelector('#ckd-epi-creatinine') as HTMLInputElement;
-        const resultBox = container.querySelector('#ckd-epi-result');
-
-        const calculateAndUpdate = () => {
-            // Clear previous errors
-            const errorContainer = container.querySelector('#ckd-epi-error-container');
-            if (errorContainer) {
-                errorContainer.innerHTML = '';
-            }
-
-            const age = parseFloat(ageInput.value);
-            const gender =
-                (
-                    container.querySelector(
-                        'input[name="ckd-epi-gender"]:checked'
-                    ) as HTMLInputElement
-                )?.value || 'male';
-
-            // Get creatinine in mg/dL using UnitConverter
-            const creatinineMgDl = UnitConverter.getStandardValue(creatinineInput, 'mg/dL');
-
-            try {
-                // Validate inputs
-                const inputs = { age, creatinine: creatinineMgDl };
-                const schema = {
-                    age: ValidationRules.age,
-                    creatinine: ValidationRules.creatinine
-                };
-
-                // @ts-ignore
-                const validation = validateCalculatorInput(inputs, schema);
-
-                if (!validation.isValid) {
-                    const hasInput = ageInput.value || creatinineInput.value;
-
-                    if (hasInput) {
-                        const valuesPresent =
-                            !isNaN(age) && creatinineMgDl !== null && !isNaN(creatinineMgDl);
-                        // Show error if values are present or at least one is clearly typed but invalid
-                        if (
-                            valuesPresent ||
-                            validation.errors.some((e: string) => !e.includes('required'))
-                        ) {
-                            if (errorContainer) {
-                                displayError(
-                                    errorContainer as HTMLElement,
-                                    new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
-                                );
-                            }
-                        }
-                    }
-
-                    if (resultBox) {
-                        resultBox.classList.remove('show');
-                    }
-                    return;
-                }
-
-                if (creatinineMgDl === null) {
-                    return;
-                }
-
-                const kappa = gender === 'female' ? 0.7 : 0.9;
-                const alpha = gender === 'female' ? -0.241 : -0.302;
-                const genderFactor = gender === 'female' ? 1.012 : 1;
-
-                const gfr =
-                    142 *
-                    Math.pow(Math.min(creatinineMgDl / kappa, 1), alpha) *
-                    Math.pow(Math.max(creatinineMgDl / kappa, 1), -1.2) *
-                    Math.pow(0.9938, age) *
-                    genderFactor;
-
-                if (!isFinite(gfr) || isNaN(gfr)) {
-                    throw new Error('Calculation Error');
-                }
-
-                // Determine stage and severity
-                let stage = '';
-                let severityClass = 'low';
-                let alertType: 'info' | 'warning' | 'danger' | 'success' = 'info';
-                let alertMsg = '';
-
-                if (gfr >= 90) {
-                    stage = 'Stage 1 (Normal or high)';
-                    severityClass = 'ui-alert-success';
-                    alertMsg = 'Normal kidney function.';
-                } else if (gfr >= 60) {
-                    stage = 'Stage 2 (Mild)';
-                    severityClass = 'ui-alert-success';
-                    alertMsg = 'Mildly decreased kidney function.';
-                } else if (gfr >= 45) {
-                    stage = 'Stage 3a (Mild to moderate)';
-                    severityClass = 'ui-alert-warning';
-                    alertMsg = 'Mild to moderate reduction in kidney function.';
-                } else if (gfr >= 30) {
-                    stage = 'Stage 3b (Moderate to severe)';
-                    severityClass = 'ui-alert-warning';
-                    alertMsg =
-                        'Moderate to severe reduction in kidney function. Consider nephrology referral.';
-                    alertType = 'warning';
-                } else if (gfr >= 15) {
-                    stage = 'Stage 4 (Severe)';
-                    severityClass = 'ui-alert-danger';
-                    alertMsg = 'Severe reduction in kidney function. Nephrology referral required.';
-                    alertType = 'danger';
-                } else {
-                    stage = 'Stage 5 (Kidney failure)';
-                    severityClass = 'ui-alert-danger';
-                    alertMsg = 'Kidney failure. Consider dialysis or transplantation.';
-                    alertType = 'danger';
-                }
-
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                            ${uiBuilder.createResultItem({
-                                label: 'eGFR',
-                                value: gfr.toFixed(0),
-                                unit: 'mL/min/1.73m²',
-                                interpretation: stage,
-                                alertClass: severityClass
-                            })}
-                            ${uiBuilder.createAlert({
-                                type: alertType,
-                                message: alertMsg
-                            })}
-                        `;
-                    }
-                    resultBox.classList.add('show');
-                }
-            } catch (error) {
-                logError(error as Error, { calculator: 'ckd-epi', action: 'calculate' });
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                }
-                if (resultBox) {
-                    resultBox.classList.remove('show');
-                }
-            }
-        };
-
-        // Event listeners
-        container.querySelectorAll('input, select').forEach(input => {
-            input.addEventListener('input', calculateAndUpdate);
-            input.addEventListener('change', calculateAndUpdate);
+        let html = uiBuilder.createResultItem({
+            label: gfrResult.label,
+            value: gfrResult.value.toString(),
+            unit: gfrResult.unit,
+            interpretation: gfrResult.interpretation,
+            alertClass: gfrResult.alertClass ? `ui-alert-${gfrResult.alertClass}` : ''
         });
 
-        // Auto-populate using FHIRDataService
-        const autoPopulate = async () => {
-            if (fhirDataService.isReady()) {
-                try {
-                    // Get age
-                    const age = await fhirDataService.getPatientAge();
-                    if (age !== null && ageInput) {
-                        ageInput.value = age.toString();
-                        ageInput.dispatchEvent(new Event('input'));
-                    }
+        if (alertResult) {
+            html += uiBuilder.createAlert({
+                type: alertResult.alertClass as any,
+                message: alertResult.interpretation || ''
+            });
+        }
+        return html;
+    },
+    customInitialize: (client, patient, container) => {
+        const ageInput = container.querySelector('#ckd-epi-age') as HTMLInputElement;
+        const genderMale = container.querySelector('input[name="ckd-epi-gender"][value="male"]') as HTMLInputElement;
+        const genderFemale = container.querySelector('input[name="ckd-epi-gender"][value="female"]') as HTMLInputElement;
 
-                    // Get gender
-                    const gender = await fhirDataService.getPatientGender();
-                    if (gender) {
-                        const genderValue = gender.toLowerCase() === 'female' ? 'female' : 'male';
-                        const genderRadio = container.querySelector(
-                            `input[name="ckd-epi-gender"][value="${genderValue}"]`
-                        ) as HTMLInputElement | null;
-                        if (genderRadio) {
-                            genderRadio.checked = true;
-                            genderRadio.dispatchEvent(new Event('change'));
-                        }
-                    }
-
-                    // Get creatinine
-                    const crResult = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
-                        trackStaleness: true,
-                        stalenessLabel: 'Serum Creatinine',
-                        targetUnit: 'mg/dL',
-                        unitType: 'creatinine'
-                    });
-
-                    if (crResult.value !== null && creatinineInput) {
-                        creatinineInput.value = crResult.value.toFixed(2);
-                        creatinineInput.dispatchEvent(new Event('input'));
-                    }
-                } catch (e) {
-                    console.warn('Error auto-populating CKD-EPI:', e);
+        const populate = async () => {
+            try {
+                const age = await fhirDataService.getPatientAge();
+                if (age !== null && ageInput) {
+                    ageInput.value = age.toString();
+                    ageInput.dispatchEvent(new Event('input'));
                 }
-            }
-            calculateAndUpdate();
-        };
 
-        autoPopulate();
+                const gender = await fhirDataService.getPatientGender(); // Using await as getPatientAge might be async
+                if (gender) {
+                    if (gender.toLowerCase() === 'female' && genderFemale) {
+                        genderFemale.checked = true;
+                        genderFemale.dispatchEvent(new Event('change'));
+                    } else if (genderMale) {
+                        genderMale.checked = true;
+                        genderMale.dispatchEvent(new Event('change'));
+                    }
+                }
+            } catch (e) {
+                console.warn(e);
+            }
+        };
+        populate();
     }
-};
+});
