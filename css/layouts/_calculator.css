@@ -88,12 +88,12 @@
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-2);
-    
+
     color: var(--color-primary);
     font-weight: var(--font-weight-medium);
     padding: var(--spacing-2) 0;
     margin-bottom: var(--spacing-4);
-    
+
     transition: all var(--transition-fast);
 }
 
@@ -117,12 +117,14 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spacing-3);
-    
+    position: relative;
+    /* For absolute positioning of favorite button */
+
     padding: var(--spacing-5);
     background: var(--color-bg-card);
     border-radius: var(--radius-lg);
     border: 2px solid var(--color-border);
-    
+
     transition: all var(--transition-normal);
     text-decoration: none;
 }
@@ -136,6 +138,8 @@
 .list-item-content {
     flex: 1;
     min-width: 0;
+    padding-right: 40px;
+    /* Prevent text overlap with favorite button */
 }
 
 .list-item-title {
@@ -176,19 +180,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     font-size: var(--font-size-xl);
     background: transparent;
     border: none;
     border-radius: var(--radius-full);
-    
+
     cursor: pointer;
     transition: all var(--transition-fast);
+
+    /* Absolute positioning */
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
 }
 
 .favorite-btn:hover {
     background: var(--color-bg-hover);
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* ===================
@@ -288,4 +299,3 @@
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
 }
-

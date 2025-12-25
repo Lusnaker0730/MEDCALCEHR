@@ -1,78 +1,111 @@
 /* =============================================
    MEDCALC EHR - 計算器列表組件樣式
-   Version: 1.0.0
+   Version: 1.1.0
    
-   從 style.css 提取
+   從 style.css 提取並優化
    ============================================= */
 
 /* ===================
-   計算器列表容器
+   計算器列表容器 (網格佈局)
    =================== */
 
 .calculator-list,
 #calculator-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
+}
+
+/* 確保大螢幕時至少可以排四個 (如果容器夠寬) */
+@media (min-width: 1400px) {
+
+    .calculator-list,
+    #calculator-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 /* ===================
-   列表項目
+   列表項目 (卡片樣式)
    =================== */
 
 .list-item {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    /*確保同列卡片等高*/
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    /* 必須相對定位，讓內部的絕對定位子元素參考 */
 }
 
 .list-item:hover {
-    background-color: #f1f1f1;
-    transform: translateX(5px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e0;
 }
 
 .list-item-content {
     display: flex;
     flex-direction: column;
     flex: 1;
+    width: 100%;
+    padding-right: 48px;
+    /* 重要：預留空間給右側垂直置中的星星 */
 }
 
 .list-item-title {
-    font-weight: bold;
+    font-weight: 700;
     font-size: 1.1em;
     color: #2d3748;
-}
-
-.list-item-description {
-    color: #555;
-    font-size: 0.9em;
-    margin-top: 4px;
+    margin-bottom: 8px;
     line-height: 1.4;
 }
 
+.list-item-description {
+    color: #718096;
+    font-size: 0.9em;
+    margin-top: auto;
+    line-height: 1.5;
+}
+
 /* ===================
-   星號收藏
+   星號收藏 (垂直置中於右側)
    =================== */
 
 .list-item-star {
-    font-size: 1.5em;
-    color: #ccc;
+    font-size: 1.8em;
+    /* 星星尺寸放大 */
+    color: #cbd5e0;
     cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 5px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    /* 垂直居中修正 */
+
+    padding: 8px;
+    z-index: 10;
+    line-height: 1;
 }
 
 .list-item-star:hover {
     color: #f3d11a;
-    transform: scale(1.2);
+    transform: translateY(-50%) scale(1.2);
+    /* 保持置中同時放大 */
 }
 
 .list-item-star.active {
@@ -159,7 +192,7 @@
 
 @media (max-width: 768px) {
     .list-item {
-        padding: 12px;
+        padding: 15px;
     }
 
     .list-item-title {
@@ -168,5 +201,10 @@
 
     .list-item-description {
         font-size: 0.85em;
+    }
+
+    .list-item-star {
+        font-size: 1.5em;
+        /* 手機版星星稍微縮小 */
     }
 }

@@ -1,4 +1,5 @@
 // Universal Unit Conversion System for MedCalcEHR
+
 /**
  * Unit conversion definitions and functions
  */
@@ -21,16 +22,16 @@ export const UnitConverter = {
         // Temperature
         temperature: {
             'C': {
-                'F': (val) => (val * 9 / 5) + 32,
-                'K': (val) => val + 273.15
+                'F': (val: number) => (val * 9 / 5) + 32,
+                'K': (val: number) => val + 273.15
             },
             'F': {
-                'C': (val) => (val - 32) * 5 / 9,
-                'K': (val) => (val - 32) * 5 / 9 + 273.15
+                'C': (val: number) => (val - 32) * 5 / 9,
+                'K': (val: number) => (val - 32) * 5 / 9 + 273.15
             },
             'K': {
-                'C': (val) => val - 273.15,
-                'F': (val) => (val - 273.15) * 9 / 5 + 32
+                'C': (val: number) => val - 273.15,
+                'F': (val: number) => (val - 273.15) * 9 / 5 + 32
             }
         },
         // Blood Pressure
@@ -161,7 +162,8 @@ export const UnitConverter = {
             'µmol/L': { 'mcg/mL': 0.252, 'mg/L': 0.252 },
             'mg/L': { 'mcg/mL': 1, 'µmol/L': 3.964 }
         }
-    },
+    } as any,
+
     /**
      * Convert a value from one unit to another
      * @param {number} value - The value to convert
@@ -170,24 +172,25 @@ export const UnitConverter = {
      * @param {string} type - The measurement type (weight, height, temperature, etc.)
      * @returns {number|null} - The converted value or null if conversion not available
      */
-    convert(value, fromUnit, toUnit, type) {
-        if (value === null || value === undefined || isNaN(value))
-            return null;
-        if (fromUnit === toUnit)
-            return value;
+    convert(value: number, fromUnit: string, toUnit: string, type: string): number | null {
+        if (value === null || value === undefined || isNaN(value)) return null;
+        if (fromUnit === toUnit) return value;
+
         const typeConversions = this.conversions[type];
-        if (!typeConversions || !typeConversions[fromUnit])
-            return null;
+        if (!typeConversions || !typeConversions[fromUnit]) return null;
+
         const conversion = typeConversions[fromUnit][toUnit];
-        if (conversion === undefined)
-            return null;
+        if (conversion === undefined) return null;
+
         // Handle function-based conversions (like temperature)
         if (typeof conversion === 'function') {
             return conversion(value);
         }
+
         // Handle factor-based conversions
         return value * conversion;
     },
+
     /**
      * Create a unit toggle button with conversion logic
      * @param {HTMLElement} inputElement - The input element to attach conversion to
@@ -196,7 +199,7 @@ export const UnitConverter = {
      * @param {string} defaultUnit - The default unit
      * @returns {HTMLElement} - The toggle button element
      */
-    createUnitToggle(inputElement, type, units = [], defaultUnit = units[0]) {
+    createUnitToggle(inputElement: HTMLInputElement, type: string, units: string[] = [], defaultUnit: string = units[0]): HTMLElement {
         const toggleBtn = document.createElement('button');
         toggleBtn.type = 'button';
         toggleBtn.className = 'unit-toggle-btn';
@@ -205,19 +208,24 @@ export const UnitConverter = {
         toggleBtn.dataset.type = type;
         toggleBtn.textContent = defaultUnit;
         toggleBtn.title = `Click to switch units (${units.join(' ↔ ')})`;
+
         // Store original value and unit
-        let storedValue = null;
+        let storedValue: number | null = null;
         let currentUnitIndex = 0;
+
         toggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
+
             const currentValue = parseFloat(inputElement.value);
             if (!isNaN(currentValue)) {
                 storedValue = currentValue;
             }
+
             // Cycle to next unit
             currentUnitIndex = (currentUnitIndex + 1) % units.length;
             const oldUnit = units[(currentUnitIndex - 1 + units.length) % units.length];
             const newUnit = units[currentUnitIndex];
+
             // Convert the value if present
             if (storedValue !== null && !isNaN(storedValue)) {
                 const converted = this.convert(storedValue, oldUnit, newUnit, type);
@@ -230,19 +238,23 @@ export const UnitConverter = {
                     inputElement.dataset.currentUnit = newUnit;
                 }
             }
+
             // Update button
             toggleBtn.textContent = newUnit;
             toggleBtn.dataset.currentUnit = newUnit;
+
             // Trigger change event on input to recalculate
             inputElement.dispatchEvent(new Event('input', { bubbles: true }));
         });
+
         return toggleBtn;
     },
+
     /**
      * Get appropriate decimal places for a given unit
      */
-    getDecimalPlaces(type, unit) {
-        const decimalMap = {
+    getDecimalPlaces(type: string, unit: string): number {
+        const decimalMap: Record<string, Record<string, number>> = {
             weight: { 'kg': 1, 'lbs': 1, 'g': 0 },
             height: { 'cm': 1, 'in': 1, 'ft': 2, 'm': 2 },
             temperature: { 'C': 1, 'F': 1, 'K': 1 },
@@ -262,8 +274,10 @@ export const UnitConverter = {
             albumin: { 'g/dL': 1, 'g/L': 0 },
             bilirubin: { 'mg/dL': 1, 'µmol/L': 0, 'umol/L': 0 }
         };
+
         return decimalMap[type]?.[unit] ?? 2;
     },
+
     /**
      * Enhance an input field with unit conversion
      * Wraps the input in a container and adds a toggle button
@@ -273,35 +287,41 @@ export const UnitConverter = {
      * @param {string} defaultUnit - The default unit
      * @returns {HTMLElement} - The wrapper container
      */
-    enhanceInput(inputElement, type, units, defaultUnit = units[0]) {
+    enhanceInput(inputElement: HTMLInputElement, type: string, units: string[], defaultUnit: string = units[0]): HTMLElement {
         // Check if already enhanced
         if (inputElement.parentElement?.classList.contains('unit-converter-wrapper')) {
             return inputElement.parentElement;
         }
+
         const wrapper = document.createElement('div');
         wrapper.className = 'unit-converter-wrapper';
         wrapper.style.display = 'inline-flex';
         wrapper.style.alignItems = 'center';
         wrapper.style.gap = '5px';
+
         // Replace input with wrapper
         if (inputElement.parentNode) {
             inputElement.parentNode.insertBefore(wrapper, inputElement);
         }
         wrapper.appendChild(inputElement);
+
         // Create and add toggle button
         const toggleBtn = this.createUnitToggle(inputElement, type, units, defaultUnit);
         wrapper.appendChild(toggleBtn);
+
         // Add unit indicator to input
         inputElement.dataset.currentUnit = defaultUnit;
+
         return wrapper;
     },
+
     /**
      * Auto-detect and enhance common inputs in a calculator
      * @param {HTMLElement} container - The calculator container
      * @param {Object} config - Configuration object mapping input IDs to unit specs
      * Example config: { 'weight': { type: 'weight', units: ['kg', 'lbs'] } }
      */
-    autoEnhance(container, config = {}) {
+    autoEnhance(container: HTMLElement, config: Record<string, any> = {}): void {
         // Default configurations for common fields
         const defaultConfig = {
             weight: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' },
@@ -309,91 +329,104 @@ export const UnitConverter = {
             temperature: { type: 'temperature', units: ['C', 'F'], default: 'C' },
             temp: { type: 'temperature', units: ['C', 'F'], default: 'C' }
         };
+
         const finalConfig = { ...defaultConfig, ...config };
+
         // Find and enhance matching inputs
-        Object.entries(finalConfig).forEach(([key, spec]) => {
+        Object.entries(finalConfig).forEach(([key, spec]: [string, any]) => {
             const input = container.querySelector(`#${key}, input[name="${key}"], #${key}-input, .${key}-input`);
-            if (input && input.type !== 'checkbox' && input.type !== 'radio') {
-                this.enhanceInput(input, spec.type, spec.units, spec.default || spec.units[0]);
+            if (input && (input as HTMLInputElement).type !== 'checkbox' && (input as HTMLInputElement).type !== 'radio') {
+                this.enhanceInput(
+                    input as HTMLInputElement,
+                    spec.type,
+                    spec.units,
+                    spec.default || spec.units[0]
+                );
             }
         });
     },
+
     /**
      * Get the current unit of an enhanced input
      */
-    getCurrentUnit(inputElement) {
+    getCurrentUnit(inputElement: HTMLElement): string | null {
         const wrapper = inputElement.closest('.unit-converter-wrapper');
-        if (!wrapper)
-            return null;
-        const toggleBtn = wrapper.querySelector('.unit-toggle-btn');
+        if (!wrapper) return null;
+
+        const toggleBtn = wrapper.querySelector('.unit-toggle-btn') as HTMLElement;
         return toggleBtn?.dataset.currentUnit || null;
     },
+
     /**
      * Set the input value, automatically converting if the current UI unit differs from the provided unit.
      * @param {HTMLElement} inputElement - The input element
      * @param {number} value - The value to set
      * @param {string} unit - The unit of the value being set
      */
-    setInputValue(inputElement, value, unit) {
-        if (!inputElement || value === null || value === undefined)
-            return;
+    setInputValue(inputElement: HTMLInputElement, value: number, unit: string): void {
+        if (!inputElement || value === null || value === undefined) return;
+
         // Clean up unit string (sometimes FHIR returns messy units or variations)
         // Basic normalization if needed, or rely on exact map. 
         // For now, assume exact or close enough mapping in conversions.
+
         const currentUnit = this.getCurrentUnit(inputElement);
+
         if (currentUnit && unit && currentUnit !== unit) {
             // Need conversion
             const wrapper = inputElement.closest('.unit-converter-wrapper');
-            const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
+            const toggleBtn = wrapper?.querySelector('.unit-toggle-btn') as HTMLElement;
             const type = toggleBtn?.dataset.type;
+
             if (type) {
                 const converted = this.convert(value, unit, currentUnit, type);
                 if (converted !== null) {
                     const decimals = this.getDecimalPlaces(type, currentUnit);
                     inputElement.value = converted.toFixed(decimals);
-                }
-                else {
+                } else {
                     // Conversion failed, fall back to raw value? 
                     // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
                     // Just set raw value as fallback.
                     console.warn(`Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`);
                     inputElement.value = value.toString();
                 }
-            }
-            else {
+            } else {
                 inputElement.value = value.toString();
             }
-        }
-        else {
+        } else {
             // Units match or no UI unit context
             // If we have a type, we might still want to respect decimal places?
             // Optional polish.
             inputElement.value = value.toString();
         }
+
         // Dispatch input event to trigger listeners
         inputElement.dispatchEvent(new Event('input', { bubbles: true }));
     },
+
     /**
      * Convert value back to standard unit before calculation
      * @param {HTMLElement} inputElement - The input element
      * @param {string} standardUnit - The standard unit to convert to
      * @returns {number|null} - The value in standard units
      */
-    getStandardValue(inputElement, standardUnit) {
+    getStandardValue(inputElement: HTMLInputElement, standardUnit: string): number | null {
         const value = parseFloat(inputElement.value);
-        if (isNaN(value))
-            return null;
+        if (isNaN(value)) return null;
+
         const currentUnit = this.getCurrentUnit(inputElement);
-        if (!currentUnit)
-            return value;
+        if (!currentUnit) return value;
+
         const wrapper = inputElement.closest('.unit-converter-wrapper');
-        const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
+        const toggleBtn = wrapper?.querySelector('.unit-toggle-btn') as HTMLElement;
         const type = toggleBtn?.dataset.type;
-        if (!type)
-            return value;
+
+        if (!type) return value;
+
         return this.convert(value, currentUnit, standardUnit, type) || value;
     }
 };
+
 // Add CSS for unit toggle buttons
 if (typeof document !== 'undefined') {
     const style = document.createElement('style');
@@ -449,4 +482,5 @@ if (typeof document !== 'undefined') {
     `;
     document.head.appendChild(style);
 }
+
 export default UnitConverter;

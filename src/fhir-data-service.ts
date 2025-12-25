@@ -506,7 +506,72 @@ export class FHIRDataService {
         }
 
         try {
-            const promises = fields.map(async field => {
+            // Special handling for Blood Pressure
+            // FHIR often stores BP as a panel (85354-9), so querying for individual components (8480-6/8462-4) might fail
+            const bpFields = fields.filter(f =>
+                f.code === LOINC_CODES.SYSTOLIC_BP || f.code === '8480-6' ||
+                f.code === LOINC_CODES.DIASTOLIC_BP || f.code === '8462-4'
+            );
+
+            let processedBPCodes: string[] = [];
+
+            if (bpFields.length > 0) {
+                try {
+                    // Fetch BP Panel without internal staleness tracking (we'll do it here with correct IDs)
+                    const bpResult = await this.getBloodPressure({ trackStaleness: false });
+
+                    if (bpResult.observation) {
+                        for (const field of bpFields) {
+                            const isSystolic = field.code === LOINC_CODES.SYSTOLIC_BP || field.code === '8480-6';
+                            const value = isSystolic ? bpResult.systolic : bpResult.diastolic;
+
+                            if (value !== null && this.container) {
+                                const input = this.container.querySelector(field.inputId) as HTMLInputElement;
+                                if (input) {
+                                    // Apply formatting (decimals)
+                                    const decimals = field.decimals ?? 1;
+                                    input.value = Number(value).toFixed(decimals);
+
+                                    // Track Staleness
+                                    if (this.stalenessTracker) {
+                                        this.stalenessTracker.trackObservation(
+                                            field.inputId,
+                                            bpResult.observation,
+                                            field.code,
+                                            field.label
+                                        );
+                                    }
+
+                                    // Trigger update
+                                    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+                                    // Add to results
+                                    results.set(field.code, {
+                                        observation: bpResult.observation,
+                                        value: value,
+                                        unit: 'mmHg',
+                                        originalValue: value,
+                                        originalUnit: 'mmHg',
+                                        date: bpResult.date,
+                                        isStale: bpResult.isStale,
+                                        ageInDays: null,
+                                        code: field.code
+                                    });
+
+                                    processedBPCodes.push(field.code);
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error auto-populating BP:", e);
+                }
+            }
+
+            // Process remaining fields (exclude successfully processed BP fields)
+            const remainingFields = fields.filter(f => !processedBPCodes.includes(f.code));
+
+            const promises = remainingFields.map(async field => {
                 const result = await this.autoPopulateInput(field.inputId, field.code, {
                     label: field.label,
                     targetUnit: field.targetUnit,

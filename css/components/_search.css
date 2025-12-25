@@ -23,26 +23,27 @@
 
 #search-bar {
     width: 100%;
-    padding: 22px 25px;
-    font-size: 50px;
+    padding: 12px 20px;
+    font-size: 1.1rem;
     border-radius: 12px;
-    border: 3px solid #d1d5db;
+    border: 2px solid #e2e8f0;
     box-sizing: border-box;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    font-weight: 600;
-    line-height: 1.4;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    line-height: 1.5;
+    background: white;
 }
 
 #search-bar::placeholder {
-    font-size: 45px;
-    color: #9ca3af;
-    font-weight: 500;
+    font-size: 1.1rem;
+    color: #a0aec0;
+    font-weight: 400;
 }
 
 #search-bar:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 12px rgba(0, 123, 255, 0.3);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 /* ===================

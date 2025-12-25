@@ -1,12 +1,17 @@
 // Custom Calculator Error Class
+
 export class CalculatorError extends Error {
+    code: string;
+    details: any;
+    timestamp: Date;
+
     /**
      * Create calculator error instance
      * @param {string} message - Error message
      * @param {string} code - Error code
      * @param {Object} details - Error details
      */
-    constructor(message, code, details = {}) {
+    constructor(message: string, code: string, details: any = {}) {
         super(message);
         this.name = 'CalculatorError';
         this.code = code;
@@ -14,32 +19,35 @@ export class CalculatorError extends Error {
         this.timestamp = new Date();
     }
 }
+
 /**
  * FHIR Data Error Class
  * @extends CalculatorError
  */
 export class FHIRDataError extends CalculatorError {
-    constructor(message, details = {}) {
+    constructor(message: string, details: any = {}) {
         super(message, 'FHIR_DATA_ERROR', details);
         this.name = 'FHIRDataError';
     }
 }
+
 /**
  * Input Validation Error Class
  * @extends CalculatorError
  */
 export class ValidationError extends CalculatorError {
-    constructor(message, details = {}) {
+    constructor(message: string, details: any = {}) {
         super(message, 'VALIDATION_ERROR', details);
         this.name = 'ValidationError';
     }
 }
+
 /**
  * Log error to console and optional logging service
  * @param {Error} error - Error object
  * @param {Object} context - Error context information
  */
-export function logError(error, context = {}) {
+export function logError(error: any, context: any = {}): any {
     const errorLog = {
         name: error.name || 'Error',
         message: error.message,
@@ -50,6 +58,7 @@ export function logError(error, context = {}) {
         url: typeof window !== 'undefined' ? window.location.href : 'unknown',
         stack: error.stack
     };
+
     // Log details in development environment
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         console.group('🚨 Error Logged');
@@ -57,27 +66,31 @@ export function logError(error, context = {}) {
         console.log('Context:', context);
         console.log('Full Log:', errorLog);
         console.groupEnd();
-    }
-    else {
+    } else {
         // Log brief info in production
         console.error(`[${errorLog.code}] ${errorLog.message}`);
     }
+
     // Optional: Send to logging service (e.g. Sentry, LogRocket, etc.)
     // sendToLoggingService(errorLog);
+
     return errorLog;
 }
+
 /**
  * Display user-friendly error message
  * @param {HTMLElement} container - Container element to display error
  * @param {Error} error - Error object
  * @param {string} userMessage - User-friendly error message
  */
-export function displayError(container, error, userMessage = null) {
+export function displayError(container: HTMLElement, error: any, userMessage: string | null = null): void {
     if (!container) {
         console.error('displayError: container element is null');
         return;
     }
+
     const message = userMessage || getUserFriendlyMessage(error);
+
     container.innerHTML = `
         <div class="error-message" style="
             background: #fee;
@@ -93,7 +106,7 @@ export function displayError(container, error, userMessage = null) {
                 ${message}
             </div>
             ${typeof window !== 'undefined' && window.location.hostname === 'localhost'
-        ? `
+            ? `
                 <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
                     <summary style="cursor: pointer;">Technical Details</summary>
                     <pre style="margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 3px; overflow-x: auto;">
@@ -101,45 +114,51 @@ ${error.stack || error.message}
                     </pre>
                 </details>
             `
-        : ''}
+            : ''
+        }
         </div>
     `;
 }
+
 /**
  * Get user-friendly error message
  * @param {Error} error - Error object
  * @returns {string} User-friendly error message
  */
-function getUserFriendlyMessage(error) {
+function getUserFriendlyMessage(error: any): string {
     if (error instanceof FHIRDataError) {
         return 'Unable to retrieve patient data from EHR system. Please check connection or enter data manually.';
     }
+
     if (error instanceof ValidationError) {
         return `Input validation failed: ${error.message}`;
     }
+
     if (error instanceof CalculatorError) {
         return error.message;
     }
+
     // Generic error message
     return 'Calculator encountered an error. Please refresh the page and try again or contact support.';
 }
+
 /**
  * Wrap async function to automatically catch and log errors
  * @param {Function} fn - Async function to wrap
  * @param {Object} context - Error context
  * @returns {Function} Wrapped function
  */
-export function withErrorHandling(fn, context = {}) {
-    return async function (...args) {
+export function withErrorHandling(fn: (...args: any[]) => Promise<any>, context: any = {}): (...args: any[]) => Promise<any> {
+    return async function (this: any, ...args: any[]) {
         try {
             return await fn.apply(this, args);
-        }
-        catch (error) {
+        } catch (error) {
             logError(error, context);
             throw error;
         }
     };
 }
+
 /**
  * Try to execute function, return default value on failure
  * @param {Function} fn - Function to execute
@@ -147,21 +166,21 @@ export function withErrorHandling(fn, context = {}) {
  * @param {Object} context - Error context
  * @returns {*} Function result or default value
  */
-export function tryOrDefault(fn, defaultValue, context = {}) {
+export function tryOrDefault(fn: () => any, defaultValue: any, context: any = {}): any {
     try {
         return fn();
-    }
-    catch (error) {
+    } catch (error) {
         logError(error, { ...context, defaultValue });
         return defaultValue;
     }
 }
+
 /**
  * Global error handler
  */
-export function setupGlobalErrorHandler() {
-    if (typeof window === 'undefined')
-        return;
+export function setupGlobalErrorHandler(): void {
+    if (typeof window === 'undefined') return;
+
     window.addEventListener('error', event => {
         logError(event.error, {
             type: 'uncaught_error',
@@ -170,13 +189,15 @@ export function setupGlobalErrorHandler() {
             colno: event.colno
         });
     });
+
     window.addEventListener('unhandledrejection', event => {
         logError(event.reason, {
             type: 'unhandled_promise_rejection',
-            promise: event.promise
+            promise: (event as any).promise
         });
     });
 }
+
 // Setup global error handling on app start
 if (typeof window !== 'undefined') {
     setupGlobalErrorHandler();

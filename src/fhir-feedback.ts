@@ -1,4 +1,5 @@
 // FHIR Data Loading Feedback System
+
 /**
  * FHIRFeedback - Provides visual feedback for FHIR data loading status
  * Enhances UX by showing users when data is loaded, missing, or failed
@@ -7,15 +8,16 @@ export class FHIRFeedback {
     constructor() {
         this.injectStyles();
     }
+
     /**
      * Inject CSS styles for feedback components
      */
-    injectStyles() {
-        if (typeof document === 'undefined')
-            return;
+    injectStyles(): void {
+        if (typeof document === 'undefined') return;
         if (document.getElementById('fhir-feedback-styles')) {
             return;
         }
+
         const style = document.createElement('style');
         style.id = 'fhir-feedback-styles';
         style.textContent = `
@@ -231,13 +233,15 @@ export class FHIRFeedback {
         `;
         document.head.appendChild(style);
     }
+
     /**
      * Add loading indicator to an input field
      * @param {HTMLElement} inputElement - The input element
      * @param {string} label - Field label for tooltip
      */
-    showLoading(inputElement, label = 'data') {
+    showLoading(inputElement: HTMLElement, label: string = 'data'): void {
         this.removeAllIndicators(inputElement);
+
         const wrapper = this.ensureWrapper(inputElement);
         const indicator = document.createElement('div');
         indicator.className = 'fhir-feedback-indicator fhir-status-loading';
@@ -247,14 +251,16 @@ export class FHIRFeedback {
         `;
         wrapper.appendChild(indicator);
     }
+
     /**
      * Show success indicator when data is loaded
      * @param {HTMLElement} inputElement
      * @param {string} label
      * @param {string} value - The loaded value
      */
-    showSuccess(inputElement, label = 'data', value = '') {
+    showSuccess(inputElement: HTMLElement, label: string = 'data', value: string = ''): void {
         this.removeAllIndicators(inputElement);
+
         const wrapper = this.ensureWrapper(inputElement);
         const indicator = document.createElement('div');
         indicator.className = 'fhir-feedback-indicator fhir-status-success';
@@ -263,20 +269,23 @@ export class FHIRFeedback {
             <div class="fhir-feedback-tooltip">✓ ${label} loaded from EHR${value ? `: ${value}` : ''}</div>
         `;
         wrapper.appendChild(indicator);
+
         // Auto-remove success indicator after 5 seconds
         setTimeout(() => {
             indicator.style.opacity = '0';
             setTimeout(() => indicator.remove(), 300);
         }, 5000);
     }
+
     /**
      * Show warning when data is missing or unavailable
      * @param {HTMLElement} inputElement
      * @param {string} label
      * @param {string} message - Custom warning message
      */
-    showWarning(inputElement, label = 'data', message = null) {
+    showWarning(inputElement: HTMLElement, label: string = 'data', message: string | null = null): void {
         this.removeAllIndicators(inputElement);
+
         const wrapper = this.ensureWrapper(inputElement);
         const indicator = document.createElement('div');
         indicator.className = 'fhir-feedback-indicator fhir-status-warning';
@@ -287,14 +296,16 @@ export class FHIRFeedback {
         `;
         wrapper.appendChild(indicator);
     }
+
     /**
      * Show error indicator when loading fails
      * @param {HTMLElement} inputElement
      * @param {string} label
      * @param {Error} error - The error object
      */
-    showError(inputElement, label = 'data', error = null) {
+    showError(inputElement: HTMLElement, label: string = 'data', error: Error | null = null): void {
         this.removeAllIndicators(inputElement);
+
         const wrapper = this.ensureWrapper(inputElement);
         const indicator = document.createElement('div');
         indicator.className = 'fhir-feedback-indicator fhir-status-error';
@@ -305,13 +316,15 @@ export class FHIRFeedback {
         `;
         wrapper.appendChild(indicator);
     }
+
     /**
      * Show info indicator
      * @param {HTMLElement} inputElement
      * @param {string} message
      */
-    showInfo(inputElement, message) {
+    showInfo(inputElement: HTMLElement, message: string): void {
         this.removeAllIndicators(inputElement);
+
         const wrapper = this.ensureWrapper(inputElement);
         const indicator = document.createElement('div');
         indicator.className = 'fhir-feedback-indicator fhir-status-info';
@@ -321,47 +334,50 @@ export class FHIRFeedback {
         `;
         wrapper.appendChild(indicator);
     }
+
     /**
      * Add inline field-level feedback message
      * @param {HTMLElement} inputElement
      * @param {string} message
      * @param {string} type - 'success', 'warning', 'info'
      */
-    addFieldFeedback(inputElement, message, type = 'info') {
+    addFieldFeedback(inputElement: HTMLElement, message: string, type: 'success' | 'warning' | 'info' = 'info'): void {
         const inputGroup = inputElement.closest('.ui-input-group');
-        if (!inputGroup)
-            return;
+        if (!inputGroup) return;
+
         // Remove existing feedback
         const existing = inputGroup.querySelector('.fhir-field-feedback');
-        if (existing)
-            existing.remove();
+        if (existing) existing.remove();
+
         const icons = {
             success: '✓',
             warning: '⚠️',
             info: 'ℹ️'
         };
+
         const feedback = document.createElement('div');
         feedback.className = `fhir-field-feedback ${type}`;
         feedback.innerHTML = `
             <span class="icon">${icons[type]}</span>
             <span>${message}</span>
         `;
+
         const wrapper = inputElement.closest('.ui-input-wrapper') ||
             inputElement.closest('.fhir-feedback-wrapper');
         if (wrapper && wrapper.parentNode) {
             wrapper.parentNode.insertBefore(feedback, wrapper.nextSibling);
-        }
-        else if (inputElement.parentNode) {
+        } else if (inputElement.parentNode) {
             inputElement.parentNode.insertBefore(feedback, inputElement.nextSibling);
         }
     }
+
     /**
      * Create a loading banner for the entire form
      * @param {HTMLElement} container
      * @param {string} message
      * @returns {HTMLElement} The banner element
      */
-    createLoadingBanner(container, message = 'Loading patient data from EHR...') {
+    createLoadingBanner(container: HTMLElement, message: string = 'Loading patient data from EHR...'): HTMLElement {
         const banner = document.createElement('div');
         banner.className = 'fhir-loading-banner';
         banner.id = 'fhir-loading-banner';
@@ -369,73 +385,83 @@ export class FHIRFeedback {
             <div class="spinner"></div>
             <span>${message}</span>
         `;
+
         const firstSection = container.querySelector('.ui-section, .section');
         if (firstSection) {
             container.insertBefore(banner, firstSection);
-        }
-        else {
+        } else {
             container.insertBefore(banner, container.firstChild);
         }
+
         return banner;
     }
+
     /**
      * Remove loading banner
      * @param {HTMLElement} container
      */
-    removeLoadingBanner(container) {
-        const banner = container.querySelector('#fhir-loading-banner');
+    removeLoadingBanner(container: HTMLElement): void {
+        const banner = container.querySelector('#fhir-loading-banner') as HTMLElement;
         if (banner) {
             banner.style.opacity = '0';
             setTimeout(() => banner.remove(), 300);
         }
     }
+
     /**
      * Create a summary notification showing what data was loaded/missing
      * @param {HTMLElement} container
      * @param {Object} summary - { loaded: [], missing: [], failed: [] }
      */
-    createDataSummary(container, summary) {
+    createDataSummary(container: HTMLElement, summary: any): HTMLElement {
         const { loaded = [], missing = [], failed = [] } = summary;
+
         let type = 'success';
         let icon = '✓';
         let title = 'Patient data loaded successfully';
+
         if (failed.length > 0) {
             type = 'error';
             icon = '❌';
             title = 'Error loading some patient data';
-        }
-        else if (missing.length > 0) {
+        } else if (missing.length > 0) {
             type = 'warning';
             icon = '⚠️';
             title = 'Some patient data is missing';
         }
+
         const summaryDiv = document.createElement('div');
         summaryDiv.className = `fhir-data-summary ${type}`;
         summaryDiv.id = 'fhir-data-summary';
+
         let detailsHTML = '';
+
         if (loaded.length > 0) {
             detailsHTML += `<div class="details">Loaded: ${loaded.join(', ')}</div>`;
         }
+
         if (missing.length > 0) {
             detailsHTML += `
                 <div class="details">
                     <strong>Please enter manually:</strong>
                     <ul class="missing-list">
-                        ${missing.map((item) => `<li>${item}</li>`).join('')}
+                        ${missing.map((item: string) => `<li>${item}</li>`).join('')}
                     </ul>
                 </div>
             `;
         }
+
         if (failed.length > 0) {
             detailsHTML += `
                 <div class="details">
                     <strong>Failed to load:</strong>
                     <ul class="missing-list">
-                        ${failed.map((item) => `<li>${item}</li>`).join('')}
+                        ${failed.map((item: string) => `<li>${item}</li>`).join('')}
                     </ul>
                 </div>
             `;
         }
+
         summaryDiv.innerHTML = `
             <div class="icon">${icon}</div>
             <div class="content">
@@ -443,38 +469,40 @@ export class FHIRFeedback {
                 ${detailsHTML}
             </div>
         `;
+
         const firstSection = container.querySelector('.ui-section, .section');
         if (firstSection) {
             container.insertBefore(summaryDiv, firstSection);
-        }
-        else {
+        } else {
             container.insertBefore(summaryDiv, container.firstChild);
         }
+
         return summaryDiv;
     }
+
     /**
      * Remove data summary
      * @param {HTMLElement} container
      */
-    removeDataSummary(container) {
+    removeDataSummary(container: HTMLElement): void {
         const summary = container.querySelector('#fhir-data-summary');
-        if (summary)
-            summary.remove();
+        if (summary) summary.remove();
     }
+
     /**
      * Helper: Ensure input is wrapped for positioning indicators
      * @private
      */
-    ensureWrapper(inputElement) {
-        let wrapper = inputElement.closest('.fhir-feedback-wrapper');
+    private ensureWrapper(inputElement: HTMLElement): HTMLElement {
+        let wrapper = inputElement.closest('.fhir-feedback-wrapper') as HTMLElement;
+
         if (!wrapper) {
             // Check if already in a ui-input-wrapper
-            const existingWrapper = inputElement.closest('.ui-input-wrapper');
+            const existingWrapper = inputElement.closest('.ui-input-wrapper') as HTMLElement;
             if (existingWrapper && !existingWrapper.classList.contains('fhir-feedback-wrapper')) {
                 existingWrapper.classList.add('fhir-feedback-wrapper');
                 wrapper = existingWrapper;
-            }
-            else if (!existingWrapper) {
+            } else if (!existingWrapper) {
                 // Create new wrapper
                 wrapper = document.createElement('div');
                 wrapper.className = 'fhir-feedback-wrapper';
@@ -484,69 +512,80 @@ export class FHIRFeedback {
                 wrapper.appendChild(inputElement);
             }
         }
+
         return wrapper;
     }
+
     /**
      * Remove all indicators from an input
      * @private
      */
-    removeAllIndicators(inputElement) {
+    private removeAllIndicators(inputElement: HTMLElement): void {
         const wrapper = inputElement.closest('.fhir-feedback-wrapper, .ui-input-wrapper');
         if (wrapper) {
             const indicators = wrapper.querySelectorAll('.fhir-feedback-indicator');
             indicators.forEach(ind => ind.remove());
         }
     }
+
     /**
      * Helper method to track and display FHIR data loading status
      * @param {HTMLElement} container
      * @param {Array} dataFields - Array of { inputId, label, promise }
      * @returns {Promise} Resolves with summary
      */
-    async trackDataLoading(container, dataFields) {
+    async trackDataLoading(container: HTMLElement, dataFields: any[]): Promise<any> {
         // Show loading banner
         this.createLoadingBanner(container);
-        const results = {
+
+        const results: { loaded: string[], missing: string[], failed: string[] } = {
             loaded: [],
             missing: [],
             failed: []
         };
+
         // Show loading indicators on all fields
         dataFields.forEach(field => {
-            const input = container.querySelector(`#${field.inputId}`);
+            const input = container.querySelector(`#${field.inputId}`) as HTMLElement;
             if (input) {
                 this.showLoading(input, field.label);
             }
         });
+
         // Process all promises
-        await Promise.allSettled(dataFields.map(async (field) => {
-            const input = container.querySelector(`#${field.inputId}`);
-            if (!input)
-                return;
-            try {
-                const data = await field.promise;
-                if (data && field.setValue) {
-                    field.setValue(input, data);
-                    this.showSuccess(input, field.label, input.value);
-                    results.loaded.push(field.label);
+        await Promise.allSettled(
+            dataFields.map(async (field) => {
+                const input = container.querySelector(`#${field.inputId}`) as HTMLInputElement;
+                if (!input) return;
+
+                try {
+                    const data = await field.promise;
+
+                    if (data && field.setValue) {
+                        field.setValue(input, data);
+                        this.showSuccess(input, field.label, input.value);
+                        results.loaded.push(field.label);
+                    } else {
+                        this.showWarning(input, field.label);
+                        results.missing.push(field.label);
+                    }
+                } catch (error: any) {
+                    console.error(`Error loading ${field.label}:`, error);
+                    this.showError(input, field.label, error);
+                    results.failed.push(field.label);
                 }
-                else {
-                    this.showWarning(input, field.label);
-                    results.missing.push(field.label);
-                }
-            }
-            catch (error) {
-                console.error(`Error loading ${field.label}:`, error);
-                this.showError(input, field.label, error);
-                results.failed.push(field.label);
-            }
-        }));
+            })
+        );
+
         // Remove loading banner and show summary
         this.removeLoadingBanner(container);
         this.createDataSummary(container, results);
+
         return results;
     }
 }
+
 // Create and export singleton instance
 export const fhirFeedback = new FHIRFeedback();
+
 export default FHIRFeedback;

@@ -244,7 +244,7 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
             { code: '8478-0', inputId: '#apache-ii-gcs', label: 'Glasgow Coma Scale', decimals: 0 }
         ]
     },
-    'ascvd': {
+    ascvd: {
         observations: [
             VITAL_SIGNS_FIELDS.systolicBP('#ascvd-sbp'),
             LAB_FIELDS.totalCholesterol('#ascvd-tc'),
@@ -252,9 +252,7 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
         ]
     },
     'ckd-epi': {
-        observations: [
-            LAB_FIELDS.creatinine('#ckd-epi-creatinine')
-        ]
+        observations: [LAB_FIELDS.creatinine('#ckd-epi-creatinine')]
     },
     'child-pugh': {
         observations: [
@@ -263,7 +261,7 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
             LAB_FIELDS.inr('#child-pugh-inr')
         ]
     },
-    'meld': {
+    meld: {
         observations: [
             LAB_FIELDS.bilirubinTotal('#meld-bilirubin'),
             LAB_FIELDS.creatinine('#meld-creatinine'),
@@ -272,21 +270,12 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
         ]
     },
     'wells-pe': {
-        observations: [
-            VITAL_SIGNS_FIELDS.heartRate('#wells-pe-hr')
-        ],
-        conditions: [
-            SNOMED_CODES.DVT,
-            SNOMED_CODES.PULMONARY_EMBOLISM
-        ]
+        observations: [VITAL_SIGNS_FIELDS.heartRate('#wells-pe-hr')],
+        conditions: [SNOMED_CODES.DVT, SNOMED_CODES.PULMONARY_EMBOLISM]
     },
     'heart-score': {
-        observations: [
-            LAB_FIELDS.troponin('#heart-score-troponin')
-        ],
-        conditions: [
-            SNOMED_CODES.CORONARY_ARTERY_DISEASE
-        ]
+        observations: [LAB_FIELDS.troponin('#heart-score-troponin')],
+        conditions: [SNOMED_CODES.CORONARY_ARTERY_DISEASE]
     },
     'grace-acs': {
         observations: [
@@ -296,12 +285,8 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
         ]
     },
     'timi-nstemi': {
-        observations: [
-            LAB_FIELDS.troponin('#timi-troponin')
-        ],
-        conditions: [
-            SNOMED_CODES.CORONARY_ARTERY_DISEASE
-        ]
+        observations: [LAB_FIELDS.troponin('#timi-troponin')],
+        conditions: [SNOMED_CODES.CORONARY_ARTERY_DISEASE]
     },
     'curb-65': {
         observations: [
@@ -311,7 +296,7 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
             LAB_FIELDS.bun('#curb65-bun')
         ]
     },
-    'sofa': {
+    sofa: {
         observations: [
             ABG_FIELDS.pao2('#sofa-pao2'),
             LAB_FIELDS.platelets('#sofa-platelets'),
@@ -319,7 +304,7 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
             LAB_FIELDS.creatinine('#sofa-creatinine')
         ]
     },
-    'qsofa': {
+    qsofa: {
         observations: [
             VITAL_SIGNS_FIELDS.respiratoryRate('#qsofa-rr'),
             VITAL_SIGNS_FIELDS.systolicBP('#qsofa-sbp')
@@ -330,17 +315,11 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
             LAB_FIELDS.inr('#hasbled-inr'),
             LAB_FIELDS.creatinine('#hasbled-creatinine')
         ],
-        conditions: [
-            SNOMED_CODES.HYPERTENSION
-        ]
+        conditions: [SNOMED_CODES.HYPERTENSION]
     },
-    'chadsvasc': {
+    chadsvasc: {
         observations: [],
-        conditions: [
-            SNOMED_CODES.HEART_FAILURE,
-            SNOMED_CODES.HYPERTENSION,
-            SNOMED_CODES.DIABETES
-        ]
+        conditions: [SNOMED_CODES.HEART_FAILURE, SNOMED_CODES.HYPERTENSION, SNOMED_CODES.DIABETES]
     },
     'abg-analyzer': {
         observations: [
@@ -357,20 +336,23 @@ export const CALCULATOR_DATA_REQUIREMENTS = {
             LAB_FIELDS.albumin('#albumin')
         ]
     },
-    'fena': {
+    fena: {
         observations: [
-            { code: LOINC_CODES.SODIUM, inputId: '#fena-serum-na', label: 'Serum Sodium', decimals: 0 },
+            {
+                code: LOINC_CODES.SODIUM,
+                inputId: '#fena-serum-na',
+                label: 'Serum Sodium',
+                decimals: 0
+            },
             { code: '2947-0', inputId: '#fena-urine-na', label: 'Urine Sodium', decimals: 0 },
             LAB_FIELDS.creatinine('#fena-serum-cr'),
             { code: '2161-8', inputId: '#fena-urine-cr', label: 'Urine Creatinine', decimals: 1 }
         ]
     },
     'free-water-deficit': {
-        observations: [
-            LAB_FIELDS.sodium('#fwd-sodium')
-        ]
+        observations: [LAB_FIELDS.sodium('#fwd-sodium')]
     },
-    'ldl': {
+    ldl: {
         observations: [
             LAB_FIELDS.totalCholesterol('#ldl-tc'),
             LAB_FIELDS.hdl('#ldl-hdl'),
@@ -406,8 +388,9 @@ export function getCalculatorRequirements(calculatorId) {
  */
 export function getCalculatorLoincCodes(calculatorId) {
     const requirements = getCalculatorRequirements(calculatorId);
-    if (!requirements)
+    if (!requirements) {
         return [];
+    }
     return requirements.observations.map(obs => obs.code);
 }
 /**
@@ -415,8 +398,9 @@ export function getCalculatorLoincCodes(calculatorId) {
  */
 export function getCalculatorConditionCodes(calculatorId) {
     const requirements = getCalculatorRequirements(calculatorId);
-    if (!requirements?.conditions)
+    if (!requirements?.conditions) {
         return [];
+    }
     return requirements.conditions;
 }
 // ============================================================================

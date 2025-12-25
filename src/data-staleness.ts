@@ -1,36 +1,54 @@
 // Module for tracking and warning about stale (outdated) lab values and vital signs
+
 import { getLoincName } from './fhir-codes.js';
+
 /**
  * Default staleness threshold: 3 months in milliseconds
  */
 const DEFAULT_STALENESS_THRESHOLD_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
+
+export interface StalenessInfo {
+    isStale: boolean;
+    date: Date;
+    dateStr: string;
+    ageInDays: number;
+    ageFormatted: string;
+}
+
 /**
  * Staleness warning tracking class
  * Tracks stale observations for a calculator instance
  */
 export class DataStalenessTracker {
-    constructor(options = {}) {
+    private thresholdMs: number;
+    private staleItems: Map<string, any>;
+    private container: HTMLElement | null;
+    private warningContainerId: string;
+
+    constructor(options: { thresholdMs?: number; warningContainerId?: string } = {}) {
         this.thresholdMs = options.thresholdMs || DEFAULT_STALENESS_THRESHOLD_MS;
         this.staleItems = new Map(); // Map<fieldId, { code, date, label, ageInDays }>
         this.container = null;
         this.warningContainerId = options.warningContainerId || 'staleness-warnings';
     }
+
     /**
      * Set the container for this tracker
      * @param {HTMLElement} container - The calculator container
      */
-    setContainer(container) {
+    setContainer(container: HTMLElement): void {
         this.container = container;
         this._ensureWarningContainer();
     }
+
     /**
      * Check if an observation is stale
      * @param {Object} observation - FHIR Observation resource
      * @returns {Object|null} - Staleness info { isStale, date, ageInDays } or null if no date
      */
-    checkStaleness(observation) {
-        if (!observation)
-            return null;
+    checkStaleness(observation: any): StalenessInfo | null {
+        if (!observation) return null;
+
         // FHIR Observation date can be in:
         // - effectiveDateTime (single point in time)
         // - effectiveInstant (precise point in time)
@@ -41,12 +59,14 @@ export class DataStalenessTracker {
             observation.effectivePeriod?.end ||
             observation.effectivePeriod?.start ||
             observation.issued;
-        if (!dateStr)
-            return null;
+
+        if (!dateStr) return null;
+
         const observationDate = new Date(dateStr);
         const now = new Date();
         const ageMs = now.getTime() - observationDate.getTime();
         const ageInDays = Math.floor(ageMs / (24 * 60 * 60 * 1000));
+
         return {
             isStale: ageMs > this.thresholdMs,
             date: observationDate,
@@ -55,6 +75,7 @@ export class DataStalenessTracker {
             ageFormatted: this._formatAge(ageInDays)
         };
     }
+
     /**
      * Track an observation for a specific field
      * @param {string} fieldId - The input field ID
@@ -63,8 +84,9 @@ export class DataStalenessTracker {
      * @param {string} customLabel - Optional custom label
      * @returns {Object|null} - Staleness info if stale, null otherwise
      */
-    trackObservation(fieldId, observation, code, customLabel = null) {
+    trackObservation(fieldId: string, observation: any, code: string, customLabel: string | null = null): StalenessInfo | null {
         const stalenessInfo = this.checkStaleness(observation);
+
         if (stalenessInfo && stalenessInfo.isStale) {
             const label = customLabel || getLoincName(code) || code;
             this.staleItems.set(fieldId, {
@@ -77,88 +99,96 @@ export class DataStalenessTracker {
             });
             this._updateWarningDisplay();
             return stalenessInfo;
-        }
-        else {
+        } else {
             // Remove from stale items if it was previously stale but now updated
             if (this.staleItems.has(fieldId)) {
                 this.staleItems.delete(fieldId);
                 this._updateWarningDisplay();
             }
         }
+
         return stalenessInfo;
     }
+
     /**
      * Clear tracking for a field
      * @param {string} fieldId - The input field ID
      */
-    clearField(fieldId) {
+    clearField(fieldId: string): void {
         if (this.staleItems.has(fieldId)) {
             this.staleItems.delete(fieldId);
             this._updateWarningDisplay();
         }
     }
+
     /**
      * Clear all stale tracking
      */
-    clearAll() {
+    clearAll(): void {
         this.staleItems.clear();
         this._updateWarningDisplay();
     }
+
     /**
      * Get count of stale items
      * @returns {number}
      */
-    getStaleCount() {
+    getStaleCount(): number {
         return this.staleItems.size;
     }
+
     /**
      * Get all stale items as array
      * @returns {Array}
      */
-    getStaleItems() {
+    getStaleItems(): any[] {
         return Array.from(this.staleItems.entries()).map(([fieldId, info]) => ({
             fieldId,
             ...info
         }));
     }
+
     /**
      * Ensure the warning container exists in the DOM
      * @private
      */
-    _ensureWarningContainer() {
-        if (!this.container)
-            return;
+    private _ensureWarningContainer(): void {
+        if (!this.container) return;
+
         let warningContainer = this.container.querySelector(`#${this.warningContainerId}`);
         if (!warningContainer) {
             warningContainer = document.createElement('div');
             warningContainer.id = this.warningContainerId;
             warningContainer.className = 'staleness-warning-container';
+
             // Insert at the top of the calculator (after header if exists)
             const header = this.container.querySelector('.calculator-header');
             if (header && header.nextSibling && header.parentNode) {
                 header.parentNode.insertBefore(warningContainer, header.nextSibling);
-            }
-            else {
+            } else {
                 this.container.insertBefore(warningContainer, this.container.firstChild);
             }
         }
     }
+
     /**
      * Update the warning display
      * @private
      */
-    _updateWarningDisplay() {
-        if (!this.container)
-            return;
-        const warningContainer = this.container.querySelector(`#${this.warningContainerId}`);
-        if (!warningContainer)
-            return;
+    private _updateWarningDisplay(): void {
+        if (!this.container) return;
+
+        const warningContainer = this.container.querySelector(`#${this.warningContainerId}`) as HTMLElement;
+        if (!warningContainer) return;
+
         if (this.staleItems.size === 0) {
             warningContainer.innerHTML = '';
             warningContainer.style.display = 'none';
             return;
         }
+
         warningContainer.style.display = 'block';
+
         const items = this.getStaleItems();
         const itemsHtml = items.map(item => `
             <li class="staleness-item" data-field="${item.fieldId}">
@@ -167,6 +197,7 @@ export class DataStalenessTracker {
                 <span class="staleness-age">(${item.ageFormatted})</span>
             </li>
         `).join('');
+
         warningContainer.innerHTML = `
             <div class="staleness-warning ui-alert ui-alert-warning">
                 <span class="ui-alert-icon">⚠️</span>
@@ -182,22 +213,24 @@ export class DataStalenessTracker {
             </div>
         `;
     }
+
     /**
      * Format date for display
      * @private
      */
-    _formatDate(date) {
+    private _formatDate(date: Date): string {
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
         });
     }
+
     /**
      * Format age in days to human-readable format
      * @private
      */
-    _formatAge(days) {
+    private _formatAge(days: number): string {
         if (days >= 365) {
             const years = Math.floor(days / 365);
             const months = Math.floor((days % 365) / 30);
@@ -205,67 +238,71 @@ export class DataStalenessTracker {
                 return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''} ago`;
             }
             return `${years} year${years > 1 ? 's' : ''} ago`;
-        }
-        else if (days >= 30) {
+        } else if (days >= 30) {
             const months = Math.floor(days / 30);
             return `${months} month${months > 1 ? 's' : ''} ago`;
-        }
-        else {
+        } else {
             return `${days} day${days > 1 ? 's' : ''} ago`;
         }
     }
+
     /**
      * Capitalize label properly
      * @private
      */
-    _capitalizeLabel(label) {
+    private _capitalizeLabel(label: string): string {
         return label
             .split(' ')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(' ');
     }
 }
+
 /**
  * Helper function to get observation date from FHIR Observation
  * @param {Object} observation - FHIR Observation resource
  * @returns {Date|null}
  */
-export function getObservationDate(observation) {
-    if (!observation)
-        return null;
+export function getObservationDate(observation: any): Date | null {
+    if (!observation) return null;
+
     const dateStr = observation.effectiveDateTime ||
         observation.effectiveInstant ||
         observation.effectivePeriod?.end ||
         observation.effectivePeriod?.start ||
         observation.issued;
+
     return dateStr ? new Date(dateStr) : null;
 }
+
 /**
  * Check if an observation is stale (older than threshold)
  * @param {Object} observation - FHIR Observation resource
  * @param {number} thresholdMs - Staleness threshold in milliseconds (default: 90 days)
  * @returns {boolean}
  */
-export function isObservationStale(observation, thresholdMs = DEFAULT_STALENESS_THRESHOLD_MS) {
+export function isObservationStale(observation: any, thresholdMs: number = DEFAULT_STALENESS_THRESHOLD_MS): boolean {
     const date = getObservationDate(observation);
-    if (!date)
-        return false;
+    if (!date) return false;
+
     return (new Date().getTime() - date.getTime()) > thresholdMs;
 }
+
 /**
  * Create a staleness tracker for a calculator
  * @param {Object} options - Tracker options
  * @returns {DataStalenessTracker}
  */
-export function createStalenessTracker(options = {}) {
+export function createStalenessTracker(options: { thresholdMs?: number; warningContainerId?: string } = {}): DataStalenessTracker {
     return new DataStalenessTracker(options);
 }
+
 // Inject CSS styles for staleness warnings
 if (typeof document !== 'undefined') {
     (function injectStalenessStyles() {
         const styleId = 'staleness-warning-styles';
-        if (document.getElementById(styleId))
-            return;
+        if (document.getElementById(styleId)) return;
+
         const styles = document.createElement('style');
         styles.id = styleId;
         styles.textContent = `
@@ -322,6 +359,7 @@ if (typeof document !== 'undefined') {
         document.head.appendChild(styles);
     })();
 }
+
 export default {
     DataStalenessTracker,
     createStalenessTracker,
