@@ -285,9 +285,11 @@ export class FHIRDataService {
         try {
             // Special handling for Blood Pressure
             // FHIR often stores BP as a panel (85354-9), so querying for individual components (8480-6/8462-4) might fail
-            const bpFields = fields.filter(f => f.code === LOINC_CODES.SYSTOLIC_BP || f.code === '8480-6' ||
-                f.code === LOINC_CODES.DIASTOLIC_BP || f.code === '8462-4');
-            let processedBPCodes = [];
+            const bpFields = fields.filter(f => f.code === LOINC_CODES.SYSTOLIC_BP ||
+                f.code === '8480-6' ||
+                f.code === LOINC_CODES.DIASTOLIC_BP ||
+                f.code === '8462-4');
+            const processedBPCodes = [];
             if (bpFields.length > 0) {
                 try {
                     // Fetch BP Panel without internal staleness tracking (we'll do it here with correct IDs)
@@ -327,7 +329,7 @@ export class FHIRDataService {
                     }
                 }
                 catch (e) {
-                    console.error("Error auto-populating BP:", e);
+                    console.error('Error auto-populating BP:', e);
                 }
             }
             // Process remaining fields (exclude successfully processed BP fields)

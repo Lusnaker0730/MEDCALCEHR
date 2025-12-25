@@ -63,7 +63,8 @@ export class UIBuilder {
     required = false, helpText = '' }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        const optionsHTML = options.map((opt, index) => {
+        const optionsHTML = options
+            .map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
             const id = opt.id || `${name}-${opt.value}-${index}`;
@@ -80,7 +81,8 @@ export class UIBuilder {
                     </label>
                 </div>
             `;
-        }).join('');
+        })
+            .join('');
         return `
             <div class="ui-input-group">
                 ${label ? `<label>${label}${requiredMark}</label>` : ''}
@@ -98,11 +100,14 @@ export class UIBuilder {
     createCheckboxGroup({ name, label, options = [], // [{ value, label, description, checked }]
     helpText = '' }) {
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        const optionsHTML = options.map((opt, index) => {
+        const optionsHTML = options
+            .map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
             const id = opt.id || `${name}-${index}`;
-            const descHTML = opt.description ? `<div class="checkbox-description">${opt.description}</div>` : '';
+            const descHTML = opt.description
+                ? `<div class="checkbox-description">${opt.description}</div>`
+                : '';
             return `
                 <div class="ui-checkbox-option">
                     <input type="checkbox" 
@@ -117,7 +122,8 @@ export class UIBuilder {
                     ${descHTML}
                 </div>
             `;
-        }).join('');
+        })
+            .join('');
         return `
             <div class="ui-input-group">
                 ${label ? `<label>${label}</label>` : ''}
@@ -134,7 +140,9 @@ export class UIBuilder {
      */
     createCheckbox({ id, label, value = '1', checked = false, description = '' }) {
         const checkedAttr = checked ? 'checked' : '';
-        const descHTML = description ? `<div class="checkbox-description">${description}</div>` : '';
+        const descHTML = description
+            ? `<div class="checkbox-description">${description}</div>`
+            : '';
         return `
             <div class="ui-checkbox-option">
                 <input type="checkbox" 
@@ -156,10 +164,12 @@ export class UIBuilder {
     required = false, helpText = '' }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
-        const optionsHTML = options.map(opt => {
+        const optionsHTML = options
+            .map(opt => {
             const selected = opt.selected ? 'selected' : '';
             return `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
-        }).join('');
+        })
+            .join('');
         return `
             <div class="ui-input-group">
                 <label for="${id}">${label}${requiredMark}</label>
@@ -241,13 +251,16 @@ export class UIBuilder {
      * @param {Object} options - { items: [{ label, formula, notes }] }
      */
     createFormulaSection({ items = [] }) {
-        const itemsHTML = items.map(item => {
+        const itemsHTML = items
+            .map(item => {
             const label = item.label || item.title || 'Formula';
             const formulaText = item.formula || item.content || '';
             const formulaContent = Array.isArray(item.formulas)
                 ? item.formulas.map(f => `<div>${f}</div>`).join('')
                 : formulaText;
-            const notesHTML = item.notes ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>` : '';
+            const notesHTML = item.notes
+                ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>`
+                : '';
             return `
             <div class="ui-formula-item">
                 <strong>${label}:</strong>
@@ -255,7 +268,8 @@ export class UIBuilder {
                 ${notesHTML}
             </div>
         `;
-        }).join('');
+        })
+            .join('');
         return `
             <div class="ui-formula-section">
                 <div class="ui-formula-title">Formulas</div>
@@ -290,7 +304,9 @@ export class UIBuilder {
             try {
                 config = JSON.parse(wrapper.dataset.unitToggle || 'null');
             }
-            catch (e) { /* ignore */ }
+            catch (e) {
+                /* ignore */
+            }
             // Ensure config is a proper object with units before attempting to enhance
             if (input && config && typeof config === 'object' && Array.isArray(config.units)) {
                 UnitConverter.enhanceInput(input, config.type, config.units, config.default || config.units[0]);
@@ -301,7 +317,7 @@ export class UIBuilder {
         rangeSliders.forEach(slider => {
             const valueDisplay = container.querySelector(`#${slider.id}-value`);
             if (valueDisplay) {
-                slider.addEventListener('input', (e) => {
+                slider.addEventListener('input', e => {
                     const unit = valueDisplay.textContent?.replace(/[0-9.-]/g, '') || '';
                     valueDisplay.textContent = e.target.value + unit;
                 });
@@ -345,7 +361,8 @@ export class UIBuilder {
      * @param {Object} options - { fields: [], onSubmit }
      */
     createForm({ fields = [], submitLabel = 'Calculate', showSubmit = false }) {
-        const fieldsHTML = fields.map(field => {
+        const fieldsHTML = fields
+            .map(field => {
             switch (field.type) {
                 case 'input':
                 case 'number':
@@ -369,12 +386,15 @@ export class UIBuilder {
                 default:
                     return '';
             }
-        }).join('');
-        const submitHTML = showSubmit ? `
+        })
+            .join('');
+        const submitHTML = showSubmit
+            ? `
             <div class="ui-button-group">
                 <button type="submit" class="ui-button ui-button-primary">${submitLabel}</button>
             </div>
-        ` : '';
+        `
+            : '';
         return `
             <form class="ui-form">
                 ${fieldsHTML}
@@ -389,17 +409,23 @@ export class UIBuilder {
     createTable({ id, headers = [], // ['Col 1', 'Col 2']
     rows = [], // [['r1c1', 'r1c2'], ['r2c1', 'r2c2']]
     className = '', stickyFirstColumn = false }) {
-        const headerHTML = headers.map((h, i) => {
-            const stickyClass = (stickyFirstColumn && i === 0) ? 'sticky-col' : '';
+        const headerHTML = headers
+            .map((h, i) => {
+            const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
             return `<th class="${stickyClass}">${h}</th>`;
-        }).join('');
-        const rowsHTML = rows.map(row => {
-            const cellsHTML = row.map((cell, i) => {
-                const stickyClass = (stickyFirstColumn && i === 0) ? 'sticky-col' : '';
+        })
+            .join('');
+        const rowsHTML = rows
+            .map(row => {
+            const cellsHTML = row
+                .map((cell, i) => {
+                const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
                 return `<td class="${stickyClass}">${cell}</td>`;
-            }).join('');
+            })
+                .join('');
             return `<tr>${cellsHTML}</tr>`;
-        }).join('');
+        })
+            .join('');
         const tableClass = `ui-table ${className} ${stickyFirstColumn ? 'has-sticky-col' : ''}`;
         const wrapperId = id ? `id="${id}"` : '';
         return `

@@ -160,13 +160,15 @@ export class DataStalenessTracker {
         }
         warningContainer.style.display = 'block';
         const items = this.getStaleItems();
-        const itemsHtml = items.map(item => `
+        const itemsHtml = items
+            .map(item => `
             <li class="staleness-item" data-field="${item.fieldId}">
                 <strong>${item.label}</strong>: 
                 <span class="staleness-date">${item.dateStr}</span>
                 <span class="staleness-age">(${item.ageFormatted})</span>
             </li>
-        `).join('');
+        `)
+            .join('');
         warningContainer.innerHTML = `
             <div class="staleness-warning ui-alert ui-alert-warning">
                 <span class="ui-alert-icon">⚠️</span>
@@ -250,7 +252,7 @@ export function isObservationStale(observation, thresholdMs = DEFAULT_STALENESS_
     const date = getObservationDate(observation);
     if (!date)
         return false;
-    return (new Date().getTime() - date.getTime()) > thresholdMs;
+    return new Date().getTime() - date.getTime() > thresholdMs;
 }
 /**
  * Create a staleness tracker for a calculator

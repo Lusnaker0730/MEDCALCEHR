@@ -12,12 +12,19 @@ export function validateCalculatorInput(input, schema) {
         const value = input[key];
         const rule = schema[key];
         // Required field validation
-        if (rule.required && (value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value)))) {
+        if (rule.required &&
+            (value === null ||
+                value === undefined ||
+                value === '' ||
+                (typeof value === 'number' && Number.isNaN(value)))) {
             errors.push(rule.message || `${key} is required`);
             return;
         }
         // Skip further validation if value is empty and not required
-        if (value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value))) {
+        if (value === null ||
+            value === undefined ||
+            value === '' ||
+            (typeof value === 'number' && Number.isNaN(value))) {
             return;
         }
         // Minimum value validation

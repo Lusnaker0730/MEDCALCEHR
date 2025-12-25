@@ -516,7 +516,7 @@ export class FHIRDataService {
                     f.code === '8462-4'
             );
 
-            let processedBPCodes: string[] = [];
+            const processedBPCodes: string[] = [];
 
             if (bpFields.length > 0) {
                 try {

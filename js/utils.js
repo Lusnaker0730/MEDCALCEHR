@@ -138,7 +138,8 @@ export function getPatient(client) {
     if (!client || !client.patient) {
         return Promise.resolve(null);
     }
-    return client.patient.read()
+    return client.patient
+        .read()
         .then((patient) => patient || null)
         .catch((error) => {
         console.error('Error fetching patient:', error);

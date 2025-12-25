@@ -7,45 +7,45 @@ export const UnitConverter = {
     conversions: {
         // Weight
         weight: {
-            'kg': { 'lbs': 2.20462, 'g': 1000 },
-            'lbs': { 'kg': 0.453592, 'g': 453.592 },
-            'g': { 'kg': 0.001, 'lbs': 0.00220462 }
+            kg: { lbs: 2.20462, g: 1000 },
+            lbs: { kg: 0.453592, g: 453.592 },
+            g: { kg: 0.001, lbs: 0.00220462 }
         },
         // Height/Length
         height: {
-            'cm': { 'in': 0.393701, 'ft': 0.0328084, 'm': 0.01 },
-            'in': { 'cm': 2.54, 'ft': 0.0833333, 'm': 0.0254 },
-            'ft': { 'cm': 30.48, 'in': 12, 'm': 0.3048 },
-            'm': { 'cm': 100, 'in': 39.3701, 'ft': 3.28084 }
+            cm: { in: 0.393701, ft: 0.0328084, m: 0.01 },
+            in: { cm: 2.54, ft: 0.0833333, m: 0.0254 },
+            ft: { cm: 30.48, in: 12, m: 0.3048 },
+            m: { cm: 100, in: 39.3701, ft: 3.28084 }
         },
         // Temperature
         temperature: {
-            'C': {
-                'F': (val) => (val * 9 / 5) + 32,
-                'K': (val) => val + 273.15
+            C: {
+                F: (val) => (val * 9) / 5 + 32,
+                K: (val) => val + 273.15
             },
-            'F': {
-                'C': (val) => (val - 32) * 5 / 9,
-                'K': (val) => (val - 32) * 5 / 9 + 273.15
+            F: {
+                C: (val) => ((val - 32) * 5) / 9,
+                K: (val) => ((val - 32) * 5) / 9 + 273.15
             },
-            'K': {
-                'C': (val) => val - 273.15,
-                'F': (val) => (val - 273.15) * 9 / 5 + 32
+            K: {
+                C: (val) => val - 273.15,
+                F: (val) => ((val - 273.15) * 9) / 5 + 32
             }
         },
         // Blood Pressure
         pressure: {
-            'mmHg': { 'kPa': 0.133322, 'bar': 0.00133322, 'mm[Hg]': 1 },
-            'kPa': { 'mmHg': 7.50062, 'bar': 0.01, 'mm[Hg]': 7.50062 },
-            'bar': { 'mmHg': 750.062, 'kPa': 100, 'mm[Hg]': 750.062 },
-            'mm[Hg]': { 'mmHg': 1, 'kPa': 0.133322, 'bar': 0.00133322 }
+            mmHg: { kPa: 0.133322, bar: 0.00133322, 'mm[Hg]': 1 },
+            kPa: { mmHg: 7.50062, bar: 0.01, 'mm[Hg]': 7.50062 },
+            bar: { mmHg: 750.062, kPa: 100, 'mm[Hg]': 750.062 },
+            'mm[Hg]': { mmHg: 1, kPa: 0.133322, bar: 0.00133322 }
         },
         // Volume
         volume: {
-            'mL': { 'L': 0.001, 'fl oz': 0.033814, 'cup': 0.00422675 },
-            'L': { 'mL': 1000, 'fl oz': 33.814, 'cup': 4.22675 },
-            'fl oz': { 'mL': 29.5735, 'L': 0.0295735, 'cup': 0.125 },
-            'cup': { 'mL': 236.588, 'L': 0.236588, 'fl oz': 8 }
+            mL: { L: 0.001, 'fl oz': 0.033814, cup: 0.00422675 },
+            L: { mL: 1000, 'fl oz': 33.814, cup: 4.22675 },
+            'fl oz': { mL: 29.5735, L: 0.0295735, cup: 0.125 },
+            cup: { mL: 236.588, L: 0.236588, 'fl oz': 8 }
         },
         // Concentration (generic)
         concentration: {
@@ -208,7 +208,7 @@ export const UnitConverter = {
         // Store original value and unit
         let storedValue = null;
         let currentUnitIndex = 0;
-        toggleBtn.addEventListener('click', (e) => {
+        toggleBtn.addEventListener('click', e => {
             e.preventDefault();
             const currentValue = parseFloat(inputElement.value);
             if (!isNaN(currentValue)) {
@@ -243,9 +243,9 @@ export const UnitConverter = {
      */
     getDecimalPlaces(type, unit) {
         const decimalMap = {
-            weight: { 'kg': 1, 'lbs': 1, 'g': 0 },
-            height: { 'cm': 1, 'in': 1, 'ft': 2, 'm': 2 },
-            temperature: { 'C': 1, 'F': 1, 'K': 1 },
+            weight: { kg: 1, lbs: 1, g: 0 },
+            height: { cm: 1, in: 1, ft: 2, m: 2 },
+            temperature: { C: 1, F: 1, K: 1 },
             cholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
             totalCholesterol: { 'mg/dL': 0, 'mmol/L': 2 },
             hdl: { 'mg/dL': 0, 'mmol/L': 2 },
@@ -254,8 +254,8 @@ export const UnitConverter = {
             sodium: { 'mEq/L': 0, 'mmol/L': 0 },
             insulin: { 'µU/mL': 1, 'pmol/L': 0, 'mU/L': 1 },
             phenytoin: { 'mcg/mL': 1, 'µmol/L': 0, 'mg/L': 1 },
-            pressure: { 'mmHg': 0, 'kPa': 2, 'bar': 3, 'mm[Hg]': 0 },
-            volume: { 'mL': 0, 'L': 2, 'fl oz': 1, 'cup': 2 },
+            pressure: { mmHg: 0, kPa: 2, bar: 3, 'mm[Hg]': 0 },
+            volume: { mL: 0, L: 2, 'fl oz': 1, cup: 2 },
             glucose: { 'mmol/L': 1, 'mg/dL': 0 },
             creatinine: { 'mg/dL': 2, 'µmol/L': 0, 'umol/L': 0 },
             calcium: { 'mg/dL': 2, 'mmol/L': 2 },
@@ -313,7 +313,9 @@ export const UnitConverter = {
         // Find and enhance matching inputs
         Object.entries(finalConfig).forEach(([key, spec]) => {
             const input = container.querySelector(`#${key}, input[name="${key}"], #${key}-input, .${key}-input`);
-            if (input && input.type !== 'checkbox' && input.type !== 'radio') {
+            if (input &&
+                input.type !== 'checkbox' &&
+                input.type !== 'radio') {
                 this.enhanceInput(input, spec.type, spec.units, spec.default || spec.units[0]);
             }
         });
@@ -338,7 +340,7 @@ export const UnitConverter = {
         if (!inputElement || value === null || value === undefined)
             return;
         // Clean up unit string (sometimes FHIR returns messy units or variations)
-        // Basic normalization if needed, or rely on exact map. 
+        // Basic normalization if needed, or rely on exact map.
         // For now, assume exact or close enough mapping in conversions.
         const currentUnit = this.getCurrentUnit(inputElement);
         if (currentUnit && unit && currentUnit !== unit) {
@@ -353,7 +355,7 @@ export const UnitConverter = {
                     inputElement.value = converted.toFixed(decimals);
                 }
                 else {
-                    // Conversion failed, fall back to raw value? 
+                    // Conversion failed, fall back to raw value?
                     // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
                     // Just set raw value as fallback.
                     console.warn(`Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`);

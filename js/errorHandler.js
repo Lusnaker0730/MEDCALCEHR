@@ -51,7 +51,8 @@ export function logError(error, context = {}) {
         stack: error.stack
     };
     // Log details in development environment
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    if (typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         console.group('🚨 Error Logged');
         console.error('Error:', error);
         console.log('Context:', context);
