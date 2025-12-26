@@ -137,6 +137,8 @@ export interface InterpretationItem {
 export interface FormulaSectionConfig {
     show: boolean;
     title?: string;
+    /** Display mode: 'table' (default) for scoring checks, 'list' for long formulas */
+    type?: 'table' | 'list';
     calculationNote?: string;
     scoringCriteria?: ScoringCriteriaItem[];
     footnotes?: string[];
@@ -344,44 +346,64 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 const fs = config.formulaSection;
                 const formulaTitle = fs.title || 'FORMULA';
                 const calcNote = fs.calculationNote || 'Addition of the selected points:';
+                const displayType = fs.type || 'table';
 
                 // Scoring Table
                 let scoringContentHTML = '';
                 if (fs.scoringCriteria?.length) {
-                    const scoringRows = fs.scoringCriteria
-                        .map(item => {
-                            if (item.isHeader) {
-                                return `
-                                <tr class="ui-scoring-table__category">
-                                    <td colspan="2">${item.criteria}</td>
-                                </tr>
+                    if (displayType === 'list') {
+                        // Render as List/Block
+                        const listItems = fs.scoringCriteria.map(item => {
+                            return `
+                                <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                                    <div style="font-weight: 600; margin-bottom: 5px; color: #2c3e50;">${item.criteria}</div>
+                                    <div style="font-family: monospace; background: #f8f9fa; padding: 8px; border-radius: 4px; color: #444;">${item.points}</div>
+                                </div>
                             `;
-                            } else {
-                                return `
-                                <tr class="ui-scoring-table__item">
-                                    <td class="ui-scoring-table__criteria">${item.criteria}</td>
-                                    <td class="ui-scoring-table__points">${item.points || ''}</td>
-                                </tr>
-                            `;
-                            }
-                        })
-                        .join('');
+                        }).join('');
 
-                    scoringContentHTML = `
-                        <div class="ui-table-wrapper">
-                            <table class="ui-scoring-table">
-                                <thead>
-                                    <tr>
-                                        <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
-                                        <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                        scoringContentHTML = `
+                            <div class="ui-formula-list" style="margin-top: 15px;">
+                                ${listItems}
+                            </div>
+                        `;
+                    } else {
+                        // Render as Table (default)
+                        const scoringRows = fs.scoringCriteria
+                            .map(item => {
+                                if (item.isHeader) {
+                                    return `
+                                    <tr class="ui-scoring-table__category">
+                                        <td colspan="2">${item.criteria}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    ${scoringRows}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
+                                `;
+                                } else {
+                                    return `
+                                    <tr class="ui-scoring-table__item">
+                                        <td class="ui-scoring-table__criteria">${item.criteria}</td>
+                                        <td class="ui-scoring-table__points">${item.points || ''}</td>
+                                    </tr>
+                                `;
+                                }
+                            })
+                            .join('');
+
+                        scoringContentHTML = `
+                            <div class="ui-table-wrapper">
+                                <table class="ui-scoring-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
+                                            <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${scoringRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
                 }
 
                 // Footnotes
@@ -472,13 +494,12 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${
-                    config.infoAlert
-                        ? uiBuilder.createAlert({
-                              type: 'info',
-                              message: config.infoAlert
-                          })
-                        : ''
+                ${config.infoAlert
+                    ? uiBuilder.createAlert({
+                        type: 'info',
+                        message: config.infoAlert
+                    })
+                    : ''
                 }
                 
                 ${sectionsHTML}
