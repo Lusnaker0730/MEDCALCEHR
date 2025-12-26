@@ -299,15 +299,56 @@
 }
 
 .tech-theme .help-text,
-.tech-theme .input-hint {
+.tech-theme .input-hint,
+.tech-theme .formula-section,
+.tech-theme .formula-box,
+.tech-theme .formula-step,
+.tech-theme .formula-variable {
     color: #cbd5e1 !important;
+    /* Bright gray for descriptions */
 }
 
-/* Tables */
+/* Make actual formula math/variables pop */
+.tech-theme .formula-math,
+.tech-theme strong,
+.tech-theme b {
+    color: #ffffff !important;
+}
+
+/* Tables - Fix visibility for all content */
+.tech-theme .ui-table {
+    color: var(--text-secondary) !important;
+}
+
 .tech-theme .ui-table thead th {
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
     color: var(--color-glow);
     border-bottom: 2px solid var(--color-accent);
+}
+
+.tech-theme .ui-table td {
+    color: var(--text-primary);
+    /* Ensure cell text is white */
+    border-bottom: 1px solid rgba(0, 180, 255, 0.1);
+}
+
+/* Fix for dark headers inside table body (like '1. Alertness') */
+.tech-theme .ui-table td strong,
+.tech-theme .ui-table td b,
+.tech-theme .ui-table .group-header {
+    color: var(--color-glow) !important;
+    /* Make headers pop */
+    font-weight: 700;
+}
+
+/* Footnotes and Small Text */
+.tech-theme .footnote,
+.tech-theme .text-muted,
+.tech-theme small,
+.tech-theme .text-small {
+    color: #94a3b8 !important;
+    /* Readable bright gray */
+    opacity: 1 !important;
 }
 
 /* Scrollbar */
