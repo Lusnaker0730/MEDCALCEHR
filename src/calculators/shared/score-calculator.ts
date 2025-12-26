@@ -352,9 +352,9 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 ${sectionsHTML}
                 
                 ${uiBuilder.createResultBox({
-                    id: `${config.id}-result`,
-                    title: `${config.title} Results`
-                })}
+                id: `${config.id}-result`,
+                title: `${config.title} Results`
+            })}
                 
                 ${formulaHTML}
                 ${referencesHTML}
@@ -423,24 +423,23 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
 
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                    label: 'Total Score',
-                                    value: score.toString(),
-                                    unit: 'points',
-                                    interpretation: riskLevel.category,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
+                                label: 'Total Score',
+                                value: score.toString(),
+                                unit: 'points',
+                                interpretation: riskLevel.category,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
                                 ${uiBuilder.createResultItem({
-                                    label: 'Risk',
-                                    value: riskLevel.risk,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
-                                ${
-                                    riskLevel.recommendation
-                                        ? uiBuilder.createAlert({
-                                              type: riskLevel.severity,
-                                              message: riskLevel.recommendation
-                                          })
-                                        : ''
+                                label: 'Risk',
+                                value: riskLevel.risk,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
+                                ${riskLevel.recommendation
+                                    ? uiBuilder.createAlert({
+                                        type: riskLevel.severity,
+                                        message: riskLevel.recommendation
+                                    })
+                                    : ''
                                 }
                             `;
                         }

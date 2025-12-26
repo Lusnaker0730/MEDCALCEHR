@@ -14,10 +14,10 @@ const ThemeManager = {
     init() {
         // 載入保存的主題偏好
         this.loadTheme();
-        
+
         // 綁定切換按鈕事件
         this.bindToggleButton();
-        
+
         // 監聽系統主題變化
         this.watchSystemTheme();
     },
@@ -27,7 +27,7 @@ const ThemeManager = {
      */
     loadTheme() {
         const savedTheme = localStorage.getItem(this.STORAGE_KEY);
-        
+
         if (savedTheme) {
             this.setTheme(savedTheme);
         } else {
@@ -43,15 +43,18 @@ const ThemeManager = {
      */
     setTheme(theme) {
         const html = document.documentElement;
-        
+        const body = document.body;
+
         if (theme === this.DARK_THEME) {
             html.setAttribute('data-theme', 'tech');
+            body.classList.add('tech-theme');
             this.updateToggleIcon('☀️');
         } else {
             html.removeAttribute('data-theme');
+            body.classList.remove('tech-theme');
             this.updateToggleIcon('🌙');
         }
-        
+
         // 保存到 localStorage
         localStorage.setItem(this.STORAGE_KEY, theme);
     },
@@ -91,7 +94,7 @@ const ThemeManager = {
      */
     watchSystemTheme() {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        
+
         mediaQuery.addEventListener('change', (e) => {
             // 只有在使用者沒有手動設定主題時才跟隨系統
             const savedTheme = localStorage.getItem(this.STORAGE_KEY);

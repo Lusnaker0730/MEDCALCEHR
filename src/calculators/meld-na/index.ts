@@ -1,339 +1,207 @@
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
-import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-import { fhirDataService } from '../../fhir-data-service.js';
+import {
+    createMixedInputCalculator,
+    MixedInputCalculatorConfig
+} from '../shared/mixed-input-calculator.js';
 
-export const meldNa = {
+const config: MixedInputCalculatorConfig = {
     id: 'meld-na',
     title: 'MELD-Na (UNOS/OPTN)',
     description: 'Quantifies end-stage liver disease for transplant planning with sodium.',
-    generateHTML: function (): string {
-        const inputs = uiBuilder.createSection({
+    infoAlert: 'MELD-Na has superior predictive accuracy compared to MELD alone for 90-day mortality. Enter laboratory values below for automatic calculation.',
+    sections: [
+        {
             title: 'Laboratory Values',
-            content: [
-                uiBuilder.createInput({
-                    id: 'meld-na-bili',
+            icon: '🧪',
+            inputs: [
+                {
+                    id: 'bili',
                     label: 'Bilirubin (Total)',
                     type: 'number',
-                    step: 0.1,
-                    unitToggle: { type: 'bilirubin', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
-                }),
-                uiBuilder.createInput({
-                    id: 'meld-na-inr',
+                    loincCode: LOINC_CODES.BILIRUBIN_TOTAL,
+                    unit: 'mg/dL',
+                    unitToggle: { type: 'bilirubin', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+                    step: 0.1
+                },
+                {
+                    id: 'inr',
                     label: 'INR',
                     type: 'number',
-                    step: 0.01,
-                    placeholder: 'e.g., 1.5'
-                }),
-                uiBuilder.createInput({
-                    id: 'meld-na-creat',
+                    loincCode: LOINC_CODES.INR_COAG,
+                    placeholder: 'e.g., 1.5',
+                    step: 0.01
+                },
+                {
+                    id: 'creat',
                     label: 'Creatinine',
                     type: 'number',
-                    step: 0.1,
-                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
-                }),
-                uiBuilder.createInput({
-                    id: 'meld-na-sodium',
+                    loincCode: LOINC_CODES.CREATININE,
+                    unit: 'mg/dL',
+                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+                    step: 0.1
+                },
+                {
+                    id: 'sodium',
                     label: 'Sodium',
                     type: 'number',
-                    step: 1,
+                    loincCode: LOINC_CODES.SODIUM,
+                    unit: 'mEq/L',
                     unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' },
+                    step: 1,
                     placeholder: '100 - 155'
-                }),
-                uiBuilder.createCheckbox({
-                    id: 'meld-na-dialysis',
-                    label: 'Patient on dialysis twice in the last week'
-                })
-            ].join('')
-        });
-
-        const formulaSection = uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'MELD Score',
-                    formula: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643'
                 },
                 {
-                    label: 'MELD-Na Score (if MELD > 11)',
-                    formula: 'MELD + 1.32 × (137 - Na) - [0.033 × MELD × (137 - Na)]'
-                },
-                {
-                    label: 'Constraints',
-                    formula:
-                        'Min lab values: 1.0; Max Creat: 4.0; Na capped: 125-137; Score range: 6-40'
+                    name: 'dialysis',
+                    label: 'Patient on dialysis twice in the last week',
+                    type: 'radio',
+                    options: [
+                        { value: 'no', label: 'No', checked: true },
+                        { value: 'yes', label: 'Yes' }
+                    ]
                 }
             ]
-        });
+        }
+    ],
+    formulaSection: {
+        type: 'list',
+        show: true,
+        scoringCriteria: [
+            {
+                criteria: 'MELD Score',
+                points: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643'
+            },
+            {
+                criteria: 'MELD-Na Score (if MELD > 11)',
+                points: 'MELD + 1.32 × (137 - Na) - [0.033 × MELD × (137 - Na)]'
+            },
+            {
+                criteria: 'Constraints',
+                points: 'Min lab values: 1.0; Max Creat: 4.0; Na capped: 125-137; Score range: 6-40'
+            }
+        ]
+    },
+    calculate: (values) => {
+        const bili = values['bili'] as number;
+        const inr = values['inr'] as number;
+        const creat = values['creat'] as number;
+        const sodium = values['sodium'] as number;
+        const onDialysis = values['dialysis'] === 'yes';
+
+        if (bili === null || inr === null || creat === null || sodium === null) {
+            return null;
+        }
+
+        // Apply UNOS/OPTN rules
+        const adjustedBili = Math.max(bili, 1.0);
+        const adjustedInr = Math.max(inr, 1.0);
+        let adjustedCreat = Math.max(creat, 1.0);
+
+        if (onDialysis || adjustedCreat > 4.0) {
+            adjustedCreat = 4.0;
+        }
+
+        // Calculate original MELD
+        let meldScore =
+            0.957 * Math.log(adjustedCreat) +
+            0.378 * Math.log(adjustedBili) +
+            1.12 * Math.log(adjustedInr) +
+            0.643;
+
+        meldScore = Math.round(meldScore * 10) / 10;
+
+        // Calculate MELD-Na
+        let meldNaScore = meldScore;
+        const adjustedSodium = Math.max(125, Math.min(137, sodium));
+
+        if (meldScore > 11) {
+            meldNaScore =
+                meldScore +
+                1.32 * (137 - adjustedSodium) -
+                0.033 * meldScore * (137 - adjustedSodium);
+        }
+
+        // Final score capping
+        meldNaScore = Math.max(6, Math.min(40, meldNaScore));
+        meldNaScore = Math.round(meldNaScore);
+
+        return meldNaScore;
+    },
+    customResultRenderer: (score, values) => {
+        const bili = values['bili'] as number;
+        const inr = values['inr'] as number;
+        const creat = values['creat'] as number;
+        const onDialysis = values['dialysis'] === 'yes';
+
+        // Re-calculate intermediate values for breakdown display
+        // Note: we don't recalculate internal adjusted variables here easily without duplication, 
+        // but we can show the inputs used.
+        // Actually for the breakdown logic "adjusted values" are useful.
+        // Let's duplicate the adjustment logic slightly for display purposes or just show raw inputs.
+        // The original code showed "Adjusted" values. Let's try to replicate that if possible.
+
+        const adjustedBili = Math.max(bili || 0, 1.0);
+        const adjustedInr = Math.max(inr || 0, 1.0);
+        let adjustedCreat = Math.max(creat || 0, 1.0);
+        if (onDialysis || adjustedCreat > 4.0) {
+            adjustedCreat = 4.0;
+        }
+
+        let meldScore =
+            0.957 * Math.log(adjustedCreat) +
+            0.378 * Math.log(adjustedBili) +
+            1.12 * Math.log(adjustedInr) +
+            0.643;
+        meldScore = Math.round(meldScore * 10) / 10;
+
+        let riskCategory = '';
+        let mortalityRate = '';
+        let alertClass = '';
+
+        if (score < 10) {
+            riskCategory = 'Low Risk';
+            mortalityRate = '1.9%';
+            alertClass = 'ui-alert-success';
+        } else if (score <= 19) {
+            riskCategory = 'Low-Moderate Risk';
+            mortalityRate = '6.0%';
+            alertClass = 'ui-alert-info';
+        } else if (score <= 29) {
+            riskCategory = 'Moderate Risk';
+            mortalityRate = '19.6%';
+            alertClass = 'ui-alert-warning';
+        } else if (score <= 39) {
+            riskCategory = 'High Risk';
+            mortalityRate = '52.6%';
+            alertClass = 'ui-alert-danger';
+        } else {
+            riskCategory = 'Very High Risk';
+            mortalityRate = '71.3%';
+            alertClass = 'ui-alert-danger';
+        }
 
         return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
+            ${uiBuilder.createResultItem({
+            label: 'MELD-Na Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
+            alertClass: alertClass
+        })}
+            
+            <div class="mt-15 text-sm text-muted p-10">
+                <strong>Calculation Breakdown:</strong><br>
+                • Original MELD: ${meldScore.toFixed(1)}<br>
+                • Adjusted Bilirubin: ${adjustedBili.toFixed(1)} mg/dL<br>
+                • Adjusted INR: ${adjustedInr.toFixed(2)}<br>
+                • Adjusted Creatinine: ${adjustedCreat.toFixed(1)} mg/dL ${onDialysis ? '(capped for dialysis)' : ''}
             </div>
-            
-            <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
-                <div class="alert-content">
-                    <p>MELD-Na has superior predictive accuracy compared to MELD alone for 90-day mortality. Enter laboratory values below for automatic calculation.</p>
-                </div>
-            </div>
-            
-            ${inputs}
-            
-            <div id="meld-na-error-container"></div>
-            
-            <div id="meld-na-result" class="ui-result-box">
-                <div class="ui-result-header">MELD-Na Score Result</div>
-                <div class="ui-result-content"></div>
-            </div>
-            
-            ${formulaSection}
-            
-            <div class="alert warning mt-20">
-                <span class="alert-icon">⚠️</span>
-                <div class="alert-content">
-                    <p><strong>Clinical Note:</strong> Used for liver transplant priority allocation. Scores should be updated regularly as clinical status changes.</p>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: 'warning',
+            message: '<strong>Clinical Note:</strong> Used for liver transplant priority allocation. Scores should be updated regularly as clinical status changes.'
+        })}
         `;
-    },
-    initialize: function (client: any, patient: any, container: HTMLElement): void {
-        // Initialize UI components (unit toggles, etc.)
-        uiBuilder.initializeComponents(container);
-
-        // Initialize FHIRDataService
-        fhirDataService.initialize(client, patient, container);
-
-        const calculateAndUpdate = () => {
-            // Clear previous errors
-            const errorContainer = container.querySelector('#meld-na-error-container');
-            if (errorContainer) {
-                errorContainer.innerHTML = '';
-            }
-
-            const biliInput = container.querySelector('#meld-na-bili') as HTMLInputElement;
-            const inrInput = container.querySelector('#meld-na-inr') as HTMLInputElement;
-            const creatInput = container.querySelector('#meld-na-creat') as HTMLInputElement;
-            const sodiumInput = container.querySelector('#meld-na-sodium') as HTMLInputElement;
-            const dialysisCheckbox = container.querySelector(
-                '#meld-na-dialysis'
-            ) as HTMLInputElement;
-
-            const resultBox = container.querySelector('#meld-na-result') as HTMLElement;
-            const resultContent = resultBox.querySelector('.ui-result-content') as HTMLElement;
-
-            try {
-                // Get standard values
-                const bili = UnitConverter.getStandardValue(biliInput, 'mg/dL');
-                const inr = parseFloat(inrInput.value);
-                const creat = UnitConverter.getStandardValue(creatInput, 'mg/dL');
-                const sodium = UnitConverter.getStandardValue(sodiumInput, 'mEq/L');
-                const onDialysis = dialysisCheckbox.checked;
-
-                // Define validation schema
-                const inputs = { bili, inr, creat, sodium };
-                const schema = {
-                    bili: ValidationRules.bilirubin,
-                    inr: ValidationRules.inr,
-                    creat: ValidationRules.creatinine,
-                    sodium: ValidationRules.sodium
-                };
-
-                // @ts-ignore
-                const validation = validateCalculatorInput(inputs, schema);
-
-                if (!validation.isValid) {
-                    const hasInput =
-                        biliInput.value || inrInput.value || creatInput.value || sodiumInput.value;
-
-                    if (hasInput) {
-                        const meaningfulErrors = validation.errors.filter(() => true);
-
-                        // Show error if we have data presence
-                        const valuesPresent =
-                            bili !== null &&
-                            !isNaN(bili) &&
-                            !isNaN(inr) &&
-                            creat !== null &&
-                            !isNaN(creat) &&
-                            sodium !== null &&
-                            !isNaN(sodium);
-
-                        if (valuesPresent || validation.errors.some(e => !e.includes('required'))) {
-                            if (meaningfulErrors.length > 0) {
-                                if (errorContainer) {
-                                    displayError(
-                                        errorContainer as HTMLElement,
-                                        new ValidationError(meaningfulErrors[0], 'VALIDATION_ERROR')
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    resultBox.classList.remove('show');
-                    return;
-                }
-
-                if (bili === null || inr === null || creat === null || sodium === null) {
-                    return;
-                }
-
-                // Apply UNOS/OPTN rules
-                const adjustedBili = Math.max(bili, 1.0);
-                const adjustedInr = Math.max(inr, 1.0);
-                let adjustedCreat = Math.max(creat, 1.0);
-                if (onDialysis || adjustedCreat > 4.0) {
-                    adjustedCreat = 4.0;
-                }
-
-                // Calculate original MELD
-                let meldScore =
-                    0.957 * Math.log(adjustedCreat) +
-                    0.378 * Math.log(adjustedBili) +
-                    1.12 * Math.log(adjustedInr) +
-                    0.643;
-                meldScore = Math.round(meldScore * 10) / 10;
-
-                // Calculate MELD-Na
-                let meldNaScore = meldScore;
-                if (meldScore > 11) {
-                    const adjustedSodium = Math.max(125, Math.min(137, sodium));
-                    meldNaScore =
-                        meldScore +
-                        1.32 * (137 - adjustedSodium) -
-                        0.033 * meldScore * (137 - adjustedSodium);
-                }
-
-                // Final score capping
-                meldNaScore = Math.max(6, Math.min(40, meldNaScore));
-                meldNaScore = Math.round(meldNaScore);
-
-                // Determine risk category and mortality
-                let riskCategory = '';
-                let mortalityRate = '';
-                let alertClass = '';
-
-                if (meldNaScore < 10) {
-                    riskCategory = 'Low Risk';
-                    mortalityRate = '1.9%';
-                    alertClass = 'ui-alert-success';
-                } else if (meldNaScore <= 19) {
-                    riskCategory = 'Low-Moderate Risk';
-                    mortalityRate = '6.0%';
-                    alertClass = 'ui-alert-info';
-                } else if (meldNaScore <= 29) {
-                    riskCategory = 'Moderate Risk';
-                    mortalityRate = '19.6%';
-                    alertClass = 'ui-alert-warning';
-                } else if (meldNaScore <= 39) {
-                    riskCategory = 'High Risk';
-                    mortalityRate = '52.6%';
-                    alertClass = 'ui-alert-danger';
-                } else {
-                    riskCategory = 'Very High Risk';
-                    mortalityRate = '71.3%';
-                    alertClass = 'ui-alert-danger';
-                }
-
-                resultContent.innerHTML = `
-                    ${uiBuilder.createResultItem({
-                        label: 'MELD-Na Score',
-                        value: meldNaScore,
-                        unit: 'points',
-                        interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
-                        alertClass: alertClass
-                    })}
-                    
-                    <div class="mt-15 text-sm text-muted p-10">
-                        <strong>Calculation Breakdown:</strong><br>
-                        • Original MELD: ${meldScore.toFixed(1)}<br>
-                        • Adjusted Bilirubin: ${adjustedBili.toFixed(1)} mg/dL<br>
-                        • Adjusted INR: ${adjustedInr.toFixed(2)}<br>
-                        • Adjusted Creatinine: ${adjustedCreat.toFixed(1)} mg/dL ${onDialysis ? '(capped for dialysis)' : ''}
-                    </div>
-                `;
-
-                resultBox.classList.add('show');
-            } catch (error: any) {
-                logError(error, { calculator: 'meld-na', action: 'calculate' });
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error);
-                }
-                resultBox.classList.remove('show');
-            }
-        };
-
-        // Helper to safely set value
-        const setInputValue = (id: string, val: string) => {
-            const input = container.querySelector(id) as HTMLInputElement;
-            if (input && val) {
-                input.value = val;
-                input.dispatchEvent(new Event('input'));
-            }
-        };
-
-        // Add event listeners
-        const inputs = container.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
-        inputs.forEach(input => {
-            const eventType = input.type === 'checkbox' ? 'change' : 'input';
-            input.addEventListener(eventType, calculateAndUpdate);
-        });
-        container
-            .querySelectorAll('select')
-            .forEach(s => s.addEventListener('change', calculateAndUpdate));
-
-        // Auto-populate from FHIR data using FHIRDataService
-        const autoPopulate = async () => {
-            if (fhirDataService.isReady()) {
-                try {
-                    const [biliResult, inrResult, creatResult, sodiumResult] = await Promise.all([
-                        fhirDataService.getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
-                            trackStaleness: true,
-                            stalenessLabel: 'Bilirubin',
-                            targetUnit: 'mg/dL',
-                            unitType: 'bilirubin'
-                        }),
-                        fhirDataService.getObservation(LOINC_CODES.INR_COAG, {
-                            trackStaleness: true,
-                            stalenessLabel: 'INR'
-                        }),
-                        fhirDataService.getObservation(LOINC_CODES.CREATININE, {
-                            trackStaleness: true,
-                            stalenessLabel: 'Creatinine',
-                            targetUnit: 'mg/dL',
-                            unitType: 'creatinine'
-                        }),
-                        fhirDataService.getObservation(LOINC_CODES.SODIUM, {
-                            trackStaleness: true,
-                            stalenessLabel: 'Sodium'
-                        })
-                    ]);
-
-                    if (biliResult.value !== null) {
-                        setInputValue('#meld-na-bili', biliResult.value.toFixed(1));
-                    }
-
-                    if (inrResult.value !== null) {
-                        setInputValue('#meld-na-inr', inrResult.value.toFixed(2));
-                    }
-
-                    if (creatResult.value !== null) {
-                        setInputValue('#meld-na-creat', creatResult.value.toFixed(1));
-                    }
-
-                    if (sodiumResult.value !== null) {
-                        setInputValue('#meld-na-sodium', sodiumResult.value.toFixed(0));
-                    }
-                } catch (e) {
-                    console.warn('Error auto-populating MELD-Na:', e);
-                }
-            }
-            calculateAndUpdate();
-        };
-
-        autoPopulate();
     }
 };
+
+export const meldNa = createMixedInputCalculator(config);

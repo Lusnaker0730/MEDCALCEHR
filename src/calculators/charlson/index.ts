@@ -13,14 +13,10 @@
 import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
-}
+import {
+    createMixedInputCalculator,
+    MixedInputCalculatorConfig
+} from '../shared/mixed-input-calculator.js';
 
 interface ConditionMapItem {
     codes: string[];
@@ -31,235 +27,256 @@ interface ConditionMap {
     [key: string]: ConditionMapItem;
 }
 
-export const charlson: CalculatorModule = {
+const config: MixedInputCalculatorConfig = {
     id: 'charlson',
     title: 'Charlson Comorbidity Index (CCI)',
     description: 'Predicts 10-year survival in patients with multiple comorbidities.',
-
-    generateHTML: function () {
-        const createConditionToggle = (
-            id: string,
-            title: string,
-            subtitle: string,
-            points: number
-        ): string => {
-            return uiBuilder.createRadioGroup({
-                name: id,
-                label: title,
-                helpText: subtitle,
-                options: [
-                    { value: '0', label: 'No (+0)', checked: true },
-                    { value: String(points), label: `Yes (+${points})` }
-                ]
-            });
-        };
-
-        const ageSection = uiBuilder.createSection({
+    infoAlert: 'The Charlson Comorbidity Index predicts 10-year mortality based on age and 17 comorbid conditions. Higher scores indicate more severe comorbidity burden.',
+    sections: [
+        {
             title: 'Age',
             icon: '🎂',
-            content: uiBuilder.createRadioGroup({
-                name: 'age',
-                options: [
-                    { value: '0', label: '< 50 years (+0)', checked: true },
-                    { value: '1', label: '50-59 years (+1)' },
-                    { value: '2', label: '60-69 years (+2)' },
-                    { value: '3', label: '70-79 years (+3)' },
-                    { value: '4', label: '≥ 80 years (+4)' }
-                ]
-            })
-        });
-
-        const conditionsContent = [
-            createConditionToggle(
-                'mi',
-                'Myocardial infarction',
-                'History of definite or probable MI',
-                1
-            ),
-            createConditionToggle('chf', 'CHF', 'Exertional or paroxysmal nocturnal dyspnea', 1),
-            createConditionToggle(
-                'pvd',
-                'Peripheral vascular disease',
-                'Intermittent claudication, past bypass, gangrene, or aneurysm',
-                1
-            ),
-            createConditionToggle('cva', 'CVA or TIA', 'History of a cerebrovascular accident', 1),
-            createConditionToggle('dementia', 'Dementia', 'Chronic cognitive deficit', 1),
-            createConditionToggle('cpd', 'Chronic pulmonary disease', '', 1),
-            createConditionToggle('ctd', 'Connective tissue disease', '', 1),
-            createConditionToggle(
-                'pud',
-                'Peptic ulcer disease',
-                'Any history of treatment for ulcer disease',
-                1
-            ),
-
-            uiBuilder.createRadioGroup({
-                name: 'liver',
-                label: 'Liver disease',
-                helpText:
-                    'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
-                options: [
-                    { value: '0', label: 'None (+0)', checked: true },
-                    { value: '1', label: 'Mild (+1)' },
-                    { value: '3', label: 'Moderate to severe (+3)' }
-                ]
-            }),
-
-            uiBuilder.createRadioGroup({
-                name: 'diabetes',
-                label: 'Diabetes mellitus',
-                helpText: 'End-organ damage includes retinopathy, nephropathy, or neuropathy.',
-                options: [
-                    { value: '0', label: 'None/Diet-controlled (+0)', checked: true },
-                    { value: '1', label: 'Uncomplicated (+1)' },
-                    { value: '2', label: 'End-organ damage (+2)' }
-                ]
-            }),
-
-            createConditionToggle('hemiplegia', 'Hemiplegia', '', 2),
-            createConditionToggle(
-                'ckd',
-                'Moderate to severe CKD',
-                'Severe on dialysis, uremia, or creatinine >3 mg/dL',
-                2
-            ),
-
-            uiBuilder.createRadioGroup({
-                name: 'tumor',
-                label: 'Solid tumor',
-                options: [
-                    { value: '0', label: 'None (+0)', checked: true },
-                    { value: '2', label: 'Localized (+2)' },
-                    { value: '6', label: 'Metastatic (+6)' }
-                ]
-            }),
-
-            createConditionToggle('leukemia', 'Leukemia', '', 2),
-            createConditionToggle('lymphoma', 'Lymphoma', '', 2),
-            createConditionToggle('aids', 'AIDS', 'Not just HIV positive, but "full-blown" AIDS', 6)
-        ].join('');
-
-        const conditionsSection = uiBuilder.createSection({
+            inputs: [
+                {
+                    name: 'age',
+                    label: 'Age Group',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: '< 50 years (+0)', checked: true },
+                        { value: '1', label: '50-59 years (+1)' },
+                        { value: '2', label: '60-69 years (+2)' },
+                        { value: '3', label: '70-79 years (+3)' },
+                        { value: '4', label: '≥ 80 years (+4)' }
+                    ]
+                }
+            ]
+        },
+        {
             title: 'Comorbidities',
             icon: '🏥',
-            content: conditionsContent
+            inputs: [
+                {
+                    name: 'mi',
+                    label: 'Myocardial infarction',
+                    helpText: 'History of definite or probable MI',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'chf',
+                    label: 'CHF',
+                    helpText: 'Exertional or paroxysmal nocturnal dyspnea',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'pvd',
+                    label: 'Peripheral vascular disease',
+                    helpText: 'Intermittent claudication, past bypass, gangrene, or aneurysm',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'cva',
+                    label: 'CVA or TIA',
+                    helpText: 'History of a cerebrovascular accident',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'dementia',
+                    label: 'Dementia',
+                    helpText: 'Chronic cognitive deficit',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'cpd',
+                    label: 'Chronic pulmonary disease',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'ctd',
+                    label: 'Connective tissue disease',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'pud',
+                    label: 'Peptic ulcer disease',
+                    helpText: 'Any history of treatment for ulcer disease',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '1', label: 'Yes (+1)' }
+                    ]
+                },
+                {
+                    name: 'liver',
+                    label: 'Liver disease',
+                    helpText: 'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'None (+0)', checked: true },
+                        { value: '1', label: 'Mild (+1)' },
+                        { value: '3', label: 'Moderate to severe (+3)' }
+                    ]
+                },
+                {
+                    name: 'diabetes',
+                    label: 'Diabetes mellitus',
+                    helpText: 'End-organ damage includes retinopathy, nephropathy, or neuropathy.',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'None/Diet-controlled (+0)', checked: true },
+                        { value: '1', label: 'Uncomplicated (+1)' },
+                        { value: '2', label: 'End-organ damage (+2)' }
+                    ]
+                },
+                {
+                    name: 'hemiplegia',
+                    label: 'Hemiplegia',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                },
+                {
+                    name: 'ckd',
+                    label: 'Moderate to severe CKD',
+                    helpText: 'Severe on dialysis, uremia, or creatinine >3 mg/dL',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                },
+                {
+                    name: 'tumor',
+                    label: 'Solid tumor',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'None (+0)', checked: true },
+                        { value: '2', label: 'Localized (+2)' },
+                        { value: '6', label: 'Metastatic (+6)' }
+                    ]
+                },
+                {
+                    name: 'leukemia',
+                    label: 'Leukemia',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                },
+                {
+                    name: 'lymphoma',
+                    label: 'Lymphoma',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '2', label: 'Yes (+2)' }
+                    ]
+                },
+                {
+                    name: 'aids',
+                    label: 'AIDS',
+                    helpText: 'Not just HIV positive, but "full-blown" AIDS',
+                    type: 'radio',
+                    options: [
+                        { value: '0', label: 'No (+0)', checked: true },
+                        { value: '6', label: 'Yes (+6)' }
+                    ]
+                }
+            ]
+        }
+    ],
+    calculate: (values) => {
+        let score = 0;
+        // Access values by name (which are radio values, so strings)
+        Object.values(values).forEach(val => {
+            const num = parseInt(val as string, 10);
+            if (!isNaN(num)) {
+                score += num;
+            }
         });
+        return score;
+    },
+    customResultRenderer: (score) => {
+        // Adjusted formula from literature
+        const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9));
 
         return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: 'Charlson Comorbidity Index',
+            value: score.toString(),
+            unit: 'points'
+        })}
             
-            <div class="alert info">
-                <span class="alert-icon">ℹ️</span>
-                <div class="alert-content">
-                    <p><strong>About CCI:</strong> The Charlson Comorbidity Index predicts 10-year mortality based on age and 17 comorbid conditions. Higher scores indicate more severe comorbidity burden.</p>
-                </div>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: 'Estimated 10-year survival',
+            value: `${survival.toFixed(0)}%`,
+            unit: ''
+        })}
             
-            ${ageSection}
-            ${conditionsSection}
-            
-            <div id="cci-error-container"></div>
-
-            <div class="result-container show" id="cci-result">
-                <div class="score-section">
-                    <div class="score-value" id="cci-score">0</div>
-                    <div class="score-label">Charlson Comorbidity Index</div>
-                </div>
-                <div class="interpretation-section mt-15 text-center">
-                     <div class="score-value" id="cci-survival">98%</div>
-                    <div class="score-label">Estimated 10-year survival</div>
-                </div>
-            </div>
-            
-            <div class="info-section mt-20">
+             <div class="info-section mt-20">
                 <h4>📚 References</h4>
                 <p>Charlson ME, Pompei P, Ales KL, MacKenzie CR. A new method of classifying prognostic comorbidity in longitudinal studies: development and validation. <em>J Chronic Dis</em>. 1987;40(5):373-383.</p>
             </div>
         `;
     },
-
-    initialize: function (client: unknown, patient: unknown, container: HTMLElement): void {
-        uiBuilder.initializeComponents(container);
-
-        // Initialize FHIRDataService
-        fhirDataService.initialize(client as any, patient as any, container);
+    customInitialize: async (client, patient, container, calculate) => {
+        // fhirDataService.initialize and uiBuilder.initializeComponents are handled by createMixedInputCalculator
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
-        const calculate = (): void => {
-            const errorContainer = container.querySelector('#cci-error-container');
-            if (errorContainer) {
-                errorContainer.innerHTML = '';
-            }
-
-            try {
-                let score = 0;
-                container
-                    .querySelectorAll<HTMLInputElement>('input[type="radio"]:checked')
-                    .forEach(radio => {
-                        score += parseInt(radio.value, 10);
-                    });
-
-                if (isNaN(score)) {
-                    throw new Error('Calculation Error');
-                }
-
-                // Adjusted formula from literature
-                const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9));
-
-                const scoreEl = container.querySelector('#cci-score');
-                const survivalEl = container.querySelector('#cci-survival');
-
-                if (scoreEl) {
-                    scoreEl.textContent = score.toString();
-                }
-                if (survivalEl) {
-                    survivalEl.textContent = `${survival.toFixed(0)}%`;
-                }
-            } catch (error) {
-                console.error('Error calculating CCI:', error);
-                if (errorContainer) {
-                    errorContainer.innerHTML =
-                        '<div class="ui-alert ui-alert-danger">Calculation error. Please check your inputs.</div>';
-                }
-            }
-        };
-
-        // Attach change listener to container for event delegation
-        container.addEventListener('change', (e: Event) => {
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'radio') {
-                calculate();
-            }
-        });
-
         // Auto-populate age using FHIRDataService
-        const age = fhirDataService.getPatientAge();
-        if (age !== null) {
-            let ageValue = 0;
-            if (age >= 80) {
-                ageValue = 4;
-            } else if (age >= 70) {
-                ageValue = 3;
-            } else if (age >= 60) {
-                ageValue = 2;
-            } else if (age >= 50) {
-                ageValue = 1;
-            }
-            const ageRadio = container.querySelector(
-                `input[name="age"][value="${ageValue}"]`
-            ) as HTMLInputElement | null;
-            if (ageRadio) {
-                ageRadio.checked = true;
-                ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        }
-
-        // Auto-populate conditions from FHIR using FHIRDataService
         if (fhirDataService.isReady()) {
+            const age = fhirDataService.getPatientAge();
+            if (age !== null) {
+                let ageValue = 0;
+                if (age >= 80) {
+                    ageValue = 4;
+                } else if (age >= 70) {
+                    ageValue = 3;
+                } else if (age >= 60) {
+                    ageValue = 2;
+                } else if (age >= 50) {
+                    ageValue = 1;
+                }
+                const ageRadio = container.querySelector(
+                    `input[name="age"][value="${ageValue}"]`
+                ) as HTMLInputElement | null;
+                if (ageRadio) {
+                    ageRadio.checked = true;
+                    // Trigger change manually since factory listeners are on 'change'
+                    ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+
             const conditionMap: ConditionMap = {
                 mi: { codes: ['I21', 'I22'], value: 1 },
                 chf: { codes: ['I50'], value: 1 },
@@ -440,9 +457,12 @@ export const charlson: CalculatorModule = {
                     }
                 })
                 .catch(e => console.warn('Error fetching creatinine:', e));
+
         }
 
-        // Calculate initially
+        // Initial calculation
         calculate();
     }
 };
+
+export const charlson = createMixedInputCalculator(config);
