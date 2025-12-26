@@ -12,7 +12,7 @@
 .sticky-header {
     position: sticky;
     top: 0;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--bg-panel);
     backdrop-filter: blur(20px);
     z-index: 100;
     padding: 0 0 20px 0;
@@ -20,7 +20,7 @@
     padding-left: 40px;
     padding-right: 40px;
     padding-top: 40px;
-    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    border-bottom: 1px solid var(--border-color);
     border-radius: 24px 24px 0 0;
 }
 
@@ -54,14 +54,14 @@
 .calculator-section h4 {
     margin-top: 0;
     margin-bottom: 10px;
-    border-bottom: 2px solid #eee;
+    border-bottom: 2px solid var(--border-color-light);
     padding-bottom: 5px;
 }
 
 .section-divider {
     border: 0;
     height: 1px;
-    background: #ddd;
+    background: var(--border-color);
     margin: 15px 0;
 }
 
@@ -78,17 +78,17 @@
    =================== */
 
 .calculator-card {
-    background: #f9f9f9;
-    border: 1px solid #eee;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
 }
 
 .calculator-card h3 {
     margin-top: 0;
-    color: #333;
+    color: var(--text-primary);
 }
 
 /* ===================
@@ -125,9 +125,9 @@
     margin-top: 15px;
     font-weight: bold;
     font-size: 1.1em;
-    color: #005a9c;
-    background-color: #e7f3fe;
-    border-left: 4px solid #007bff;
+    color: var(--color-info);
+    background-color: var(--bg-info-light);
+    border-left: 4px solid var(--color-info);
     padding: 10px;
 }
 

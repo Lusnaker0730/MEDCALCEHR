@@ -28,12 +28,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    
+
     padding: var(--spacing-4) var(--spacing-5);
     background: var(--color-bg-card);
     border: 2px solid var(--color-border);
     border-radius: var(--radius-lg);
-    
+
     cursor: pointer;
     transition: all var(--transition-fast);
     flex: 1;
@@ -51,7 +51,7 @@
 .radio-option:has(input:checked),
 .ui-radio-option:has(input:checked) {
     border-color: var(--color-primary);
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    background: var(--bg-option-selected);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -72,10 +72,10 @@
     width: 20px;
     height: 20px;
     min-width: 20px;
-    
+
     border: 2px solid var(--color-border);
     border-radius: var(--radius-full);
-    
+
     transition: all var(--transition-fast);
 }
 
@@ -108,12 +108,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    
+
     padding: var(--spacing-4) var(--spacing-5);
     background: var(--color-bg-card);
     border: 2px solid var(--color-border);
     border-radius: var(--radius-lg);
-    
+
     cursor: pointer;
     transition: all var(--transition-fast);
 }
@@ -129,7 +129,7 @@
 .checkbox-option:has(input:checked),
 .ui-checkbox-option:has(input:checked) {
     border-color: var(--color-primary);
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    background: var(--bg-option-selected);
 }
 
 /* Hide default checkbox input */
@@ -149,10 +149,10 @@
     width: 22px;
     height: 22px;
     min-width: 22px;
-    
+
     border: 2px solid var(--color-border);
     border-radius: var(--radius-md);
-    
+
     transition: all var(--transition-fast);
 }
 
@@ -205,4 +205,3 @@
     background: var(--color-primary);
     color: var(--color-text-white);
 }
-
