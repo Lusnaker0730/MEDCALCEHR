@@ -357,8 +357,8 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                             .map(item => {
                                 return `
                                 <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                                    <div style="font-weight: 600; margin-bottom: 5px; color: #2c3e50;">${item.criteria}</div>
-                                    <div style="font-family: monospace; background: #f8f9fa; padding: 8px; border-radius: 4px; color: #444;">${item.points}</div>
+                                    <div class="criteria-header">${item.criteria}</div>
+                                    <div class="criteria-points">${item.points}</div>
                                 </div>
                             `;
                             })
@@ -410,8 +410,8 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
 
                 // Footnotes
                 const footnotesHTML = fs.footnotes?.length
-                    ? `<div style="margin-top: 15px; font-size: 0.85em; color: #666;">
-                        ${fs.footnotes.map(fn => `<p style="margin: 5px 0;">${fn}</p>`).join('')}
+                    ? `<div class="footnotes-section">
+                        ${fs.footnotes.map(fn => `<p class="footnote-item">${fn}</p>`).join('')}
                        </div>`
                     : '';
 
@@ -477,7 +477,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 formulaSectionHTML = `
                     <div class="ui-section" style="margin-top: 20px;">
                         <div class="ui-section-title">📐 ${formulaTitle}</div>
-                        <p style="margin-bottom: 10px; color: #555;">${calcNote}</p>
+                        <p class="calculation-note">${calcNote}</p>
                         ${scoringContentHTML}
                         ${footnotesHTML}
                     </div>
@@ -496,13 +496,12 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${
-                    config.infoAlert
-                        ? uiBuilder.createAlert({
-                              type: 'info',
-                              message: config.infoAlert
-                          })
-                        : ''
+                ${config.infoAlert
+                    ? uiBuilder.createAlert({
+                        type: 'info',
+                        message: config.infoAlert
+                    })
+                    : ''
                 }
                 
                 ${sectionsHTML}

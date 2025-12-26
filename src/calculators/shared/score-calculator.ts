@@ -252,8 +252,8 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 } else if (fs.footnotes?.length) {
                     // 使用項目符號列表
                     scoringContentHTML = `
-                        <div style="margin-top: 10px; font-size: 0.95em; color: #555;">
-                            ${fs.footnotes.map(fn => `<p style="margin: 5px 0;">${fn}</p>`).join('')}
+                        <div class="footnotes-section">
+                            ${fs.footnotes.map(fn => `<p class="footnote-item">${fn}</p>`).join('')}
                         </div>
                     `;
                 }
@@ -324,7 +324,7 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 formulaHTML = `
                     <div class="ui-section" style="margin-top: 20px;">
                         <div class="ui-section-title">📐 ${formulaTitle}</div>
-                        ${calcNote ? `<p style="margin-bottom: 10px; color: #555;">${calcNote}</p>` : ''}
+                        ${calcNote ? `<p class="calculation-note">${calcNote}</p>` : ''}
                         ${scoringContentHTML}
                     </div>
                     ${interpretationTableHTML}
@@ -336,7 +336,7 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
 
             // 生成參考文獻（如果有）
             const referencesHTML = config.references?.length
-                ? `<div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
+                ? `<div class="info-section reference-section">
                     <h4>📚 Reference</h4>
                     ${config.references.map(ref => `<p>${ref}</p>`).join('')}
                    </div>`

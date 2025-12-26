@@ -1,6 +1,6 @@
 /* =============================================
    MEDCALC EHR - Dark Tech Theme
-   Version: 3.5.0 (Clean Architecture No-Important)
+   Version: 3.7.0 (Formula Visibility Fix)
    
    This file applies the dark tech theme styling.
    It overrides both new SEMANTIC variables and OLD legacy variables
@@ -25,6 +25,13 @@
     --bg-result-box: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
     --bg-info-section: rgba(30, 41, 59, 0.4);
     --bg-option-selected: linear-gradient(135deg, rgba(0, 180, 255, 0.3), rgba(0, 100, 255, 0.3));
+
+    /* Formula Component Variables (Added for Refactor) */
+    --bg-formula-section: rgba(30, 41, 59, 0.4);
+    --bg-code-block: rgba(0, 0, 0, 0.4);
+    --bg-surface: rgba(30, 41, 59, 0.6);
+    --text-code: var(--color-glow);
+    --text-bright: #ffffff;
 
     /* Text Colors (BOOSTED CONTRAST) */
     --text-primary: #ffffff;
@@ -179,7 +186,7 @@
     border-bottom: 2px solid rgba(34, 211, 238, 0.3);
 }
 
-/* Buttons (Glass & Neon) - Simplified Single Border */
+/* Buttons (Glass & Neon) */
 .tech-theme button,
 .tech-theme .ui-btn {
     backdrop-filter: blur(4px);
@@ -195,18 +202,14 @@
 .tech-theme .ui-btn:hover {
     border-color: var(--color-glow);
     box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
-    /* Outer glow only */
     color: #fff;
     text-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
 }
 
 /* =========================================
-   Radio & Checkboxes Fix (No Double Borders)
-   Strategy: Reset parent wrapper to be invisible,
-   apply style ONLY to the label/sibling.
+   Radio & Checkboxes Fix
    ========================================= */
 
-/* 1. Reset the wrapper (inherited from base css) */
 .tech-theme .ui-radio-option,
 .tech-theme .radio-option,
 .tech-theme .checkbox-option,
@@ -217,7 +220,6 @@
     box-shadow: none !important;
 }
 
-/* 2. Style the label (the clickable part) */
 .tech-theme .ui-radio-option label,
 .tech-theme .ui-radio-option .radio-label,
 .tech-theme .checkbox-label {
@@ -225,16 +227,13 @@
     align-items: center;
     width: 100%;
     padding: 10px 15px;
-    /* Re-add padding here */
     background: var(--bg-card);
     border: 1px solid transparent;
     border-radius: var(--radius-lg);
-    /* Ensure rounded corners */
     color: var(--text-muted) !important;
     transition: all 0.2s ease;
 }
 
-/* 3. Selected State */
 .tech-theme .ui-radio-option input[type="radio"]:checked+label,
 .tech-theme .ui-radio-option input[type="radio"]:checked+.radio-label,
 .tech-theme .ui-checkbox-option input[type="checkbox"]:checked+label {
@@ -244,14 +243,11 @@
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
 }
 
-/* 4. Ensure inner elements have no border */
-/* Normal selector specificity should work now, but we add specificity just in case */
 .tech-theme .ui-radio-option label>*,
 .tech-theme .ui-radio-option .radio-label>* {
     border: none;
 }
 
-/* Force Remove Container Borders */
 .tech-theme fieldset,
 .tech-theme .radio-group,
 .tech-theme .input-wrapper {
@@ -260,7 +256,10 @@
     padding: 0;
 }
 
-/* Inputs & Search - Borderless Style */
+/* =========================================
+   Inputs & Search
+   ========================================= */
+
 .tech-theme input[type="text"],
 .tech-theme input[type="number"],
 .tech-theme input[type="search"],
@@ -268,7 +267,6 @@
     background: var(--bg-input) !important;
     color: #00ffff !important;
     border: 1px solid transparent;
-    /* Borderless */
     border-bottom: 1px solid rgba(0, 217, 255, 0.2);
     font-weight: 600;
 }
@@ -282,7 +280,6 @@
 
 .tech-theme input::placeholder {
     color: #94a3b8 !important;
-    /* Brighter placeholder */
     opacity: 1;
 }
 
@@ -291,7 +288,6 @@
     color: #ffffff;
 }
 
-/* Explicitly brighten units and labels */
 .tech-theme .input-unit,
 .tech-theme label,
 .tech-theme .ui-input-unit {
@@ -299,56 +295,79 @@
 }
 
 .tech-theme .help-text,
-.tech-theme .input-hint,
-.tech-theme .formula-section,
-.tech-theme .formula-box,
-.tech-theme .formula-step,
-.tech-theme .formula-variable {
+.tech-theme .input-hint {
     color: #cbd5e1 !important;
-    /* Bright gray for descriptions */
 }
 
-/* Make actual formula math/variables pop */
-.tech-theme .formula-math,
-.tech-theme strong,
-.tech-theme b {
-    color: #ffffff !important;
-}
+/* =========================================
+   Tables & Formula Sections
+   Use multiple selectors to catch all possibilities
+   ========================================= */
 
-/* Tables - Fix visibility for all content */
+
+
+
+
+
+
+
+
 .tech-theme .ui-table {
-    color: var(--text-secondary) !important;
+    color: var(--text-secondary);
 }
 
-.tech-theme .ui-table thead th {
+/* Table Headers */
+.tech-theme .ui-table thead th,
+.tech-theme .ui-table th {
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
     color: var(--color-glow);
     border-bottom: 2px solid var(--color-accent);
 }
 
+/* Table Cells */
 .tech-theme .ui-table td {
     color: var(--text-primary);
-    /* Ensure cell text is white */
     border-bottom: 1px solid rgba(0, 180, 255, 0.1);
 }
 
-/* Fix for dark headers inside table body (like '1. Alertness') */
+/* Table Group Headers / Bold Text */
+/* Covers: td strong, th, .group-header, bold in any cell */
 .tech-theme .ui-table td strong,
 .tech-theme .ui-table td b,
-.tech-theme .ui-table .group-header {
-    color: var(--color-glow) !important;
-    /* Make headers pop */
+.tech-theme .ui-table .group-header,
+.tech-theme .ui-table th strong {
+    color: var(--color-glow);
     font-weight: 700;
 }
 
-/* Footnotes and Small Text */
+/* Formula Section Text Reset */
+/* Ensures almost anything inside formula section is readable */
+.tech-theme .formula-section,
+.tech-theme .ui-formula-section {
+    color: #cbd5e1;
+}
+
+.tech-theme .formula-section p,
+.tech-theme .formula-section div,
+.tech-theme .formula-section span,
+.tech-theme .ui-formula-section p,
+.tech-theme .ui-formula-section div,
+.tech-theme .ui-formula-section span {
+    color: #cbd5e1;
+}
+
+.tech-theme .formula-math,
+.tech-theme .formula-math strong {
+    color: #ffffff;
+}
+
+/* Footnotes */
 .tech-theme .footnote,
 .tech-theme .text-muted,
 .tech-theme small,
 .tech-theme .text-small {
-    color: #94a3b8 !important;
-    /* Readable bright gray */
-    opacity: 1 !important;
+    color: #94a3b8;
+    opacity: 1;
 }
 
 /* Scrollbar */

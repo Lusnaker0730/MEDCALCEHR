@@ -202,7 +202,7 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
 
             // 生成參考文獻
             const referencesHTML = config.references?.length
-                ? `<div class="info-section" style="margin-top: 20px; font-size: 0.85em; color: #666;">
+                ? `<div class="info-section reference-section">
                     <h4>📚 Reference</h4>
                     ${config.references.map(ref => `<p>${ref}</p>`).join('')}
                    </div>`
@@ -265,16 +265,16 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                                     const displayLabel = opt.label
                                         .replace(/\s*\([+-]?\d+\)\s*$/, '')
                                         .replace(/\s*\(\+?\d+\)\s*$/, '');
-                                    return `<tr><td style="padding-left: 20px; color: #555;">${displayLabel}</td><td style="text-align: center; font-weight: 600;">${opt.value}</td></tr>`;
+                                    return `<tr><td class="option-label">${displayLabel}</td><td class="option-points">${opt.value}</td></tr>`;
                                 })
                                 .join('');
 
                             return `
-                            <tr style="background: #f8f9fa;">
-                                <td style="font-weight: 600;">${section.title.replace(/^\d+\.\s*/, '')}</td>
+                            <tr class="category-row">
+                                <td class="category-title">${section.title.replace(/^\d+\.\s*/, '')}</td>
                                 <td></td>
                             </tr>
-                            ${section.subtitle ? `<tr><td colspan="2" style="padding-left: 10px; font-size: 0.85em; color: #666; font-style: italic;">${section.subtitle}</td></tr>` : ''}
+                            ${section.subtitle ? `<tr><td colspan="2" class="category-subtitle">${section.subtitle}</td></tr>` : ''}
                             ${optionRows}
                         `;
                         })
@@ -297,8 +297,8 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
 
                 // 生成註腳
                 const footnotesHTML = fs.footnotes?.length
-                    ? `<div style="margin-top: 15px; font-size: 0.85em; color: #666;">
-                        ${fs.footnotes.map(fn => `<p style="margin: 5px 0;">${fn}</p>`).join('')}
+                    ? `<div class="footnotes-section">
+                        ${fs.footnotes.map(fn => `<p class="footnote-item">${fn}</p>`).join('')}
                        </div>`
                     : '';
 
@@ -368,7 +368,7 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 formulaSectionHTML = `
                     <div class="ui-section" style="margin-top: 20px;">
                         <div class="ui-section-title">📐 ${formulaTitle}</div>
-                        <p style="margin-bottom: 10px; color: #555;">${calcNote}</p>
+                        <p class="calculation-note">${calcNote}</p>
                         ${scoringContentHTML}
                         ${footnotesHTML}
                     </div>
@@ -386,9 +386,9 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 ${sectionsHTML}
                 
                 ${uiBuilder.createResultBox({
-                    id: `${config.id}-result`,
-                    title: `${config.title} Results`
-                })}
+                id: `${config.id}-result`,
+                title: `${config.title} Results`
+            })}
                 
                 ${formulaSectionHTML}
                 ${interpretationHTML}
@@ -456,19 +456,18 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         } else {
                             resultContent.innerHTML = `
                                 ${uiBuilder.createResultItem({
-                                    label: 'Total Score',
-                                    value: totalScore.toString(),
-                                    unit: 'points',
-                                    interpretation: riskLevel.label,
-                                    alertClass: `ui-alert-${riskLevel.severity}`
-                                })}
-                                ${
-                                    riskLevel.description
-                                        ? uiBuilder.createAlert({
-                                              type: riskLevel.severity,
-                                              message: riskLevel.description
-                                          })
-                                        : ''
+                                label: 'Total Score',
+                                value: totalScore.toString(),
+                                unit: 'points',
+                                interpretation: riskLevel.label,
+                                alertClass: `ui-alert-${riskLevel.severity}`
+                            })}
+                                ${riskLevel.description
+                                    ? uiBuilder.createAlert({
+                                        type: riskLevel.severity,
+                                        message: riskLevel.description
+                                    })
+                                    : ''
                                 }
                             `;
                         }

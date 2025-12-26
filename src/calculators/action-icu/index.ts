@@ -92,58 +92,58 @@ export const actionIcu = createRadioScoreCalculator({
         '📚 Reference: Fanaroff, A. C., et al. (2018). Risk Score to Predict Need for Intensive Care in Initially Hemodynamically Stable Adults With Non–ST‐Segment–Elevation Myocardial Infarction. Journal of the American Heart Association, 7(11).'
     ],
     interpretationInfo: `
-        <div style="margin-top: 20px;">
-            <h4 style="margin-bottom: 15px; color: #333;">📐 Scoring Formula</h4>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem;">
+        <div class="ui-section formula-section">
+            <div class="ui-section-title">📐 Scoring Formula</div>
+            <div class="ui-table-wrapper">
+                <table class="ui-table">
                     <thead>
-                        <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Variable</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">0 points</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">1 point</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">2 points</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">3 points</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">5 points</th>
+                        <tr>
+                            <th>Variable</th>
+                            <th style="text-align: center;">0 points</th>
+                            <th style="text-align: center;">1 point</th>
+                            <th style="text-align: center;">2 points</th>
+                            <th style="text-align: center;">3 points</th>
+                            <th style="text-align: center;">5 points</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="padding: 8px; border: 1px solid #ddd;">Age, years</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;70</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥70</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
-                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Serum creatinine, mg/dL</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;1.1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥1.1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
-                        <tr><td style="padding: 8px; border: 1px solid #ddd;">Heart rate, bpm</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;85</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">85-100</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥100</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
-                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Systolic BP, mmHg</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥145</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">125-145</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;125</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
-                        <tr><td style="padding: 8px; border: 1px solid #ddd;">Troponin ratio (×ULN)</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&lt;12</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥12</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
-                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Heart failure signs/symptoms</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">No</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Yes</td></tr>
-                        <tr><td style="padding: 8px; border: 1px solid #ddd;">ST depression on EKG</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">No</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Yes</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
-                        <tr style="background: #f9f9f9;"><td style="padding: 8px; border: 1px solid #ddd;">Prior revascularization</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">Yes</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">No</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">—</td></tr>
+                        <tr><td>Age, years</td><td style="text-align: center;">&lt;70</td><td style="text-align: center;">≥70</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Serum creatinine, mg/dL</td><td style="text-align: center;">&lt;1.1</td><td style="text-align: center;">≥1.1</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Heart rate, bpm</td><td style="text-align: center;">&lt;85</td><td style="text-align: center;">85-100</td><td style="text-align: center;">—</td><td style="text-align: center;">≥100</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Systolic BP, mmHg</td><td style="text-align: center;">≥145</td><td style="text-align: center;">125-145</td><td style="text-align: center;">—</td><td style="text-align: center;">&lt;125</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Troponin ratio (×ULN)</td><td style="text-align: center;">&lt;12</td><td style="text-align: center;">—</td><td style="text-align: center;">≥12</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Heart failure signs/symptoms</td><td style="text-align: center;">No</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">Yes</td></tr>
+                        <tr><td>ST depression on EKG</td><td style="text-align: center;">No</td><td style="text-align: center;">Yes</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Prior revascularization</td><td style="text-align: center;">Yes</td><td style="text-align: center;">No</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
                     </tbody>
                 </table>
             </div>
             
-            <h4 style="margin: 20px 0 15px 0; color: #333;">📊 Risk of Complications Requiring ICU Care</h4>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <div class="ui-section-title" style="margin-top: 20px;">📊 Risk of Complications Requiring ICU Care</div>
+            <div class="ui-table-wrapper">
+                <table class="ui-table">
                     <thead>
-                        <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Score</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Risk %</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Score</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Risk %</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Score</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Risk %</th>
+                        <tr>
+                            <th style="text-align: center;">Score</th>
+                            <th style="text-align: center;">Risk %</th>
+                            <th style="text-align: center;">Score</th>
+                            <th style="text-align: center;">Risk %</th>
+                            <th style="text-align: center;">Score</th>
+                            <th style="text-align: center;">Risk %</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr style="background: rgba(40, 167, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">0</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">3.4%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">6</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">16.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">55.4%</td></tr>
-                        <tr style="background: rgba(40, 167, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">1</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4.8%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">7</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">21.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">13</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">62.7%</td></tr>
-                        <tr style="background: rgba(40, 167, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">2</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">6.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">8</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">27.5%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">14</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">69.6%</td></tr>
-                        <tr style="background: rgba(255, 193, 7, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">3</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9.2%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">9</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">33.9%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">15</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">76.0%</td></tr>
-                        <tr style="background: rgba(255, 193, 7, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">4</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">12.5%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">10</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">40.8%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">16</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">81.7%</td></tr>
-                        <tr style="background: rgba(220, 53, 69, 0.1);"><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">5</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">16.7%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">11</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">48.0%</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">&gt;14</td><td style="padding: 8px; border: 1px solid #ddd; text-align: center;">≥39.3%</td></tr>
+                        <tr><td style="text-align: center;">0</td><td style="text-align: center;">3.4%</td><td style="text-align: center;">6</td><td style="text-align: center;">16.7%</td><td style="text-align: center;">12</td><td style="text-align: center;">55.4%</td></tr>
+                        <tr><td style="text-align: center;">1</td><td style="text-align: center;">4.8%</td><td style="text-align: center;">7</td><td style="text-align: center;">21.7%</td><td style="text-align: center;">13</td><td style="text-align: center;">62.7%</td></tr>
+                        <tr><td style="text-align: center;">2</td><td style="text-align: center;">6.7%</td><td style="text-align: center;">8</td><td style="text-align: center;">27.5%</td><td style="text-align: center;">14</td><td style="text-align: center;">69.6%</td></tr>
+                        <tr><td style="text-align: center;">3</td><td style="text-align: center;">9.2%</td><td style="text-align: center;">9</td><td style="text-align: center;">33.9%</td><td style="text-align: center;">15</td><td style="text-align: center;">76.0%</td></tr>
+                        <tr><td style="text-align: center;">4</td><td style="text-align: center;">12.5%</td><td style="text-align: center;">10</td><td style="text-align: center;">40.8%</td><td style="text-align: center;">16</td><td style="text-align: center;">81.7%</td></tr>
+                        <tr><td style="text-align: center;">5</td><td style="text-align: center;">16.7%</td><td style="text-align: center;">11</td><td style="text-align: center;">48.0%</td><td style="text-align: center;">&gt;14</td><td style="text-align: center;">≥39.3%</td></tr>
                     </tbody>
                 </table>
             </div>
             
-            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;">
+            <p class="footnote-item" style="margin-top: 15px;">
                 *Cardiac arrest, shock, high-grade atrioventricular block, respiratory failure, stroke, or death during index admission.
             </p>
         </div>
@@ -163,23 +163,23 @@ export const actionIcu = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskLevel,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'ICU Risk',
-                value: riskPercent.toFixed(1),
-                unit: '%',
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'ICU Risk',
+            value: riskPercent.toFixed(1),
+            unit: '%',
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message:
-                    '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
-            })}
+            type: alertType,
+            message:
+                '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
+        })}
         `;
     },
     customInitialize: (
