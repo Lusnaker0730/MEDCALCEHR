@@ -353,14 +353,16 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 if (fs.scoringCriteria?.length) {
                     if (displayType === 'list') {
                         // Render as List/Block
-                        const listItems = fs.scoringCriteria.map(item => {
-                            return `
+                        const listItems = fs.scoringCriteria
+                            .map(item => {
+                                return `
                                 <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                                     <div style="font-weight: 600; margin-bottom: 5px; color: #2c3e50;">${item.criteria}</div>
                                     <div style="font-family: monospace; background: #f8f9fa; padding: 8px; border-radius: 4px; color: #444;">${item.points}</div>
                                 </div>
                             `;
-                        }).join('');
+                            })
+                            .join('');
 
                         scoringContentHTML = `
                             <div class="ui-formula-list" style="margin-top: 15px;">
@@ -494,12 +496,13 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${config.infoAlert
-                    ? uiBuilder.createAlert({
-                        type: 'info',
-                        message: config.infoAlert
-                    })
-                    : ''
+                ${
+                    config.infoAlert
+                        ? uiBuilder.createAlert({
+                              type: 'info',
+                              message: config.infoAlert
+                          })
+                        : ''
                 }
                 
                 ${sectionsHTML}
@@ -659,9 +662,9 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
              */
             const performAutoPopulation = async (): Promise<void> => {
                 // 如果有 dataRequirements 配置，先執行自動填充
-                if (config.dataRequirements && fhirDataService.isReady()) {
+                if (fhirDataService.isReady()) {
                     try {
-                        const dataReqs = config.dataRequirements;
+                        const dataReqs = config.dataRequirements || {};
 
                         // 自動填充患者年齡
                         if (dataReqs.autoPopulateAge) {

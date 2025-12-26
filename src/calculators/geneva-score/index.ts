@@ -110,7 +110,8 @@ const config: MixedInputCalculatorConfig = {
             maxScore: 1,
             label: 'Low Risk',
             severity: 'success',
-            description: 'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.'
+            description:
+                'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.'
         },
         {
             minScore: 2,
@@ -218,18 +219,18 @@ const config: MixedInputCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskLevel,
-            alertClass: alertClass
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: alertClass
+            })}
             ${uiBuilder.createResultItem({
-            label: 'PE Prevalence',
-            value: prevalence,
-            unit: '',
-            alertClass: alertClass
-        })}
+                label: 'PE Prevalence',
+                value: prevalence,
+                unit: '',
+                alertClass: alertClass
+            })}
             
             <div class="ui-alert ${alertClass} mt-10">
                 <span class="ui-alert-icon">💡</span>

@@ -55,7 +55,7 @@ const config: MixedInputCalculatorConfig = {
                     helpText: 'Determines Total Body Water (TBW) factor.'
                 }
             ]
-        },
+        }
     ],
     formulaSection: {
         show: true,
@@ -118,11 +118,21 @@ const config: MixedInputCalculatorConfig = {
 
         let tbwFactor = 0.6;
         switch (genderType) {
-            case 'male': tbwFactor = 0.6; break;
-            case 'female': tbwFactor = 0.5; break;
-            case 'elderly': tbwFactor = 0.5; break;
-            case 'elderly_female': tbwFactor = 0.45; break;
-            case 'child': tbwFactor = 0.6; break;
+            case 'male':
+                tbwFactor = 0.6;
+                break;
+            case 'female':
+                tbwFactor = 0.5;
+                break;
+            case 'elderly':
+                tbwFactor = 0.5;
+                break;
+            case 'elderly_female':
+                tbwFactor = 0.45;
+                break;
+            case 'child':
+                tbwFactor = 0.6;
+                break;
         }
         const totalBodyWater = weight * tbwFactor;
 
@@ -143,21 +153,21 @@ const config: MixedInputCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Free Water Deficit',
-            value: deficit > 0 ? deficit.toFixed(1) : '0.0',
-            unit: 'Liters',
-            interpretation: status,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Free Water Deficit',
+                value: deficit > 0 ? deficit.toFixed(1) : '0.0',
+                unit: 'Liters',
+                interpretation: status,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Estimated TBW',
-            value: totalBodyWater.toFixed(1),
-            unit: 'Liters'
-        })}
+                label: 'Estimated TBW',
+                value: totalBodyWater.toFixed(1),
+                unit: 'Liters'
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: alertMsg
-        })}
+                type: alertType,
+                message: alertMsg
+            })}
         `;
     }
 };

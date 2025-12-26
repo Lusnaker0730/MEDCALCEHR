@@ -70,7 +70,10 @@ const config: MixedInputCalculatorConfig = {
         title: 'FORMULA',
         calculationNote: 'Measurements in mg/dL:',
         scoringCriteria: [
-            { criteria: 'Osmolality', points: '2 × Na + (Glucose / 18) + (BUN / 2.8) + (Ethanol / 4.6)' }
+            {
+                criteria: 'Osmolality',
+                points: '2 × Na + (Glucose / 18) + (BUN / 2.8) + (Ethanol / 4.6)'
+            }
         ]
     },
     calculate: values => {
@@ -110,19 +113,19 @@ const config: MixedInputCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Calculated Osmolality',
-            value: score.toFixed(1),
-            unit: 'mOsm/kg',
-            interpretation: interpretation,
-            alertClass: alertClass
-        })}
+                label: 'Calculated Osmolality',
+                value: score.toFixed(1),
+                unit: 'mOsm/kg',
+                interpretation: interpretation,
+                alertClass: alertClass
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: alertMsg
-        })}
+                type: alertType,
+                message: alertMsg
+            })}
             ${uiBuilder.createSection({
-            title: 'Calculation Breakdown',
-            content: `
+                title: 'Calculation Breakdown',
+                content: `
                     <div class="text-sm text-muted">
                         <div>2 × Na: ${(2 * na).toFixed(1)}</div>
                         <div>Glucose / 18: ${(glucose / 18).toFixed(1)}</div>
@@ -130,7 +133,7 @@ const config: MixedInputCalculatorConfig = {
                         ${ethanol > 0 ? `<div>Ethanol / 4.6: ${(ethanol / 4.6).toFixed(1)}</div>` : ''}
                     </div>
                 `
-        })}
+            })}
         `;
     }
 };
