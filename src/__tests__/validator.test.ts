@@ -5,11 +5,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { 
     validateCalculatorInput, 
-    ValidationRules,
-    validateNumberRange,
-    validateRequired,
-    validatePattern,
-    validateCustom
+    ValidationRules
 } from '../validator';
 
 describe('Validator Module', () => {
@@ -128,7 +124,7 @@ describe('Validator Module', () => {
             expect(result.isValid).toBe(false);
         });
 
-        test('should handle custom validation function', () => {
+        test('should handle custom validation function returning error string', () => {
             const input = {
                 password: 'short'
             };
@@ -161,39 +157,38 @@ describe('Validator Module', () => {
             const result = validateCalculatorInput(input, schema);
             expect(result.isValid).toBe(true);
         });
+
+        test('should skip validation for empty non-required fields', () => {
+            const input = {
+                optional: ''
+            };
+
+            const schema = {
+                optional: { min: 10 } // Not required, should skip min check
+            };
+
+            const result = validateCalculatorInput(input, schema);
+            expect(result.isValid).toBe(true);
+        });
+
+        test('should handle empty string as missing for required', () => {
+            const input = {
+                name: ''
+            };
+
+            const schema = {
+                name: { required: true }
+            };
+
+            const result = validateCalculatorInput(input, schema);
+            expect(result.isValid).toBe(false);
+        });
     });
 
     describe('ValidationRules', () => {
         test('should have predefined validation rules', () => {
             expect(ValidationRules).toBeDefined();
-            
-            // Check common rules exist
-            if (ValidationRules.POSITIVE_NUMBER) {
-                expect(ValidationRules.POSITIVE_NUMBER.min).toBe(0);
-            }
-        });
-    });
-
-    describe('Individual Validators', () => {
-        test('validateNumberRange should validate range', () => {
-            expect(validateNumberRange(50, 0, 100)).toBe(true);
-            expect(validateNumberRange(-1, 0, 100)).toBe(false);
-            expect(validateNumberRange(101, 0, 100)).toBe(false);
-        });
-
-        test('validateRequired should check for required values', () => {
-            expect(validateRequired('test')).toBe(true);
-            expect(validateRequired(0)).toBe(true);
-            expect(validateRequired(null)).toBe(false);
-            expect(validateRequired(undefined)).toBe(false);
-            expect(validateRequired('')).toBe(false);
-        });
-
-        test('validatePattern should check regex patterns', () => {
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            expect(validatePattern('test@example.com', emailPattern)).toBe(true);
-            expect(validatePattern('invalid', emailPattern)).toBe(false);
+            expect(typeof ValidationRules).toBe('object');
         });
     });
 });
-

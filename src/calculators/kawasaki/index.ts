@@ -1,172 +1,147 @@
+/**
+ * Kawasaki Disease Diagnostic Criteria
+ *
+ * 使用 Radio Score Calculator 工廠函數
+ * 根據臨床標準診斷川崎病
+ */
+
+import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-export const kawasaki: CalculatorModule = {
+export const kawasaki = createRadioScoreCalculator({
     id: 'kawasaki',
     title: 'Kawasaki Disease Diagnostic Criteria',
     description: 'Diagnoses Kawasaki Disease based on clinical criteria.',
-    generateHTML: function () {
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
 
-            ${uiBuilder.createSection({
-                title: 'Clinical Criteria',
-                content: `
-                    ${uiBuilder.createRadioGroup({
-                        name: 'kawasaki-fever',
-                        label: 'Fever for ≥5 days',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'kawasaki-extrem',
-                        label: 'Changes in extremities',
-                        helpText:
-                            'Acute: Erythema of palms/soles, edema of hands/feet. Subacute: Periungual peeling.',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'kawasaki-exanthem',
-                        label: 'Polymorphous exanthem',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'kawasaki-conjunctival',
-                        label: 'Bilateral bulbar conjunctival injection',
-                        helpText: 'Without exudate',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'kawasaki-oral',
-                        label: 'Changes in lips and oral cavity',
-                        helpText: 'Erythema, lips cracking, strawberry tongue',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                    ${uiBuilder.createRadioGroup({
-                        name: 'kawasaki-lymph',
-                        label: 'Cervical lymphadenopathy',
-                        helpText: '>1.5 cm diameter, usually unilateral',
-                        options: [
-                            { value: '0', label: 'No', checked: true },
-                            { value: '1', label: 'Yes' }
-                        ]
-                    })}
-                `
-            })}
+    infoAlert: '<strong>Classic Kawasaki Disease:</strong> Fever for ≥5 days PLUS ≥4 of 5 principal clinical features.',
 
-            <div id="kawasaki-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'kawasaki-result', title: 'Diagnostic Result' })}
-        `;
+    sections: [
+        {
+            id: 'kawasaki-fever',
+            title: 'Fever for ≥5 days',
+            subtitle: 'Required for classic Kawasaki Disease diagnosis',
+            options: [
+                { value: '0', label: 'No', checked: true },
+                { value: '1', label: 'Yes' }
+            ]
+        },
+        {
+            id: 'kawasaki-extrem',
+            title: 'Changes in extremities',
+            subtitle: 'Acute: Erythema of palms/soles, edema of hands/feet. Subacute: Periungual peeling.',
+            options: [
+                { value: '0', label: 'No', checked: true },
+                { value: '1', label: 'Yes' }
+            ]
+        },
+        {
+            id: 'kawasaki-exanthem',
+            title: 'Polymorphous exanthem',
+            options: [
+                { value: '0', label: 'No', checked: true },
+                { value: '1', label: 'Yes' }
+            ]
+        },
+        {
+            id: 'kawasaki-conjunctival',
+            title: 'Bilateral bulbar conjunctival injection',
+            subtitle: 'Without exudate',
+            options: [
+                { value: '0', label: 'No', checked: true },
+                { value: '1', label: 'Yes' }
+            ]
+        },
+        {
+            id: 'kawasaki-oral',
+            title: 'Changes in lips and oral cavity',
+            subtitle: 'Erythema, lips cracking, strawberry tongue',
+            options: [
+                { value: '0', label: 'No', checked: true },
+                { value: '1', label: 'Yes' }
+            ]
+        },
+        {
+            id: 'kawasaki-lymph',
+            title: 'Cervical lymphadenopathy',
+            subtitle: '>1.5 cm diameter, usually unilateral',
+            options: [
+                { value: '0', label: 'No', checked: true },
+                { value: '1', label: 'Yes' }
+            ]
+        }
+    ],
+
+    riskLevels: [
+        { minScore: 0, maxScore: 4, label: 'Criteria Not Met', severity: 'warning' },
+        { minScore: 5, maxScore: 6, label: 'Kawasaki Disease', severity: 'danger' }
+    ],
+
+    formulaSection: {
+        show: true,
+        title: 'Diagnostic Criteria',
+        calculationNote: 'Classic Kawasaki Disease requires:',
+        scoringCriteria: [
+            { criteria: 'Fever for ≥5 days (required)', points: 'Required' },
+            { criteria: 'Principal Clinical Features', isHeader: true },
+            { criteria: 'Changes in extremities', points: '+1' },
+            { criteria: 'Polymorphous exanthem', points: '+1' },
+            { criteria: 'Bilateral conjunctival injection', points: '+1' },
+            { criteria: 'Changes in lips/oral cavity', points: '+1' },
+            { criteria: 'Cervical lymphadenopathy', points: '+1' }
+        ],
+        interpretationTitle: 'Interpretation',
+        tableHeaders: ['Criteria Met', 'Diagnosis'],
+        interpretations: [
+            { score: 'Fever + ≥4 features', interpretation: 'Classic Kawasaki Disease', severity: 'danger' },
+            { score: 'Fever + 2-3 features', interpretation: 'Consider Incomplete Kawasaki Disease', severity: 'warning' },
+            { score: 'No fever or <2 features', interpretation: 'Criteria not met', severity: 'info' }
+        ],
+        footnotes: [
+            'Incomplete Kawasaki Disease should be considered in children with prolonged unexplained fever and fewer than 4 principal features.',
+            'Echocardiography should be performed in all suspected cases.'
+        ]
     },
-    initialize: function (client, patient, container) {
-        uiBuilder.initializeComponents(container);
 
-        const calculate = () => {
-            try {
-                // Clear validation errors
-                const errorContainer = container.querySelector('#kawasaki-error-container');
-                if (errorContainer) {
-                    errorContainer.innerHTML = '';
-                }
+    customResultRenderer: (score: number, sectionScores: Record<string, number>) => {
+        const hasFever = (sectionScores['kawasaki-fever'] || 0) === 1;
+        
+        // Count principal features (all except fever)
+        const featureCount = (sectionScores['kawasaki-extrem'] || 0) +
+            (sectionScores['kawasaki-exanthem'] || 0) +
+            (sectionScores['kawasaki-conjunctival'] || 0) +
+            (sectionScores['kawasaki-oral'] || 0) +
+            (sectionScores['kawasaki-lymph'] || 0);
 
-                const feverEl = container.querySelector(
-                    'input[name="kawasaki-fever"]:checked'
-                ) as HTMLInputElement;
-                const fever = feverEl?.value === '1';
+        let interpretation = '';
+        let alertType: 'info' | 'warning' | 'danger' = 'info';
 
-                const features = [
-                    'kawasaki-extrem',
-                    'kawasaki-exanthem',
-                    'kawasaki-conjunctival',
-                    'kawasaki-oral',
-                    'kawasaki-lymph'
-                ];
+        if (!hasFever) {
+            interpretation = 'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
+            alertType = 'warning';
+        } else if (featureCount >= 4) {
+            interpretation = '<strong>Positive for Kawasaki Disease</strong> (Fever + ≥4 principal features). Start IVIG treatment promptly.';
+            alertType = 'danger';
+        } else if (featureCount >= 2) {
+            interpretation = `Fever + ${featureCount}/5 features. <strong>Consider Incomplete Kawasaki Disease</strong> if clinical suspicion is high. Obtain echocardiography.`;
+            alertType = 'warning';
+        } else {
+            interpretation = `Criteria Not Met (Fever + ${featureCount}/5 features). Consider alternative diagnoses.`;
+            alertType = 'info';
+        }
 
-                let featureCount = 0;
-                features.forEach(feature => {
-                    const input = container.querySelector(
-                        `input[name="${feature}"]:checked`
-                    ) as HTMLInputElement;
-                    if (input && input.value === '1') {
-                        featureCount++;
-                    }
-                });
-
-                const resultBox = container.querySelector('#kawasaki-result');
-                if (resultBox) {
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-
-                    let interpretation = '';
-                    let alertType: 'info' | 'warning' | 'danger' = 'info';
-
-                    if (!fever) {
-                        interpretation =
-                            'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
-                        alertType = 'warning';
-                    } else if (featureCount >= 4) {
-                        interpretation =
-                            'Positive for Kawasaki Disease (Fever + ≥4 principal features).';
-                        alertType = 'danger';
-                    } else {
-                        interpretation = `Criteria Not Met (Fever + ${featureCount}/4 features). Consider Incomplete Kawasaki Disease if clinical suspicion is high.`;
-                        alertType = 'warning';
-                    }
-
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                            ${uiBuilder.createResultItem({
-                                label: 'Principal Features Present',
-                                value: `${featureCount} / 5`,
-                                unit: ''
-                            })}
-                            ${uiBuilder.createAlert({
-                                type: alertType,
-                                message: interpretation
-                            })}
-                        `;
-                    }
-                    resultBox.classList.add('show');
-                }
-            } catch (error) {
-                const errorContainer = container.querySelector('#kawasaki-error-container');
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                } else {
-                    console.error(error);
-                }
-                logError(error as Error, { calculator: 'kawasaki', action: 'calculate' });
-            }
-        };
-
-        container.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', calculate);
-        });
-
-        calculate();
+        return `
+            ${uiBuilder.createResultItem({
+                label: 'Fever Present',
+                value: hasFever ? 'Yes' : 'No'
+            })}
+            ${uiBuilder.createResultItem({
+                label: 'Principal Features Present',
+                value: `${featureCount} / 5`
+            })}
+            ${uiBuilder.createAlert({
+                type: alertType,
+                message: interpretation
+            })}
+        `;
     }
-};
+});

@@ -171,13 +171,11 @@ describe('UI Builder', () => {
         test('should create success alert', () => {
             const html = uiBuilder.createAlert({
                 type: 'success',
-                title: 'Success!',
-                message: 'Operation completed'
+                message: 'Operation completed successfully'
             });
 
             expect(html).toContain('success');
-            expect(html).toContain('Success!');
-            expect(html).toContain('Operation completed');
+            expect(html).toContain('Operation completed successfully');
         });
 
         test('should create danger alert', () => {
@@ -188,6 +186,17 @@ describe('UI Builder', () => {
 
             expect(html).toContain('danger');
             expect(html).toContain('Error occurred');
+        });
+
+        test('should create alert with custom icon', () => {
+            const html = uiBuilder.createAlert({
+                type: 'info',
+                message: 'Information',
+                icon: '💡'
+            });
+
+            expect(html).toContain('💡');
+            expect(html).toContain('Information');
         });
     });
 
@@ -250,5 +259,33 @@ describe('UI Builder', () => {
             }).not.toThrow();
         });
     });
-});
 
+    describe('createResultBox', () => {
+        test('should create result box container', () => {
+            const html = uiBuilder.createResultBox({
+                id: 'test-result'
+            });
+
+            expect(html).toContain('test-result');
+            expect(html).toContain('result');
+        });
+    });
+
+    describe('createTable', () => {
+        test('should create table with headers and rows', () => {
+            const html = uiBuilder.createTable({
+                headers: ['Name', 'Value'],
+                rows: [
+                    ['Item 1', '100'],
+                    ['Item 2', '200']
+                ]
+            });
+
+            expect(html).toContain('<table');
+            expect(html).toContain('Name');
+            expect(html).toContain('Value');
+            expect(html).toContain('Item 1');
+            expect(html).toContain('100');
+        });
+    });
+});

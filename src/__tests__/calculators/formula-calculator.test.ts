@@ -28,18 +28,18 @@ describe('Formula Calculator Factory', () => {
         description: 'A test formula calculator',
         inputs: [
             {
+                type: 'number' as const,
                 id: 'test-value-a',
                 label: 'Value A',
-                type: 'number' as const,
                 standardUnit: 'units',
                 min: 0,
                 max: 1000,
                 step: 1
             },
             {
+                type: 'number' as const,
                 id: 'test-value-b',
                 label: 'Value B',
-                type: 'number' as const,
                 standardUnit: 'units',
                 min: 0,
                 max: 1000,
@@ -50,11 +50,11 @@ describe('Formula Calculator Factory', () => {
             { label: 'Sum', formula: 'A + B' },
             { label: 'Product', formula: 'A × B' }
         ],
-        calculate: (values: Record<string, number | null>) => {
-            const a = values['test-value-a'];
-            const b = values['test-value-b'];
+        calculate: (values: Record<string, string | number>) => {
+            const a = typeof values['test-value-a'] === 'number' ? values['test-value-a'] : parseFloat(values['test-value-a'] as string);
+            const b = typeof values['test-value-b'] === 'number' ? values['test-value-b'] : parseFloat(values['test-value-b'] as string);
 
-            if (a === null || b === null) return null;
+            if (isNaN(a) || isNaN(b)) return null;
 
             return [
                 { label: 'Sum', value: (a + b).toString(), unit: 'units' },
@@ -117,7 +117,7 @@ describe('Formula Calculator Factory', () => {
         }
     });
 
-    test('should handle null return from calculate function', () => {
+    test('should handle empty inputs gracefully', () => {
         const calculator = createFormulaCalculator(mockConfig);
         container.innerHTML = calculator.generateHTML();
         calculator.initialize(null, null, container);
@@ -132,12 +132,8 @@ describe('Formula Calculator Factory', () => {
         // Result should be hidden when calculate returns null
         const resultBox = container.querySelector('.result-box, [class*="result"]') as HTMLElement;
         if (resultBox) {
-            const isHidden = resultBox.style.display === 'none' || 
-                            !resultBox.classList.contains('show') ||
-                            resultBox.innerHTML === '';
             // Either hidden or empty is acceptable
             expect(resultBox).toBeDefined();
         }
     });
 });
-

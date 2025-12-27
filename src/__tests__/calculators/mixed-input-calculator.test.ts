@@ -118,8 +118,8 @@ describe('Mixed Input Calculator Factory', () => {
         // Score should be 30 + 2*10 = 50
         setTimeout(() => {
             const resultText = container.textContent || '';
-            expect(resultText).toContain('50') || expect(resultText).toContain('Low');
+            const hasExpectedResult = resultText.includes('50') || resultText.toLowerCase().includes('low');
+            expect(hasExpectedResult).toBe(true);
         }, 100);
     });
 });
-
