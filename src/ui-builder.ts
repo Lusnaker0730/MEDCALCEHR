@@ -172,7 +172,8 @@ export class UIBuilder {
         defaultValue = ''
     }: UIInputOptions): string {
         const requiredMark = required ? '<span class="required">*</span>' : '';
-        const unitHTML = unit ? `<span class="ui-input-unit">${unit}</span>` : '';
+        // Only show static unit if unitToggle is not present (toggle button will handle unit display)
+        const unitHTML = unit && !unitToggle ? `<span class="ui-input-unit">${unit}</span>` : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
 
         let attrs = `id="${id}" type="${type}" placeholder="${placeholder}"`;

@@ -7,6 +7,7 @@
 
 import { createComplexFormulaCalculator } from '../shared/complex-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 // ==========================================
 // APACHE II 評分函數
@@ -300,9 +301,28 @@ export const apacheIi = createComplexFormulaCalculator({
     ],
 
     reference: `
-        <div class="info-section mt-30">
-            <h4>📚 Reference</h4>
-            <p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>
-        </div>
+        ${uiBuilder.createSection({
+            title: 'Approximated In-Hospital Mortality Rates',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['APACHE II Score', 'Nonoperative', 'Postoperative'],
+                rows: [
+                    ['0-4', '4%', '1%'],
+                    ['5-9', '8%', '3%'],
+                    ['10-14', '15%', '7%'],
+                    ['15-19', '25%', '12%'],
+                    ['20-24', '40%', '30%'],
+                    ['25-29', '55%', '35%'],
+                    ['30-34', '73%', '73%'],
+                    ['>34', '85%', '88%']
+                ]
+            })
+        })}
+
+        ${uiBuilder.createSection({
+            title: 'Reference',
+            icon: '📚',
+            content: '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
+        })}
     `
 });
