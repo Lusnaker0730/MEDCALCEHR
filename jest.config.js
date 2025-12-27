@@ -38,8 +38,21 @@ export default {
     collectCoverageFrom: [
         'src/**/*.ts',
         '!src/**/*.d.ts',
-        '!src/**/index.ts', // 排除單純導出檔案 (視情況調整)
+        '!src/types/**/*.ts', // 排除類型定義檔案
     ],
+
+    // 覆蓋率閾值
+    coverageThreshold: {
+        global: {
+            branches: 50,
+            functions: 50,
+            lines: 50,
+            statements: 50
+        }
+    },
+
+    // 覆蓋率報告格式
+    coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
 
     // 指定不需要轉換的路徑
     transformIgnorePatterns: [

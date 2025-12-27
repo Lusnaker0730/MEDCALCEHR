@@ -102,6 +102,21 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     line-height: var(--line-height-normal);
     position: relative;
+
+    /* ===================
+       HEADING OVERRIDE VARIABLES
+       =================== */
+
+    /* Override heading variables for neon effect */
+    --heading-background: none;
+    --heading-text-fill-color: var(--color-primary);
+    --heading-webkit-background-clip: border-box;
+    --heading-color: var(--color-primary);
+    --heading-text-shadow: 0 0 20px rgba(0, 217, 255, 0.8), 0 0 40px rgba(0, 217, 255, 0.4);
+
+    /* Solid heading overrides */
+    --heading-solid-color: var(--color-primary);
+    --heading-solid-text-fill: var(--color-primary);
 }
 
 /* ===================
@@ -157,25 +172,20 @@
     }
 }
 
-/* Typography Headings (Neon Effect) */
-.tech-theme h1,
-.tech-theme h2,
-.tech-theme h3,
-.tech-theme h4,
-.tech-theme h5,
-.tech-theme h6,
+/* Typography Headings (Neon Effect) - Uses CSS variables defined above */
 .tech-theme .list-item-title,
 .tech-theme .ui-section-title {
-    background: none !important;
-    -webkit-text-fill-color: var(--color-primary) !important;
-    color: var(--color-primary) !important;
+    background: none;
+    -webkit-text-fill-color: var(--color-primary);
+    color: var(--color-primary);
     text-shadow: 0 0 20px rgba(0, 217, 255, 0.8), 0 0 40px rgba(0, 217, 255, 0.4);
 }
 
-/* Result Values */
-.tech-theme .ui-result-value,
-.tech-theme .result-item-value {
-    color: #00ffff !important;
+/* Result Values - Higher specificity with body selector */
+body.tech-theme .ui-result-value,
+body.tech-theme .result-item-value {
+    color: #00ffff;
+    -webkit-text-fill-color: #00ffff;
     text-shadow: 0 0 30px rgba(0, 255, 255, 0.9), 0 0 60px rgba(0, 255, 255, 0.6), 0 0 90px rgba(0, 255, 255, 0.3);
 }
 
@@ -208,113 +218,114 @@
 
 /* =========================================
    Radio & Checkboxes Fix
+   Using body.tech-theme for higher specificity
    ========================================= */
 
-.tech-theme .ui-radio-option,
-.tech-theme .radio-option,
-.tech-theme .checkbox-option,
-.tech-theme .ui-checkbox-option {
-    background: var(--bg-card) !important;
-    border: 1px solid transparent !important;
+body.tech-theme .ui-radio-option,
+body.tech-theme .radio-option,
+body.tech-theme .checkbox-option,
+body.tech-theme .ui-checkbox-option {
+    background: var(--bg-card);
+    border: 1px solid transparent;
     border-radius: var(--radius-lg);
-    box-shadow: none !important;
-    color: var(--text-muted) !important;
+    box-shadow: none;
+    color: var(--text-muted);
     transition: all 0.2s ease;
-    /* Maintain default padding from base styles */
 }
 
-.tech-theme .ui-radio-option:hover,
-.tech-theme .radio-option:hover,
-.tech-theme .checkbox-option:hover,
-.tech-theme .ui-checkbox-option:hover {
-    border-color: rgba(0, 180, 255, 0.3) !important;
-    background: rgba(0, 180, 255, 0.1) !important;
+body.tech-theme .ui-radio-option:hover,
+body.tech-theme .radio-option:hover,
+body.tech-theme .checkbox-option:hover,
+body.tech-theme .ui-checkbox-option:hover {
+    border-color: rgba(0, 180, 255, 0.3);
+    background: rgba(0, 180, 255, 0.1);
 }
 
-.tech-theme .ui-radio-option.selected,
-.tech-theme .radio-option.selected,
-.tech-theme .checkbox-option.selected,
-.tech-theme .ui-checkbox-option.selected,
-.tech-theme .ui-radio-option:has(input:checked),
-.tech-theme .radio-option:has(input:checked),
-.tech-theme .checkbox-option:has(input:checked),
-.tech-theme .ui-checkbox-option:has(input:checked) {
-    background: rgba(0, 180, 255, 0.15) !important;
-    border-color: var(--color-primary) !important;
-    color: #00ffff !important;
-    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4) !important;
+body.tech-theme .ui-radio-option.selected,
+body.tech-theme .radio-option.selected,
+body.tech-theme .checkbox-option.selected,
+body.tech-theme .ui-checkbox-option.selected,
+body.tech-theme .ui-radio-option:has(input:checked),
+body.tech-theme .radio-option:has(input:checked),
+body.tech-theme .checkbox-option:has(input:checked),
+body.tech-theme .ui-checkbox-option:has(input:checked) {
+    background: rgba(0, 180, 255, 0.15);
+    border-color: var(--color-primary);
+    color: #00ffff;
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
 }
 
-.tech-theme .ui-radio-option label,
-.tech-theme .ui-radio-option .radio-label,
-.tech-theme .checkbox-label,
-.tech-theme .ui-option-label {
-    color: var(--text-muted) !important;
+body.tech-theme .ui-radio-option label,
+body.tech-theme .ui-radio-option .radio-label,
+body.tech-theme .checkbox-label,
+body.tech-theme .ui-option-label {
+    color: var(--text-muted);
 }
 
-.tech-theme .ui-radio-option.selected label,
-.tech-theme .ui-radio-option.selected .radio-label,
-.tech-theme .checkbox-option.selected .checkbox-label,
-.tech-theme .ui-checkbox-option.selected .ui-option-label,
-.tech-theme .ui-radio-option:has(input:checked) label,
-.tech-theme .checkbox-option:has(input:checked) .checkbox-label,
-.tech-theme .ui-checkbox-option:has(input:checked) .ui-option-label {
-    color: #00ffff !important;
+body.tech-theme .ui-radio-option.selected label,
+body.tech-theme .ui-radio-option.selected .radio-label,
+body.tech-theme .checkbox-option.selected .checkbox-label,
+body.tech-theme .ui-checkbox-option.selected .ui-option-label,
+body.tech-theme .ui-radio-option:has(input:checked) label,
+body.tech-theme .checkbox-option:has(input:checked) .checkbox-label,
+body.tech-theme .ui-checkbox-option:has(input:checked) .ui-option-label {
+    color: #00ffff;
 }
 
-.tech-theme .ui-radio-option label>*,
-.tech-theme .ui-radio-option .radio-label>* {
+body.tech-theme .ui-radio-option label>*,
+body.tech-theme .ui-radio-option .radio-label>* {
     border: none;
 }
 
-.tech-theme fieldset,
-.tech-theme .radio-group,
-.tech-theme .input-wrapper {
-    border: none !important;
-    box-shadow: none !important;
+body.tech-theme fieldset,
+body.tech-theme .radio-group,
+body.tech-theme .input-wrapper {
+    border: none;
+    box-shadow: none;
 }
 
 /* =========================================
    Inputs & Search
+   Using body.tech-theme for higher specificity
    ========================================= */
 
-.tech-theme input[type="text"],
-.tech-theme input[type="number"],
-.tech-theme input[type="search"],
-.tech-theme select {
-    background: var(--bg-input) !important;
-    color: #00ffff !important;
+body.tech-theme input[type="text"],
+body.tech-theme input[type="number"],
+body.tech-theme input[type="search"],
+body.tech-theme select {
+    background: var(--bg-input);
+    color: #00ffff;
     border: 1px solid transparent;
     border-bottom: 1px solid rgba(0, 217, 255, 0.2);
     font-weight: 600;
 }
 
-.tech-theme input:focus {
-    color: #ffffff !important;
+body.tech-theme input:focus {
+    color: #ffffff;
     border-color: transparent;
     border-bottom-color: var(--color-glow);
     box-shadow: 0 4px 10px -2px rgba(0, 217, 255, 0.3);
 }
 
-.tech-theme input::placeholder {
-    color: #94a3b8 !important;
+body.tech-theme input::placeholder {
+    color: #94a3b8;
     opacity: 1;
 }
 
-.tech-theme select option {
+body.tech-theme select option {
     background: #001a33;
     color: #ffffff;
 }
 
-.tech-theme .input-unit,
-.tech-theme label,
-.tech-theme .ui-input-unit {
-    color: #e2e8f0 !important;
+body.tech-theme .input-unit,
+body.tech-theme label,
+body.tech-theme .ui-input-unit {
+    color: #e2e8f0;
 }
 
-.tech-theme .help-text,
-.tech-theme .input-hint {
-    color: #cbd5e1 !important;
+body.tech-theme .help-text,
+body.tech-theme .input-hint {
+    color: #cbd5e1;
 }
 
 /* =========================================

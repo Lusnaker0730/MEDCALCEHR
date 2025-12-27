@@ -75,8 +75,11 @@
 }
 
 /* Description inside calculator-header should be white */
-.calculator-header .description {
-    color: white !important;
+/* Uses multiple class selectors for higher specificity */
+.calculator-header .description,
+.calculator-header p.description {
+    color: white;
+    -webkit-text-fill-color: white;
     background: transparent;
     border: none;
     opacity: 0.95;

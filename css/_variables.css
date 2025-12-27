@@ -130,6 +130,21 @@
     --z-tooltip: 500;
 
     /* ===================
+       標題樣式變數
+       =================== */
+
+    /* 標題文字效果 (可被主題覆蓋) */
+    --heading-background: var(--gradient-primary);
+    --heading-text-fill-color: transparent;
+    --heading-webkit-background-clip: text;
+    --heading-color: var(--color-primary);
+    --heading-text-shadow: none;
+
+    /* 純色標題 (用於不需要漸層的場景) */
+    --heading-solid-color: var(--color-text-primary);
+    --heading-solid-text-fill: var(--color-text-primary);
+
+    /* ===================
        組件特定變數
        =================== */
 
