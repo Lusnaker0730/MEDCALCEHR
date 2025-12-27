@@ -228,7 +228,7 @@ export function createComplexFormulaCalculator(config: ComplexFormulaCalculatorC
                 const el = container.querySelector(`#${id}`) as HTMLInputElement;
                 if (!el || el.value === '') return null;
                 const val = UnitConverter.getStandardValue(el, unit);
-                return isNaN(val) ? null : val;
+                return val === null || isNaN(val) ? null : val;
             };
 
             const getRadioValue = (name: string): string | null => {

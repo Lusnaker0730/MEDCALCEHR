@@ -93,6 +93,16 @@ export const apgarScore = createRadioScoreCalculator({
             description: 'Immediate medical intervention required. Begin neonatal resuscitation.'
         }
     ],
+    formulaSection: {
+        show: true,
+        interpretationTitle: 'Facts & Figures',
+        tableHeaders: ['Score', 'Interpretation'],
+        interpretations: [
+            { score: '≥7', interpretation: 'Generally normal', severity: 'success' },
+            { score: '4-6', interpretation: 'Fairly low', severity: 'warning' },
+            { score: '≤3', interpretation: 'Critically low, needs intervention', severity: 'danger' }
+        ]
+    },
     customResultRenderer: (score, sectionScores) => {
         const riskLevels = [
             {

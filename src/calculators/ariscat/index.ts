@@ -95,6 +95,55 @@ export const ariscat = createRadioScoreCalculator({
             description: 'Risk: 42.1%'
         }
     ],
+    formulaSection: {
+        show: true,
+        title: 'Formula',
+        calculationNote: 'Addition of the selected points:',
+        scoringCriteria: [
+            // Age
+            { criteria: 'Age, years', isHeader: true },
+            { criteria: '≤50', points: '0' },
+            { criteria: '51-80', points: '3' },
+            { criteria: '>80', points: '16' },
+            // SpO2
+            { criteria: 'Preoperative SpO₂', isHeader: true },
+            { criteria: '≥96%', points: '0' },
+            { criteria: '91-95%', points: '8' },
+            { criteria: '≤90%', points: '24' },
+            // Respiratory infection
+            { criteria: 'Respiratory infection in the last month*', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '17' },
+            // Anemia
+            { criteria: 'Preoperative anemia (Hgb ≤10 g/dL)', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '11' },
+            // Surgical incision
+            { criteria: 'Surgical incision', isHeader: true },
+            { criteria: 'Peripheral', points: '0' },
+            { criteria: 'Upper abdominal', points: '15' },
+            { criteria: 'Intrathoracic', points: '24' },
+            // Duration
+            { criteria: 'Duration of surgery', isHeader: true },
+            { criteria: '<2 hrs', points: '0' },
+            { criteria: '2-3 hrs', points: '16' },
+            { criteria: '>3 hrs', points: '23' },
+            // Emergency
+            { criteria: 'Emergency procedure', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '8' }
+        ],
+        footnotes: [
+            '*Either upper or lower (i.e., URI, bronchitis, pneumonia), with fever and antibiotic treatment.'
+        ],
+        interpretationTitle: 'Facts & Figures',
+        tableHeaders: ['ARISCAT Score', 'Risk Group', 'Risk of In-Hospital Postoperative Pulmonary Complications*'],
+        interpretations: [
+            { score: '<26', category: 'Low', interpretation: '1.6%', severity: 'success' },
+            { score: '26-44', category: 'Intermediate', interpretation: '13.3%', severity: 'warning' },
+            { score: '≥45', category: 'High', interpretation: '42.1%', severity: 'danger' }
+        ]
+    },
     customResultRenderer: (score: number) => {
         let riskCategory = '';
         let riskInfo = '';

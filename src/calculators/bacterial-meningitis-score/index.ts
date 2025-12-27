@@ -61,6 +61,39 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
         { minScore: 0, maxScore: 0, label: 'Very Low Risk', severity: 'success' },
         { minScore: 1, maxScore: 6, label: 'Not Low Risk', severity: 'danger' }
     ],
+    formulaSection: {
+        show: true,
+        title: 'Formula',
+        calculationNote: 'Addition of the selected points:',
+        scoringCriteria: [
+            // CSF Gram stain
+            { criteria: 'CSF Gram stain', isHeader: true },
+            { criteria: 'Negative', points: '0' },
+            { criteria: 'Positive', points: '2' },
+            // CSF ANC
+            { criteria: 'CSF absolute neutrophil count (ANC)', isHeader: true },
+            { criteria: '<1,000 cells/μL', points: '0' },
+            { criteria: '≥1,000 cells/μL', points: '1' },
+            // CSF protein
+            { criteria: 'CSF protein', isHeader: true },
+            { criteria: '<80 mg/dL (800 mg/L)', points: '0' },
+            { criteria: '≥80 mg/dL (800 mg/L)', points: '1' },
+            // Peripheral blood ANC
+            { criteria: 'Peripheral blood ANC', isHeader: true },
+            { criteria: '<10,000 cells/μL', points: '0' },
+            { criteria: '≥10,000 cells/μL', points: '1' },
+            // Seizure
+            { criteria: 'Seizure at (or prior to) initial presentation', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' }
+        ],
+        interpretationTitle: 'Facts & Figures',
+        tableHeaders: ['Bacterial Meningitis Score', 'Risk for Bacterial Meningitis'],
+        interpretations: [
+            { score: '0', interpretation: 'Very low risk', severity: 'success' },
+            { score: '>0', interpretation: 'Not very low risk', severity: 'danger' }
+        ]
+    },
     customResultRenderer: (score: number) => {
         const isLowRisk = score === 0;
         const interpretation = isLowRisk

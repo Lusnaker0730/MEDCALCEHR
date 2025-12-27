@@ -1,4 +1,4 @@
-// Universal UI Component Builder for MedCalcEHR Calculators
+22222222222222222222222222222222; // Universal UI Component Builder for MedCalcEHR Calculators
 import { UnitConverter } from './unit-converter.js';
 /**
  * UIBuilder - A comprehensive UI component generation system
@@ -29,7 +29,8 @@ export class UIBuilder {
     createInput({ id, label, type = 'number', placeholder = '', required = false, unit = null, unitToggle = null, // { type: 'weight', units: ['kg', 'lbs'] }
     helpText = '', min, max, step, defaultValue = '' }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
-        const unitHTML = unit ? `<span class="ui-input-unit">${unit}</span>` : '';
+        // Only show static unit if unitToggle is not present (toggle button will handle unit display)
+        const unitHTML = unit && !unitToggle ? `<span class="ui-input-unit">${unit}</span>` : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
         let attrs = `id="${id}" type="${type}" placeholder="${placeholder}"`;
         if (min !== undefined)
