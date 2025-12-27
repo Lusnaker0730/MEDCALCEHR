@@ -3,24 +3,40 @@
  * Service Worker Registration
  * Registers and manages the Service Worker lifecycle
  */
+
+interface MessagePayload {
+    type: string;
+    [key: string]: unknown;
+}
+
+interface CacheStatsResponse {
+    stats: {
+        [cacheName: string]: number;
+    };
+}
+
 /**
  * Register Service Worker
  */
-export async function registerServiceWorker() {
+export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
     if (!('serviceWorker' in navigator)) {
         console.log('Service Worker not supported');
         return null;
     }
+
     try {
         // Register the service worker
         const registration = await navigator.serviceWorker.register('/service-worker.js', {
             scope: '/'
         });
+
         console.log('Service Worker registered successfully:', registration.scope);
+
         // Handle updates
         registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             console.log('Service Worker update found');
+
             newWorker?.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                     // New service worker available
@@ -28,21 +44,23 @@ export async function registerServiceWorker() {
                 }
             });
         });
+
         // Check for updates periodically (every hour)
         setInterval(() => {
             registration.update();
         }, 60 * 60 * 1000);
+
         return registration;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Service Worker registration failed:', error);
         return null;
     }
 }
+
 /**
  * Show update notification to user
  */
-function showUpdateNotification(registration) {
+function showUpdateNotification(registration: ServiceWorkerRegistration): void {
     // Create update notification
     const notification = document.createElement('div');
     notification.className = 'sw-update-notification';
@@ -54,6 +72,7 @@ function showUpdateNotification(registration) {
             <button class="sw-dismiss-button" id="sw-dismiss-btn">稍後</button>
         </div>
     `;
+
     // Add styles
     const style = document.createElement('style');
     style.textContent = `
@@ -126,32 +145,39 @@ function showUpdateNotification(registration) {
             }
         }
     `;
+
     document.head.appendChild(style);
     document.body.appendChild(notification);
+
     // Handle update button click
     document.getElementById('sw-update-btn')?.addEventListener('click', () => {
         // Tell service worker to skip waiting
         if (registration.waiting) {
             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
+
         // Reload page when new service worker takes control
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             window.location.reload();
         });
+
         notification.remove();
     });
+
     // Handle dismiss button click
     document.getElementById('sw-dismiss-btn')?.addEventListener('click', () => {
         notification.remove();
     });
 }
+
 /**
  * Unregister Service Worker (for debugging)
  */
-export async function unregisterServiceWorker() {
+export async function unregisterServiceWorker(): Promise<boolean> {
     if (!('serviceWorker' in navigator)) {
         return false;
     }
+
     try {
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const registration of registrations) {
@@ -159,90 +185,104 @@ export async function unregisterServiceWorker() {
         }
         console.log('Service Worker unregistered');
         return true;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Failed to unregister Service Worker:', error);
         return false;
     }
 }
+
+interface ServiceWorkerStatus {
+    supported: boolean;
+    controller?: 'active' | 'none';
+    ready?: Promise<ServiceWorkerRegistration>;
+}
+
 /**
  * Get Service Worker status
  */
-export function getServiceWorkerStatus() {
+export function getServiceWorkerStatus(): ServiceWorkerStatus {
     if (!('serviceWorker' in navigator)) {
         return { supported: false };
     }
+
     return {
         supported: true,
         controller: navigator.serviceWorker.controller ? 'active' : 'none',
         ready: navigator.serviceWorker.ready
     };
 }
+
 /**
  * Send message to Service Worker
  */
-export async function sendMessageToSW(message) {
+export async function sendMessageToSW(message: MessagePayload): Promise<unknown> {
     const controller = navigator.serviceWorker.controller;
     if (!controller) {
         console.warn('No active service worker');
         return null;
     }
+
     return new Promise((resolve, reject) => {
         const messageChannel = new MessageChannel();
-        messageChannel.port1.onmessage = (event) => {
+        
+        messageChannel.port1.onmessage = (event: MessageEvent) => {
             resolve(event.data);
         };
+
         // Use addEventListener for error handling on MessagePort
-        messageChannel.port1.addEventListener('messageerror', (event) => {
+        messageChannel.port1.addEventListener('messageerror', (event: MessageEvent) => {
             reject(new Error('Message error: ' + event.data));
         });
+
         controller.postMessage(message, [messageChannel.port2]);
+        
         // Timeout to prevent hanging
         setTimeout(() => {
             reject(new Error('Service worker message timeout'));
         }, 10000);
     });
 }
+
 /**
  * Clear Service Worker caches
  */
-export async function clearServiceWorkerCaches() {
+export async function clearServiceWorkerCaches(): Promise<unknown> {
     try {
         const result = await sendMessageToSW({ type: 'CLEAR_CACHE' });
         console.log('Service Worker caches cleared');
         return result;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Failed to clear Service Worker caches:', error);
         return null;
     }
 }
+
 /**
  * Get cache statistics from Service Worker
  */
-export async function getCacheStats() {
+export async function getCacheStats(): Promise<CacheStatsResponse['stats'] | null> {
     try {
-        const result = await sendMessageToSW({ type: 'GET_CACHE_STATS' });
+        const result = await sendMessageToSW({ type: 'GET_CACHE_STATS' }) as CacheStatsResponse;
         return result.stats;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Failed to get cache stats:', error);
         return null;
     }
 }
+
 /**
  * Initialize Service Worker on page load
  */
-export function initializeServiceWorker() {
+export function initializeServiceWorker(): void {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             registerServiceWorker();
         });
-    }
-    else {
+    } else {
         registerServiceWorker();
     }
 }
+
 export default {
     registerServiceWorker,
     unregisterServiceWorker,
@@ -252,3 +292,4 @@ export default {
     getCacheStats,
     initializeServiceWorker
 };
+

@@ -214,33 +214,52 @@
 .tech-theme .radio-option,
 .tech-theme .checkbox-option,
 .tech-theme .ui-checkbox-option {
-    background: transparent !important;
-    border: none !important;
-    padding: 0;
+    background: var(--bg-card) !important;
+    border: 1px solid transparent !important;
+    border-radius: var(--radius-lg);
     box-shadow: none !important;
+    color: var(--text-muted) !important;
+    transition: all 0.2s ease;
+    /* Maintain default padding from base styles */
+}
+
+.tech-theme .ui-radio-option:hover,
+.tech-theme .radio-option:hover,
+.tech-theme .checkbox-option:hover,
+.tech-theme .ui-checkbox-option:hover {
+    border-color: rgba(0, 180, 255, 0.3) !important;
+    background: rgba(0, 180, 255, 0.1) !important;
+}
+
+.tech-theme .ui-radio-option.selected,
+.tech-theme .radio-option.selected,
+.tech-theme .checkbox-option.selected,
+.tech-theme .ui-checkbox-option.selected,
+.tech-theme .ui-radio-option:has(input:checked),
+.tech-theme .radio-option:has(input:checked),
+.tech-theme .checkbox-option:has(input:checked),
+.tech-theme .ui-checkbox-option:has(input:checked) {
+    background: rgba(0, 180, 255, 0.15) !important;
+    border-color: var(--color-primary) !important;
+    color: #00ffff !important;
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4) !important;
 }
 
 .tech-theme .ui-radio-option label,
 .tech-theme .ui-radio-option .radio-label,
-.tech-theme .checkbox-label {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 10px 15px;
-    background: var(--bg-card);
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg);
+.tech-theme .checkbox-label,
+.tech-theme .ui-option-label {
     color: var(--text-muted) !important;
-    transition: all 0.2s ease;
 }
 
-.tech-theme .ui-radio-option input[type="radio"]:checked+label,
-.tech-theme .ui-radio-option input[type="radio"]:checked+.radio-label,
-.tech-theme .ui-checkbox-option input[type="checkbox"]:checked+label {
-    background: rgba(0, 180, 255, 0.15);
-    border-color: var(--color-primary);
+.tech-theme .ui-radio-option.selected label,
+.tech-theme .ui-radio-option.selected .radio-label,
+.tech-theme .checkbox-option.selected .checkbox-label,
+.tech-theme .ui-checkbox-option.selected .ui-option-label,
+.tech-theme .ui-radio-option:has(input:checked) label,
+.tech-theme .checkbox-option:has(input:checked) .checkbox-label,
+.tech-theme .ui-checkbox-option:has(input:checked) .ui-option-label {
     color: #00ffff !important;
-    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
 }
 
 .tech-theme .ui-radio-option label>*,
@@ -253,7 +272,6 @@
 .tech-theme .input-wrapper {
     border: none !important;
     box-shadow: none !important;
-    padding: 0;
 }
 
 /* =========================================

@@ -222,3 +222,195 @@
     color: white;
 }
 
+/* ===================================
+   Additional Spacing Utilities
+   =================================== */
+
+/* Margin Top (numeric scale) */
+.mt-10 { margin-top: 10px; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+
+/* Margin Bottom (numeric scale) */
+.mb-10 { margin-bottom: 10px; }
+.mb-15 { margin-bottom: 15px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* Margin Left */
+.ml-25 { margin-left: 25px; }
+
+/* ===================================
+   Flexbox Layout Utilities
+   =================================== */
+
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+
+/* Flex Grow/Shrink Basis */
+.flex-grow-1 { flex-grow: 1; }
+.flex-shrink-1 { flex-shrink: 1; }
+.flex-basis-400 { flex-basis: 400px; }
+
+/* Min Width */
+.min-w-0 { min-width: 0; }
+
+/* ===================================
+   Grid Layout Utilities
+   =================================== */
+
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: 1fr 1fr; }
+.grid-cols-auto-fit { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.gap-15 { gap: 15px; }
+.gap-20 { gap: 20px; }
+
+/* ===================================
+   Position Utilities
+   =================================== */
+
+.position-relative { position: relative; }
+
+/* ===================================
+   Size Utilities
+   =================================== */
+
+.w-100 { width: 100%; }
+.h-300 { height: 300px; }
+
+/* ===================================
+   Overflow Utilities
+   =================================== */
+
+.overflow-hidden { overflow: hidden; }
+
+/* ===================================
+   Image Reference Utilities
+   =================================== */
+
+.img-reference {
+    max-width: 100%;
+    height: auto;
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ===================================
+   Component Visibility Utilities
+   =================================== */
+
+/* For conditional visibility (JS toggleable) */
+.ui-hidden {
+    display: none !important;
+}
+
+/* ===================================
+   Text Style Utilities
+   =================================== */
+
+.text-sm {
+    font-size: 0.9em;
+}
+
+.text-secondary {
+    color: #666;
+}
+
+/* ===================================
+   Growth Chart Specific Layout
+   =================================== */
+
+.growth-chart-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.chart-wrapper {
+    flex: 1 1 400px;
+    min-width: 0;
+}
+
+.chart-wrapper--full {
+    flex: 1 1 100%;
+    margin-top: 20px;
+    min-width: 0;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* ===================================
+   Therapy Section Layout
+   =================================== */
+
+.therapy-section {
+    margin-top: 20px;
+}
+
+.therapy-group {
+    margin-bottom: 15px;
+}
+
+.therapy-details {
+    margin-left: 25px;
+}
+
+.therapy-results {
+    margin-top: 20px;
+}
+
+/* ===================================
+   Interpretation Grid
+   =================================== */
+
+.interpretation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .interpretation-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===================================
+   Velocity Grid
+   =================================== */
+
+.velocity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* ===================================
+   Formula List Layout
+   =================================== */
+
+.ui-formula-list-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* ===================================
+   Component Score Display
+   =================================== */
+
+.component-breakdown {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.component-breakdown span {
+    margin-right: 10px;
+}
+

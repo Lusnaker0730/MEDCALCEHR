@@ -282,7 +282,7 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                                 return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
-                                    <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
+                                    <td class="ui-interpretation-table__cell text-center">${item.category || ''}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
@@ -300,12 +300,12 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                     const headerCells = headers
                         .map(
                             (h, i) =>
-                                `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                                `<th class="ui-interpretation-table__header ${i === 0 ? 'text-center' : ''}">${h}</th>`
                         )
                         .join('');
 
                     interpretationTableHTML = `
-                        <div class="ui-section" style="margin-top: 20px;">
+                        <div class="ui-section mt-20">
                             <div class="ui-section-title">📊 ${interpTitle}</div>
                             <div class="ui-table-wrapper">
                                 <table class="ui-interpretation-table">
@@ -322,7 +322,7 @@ export function createScoreCalculator(config: ScoreCalculatorConfig): Calculator
                 }
 
                 formulaHTML = `
-                    <div class="ui-section" style="margin-top: 20px;">
+                    <div class="ui-section mt-20">
                         <div class="ui-section-title">📐 ${formulaTitle}</div>
                         ${calcNote ? `<p class="calculation-note">${calcNote}</p>` : ''}
                         ${scoringContentHTML}

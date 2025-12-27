@@ -356,7 +356,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                         const listItems = fs.scoringCriteria
                             .map(item => {
                                 return `
-                                <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                                <div class="ui-formula-list-item">
                                     <div class="criteria-header">${item.criteria}</div>
                                     <div class="criteria-points">${item.points}</div>
                                 </div>
@@ -365,7 +365,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                             .join('');
 
                         scoringContentHTML = `
-                            <div class="ui-formula-list" style="margin-top: 15px;">
+                            <div class="ui-formula-list mt-15">
                                 ${listItems}
                             </div>
                         `;
@@ -435,7 +435,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                                 return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
-                                    <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
+                                    <td class="ui-interpretation-table__cell text-center">${item.category || ''}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
@@ -453,12 +453,12 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     const headerCells = headers
                         .map(
                             (h, i) =>
-                                `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                                `<th class="ui-interpretation-table__header ${i === 0 ? 'text-center' : ''}">${h}</th>`
                         )
                         .join('');
 
                     interpretationTableHTML = `
-                        <div class="ui-section" style="margin-top: 20px;">
+                        <div class="ui-section mt-20">
                             <div class="ui-section-title">📊 ${interpTitle}</div>
                             <div class="ui-table-wrapper">
                                 <table class="ui-interpretation-table">
@@ -475,7 +475,7 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                 }
 
                 formulaSectionHTML = `
-                    <div class="ui-section" style="margin-top: 20px;">
+                    <div class="ui-section mt-20">
                         <div class="ui-section-title">📐 ${formulaTitle}</div>
                         <p class="calculation-note">${calcNote}</p>
                         ${scoringContentHTML}

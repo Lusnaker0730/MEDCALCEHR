@@ -113,15 +113,15 @@ export const ascvd = {
             ${uiBuilder.createResultBox({ id: 'ascvd-result', title: 'ASCVD Risk Results' })}
             
             <!-- Therapy Impact Section -->
-            <div id="therapy-impact-section" style="display:none; margin-top: 20px;">
+            <div id="therapy-impact-section" class="therapy-section ui-hidden">
                 ${uiBuilder.createSection({
             title: '🎯 Therapy Impact Analysis',
             content: `
                         <h5>Select Therapy Options:</h5>
                         
-                        <div class="therapy-group" style="margin-bottom: 15px;">
+                        <div class="therapy-group">
                             ${uiBuilder.createCheckbox({ id: 'statin-therapy', label: 'Statin Therapy', checked: true })}
-                            <div class="therapy-details" id="statin-details" style="margin-left: 25px;">
+                            <div class="therapy-details" id="statin-details">
                                 ${uiBuilder.createSelect({
                 id: 'statin-intensity',
                 label: 'Intensity',
@@ -143,17 +143,17 @@ export const ascvd = {
                             </div>
                         </div>
                         
-                        <div class="therapy-group" style="margin-bottom: 15px;">
+                        <div class="therapy-group">
                             ${uiBuilder.createCheckbox({ id: 'lifestyle-mods', label: 'Lifestyle Modifications' })}
-                            <div class="therapy-details" id="lifestyle-details" style="display:none; margin-left: 25px;">
+                            <div class="therapy-details ui-hidden" id="lifestyle-details">
                                 ${uiBuilder.createCheckbox({ id: 'smoking-cessation', label: 'Smoking Cessation' })}
                                 ${uiBuilder.createCheckbox({ id: 'bp-control', label: 'BP Control (target <130/80)' })}
                             </div>
                         </div>
                         
-                        <div class="therapy-group" style="margin-bottom: 15px;">
+                        <div class="therapy-group">
                             ${uiBuilder.createCheckbox({ id: 'additional-therapy', label: 'Additional Therapies' })}
-                            <div class="therapy-details" id="additional-details" style="display:none; margin-left: 25px;">
+                            <div class="therapy-details ui-hidden" id="additional-details">
                                 ${uiBuilder.createSelect({
                 id: 'additional-options',
                 label: 'Option',
@@ -175,9 +175,9 @@ export const ascvd = {
                             </div>
                         </div>
                         
-                        <button id="calculate-therapy-impact" class="ui-btn ui-btn-primary ui-btn-block" style="margin-top: 15px;">📊 Calculate Therapy Impact</button>
+                        <button id="calculate-therapy-impact" class="ui-btn ui-btn-primary ui-btn-block mt-15">📊 Calculate Therapy Impact</button>
                         
-                        <div id="therapy-results" class="therapy-results" style="display:none; margin-top: 20px;"></div>
+                        <div id="therapy-results" class="therapy-results ui-hidden"></div>
                     `
         })}
             </div>
@@ -319,7 +319,7 @@ export const ascvd = {
         }
 
         knownAscvdCheckbox.addEventListener('change', () => {
-            riskInputsDiv.style.display = knownAscvdCheckbox.checked ? 'none' : 'block';
+            riskInputsDiv.classList.toggle('ui-hidden', knownAscvdCheckbox.checked);
             calculate(); // Recalculate immediately
         });
 
@@ -327,30 +327,30 @@ export const ascvd = {
         (container.querySelector('#statin-therapy') as HTMLInputElement).addEventListener(
             'change',
             function () {
-                (container.querySelector('#statin-details') as HTMLElement).style.display = this
-                    .checked
-                    ? 'block'
-                    : 'none';
+                (container.querySelector('#statin-details') as HTMLElement).classList.toggle(
+                    'ui-hidden',
+                    !this.checked
+                );
             }
         );
 
         (container.querySelector('#lifestyle-mods') as HTMLInputElement).addEventListener(
             'change',
             function () {
-                (container.querySelector('#lifestyle-details') as HTMLElement).style.display = this
-                    .checked
-                    ? 'block'
-                    : 'none';
+                (container.querySelector('#lifestyle-details') as HTMLElement).classList.toggle(
+                    'ui-hidden',
+                    !this.checked
+                );
             }
         );
 
         (container.querySelector('#additional-therapy') as HTMLInputElement).addEventListener(
             'change',
             function () {
-                (container.querySelector('#additional-details') as HTMLElement).style.display = this
-                    .checked
-                    ? 'block'
-                    : 'none';
+                (container.querySelector('#additional-details') as HTMLElement).classList.toggle(
+                    'ui-hidden',
+                    !this.checked
+                );
             }
         );
 
@@ -452,7 +452,7 @@ export const ascvd = {
                     ${uiBuilder.createAlert({ type: 'warning', message: '<strong>Guideline:</strong> High-intensity statin therapy is indicated for secondary prevention.' })}
                 `;
                 resultBox.classList.add('show');
-                therapySection.style.display = 'block';
+                therapySection.classList.remove('ui-hidden');
                 return;
             }
 
@@ -505,7 +505,7 @@ export const ascvd = {
                     }
                 }
                 resultBox.classList.remove('show');
-                therapySection.style.display = 'none';
+                therapySection.classList.add('ui-hidden');
                 return;
             }
 
@@ -517,7 +517,7 @@ export const ascvd = {
                     message: `<strong>Age Limitation:</strong> Valid for ages 40-79. Current age: ${age}.<br>${age < 40 ? 'Focus on lifestyle modifications.' : 'Clinical judgment should guide treatment.'}`
                 });
                 resultBox.classList.add('show');
-                therapySection.style.display = 'none';
+                therapySection.classList.add('ui-hidden');
                 return; // Stop calculation? Usually yes for PCE.
             }
 
@@ -597,7 +597,7 @@ export const ascvd = {
             })}
             `;
             resultBox.classList.add('show');
-            therapySection.style.display = 'block';
+            therapySection.classList.remove('ui-hidden');
         };
 
         container.querySelectorAll('input').forEach(input => {
@@ -624,7 +624,7 @@ export const ascvd = {
                         type: 'danger',
                         message: 'Please calculate baseline risk first.'
                     });
-                    therapyResultsEl.style.display = 'block';
+                    therapyResultsEl.classList.remove('ui-hidden');
                     return;
                 }
 
@@ -743,7 +743,7 @@ export const ascvd = {
                     content: `<ul>${interventions.map(i => `<li>${i}</li>`).join('')}</ul>`
                 })}
             `;
-                therapyResultsEl.style.display = 'block';
+                therapyResultsEl.classList.remove('ui-hidden');
             });
         }
 

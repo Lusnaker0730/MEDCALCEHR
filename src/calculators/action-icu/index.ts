@@ -99,51 +99,51 @@ export const actionIcu = createRadioScoreCalculator({
                     <thead>
                         <tr>
                             <th>Variable</th>
-                            <th style="text-align: center;">0 points</th>
-                            <th style="text-align: center;">1 point</th>
-                            <th style="text-align: center;">2 points</th>
-                            <th style="text-align: center;">3 points</th>
-                            <th style="text-align: center;">5 points</th>
+                            <th class="text-center">0 points</th>
+                            <th class="text-center">1 point</th>
+                            <th class="text-center">2 points</th>
+                            <th class="text-center">3 points</th>
+                            <th class="text-center">5 points</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Age, years</td><td style="text-align: center;">&lt;70</td><td style="text-align: center;">≥70</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
-                        <tr><td>Serum creatinine, mg/dL</td><td style="text-align: center;">&lt;1.1</td><td style="text-align: center;">≥1.1</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
-                        <tr><td>Heart rate, bpm</td><td style="text-align: center;">&lt;85</td><td style="text-align: center;">85-100</td><td style="text-align: center;">—</td><td style="text-align: center;">≥100</td><td style="text-align: center;">—</td></tr>
-                        <tr><td>Systolic BP, mmHg</td><td style="text-align: center;">≥145</td><td style="text-align: center;">125-145</td><td style="text-align: center;">—</td><td style="text-align: center;">&lt;125</td><td style="text-align: center;">—</td></tr>
-                        <tr><td>Troponin ratio (×ULN)</td><td style="text-align: center;">&lt;12</td><td style="text-align: center;">—</td><td style="text-align: center;">≥12</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
-                        <tr><td>Heart failure signs/symptoms</td><td style="text-align: center;">No</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">Yes</td></tr>
-                        <tr><td>ST depression on EKG</td><td style="text-align: center;">No</td><td style="text-align: center;">Yes</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
-                        <tr><td>Prior revascularization</td><td style="text-align: center;">Yes</td><td style="text-align: center;">No</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td><td style="text-align: center;">—</td></tr>
+                        <tr><td>Age, years</td><td class="text-center">&lt;70</td><td class="text-center">≥70</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td></tr>
+                        <tr><td>Serum creatinine, mg/dL</td><td class="text-center">&lt;1.1</td><td class="text-center">≥1.1</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td></tr>
+                        <tr><td>Heart rate, bpm</td><td class="text-center">&lt;85</td><td class="text-center">85-100</td><td class="text-center">—</td><td class="text-center">≥100</td><td class="text-center">—</td></tr>
+                        <tr><td>Systolic BP, mmHg</td><td class="text-center">≥145</td><td class="text-center">125-145</td><td class="text-center">—</td><td class="text-center">&lt;125</td><td class="text-center">—</td></tr>
+                        <tr><td>Troponin ratio (×ULN)</td><td class="text-center">&lt;12</td><td class="text-center">—</td><td class="text-center">≥12</td><td class="text-center">—</td><td class="text-center">—</td></tr>
+                        <tr><td>Heart failure signs/symptoms</td><td class="text-center">No</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">Yes</td></tr>
+                        <tr><td>ST depression on EKG</td><td class="text-center">No</td><td class="text-center">Yes</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td></tr>
+                        <tr><td>Prior revascularization</td><td class="text-center">Yes</td><td class="text-center">No</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td></tr>
                     </tbody>
                 </table>
             </div>
             
-            <div class="ui-section-title" style="margin-top: 20px;">📊 Risk of Complications Requiring ICU Care</div>
+            <div class="ui-section-title mt-20">📊 Risk of Complications Requiring ICU Care</div>
             <div class="ui-table-wrapper">
                 <table class="ui-table">
                     <thead>
                         <tr>
-                            <th style="text-align: center;">Score</th>
-                            <th style="text-align: center;">Risk %</th>
-                            <th style="text-align: center;">Score</th>
-                            <th style="text-align: center;">Risk %</th>
-                            <th style="text-align: center;">Score</th>
-                            <th style="text-align: center;">Risk %</th>
+                            <th class="text-center">Score</th>
+                            <th class="text-center">Risk %</th>
+                            <th class="text-center">Score</th>
+                            <th class="text-center">Risk %</th>
+                            <th class="text-center">Score</th>
+                            <th class="text-center">Risk %</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="text-align: center;">0</td><td style="text-align: center;">3.4%</td><td style="text-align: center;">6</td><td style="text-align: center;">16.7%</td><td style="text-align: center;">12</td><td style="text-align: center;">55.4%</td></tr>
-                        <tr><td style="text-align: center;">1</td><td style="text-align: center;">4.8%</td><td style="text-align: center;">7</td><td style="text-align: center;">21.7%</td><td style="text-align: center;">13</td><td style="text-align: center;">62.7%</td></tr>
-                        <tr><td style="text-align: center;">2</td><td style="text-align: center;">6.7%</td><td style="text-align: center;">8</td><td style="text-align: center;">27.5%</td><td style="text-align: center;">14</td><td style="text-align: center;">69.6%</td></tr>
-                        <tr><td style="text-align: center;">3</td><td style="text-align: center;">9.2%</td><td style="text-align: center;">9</td><td style="text-align: center;">33.9%</td><td style="text-align: center;">15</td><td style="text-align: center;">76.0%</td></tr>
-                        <tr><td style="text-align: center;">4</td><td style="text-align: center;">12.5%</td><td style="text-align: center;">10</td><td style="text-align: center;">40.8%</td><td style="text-align: center;">16</td><td style="text-align: center;">81.7%</td></tr>
-                        <tr><td style="text-align: center;">5</td><td style="text-align: center;">16.7%</td><td style="text-align: center;">11</td><td style="text-align: center;">48.0%</td><td style="text-align: center;">&gt;14</td><td style="text-align: center;">≥39.3%</td></tr>
+                        <tr><td class="text-center">0</td><td class="text-center">3.4%</td><td class="text-center">6</td><td class="text-center">16.7%</td><td class="text-center">12</td><td class="text-center">55.4%</td></tr>
+                        <tr><td class="text-center">1</td><td class="text-center">4.8%</td><td class="text-center">7</td><td class="text-center">21.7%</td><td class="text-center">13</td><td class="text-center">62.7%</td></tr>
+                        <tr><td class="text-center">2</td><td class="text-center">6.7%</td><td class="text-center">8</td><td class="text-center">27.5%</td><td class="text-center">14</td><td class="text-center">69.6%</td></tr>
+                        <tr><td class="text-center">3</td><td class="text-center">9.2%</td><td class="text-center">9</td><td class="text-center">33.9%</td><td class="text-center">15</td><td class="text-center">76.0%</td></tr>
+                        <tr><td class="text-center">4</td><td class="text-center">12.5%</td><td class="text-center">10</td><td class="text-center">40.8%</td><td class="text-center">16</td><td class="text-center">81.7%</td></tr>
+                        <tr><td class="text-center">5</td><td class="text-center">16.7%</td><td class="text-center">11</td><td class="text-center">48.0%</td><td class="text-center">&gt;14</td><td class="text-center">≥39.3%</td></tr>
                     </tbody>
                 </table>
             </div>
             
-            <p class="footnote-item" style="margin-top: 15px;">
+            <p class="footnote-item mt-15">
                 *Cardiac arrest, shock, high-grade atrioventricular block, respiratory failure, stroke, or death during index admission.
             </p>
         </div>

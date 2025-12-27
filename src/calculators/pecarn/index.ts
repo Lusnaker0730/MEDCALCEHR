@@ -86,7 +86,7 @@ export const pecarn: CalculatorModule = {
                 })}
             </div>
 
-            <div id="pecarn-group-over2" style="display:none;">
+            <div id="pecarn-group-over2" class="ui-hidden">
                 ${uiBuilder.createSection({
                     title: 'Criteria for Children ≥ 2 Years',
                     icon: '📋',
@@ -130,17 +130,17 @@ export const pecarn: CalculatorModule = {
         const setAgeGroup = (isUnder2: boolean) => {
             if (isUnder2) {
                 if (groupUnder2) {
-                    groupUnder2.style.display = 'block';
+                    groupUnder2.classList.remove('ui-hidden');
                 }
                 if (groupOver2) {
-                    groupOver2.style.display = 'none';
+                    groupOver2.classList.add('ui-hidden');
                 }
             } else {
                 if (groupUnder2) {
-                    groupUnder2.style.display = 'none';
+                    groupUnder2.classList.add('ui-hidden');
                 }
                 if (groupOver2) {
-                    groupOver2.style.display = 'block';
+                    groupOver2.classList.remove('ui-hidden');
                 }
             }
             calculate();

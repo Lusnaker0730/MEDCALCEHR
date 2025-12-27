@@ -340,7 +340,7 @@ export const apacheIi: CalculatorModule = {
                 uiBuilder.createInput({ id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg' }),
                 uiBuilder.createInput({ id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg' }),
                 '</div>',
-                '<div id="pao2_only_inputs" style="display:none;">',
+                '<div id="pao2_only_inputs" class="ui-hidden">',
                 uiBuilder.createInput({ id: 'apache-ii-pao2-only', label: 'PaO₂', unit: 'mmHg' }),
                 '</div>'
             ].join('')
@@ -701,7 +701,7 @@ export const apacheIi: CalculatorModule = {
                     }
 
                     if (resultBox) {
-                        (resultBox as HTMLElement).style.display = 'none';
+                        resultBox.classList.add('ui-hidden');
                     }
                     return;
                 }
@@ -715,7 +715,7 @@ export const apacheIi: CalculatorModule = {
 
                 if (missing.length > 0) {
                     if (resultBox) {
-                        (resultBox as HTMLElement).style.display = 'none';
+                        resultBox.classList.add('ui-hidden');
                     }
                     return;
                 }
@@ -784,7 +784,7 @@ export const apacheIi: CalculatorModule = {
 
                 if (resultBox) {
                     resultBox.classList.add('show');
-                    (resultBox as HTMLElement).style.display = 'block';
+                    resultBox.classList.remove('ui-hidden');
                 }
             } catch (e) {
                 logError(e as Error, { calculator: 'apache-ii', action: 'calculate' });
@@ -820,17 +820,17 @@ export const apacheIi: CalculatorModule = {
                 const target = input as HTMLInputElement;
                 if (target.value === 'fio2_pao2') {
                     if (fio2Inputs) {
-                        fio2Inputs.style.display = 'block';
+                        fio2Inputs.classList.remove('ui-hidden');
                     }
                     if (pao2OnlyInputs) {
-                        pao2OnlyInputs.style.display = 'none';
+                        pao2OnlyInputs.classList.add('ui-hidden');
                     }
                 } else {
                     if (fio2Inputs) {
-                        fio2Inputs.style.display = 'none';
+                        fio2Inputs.classList.add('ui-hidden');
                     }
                     if (pao2OnlyInputs) {
-                        pao2OnlyInputs.style.display = 'block';
+                        pao2OnlyInputs.classList.remove('ui-hidden');
                     }
                 }
                 calculate();

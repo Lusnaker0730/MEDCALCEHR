@@ -281,11 +281,11 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                         .join('');
 
                     scoringContentHTML = `
-                        <table class="ui-table" style="width: 100%;">
+                        <table class="ui-table w-100">
                             <thead>
                                 <tr>
                                     <th>Category</th>
-                                    <th style="text-align: center; width: 80px;">Points</th>
+                                    <th class="text-center ui-scoring-table__header--points">Points</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -326,7 +326,7 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                                 return `
                                 <tr class="ui-interpretation-table__row ${severityClass}">
                                     <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
-                                    <td class="ui-interpretation-table__cell" style="text-align: center;">${item.category || ''}</td>
+                                    <td class="ui-interpretation-table__cell text-center">${item.category || ''}</td>
                                     <td class="ui-interpretation-table__cell">${item.interpretation}</td>
                                 </tr>
                             `;
@@ -344,12 +344,12 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                     const headerCells = headers
                         .map(
                             (h, i) =>
-                                `<th class="ui-interpretation-table__header" style="text-align: ${i === 0 ? 'center' : 'left'};">${h}</th>`
+                                `<th class="ui-interpretation-table__header ${i === 0 ? 'text-center' : ''}">${h}</th>`
                         )
                         .join('');
 
                     interpretationTableHTML = `
-                        <div class="ui-section" style="margin-top: 20px;">
+                        <div class="ui-section mt-20">
                             <div class="ui-section-title">📊 ${interpTitle}</div>
                             <div class="ui-table-wrapper">
                                 <table class="ui-interpretation-table">
@@ -366,7 +366,7 @@ export function createRadioScoreCalculator(config: RadioScoreCalculatorConfig): 
                 }
 
                 formulaSectionHTML = `
-                    <div class="ui-section" style="margin-top: 20px;">
+                    <div class="ui-section mt-20">
                         <div class="ui-section-title">📐 ${formulaTitle}</div>
                         <p class="calculation-note">${calcNote}</p>
                         ${scoringContentHTML}

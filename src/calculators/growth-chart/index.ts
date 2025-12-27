@@ -38,36 +38,36 @@ export const growthChart: CalculatorModule = {
             </div>
             
             <div class="growth-chart-stack">
-                <div class="growth-chart-row" style="display: flex; flex-wrap: wrap; gap: 20px;">
-                    <div class="chart-wrapper" style="flex: 1 1 400px; min-width: 0;">
+                <div class="growth-chart-row">
+                    <div class="chart-wrapper">
                         <div class="chart-header">
                             <h4>Height for Age</h4>
                             <div class="chart-status" id="height-status">Loading...</div>
                         </div>
-                        <div class="chart-container" style="position: relative; height: 300px; width: 100%; overflow: hidden;">
+                        <div class="chart-container">
                             <canvas id="growthChartCanvasHeight"></canvas>
                         </div>
                         <div class="chart-summary" id="height-summary"></div>
                     </div>
                     
-                    <div class="chart-wrapper" style="flex: 1 1 400px; min-width: 0;">
+                    <div class="chart-wrapper">
                         <div class="chart-header">
                             <h4>Weight for Age</h4>
                             <div class="chart-status" id="weight-status">Loading...</div>
                         </div>
-                        <div class="chart-container" style="position: relative; height: 300px; width: 100%; overflow: hidden;">
+                        <div class="chart-container">
                             <canvas id="growthChartCanvasWeight"></canvas>
                         </div>
                         <div class="chart-summary" id="weight-summary"></div>
                     </div>
                 </div>
                 
-                <div class="chart-wrapper" style="margin-top: 20px; min-width: 0;">
+                <div class="chart-wrapper chart-wrapper--full">
                     <div class="chart-header">
                         <h4>BMI for Age</h4>
                         <div class="chart-status" id="bmi-status">Loading...</div>
                     </div>
-                    <div class="chart-container" style="position: relative; height: 300px; width: 100%; overflow: hidden;">
+                    <div class="chart-container">
                         <canvas id="growthChartCanvasBMI"></canvas>
                     </div>
                     <div class="chart-summary" id="bmi-summary"></div>
@@ -95,7 +95,7 @@ export const growthChart: CalculatorModule = {
             ${uiBuilder.createSection({
             title: 'Clinical Interpretation Guidelines',
             content: `
-                    <div class="interpretation-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="interpretation-grid">
                         <div class="interpretation-item">
                             <strong>Normal Growth:</strong>
                             <p>Child follows their established percentile curve consistently over time. Single measurements below P5 or above P95 may be normal for that child.</p>
@@ -663,12 +663,11 @@ export const growthChart: CalculatorModule = {
             bmiData: GrowthDataPoint[]
         ) {
             const velocitySection = document.createElement('div');
-            velocitySection.className = 'growth-velocity-section';
-            velocitySection.style.marginTop = '20px';
+            velocitySection.className = 'growth-velocity-section mt-20';
             velocitySection.innerHTML = uiBuilder.createSection({
                 title: '📈 Growth Velocity Analysis',
                 content: `
-                    <div class="velocity-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="velocity-grid">
                         ${calculateVelocity('Height', data.height, 'cm/month')}
                         ${calculateVelocity('Weight', data.weight, 'g/month', 1000)}
                         ${bmiData.length >= 2 ? calculateVelocity('BMI', bmiData, 'kg/m²/month') : ''}

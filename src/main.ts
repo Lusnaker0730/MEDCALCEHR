@@ -1,12 +1,19 @@
 // src/main.ts
 import { displayPatientInfo } from './utils.js';
-import { calculatorModules, categories } from './calculators/index.js';
+import { calculatorModules, categories, CalculatorMetadata, CategoryKey } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
+
+// Use existing FHIR types from global scope (declared in calculator-page.ts or fhir-data-service.ts)
+
+type SortType = 'a-z' | 'z-a' | 'recently-added' | 'most-used';
+type FilterType = 'all' | 'favorites' | 'recent';
+
 /**
  * Sort calculator list
  */
-function sortCalculators(calculators, sortType) {
+function sortCalculators(calculators: CalculatorMetadata[], sortType: SortType): CalculatorMetadata[] {
     const sorted = [...calculators];
+
     switch (sortType) {
         case 'a-z':
             return sorted.sort((a, b) => a.title.localeCompare(b.title));
@@ -26,11 +33,18 @@ function sortCalculators(calculators, sortType) {
             return sorted;
     }
 }
+
 /**
  * Filter calculator list
  */
-function filterCalculators(calculators, filterType, category, searchTerm = '') {
+function filterCalculators(
+    calculators: CalculatorMetadata[],
+    filterType: FilterType,
+    category: string,
+    searchTerm: string = ''
+): CalculatorMetadata[] {
     let filtered = [...calculators];
+
     // Filter by special filters
     switch (filterType) {
         case 'favorites':
@@ -41,53 +55,65 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
             const recent = favoritesManager.getRecent();
             filtered = recent
                 .map(id => calculators.find(calc => calc.id === id))
-                .filter((calc) => calc !== undefined);
+                .filter((calc): calc is CalculatorMetadata => calc !== undefined);
             return filtered; // Keep order for recent
         case 'all':
         default:
             // No special filter
             break;
     }
+
     // Filter by category
     if (category && category !== 'all') {
         filtered = filtered.filter(calc => calc.category === category);
     }
+
     // Filter by search term
     if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        filtered = filtered.filter(calc => calc.title.toLowerCase().includes(term) ||
-            (calc.description && calc.description.toLowerCase().includes(term)));
+        filtered = filtered.filter(calc =>
+            calc.title.toLowerCase().includes(term) ||
+            (calc.description && calc.description.toLowerCase().includes(term))
+        );
     }
+
     return filtered;
 }
+
 /**
  * Render calculator list
  */
-function renderCalculatorList(calculators, container) {
+function renderCalculatorList(calculators: CalculatorMetadata[], container: HTMLElement): void {
     container.innerHTML = '';
+
     if (calculators.length === 0) {
         container.innerHTML = `<p class="no-results">No calculators found matching your criteria.</p>`;
         return;
     }
+
     calculators.forEach(calc => {
         const link = document.createElement('a');
         link.href = `calculator.html?name=${calc.id}`;
         link.className = 'list-item';
+
         // Content area
         const contentDiv = document.createElement('div');
         contentDiv.className = 'list-item-content';
+
         const title = document.createElement('span');
         title.className = 'list-item-title';
         title.textContent = calc.title;
         contentDiv.appendChild(title);
+
         // Category badge
         if (calc.category) {
             const categoryBadge = document.createElement('span');
             categoryBadge.className = 'category-badge';
-            categoryBadge.textContent = categories[calc.category] || calc.category;
+            categoryBadge.textContent = categories[calc.category as CategoryKey] || calc.category;
             categoryBadge.setAttribute('data-category', calc.category);
             contentDiv.appendChild(categoryBadge);
         }
+
         // Description (if any)
         if (calc.description) {
             const description = document.createElement('span');
@@ -95,7 +121,9 @@ function renderCalculatorList(calculators, container) {
             description.textContent = calc.description;
             contentDiv.appendChild(description);
         }
+
         link.appendChild(contentDiv);
+
         // Favorite button
         const favoriteBtn = document.createElement('button');
         favoriteBtn.className = 'favorite-btn';
@@ -104,27 +132,31 @@ function renderCalculatorList(calculators, container) {
         favoriteBtn.title = favoritesManager.isFavorite(calc.id)
             ? 'Remove from Favorites'
             : 'Add to Favorites';
+
         // Prevent clicking favorite button from triggering link
-        favoriteBtn.addEventListener('click', (e) => {
+        favoriteBtn.addEventListener('click', (e: Event) => {
             e.preventDefault();
             e.stopPropagation();
             const isFavorite = favoritesManager.toggleFavorite(calc.id);
             favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
             favoriteBtn.title = isFavorite ? 'Remove from Favorites' : 'Add to Favorites';
         });
+
         link.appendChild(favoriteBtn);
         container.appendChild(link);
     });
 }
+
 /**
  * Update stats display
  */
-function updateStats(total, showing) {
+function updateStats(total: number, showing: number): void {
     const statsEl = document.getElementById('calculator-stats');
     if (statsEl) {
         statsEl.textContent = `Showing ${showing} / ${total} results`;
     }
 }
+
 /**
  * Main program
  */
@@ -132,49 +164,63 @@ window.onload = () => {
     // Get DOM elements
     const patientInfoEl = document.getElementById('patient-info');
     const calculatorListEl = document.getElementById('calculator-list');
-    const searchBarEl = document.getElementById('search-bar');
-    const sortSelectEl = document.getElementById('sort-select');
-    const categorySelectEl = document.getElementById('category-select');
+    const searchBarEl = document.getElementById('search-bar') as HTMLInputElement | null;
+    const sortSelectEl = document.getElementById('sort-select') as HTMLSelectElement | null;
+    const categorySelectEl = document.getElementById('category-select') as HTMLSelectElement | null;
     const filterBtns = document.querySelectorAll('.filter-btn');
+
     if (!patientInfoEl || !calculatorListEl || !searchBarEl || !sortSelectEl) {
         console.error('Required DOM elements not found');
         return;
     }
+
     // Type narrowing - these are guaranteed to be non-null after the check above
     const patientInfoDiv = patientInfoEl;
     const calculatorListDiv = calculatorListEl;
     const searchBar = searchBarEl;
     const sortSelect = sortSelectEl;
     const categorySelect = categorySelectEl;
+
     // State variables
-    let currentSortType = 'a-z';
-    let currentFilterType = 'all';
-    let currentCategory = 'all';
+    let currentSortType: SortType = 'a-z';
+    let currentFilterType: FilterType = 'all';
+    let currentCategory: string = 'all';
+
     /**
      * Update display
      */
-    function updateDisplay() {
+    function updateDisplay(): void {
         const searchTerm = searchBar.value;
+
         // Filter and sort
-        let filtered = filterCalculators(calculatorModules, currentFilterType, currentCategory, searchTerm);
+        let filtered = filterCalculators(
+            calculatorModules,
+            currentFilterType,
+            currentCategory,
+            searchTerm
+        );
+
         const sorted = sortCalculators(filtered, currentSortType);
+
         // Render
         renderCalculatorList(sorted, calculatorListDiv);
+
         // Update stats
         updateStats(calculatorModules.length, sorted.length);
     }
+
     /**
      * Update filter button states
      */
-    function updateFilterButtons() {
+    function updateFilterButtons(): void {
         filterBtns.forEach(btn => {
             const filterType = btn.getAttribute('data-filter');
             if (filterType === currentFilterType) {
                 btn.classList.add('active');
-            }
-            else {
+            } else {
                 btn.classList.remove('active');
             }
+
             // Update counts
             if (filterType === 'favorites') {
                 const count = favoritesManager.getFavoritesCount();
@@ -185,8 +231,7 @@ window.onload = () => {
                     countBadge.textContent = count.toString();
                     btn.appendChild(countBadge);
                 }
-            }
-            else if (filterType === 'recent') {
+            } else if (filterType === 'recent') {
                 const count = favoritesManager.getRecent().length;
                 btn.querySelector('.filter-count')?.remove();
                 if (count > 0) {
@@ -198,18 +243,21 @@ window.onload = () => {
             }
         });
     }
+
     // ========== Initialize FHIR ==========
     displayPatientInfo(null, patientInfoDiv);
+
     if (typeof window.FHIR !== 'undefined') {
         window.FHIR.oauth2
             .ready()
             .then((client) => {
-            displayPatientInfo(client, patientInfoDiv);
-        })
+                displayPatientInfo(client, patientInfoDiv!);
+            })
             .catch(() => {
-            console.log('FHIR client not ready, patient info will be loaded from cache if available.');
-        });
+                console.log('FHIR client not ready, patient info will be loaded from cache if available.');
+            });
     }
+
     // ========== Initialize Category Selector ==========
     if (categorySelect) {
         // Add All option
@@ -217,33 +265,39 @@ window.onload = () => {
         allOption.value = 'all';
         allOption.textContent = 'All Categories';
         categorySelect.appendChild(allOption);
+
         // Add category options
-        Object.keys(categories).forEach(categoryKey => {
+        (Object.keys(categories) as CategoryKey[]).forEach(categoryKey => {
             const option = document.createElement('option');
             option.value = categoryKey;
             option.textContent = categories[categoryKey];
             categorySelect.appendChild(option);
         });
-        categorySelect.addEventListener('change', (e) => {
-            currentCategory = e.target.value;
+
+        categorySelect.addEventListener('change', (e: Event) => {
+            currentCategory = (e.target as HTMLSelectElement).value;
             updateDisplay();
         });
     }
+
     // ========== Initialize Filter Buttons ==========
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            currentFilterType = btn.getAttribute('data-filter');
+            currentFilterType = btn.getAttribute('data-filter') as FilterType;
             updateFilterButtons();
             updateDisplay();
         });
     });
+
     // ========== Search Function ==========
     searchBar.addEventListener('input', updateDisplay);
+
     // ========== Sort Function ==========
-    sortSelect.addEventListener('change', (e) => {
-        currentSortType = e.target.value;
+    sortSelect.addEventListener('change', (e: Event) => {
+        currentSortType = (e.target as HTMLSelectElement).value as SortType;
         updateDisplay();
     });
+
     // ========== Listen for Favorite Changes ==========
     favoritesManager.addListener(() => {
         updateFilterButtons();
@@ -252,7 +306,9 @@ window.onload = () => {
             updateDisplay();
         }
     });
+
     // ========== Initial Render ==========
     updateDisplay();
     updateFilterButtons();
 };
+

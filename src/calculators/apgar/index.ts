@@ -123,10 +123,7 @@ export const apgarScore = createRadioScoreCalculator({
         ];
 
         const breakdownHTML = components
-            .map(
-                c =>
-                    `<span style="margin-right: 10px;">${c.name}: ${sectionScores[c.key] ?? '-'}</span>`
-            )
+            .map(c => `<span>${c.name}: ${sectionScores[c.key] ?? '-'}</span>`)
             .join('');
 
         let interpretation = '';
@@ -148,7 +145,7 @@ export const apgarScore = createRadioScoreCalculator({
                 interpretation: riskLevel.label,
                 alertClass: `ui-alert-${riskLevel.severity}`
             })}
-            <div class="result-item mt-10" style="font-size: 0.9em; color: #666;">
+            <div class="result-item mt-10 component-breakdown">
                 ${breakdownHTML}
             </div>
             ${uiBuilder.createAlert({

@@ -52,7 +52,7 @@ export const hepScore: CalculatorModule = {
 
         ${uiBuilder.createResultBox({ id: 'hep-score-result', title: 'HEP Score Results' })}
 
-        <div class="ui-section" style="margin-top: 20px;">
+        <div class="ui-section mt-20">
             <div class="ui-section-title">📐 FORMULA</div>
             <p class="calculation-note">Addition of the selected points:</p>
             <div class="ui-table-wrapper">
