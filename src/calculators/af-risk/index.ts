@@ -189,10 +189,26 @@ export const afRisk = createRadioScoreCalculator({
         interpretationTitle: 'Treatment Recommendations',
         tableHeaders: ['Score', 'Recommendation'],
         interpretations: [
-            { score: 'CHA₂DS₂-VASc 0 (male) / 1 (female)', interpretation: 'Antithrombotic therapy may be omitted', severity: 'success' },
-            { score: 'CHA₂DS₂-VASc 1 (male) / 2 (female)', interpretation: 'Oral anticoagulation should be considered', severity: 'warning' },
-            { score: 'CHA₂DS₂-VASc ≥2 (male) / ≥3 (female)', interpretation: 'Oral anticoagulation is recommended', severity: 'warning' },
-            { score: 'HAS-BLED ≥3', interpretation: 'High bleeding risk - use caution with anticoagulants', severity: 'danger' }
+            {
+                score: 'CHA₂DS₂-VASc 0 (male) / 1 (female)',
+                interpretation: 'Antithrombotic therapy may be omitted',
+                severity: 'success'
+            },
+            {
+                score: 'CHA₂DS₂-VASc 1 (male) / 2 (female)',
+                interpretation: 'Oral anticoagulation should be considered',
+                severity: 'warning'
+            },
+            {
+                score: 'CHA₂DS₂-VASc ≥2 (male) / ≥3 (female)',
+                interpretation: 'Oral anticoagulation is recommended',
+                severity: 'warning'
+            },
+            {
+                score: 'HAS-BLED ≥3',
+                interpretation: 'High bleeding risk - use caution with anticoagulants',
+                severity: 'danger'
+            }
         ]
     },
 
@@ -212,8 +228,17 @@ export const afRisk = createRadioScoreCalculator({
         }
 
         // Calculate HAS-BLED Score
-        const hasBledIds = ['hasbled-htn', 'hasbled-renal', 'hasbled-liver', 'hasbled-stroke', 
-                           'hasbled-bleed', 'hasbled-inr', 'hasbled-elderly', 'hasbled-drugs', 'hasbled-alcohol'];
+        const hasBledIds = [
+            'hasbled-htn',
+            'hasbled-renal',
+            'hasbled-liver',
+            'hasbled-stroke',
+            'hasbled-bleed',
+            'hasbled-inr',
+            'hasbled-elderly',
+            'hasbled-drugs',
+            'hasbled-alcohol'
+        ];
         let hasbled_score = 0;
         hasBledIds.forEach(id => {
             hasbled_score += sectionScores[id] || 0;
@@ -221,7 +246,7 @@ export const afRisk = createRadioScoreCalculator({
 
         // Check if female
         const isFemale = (sectionScores['female'] || 0) === 1;
-        
+
         // Adjust threshold for OAC recommendation
         // Men score >=2, Women score >=3 → OAC recommended (female already has +1 from gender)
         const strokeRiskScoreForOAC = isFemale ? cha2ds2vasc_score - 1 : cha2ds2vasc_score;
@@ -244,7 +269,8 @@ export const afRisk = createRadioScoreCalculator({
         if (hasbled_score >= 3) {
             bleedNote = uiBuilder.createAlert({
                 type: 'danger',
-                message: '<strong>⚠️ High Bleeding Risk:</strong> HAS-BLED score is ≥3. Use anticoagulants with caution, address modifiable bleeding risk factors, and schedule regular follow-up.'
+                message:
+                    '<strong>⚠️ High Bleeding Risk:</strong> HAS-BLED score is ≥3. Use anticoagulants with caution, address modifiable bleeding risk factors, and schedule regular follow-up.'
             });
         }
 
@@ -309,7 +335,7 @@ export const afRisk = createRadioScoreCalculator({
                 setRadioValue('hasbled-htn', '1');
                 setRadioValue('htn', '1');
             }
-            
+
             calculate();
         } catch (e) {
             console.warn('FHIR data fetch failed:', e);

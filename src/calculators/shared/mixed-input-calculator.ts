@@ -496,12 +496,13 @@ export function createMixedInputCalculator(config: MixedInputCalculatorConfig): 
                     <p class="description">${config.description}</p>
                 </div>
                 
-                ${config.infoAlert
-                    ? uiBuilder.createAlert({
-                        type: 'info',
-                        message: config.infoAlert
-                    })
-                    : ''
+                ${
+                    config.infoAlert
+                        ? uiBuilder.createAlert({
+                              type: 'info',
+                              message: config.infoAlert
+                          })
+                        : ''
                 }
                 
                 ${sectionsHTML}

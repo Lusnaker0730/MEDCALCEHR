@@ -127,7 +127,7 @@ window.onload = () => {
     const loadCalculatorModule = async (): Promise<void> => {
         try {
             // Use the new loadCalculator function from index.js
-            const calculator = await loadCalculator(calculatorId) as CalculatorModule;
+            const calculator = (await loadCalculator(calculatorId)) as CalculatorModule;
 
             if (!calculator || typeof calculator.generateHTML !== 'function') {
                 throw new Error('Invalid calculator module structure.');
@@ -136,7 +136,10 @@ window.onload = () => {
             card.innerHTML = calculator.generateHTML();
 
             // 初始化計算器的輔助函數
-            const initializeCalculator = (client: FHIRClient | null, patient: Patient | null): void => {
+            const initializeCalculator = (
+                client: FHIRClient | null,
+                patient: Patient | null
+            ): void => {
                 if (typeof calculator.initialize === 'function') {
                     try {
                         calculator.initialize(client, patient, card);
@@ -157,19 +160,16 @@ window.onload = () => {
                 })
                 .catch((error: Error) => {
                     console.error(error);
-                    patientInfoDiv.innerText = 'No patient data available. Please launch from the EHR.';
+                    patientInfoDiv.innerText =
+                        'No patient data available. Please launch from the EHR.';
                     // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
                     initializeCalculator(null, null);
                 });
         } catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            showError(
-                card,
-                '此計算器暫時無法使用。請稍後再試或聯繫技術支援。'
-            );
+            showError(card, '此計算器暫時無法使用。請稍後再試或聯繫技術支援。');
         }
     };
 
     loadCalculatorModule();
 };
-

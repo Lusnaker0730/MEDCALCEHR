@@ -74,7 +74,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'FENa (%)',
-            formula: '<span class="formula-fraction"><span class="numerator">Urine Na × Serum Cr</span><span class="denominator">Serum Na × Urine Cr</span></span> × 100',
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Urine Na × Serum Cr</span><span class="denominator">Serum Na × Urine Cr</span></span> × 100',
             notes: 'Units: Na (mEq/L), Cr (mg/dL or µmol/L)'
         }
     ],

@@ -64,9 +64,11 @@ const MALE_COEFFS: SexShockCoeffs = {
 const baseCalculator = createMixedInputCalculator({
     id: 'sex-shock',
     title: 'SEX-SHOCK Risk Score for Cardiogenic Shock',
-    description: 'Calculates the risk of in-hospital cardiogenic shock in patients with acute coronary syndrome (ACS).',
+    description:
+        'Calculates the risk of in-hospital cardiogenic shock in patients with acute coronary syndrome (ACS).',
 
-    infoAlert: '<strong>Validation Notice:</strong> Use caution in patients who have not undergone PCI.',
+    infoAlert:
+        '<strong>Validation Notice:</strong> Use caution in patients who have not undergone PCI.',
 
     sections: [
         {
@@ -229,11 +231,10 @@ const baseCalculator = createMixedInputCalculator({
         { minScore: 30, maxScore: 100, label: 'Very High Risk', severity: 'danger' }
     ],
 
-
     // Custom calculation returns risk percentage (not score)
-    calculate: (values) => {
-        const getVal = (name: string): number => parseInt(values[name] as string || '0', 10);
-        const getFloat = (name: string): number => parseFloat(values[name] as string || '0');
+    calculate: values => {
+        const getVal = (name: string): number => parseInt((values[name] as string) || '0', 10);
+        const getFloat = (name: string): number => parseFloat((values[name] as string) || '0');
 
         const sex = getVal('sex-shock-sex');
         const isFemale = sex === 1;
@@ -417,7 +418,13 @@ export const sexShock = {
                     ${uiBuilder.createTable({
                         headers: ['Models', 'SEX-SHOCK', '', 'SEX-SHOCK<sub>light</sub>', ''],
                         rows: [
-                            ['<strong>Coefficients</strong>', '<strong>Females</strong>', '<strong>Males</strong>', '<strong>Females</strong>', '<strong>Males</strong>'],
+                            [
+                                '<strong>Coefficients</strong>',
+                                '<strong>Females</strong>',
+                                '<strong>Males</strong>',
+                                '<strong>Females</strong>',
+                                '<strong>Males</strong>'
+                            ],
                             ['(Intercept)', '-7.0804', '-7.9666', '-7.1019', '-8.0009'],
                             ['CRP (mg/L)*', '0.0915', '0.0696', '0.0946', '0.0774'],
                             ['Creatinine (μmol/L)*', '0.6092', '0.6040', '0.6274', '0.6276'],
@@ -425,7 +432,13 @@ export const sexShock = {
                             ['LVEF 35%-50%*', '-1.0953', '-1.2722', '-1.1636', '-1.2994'],
                             ['LVEF <50%*', '-1.9474', '-2.0153', '-2.0078', '-2.0677'],
                             ['Age >70 years', '0.1825', '0.2635', '0.2758', '0.2939'],
-                            ['Presentation as cardiac arrest', '1.2567', '1.1459', '1.2132', '1.1394'],
+                            [
+                                'Presentation as cardiac arrest',
+                                '1.2567',
+                                '1.1459',
+                                '1.2132',
+                                '1.1394'
+                            ],
                             ['Killip class III*', '1.0503', '0.6849', '1.1277', '0.7185'],
                             ['Heart rate >90/min', '0.2408', '0.5386', '0.2610', '0.5346'],
                             ['SBP <125 and PP <45 mmHg', '0.8192', '0.7062', '0.8429', '0.7071'],

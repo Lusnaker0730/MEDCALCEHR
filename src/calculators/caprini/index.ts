@@ -96,14 +96,56 @@ const config: MixedInputCalculatorConfig = {
             title: 'Facts & Figures',
             content: `
                 ${uiBuilder.createTable({
-                    headers: ['Caprini Score', 'Risk category', 'Risk percent*', 'Recommended prophylaxis**', 'Duration of chemoprophylaxis'],
+                    headers: [
+                        'Caprini Score',
+                        'Risk category',
+                        'Risk percent*',
+                        'Recommended prophylaxis**',
+                        'Duration of chemoprophylaxis'
+                    ],
                     rows: [
-                        ['0', 'Lowest', 'Minimal', 'Early frequent ambulation only, OR at discretion of surgical team: Pneumatic compression devices OR graduated compression stockings', 'During hospitalization'],
-                        ['1–2', 'Low', 'Minimal', 'Pneumatic compression devices ± graduated compression stockings', 'During hospitalization'],
-                        ['3–4', 'Moderate', '0.7%', 'Pneumatic compression devices ± graduated compression stockings', 'During hospitalization'],
-                        ['5–6', 'High', '1.8%', 'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin', '7–10 days total'],
-                        ['7–8', 'High', '4.0%', 'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin', '7–10 days total'],
-                        ['≥9', 'Highest', '10.7%', 'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin', '30 days total']
+                        [
+                            '0',
+                            'Lowest',
+                            'Minimal',
+                            'Early frequent ambulation only, OR at discretion of surgical team: Pneumatic compression devices OR graduated compression stockings',
+                            'During hospitalization'
+                        ],
+                        [
+                            '1–2',
+                            'Low',
+                            'Minimal',
+                            'Pneumatic compression devices ± graduated compression stockings',
+                            'During hospitalization'
+                        ],
+                        [
+                            '3–4',
+                            'Moderate',
+                            '0.7%',
+                            'Pneumatic compression devices ± graduated compression stockings',
+                            'During hospitalization'
+                        ],
+                        [
+                            '5–6',
+                            'High',
+                            '1.8%',
+                            'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin',
+                            '7–10 days total'
+                        ],
+                        [
+                            '7–8',
+                            'High',
+                            '4.0%',
+                            'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin',
+                            '7–10 days total'
+                        ],
+                        [
+                            '≥9',
+                            'Highest',
+                            '10.7%',
+                            'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin',
+                            '30 days total'
+                        ]
                     ],
                     stickyFirstColumn: true
                 })}

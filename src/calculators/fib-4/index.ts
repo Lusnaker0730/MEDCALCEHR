@@ -55,7 +55,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'FIB-4 Index',
-            formula: '<span class="formula-fraction"><span class="numerator">Age × AST</span><span class="denominator">Platelets × √ALT</span></span>'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Age × AST</span><span class="denominator">Platelets × √ALT</span></span>'
         }
     ],
     dataRequirements: {

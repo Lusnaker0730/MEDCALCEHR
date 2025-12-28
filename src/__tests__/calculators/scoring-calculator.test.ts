@@ -3,7 +3,12 @@
  */
 
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { createScoringCalculator, createRadioScoreCalculator, createYesNoCalculator, createScoreCalculator } from '../../calculators/shared/scoring-calculator';
+import {
+    createScoringCalculator,
+    createRadioScoreCalculator,
+    createYesNoCalculator,
+    createScoreCalculator
+} from '../../calculators/shared/scoring-calculator';
 
 // Mock console
 jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -39,8 +44,20 @@ describe('Unified Scoring Calculator Factory', () => {
                 }
             ],
             riskLevels: [
-                { minScore: 0, maxScore: 1, risk: 'Low', category: 'Low', severity: 'success' as const },
-                { minScore: 2, maxScore: 3, risk: 'High', category: 'High', severity: 'danger' as const }
+                {
+                    minScore: 0,
+                    maxScore: 1,
+                    risk: 'Low',
+                    category: 'Low',
+                    severity: 'success' as const
+                },
+                {
+                    minScore: 2,
+                    maxScore: 3,
+                    risk: 'High',
+                    category: 'High',
+                    severity: 'danger' as const
+                }
             ]
         };
 
@@ -80,8 +97,20 @@ describe('Unified Scoring Calculator Factory', () => {
                 }
             ],
             riskLevels: [
-                { minScore: 0, maxScore: 2, risk: 'Low', category: 'Low', severity: 'success' as const },
-                { minScore: 3, maxScore: 6, risk: 'High', category: 'High', severity: 'danger' as const }
+                {
+                    minScore: 0,
+                    maxScore: 2,
+                    risk: 'Low',
+                    category: 'Low',
+                    severity: 'success' as const
+                },
+                {
+                    minScore: 3,
+                    maxScore: 6,
+                    risk: 'High',
+                    category: 'High',
+                    severity: 'danger' as const
+                }
             ]
         };
 
@@ -128,8 +157,20 @@ describe('Unified Scoring Calculator Factory', () => {
                 { id: 'q3', label: 'Question 3', points: 3 }
             ],
             riskLevels: [
-                { minScore: 0, maxScore: 2, risk: 'Low', category: 'Low', severity: 'success' as const },
-                { minScore: 3, maxScore: 6, risk: 'High', category: 'High', severity: 'danger' as const }
+                {
+                    minScore: 0,
+                    maxScore: 2,
+                    risk: 'Low',
+                    category: 'Low',
+                    severity: 'success' as const
+                },
+                {
+                    minScore: 3,
+                    maxScore: 6,
+                    risk: 'High',
+                    category: 'High',
+                    severity: 'danger' as const
+                }
             ]
         };
 
@@ -171,12 +212,20 @@ describe('Unified Scoring Calculator Factory', () => {
                 id: 'test-with-formula',
                 title: 'Test With Formula',
                 description: 'Test description',
-                sections: [{
-                    title: 'Test',
-                    options: [{ id: 'opt1', label: 'Option', value: 1 }]
-                }],
+                sections: [
+                    {
+                        title: 'Test',
+                        options: [{ id: 'opt1', label: 'Option', value: 1 }]
+                    }
+                ],
                 riskLevels: [
-                    { minScore: 0, maxScore: 10, risk: 'Test', category: 'Test', severity: 'info' as const }
+                    {
+                        minScore: 0,
+                        maxScore: 10,
+                        risk: 'Test',
+                        category: 'Test',
+                        severity: 'info' as const
+                    }
                 ],
                 formulaSection: {
                     show: true,

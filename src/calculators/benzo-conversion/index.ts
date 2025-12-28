@@ -20,22 +20,22 @@ const conversionMatrix: ConversionMatrix = {
         triazolam: { factor: 0.5, range: [1, 4] }
     },
     chlordiazepoxide: {
-        alprazolam: { factor: 1 / 25, range: [1/50, 1/15] },
-        diazepam: { factor: 1 / 3, range: [1/5, 1/1.25] },
-        clonazepam: { factor: 1 / 20, range: [1/50, 1/6.25] },
-        lorazepam: { factor: 1 / 10, range: [1/25, 1/6.25] },
+        alprazolam: { factor: 1 / 25, range: [1 / 50, 1 / 15] },
+        diazepam: { factor: 1 / 3, range: [1 / 5, 1 / 1.25] },
+        clonazepam: { factor: 1 / 20, range: [1 / 50, 1 / 6.25] },
+        lorazepam: { factor: 1 / 10, range: [1 / 25, 1 / 6.25] },
         oxazepam: { factor: 0.5, range: [0.2, 1.6] },
         temazepam: { factor: 0.5, range: [0.2, 1.6] },
-        triazolam: { factor: 1 / 75, range: [1/100, 1/25] }
+        triazolam: { factor: 1 / 75, range: [1 / 100, 1 / 25] }
     },
     diazepam: {
-        alprazolam: { factor: 1 / 10, range: [1/20, 1/5] },
+        alprazolam: { factor: 1 / 10, range: [1 / 20, 1 / 5] },
         chlordiazepoxide: { factor: 3, range: [1.25, 5] },
-        clonazepam: { factor: 1 / 10, range: [1/20, 1/2.5] },
-        lorazepam: { factor: 1 / 6, range: [1/10, 1/2.5] },
+        clonazepam: { factor: 1 / 10, range: [1 / 20, 1 / 2.5] },
+        lorazepam: { factor: 1 / 6, range: [1 / 10, 1 / 2.5] },
         oxazepam: { factor: 0.5, range: [0.5, 4] },
         temazepam: { factor: 0.5, range: [0.5, 4] },
-        triazolam: { factor: 1 / 20, range: [1/40, 1/10] }
+        triazolam: { factor: 1 / 20, range: [1 / 40, 1 / 10] }
     },
     clonazepam: {
         alprazolam: { factor: 2, range: [0.5, 4] },
@@ -44,7 +44,7 @@ const conversionMatrix: ConversionMatrix = {
         lorazepam: { factor: 2, range: [0.5, 4] },
         oxazepam: { factor: 20, range: [2.5, 40] },
         temazepam: { factor: 20, range: [2.5, 40] },
-        triazolam: { factor: 1 / 4, range: [1/8, 1] }
+        triazolam: { factor: 1 / 4, range: [1 / 8, 1] }
     },
     lorazepam: {
         alprazolam: { factor: 2, range: [1, 4] },
@@ -53,25 +53,25 @@ const conversionMatrix: ConversionMatrix = {
         clonazepam: { factor: 2, range: [0.5, 4] },
         oxazepam: { factor: 10, range: [2.5, 20] },
         temazepam: { factor: 10, range: [2.5, 20] },
-        triazolam: { factor: 1 / 4, range: [1/8, 1/2] }
+        triazolam: { factor: 1 / 4, range: [1 / 8, 1 / 2] }
     },
     oxazepam: {
-        alprazolam: { factor: 1 / 20, range: [1/40, 1/5] },
+        alprazolam: { factor: 1 / 20, range: [1 / 40, 1 / 5] },
         chlordiazepoxide: { factor: 2, range: [0.2, 1.6] },
         diazepam: { factor: 2, range: [0.5, 4] },
-        clonazepam: { factor: 1 / 20, range: [1/40, 1/2.5] },
-        lorazepam: { factor: 1 / 10, range: [1/20, 1/2.5] },
+        clonazepam: { factor: 1 / 20, range: [1 / 40, 1 / 2.5] },
+        lorazepam: { factor: 1 / 10, range: [1 / 20, 1 / 2.5] },
         temazepam: { factor: 1, range: [0.25, 4] },
-        triazolam: { factor: 1 / 40, range: [1/80, 1/10] }
+        triazolam: { factor: 1 / 40, range: [1 / 80, 1 / 10] }
     },
     temazepam: {
-        alprazolam: { factor: 1 / 20, range: [1/40, 1/5] },
+        alprazolam: { factor: 1 / 20, range: [1 / 40, 1 / 5] },
         chlordiazepoxide: { factor: 2, range: [0.2, 1.6] },
         diazepam: { factor: 2, range: [0.5, 4] },
-        clonazepam: { factor: 1 / 20, range: [1/40, 1/2.5] },
-        lorazepam: { factor: 1 / 10, range: [1/20, 1/2.5] },
+        clonazepam: { factor: 1 / 20, range: [1 / 40, 1 / 2.5] },
+        lorazepam: { factor: 1 / 10, range: [1 / 20, 1 / 2.5] },
         oxazepam: { factor: 1, range: [0.25, 4] },
-        triazolam: { factor: 1 / 40, range: [1/80, 1/10] }
+        triazolam: { factor: 1 / 40, range: [1 / 80, 1 / 10] }
     },
     triazolam: {
         alprazolam: { factor: 2, range: [1, 4] },
@@ -87,7 +87,8 @@ const conversionMatrix: ConversionMatrix = {
 export const benzoConversion = createConversionCalculator({
     id: 'benzo-conversion',
     title: 'Benzodiazepine Conversion Calculator',
-    description: 'Provides equivalents between different benzodiazepines based on a conversion factor table.',
+    description:
+        'Provides equivalents between different benzodiazepines based on a conversion factor table.',
 
     drugs: [
         { id: 'alprazolam', name: 'Alprazolam (Xanax)', equivalentDose: 0.5 },
@@ -108,9 +109,11 @@ export const benzoConversion = createConversionCalculator({
         show: false // 苯二氮平類換算比較複雜，不顯示簡單等效表
     },
 
-    warningAlert: '<strong>IMPORTANT:</strong> This calculator should be used as a reference for oral benzodiazepine conversions. Equipotent benzodiazepine doses are reported as ranges due to paucity of literature supporting exact conversions.',
+    warningAlert:
+        '<strong>IMPORTANT:</strong> This calculator should be used as a reference for oral benzodiazepine conversions. Equipotent benzodiazepine doses are reported as ranges due to paucity of literature supporting exact conversions.',
 
-    infoAlert: '<strong>INSTRUCTIONS:</strong> Do not use to calculate initial dose for a benzo-naïve patient.',
+    infoAlert:
+        '<strong>INSTRUCTIONS:</strong> Do not use to calculate initial dose for a benzo-naïve patient.',
 
     additionalInfo: `
         ${uiBuilder.createAlert({

@@ -11,32 +11,118 @@ import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
 // Region-specific coefficients
-const score2DiabetesData: Record<string, Record<string, {
-    age: number;
-    sbp: number;
-    tchol: number;
-    hdl: number;
-    hba1c: number;
-    egfr: number;
-    smoking: number;
-    s010: number;
-    mean_x: number;
-}>> = {
+const score2DiabetesData: Record<
+    string,
+    Record<
+        string,
+        {
+            age: number;
+            sbp: number;
+            tchol: number;
+            hdl: number;
+            hba1c: number;
+            egfr: number;
+            smoking: number;
+            s010: number;
+            mean_x: number;
+        }
+    >
+> = {
     low: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9765, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9859, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9765,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9859,
+            mean_x: 5.215
+        }
     },
     moderate: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9626, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9782, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9626,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9782,
+            mean_x: 5.215
+        }
     },
     high: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9388, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9661, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9388,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9661,
+            mean_x: 5.215
+        }
     },
     very_high: {
-        male: { age: 0.0652, sbp: 0.0139, tchol: 0.2079, hdl: -0.4485, hba1c: 0.0211, egfr: -0.0076, smoking: 0.3838, s010: 0.9038, mean_x: 4.9664 },
-        female: { age: 0.0768, sbp: 0.0152, tchol: 0.147, hdl: -0.5659, hba1c: 0.0232, egfr: -0.0084, smoking: 0.5422, s010: 0.9472, mean_x: 5.215 }
+        male: {
+            age: 0.0652,
+            sbp: 0.0139,
+            tchol: 0.2079,
+            hdl: -0.4485,
+            hba1c: 0.0211,
+            egfr: -0.0076,
+            smoking: 0.3838,
+            s010: 0.9038,
+            mean_x: 4.9664
+        },
+        female: {
+            age: 0.0768,
+            sbp: 0.0152,
+            tchol: 0.147,
+            hdl: -0.5659,
+            hba1c: 0.0232,
+            egfr: -0.0084,
+            smoking: 0.5422,
+            s010: 0.9472,
+            mean_x: 5.215
+        }
     }
 };
 
@@ -45,7 +131,8 @@ export const score2Diabetes = createMixedInputCalculator({
     title: 'SCORE2-Diabetes Risk Score',
     description: 'Predicts 10-year CVD risk in patients with type 2 diabetes (age 40-69).',
 
-    infoAlert: '<strong>Instructions:</strong> Select risk region and enter patient details. Validated for European populations aged 40-69.',
+    infoAlert:
+        '<strong>Instructions:</strong> Select risk region and enter patient details. Validated for European populations aged 40-69.',
 
     sections: [
         {
@@ -161,11 +248,11 @@ export const score2Diabetes = createMixedInputCalculator({
         ]
     },
 
-    calculate: (values) => {
+    calculate: values => {
         const region = values['score2d-region'] as string;
         const sex = values['score2d-sex'] as string;
         const age = values['score2d-age'] as number;
-        const smoking = parseInt(values['score2d-smoking'] as string || '0', 10);
+        const smoking = parseInt((values['score2d-smoking'] as string) || '0', 10);
         const sbp = values['score2d-sbp'] as number;
         const tchol = values['score2d-tchol'] as number;
         const hdl = values['score2d-hdl'] as number;
@@ -204,7 +291,7 @@ export const score2Diabetes = createMixedInputCalculator({
 
     customResultRenderer: (score: number, values: Record<string, number | string | null>) => {
         const age = values['score2d-age'] as number;
-        
+
         if (age && (age < 40 || age > 69)) {
             return uiBuilder.createAlert({
                 type: 'warning',
@@ -277,10 +364,13 @@ export const score2Diabetes = createMixedInputCalculator({
             }
 
             // Total Cholesterol
-            const tcholResult = await fhirDataService.getObservation(LOINC_CODES.CHOLESTEROL_TOTAL, {
-                trackStaleness: true,
-                stalenessLabel: 'Total Cholesterol'
-            });
+            const tcholResult = await fhirDataService.getObservation(
+                LOINC_CODES.CHOLESTEROL_TOTAL,
+                {
+                    trackStaleness: true,
+                    stalenessLabel: 'Total Cholesterol'
+                }
+            );
             if (tcholResult.value !== null) {
                 setValue('score2d-tchol', tcholResult.value.toFixed(0));
             }

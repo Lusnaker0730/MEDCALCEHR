@@ -231,4 +231,3 @@ export interface BaseCalculatorConfig {
     /** 參考文獻 (HTML) */
     reference?: string;
 }
-

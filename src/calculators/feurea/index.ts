@@ -15,7 +15,8 @@ import { uiBuilder } from '../../ui-builder.js';
 const config: MixedInputCalculatorConfig = {
     id: 'feurea',
     title: 'Fractional Excretion of Urea (FEUrea)',
-    description: 'Determines if renal failure is due to prerenal or intrinsic pathology, especially useful in patients on diuretics.',
+    description:
+        'Determines if renal failure is due to prerenal or intrinsic pathology, especially useful in patients on diuretics.',
     infoAlert: `
         <p>FEUrea is particularly useful when FENa is unreliable (e.g., patients on diuretics, contrast nephropathy, or early obstruction).</p>
         <div class="ui-alert ui-alert-info mt-10">
@@ -81,7 +82,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'FEUrea (%)',
-            formula: '<span class="formula-fraction"><span class="numerator">Serum<sub>Cr</sub> × U<sub>Urea</sub></span><span class="denominator">Serum<sub>Urea</sub> × U<sub>Cr</sub></span></span> × 100'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Serum<sub>Cr</sub> × U<sub>Urea</sub></span><span class="denominator">Serum<sub>Urea</sub> × U<sub>Cr</sub></span></span> × 100'
         }
     ],
     calculate: values => {
@@ -127,11 +129,12 @@ const config: MixedInputCalculatorConfig = {
             })}
             ${uiBuilder.createAlert({
                 type: alertType,
-                message: score <= 35 
-                    ? 'Suggests prerenal etiology. Consider volume resuscitation.' 
-                    : score > 50 
-                        ? 'Suggests intrinsic renal injury (ATN). Consider nephrology consultation.'
-                        : 'Further evaluation needed. Clinical correlation required.'
+                message:
+                    score <= 35
+                        ? 'Suggests prerenal etiology. Consider volume resuscitation.'
+                        : score > 50
+                          ? 'Suggests intrinsic renal injury (ATN). Consider nephrology consultation.'
+                          : 'Further evaluation needed. Clinical correlation required.'
             })}
         `;
     },
@@ -172,4 +175,3 @@ export const feurea = {
         return html + factsSection;
     }
 };
-

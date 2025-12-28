@@ -51,7 +51,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'HOMA-IR',
-            formula: '<span class="formula-fraction"><span class="numerator">Fasting Glucose (mg/dL) × Fasting Insulin (µU/mL)</span><span class="denominator">405</span></span>'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Fasting Glucose (mg/dL) × Fasting Insulin (µU/mL)</span><span class="denominator">405</span></span>'
         }
     ],
     calculate: values => {

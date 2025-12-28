@@ -76,7 +76,10 @@ export interface DynamicListCalculatorConfig {
     additionalInfo?: string;
 
     /** 自訂結果渲染函數 */
-    customResultRenderer?: (total: number, items: Array<{ option: string; value: number }>) => string;
+    customResultRenderer?: (
+        total: number,
+        items: Array<{ option: string; value: number }>
+    ) => string;
 }
 
 /** 計算器模組介面 */
@@ -184,7 +187,7 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
                 // 渲染結果
                 if (resultBox) {
                     const resultContent = resultBox.querySelector('.ui-result-content');
-                    
+
                     if (config.customResultRenderer) {
                         if (resultContent) {
                             resultContent.innerHTML = config.customResultRenderer(total, items);
@@ -215,10 +218,14 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
                                     interpretation: riskLevel,
                                     alertClass: `ui-alert-${alertType}`
                                 })}
-                                ${recommendation ? uiBuilder.createAlert({
-                                    type: alertType,
-                                    message: `<strong>Recommendation:</strong> ${recommendation}`
-                                }) : ''}
+                                ${
+                                    recommendation
+                                        ? uiBuilder.createAlert({
+                                              type: alertType,
+                                              message: `<strong>Recommendation:</strong> ${recommendation}`
+                                          })
+                                        : ''
+                                }
                             `;
                         }
                     }
@@ -271,4 +278,3 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
         }
     };
 }
-

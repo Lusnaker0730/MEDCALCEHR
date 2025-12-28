@@ -109,7 +109,8 @@ export const apacheIi = createComplexFormulaCalculator({
     title: 'APACHE II',
     description: 'Calculates APACHE II score for ICU mortality.',
 
-    infoAlert: 'Enter physiologic values from the first 24 hours of ICU admission. Use the worst value for each parameter.',
+    infoAlert:
+        'Enter physiologic values from the first 24 hours of ICU admission. Use the worst value for each parameter.',
 
     autoPopulateAge: 'apache-ii-age',
 
@@ -122,7 +123,11 @@ export const apacheIi = createComplexFormulaCalculator({
                     name: 'chronic',
                     label: '',
                     options: [
-                        { value: '5', label: 'Yes - Non-operative or emergency postoperative (+5)', checked: true },
+                        {
+                            value: '5',
+                            label: 'Yes - Non-operative or emergency postoperative (+5)',
+                            checked: true
+                        },
                         { value: '2', label: 'Yes - Elective postoperative (+2)' },
                         { value: '0', label: 'No (0)' }
                     ]
@@ -140,15 +145,30 @@ export const apacheIi = createComplexFormulaCalculator({
                     placeholder: '36.1 - 37.8',
                     unitToggle: { type: 'temperature', units: ['C', 'F'], default: 'C' }
                 },
-                { id: 'apache-ii-map', label: 'Mean Arterial Pressure', unit: 'mmHg', placeholder: '70 - 100' },
+                {
+                    id: 'apache-ii-map',
+                    label: 'Mean Arterial Pressure',
+                    unit: 'mmHg',
+                    placeholder: '70 - 100'
+                },
                 { id: 'apache-ii-hr', label: 'Heart Rate', unit: 'bpm', placeholder: '60 - 100' },
-                { id: 'apache-ii-rr', label: 'Respiratory Rate', unit: 'breaths/min', placeholder: '12 - 20' }
+                {
+                    id: 'apache-ii-rr',
+                    label: 'Respiratory Rate',
+                    unit: 'breaths/min',
+                    placeholder: '12 - 20'
+                }
             ]
         },
         {
             title: 'Laboratory Values',
             fields: [
-                { id: 'apache-ii-ph', label: 'Arterial pH', step: 0.01, placeholder: '7.38 - 7.44' },
+                {
+                    id: 'apache-ii-ph',
+                    label: 'Arterial pH',
+                    step: 0.01,
+                    placeholder: '7.38 - 7.44'
+                },
                 {
                     id: 'apache-ii-sodium',
                     label: 'Sodium',
@@ -169,8 +189,20 @@ export const apacheIi = createComplexFormulaCalculator({
                     placeholder: '0.7 - 1.3',
                     unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 },
-                { id: 'apache-ii-hct', label: 'Hematocrit', unit: '%', step: 0.1, placeholder: '36 - 51' },
-                { id: 'apache-ii-wbc', label: 'WBC Count', unit: 'x 10⁹/L', step: 0.1, placeholder: '3.7 - 10.7' },
+                {
+                    id: 'apache-ii-hct',
+                    label: 'Hematocrit',
+                    unit: '%',
+                    step: 0.1,
+                    placeholder: '36 - 51'
+                },
+                {
+                    id: 'apache-ii-wbc',
+                    label: 'WBC Count',
+                    unit: 'x 10⁹/L',
+                    step: 0.1,
+                    placeholder: '3.7 - 10.7'
+                },
                 {
                     name: 'arf',
                     label: 'Acute Renal Failure',
@@ -185,7 +217,14 @@ export const apacheIi = createComplexFormulaCalculator({
         {
             title: 'Neurological Assessment',
             fields: [
-                { id: 'apache-ii-gcs', label: 'Glasgow Coma Scale', unit: 'points', placeholder: '3 - 15', min: 3, max: 15 }
+                {
+                    id: 'apache-ii-gcs',
+                    label: 'Glasgow Coma Scale',
+                    unit: 'points',
+                    placeholder: '3 - 15',
+                    min: 3,
+                    max: 15
+                }
             ]
         },
         {
@@ -195,11 +234,22 @@ export const apacheIi = createComplexFormulaCalculator({
                     name: 'oxy_method',
                     label: 'Measurement Method',
                     options: [
-                        { value: 'fio2_pao2', label: 'FiO₂ ≥ 0.5 (uses A-a gradient)', checked: true },
+                        {
+                            value: 'fio2_pao2',
+                            label: 'FiO₂ ≥ 0.5 (uses A-a gradient)',
+                            checked: true
+                        },
                         { value: 'pao2_only', label: 'FiO₂ < 0.5 (uses PaO₂ only)' }
                     ]
                 },
-                { id: 'apache-ii-fio2', label: 'FiO₂', step: 0.01, placeholder: 'e.g. 0.5', min: 0, max: 1 },
+                {
+                    id: 'apache-ii-fio2',
+                    label: 'FiO₂',
+                    step: 0.01,
+                    placeholder: 'e.g. 0.5',
+                    min: 0,
+                    max: 1
+                },
                 { id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg' },
                 { id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg' }
             ]
@@ -230,7 +280,20 @@ export const apacheIi = createComplexFormulaCalculator({
         const oxyMethod = getRadioValue('oxy_method');
 
         // Check if all required fields are present
-        const requiredFields = [temp, map, hr, rr, ph, sodium, potassium, creatinine, hct, wbc, gcs, age];
+        const requiredFields = [
+            temp,
+            map,
+            hr,
+            rr,
+            ph,
+            sodium,
+            potassium,
+            creatinine,
+            hct,
+            wbc,
+            gcs,
+            age
+        ];
         if (requiredFields.some(v => v === null)) return null;
 
         // Calculate APS
@@ -257,7 +320,8 @@ export const apacheIi = createComplexFormulaCalculator({
         const chronicPoints = chronicVal;
 
         const score = aps + agePoints + chronicPoints;
-        const mortality = (Math.exp(-3.517 + 0.146 * score) / (1 + Math.exp(-3.517 + 0.146 * score))) * 100;
+        const mortality =
+            (Math.exp(-3.517 + 0.146 * score) / (1 + Math.exp(-3.517 + 0.146 * score))) * 100;
 
         let severity: 'success' | 'warning' | 'danger' = 'success';
         let riskLevel = 'Low Risk';
@@ -288,14 +352,46 @@ export const apacheIi = createComplexFormulaCalculator({
     },
 
     fhirAutoPopulate: [
-        { fieldId: 'apache-ii-temp', loincCode: LOINC_CODES.TEMPERATURE, formatter: v => v.toFixed(1) },
-        { fieldId: 'apache-ii-hr', loincCode: LOINC_CODES.HEART_RATE, formatter: v => v.toFixed(0) },
-        { fieldId: 'apache-ii-rr', loincCode: LOINC_CODES.RESPIRATORY_RATE, formatter: v => v.toFixed(0) },
+        {
+            fieldId: 'apache-ii-temp',
+            loincCode: LOINC_CODES.TEMPERATURE,
+            formatter: v => v.toFixed(1)
+        },
+        {
+            fieldId: 'apache-ii-hr',
+            loincCode: LOINC_CODES.HEART_RATE,
+            formatter: v => v.toFixed(0)
+        },
+        {
+            fieldId: 'apache-ii-rr',
+            loincCode: LOINC_CODES.RESPIRATORY_RATE,
+            formatter: v => v.toFixed(0)
+        },
         { fieldId: 'apache-ii-ph', loincCode: LOINC_CODES.PH, formatter: v => v.toFixed(2) },
-        { fieldId: 'apache-ii-sodium', loincCode: LOINC_CODES.SODIUM, targetUnit: 'mmol/L', formatter: v => v.toFixed(0) },
-        { fieldId: 'apache-ii-potassium', loincCode: LOINC_CODES.POTASSIUM, targetUnit: 'mmol/L', formatter: v => v.toFixed(1) },
-        { fieldId: 'apache-ii-creatinine', loincCode: LOINC_CODES.CREATININE, targetUnit: 'mg/dL', unitType: 'creatinine', formatter: v => v.toFixed(2) },
-        { fieldId: 'apache-ii-hct', loincCode: LOINC_CODES.HEMATOCRIT, formatter: v => v.toFixed(1) },
+        {
+            fieldId: 'apache-ii-sodium',
+            loincCode: LOINC_CODES.SODIUM,
+            targetUnit: 'mmol/L',
+            formatter: v => v.toFixed(0)
+        },
+        {
+            fieldId: 'apache-ii-potassium',
+            loincCode: LOINC_CODES.POTASSIUM,
+            targetUnit: 'mmol/L',
+            formatter: v => v.toFixed(1)
+        },
+        {
+            fieldId: 'apache-ii-creatinine',
+            loincCode: LOINC_CODES.CREATININE,
+            targetUnit: 'mg/dL',
+            unitType: 'creatinine',
+            formatter: v => v.toFixed(2)
+        },
+        {
+            fieldId: 'apache-ii-hct',
+            loincCode: LOINC_CODES.HEMATOCRIT,
+            formatter: v => v.toFixed(1)
+        },
         { fieldId: 'apache-ii-wbc', loincCode: LOINC_CODES.WBC, formatter: v => v.toFixed(1) },
         { fieldId: 'apache-ii-gcs', loincCode: LOINC_CODES.GCS, formatter: v => v.toFixed(0) }
     ],
@@ -322,7 +418,8 @@ export const apacheIi = createComplexFormulaCalculator({
         ${uiBuilder.createSection({
             title: 'Reference',
             icon: '📚',
-            content: '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
+            content:
+                '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
         })}
     `
 });

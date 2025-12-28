@@ -112,14 +112,29 @@ export const wellsDVT = createYesNoCalculator({
         title: 'FORMULA',
         calculationNote: 'Addition of the selected points:',
         scoringCriteria: [
-            { criteria: 'Active cancer (treatment or palliation within 6 months)', isHeader: false, points: '0 / 1' },
-            { criteria: 'Bedridden recently >3 days or major surgery within 12 weeks', points: '0 / 1' },
-            { criteria: 'Calf swelling >3 cm compared to the other leg (measured 10 cm below tibial tuberosity)', points: '0 / 1' },
+            {
+                criteria: 'Active cancer (treatment or palliation within 6 months)',
+                isHeader: false,
+                points: '0 / 1'
+            },
+            {
+                criteria: 'Bedridden recently >3 days or major surgery within 12 weeks',
+                points: '0 / 1'
+            },
+            {
+                criteria:
+                    'Calf swelling >3 cm compared to the other leg (measured 10 cm below tibial tuberosity)',
+                points: '0 / 1'
+            },
             { criteria: 'Collateral (nonvaricose) superficial veins present', points: '0 / 1' },
             { criteria: 'Entire leg swollen', points: '0 / 1' },
             { criteria: 'Localized tenderness along the deep venous system', points: '0 / 1' },
             { criteria: 'Pitting edema, confined to symptomatic leg', points: '0 / 1' },
-            { criteria: 'Paralysis, paresis, or recent plaster immobilization of the lower extremity', points: '0 / 1' },
+            {
+                criteria:
+                    'Paralysis, paresis, or recent plaster immobilization of the lower extremity',
+                points: '0 / 1'
+            },
             { criteria: 'Previously documented DVT', points: '0 / 1' },
             { criteria: 'Alternative diagnosis to DVT as likely or more likely', points: '0 / −2' }
         ],
@@ -127,7 +142,7 @@ export const wellsDVT = createYesNoCalculator({
             'Note: there are a few versions of the criteria with minor differences based on the study; this one is the most widely validated, based on <a href="https://pubmed.ncbi.nlm.nih.gov/14507948/" target="_blank" class="text-link">Wells 2003</a>.'
         ],
         interpretationTitle: 'FACTS & FIGURES',
-        tableHeaders: ['Wells\' Score', 'Risk group', 'Prevalence of DVT'],
+        tableHeaders: ["Wells' Score", 'Risk group', 'Prevalence of DVT'],
         interpretations: [
             { score: '≤0', category: 'Low/unlikely', interpretation: '5%', severity: 'success' },
             { score: '1-2', category: 'Moderate', interpretation: '17%', severity: 'warning' },

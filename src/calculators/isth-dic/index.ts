@@ -16,7 +16,8 @@ export const isthDic = createMixedInputCalculator({
     title: 'ISTH Criteria for Disseminated Intravascular Coagulation (DIC)',
     description: 'Diagnoses overt disseminated intravascular coagulation (DIC).',
 
-    infoAlert: '<strong>Use only in patients with clinical suspicion for DIC</strong> (e.g. excessive bleeding, malignancy, sepsis, trauma).',
+    infoAlert:
+        '<strong>Use only in patients with clinical suspicion for DIC</strong> (e.g. excessive bleeding, malignancy, sepsis, trauma).',
 
     sections: [
         {
@@ -109,8 +110,20 @@ export const isthDic = createMixedInputCalculator({
     ],
 
     riskLevels: [
-        { minScore: 0, maxScore: 4, label: 'Not Overt DIC', severity: 'success', description: 'Not suggestive of overt DIC. May be non-overt DIC.' },
-        { minScore: 5, maxScore: 999, label: 'Overt DIC', severity: 'danger', description: 'Compatible with overt DIC. Repeat score daily.' }
+        {
+            minScore: 0,
+            maxScore: 4,
+            label: 'Not Overt DIC',
+            severity: 'success',
+            description: 'Not suggestive of overt DIC. May be non-overt DIC.'
+        },
+        {
+            minScore: 5,
+            maxScore: 999,
+            label: 'Overt DIC',
+            severity: 'danger',
+            description: 'Compatible with overt DIC. Repeat score daily.'
+        }
     ],
 
     formulaSection: {
@@ -137,12 +150,21 @@ export const isthDic = createMixedInputCalculator({
         interpretationTitle: 'Interpretation',
         tableHeaders: ['Score', 'Diagnosis'],
         interpretations: [
-            { score: '<5', interpretation: 'Not suggestive of overt DIC. May be non-overt. Repeat within 1-2 days.', severity: 'success' },
-            { score: '≥5', interpretation: 'Compatible with overt DIC. Repeat score daily.', severity: 'danger' }
+            {
+                score: '<5',
+                interpretation:
+                    'Not suggestive of overt DIC. May be non-overt. Repeat within 1-2 days.',
+                severity: 'success'
+            },
+            {
+                score: '≥5',
+                interpretation: 'Compatible with overt DIC. Repeat score daily.',
+                severity: 'danger'
+            }
         ]
     },
 
-    calculate: (values) => {
+    calculate: values => {
         const groups = ['isth-platelet', 'isth-fibrin_marker', 'isth-pt', 'isth-fibrinogen'];
         let score = 0;
 
@@ -164,7 +186,8 @@ export const isthDic = createMixedInputCalculator({
             interpretation = 'Compatible with overt DIC. Repeat score daily.';
             alertType = 'danger';
         } else {
-            interpretation = 'Not suggestive of overt DIC. May be non-overt DIC. Repeat within 1-2 days.';
+            interpretation =
+                'Not suggestive of overt DIC. May be non-overt DIC. Repeat within 1-2 days.';
             alertType = 'success';
         }
 
@@ -207,7 +230,9 @@ export const isthDic = createMixedInputCalculator({
         const plateletInput = container.querySelector('#isth-platelet-input') as HTMLInputElement;
         const ddimerInput = container.querySelector('#isth-ddimer-input') as HTMLInputElement;
         const ptInput = container.querySelector('#isth-pt-input') as HTMLInputElement;
-        const fibrinogenInput = container.querySelector('#isth-fibrinogen-input') as HTMLInputElement;
+        const fibrinogenInput = container.querySelector(
+            '#isth-fibrinogen-input'
+        ) as HTMLInputElement;
 
         if (plateletInput) {
             plateletInput.addEventListener('input', function () {

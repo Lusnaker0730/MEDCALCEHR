@@ -135,13 +135,17 @@ export function createConversionCalculator(config: ConversionCalculatorConfig): 
                     const firstCell = `${drug.name} ${drug.equivalentDose} ${unit}`;
                     const conversions = config.drugs.map(targetDrug => {
                         if (config.conversionMatrix) {
-                            const factor = config.conversionMatrix[drug.id]?.[targetDrug.id]?.factor;
+                            const factor =
+                                config.conversionMatrix[drug.id]?.[targetDrug.id]?.factor;
                             if (factor !== undefined) {
                                 return (drug.equivalentDose * factor).toFixed(2);
                             }
                         }
                         // 使用等效劑量計算
-                        return (drug.equivalentDose / targetDrug.equivalentDose * drug.equivalentDose).toFixed(2);
+                        return (
+                            (drug.equivalentDose / targetDrug.equivalentDose) *
+                            drug.equivalentDose
+                        ).toFixed(2);
                     });
                     return [firstCell, ...conversions];
                 });
@@ -218,12 +222,16 @@ export function createConversionCalculator(config: ConversionCalculatorConfig): 
                                 })}
                             </div>
                         </div>
-                        ${config.showRange ? `
+                        ${
+                            config.showRange
+                                ? `
                             <div id="${config.id}-range" class="mt-10 text-center text-muted ui-hidden">
                                 <span class="label">Estimated Range: </span>
                                 <span id="${config.id}-range-value"></span>
                             </div>
-                        ` : ''}
+                        `
+                                : ''
+                        }
                     `
                 })}
 
@@ -235,12 +243,18 @@ export function createConversionCalculator(config: ConversionCalculatorConfig): 
         initialize(client, patient, container): void {
             uiBuilder.initializeComponents(container);
 
-            const fromDoseEl = container.querySelector(`#${config.id}-from-dose`) as HTMLInputElement;
-            const fromDrugEl = container.querySelector(`#${config.id}-from-drug`) as HTMLSelectElement;
+            const fromDoseEl = container.querySelector(
+                `#${config.id}-from-dose`
+            ) as HTMLInputElement;
+            const fromDrugEl = container.querySelector(
+                `#${config.id}-from-drug`
+            ) as HTMLSelectElement;
             const toDoseEl = container.querySelector(`#${config.id}-to-dose`) as HTMLInputElement;
             const toDrugEl = container.querySelector(`#${config.id}-to-drug`) as HTMLSelectElement;
             const rangeEl = container.querySelector(`#${config.id}-range`) as HTMLElement;
-            const rangeValueEl = container.querySelector(`#${config.id}-range-value`) as HTMLElement;
+            const rangeValueEl = container.querySelector(
+                `#${config.id}-range-value`
+            ) as HTMLElement;
 
             // Make result readonly
             if (toDoseEl) {
@@ -310,4 +324,3 @@ export function createConversionCalculator(config: ConversionCalculatorConfig): 
         }
     };
 }
-

@@ -11,7 +11,8 @@ import { LOINC_CODES } from '../../fhir-codes.js';
 export const ett = createFormulaCalculator({
     id: 'ett',
     title: 'Endotracheal Tube (ETT) Depth and Tidal Volume Calculator',
-    description: 'Calculates estimated ETT depth and tidal volume based on patient height and gender.',
+    description:
+        'Calculates estimated ETT depth and tidal volume based on patient height and gender.',
 
     inputs: [
         {
@@ -62,7 +63,7 @@ export const ett = createFormulaCalculator({
         }
     ],
 
-    calculate: (values) => {
+    calculate: values => {
         const heightCm = values.height as number;
         const gender = values.gender as string;
 
@@ -76,7 +77,7 @@ export const ett = createFormulaCalculator({
         // Ideal Body Weight (IBW) Calculation
         const heightIn = heightCm / 2.54;
         const heightInOver5Ft = Math.max(0, heightIn - 60);
-        
+
         let ibw: number;
         if (gender === 'male') {
             ibw = 50 + 2.3 * heightInOver5Ft;
@@ -109,7 +110,8 @@ export const ett = createFormulaCalculator({
         ];
     },
 
-    infoAlert: '<strong>Note:</strong> These are initial estimates. Adjust based on chest X-ray, end-tidal CO₂, and clinical assessment.',
+    infoAlert:
+        '<strong>Note:</strong> These are initial estimates. Adjust based on chest X-ray, end-tidal CO₂, and clinical assessment.',
 
     footerHTML: `
         <div class="info-section">

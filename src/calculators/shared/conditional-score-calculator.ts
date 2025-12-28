@@ -107,7 +107,9 @@ export interface CalculatorModule {
 /**
  * 創建條件式評分計算器
  */
-export function createConditionalScoreCalculator(config: ConditionalScoreCalculatorConfig): CalculatorModule {
+export function createConditionalScoreCalculator(
+    config: ConditionalScoreCalculatorConfig
+): CalculatorModule {
     return {
         id: config.id,
         title: config.title,
@@ -155,12 +157,18 @@ export function createConditionalScoreCalculator(config: ConditionalScoreCalcula
             // Initialize FHIRDataService
             fhirDataService.initialize(client, patient, container);
 
-            const criteriaContainer = container.querySelector(`#${config.id}-criteria`) as HTMLElement;
-            const conditionInputs = container.querySelectorAll(`input[name="${config.conditionSelector.name}"]`);
+            const criteriaContainer = container.querySelector(
+                `#${config.id}-criteria`
+            ) as HTMLElement;
+            const conditionInputs = container.querySelectorAll(
+                `input[name="${config.conditionSelector.name}"]`
+            );
 
             const getConditionContext = (): Record<string, string> => {
                 const context: Record<string, string> = {};
-                const selected = container.querySelector(`input[name="${config.conditionSelector.name}"]:checked`) as HTMLInputElement;
+                const selected = container.querySelector(
+                    `input[name="${config.conditionSelector.name}"]:checked`
+                ) as HTMLInputElement;
                 if (selected) {
                     context[config.conditionSelector.name] = selected.value;
                 }
@@ -170,7 +178,9 @@ export function createConditionalScoreCalculator(config: ConditionalScoreCalcula
             const calculateScore = () => {
                 let score = 0;
                 criteriaContainer.querySelectorAll('.ui-radio-group').forEach(group => {
-                    const selected = group.querySelector('input[type="radio"]:checked') as HTMLInputElement;
+                    const selected = group.querySelector(
+                        'input[type="radio"]:checked'
+                    ) as HTMLInputElement;
                     if (selected) {
                         score += parseInt(selected.value) || 0;
                     }
@@ -230,7 +240,11 @@ export function createConditionalScoreCalculator(config: ConditionalScoreCalcula
                         } else {
                             // Yes/No type
                             options = [
-                                { label: `No (${criterion.noScore})`, value: criterion.noScore || 0, checked: true },
+                                {
+                                    label: `No (${criterion.noScore})`,
+                                    value: criterion.noScore || 0,
+                                    checked: true
+                                },
                                 {
                                     label: `Yes (${(criterion.yesScore || 0) > 0 ? '+' : ''}${criterion.yesScore})`,
                                     value: criterion.yesScore || 0
@@ -277,10 +291,13 @@ export function createConditionalScoreCalculator(config: ConditionalScoreCalcula
             if (config.fhirAutoPopulate && client) {
                 for (const autoPopConfig of config.fhirAutoPopulate) {
                     try {
-                        const result = await fhirDataService.getObservation(autoPopConfig.loincCode, {
-                            trackStaleness: true,
-                            stalenessLabel: autoPopConfig.criterionId
-                        });
+                        const result = await fhirDataService.getObservation(
+                            autoPopConfig.loincCode,
+                            {
+                                trackStaleness: true,
+                                stalenessLabel: autoPopConfig.criterionId
+                            }
+                        );
                         if (result.value !== null) {
                             const mappedValue = autoPopConfig.valueMapper(result.value);
                             const radioToCheck = criteriaContainer.querySelector(
@@ -299,4 +316,3 @@ export function createConditionalScoreCalculator(config: ConditionalScoreCalcula
         }
     };
 }
-

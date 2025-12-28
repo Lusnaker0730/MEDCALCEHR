@@ -11,7 +11,7 @@ describe('FavoritesManager', () => {
 
     beforeEach(() => {
         localStorageMock = {};
-        
+
         // Mock localStorage
         Object.defineProperty(window, 'localStorage', {
             value: {
@@ -39,7 +39,7 @@ describe('FavoritesManager', () => {
     describe('Favorites', () => {
         test('should add calculator to favorites', () => {
             manager.addFavorite('bmi-bsa');
-            
+
             expect(manager.isFavorite('bmi-bsa')).toBe(true);
             expect(manager.getFavorites()).toContain('bmi-bsa');
         });
@@ -47,7 +47,7 @@ describe('FavoritesManager', () => {
         test('should remove calculator from favorites', () => {
             manager.addFavorite('bmi-bsa');
             manager.removeFavorite('bmi-bsa');
-            
+
             expect(manager.isFavorite('bmi-bsa')).toBe(false);
         });
 
@@ -80,7 +80,7 @@ describe('FavoritesManager', () => {
     describe('Recent Usage', () => {
         test('should add to recent list', () => {
             manager.addToRecent('bmi-bsa');
-            
+
             expect(manager.getRecent()).toContain('bmi-bsa');
         });
 
@@ -235,4 +235,3 @@ describe('FavoritesManager', () => {
         });
     });
 });
-

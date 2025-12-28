@@ -123,7 +123,7 @@ function generateInputHTML(input: InputConfig): string {
             max: input.max,
             step: input.step,
             helpText: input.helpText,
-            unit: unitToggle ? undefined : (input.unit || input.standardUnit),
+            unit: unitToggle ? undefined : input.unit || input.standardUnit,
             unitToggle: unitToggle
                 ? {
                       type: unitToggle.type,
@@ -328,14 +328,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                         // 範圍驗證
                         if (inputConfig.min !== undefined && val < inputConfig.min) {
-                            errors.push(
-                                `${inputConfig.label} must be at least ${inputConfig.min}`
-                            );
+                            errors.push(`${inputConfig.label} must be at least ${inputConfig.min}`);
                         }
                         if (inputConfig.max !== undefined && val > inputConfig.max) {
-                            errors.push(
-                                `${inputConfig.label} must be at most ${inputConfig.max}`
-                            );
+                            errors.push(`${inputConfig.label} must be at most ${inputConfig.max}`);
                         }
 
                         values[inputConfig.id] = val;
@@ -384,9 +380,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                                         value: r.value,
                                         unit: r.unit,
                                         interpretation: r.interpretation,
-                                        alertClass: r.alertClass
-                                            ? `ui-alert-${r.alertClass}`
-                                            : ''
+                                        alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
                                     })
                                 )
                                 .join('');
@@ -509,9 +503,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             if (config.autoPopulateGender) {
                 const gender = fhirDataService.getPatientGender();
                 if (gender) {
-                    const genderEl = container.querySelector(
-                        `#${config.autoPopulateGender}`
-                    ) as HTMLSelectElement | HTMLInputElement;
+                    const genderEl = container.querySelector(`#${config.autoPopulateGender}`) as
+                        | HTMLSelectElement
+                        | HTMLInputElement;
                     if (genderEl) {
                         if (genderEl.tagName === 'SELECT') {
                             (genderEl as HTMLSelectElement).value = gender;
@@ -529,7 +523,8 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             const autoPopulate = async () => {
                 // 從 inputs 配置中收集 LOINC 代碼
                 const numberInputs = allInputs.filter(
-                    (i): i is NumberInputConfig => isNumberInput(i) && !!(i as NumberInputConfig).loincCode
+                    (i): i is NumberInputConfig =>
+                        isNumberInput(i) && !!(i as NumberInputConfig).loincCode
                 );
 
                 if (numberInputs.length > 0 && fhirDataService.isReady()) {

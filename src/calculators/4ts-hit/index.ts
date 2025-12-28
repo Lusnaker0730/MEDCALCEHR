@@ -13,7 +13,8 @@ export const hepScore = createConditionalScoreCalculator({
     title: 'HIT Expert Probability (HEP) Score for Heparin-Induced Thrombocytopenia',
     description: 'Pre-test clinical scoring model for HIT based on broad expert opinion.',
 
-    infoAlert: '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.',
+    infoAlert:
+        '<strong>📋 HIT Assessment</strong><br>Select the type of HIT onset and complete all clinical criteria below.',
 
     conditionSelector: {
         name: 'hit_onset_type',
@@ -40,7 +41,7 @@ export const hepScore = createConditionalScoreCalculator({
                 {
                     id: 'timing_typical',
                     label: 'Timing of platelet count fall (typical onset)',
-                    condition: (ctx) => ctx.hit_onset_type === 'typical',
+                    condition: ctx => ctx.hit_onset_type === 'typical',
                     options: [
                         { label: 'Fall begins <4 days after heparin exposure (-2)', value: -2 },
                         { label: 'Fall begins 4 days after heparin exposure (+2)', value: 2 },
@@ -52,7 +53,7 @@ export const hepScore = createConditionalScoreCalculator({
                 {
                     id: 'timing_rapid',
                     label: 'Timing of platelet count fall (rapid onset)',
-                    condition: (ctx) => ctx.hit_onset_type === 'rapid',
+                    condition: ctx => ctx.hit_onset_type === 'rapid',
                     options: [
                         { label: 'Fall begins <48 hours after heparin re-exposure (+2)', value: 2 },
                         { label: 'Fall begins ≥48 hours after heparin re-exposure (-1)', value: -1 }
@@ -69,20 +70,26 @@ export const hepScore = createConditionalScoreCalculator({
                 {
                     id: 'thrombosis_typical',
                     label: 'Thrombosis (typical onset)',
-                    condition: (ctx) => ctx.hit_onset_type === 'typical',
+                    condition: ctx => ctx.hit_onset_type === 'typical',
                     options: [
                         { label: 'New VTE/ATE ≥4 days after heparin exposure (+3)', value: 3 },
-                        { label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)', value: 2 },
+                        {
+                            label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)',
+                            value: 2
+                        },
                         { label: 'None (0)', value: 0, checked: true }
                     ]
                 },
                 {
                     id: 'thrombosis_rapid',
                     label: 'Thrombosis (rapid onset)',
-                    condition: (ctx) => ctx.hit_onset_type === 'rapid',
+                    condition: ctx => ctx.hit_onset_type === 'rapid',
                     options: [
                         { label: 'New VTE/ATE after heparin exposure (+3)', value: 3 },
-                        { label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)', value: 2 },
+                        {
+                            label: 'Progression of pre-existing VTE/ATE while receiving heparin (+2)',
+                            value: 2
+                        },
                         { label: 'None (0)', value: 0, checked: true }
                     ]
                 },
@@ -183,7 +190,7 @@ export const hepScore = createConditionalScoreCalculator({
         {
             criterionId: 'nadir_platelet',
             loincCode: LOINC_CODES.PLATELETS,
-            valueMapper: (value: number) => value < 20 ? -2 : 2
+            valueMapper: (value: number) => (value < 20 ? -2 : 2)
         }
     ],
 

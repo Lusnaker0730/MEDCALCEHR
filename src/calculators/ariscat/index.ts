@@ -137,10 +137,19 @@ export const ariscat = createRadioScoreCalculator({
             '*Either upper or lower (i.e., URI, bronchitis, pneumonia), with fever and antibiotic treatment.'
         ],
         interpretationTitle: 'Facts & Figures',
-        tableHeaders: ['ARISCAT Score', 'Risk Group', 'Risk of In-Hospital Postoperative Pulmonary Complications*'],
+        tableHeaders: [
+            'ARISCAT Score',
+            'Risk Group',
+            'Risk of In-Hospital Postoperative Pulmonary Complications*'
+        ],
         interpretations: [
             { score: '<26', category: 'Low', interpretation: '1.6%', severity: 'success' },
-            { score: '26-44', category: 'Intermediate', interpretation: '13.3%', severity: 'warning' },
+            {
+                score: '26-44',
+                category: 'Intermediate',
+                interpretation: '13.3%',
+                severity: 'warning'
+            },
             { score: '≥45', category: 'High', interpretation: '42.1%', severity: 'danger' }
         ]
     },

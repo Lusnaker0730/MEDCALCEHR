@@ -13,7 +13,8 @@ export const kawasaki = createRadioScoreCalculator({
     title: 'Kawasaki Disease Diagnostic Criteria',
     description: 'Diagnoses Kawasaki Disease based on clinical criteria.',
 
-    infoAlert: '<strong>Classic Kawasaki Disease:</strong> Fever for ≥5 days PLUS ≥4 of 5 principal clinical features.',
+    infoAlert:
+        '<strong>Classic Kawasaki Disease:</strong> Fever for ≥5 days PLUS ≥4 of 5 principal clinical features.',
 
     sections: [
         {
@@ -28,7 +29,8 @@ export const kawasaki = createRadioScoreCalculator({
         {
             id: 'kawasaki-extrem',
             title: 'Changes in extremities',
-            subtitle: 'Acute: Erythema of palms/soles, edema of hands/feet. Subacute: Periungual peeling.',
+            subtitle:
+                'Acute: Erythema of palms/soles, edema of hands/feet. Subacute: Periungual peeling.',
             options: [
                 { value: '0', label: 'No', checked: true },
                 { value: '1', label: 'Yes' }
@@ -92,9 +94,21 @@ export const kawasaki = createRadioScoreCalculator({
         interpretationTitle: 'Interpretation',
         tableHeaders: ['Criteria Met', 'Diagnosis'],
         interpretations: [
-            { score: 'Fever + ≥4 features', interpretation: 'Classic Kawasaki Disease', severity: 'danger' },
-            { score: 'Fever + 2-3 features', interpretation: 'Consider Incomplete Kawasaki Disease', severity: 'warning' },
-            { score: 'No fever or <2 features', interpretation: 'Criteria not met', severity: 'info' }
+            {
+                score: 'Fever + ≥4 features',
+                interpretation: 'Classic Kawasaki Disease',
+                severity: 'danger'
+            },
+            {
+                score: 'Fever + 2-3 features',
+                interpretation: 'Consider Incomplete Kawasaki Disease',
+                severity: 'warning'
+            },
+            {
+                score: 'No fever or <2 features',
+                interpretation: 'Criteria not met',
+                severity: 'info'
+            }
         ],
         footnotes: [
             'Incomplete Kawasaki Disease should be considered in children with prolonged unexplained fever and fewer than 4 principal features.',
@@ -104,9 +118,10 @@ export const kawasaki = createRadioScoreCalculator({
 
     customResultRenderer: (score: number, sectionScores: Record<string, number>) => {
         const hasFever = (sectionScores['kawasaki-fever'] || 0) === 1;
-        
+
         // Count principal features (all except fever)
-        const featureCount = (sectionScores['kawasaki-extrem'] || 0) +
+        const featureCount =
+            (sectionScores['kawasaki-extrem'] || 0) +
             (sectionScores['kawasaki-exanthem'] || 0) +
             (sectionScores['kawasaki-conjunctival'] || 0) +
             (sectionScores['kawasaki-oral'] || 0) +
@@ -116,10 +131,12 @@ export const kawasaki = createRadioScoreCalculator({
         let alertType: 'info' | 'warning' | 'danger' = 'info';
 
         if (!hasFever) {
-            interpretation = 'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
+            interpretation =
+                'Fever for ≥5 days is required for diagnosis of classic Kawasaki Disease.';
             alertType = 'warning';
         } else if (featureCount >= 4) {
-            interpretation = '<strong>Positive for Kawasaki Disease</strong> (Fever + ≥4 principal features). Start IVIG treatment promptly.';
+            interpretation =
+                '<strong>Positive for Kawasaki Disease</strong> (Fever + ≥4 principal features). Start IVIG treatment promptly.';
             alertType = 'danger';
         } else if (featureCount >= 2) {
             interpretation = `Fever + ${featureCount}/5 features. <strong>Consider Incomplete Kawasaki Disease</strong> if clinical suspicion is high. Obtain echocardiography.`;

@@ -15,7 +15,8 @@ export const bwps = createMixedInputCalculator({
     title: 'Burch-Wartofsky Point Scale (BWPS) for Thyrotoxicosis',
     description: 'Predicts likelihood that biochemical thyrotoxicosis is thyroid storm.',
 
-    infoAlert: '<strong>INSTRUCTIONS:</strong> Use in patients >18 years old with biochemical thyrotoxicosis.',
+    infoAlert:
+        '<strong>INSTRUCTIONS:</strong> Use in patients >18 years old with biochemical thyrotoxicosis.',
 
     sections: [
         {
@@ -52,7 +53,10 @@ export const bwps = createMixedInputCalculator({
                     label: 'Gastrointestinal-hepatic dysfunction',
                     options: [
                         { value: '0', label: 'Absent' },
-                        { value: '10', label: 'Moderate (diarrhea, nausea/vomiting, abdominal pain)' },
+                        {
+                            value: '10',
+                            label: 'Moderate (diarrhea, nausea/vomiting, abdominal pain)'
+                        },
                         { value: '20', label: 'Severe (unexplained jaundice)' }
                     ]
                 },
@@ -103,9 +107,27 @@ export const bwps = createMixedInputCalculator({
     ],
 
     riskLevels: [
-        { minScore: 0, maxScore: 24, label: 'Unlikely', severity: 'success', description: 'Unlikely to represent thyroid storm' },
-        { minScore: 25, maxScore: 44, label: 'Impending Storm', severity: 'warning', description: 'Suggests impending storm' },
-        { minScore: 45, maxScore: 999, label: 'Thyroid Storm', severity: 'danger', description: 'Highly suggestive of thyroid storm' }
+        {
+            minScore: 0,
+            maxScore: 24,
+            label: 'Unlikely',
+            severity: 'success',
+            description: 'Unlikely to represent thyroid storm'
+        },
+        {
+            minScore: 25,
+            maxScore: 44,
+            label: 'Impending Storm',
+            severity: 'warning',
+            description: 'Suggests impending storm'
+        },
+        {
+            minScore: 45,
+            maxScore: 999,
+            label: 'Thyroid Storm',
+            severity: 'danger',
+            description: 'Highly suggestive of thyroid storm'
+        }
     ],
 
     formulaSection: {
@@ -115,9 +137,17 @@ export const bwps = createMixedInputCalculator({
         interpretationTitle: 'Interpretation',
         tableHeaders: ['Score', 'Diagnosis'],
         interpretations: [
-            { score: '<25', interpretation: 'Unlikely to represent thyroid storm', severity: 'success' },
+            {
+                score: '<25',
+                interpretation: 'Unlikely to represent thyroid storm',
+                severity: 'success'
+            },
             { score: '25-44', interpretation: 'Suggests impending storm', severity: 'warning' },
-            { score: '≥45', interpretation: 'Highly suggestive of thyroid storm', severity: 'danger' }
+            {
+                score: '≥45',
+                interpretation: 'Highly suggestive of thyroid storm',
+                severity: 'danger'
+            }
         ]
     },
 
@@ -125,10 +155,18 @@ export const bwps = createMixedInputCalculator({
         'Burch, H. B., & Wartofsky, L. (1993). Life-threatening thyrotoxicosis. Thyroid storm. <em>Endocrinology and metabolism clinics of North America</em>, 22(2), 263-277.'
     ],
 
-    calculate: (values) => {
+    calculate: values => {
         let score = 0;
-        const fields = ['bwps-temp', 'bwps-cns', 'bwps-gi', 'bwps-hr', 'bwps-chf', 'bwps-afib', 'bwps-precip'];
-        
+        const fields = [
+            'bwps-temp',
+            'bwps-cns',
+            'bwps-gi',
+            'bwps-hr',
+            'bwps-chf',
+            'bwps-afib',
+            'bwps-precip'
+        ];
+
         for (const field of fields) {
             const val = values[field];
             if (val !== null && val !== undefined && val !== '') {

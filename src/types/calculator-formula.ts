@@ -268,4 +268,3 @@ export type InputSection = InputSectionConfig;
 export type ComplexFormulaCalculatorConfig = FormulaCalculatorConfig;
 /** @deprecated 使用 ComplexCalculationResult */
 export type CalculationResult = ComplexCalculationResult;
-

@@ -1,6 +1,11 @@
 // src/main.ts
 import { displayPatientInfo } from './utils.js';
-import { calculatorModules, categories, CalculatorMetadata, CategoryKey } from './calculators/index.js';
+import {
+    calculatorModules,
+    categories,
+    CalculatorMetadata,
+    CategoryKey
+} from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
 
 // Use existing FHIR types from global scope (declared in calculator-page.ts or fhir-data-service.ts)
@@ -11,7 +16,10 @@ type FilterType = 'all' | 'favorites' | 'recent';
 /**
  * Sort calculator list
  */
-function sortCalculators(calculators: CalculatorMetadata[], sortType: SortType): CalculatorMetadata[] {
+function sortCalculators(
+    calculators: CalculatorMetadata[],
+    sortType: SortType
+): CalculatorMetadata[] {
     const sorted = [...calculators];
 
     switch (sortType) {
@@ -71,9 +79,10 @@ function filterCalculators(
     // Filter by search term
     if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        filtered = filtered.filter(calc =>
-            calc.title.toLowerCase().includes(term) ||
-            (calc.description && calc.description.toLowerCase().includes(term))
+        filtered = filtered.filter(
+            calc =>
+                calc.title.toLowerCase().includes(term) ||
+                (calc.description && calc.description.toLowerCase().includes(term))
         );
     }
 
@@ -250,11 +259,13 @@ window.onload = () => {
     if (typeof window.FHIR !== 'undefined') {
         window.FHIR.oauth2
             .ready()
-            .then((client) => {
+            .then(client => {
                 displayPatientInfo(client, patientInfoDiv!);
             })
             .catch(() => {
-                console.log('FHIR client not ready, patient info will be loaded from cache if available.');
+                console.log(
+                    'FHIR client not ready, patient info will be loaded from cache if available.'
+                );
             });
     }
 
@@ -311,4 +322,3 @@ window.onload = () => {
     updateDisplay();
     updateFilterButtons();
 };
-

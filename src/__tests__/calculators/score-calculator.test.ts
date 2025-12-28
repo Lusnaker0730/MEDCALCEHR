@@ -47,9 +47,27 @@ describe('Score Calculator Factory', () => {
             }
         ],
         riskLevels: [
-            { minScore: 0, maxScore: 2, risk: 'Low Risk', category: 'Low', severity: 'success' as const },
-            { minScore: 3, maxScore: 5, risk: 'Medium Risk', category: 'Medium', severity: 'warning' as const },
-            { minScore: 6, maxScore: 10, risk: 'High Risk', category: 'High', severity: 'danger' as const }
+            {
+                minScore: 0,
+                maxScore: 2,
+                risk: 'Low Risk',
+                category: 'Low',
+                severity: 'success' as const
+            },
+            {
+                minScore: 3,
+                maxScore: 5,
+                risk: 'Medium Risk',
+                category: 'Medium',
+                severity: 'warning' as const
+            },
+            {
+                minScore: 6,
+                maxScore: 10,
+                risk: 'High Risk',
+                category: 'High',
+                severity: 'danger' as const
+            }
         ]
     };
 
@@ -89,12 +107,12 @@ describe('Score Calculator Factory', () => {
 
         // Find and check some checkboxes
         const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-        
+
         if (checkboxes.length > 0) {
             // Check first two checkboxes
             (checkboxes[0] as HTMLInputElement).checked = true;
             (checkboxes[1] as HTMLInputElement).checked = true;
-            
+
             checkboxes[0].dispatchEvent(new Event('change', { bubbles: true }));
             checkboxes[1].dispatchEvent(new Event('change', { bubbles: true }));
 
@@ -113,7 +131,7 @@ describe('Score Calculator Factory', () => {
         calculator.initialize(null, null, container);
 
         const checkbox = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
-        
+
         if (checkbox) {
             checkbox.checked = true;
             checkbox.dispatchEvent(new Event('change', { bubbles: true }));

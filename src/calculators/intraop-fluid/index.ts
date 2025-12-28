@@ -86,9 +86,21 @@ export const intraopFluid = {
                     ${uiBuilder.createTable({
                         headers: ['Severity', 'Example', 'Fluid Loss'],
                         rows: [
-                            ['Minimal', 'e.g. hernia repair, laparoscopy', '2-4 mL/kg/hr (calculator uses 3 mL/kg/hr)'],
-                            ['Moderate', 'e.g. open cholecystectomy, open appendectomy', '4-6 mL/kg/hr (calculator uses 5 mL/kg/hr)'],
-                            ['Severe', 'e.g. bowel resection', '6-8 mL/kg/hr (calculator uses 7 mL/kg/hr)']
+                            [
+                                'Minimal',
+                                'e.g. hernia repair, laparoscopy',
+                                '2-4 mL/kg/hr (calculator uses 3 mL/kg/hr)'
+                            ],
+                            [
+                                'Moderate',
+                                'e.g. open cholecystectomy, open appendectomy',
+                                '4-6 mL/kg/hr (calculator uses 5 mL/kg/hr)'
+                            ],
+                            [
+                                'Severe',
+                                'e.g. bowel resection',
+                                '6-8 mL/kg/hr (calculator uses 7 mL/kg/hr)'
+                            ]
                         ],
                         stickyFirstColumn: true
                     })}

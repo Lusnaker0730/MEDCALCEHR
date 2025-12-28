@@ -62,7 +62,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'Corrected Level',
-            formula: '<span class="formula-fraction"><span class="numerator">Total Phenytoin</span><span class="denominator">((1 − K) × Albumin / 4.4) + K</span></span>'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Total Phenytoin</span><span class="denominator">((1 − K) × Albumin / 4.4) + K</span></span>'
         },
         {
             label: 'K',

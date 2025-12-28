@@ -60,7 +60,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'Free Water Deficit (L)',
-            formula: 'TBW × (<span class="formula-fraction"><span class="numerator">Current Na</span><span class="denominator">140</span></span> − 1)'
+            formula:
+                'TBW × (<span class="formula-fraction"><span class="numerator">Current Na</span><span class="denominator">140</span></span> − 1)'
         },
         {
             label: 'TBW (Total Body Water)',

@@ -100,7 +100,11 @@ export const apgarScore = createRadioScoreCalculator({
         interpretations: [
             { score: '≥7', interpretation: 'Generally normal', severity: 'success' },
             { score: '4-6', interpretation: 'Fairly low', severity: 'warning' },
-            { score: '≤3', interpretation: 'Critically low, needs intervention', severity: 'danger' }
+            {
+                score: '≤3',
+                interpretation: 'Critically low, needs intervention',
+                severity: 'danger'
+            }
         ]
     },
     customResultRenderer: (score, sectionScores) => {

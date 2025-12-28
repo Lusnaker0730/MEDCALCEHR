@@ -388,7 +388,10 @@ export const sofa = {
                             ['50-99', '+2'],
                             ['20-49', '+3'],
                             ['<20', '+4'],
-                            ['<strong><a href="#gcs" class="text-link">Glasgow Coma Scale</a></strong>', ''],
+                            [
+                                '<strong><a href="#gcs" class="text-link">Glasgow Coma Scale</a></strong>',
+                                ''
+                            ],
                             ['15', '0'],
                             ['13-14', '+1'],
                             ['10-12', '+2'],
@@ -400,7 +403,10 @@ export const sofa = {
                             ['2.0-5.9 (33-101)', '+2'],
                             ['6.0-11.9 (102-204)', '+3'],
                             ['≥12.0 (≥204)', '+4'],
-                            ['<strong>Mean arterial pressure OR administration of vasoactive agents required (listed doses are in units of mcg/kg/min)</strong>', ''],
+                            [
+                                '<strong>Mean arterial pressure OR administration of vasoactive agents required (listed doses are in units of mcg/kg/min)</strong>',
+                                ''
+                            ],
                             ['No hypotension', '0'],
                             ['MAP <70 mmHg', '+1'],
                             ['DOPamine ≤5 or DOBUTamine (any dose)', '+2'],
@@ -427,7 +433,11 @@ export const sofa = {
                 content: `
                     <p class="mb-15"><strong>Interpretation:</strong></p>
                     ${uiBuilder.createTable({
-                        headers: ['SOFA Score', 'Mortality if initial score', 'Mortality if highest score'],
+                        headers: [
+                            'SOFA Score',
+                            'Mortality if initial score',
+                            'Mortality if highest score'
+                        ],
                         rows: [
                             ['0-1', '0.0%', '0.0%'],
                             ['2-3', '6.4%', '1.5%'],

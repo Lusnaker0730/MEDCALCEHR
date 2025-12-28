@@ -196,7 +196,6 @@ export class ImageLazyLoader {
             }
         };
 
-
         tempImg.onerror = () => {
             img.classList.add('error');
             console.error(`Failed to load image: ${src}`);
@@ -274,12 +273,18 @@ export function preloadResources(resources: Resource[]): void {
  * @param callback - Function to execute when idle
  * @param options - Options for requestIdleCallback
  */
-export function onIdle(callback: IdleRequestCallback, options: IdleCallbackOptions = { timeout: 2000 }): void {
+export function onIdle(
+    callback: IdleRequestCallback,
+    options: IdleCallbackOptions = { timeout: 2000 }
+): void {
     if ('requestIdleCallback' in window) {
         requestIdleCallback(callback, options);
     } else {
         // Fallback to setTimeout
-        setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 } as IdleDeadline), 100);
+        setTimeout(
+            () => callback({ didTimeout: false, timeRemaining: () => 0 } as IdleDeadline),
+            100
+        );
     }
 }
 
@@ -329,4 +334,3 @@ export default {
     loadOnIdle,
     initImageLazyLoading
 };
-

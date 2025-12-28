@@ -256,4 +256,3 @@ export type RadioScoreCalculatorConfig = ScoringCalculatorConfig;
 export type ScoreCalculatorConfig = ScoringCalculatorConfig;
 /** @deprecated 使用 ScoringCalculatorConfig */
 export type YesNoCalculatorConfig = ScoringCalculatorConfig;
-

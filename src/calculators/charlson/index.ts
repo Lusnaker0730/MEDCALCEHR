@@ -31,7 +31,8 @@ const config: MixedInputCalculatorConfig = {
     id: 'charlson',
     title: 'Charlson Comorbidity Index (CCI)',
     description: 'Predicts 10-year survival in patients with multiple comorbidities.',
-    infoAlert: 'The Charlson Comorbidity Index predicts 10-year mortality based on age and 17 comorbid conditions. Higher scores indicate more severe comorbidity burden.',
+    infoAlert:
+        'The Charlson Comorbidity Index predicts 10-year mortality based on age and 17 comorbid conditions. Higher scores indicate more severe comorbidity burden.',
 
     formulas: [
         {
@@ -41,23 +42,55 @@ const config: MixedInputCalculatorConfig = {
                 ${uiBuilder.createTable({
                     headers: ['Variable', 'Definition', 'Points'],
                     rows: [
-                        ['Myocardial infarction', 'History of definite or probable MI (EKG changes and/or enzyme changes)', '1'],
-                        ['Congestive heart failure', 'Exertional or paroxysmal nocturnal dyspnea and has responded to digitalis, diuretics, or afterload reducing agents', '1'],
-                        ['Peripheral vascular disease', 'Intermittent claudication or past bypass for chronic arterial insufficiency, history of gangrene or acute arterial insufficiency, or untreated thoracic or abdominal aneurysm (≥6 cm)', '1'],
-                        ['Cerebrovascular accident or transient ischemic attack', 'History of a cerebrovascular accident with minor or no residua and transient ischemic attacks', '1'],
+                        [
+                            'Myocardial infarction',
+                            'History of definite or probable MI (EKG changes and/or enzyme changes)',
+                            '1'
+                        ],
+                        [
+                            'Congestive heart failure',
+                            'Exertional or paroxysmal nocturnal dyspnea and has responded to digitalis, diuretics, or afterload reducing agents',
+                            '1'
+                        ],
+                        [
+                            'Peripheral vascular disease',
+                            'Intermittent claudication or past bypass for chronic arterial insufficiency, history of gangrene or acute arterial insufficiency, or untreated thoracic or abdominal aneurysm (≥6 cm)',
+                            '1'
+                        ],
+                        [
+                            'Cerebrovascular accident or transient ischemic attack',
+                            'History of a cerebrovascular accident with minor or no residua and transient ischemic attacks',
+                            '1'
+                        ],
                         ['Dementia', 'Chronic cognitive deficit', '1'],
                         ['Chronic pulmonary disease', '—', '1'],
                         ['Connective tissue disease', '—', '1'],
-                        ['Peptic ulcer disease', 'Any history of treatment for ulcer disease or history of ulcer bleeding', '1'],
-                        ['Mild liver disease', 'Mild = chronic hepatitis (or cirrhosis without portal hypertension)', '1'],
+                        [
+                            'Peptic ulcer disease',
+                            'Any history of treatment for ulcer disease or history of ulcer bleeding',
+                            '1'
+                        ],
+                        [
+                            'Mild liver disease',
+                            'Mild = chronic hepatitis (or cirrhosis without portal hypertension)',
+                            '1'
+                        ],
                         ['Uncomplicated diabetes', '—', '1'],
                         ['Hemiplegia', '—', '2'],
-                        ['Moderate to severe chronic kidney disease', 'Severe = on dialysis, status post kidney transplant, uremia; moderate = creatinine >3 mg/dL (0.27 mmol/L)', '2'],
+                        [
+                            'Moderate to severe chronic kidney disease',
+                            'Severe = on dialysis, status post kidney transplant, uremia; moderate = creatinine >3 mg/dL (0.27 mmol/L)',
+                            '2'
+                        ],
                         ['Diabetes with end-organ damage', '—', '2'],
                         ['Localized solid tumor', '—', '2'],
                         ['Leukemia', '—', '2'],
                         ['Lymphoma', '—', '2'],
-                        ['Moderate to severe liver disease', 'Severe = cirrhosis and portal hypertension with variceal bleeding history; moderate = cirrhosis and portal hypertension but no variceal bleeding history', '3'],
+                        [
+                            'Moderate to severe liver disease',
+                            'Severe = cirrhosis and portal hypertension with variceal bleeding history; moderate = cirrhosis and portal hypertension but no variceal bleeding history',
+                            '3'
+                        ],
                         ['Metastatic solid tumor', '—', '6'],
                         ['AIDS*', '—', '6']
                     ],
@@ -172,7 +205,8 @@ const config: MixedInputCalculatorConfig = {
                 {
                     name: 'liver',
                     label: 'Liver disease',
-                    helpText: 'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
+                    helpText:
+                        'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
                     type: 'radio',
                     options: [
                         { value: '0', label: 'None (+0)', checked: true },
@@ -251,7 +285,7 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    calculate: (values) => {
+    calculate: values => {
         let score = 0;
         // Access values by name (which are radio values, so strings)
         Object.values(values).forEach(val => {
@@ -262,22 +296,22 @@ const config: MixedInputCalculatorConfig = {
         });
         return score;
     },
-    customResultRenderer: (score) => {
+    customResultRenderer: score => {
         // Adjusted formula from literature
         const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9));
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Charlson Comorbidity Index',
-            value: score.toString(),
-            unit: 'points'
-        })}
+                label: 'Charlson Comorbidity Index',
+                value: score.toString(),
+                unit: 'points'
+            })}
             
             ${uiBuilder.createResultItem({
-            label: 'Estimated 10-year survival',
-            value: `${survival.toFixed(0)}%`,
-            unit: ''
-        })}
+                label: 'Estimated 10-year survival',
+                value: `${survival.toFixed(0)}%`,
+                unit: ''
+            })}
             
              <div class="info-section mt-20">
                 <h4>📚 References</h4>
@@ -493,7 +527,6 @@ const config: MixedInputCalculatorConfig = {
                     }
                 })
                 .catch(e => console.warn('Error fetching creatinine:', e));
-
         }
 
         // Initial calculation

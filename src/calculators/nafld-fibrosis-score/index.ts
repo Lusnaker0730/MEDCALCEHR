@@ -92,7 +92,8 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'NAFLD Score',
-            formula: '−1.675 + (0.037 × age [years]) + (0.094 × BMI [kg/m²]) + (1.13 × IFG/diabetes [yes = 1, no = 0]) + (0.99 × AST/ALT ratio) − (0.013 × platelet count [×10⁹/L]) − (0.66 × albumin [g/dL])'
+            formula:
+                '−1.675 + (0.037 × age [years]) + (0.094 × BMI [kg/m²]) + (1.13 × IFG/diabetes [yes = 1, no = 0]) + (0.99 × AST/ALT ratio) − (0.013 × platelet count [×10⁹/L]) − (0.66 × albumin [g/dL])'
         }
     ],
     formulaSection: {

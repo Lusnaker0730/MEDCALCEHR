@@ -170,4 +170,3 @@ export type {
     ScoreCategory,
     ScoreInterpretation
 } from './calculator-specialized.js';
-

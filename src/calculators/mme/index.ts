@@ -54,7 +54,8 @@ export const mme = createDynamicListCalculator({
             maxValue: Infinity,
             label: 'High Risk (≥90 MME)',
             severity: 'danger',
-            recommendation: 'Avoid increasing dosage. Justify decision to titrate >90 MME/day. Consider specialist referral.'
+            recommendation:
+                'Avoid increasing dosage. Justify decision to titrate >90 MME/day. Consider specialist referral.'
         }
     ],
 
@@ -71,12 +72,14 @@ export const mme = createDynamicListCalculator({
 
         ${uiBuilder.createAlert({
             type: 'info',
-            message: '<h4>📊 Conversion Factors</h4><div class="ui-data-table"><table><thead><tr><th>Opioid</th><th>Factor</th></tr></thead><tbody><tr><td>Morphine, Hydrocodone</td><td>1</td></tr><tr><td>Codeine</td><td>0.15</td></tr><tr><td>Oxycodone</td><td>1.5</td></tr><tr><td>Hydromorphone, Methadone (1-20mg)</td><td>4</td></tr><tr><td>Oxymorphone</td><td>3</td></tr><tr><td>Fentanyl transdermal (mcg/hr)</td><td>2.4</td></tr><tr><td>Methadone (>20mg)</td><td>8-12 (dose dependent)</td></tr></tbody></table></div>'
+            message:
+                '<h4>📊 Conversion Factors</h4><div class="ui-data-table"><table><thead><tr><th>Opioid</th><th>Factor</th></tr></thead><tbody><tr><td>Morphine, Hydrocodone</td><td>1</td></tr><tr><td>Codeine</td><td>0.15</td></tr><tr><td>Oxycodone</td><td>1.5</td></tr><tr><td>Hydromorphone, Methadone (1-20mg)</td><td>4</td></tr><tr><td>Oxymorphone</td><td>3</td></tr><tr><td>Fentanyl transdermal (mcg/hr)</td><td>2.4</td></tr><tr><td>Methadone (>20mg)</td><td>8-12 (dose dependent)</td></tr></tbody></table></div>'
         })}
 
         ${uiBuilder.createAlert({
             type: 'warning',
-            message: '<h4>⚠️ CDC Recommendations</h4><ul class="info-list"><li><strong>≥50 MME/day:</strong> Increased risk. Reassess benefits/risks.</li><li><strong>≥90 MME/day:</strong> Avoid if possible. Consider specialist referral.</li></ul>'
+            message:
+                '<h4>⚠️ CDC Recommendations</h4><ul class="info-list"><li><strong>≥50 MME/day:</strong> Increased risk. Reassess benefits/risks.</li><li><strong>≥90 MME/day:</strong> Avoid if possible. Consider specialist referral.</li></ul>'
         })}
     `
 });

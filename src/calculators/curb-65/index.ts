@@ -75,9 +75,24 @@ const config: YesNoCalculatorConfig = {
         interpretationTitle: 'FACTS & FIGURES',
         tableHeaders: ['CURB-65 Score', 'Mortality Risk', 'Treatment'],
         interpretations: [
-            { score: '0', category: 'Low', interpretation: 'Likely suitable for home treatment', severity: 'success' },
-            { score: '1 or 2', category: 'Intermediate', interpretation: 'Consider hospital referral', severity: 'warning' },
-            { score: '3 or 4', category: 'High', interpretation: 'Urgent hospital admission', severity: 'danger' }
+            {
+                score: '0',
+                category: 'Low',
+                interpretation: 'Likely suitable for home treatment',
+                severity: 'success'
+            },
+            {
+                score: '1 or 2',
+                category: 'Intermediate',
+                interpretation: 'Consider hospital referral',
+                severity: 'warning'
+            },
+            {
+                score: '3 or 4',
+                category: 'High',
+                interpretation: 'Urgent hospital admission',
+                severity: 'danger'
+            }
         ]
     },
     riskLevels: [

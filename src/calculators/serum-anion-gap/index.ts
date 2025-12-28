@@ -84,14 +84,22 @@ const config: MixedInputCalculatorConfig = {
         title: 'FACTS & FIGURES',
         calculationNote: 'Interpretation:',
         footnotes: [
-            'The delta ratio is the ratio of the amount of additional anion in a body to the amount of additional H⁺. The anion\'s volume of distribution and its excretion affect this ratio. Organic acids with a greater distribution may produce lower anion gaps compared to inorganic acids, which may be confined to the extracellular compartment.'
+            "The delta ratio is the ratio of the amount of additional anion in a body to the amount of additional H⁺. The anion's volume of distribution and its excretion affect this ratio. Organic acids with a greater distribution may produce lower anion gaps compared to inorganic acids, which may be confined to the extracellular compartment."
         ],
         tableHeaders: ['Delta ratio', 'Suggests...'],
         interpretations: [
             { score: '<0.4', interpretation: 'Pure normal anion gap acidosis', severity: 'info' },
-            { score: '0.4-0.8', interpretation: 'Mixed high and normal anion gap acidosis', severity: 'warning' },
+            {
+                score: '0.4-0.8',
+                interpretation: 'Mixed high and normal anion gap acidosis',
+                severity: 'warning'
+            },
             { score: '0.8-2.0', interpretation: 'Pure anion gap acidosis', severity: 'danger' },
-            { score: '>2', interpretation: 'High anion gap acidosis with pre-existing metabolic alkalosis', severity: 'danger' }
+            {
+                score: '>2',
+                interpretation: 'High anion gap acidosis with pre-existing metabolic alkalosis',
+                severity: 'danger'
+            }
         ]
     },
     calculate: values => {

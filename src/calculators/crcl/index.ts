@@ -74,11 +74,13 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'Male',
-            formula: '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight</span><span class="denominator">72 × Serum Creatinine</span></span>'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight</span><span class="denominator">72 × Serum Creatinine</span></span>'
         },
         {
             label: 'Female',
-            formula: '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight × 0.85</span><span class="denominator">72 × Serum Creatinine</span></span>'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight × 0.85</span><span class="denominator">72 × Serum Creatinine</span></span>'
         }
     ],
     calculate: values => {

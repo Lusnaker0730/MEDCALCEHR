@@ -280,9 +280,11 @@ export class FavoritesManager {
         });
 
         // Trigger global event
-        window.dispatchEvent(new CustomEvent('favoriteschange', {
-            detail: { type, calculatorId }
-        }));
+        window.dispatchEvent(
+            new CustomEvent('favoriteschange', {
+                detail: { type, calculatorId }
+            })
+        );
     }
 
     // ========== Data Management ==========
@@ -346,4 +348,3 @@ export class FavoritesManager {
 export const favoritesManager = new FavoritesManager();
 
 export default favoritesManager;
-

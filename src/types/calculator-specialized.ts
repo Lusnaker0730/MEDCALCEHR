@@ -397,4 +397,3 @@ export type ScoreCriterion = ConditionalScoreCriterion;
 export type ScoreCategory = ConditionalScoreCategory;
 /** @deprecated 使用 ConditionalScoreInterpretation */
 export type ScoreInterpretation = ConditionalScoreInterpretation;
-

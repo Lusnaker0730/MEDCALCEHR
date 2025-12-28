@@ -13,7 +13,8 @@ import { fhirDataService } from '../../fhir-data-service.js';
 export const sirs = createRadioScoreCalculator({
     id: 'sirs',
     title: 'SIRS Criteria for Systemic Inflammatory Response',
-    description: 'Evaluates SIRS criteria and progression to sepsis and septic shock using clinical parameters.',
+    description:
+        'Evaluates SIRS criteria and progression to sepsis and septic shock using clinical parameters.',
 
     infoAlert: `
         <div class="lab-values-summary">
@@ -128,7 +129,8 @@ export const sirs = createRadioScoreCalculator({
 
     customResultRenderer: (score: number, sectionScores: Record<string, number>) => {
         // Calculate SIRS count (first 4 sections only)
-        const sirsCount = (sectionScores['sirs-temp'] || 0) +
+        const sirsCount =
+            (sectionScores['sirs-temp'] || 0) +
             (sectionScores['sirs-hr'] || 0) +
             (sectionScores['sirs-rr'] || 0) +
             (sectionScores['sirs-wbc'] || 0);
@@ -145,26 +147,31 @@ export const sirs = createRadioScoreCalculator({
             if (hasInfection) {
                 if (hasHypotension) {
                     diagnosis = 'Septic Shock';
-                    description = 'Sepsis with persistent hypotension despite adequate fluid resuscitation.';
+                    description =
+                        'Sepsis with persistent hypotension despite adequate fluid resuscitation.';
                     alertClass = 'danger';
-                    recommendations = 'Urgent ICU admission; Vasopressor support; Aggressive fluid management; Multiorgan support.';
+                    recommendations =
+                        'Urgent ICU admission; Vasopressor support; Aggressive fluid management; Multiorgan support.';
                 } else {
                     diagnosis = 'Sepsis';
                     description = 'SIRS with confirmed or suspected infection.';
                     alertClass = 'danger';
-                    recommendations = 'Immediate antibiotic therapy; Source control measures; Fluid resuscitation; ICU consideration.';
+                    recommendations =
+                        'Immediate antibiotic therapy; Source control measures; Fluid resuscitation; ICU consideration.';
                 }
             } else {
                 diagnosis = 'SIRS';
                 description = 'Systemic Inflammatory Response Syndrome.';
                 alertClass = 'warning';
-                recommendations = 'Investigate underlying cause; Enhanced monitoring; Consider infection workup; Supportive care as needed.';
+                recommendations =
+                    'Investigate underlying cause; Enhanced monitoring; Consider infection workup; Supportive care as needed.';
             }
         } else {
             diagnosis = 'Normal';
             description = 'SIRS criteria not met (< 2 criteria).';
             alertClass = 'success';
-            recommendations = 'Continue routine monitoring; Address underlying conditions; Reassess if clinical change.';
+            recommendations =
+                'Continue routine monitoring; Address underlying conditions; Reassess if clinical change.';
         }
 
         return `

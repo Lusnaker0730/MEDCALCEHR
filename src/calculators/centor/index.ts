@@ -191,7 +191,11 @@ export const centor = {
                         ['1', '5-10%', 'No further testing or antibiotics.'],
                         ['2', '11-17%', 'Optional rapid strep testing and/or culture.'],
                         ['3', '28-35%', 'Consider rapid strep testing and/or culture.'],
-                        ['≥4', '51-53%', 'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.']
+                        [
+                            '≥4',
+                            '51-53%',
+                            'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
+                        ]
                     ],
                     stickyFirstColumn: true
                 })}

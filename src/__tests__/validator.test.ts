@@ -3,10 +3,7 @@
  */
 
 import { describe, expect, test } from '@jest/globals';
-import { 
-    validateCalculatorInput, 
-    ValidationRules
-} from '../validator';
+import { validateCalculatorInput, ValidationRules } from '../validator';
 
 describe('Validator Module', () => {
     describe('validateCalculatorInput', () => {

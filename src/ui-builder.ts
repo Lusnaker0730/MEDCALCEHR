@@ -1,4 +1,4 @@
-                                            22222222222222222222222222222222// Universal UI Component Builder for MedCalcEHR Calculators
+22222222222222222222222222222222; // Universal UI Component Builder for MedCalcEHR Calculators
 
 import { UnitConverter } from './unit-converter.js';
 

@@ -9,7 +9,8 @@ const config: MixedInputCalculatorConfig = {
     id: 'meld-na',
     title: 'MELD-Na (UNOS/OPTN)',
     description: 'Quantifies end-stage liver disease for transplant planning with sodium.',
-    infoAlert: 'MELD-Na has superior predictive accuracy compared to MELD alone for 90-day mortality. Enter laboratory values below for automatic calculation.',
+    infoAlert:
+        'MELD-Na has superior predictive accuracy compared to MELD alone for 90-day mortality. Enter laboratory values below for automatic calculation.',
     sections: [
         {
             title: 'Laboratory Values',
@@ -38,7 +39,11 @@ const config: MixedInputCalculatorConfig = {
                     type: 'number',
                     loincCode: LOINC_CODES.CREATININE,
                     unit: 'mg/dL',
-                    unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+                    unitToggle: {
+                        type: 'creatinine',
+                        units: ['mg/dL', 'µmol/L'],
+                        default: 'mg/dL'
+                    },
                     step: 0.1
                 },
                 {
@@ -84,7 +89,7 @@ const config: MixedInputCalculatorConfig = {
             `
         }
     ],
-    calculate: (values) => {
+    calculate: values => {
         const bili = values['bili'] as number;
         const inr = values['inr'] as number;
         const creat = values['creat'] as number;
@@ -137,7 +142,7 @@ const config: MixedInputCalculatorConfig = {
         const onDialysis = values['dialysis'] === 'yes';
 
         // Re-calculate intermediate values for breakdown display
-        // Note: we don't recalculate internal adjusted variables here easily without duplication, 
+        // Note: we don't recalculate internal adjusted variables here easily without duplication,
         // but we can show the inputs used.
         // Actually for the breakdown logic "adjusted values" are useful.
         // Let's duplicate the adjustment logic slightly for display purposes or just show raw inputs.
@@ -185,12 +190,12 @@ const config: MixedInputCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'MELD-Na Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
-            alertClass: alertClass
-        })}
+                label: 'MELD-Na Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
+                alertClass: alertClass
+            })}
             
             <div class="mt-15 text-sm text-muted p-10">
                 <strong>Calculation Breakdown:</strong><br>
@@ -200,9 +205,10 @@ const config: MixedInputCalculatorConfig = {
                 • Adjusted Creatinine: ${adjustedCreat.toFixed(1)} mg/dL ${onDialysis ? '(capped for dialysis)' : ''}
             </div>
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: '<strong>Clinical Note:</strong> Used for liver transplant priority allocation. Scores should be updated regularly as clinical status changes.'
-        })}
+                type: 'warning',
+                message:
+                    '<strong>Clinical Note:</strong> Used for liver transplant priority allocation. Scores should be updated regularly as clinical status changes.'
+            })}
         `;
     }
 };

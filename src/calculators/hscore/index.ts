@@ -5,7 +5,10 @@
  * 診斷反應性噬血細胞症候群
  */
 
-import { createRadioScoreCalculator, RadioScoreCalculatorConfig } from '../shared/radio-score-calculator.js';
+import {
+    createRadioScoreCalculator,
+    RadioScoreCalculatorConfig
+} from '../shared/radio-score-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
@@ -58,7 +61,8 @@ const config: RadioScoreCalculatorConfig = {
         {
             id: 'hscore-cytopenias',
             title: 'Number of cytopenias',
-            subtitle: 'Defined as hemoglobin ≤9.2 g/dL, WBC ≤5,000/mm³, and/or platelets ≤110,000/mm³',
+            subtitle:
+                'Defined as hemoglobin ≤9.2 g/dL, WBC ≤5,000/mm³, and/or platelets ≤110,000/mm³',
             options: [
                 { value: '0', label: '1 lineage (0)', checked: true },
                 { value: '24', label: '2 lineages (+24)' },
@@ -144,7 +148,8 @@ const config: RadioScoreCalculatorConfig = {
             maxScore: 999,
             label: 'High Probability',
             severity: 'danger',
-            description: 'High probability of hemophagocytic syndrome (≥93% sensitivity, ≥86% specificity)'
+            description:
+                'High probability of hemophagocytic syndrome (≥93% sensitivity, ≥86% specificity)'
         }
     ],
 
@@ -169,9 +174,10 @@ const config: RadioScoreCalculatorConfig = {
             })}
             ${uiBuilder.createAlert({
                 type: score >= 169 ? 'danger' : 'success',
-                message: score >= 169
-                    ? '<strong>High probability</strong> of hemophagocytic syndrome (sensitivity 93%, specificity 86%)'
-                    : '<strong>Low probability</strong> of hemophagocytic syndrome'
+                message:
+                    score >= 169
+                        ? '<strong>High probability</strong> of hemophagocytic syndrome (sensitivity 93%, specificity 86%)'
+                        : '<strong>Low probability</strong> of hemophagocytic syndrome'
             })}
         `;
     },

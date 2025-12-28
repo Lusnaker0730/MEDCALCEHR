@@ -163,23 +163,23 @@ export const actionIcu = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskLevel,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'ICU Risk',
-            value: riskPercent.toFixed(1),
-            unit: '%',
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'ICU Risk',
+                value: riskPercent.toFixed(1),
+                unit: '%',
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message:
-                '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
-        })}
+                type: alertType,
+                message:
+                    '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
+            })}
         `;
     },
     customInitialize: (

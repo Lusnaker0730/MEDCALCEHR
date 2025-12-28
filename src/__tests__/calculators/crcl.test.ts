@@ -36,7 +36,9 @@ describe('Creatinine Clearance (CrCl) Calculator', () => {
         const ageInput = container.querySelector('#crcl-age') as HTMLInputElement;
         const weightInput = container.querySelector('#crcl-weight') as HTMLInputElement;
         const creatinineInput = container.querySelector('#crcl-creatinine') as HTMLInputElement;
-        const maleRadio = container.querySelector('input[name="crcl-sex"][value="male"]') as HTMLInputElement;
+        const maleRadio = container.querySelector(
+            'input[name="crcl-sex"][value="male"]'
+        ) as HTMLInputElement;
 
         if (ageInput && weightInput && creatinineInput && maleRadio) {
             ageInput.value = '50';
@@ -59,7 +61,9 @@ describe('Creatinine Clearance (CrCl) Calculator', () => {
         const ageInput = container.querySelector('#crcl-age') as HTMLInputElement;
         const weightInput = container.querySelector('#crcl-weight') as HTMLInputElement;
         const creatinineInput = container.querySelector('#crcl-creatinine') as HTMLInputElement;
-        const femaleRadio = container.querySelector('input[name="crcl-sex"][value="female"]') as HTMLInputElement;
+        const femaleRadio = container.querySelector(
+            'input[name="crcl-sex"][value="female"]'
+        ) as HTMLInputElement;
 
         if (ageInput && weightInput && creatinineInput && femaleRadio) {
             ageInput.value = '50';
@@ -100,4 +104,3 @@ describe('Creatinine Clearance (CrCl) Calculator', () => {
         }
     });
 });
-

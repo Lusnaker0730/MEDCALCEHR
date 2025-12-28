@@ -28,9 +28,15 @@ describe('Glasgow Coma Scale (GCS) Calculator', () => {
 
     test('should calculate maximum GCS score (15)', () => {
         // Select best responses: Eye 4, Verbal 5, Motor 6
-        const eyeRadio = container.querySelector('input[name="gcs-eye"][value="4"]') as HTMLInputElement;
-        const verbalRadio = container.querySelector('input[name="gcs-verbal"][value="5"]') as HTMLInputElement;
-        const motorRadio = container.querySelector('input[name="gcs-motor"][value="6"]') as HTMLInputElement;
+        const eyeRadio = container.querySelector(
+            'input[name="gcs-eye"][value="4"]'
+        ) as HTMLInputElement;
+        const verbalRadio = container.querySelector(
+            'input[name="gcs-verbal"][value="5"]'
+        ) as HTMLInputElement;
+        const motorRadio = container.querySelector(
+            'input[name="gcs-motor"][value="6"]'
+        ) as HTMLInputElement;
 
         if (eyeRadio && verbalRadio && motorRadio) {
             eyeRadio.checked = true;
@@ -48,9 +54,15 @@ describe('Glasgow Coma Scale (GCS) Calculator', () => {
 
     test('should calculate minimum GCS score (3)', () => {
         // Select worst responses: Eye 1, Verbal 1, Motor 1
-        const eyeRadio = container.querySelector('input[name="gcs-eye"][value="1"]') as HTMLInputElement;
-        const verbalRadio = container.querySelector('input[name="gcs-verbal"][value="1"]') as HTMLInputElement;
-        const motorRadio = container.querySelector('input[name="gcs-motor"][value="1"]') as HTMLInputElement;
+        const eyeRadio = container.querySelector(
+            'input[name="gcs-eye"][value="1"]'
+        ) as HTMLInputElement;
+        const verbalRadio = container.querySelector(
+            'input[name="gcs-verbal"][value="1"]'
+        ) as HTMLInputElement;
+        const motorRadio = container.querySelector(
+            'input[name="gcs-motor"][value="1"]'
+        ) as HTMLInputElement;
 
         if (eyeRadio && verbalRadio && motorRadio) {
             eyeRadio.checked = true;
@@ -67,9 +79,15 @@ describe('Glasgow Coma Scale (GCS) Calculator', () => {
     });
 
     test('should classify severe brain injury (GCS 3-8)', () => {
-        const eyeRadio = container.querySelector('input[name="gcs-eye"][value="2"]') as HTMLInputElement;
-        const verbalRadio = container.querySelector('input[name="gcs-verbal"][value="2"]') as HTMLInputElement;
-        const motorRadio = container.querySelector('input[name="gcs-motor"][value="3"]') as HTMLInputElement;
+        const eyeRadio = container.querySelector(
+            'input[name="gcs-eye"][value="2"]'
+        ) as HTMLInputElement;
+        const verbalRadio = container.querySelector(
+            'input[name="gcs-verbal"][value="2"]'
+        ) as HTMLInputElement;
+        const motorRadio = container.querySelector(
+            'input[name="gcs-motor"][value="3"]'
+        ) as HTMLInputElement;
 
         if (eyeRadio && verbalRadio && motorRadio) {
             eyeRadio.checked = true;
@@ -88,9 +106,15 @@ describe('Glasgow Coma Scale (GCS) Calculator', () => {
     });
 
     test('should classify mild brain injury (GCS 13-15)', () => {
-        const eyeRadio = container.querySelector('input[name="gcs-eye"][value="4"]') as HTMLInputElement;
-        const verbalRadio = container.querySelector('input[name="gcs-verbal"][value="4"]') as HTMLInputElement;
-        const motorRadio = container.querySelector('input[name="gcs-motor"][value="6"]') as HTMLInputElement;
+        const eyeRadio = container.querySelector(
+            'input[name="gcs-eye"][value="4"]'
+        ) as HTMLInputElement;
+        const verbalRadio = container.querySelector(
+            'input[name="gcs-verbal"][value="4"]'
+        ) as HTMLInputElement;
+        const motorRadio = container.querySelector(
+            'input[name="gcs-motor"][value="6"]'
+        ) as HTMLInputElement;
 
         if (eyeRadio && verbalRadio && motorRadio) {
             eyeRadio.checked = true;
@@ -108,4 +132,3 @@ describe('Glasgow Coma Scale (GCS) Calculator', () => {
         }
     });
 });
-

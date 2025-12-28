@@ -18,96 +18,96 @@ export const ascvd = {
             </div>
             
             ${uiBuilder.createAlert({
-            type: 'warning',
-            message: uiBuilder.createCheckbox({
-                id: 'known-ascvd',
-                label: '<strong>Known Clinical ASCVD?</strong> (e.g., history of MI, stroke, PAD)'
-            })
-        })}
+                type: 'warning',
+                message: uiBuilder.createCheckbox({
+                    id: 'known-ascvd',
+                    label: '<strong>Known Clinical ASCVD?</strong> (e.g., history of MI, stroke, PAD)'
+                })
+            })}
             
             <div id="ascvd-risk-inputs">
                 ${uiBuilder.createSection({
-            title: 'Demographics',
-            content: `
+                    title: 'Demographics',
+                    content: `
                         ${uiBuilder.createInput({ id: 'ascvd-age', label: 'Age', unit: 'years (40-79)', type: 'number', placeholder: 'e.g., 55' })}
                         ${uiBuilder.createRadioGroup({
-                name: 'ascvd-gender',
-                label: 'Gender',
-                options: [
-                    { value: 'male', label: 'Male', checked: true },
-                    { value: 'female', label: 'Female' }
-                ]
-            })}
+                            name: 'ascvd-gender',
+                            label: 'Gender',
+                            options: [
+                                { value: 'male', label: 'Male', checked: true },
+                                { value: 'female', label: 'Female' }
+                            ]
+                        })}
                         ${uiBuilder.createRadioGroup({
-                name: 'ascvd-race',
-                label: 'Race',
-                options: [
-                    { value: 'white', label: 'White', checked: true },
-                    { value: 'aa', label: 'African American' },
-                    { value: 'other', label: 'Other' }
-                ]
-            })}
+                            name: 'ascvd-race',
+                            label: 'Race',
+                            options: [
+                                { value: 'white', label: 'White', checked: true },
+                                { value: 'aa', label: 'African American' },
+                                { value: 'other', label: 'Other' }
+                            ]
+                        })}
                     `
-        })}
+                })}
                 
                 ${uiBuilder.createSection({
-            title: 'Lab Values',
-            content: `
+                    title: 'Lab Values',
+                    content: `
                         ${uiBuilder.createInput({
-                id: 'ascvd-tc',
-                label: 'Total Cholesterol',
-                type: 'number',
-                placeholder: 'e.g., 200',
-                unitToggle: {
-                    type: 'totalCholesterol',
-                    units: ['mg/dL', 'mmol/L'],
-                    default: 'mg/dL'
-                }
-            })}
+                            id: 'ascvd-tc',
+                            label: 'Total Cholesterol',
+                            type: 'number',
+                            placeholder: 'e.g., 200',
+                            unitToggle: {
+                                type: 'totalCholesterol',
+                                units: ['mg/dL', 'mmol/L'],
+                                default: 'mg/dL'
+                            }
+                        })}
                         ${uiBuilder.createInput({
-                id: 'ascvd-hdl',
-                label: 'HDL Cholesterol',
-                type: 'number',
-                placeholder: 'e.g., 50',
-                unitToggle: {
-                    type: 'hdl',
-                    units: ['mg/dL', 'mmol/L'],
-                    default: 'mg/dL'
-                }
-            })}
+                            id: 'ascvd-hdl',
+                            label: 'HDL Cholesterol',
+                            type: 'number',
+                            placeholder: 'e.g., 50',
+                            unitToggle: {
+                                type: 'hdl',
+                                units: ['mg/dL', 'mmol/L'],
+                                default: 'mg/dL'
+                            }
+                        })}
                         ${uiBuilder.createInput({ id: 'ascvd-sbp', label: 'Systolic BP', unit: 'mmHg', type: 'number', placeholder: 'e.g., 130' })}
                     `
-        })}
+                })}
                 
                 ${uiBuilder.createSection({
-            title: 'Risk Factors',
-            content: `
+                    title: 'Risk Factors',
+                    content: `
                         ${uiBuilder.createRadioGroup({
-                name: 'ascvd-htn',
-                label: 'On Hypertension Treatment?',
-                options: [
-                    { value: 'no', label: 'No', checked: true },
-                    { value: 'yes', label: 'Yes' }
-                ]
-            })}
+                            name: 'ascvd-htn',
+                            label: 'On Hypertension Treatment?',
+                            options: [
+                                { value: 'no', label: 'No', checked: true },
+                                { value: 'yes', label: 'Yes' }
+                            ]
+                        })}
                         ${uiBuilder.createRadioGroup({
-                name: 'ascvd-dm',
-                label: 'Diabetes?',
-                options: [
-                    { value: 'no', label: 'No', checked: true },
-                    { value: 'yes', label: 'Yes' }
-                ]
-            })}
+                            name: 'ascvd-dm',
+                            label: 'Diabetes?',
+                            options: [
+                                { value: 'no', label: 'No', checked: true },
+                                { value: 'yes', label: 'Yes' }
+                            ]
+                        })}
                         ${uiBuilder.createRadioGroup({
-                name: 'ascvd-smoker',
-                label: 'Current Smoker?',
-                options: [
-                    { value: 'no', label: 'No', checked: true },
-                    { value: 'yes', label: 'Yes' }
-                ]
-            })}
+                            name: 'ascvd-smoker',
+                            label: 'Current Smoker?',
+                            options: [
+                                { value: 'no', label: 'No', checked: true },
+                                { value: 'yes', label: 'Yes' }
+                            ]
+                        })}
                     `
-        })}
+                })}
             </div>
             
             ${uiBuilder.createResultBox({ id: 'ascvd-result', title: 'ASCVD Risk Results' })}
@@ -115,31 +115,31 @@ export const ascvd = {
             <!-- Therapy Impact Section -->
             <div id="therapy-impact-section" class="therapy-section ui-hidden">
                 ${uiBuilder.createSection({
-            title: '🎯 Therapy Impact Analysis',
-            content: `
+                    title: '🎯 Therapy Impact Analysis',
+                    content: `
                         <h5>Select Therapy Options:</h5>
                         
                         <div class="therapy-group">
                             ${uiBuilder.createCheckbox({ id: 'statin-therapy', label: 'Statin Therapy', checked: true })}
                             <div class="therapy-details" id="statin-details">
                                 ${uiBuilder.createSelect({
-                id: 'statin-intensity',
-                label: 'Intensity',
-                options: [
-                    {
-                        value: 'moderate',
-                        label: 'Moderate-Intensity Statin (30-50% LDL reduction)'
-                    },
-                    {
-                        value: 'high',
-                        label: 'High-Intensity Statin (≥50% LDL reduction)'
-                    },
-                    {
-                        value: 'low',
-                        label: 'Low-Intensity Statin (<30% LDL reduction)'
-                    }
-                ]
-            })}
+                                    id: 'statin-intensity',
+                                    label: 'Intensity',
+                                    options: [
+                                        {
+                                            value: 'moderate',
+                                            label: 'Moderate-Intensity Statin (30-50% LDL reduction)'
+                                        },
+                                        {
+                                            value: 'high',
+                                            label: 'High-Intensity Statin (≥50% LDL reduction)'
+                                        },
+                                        {
+                                            value: 'low',
+                                            label: 'Low-Intensity Statin (<30% LDL reduction)'
+                                        }
+                                    ]
+                                })}
                             </div>
                         </div>
                         
@@ -155,23 +155,23 @@ export const ascvd = {
                             ${uiBuilder.createCheckbox({ id: 'additional-therapy', label: 'Additional Therapies' })}
                             <div class="therapy-details ui-hidden" id="additional-details">
                                 ${uiBuilder.createSelect({
-                id: 'additional-options',
-                label: 'Option',
-                options: [
-                    {
-                        value: 'ezetimibe',
-                        label: 'Ezetimibe (additional 15-20% LDL reduction)'
-                    },
-                    {
-                        value: 'pcsk9',
-                        label: 'PCSK9 Inhibitor (additional 50-60% LDL reduction)'
-                    },
-                    {
-                        value: 'aspirin',
-                        label: 'Low-dose Aspirin (if bleeding risk low)'
-                    }
-                ]
-            })}
+                                    id: 'additional-options',
+                                    label: 'Option',
+                                    options: [
+                                        {
+                                            value: 'ezetimibe',
+                                            label: 'Ezetimibe (additional 15-20% LDL reduction)'
+                                        },
+                                        {
+                                            value: 'pcsk9',
+                                            label: 'PCSK9 Inhibitor (additional 50-60% LDL reduction)'
+                                        },
+                                        {
+                                            value: 'aspirin',
+                                            label: 'Low-dose Aspirin (if bleeding risk low)'
+                                        }
+                                    ]
+                                })}
                             </div>
                         </div>
                         
@@ -179,13 +179,13 @@ export const ascvd = {
                         
                         <div id="therapy-results" class="therapy-results ui-hidden"></div>
                     `
-        })}
+                })}
             </div>
 
             <!-- Formula Section -->
             ${uiBuilder.createSection({
-            title: '📐 Pooled Cohort Equations (PCE) Formulas',
-            content: `
+                title: '📐 Pooled Cohort Equations (PCE) Formulas',
+                content: `
                     <p class="calculation-note">The 10-year ASCVD risk is calculated using the following equation for each population group:</p>
                     
                     <div class="formula-box">
@@ -196,12 +196,12 @@ export const ascvd = {
                     </div>
                     
                     ${uiBuilder.createAlert({
-                type: 'info',
-                message:
-                    'Valid for ages 40-79 years. Uses 2013 ACC/AHA Pooled Cohort Equations.'
-            })}
+                        type: 'info',
+                        message:
+                            'Valid for ages 40-79 years. Uses 2013 ACC/AHA Pooled Cohort Equations.'
+                    })}
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement): void {
@@ -585,16 +585,16 @@ export const ascvd = {
             resultContent.innerHTML = `
                 ${otherRaceAlert}
                 ${uiBuilder.createResultItem({
-                label: '10-Year ASCVD Risk',
-                value: riskPercent.toFixed(1),
-                unit: '%',
-                interpretation: riskCategory,
-                alertClass: `ui-alert-${alertType}`
-            })}
+                    label: '10-Year ASCVD Risk',
+                    value: riskPercent.toFixed(1),
+                    unit: '%',
+                    interpretation: riskCategory,
+                    alertClass: `ui-alert-${alertType}`
+                })}
                 ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+                    type: alertType,
+                    message: `<strong>Recommendation:</strong> ${recommendation}`
+                })}
             `;
             resultBox.classList.add('show');
             therapySection.classList.remove('ui-hidden');

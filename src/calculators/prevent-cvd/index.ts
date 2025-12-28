@@ -66,9 +66,11 @@ const coefficients: { [key: string]: Coeffs } = {
 export const preventCVD = createComplexFormulaCalculator({
     id: 'prevent-cvd',
     title: 'QRISK3-Based CVD Risk (UK)',
-    description: 'Predicts 10-year risk of cardiovascular disease in patients aged 25-84 without known CVD.',
+    description:
+        'Predicts 10-year risk of cardiovascular disease in patients aged 25-84 without known CVD.',
 
-    infoAlert: 'Valid for ages 25-84. Not applicable to patients with established CVD. Cholesterol values use mmol/L by default (UK standard).',
+    infoAlert:
+        'Valid for ages 25-84. Not applicable to patients with established CVD. Cholesterol values use mmol/L by default (UK standard).',
 
     autoPopulateAge: 'qrisk-age',
     autoPopulateGender: 'qrisk-gender',
@@ -133,13 +135,21 @@ export const preventCVD = createComplexFormulaCalculator({
                     id: 'qrisk-cholesterol',
                     label: 'Total Cholesterol',
                     step: 0.1,
-                    unitToggle: { type: 'cholesterol', units: ['mmol/L', 'mg/dL'], default: 'mmol/L' }
+                    unitToggle: {
+                        type: 'cholesterol',
+                        units: ['mmol/L', 'mg/dL'],
+                        default: 'mmol/L'
+                    }
                 },
                 {
                     id: 'qrisk-hdl',
                     label: 'HDL Cholesterol',
                     step: 0.1,
-                    unitToggle: { type: 'cholesterol', units: ['mmol/L', 'mg/dL'], default: 'mmol/L' }
+                    unitToggle: {
+                        type: 'cholesterol',
+                        units: ['mmol/L', 'mg/dL'],
+                        default: 'mmol/L'
+                    }
                 },
                 { id: 'qrisk-egfr', label: 'eGFR', unit: 'mL/min/1.73m²' }
             ]
@@ -217,7 +227,8 @@ export const preventCVD = createComplexFormulaCalculator({
         } else {
             riskCategory = 'Very High Risk (≥20%)';
             severity = 'danger';
-            recommendation = 'Strongly consider statin therapy and intensive lifestyle interventions.';
+            recommendation =
+                'Strongly consider statin therapy and intensive lifestyle interventions.';
         }
 
         return {
@@ -232,8 +243,20 @@ export const preventCVD = createComplexFormulaCalculator({
     },
 
     fhirAutoPopulate: [
-        { fieldId: 'qrisk-cholesterol', loincCode: LOINC_CODES.CHOLESTEROL_TOTAL, targetUnit: 'mmol/L', unitType: 'cholesterol', formatter: v => v.toFixed(2) },
-        { fieldId: 'qrisk-hdl', loincCode: LOINC_CODES.HDL, targetUnit: 'mmol/L', unitType: 'cholesterol', formatter: v => v.toFixed(2) },
+        {
+            fieldId: 'qrisk-cholesterol',
+            loincCode: LOINC_CODES.CHOLESTEROL_TOTAL,
+            targetUnit: 'mmol/L',
+            unitType: 'cholesterol',
+            formatter: v => v.toFixed(2)
+        },
+        {
+            fieldId: 'qrisk-hdl',
+            loincCode: LOINC_CODES.HDL,
+            targetUnit: 'mmol/L',
+            unitType: 'cholesterol',
+            formatter: v => v.toFixed(2)
+        },
         { fieldId: 'qrisk-egfr', loincCode: LOINC_CODES.EGFR, formatter: v => v.toFixed(0) }
     ],
 
@@ -246,7 +269,7 @@ export const preventCVD = createComplexFormulaCalculator({
         try {
             // 使用 getBloodPressure 獲取血壓 (處理 panel observation)
             const bpResult = await fhirDataService.getBloodPressure({ trackStaleness: true });
-            
+
             if (bpResult.systolic !== null) {
                 const sbpInput = container.querySelector('#qrisk-sbp') as HTMLInputElement;
                 if (sbpInput) {

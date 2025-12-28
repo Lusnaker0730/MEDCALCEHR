@@ -59,8 +59,20 @@ describe('Mixed Input Calculator Factory', () => {
             }
         ],
         riskLevels: [
-            { minScore: 0, maxScore: 50, label: 'Low', severity: 'success' as const, description: 'Low level' },
-            { minScore: 51, maxScore: 100, label: 'High', severity: 'danger' as const, description: 'High level' }
+            {
+                minScore: 0,
+                maxScore: 50,
+                label: 'Low',
+                severity: 'success' as const,
+                description: 'Low level'
+            },
+            {
+                minScore: 51,
+                maxScore: 100,
+                label: 'High',
+                severity: 'danger' as const,
+                description: 'High level'
+            }
         ],
         calculate: (values: Record<string, any>) => {
             const numValue = values['test-number'] || 0;
@@ -103,7 +115,9 @@ describe('Mixed Input Calculator Factory', () => {
         calculator.initialize(null, null, container);
 
         const numInput = container.querySelector('#test-number') as HTMLInputElement;
-        const radioInput = container.querySelector('input[name="test-radio"][value="2"]') as HTMLInputElement;
+        const radioInput = container.querySelector(
+            'input[name="test-radio"][value="2"]'
+        ) as HTMLInputElement;
 
         if (numInput) {
             numInput.value = '30';
@@ -118,7 +132,8 @@ describe('Mixed Input Calculator Factory', () => {
         // Score should be 30 + 2*10 = 50
         setTimeout(() => {
             const resultText = container.textContent || '';
-            const hasExpectedResult = resultText.includes('50') || resultText.toLowerCase().includes('low');
+            const hasExpectedResult =
+                resultText.includes('50') || resultText.toLowerCase().includes('low');
             expect(hasExpectedResult).toBe(true);
         }, 100);
     });

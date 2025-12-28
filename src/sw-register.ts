@@ -46,9 +46,12 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
         });
 
         // Check for updates periodically (every hour)
-        setInterval(() => {
-            registration.update();
-        }, 60 * 60 * 1000);
+        setInterval(
+            () => {
+                registration.update();
+            },
+            60 * 60 * 1000
+        );
 
         return registration;
     } catch (error) {
@@ -224,7 +227,7 @@ export async function sendMessageToSW(message: MessagePayload): Promise<unknown>
 
     return new Promise((resolve, reject) => {
         const messageChannel = new MessageChannel();
-        
+
         messageChannel.port1.onmessage = (event: MessageEvent) => {
             resolve(event.data);
         };
@@ -235,7 +238,7 @@ export async function sendMessageToSW(message: MessagePayload): Promise<unknown>
         });
 
         controller.postMessage(message, [messageChannel.port2]);
-        
+
         // Timeout to prevent hanging
         setTimeout(() => {
             reject(new Error('Service worker message timeout'));
@@ -262,7 +265,7 @@ export async function clearServiceWorkerCaches(): Promise<unknown> {
  */
 export async function getCacheStats(): Promise<CacheStatsResponse['stats'] | null> {
     try {
-        const result = await sendMessageToSW({ type: 'GET_CACHE_STATS' }) as CacheStatsResponse;
+        const result = (await sendMessageToSW({ type: 'GET_CACHE_STATS' })) as CacheStatsResponse;
         return result.stats;
     } catch (error) {
         console.error('Failed to get cache stats:', error);
@@ -292,4 +295,3 @@ export default {
     getCacheStats,
     initializeServiceWorker
 };
-

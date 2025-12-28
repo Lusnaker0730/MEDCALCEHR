@@ -3,10 +3,10 @@
  */
 
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { 
-    createUnifiedFormulaCalculator, 
-    createFormulaCalculator, 
-    createComplexFormulaCalculator 
+import {
+    createUnifiedFormulaCalculator,
+    createFormulaCalculator,
+    createComplexFormulaCalculator
 } from '../../calculators/shared/unified-formula-calculator';
 
 // Mock console
@@ -46,9 +46,7 @@ describe('Unified Formula Calculator Factory', () => {
                     standardUnit: 'units'
                 }
             ],
-            formulas: [
-                { label: 'Result', formula: 'A + B' }
-            ],
+            formulas: [{ label: 'Result', formula: 'A + B' }],
             calculate: (values: Record<string, string | number>) => {
                 const a = parseFloat(String(values['value-a'])) || 0;
                 const b = parseFloat(String(values['value-b'])) || 0;
@@ -97,7 +95,7 @@ describe('Unified Formula Calculator Factory', () => {
                 calculate: simpleConfig.calculate
             });
             container.innerHTML = calculator.generateHTML();
-            
+
             expect(() => {
                 calculator.initialize(null, null, container);
             }).not.toThrow();
@@ -175,21 +173,17 @@ describe('Unified Formula Calculator Factory', () => {
                 id: 'test-formulas',
                 title: 'Test',
                 description: 'Test description',
-                inputs: [
-                    { type: 'number' as const, id: 'x', label: 'X', standardUnit: 'units' }
-                ],
+                inputs: [{ type: 'number' as const, id: 'x', label: 'X', standardUnit: 'units' }],
                 formulas: [
                     { label: 'Square', formula: 'X²' },
                     { label: 'Cube', formula: 'X³' }
                 ],
-                calculate: (values) => {
+                calculate: values => {
                     const x = parseFloat(String(values['x'])) || 0;
-                    return [
-                        { label: 'Square', value: String(x * x), unit: 'units²' }
-                    ];
+                    return [{ label: 'Square', value: String(x * x), unit: 'units²' }];
                 }
             });
-            
+
             const html = calculator.generateHTML();
             expect(html).toContain('Square');
             expect(html).toContain('X²');
@@ -217,10 +211,9 @@ describe('Unified Formula Calculator Factory', () => {
                 ],
                 calculate: () => [{ label: 'Result', value: '1', unit: 'units' }]
             });
-            
+
             const html = calculator.generateHTML();
             expect(html).toContain('mg/dL');
         });
     });
 });
-

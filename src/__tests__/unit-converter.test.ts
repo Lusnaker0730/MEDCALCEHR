@@ -136,7 +136,7 @@ describe('UnitConverter', () => {
         test('getStandardValue should return value when unit matches standard', () => {
             input.value = '70';
             input.dataset.unit = 'kg';
-            
+
             const result = UnitConverter.getStandardValue(input, 'kg');
             expect(result).toBe(70);
         });

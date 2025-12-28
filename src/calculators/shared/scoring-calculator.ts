@@ -669,10 +669,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                         }
                                     }
                                 } catch (e) {
-                                    console.warn(
-                                        `Error fetching observation for ${sectionId}:`,
-                                        e
-                                    );
+                                    console.warn(`Error fetching observation for ${sectionId}:`, e);
                                 }
                             }
 
@@ -700,10 +697,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                         }
                                     }
                                 } catch (e) {
-                                    console.warn(
-                                        `Error fetching observation for ${sectionId}:`,
-                                        e
-                                    );
+                                    console.warn(`Error fetching observation for ${sectionId}:`, e);
                                 }
                             }
                         }
@@ -718,8 +712,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                 section.options.forEach((opt, optIdx) => {
                                     if (opt.conditionCode) {
                                         allConditionCodes.push(opt.conditionCode);
-                                        const checkboxId =
-                                            opt.id || `${sectionIdPrefix}-${optIdx}`;
+                                        const checkboxId = opt.id || `${sectionIdPrefix}-${optIdx}`;
                                         optionConditionMap.set(opt.conditionCode, checkboxId);
                                     }
                                 });
@@ -773,7 +766,7 @@ export type RadioSection = ScoringSection;
 export type RiskLevel = ScoringRiskLevel;
 export type RadioFHIRDataRequirements = ScoringFHIRDataRequirements;
 
-/** 
+/**
  * @deprecated 使用 createScoringCalculator({ inputType: 'radio', ... }) 代替
  */
 export function createRadioScoreCalculator(
@@ -802,4 +795,3 @@ export function createYesNoCalculator(
 ): CalculatorModule {
     return createScoringCalculator({ ...config, inputType: 'yesno' });
 }
-
