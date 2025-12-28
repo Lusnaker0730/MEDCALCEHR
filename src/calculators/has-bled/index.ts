@@ -198,22 +198,13 @@ const config: YesNoCalculatorConfig = {
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
         try {
-            // SBP > 160
-            const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                trackStaleness: true,
-                stalenessLabel: 'Systolic BP'
+            // 獲取血壓（使用 blood pressure panel）SBP > 160
+            const bpResult = await fhirDataService.getBloodPressure({
+                trackStaleness: true
             });
 
-            if (sbpResult.value !== null && sbpResult.value > 160) {
+            if (bpResult.systolic !== null && bpResult.systolic > 160) {
                 setRadioValue('hasbled-hypertension', '1');
-                if (stalenessTracker && sbpResult.observation) {
-                    stalenessTracker.trackObservation(
-                        'input[name="hasbled-hypertension"]',
-                        sbpResult.observation,
-                        LOINC_CODES.SYSTOLIC_BP,
-                        'Systolic BP > 160'
-                    );
-                }
             }
 
             // Creatinine > 2.26 mg/dL

@@ -220,14 +220,13 @@ const config: RadioScoreCalculatorConfig = {
         };
 
         try {
-            // 獲取收縮壓
-            const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                trackStaleness: true,
-                stalenessLabel: 'Systolic BP'
+            // 獲取血壓（使用 blood pressure panel）
+            const bpResult = await fhirDataService.getBloodPressure({
+                trackStaleness: true
             });
 
-            if (sbpResult.value !== null) {
-                const sbp = sbpResult.value;
+            if (bpResult.systolic !== null) {
+                const sbp = bpResult.systolic;
                 if (sbp <= 70) {
                     setRadioValue('mews-sbp', '3');
                 } else if (sbp <= 80) {
@@ -240,14 +239,7 @@ const config: RadioScoreCalculatorConfig = {
                     setRadioValue('mews-sbp', '2');
                 }
 
-                if (stalenessTracker && sbpResult.observation) {
-                    stalenessTracker.trackObservation(
-                        'input[name="mews-sbp"]',
-                        sbpResult.observation,
-                        LOINC_CODES.SYSTOLIC_BP,
-                        'Systolic BP'
-                    );
-                }
+                // Staleness tracking is handled by getBloodPressure()
             }
 
             // 獲取心率

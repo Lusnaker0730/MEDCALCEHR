@@ -118,22 +118,13 @@ export const qsofaScore = createScoreCalculator({
                 }
             }
 
-            // 獲取收縮壓
-            const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                trackStaleness: true,
-                stalenessLabel: 'Systolic BP'
+            // 獲取血壓（使用 blood pressure panel）
+            const bpResult = await fhirDataService.getBloodPressure({
+                trackStaleness: true
             });
 
-            if (sbpResult.value !== null && sbpResult.value <= 100) {
+            if (bpResult.systolic !== null && bpResult.systolic <= 100) {
                 setCheckbox('qsofa-sbp', true);
-                if (stalenessTracker && sbpResult.observation) {
-                    stalenessTracker.trackObservation(
-                        '#qsofa-sbp',
-                        sbpResult.observation,
-                        LOINC_CODES.SYSTOLIC_BP,
-                        'Systolic BP'
-                    );
-                }
             }
         } catch (error) {
             console.warn('Error auto-populating qSOFA:', error);

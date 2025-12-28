@@ -231,12 +231,11 @@ export const actionIcu = createRadioScoreCalculator({
                     trackStaleness: true,
                     stalenessLabel: 'Heart Rate'
                 }),
-                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Systolic BP'
+                fhirDataService.getBloodPressure({
+                    trackStaleness: true
                 })
             ])
-                .then(([creatResult, hrResult, sbpResult]) => {
+                .then(([creatResult, hrResult, bpResult]) => {
                     if (creatResult.value !== null) {
                         setRadioWithValue('action-creatinine', creatResult.value, [
                             v => v < 1.1,
@@ -252,8 +251,8 @@ export const actionIcu = createRadioScoreCalculator({
                         ]);
                     }
 
-                    if (sbpResult.value !== null) {
-                        setRadioWithValue('action-sbp', sbpResult.value, [
+                    if (bpResult.systolic !== null) {
+                        setRadioWithValue('action-sbp', bpResult.systolic, [
                             v => v >= 145,
                             v => v >= 125 && v < 145,
                             v => v < 125

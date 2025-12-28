@@ -208,33 +208,16 @@ const config: YesNoCalculatorConfig = {
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
         try {
-            // 獲取血壓（需要組合 SBP 和 DBP）
-            const [sbpResult, dbpResult] = await Promise.all([
-                fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Systolic BP'
-                }),
-                fhirDataService.getObservation(LOINC_CODES.DIASTOLIC_BP, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Diastolic BP'
-                })
-            ]);
+            // 獲取血壓（使用 blood pressure panel）
+            const bpResult = await fhirDataService.getBloodPressure({
+                trackStaleness: true
+            });
 
-            const sbpLow = sbpResult.value !== null && sbpResult.value < 90;
-            const dbpLow = dbpResult.value !== null && dbpResult.value <= 60;
+            const sbpLow = bpResult.systolic !== null && bpResult.systolic < 90;
+            const dbpLow = bpResult.diastolic !== null && bpResult.diastolic <= 60;
 
             if (sbpLow || dbpLow) {
                 setRadioValue('curb-bp', '1');
-                if (stalenessTracker) {
-                    if (sbpResult.observation) {
-                        stalenessTracker.trackObservation(
-                            'input[name="curb-bp"]',
-                            sbpResult.observation,
-                            LOINC_CODES.SYSTOLIC_BP,
-                            'Blood Pressure'
-                        );
-                    }
-                }
             }
 
             // BUN 需要單位轉換

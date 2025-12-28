@@ -720,10 +720,66 @@ src/calculators/
 
 ## 類型定義參考
 
-完整的類型定義請參考：
+所有類型定義集中在 `src/types/` 目錄：
 
-- `src/calculators/shared/scoring-calculator.ts`
-- `src/calculators/shared/unified-formula-calculator.ts`
+| 檔案 | 內容 |
+|------|------|
+| `calculator-base.ts` | 基礎類型（`CalculatorModule`、`AlertSeverity`、`UnitToggleConfig` 等） |
+| `calculator-scoring.ts` | 評分計算器類型（`ScoringOption`、`YesNoQuestion` 等） |
+| `calculator-formula.ts` | 公式計算器類型（`NumberInputConfig`、`FormulaResultItem` 等） |
+| `calculator-specialized.ts` | 專用計算器類型（`ConversionCalculatorConfig`、`MixedInputCalculatorConfig` 等） |
+| `index.ts` | 統一導出入口 |
+
+### 導入類型
+
+```typescript
+// 推薦：從集中入口導入
+import type { CalculatorModule, NumberInputConfig, ScoringOption } from '../../types/index.js';
+
+// 或直接從工廠導入（也可用）
+import type { ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
+```
+
+---
+
+## FHIR 血壓數據獲取
+
+### 推薦方式
+
+血壓數據通常作為複合觀測值（panel）存儲在 FHIR 中，使用 `getBloodPressure()` 方法獲取：
+
+```typescript
+import { fhirDataService } from '../../fhir-data-service.js';
+
+// 在 customInitialize 中
+customInitialize: async (client, patient, container, calculate) => {
+    if (!fhirDataService.isReady()) return;
+
+    try {
+        const bpResult = await fhirDataService.getBloodPressure({
+            trackStaleness: true
+        });
+
+        if (bpResult.systolic !== null) {
+            // 使用收縮壓
+            setValue('sbp-input', bpResult.systolic.toFixed(0));
+        }
+        if (bpResult.diastolic !== null) {
+            // 使用舒張壓
+            setValue('dbp-input', bpResult.diastolic.toFixed(0));
+        }
+    } catch (error) {
+        console.warn('Error fetching blood pressure:', error);
+    }
+}
+```
+
+### 避免使用（已過時）
+
+```typescript
+// ❌ 不推薦：單獨獲取血壓組件可能無法正確處理 FHIR panel
+const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, ...);
+```
 
 ---
 

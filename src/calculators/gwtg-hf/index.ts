@@ -313,13 +313,10 @@ const config: MixedInputCalculatorConfig = {
 
         if (client) {
             // Fetch all observations in parallel using FHIRDataService
-            const [sbpResult, bunResult, sodiumResult, hrResult] = await Promise.all([
+            const [bpResult, bunResult, sodiumResult, hrResult] = await Promise.all([
                 fhirDataService
-                    .getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                        trackStaleness: true,
-                        stalenessLabel: 'Systolic BP'
-                    })
-                    .catch(() => ({ value: null })),
+                    .getBloodPressure({ trackStaleness: true })
+                    .catch(() => ({ systolic: null, diastolic: null })),
                 fhirDataService
                     .getObservation(LOINC_CODES.BUN, {
                         trackStaleness: true,
@@ -342,8 +339,8 @@ const config: MixedInputCalculatorConfig = {
                     .catch(() => ({ value: null }))
             ]);
 
-            if (sbpResult.value !== null) {
-                setValue('gwtg-sbp', sbpResult.value.toFixed(0));
+            if (bpResult.systolic !== null) {
+                setValue('gwtg-sbp', bpResult.systolic.toFixed(0));
             }
 
             if (bunResult.value !== null) {
