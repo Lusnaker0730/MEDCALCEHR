@@ -34,9 +34,9 @@ describe('BMI & BSA Calculator', () => {
         weightInput.value = '70';
         heightInput.value = '175';
 
-        // Trigger input events
-        weightInput.dispatchEvent(new Event('input'));
-        heightInput.dispatchEvent(new Event('input'));
+        // Trigger input events (must bubble for event delegation to work)
+        weightInput.dispatchEvent(new Event('input', { bubbles: true }));
+        heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
         // Check if result box is visible
         expect(resultBox.classList.contains('show')).toBe(true);
@@ -60,8 +60,8 @@ describe('BMI & BSA Calculator', () => {
         // 50kg, 180cm -> BMI = 15.4
         weightInput.value = '50';
         heightInput.value = '180';
-        weightInput.dispatchEvent(new Event('input'));
-        heightInput.dispatchEvent(new Event('input'));
+        weightInput.dispatchEvent(new Event('input', { bubbles: true }));
+        heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
         expect(resultBox.textContent).toContain('Underweight');
     });
@@ -74,8 +74,8 @@ describe('BMI & BSA Calculator', () => {
         // 100kg, 170cm -> BMI = 34.6
         weightInput.value = '100';
         heightInput.value = '170';
-        weightInput.dispatchEvent(new Event('input'));
-        heightInput.dispatchEvent(new Event('input'));
+        weightInput.dispatchEvent(new Event('input', { bubbles: true }));
+        heightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
         expect(resultBox.textContent).toContain('Obese');
     });
@@ -85,7 +85,7 @@ describe('BMI & BSA Calculator', () => {
         const resultBox = container.querySelector('#bmi-bsa-result') as HTMLElement;
 
         weightInput.value = '-5'; // Invalid negative weight
-        weightInput.dispatchEvent(new Event('input'));
+        weightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
         // Result should be hidden or show error
         // The implementation hides result on invalid input if other input is empty or invalid
