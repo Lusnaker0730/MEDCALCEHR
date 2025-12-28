@@ -177,20 +177,20 @@ const config: RadioScoreCalculatorConfig = {
     riskLevels: [
         {
             minScore: 0,
-            maxScore: 9,
+            maxScore: 8,
             label: 'Absent or minimal withdrawal',
             severity: 'success',
             description: 'Supportive care. Medication may not be necessary.'
         },
         {
-            minScore: 10,
-            maxScore: 15,
+            minScore: 9,
+            maxScore: 19,
             label: 'Mild to moderate withdrawal',
             severity: 'warning',
             description: 'Medication is usually indicated.'
         },
         {
-            minScore: 16,
+            minScore: 20,
             maxScore: 999,
             label: 'Severe withdrawal',
             severity: 'danger',
@@ -198,16 +198,27 @@ const config: RadioScoreCalculatorConfig = {
                 'Medication is indicated. Consider ICU admission if score is very high or patient is unstable.'
         }
     ],
+
+    formulaSection: {
+        show: true,
+        interpretationTitle: 'Facts & Figures',
+        tableHeaders: ['Score', 'Withdrawal Level'],
+        interpretations: [
+            { score: '≤8', interpretation: 'Absent or minimal withdrawal', severity: 'success' },
+            { score: '9-19', interpretation: 'Mild to moderate withdrawal', severity: 'warning' },
+            { score: '≥20', interpretation: 'Severe withdrawal', severity: 'danger' }
+        ]
+    },
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         let severity = '';
         let recommendation = '';
         let alertClass: 'success' | 'warning' | 'danger' = 'success';
 
-        if (score <= 9) {
+        if (score <= 8) {
             severity = 'Absent or minimal withdrawal';
             recommendation = 'Supportive care. Medication may not be necessary.';
             alertClass = 'success';
-        } else if (score <= 15) {
+        } else if (score <= 19) {
             severity = 'Mild to moderate withdrawal';
             recommendation = 'Medication is usually indicated.';
             alertClass = 'warning';

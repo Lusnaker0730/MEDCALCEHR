@@ -51,6 +51,35 @@ const config: YesNoCalculatorConfig = {
         },
         { id: 'curb-age', label: 'Age ≥<strong>65</strong> years', points: 1 }
     ],
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'The CURB-65 Score is calculated by the addition of the selected points:',
+        scoringCriteria: [
+            { criteria: 'Confusion', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' },
+            { criteria: 'Urea > 7 mmol/L (BUN > 19 mg/dL)', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' },
+            { criteria: 'Respiratory rate ≥30/min', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' },
+            { criteria: 'Blood pressure (SBP <90 mm Hg or DBP ≤60 mm Hg)', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' },
+            { criteria: 'Age ≥65', isHeader: true },
+            { criteria: 'No', points: '0' },
+            { criteria: 'Yes', points: '1' }
+        ],
+        interpretationTitle: 'FACTS & FIGURES',
+        tableHeaders: ['CURB-65 Score', 'Mortality Risk', 'Treatment'],
+        interpretations: [
+            { score: '0', category: 'Low', interpretation: 'Likely suitable for home treatment', severity: 'success' },
+            { score: '1 or 2', category: 'Intermediate', interpretation: 'Consider hospital referral', severity: 'warning' },
+            { score: '3 or 4', category: 'High', interpretation: 'Urgent hospital admission', severity: 'danger' }
+        ]
+    },
     riskLevels: [
         {
             minScore: 0,
@@ -235,33 +264,5 @@ const config: YesNoCalculatorConfig = {
     }
 };
 
-// 創建基礎計算器
-const baseCalculator = createYesNoCalculator(config);
-
-// 導出帶有評分解釋表格的計算器
-export const curb65 = {
-    ...baseCalculator,
-
-    generateHTML(): string {
-        const html = baseCalculator.generateHTML();
-
-        const interpretationTable = `
-            <div class="info-section mt-20">
-                <h5>Score Interpretation</h5>
-                <table class="ui-data-table">
-                    <thead>
-                        <tr><th>Score</th><th>Mortality</th><th>Recommendation</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>0-1</td><td>0.6-2.7%</td><td>Outpatient treatment</td></tr>
-                        <tr><td>2</td><td>6.8%</td><td>Short hospitalization or supervised outpatient</td></tr>
-                        <tr><td>3</td><td>14%</td><td>Hospital admission</td></tr>
-                        <tr><td>4-5</td><td>27.8%</td><td>Hospital + consider ICU</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        return html + interpretationTable;
-    }
-};
+// 創建並導出計算器
+export const curb65 = createYesNoCalculator(config);

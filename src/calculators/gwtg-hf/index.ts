@@ -212,6 +212,24 @@ const config: MixedInputCalculatorConfig = {
 
     resultTitle: 'GWTG-HF Score Result',
 
+    formulaSection: {
+        show: true,
+        title: 'FACTS & FIGURES',
+        calculationNote: 'Score interpretation:',
+        tableHeaders: ['Total Score', 'Predicted Mortality'],
+        scoringCriteria: [
+            { criteria: '0-33', points: '<1%' },
+            { criteria: '34-50', points: '1-5%' },
+            { criteria: '51-57', points: '5-10%' },
+            { criteria: '58-61', points: '10-15%' },
+            { criteria: '62-65', points: '15-20%' },
+            { criteria: '66-70', points: '20-30%' },
+            { criteria: '71-74', points: '30-40%' },
+            { criteria: '75-78', points: '40-50%' },
+            { criteria: '≥79', points: '>50%' }
+        ]
+    },
+
     calculate: values => {
         const sbp = values['gwtg-sbp'] as number | null;
         const bun = values['gwtg-bun'] as number | null;

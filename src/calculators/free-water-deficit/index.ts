@@ -57,16 +57,16 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'FORMULA',
-        calculationNote: 'Formulas used:',
-        scoringCriteria: [
-            { criteria: 'Free Water Deficit (L)', points: 'TBW × [(Current Na / 140) - 1]' },
-            { criteria: 'TBW (Total Body Water)', points: 'Weight (kg) × Factor' }
-        ]
-    },
+    formulas: [
+        {
+            label: 'Free Water Deficit (L)',
+            formula: 'TBW × (<span class="formula-fraction"><span class="numerator">Current Na</span><span class="denominator">140</span></span> − 1)'
+        },
+        {
+            label: 'TBW (Total Body Water)',
+            formula: 'Weight (kg) × Factor'
+        }
+    ],
     dataRequirements: {
         autoPopulateGender: {
             radioName: 'fwd-gender',

@@ -62,6 +62,37 @@ export const gcs = createRadioScoreCalculator({
         { minScore: 3, maxScore: 8, label: 'Severe Brain Injury (Coma)', severity: 'danger' }
     ],
 
+    formulaSection: {
+        show: true,
+        title: 'FACTS & FIGURES',
+        scoringCriteria: [
+            { criteria: 'Eye', isHeader: true },
+            { criteria: 'Eyes open spontaneously', points: '+4' },
+            { criteria: 'Eye opening to verbal command', points: '+3' },
+            { criteria: 'Eye opening to pain', points: '+2' },
+            { criteria: 'No eye opening', points: '+1' },
+            { criteria: 'Not testable*', points: 'NT' },
+            { criteria: 'Verbal', isHeader: true },
+            { criteria: 'Oriented', points: '+5' },
+            { criteria: 'Confused', points: '+4' },
+            { criteria: 'Inappropriate words', points: '+3' },
+            { criteria: 'Incomprehensible sounds', points: '+2' },
+            { criteria: 'No verbal response', points: '+1' },
+            { criteria: 'Not testable/intubated*', points: 'NT' },
+            { criteria: 'Motor', isHeader: true },
+            { criteria: 'Obeys commands', points: '+6' },
+            { criteria: 'Localizes pain', points: '+5' },
+            { criteria: 'Withdrawal from pain', points: '+4' },
+            { criteria: 'Flexion to pain', points: '+3' },
+            { criteria: 'Extension to pain', points: '+2' },
+            { criteria: 'No motor response', points: '+1' },
+            { criteria: 'Not testable*', points: 'NT' }
+        ],
+        footnotes: [
+            '*NT = Not Testable. Document reason (e.g., "E-NT due to periorbital swelling", "V-NT due to intubation").'
+        ]
+    },
+
     interpretationInfo: `
         <h4>📊 Interpretation</h4>
         <ul class="info-list">

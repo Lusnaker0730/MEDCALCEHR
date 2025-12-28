@@ -41,6 +41,29 @@ export const gad7 = createRadioScoreCalculator({
         options: frequencyOptions.map(opt => ({ ...opt }))
     })),
 
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points. Each question is scored 0-3:',
+        scoringCriteria: [
+            { criteria: 'Not at all', points: '0' },
+            { criteria: 'Several days', points: '1' },
+            { criteria: 'More than half the days', points: '2' },
+            { criteria: 'Nearly every day', points: '3' }
+        ],
+        footnotes: [
+            'Total score range: 0-21 points'
+        ],
+        interpretationTitle: 'FACTS & FIGURES',
+        tableHeaders: ['GAD-7 Score', 'Severity', 'Proposed Action'],
+        interpretations: [
+            { score: '0-4', category: 'Minimal', interpretation: 'Monitor; may not require treatment', severity: 'success' },
+            { score: '5-9', category: 'Mild', interpretation: 'Watchful waiting; reassessment in 4 weeks', severity: 'info' },
+            { score: '10-14', category: 'Moderate', interpretation: 'Active treatment with counseling and/or pharmacotherapy', severity: 'warning' },
+            { score: '15-21', category: 'Severe', interpretation: 'Active treatment with pharmacotherapy and/or psychotherapy', severity: 'danger' }
+        ]
+    },
+
     riskLevels: [
         {
             minScore: 0,

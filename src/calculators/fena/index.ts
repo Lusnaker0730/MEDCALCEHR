@@ -71,18 +71,13 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'FORMULA',
-        calculationNote: 'Units: Na (mEq/L), Cr (mg/dL or µmol/L)',
-        scoringCriteria: [
-            {
-                criteria: 'FENa (%)',
-                points: '[(Urine Na × Serum Cr) / (Serum Na × Urine Cr)] × 100'
-            }
-        ]
-    },
+    formulas: [
+        {
+            label: 'FENa (%)',
+            formula: '<span class="formula-fraction"><span class="numerator">Urine Na × Serum Cr</span><span class="denominator">Serum Na × Urine Cr</span></span> × 100',
+            notes: 'Units: Na (mEq/L), Cr (mg/dL or µmol/L)'
+        }
+    ],
     calculate: values => {
         const uNa = values['fena-urine-na'] as number | null;
         const sNa = values['fena-serum-na'] as number | null;

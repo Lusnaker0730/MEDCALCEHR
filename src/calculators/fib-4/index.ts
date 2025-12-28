@@ -52,12 +52,12 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'FORMULA',
-        scoringCriteria: [{ criteria: 'FIB-4 Index', points: '(Age × AST) / (Platelets × √ALT)' }]
-    },
+    formulas: [
+        {
+            label: 'FIB-4 Index',
+            formula: '<span class="formula-fraction"><span class="numerator">Age × AST</span><span class="denominator">Platelets × √ALT</span></span>'
+        }
+    ],
     dataRequirements: {
         autoPopulateAge: { inputId: 'fib4-age' }
     },

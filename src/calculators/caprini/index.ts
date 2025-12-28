@@ -90,6 +90,31 @@ const config: MixedInputCalculatorConfig = {
     title: 'Caprini Score for Venous Thromboembolism (2005)',
     description: 'Stratifies VTE risk in surgical patients, guiding prophylaxis decisions.',
     sections: sections,
+
+    formulas: [
+        {
+            title: 'Facts & Figures',
+            content: `
+                ${uiBuilder.createTable({
+                    headers: ['Caprini Score', 'Risk category', 'Risk percent*', 'Recommended prophylaxis**', 'Duration of chemoprophylaxis'],
+                    rows: [
+                        ['0', 'Lowest', 'Minimal', 'Early frequent ambulation only, OR at discretion of surgical team: Pneumatic compression devices OR graduated compression stockings', 'During hospitalization'],
+                        ['1–2', 'Low', 'Minimal', 'Pneumatic compression devices ± graduated compression stockings', 'During hospitalization'],
+                        ['3–4', 'Moderate', '0.7%', 'Pneumatic compression devices ± graduated compression stockings', 'During hospitalization'],
+                        ['5–6', 'High', '1.8%', 'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin', '7–10 days total'],
+                        ['7–8', 'High', '4.0%', 'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin', '7–10 days total'],
+                        ['≥9', 'Highest', '10.7%', 'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin', '30 days total']
+                    ],
+                    stickyFirstColumn: true
+                })}
+                <div class="footnotes-section mt-15">
+                    <p class="footnote-item text-sm text-muted">*Percent represents VTE risk without prophylaxis. From Bahl 2010, which looked at 8,216 general, vascular, and urological surgery patients.</p>
+                    <p class="footnote-item text-sm text-muted">**Adapted from Gould 2012.</p>
+                </div>
+            `
+        }
+    ],
+
     calculate: values => {
         let score = 0;
         for (const key in values) {

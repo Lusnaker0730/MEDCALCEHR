@@ -63,6 +63,26 @@ const config: YesNoCalculatorConfig = {
         },
         { id: 'hasbled-alcohol', label: 'Alcohol use (≥8 drinks/week)', points: 1 }
     ],
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points:',
+        scoringCriteria: [
+            { criteria: 'Hypertension', points: '1' },
+            { criteria: 'Renal disease (dialysis, transplant, Cr >2.26 mg/dL or 200 µmol/L)', points: '1' },
+            { criteria: 'Liver disease (cirrhosis or bilirubin >2x normal with AST/ALT/AP >3x normal)', points: '1' },
+            { criteria: 'Stroke history', points: '1' },
+            { criteria: 'Prior major bleeding or predisposition to bleeding', points: '1' },
+            { criteria: 'Labile INR (unstable/high INRs, time in therapeutic range <60%)', points: '1' },
+            { criteria: 'Elderly (age >65)', points: '1' },
+            { criteria: 'Medication usage predisposing to bleeding (aspirin, clopidogrel, NSAIDs)', points: '1' },
+            { criteria: 'Alcohol usage (≥8 drinks/week)', points: '1' }
+        ],
+        footnotes: [
+            'Note: HAS-BLED is an acronym for Hypertension, Abnormal liver/renal function, Stroke history, Bleeding predisposition, Labile INR, Elderly, Drug/alcohol usage.'
+        ]
+    },
+
     riskLevels: [
         {
             minScore: 0,
@@ -229,4 +249,37 @@ const config: YesNoCalculatorConfig = {
     }
 };
 
-export const hasBled = createYesNoCalculator(config);
+// 創建基礎計算器
+const baseCalculator = createYesNoCalculator(config);
+
+// 導出帶有 Facts & Figures 表格的計算器
+export const hasBled = {
+    ...baseCalculator,
+
+    generateHTML(): string {
+        const html = baseCalculator.generateHTML();
+
+        // 添加 Facts & Figures 區塊
+        const factsSection = `
+            ${uiBuilder.createSection({
+                title: 'FACTS & FIGURES',
+                icon: '📊',
+                content: uiBuilder.createTable({
+                    headers: ['HAS-BLED Score', 'Risk group', 'Risk of major bleeding**', 'Bleeds per 100 patient-years***', 'Recommendation'],
+                    rows: [
+                        ['0', 'Low', '0.9%', '1.13', 'Anticoagulation should be considered'],
+                        ['1', 'Low', '3.4%', '1.02', 'Anticoagulation should be considered'],
+                        ['2', 'Moderate', '4.1%', '1.88', 'Anticoagulation can be considered'],
+                        ['3', 'Moderate', '5.8%', '3.72', 'Anticoagulation can be considered'],
+                        ['4', 'High', '8.9%', '8.70', 'Alternatives to anticoagulation should be considered'],
+                        ['5', 'High', '9.1%', '12.50', 'Alternatives to anticoagulation should be considered'],
+                        ['>5*', 'Very high', '-', '-', '-']
+                    ],
+                    stickyFirstColumn: true
+                })
+            })}
+        `;
+
+        return html + factsSection;
+    }
+};

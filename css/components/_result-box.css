@@ -226,3 +226,23 @@
     border-radius: var(--radius-md);
     margin-top: var(--spacing-2);
 }
+
+/* Formula Fraction Display (e.g., Cockcroft-Gault) */
+.formula-fraction {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 var(--spacing-2);
+}
+
+.formula-fraction .numerator {
+    border-bottom: 2px solid var(--color-text-secondary);
+    padding-bottom: var(--spacing-1);
+    margin-bottom: var(--spacing-1);
+}
+
+.formula-fraction .denominator {
+    padding-top: var(--spacing-1);
+}

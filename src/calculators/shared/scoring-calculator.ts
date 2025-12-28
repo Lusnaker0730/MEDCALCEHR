@@ -28,232 +28,39 @@ import {
 } from '../../fhir-data-service.js';
 
 // ==========================================
-// 類型定義
+// 從集中類型定義導入並重新導出
 // ==========================================
 
-/** 輸入類型 */
-export type InputType = 'radio' | 'checkbox' | 'yesno';
+// 重新導出所有類型供外部使用
+export type {
+    ScoringInputType as InputType,
+    ScoringOption,
+    ScoringSection,
+    YesNoQuestion,
+    YesNoModeConfig,
+    ScoringRiskLevel,
+    ScoringFHIRDataRequirements,
+    ScoringCalculatorConfig,
+    FormulaSectionConfig,
+    ScoringCriteriaItem,
+    InterpretationItem,
+    CalculatorModule
+} from '../../types/index.js';
 
-/** 選項配置 */
-export interface ScoringOption {
-    /** 選項 ID (checkbox 模式必須，radio 模式可選) */
-    id?: string;
-    /** 選項值 (支援 string 或 number) */
-    value: string | number;
-    /** 顯示標籤 */
-    label: string;
-    /** 是否預設選中 */
-    checked?: boolean;
-    /** 額外說明 */
-    description?: string;
-    /** SNOMED 條件代碼（用於 FHIR 自動選擇） */
-    conditionCode?: string;
-}
-
-/** 區塊配置 */
-export interface ScoringSection {
-    /** 區塊 ID (radio 模式作為 name，checkbox 模式可選用於 ID 前綴) */
-    id?: string;
-    /** 區塊標題 */
-    title: string;
-    /** 圖示 */
-    icon?: string;
-    /** 副標題/說明 */
-    subtitle?: string;
-    /** 選項列表 */
-    options: ScoringOption[];
-    /** LOINC 代碼（用於 FHIR 自動填充） */
-    loincCode?: string;
-    /** 數值映射（用於將 FHIR 數值轉換為選項值） */
-    valueMapping?: Array<{
-        condition: (value: number) => boolean;
-        /** 選項值 */
-        optionValue?: string;
-        /** @deprecated 使用 optionValue 代替 */
-        radioValue?: string;
-    }>;
-    /** 觀察值條件（用於 FHIR 自動選「是」） - yesno 模式 */
-    observationCriteria?: {
-        code: string;
-        condition: (value: number) => boolean;
-    };
-}
-
-/** Yes/No 問題 (yesno 模式的簡化配置) */
-export interface YesNoQuestion {
-    /** 問題 ID */
-    id: string;
-    /** 問題標籤 */
-    label: string;
-    /** 選「是」時的分數 */
-    points: number;
-    /** 額外說明 */
-    description?: string;
-    /** SNOMED 條件代碼（用於 FHIR 自動選「是」） */
-    conditionCode?: string;
-    /** LOINC 觀察值條件 */
-    observationCriteria?: {
-        code: string;
-        condition: (value: number) => boolean;
-    };
-}
-
-/** Yes/No 模式額外配置 */
-export interface YesNoModeConfig {
-    /** 區塊標題 */
-    sectionTitle?: string;
-    /** 區塊圖示 */
-    sectionIcon?: string;
-    /** 分數範圍文字 (如 'points') */
-    scoreRange?: string;
-}
-
-/** 風險等級 */
-export interface ScoringRiskLevel {
-    minScore: number;
-    maxScore: number;
-    /** 標籤 (通用，可選 - 如未提供則使用 category 或 risk) */
-    label?: string;
-    /** 風險描述 (score-calculator 兼容) */
-    risk?: string;
-    /** 類別 (score-calculator 兼容) */
-    category?: string;
-    /** 嚴重程度 */
-    severity: 'success' | 'warning' | 'danger' | 'info';
-    /** 描述/建議 */
-    description?: string;
-    /** 建議行動 */
-    recommendation?: string;
-}
-
-/** FHIR 數據需求配置 */
-export interface ScoringFHIRDataRequirements {
-    /** 觀察值需求 */
-    observations?: FieldDataRequirement[];
-    /** 條件代碼（SNOMED） */
-    conditions?: string[];
-    /** 藥物代碼（RxNorm） */
-    medications?: string[];
-    /** 自動填充患者年齡 */
-    autoPopulateAge?: {
-        inputId?: string;
-        questionId?: string;
-        condition?: (age: number) => boolean;
-    };
-    /** 自動填充患者性別 */
-    autoPopulateGender?: {
-        radioName?: string;
-        questionId?: string;
-        maleValue: string;
-        femaleValue: string;
-    };
-}
-
-/** 評分標準項目 */
-export interface ScoringCriteriaItem {
-    criteria: string;
-    points?: string;
-    isHeader?: boolean;
-}
-
-/** 解釋項目 */
-export interface InterpretationItem {
-    score: string;
-    category?: string;
-    interpretation: string;
-    severity?: 'success' | 'warning' | 'danger' | 'info';
-}
-
-/** Formula 區塊配置 */
-export interface FormulaSectionConfig {
-    show: boolean;
-    title?: string;
-    calculationNote?: string;
-    scoringCriteria?: ScoringCriteriaItem[];
-    footnotes?: string[];
-    interpretationTitle?: string;
-    tableHeaders?: string[];
-    interpretations?: InterpretationItem[];
-}
-
-/** 統一評分計算器配置 */
-export interface ScoringCalculatorConfig {
-    /** 計算器 ID */
-    id: string;
-    /** 計算器標題 */
-    title: string;
-    /** 計算器描述 */
-    description: string;
-
-    /**
-     * 輸入類型
-     * - 'radio': Radio groups (每個區塊單選)
-     * - 'checkbox': Checkboxes (可多選)
-     * - 'yesno': Yes/No radio pairs (是/否選擇)
-     * @default 'radio'
-     */
-    inputType?: InputType;
-
-    /** 區塊列表 (radio/checkbox 模式) */
-    sections?: ScoringSection[];
-
-    /** 問題列表 (yesno 模式的簡化配置) */
-    questions?: YesNoQuestion[];
-
-    /** Yes/No 模式區塊標題 */
-    sectionTitle?: string;
-    /** Yes/No 模式區塊圖示 */
-    sectionIcon?: string;
-    /** 分數範圍文字 */
-    scoreRange?: string;
-
-    /** 風險等級列表 */
-    riskLevels: ScoringRiskLevel[];
-
-    /** 提示訊息 */
-    infoAlert?: string;
-    /** 解釋說明 */
-    interpretationInfo?: string;
-    /** 參考文獻 */
-    references?: string[];
-
-    /** Formula 區塊配置 */
-    formulaSection?: FormulaSectionConfig;
-
-    /**
-     * 舊格式公式項目 (向後兼容)
-     * @deprecated 請使用 formulaSection 代替
-     */
-    formulaItems?: Array<{
-        title: string;
-        formulas?: string[];
-        content?: string;
-        notes?: string;
-    }>;
-
-    /** FHIR 數據需求 */
-    dataRequirements?: ScoringFHIRDataRequirements;
-
-    /** 自定義結果渲染函數 */
-    customResultRenderer?: (score: number, sectionScores: Record<string, number>) => string;
-
-    /** 自定義初始化函數 */
-    customInitialize?: (
-        client: unknown,
-        patient: unknown,
-        container: HTMLElement,
-        calculate: () => void
-    ) => void | Promise<void>;
-}
-
-/** 計算器模組介面 */
-export interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: unknown, patient: unknown, container: HTMLElement) => void;
-}
+// 導入類型供內部使用
+import type {
+    ScoringInputType as InputType,
+    ScoringOption,
+    ScoringSection,
+    YesNoQuestion,
+    ScoringRiskLevel,
+    ScoringFHIRDataRequirements,
+    ScoringCalculatorConfig,
+    FormulaSectionConfig,
+    ScoringCriteriaItem,
+    InterpretationItem,
+    CalculatorModule
+} from '../../types/index.js';
 
 // ==========================================
 // 內部輔助函數

@@ -80,6 +80,7 @@ export const calculatorModules: CalculatorMetadata[] = [
     { id: 'ethanol-concentration', title: 'Ethanol Concentration Conversion', category: 'metabolic' },
     { id: 'ett', title: 'ETT Depth and Tidal Volume Calculator', category: 'respiratory' },
     { id: 'fena', title: 'Fractional Excretion of Sodium (FENa)', category: 'renal' },
+    { id: 'feurea', title: 'Fractional Excretion of Urea (FEUrea)', category: 'renal' },
     { id: 'fib-4', title: 'FIB-4 Score for Liver Fibrosis', category: 'gastroenterology' },
     { id: 'free-water-deficit', title: 'Free Water Deficit in Hypernatremia', category: 'metabolic' },
     { id: 'gad-7', title: 'GAD-7 for Anxiety', category: 'psychiatry' },

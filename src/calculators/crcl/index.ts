@@ -71,21 +71,16 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'FORMULA',
-        scoringCriteria: [
-            {
-                criteria: 'Male',
-                points: '[(140 - Age) × Weight] / (72 × Serum Creatinine)'
-            },
-            {
-                criteria: 'Female',
-                points: '[(140 - Age) × Weight × 0.85] / (72 × Serum Creatinine)'
-            }
-        ]
-    },
+    formulas: [
+        {
+            label: 'Male',
+            formula: '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight</span><span class="denominator">72 × Serum Creatinine</span></span>'
+        },
+        {
+            label: 'Female',
+            formula: '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight × 0.85</span><span class="denominator">72 × Serum Creatinine</span></span>'
+        }
+    ],
     calculate: values => {
         const gender = (values['gender'] as string) || 'male';
         const age = values['age'] as number | null;

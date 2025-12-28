@@ -79,16 +79,22 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'SCORING',
-        scoringCriteria: [
-            { criteria: 'Child Class A', points: '5-6 points' },
-            { criteria: 'Child Class B', points: '7-9 points' },
-            { criteria: 'Child Class C', points: '10-15 points' }
-        ]
-    },
+    formulas: [
+        {
+            title: 'Scoring',
+            content: `
+                <p class="calculation-note mb-15">Addition of the selected points:</p>
+                ${uiBuilder.createTable({
+                    headers: ['Classification', 'Points'],
+                    rows: [
+                        ['Child Class A', '5-6 points'],
+                        ['Child Class B', '7-9 points'],
+                        ['Child Class C', '10-15 points']
+                    ]
+                })}
+            `
+        }
+    ],
     calculate: values => {
         const bilirubin = parseInt(values['bilirubin'] as string);
         const albumin = parseInt(values['albumin'] as string);

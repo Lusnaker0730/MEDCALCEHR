@@ -140,6 +140,67 @@ export const centor = {
             `${ageSection}<div id="centor-error-container"></div>`
         );
 
+        // Formula Section
+        const formulaSection = uiBuilder.createSection({
+            title: 'Formula',
+            icon: '📐',
+            content: `
+                <p class="calculation-note mb-15">Addition of the selected points:</p>
+                <div class="ui-table-wrapper">
+                    <table class="ui-scoring-table">
+                        <thead>
+                            <tr>
+                                <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
+                                <th class="ui-scoring-table__header"></th>
+                                <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="ui-scoring-table__category"><td colspan="3">Age</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>3-14 years</td><td class="text-center">+1</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>15-44 years</td><td class="text-center">0</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>≥45 years</td><td class="text-center">-1</td></tr>
+                            <tr class="ui-scoring-table__category"><td colspan="3">Exudate or swelling on tonsils</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>No</td><td class="text-center">0</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>Yes</td><td class="text-center">+1</td></tr>
+                            <tr class="ui-scoring-table__category"><td colspan="3">Tender/swollen anterior cervical lymph nodes</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>No</td><td class="text-center">0</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>Yes</td><td class="text-center">+1</td></tr>
+                            <tr class="ui-scoring-table__category"><td colspan="3">Temp >38°C (100.4°F)</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>No</td><td class="text-center">0</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>Yes</td><td class="text-center">+1</td></tr>
+                            <tr class="ui-scoring-table__category"><td colspan="3">Cough</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>Cough present</td><td class="text-center">0</td></tr>
+                            <tr class="ui-scoring-table__item"><td></td><td>Cough absent</td><td class="text-center">+1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `
+        });
+
+        // Facts & Figures Section
+        const factsSection = uiBuilder.createSection({
+            title: 'Facts & Figures',
+            icon: '📊',
+            content: `
+                <p class="mb-10"><strong>Interpretation:</strong></p>
+                ${uiBuilder.createTable({
+                    headers: ['Centor Score', 'Probability of strep pharyngitis', 'Recommendation'],
+                    rows: [
+                        ['0', '1-2.5%', 'No further testing or antibiotics.'],
+                        ['1', '5-10%', 'No further testing or antibiotics.'],
+                        ['2', '11-17%', 'Optional rapid strep testing and/or culture.'],
+                        ['3', '28-35%', 'Consider rapid strep testing and/or culture.'],
+                        ['≥4', '51-53%', 'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.']
+                    ],
+                    stickyFirstColumn: true
+                })}
+            `
+        });
+
+        // 在 HTML 最後加入 Formula 和 Facts 區塊
+        html += formulaSection + factsSection;
+
         return html;
     },
 

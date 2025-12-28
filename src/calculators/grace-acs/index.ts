@@ -107,6 +107,26 @@ const config: MixedInputCalculatorConfig = {
 
     resultTitle: 'GRACE ACS Risk Assessment',
 
+    formulaSection: {
+        show: true,
+        title: 'FACTS & FIGURES',
+        calculationNote: 'Score interpretation:',
+        scoringCriteria: [
+            { criteria: '0-87', points: '0-2%' },
+            { criteria: '88-128', points: '3-10%' },
+            { criteria: '129-149', points: '10-20%' },
+            { criteria: '150-173', points: '20-30%' },
+            { criteria: '174-182', points: '40%' },
+            { criteria: '183-190', points: '50%' },
+            { criteria: '191-199', points: '60%' },
+            { criteria: '200-207', points: '70%' },
+            { criteria: '208-218', points: '80%' },
+            { criteria: '219-284', points: '90%' },
+            { criteria: '≥285', points: '99%' }
+        ],
+        tableHeaders: ['Grace Score Range', 'Mortality Risk']
+    },
+
     calculate: values => {
         const age = values['grace-age'] as number | null;
         const hr = values['grace-hr'] as number | null;

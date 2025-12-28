@@ -74,6 +74,12 @@ const config: RadioScoreCalculatorConfig = {
             ]
         }
     ],
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points:'
+    },
+
     riskLevels: [
         {
             minScore: 0,
@@ -170,4 +176,43 @@ const config: RadioScoreCalculatorConfig = {
     }
 };
 
-export const heartScore = createRadioScoreCalculator(config);
+// 創建基礎計算器
+const baseCalculator = createRadioScoreCalculator(config);
+
+// 導出帶有詳細 Formula 表格的計算器
+export const heartScore = {
+    ...baseCalculator,
+
+    generateHTML(): string {
+        const html = baseCalculator.generateHTML();
+
+        // 添加詳細 Formula 表格
+        const formulaTable = `
+            ${uiBuilder.createSection({
+                title: 'Scoring Criteria',
+                icon: '📋',
+                content: uiBuilder.createTable({
+                    headers: ['', '0 points', '1 point', '2 points'],
+                    rows: [
+                        ['<strong>History<sup>1</sup></strong>', 'Slightly suspicious', 'Moderately suspicious', 'Highly suspicious'],
+                        ['<strong>EKG</strong>', 'Normal', 'Non-specific repolarization disturbance<sup>2</sup>', 'Significant ST deviation<sup>3</sup>'],
+                        ['<strong>Age (years)</strong>', '<45', '45–64', '≥65'],
+                        ['<strong>Risk factors<sup>4</sup></strong>', 'No known risk factors', '1–2 risk factors', '≥3 risk factors or history of atherosclerotic disease'],
+                        ['<strong>Initial troponin<sup>5</sup></strong>', '≤normal limit', '1–3× normal limit', '>3× normal limit']
+                    ],
+                    stickyFirstColumn: true
+                }) + `
+                    <div class="table-note text-sm text-muted mt-10">
+                        <p><sup>1</sup> History: Slightly suspicious = nonspecific symptoms; Moderately suspicious = traditional symptoms; Highly suspicious = typical chest pain.</p>
+                        <p><sup>2</sup> Includes LBBB, pacemaker rhythm, LVH, repolarization changes.</p>
+                        <p><sup>3</sup> ST depression or elevation ≥1mm in ≥2 contiguous leads.</p>
+                        <p><sup>4</sup> Risk factors: HTN, hyperlipidemia, DM, obesity (BMI>30), smoking, family history, atherosclerotic disease.</p>
+                        <p><sup>5</sup> Use local assay normal limits.</p>
+                    </div>
+                `
+            })}
+        `;
+
+        return html + formulaTable;
+    }
+};

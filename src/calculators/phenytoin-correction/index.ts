@@ -59,18 +59,16 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'FORMULA',
-        scoringCriteria: [
-            {
-                criteria: 'Corrected Level',
-                points: 'Total Phenytoin / [((1-K) × Albumin/4.4) + K]'
-            },
-            { criteria: 'K', points: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)' }
-        ]
-    },
+    formulas: [
+        {
+            label: 'Corrected Level',
+            formula: '<span class="formula-fraction"><span class="numerator">Total Phenytoin</span><span class="denominator">((1 − K) × Albumin / 4.4) + K</span></span>'
+        },
+        {
+            label: 'K',
+            formula: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)'
+        }
+    ],
     calculate: values => {
         const total = values['pheny-total'] as number | null;
         const albumin = values['pheny-albumin'] as number | null;

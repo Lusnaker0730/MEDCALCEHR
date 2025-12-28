@@ -19,200 +19,61 @@ import { fhirDataService, FieldDataRequirement } from '../../fhir-data-service.j
 import { ValidationError, displayError } from '../../errorHandler.js';
 
 // ==========================================
-// 類型定義
+// 從集中類型定義導入並重新導出
 // ==========================================
 
-/** 數字輸入配置 */
-export interface NumberInputConfig {
-    type?: 'number';
-    id: string;
-    label: string;
-    /** 標準單位（計算時使用） */
-    standardUnit?: string;
-    /** 顯示單位（無切換時） */
-    unit?: string;
-    /** 單位切換配置 */
-    unitConfig?: {
-        type: string;
-        units: string[];
-        default: string;
-    };
-    /** 單位切換配置（別名，向後兼容） */
-    unitToggle?: {
-        type: string;
-        units: string[];
-        default: string;
-    };
-    placeholder?: string;
-    min?: number;
-    max?: number;
-    step?: number;
-    loincCode?: string;
-    helpText?: string;
-    required?: boolean;
-}
+// 重新導出所有類型供外部使用
+export type {
+    NumberInputConfig,
+    RadioInputConfig,
+    SelectInputConfig,
+    InputConfig,
+    InputSectionConfig,
+    FormulaResultItem,
+    ComplexCalculationResult,
+    FormulaReferenceItem,
+    FHIRAutoPopulateConfig,
+    GetValueFn,
+    GetStdValueFn,
+    GetRadioValueFn,
+    GetCheckboxValueFn,
+    SimpleCalculateFn,
+    ComplexCalculateFn,
+    FormulaCalculatorConfig,
+    CalculatorModule,
+    // 向後兼容別名
+    FormulaNumberInputConfig,
+    FormulaRadioInputConfig,
+    FormulaSelectInputConfig,
+    FormulaInputConfig,
+    FormulaConfig,
+    InputFieldConfig,
+    RadioFieldConfig,
+    InputSection,
+    ComplexFormulaCalculatorConfig,
+    CalculationResult
+} from '../../types/index.js';
 
-/** Radio 輸入配置 */
-export interface RadioInputConfig {
-    type?: 'radio';
-    /** ID (用作 name 屬性) */
-    id?: string;
-    name?: string;
-    label: string;
-    options: Array<{ value: string; label: string; checked?: boolean }>;
-    helpText?: string;
-}
-
-/** Select 輸入配置 */
-export interface SelectInputConfig {
-    type?: 'select';
-    id: string;
-    label: string;
-    options: Array<{ value: string; label: string }>;
-    defaultValue?: string;
-    helpText?: string;
-}
-
-/** 輸入配置類型 - 支援多種格式 */
-export type InputConfig = NumberInputConfig | RadioInputConfig | SelectInputConfig | string;
-
-/** 輸入區塊配置 */
-export interface InputSectionConfig {
-    title: string;
-    subtitle?: string;
-    icon?: string;
-    /** 區塊內的輸入欄位 */
-    fields: InputConfig[];
-}
-
-/** 簡單計算結果項目 */
-export interface FormulaResultItem {
-    label: string;
-    value: number | string;
-    unit?: string;
-    interpretation?: string;
-    alertClass?: 'success' | 'warning' | 'danger' | 'info';
-}
-
-/** 複雜計算結果 */
-export interface ComplexCalculationResult {
-    score?: number;
-    value?: number;
-    interpretation?: string;
-    severity: 'success' | 'warning' | 'danger' | 'info';
-    breakdown?: string;
-    additionalResults?: Array<{
-        label: string;
-        value: string;
-        unit?: string;
-    }>;
-}
-
-/** 公式參考項目 */
-export interface FormulaReferenceItem {
-    label: string;
-    formula: string;
-    notes?: string;
-}
-
-/** FHIR 自動填入配置 */
-export interface FHIRAutoPopulateConfig {
-    fieldId: string;
-    loincCode: string;
-    targetUnit?: string;
-    unitType?: string;
-    formatter?: (value: number) => string;
-}
-
-/** 值取得器函數類型 */
-export type GetValueFn = (id: string) => number | null;
-export type GetStdValueFn = (id: string, unit: string) => number | null;
-export type GetRadioValueFn = (name: string) => string | null;
-export type GetCheckboxValueFn = (id: string) => boolean;
-
-/** 簡單計算函數類型 */
-export type SimpleCalculateFn = (
-    values: Record<string, number | string>
-) => FormulaResultItem[] | null;
-
-/** 複雜計算函數類型 */
-export type ComplexCalculateFn = (
-    getValue: GetValueFn,
-    getStdValue: GetStdValueFn,
-    getRadioValue: GetRadioValueFn,
-    getCheckboxValue: GetCheckboxValueFn
-) => ComplexCalculationResult | null;
-
-/** 統一公式計算器配置 */
-export interface FormulaCalculatorConfig {
-    id: string;
-    title: string;
-    description: string;
-
-    /**
-     * 計算模式
-     * - 'simple': 使用扁平的 inputs 陣列和簡單的 values 物件
-     * - 'complex': 使用區塊化的 sections 和輔助函數
-     * @default 自動判斷 (有 sections 為 complex，有 inputs 為 simple)
-     */
-    mode?: 'simple' | 'complex';
-
-    /** 扁平輸入列表 (simple 模式) */
-    inputs?: InputConfig[];
-
-    /** 區塊化輸入 (complex 模式) */
-    sections?: InputSectionConfig[];
-
-    /** 簡單計算函數 */
-    calculate?: SimpleCalculateFn;
-
-    /** 複雜計算函數 */
-    complexCalculate?: ComplexCalculateFn;
-
-    /** 公式參考 */
-    formulas?: FormulaReferenceItem[];
-
-    /** 自定義結果渲染器 (simple 模式) */
-    customResultRenderer?: (results: FormulaResultItem[]) => string;
-
-    /** 提示訊息 */
-    infoAlert?: string;
-
-    /** 結果標題 */
-    resultTitle?: string;
-
-    /** 參考文獻 (HTML) */
-    reference?: string;
-
-    /** 底部 HTML */
-    footerHTML?: string;
-
-    /** FHIR 自動填入配置 */
-    fhirAutoPopulate?: FHIRAutoPopulateConfig[];
-
-    /** 自動填入年齡欄位 ID */
-    autoPopulateAge?: string;
-
-    /** 自動填入性別欄位 ID */
-    autoPopulateGender?: string;
-
-    /** 自定義初始化函數 */
-    customInitialize?: (
-        client: any,
-        patient: any,
-        container: HTMLElement,
-        calculate: () => void
-    ) => void;
-}
-
-/** 計算器模組介面 */
-export interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
+// 導入類型供內部使用
+import type {
+    NumberInputConfig,
+    RadioInputConfig,
+    SelectInputConfig,
+    InputConfig,
+    InputSectionConfig,
+    FormulaResultItem,
+    ComplexCalculationResult,
+    FormulaReferenceItem,
+    FHIRAutoPopulateConfig,
+    GetValueFn,
+    GetStdValueFn,
+    GetRadioValueFn,
+    GetCheckboxValueFn,
+    SimpleCalculateFn,
+    ComplexCalculateFn,
+    FormulaCalculatorConfig,
+    CalculatorModule
+} from '../../types/index.js';
 
 // ==========================================
 // 輔助函數
@@ -727,31 +588,8 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 }
 
 // ==========================================
-// 向後兼容的別名函數
+// 向後兼容的工廠函數
 // ==========================================
-
-// Re-export types
-export type {
-    FormulaResultItem as FormulaResult,
-    ComplexCalculationResult as CalculationResult
-};
-
-/** 舊版 FormulaNumberInputConfig 別名 */
-export type FormulaNumberInputConfig = NumberInputConfig;
-/** 舊版 FormulaRadioInputConfig 別名 */
-export type FormulaRadioInputConfig = RadioInputConfig;
-/** 舊版 FormulaSelectInputConfig 別名 */
-export type FormulaSelectInputConfig = SelectInputConfig;
-/** 舊版 FormulaInputConfig 別名 */
-export type FormulaInputConfig = InputConfig;
-/** 舊版 FormulaConfig 別名 */
-export type FormulaConfig = FormulaCalculatorConfig;
-/** 舊版 InputFieldConfig 別名 */
-export type InputFieldConfig = NumberInputConfig;
-/** 舊版 RadioFieldConfig 別名 */
-export type RadioFieldConfig = RadioInputConfig;
-/** 舊版 InputSection 別名 */
-export type InputSection = InputSectionConfig;
 
 /**
  * 創建簡單公式計算器（向後兼容）

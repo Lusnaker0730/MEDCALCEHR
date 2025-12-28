@@ -108,6 +108,66 @@ const config: MixedInputCalculatorConfig = {
 
     resultTitle: 'Gupta MICA Risk Assessment',
 
+    formulaSection: {
+        show: true,
+        type: 'list',
+        title: 'FORMULA',
+        scoringCriteria: [
+            { criteria: 'Cardiac risk, % = e<sup>x</sup> / (1 + e<sup>x</sup>)', points: '' },
+            { criteria: 'Where x = −5.25 + sum of the values of the selected variables.', points: '' }
+        ]
+    },
+
+    formulas: [
+        {
+            label: 'Variable Coefficients',
+            formula: uiBuilder.createTable({
+                headers: ['Variable', 'Options', 'Value'],
+                rows: [
+                    ['<strong>Age per year of increase</strong>', '', 'Age × 0.02'],
+                    ['<strong>Functional status</strong>', 'Independent', '0'],
+                    ['', 'Partially dependent', '0.65'],
+                    ['', 'Totally dependent', '1.03'],
+                    ['<strong>ASA Class</strong>', '1: normal healthy patient', '−5.17'],
+                    ['', '2: mild systemic disease', '−3.29'],
+                    ['', '3: severe systemic disease', '−1.92'],
+                    ['', '4: severe systemic disease that is a constant threat to life*', '−0.95'],
+                    ['', '5: moribund, not expected to survive without surgery', '0'],
+                    ['<strong>Creatinine</strong>', 'Normal (<1.5 mg/dL, 133 µmol/L)', '0'],
+                    ['', 'Elevated (≥1.5 mg/dL, 133 µmol/L)', '0.61'],
+                    ['', 'Unknown', '−0.10'],
+                    ['<strong>Type of procedure</strong>', 'Anorectal', '−0.16'],
+                    ['', 'Aortic', '1.60'],
+                    ['', 'Bariatric', '−0.25'],
+                    ['', 'Brain', '1.40'],
+                    ['', 'Breast', '−1.61'],
+                    ['', 'Cardiac', '1.01'],
+                    ['', 'ENT (except thyroid/parathyroid)', '0.71'],
+                    ['', 'Foregut or hepatopancreatobiliary', '1.39'],
+                    ['', 'Gallbladder, appendix, adrenals, or spleen', '0.59'],
+                    ['', 'Hernia (ventral, inguinal, femoral)', '0'],
+                    ['', 'Intestinal', '1.14'],
+                    ['', 'Neck (thyroid/parathyroid)', '0.18'],
+                    ['', 'Obstetric/gynecologic', '0.76'],
+                    ['', 'Orthopedic and non-vascular extremity', '0.80'],
+                    ['', 'Other abdominal', '1.13'],
+                    ['', 'Peripheral vascular**', '0.86'],
+                    ['', 'Skin', '0.54'],
+                    ['', 'Spine', '0.21'],
+                    ['', 'Non-esophageal thoracic', '0.40'],
+                    ['', 'Vein', '−1.09'],
+                    ['', 'Urology', '−0.26']
+                ],
+                stickyFirstColumn: true
+            }) + `
+                <p class="table-note text-sm text-muted mt-10">
+                    *I.e., patient could die acutely without intervention.<br>
+                    **Non-aortic, non-vein vascular surgeries.
+                </p>
+            `
+        }
+    ],
+
     calculate: values => {
         const age = values['mica-age'] as number | null;
         const creat = values['mica-creat'] as number | null;

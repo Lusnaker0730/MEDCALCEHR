@@ -125,5 +125,224 @@ export const benzoConversion = createConversionCalculator({
                 </ul>
             `
         })}
+
+        ${uiBuilder.createSection({
+            title: 'Formula',
+            icon: '📐',
+            content: `
+                <h4 class="mb-10">Duration of Action</h4>
+                ${uiBuilder.createTable({
+                    headers: ['Benzodiazepine', 'Duration of action'],
+                    rows: [
+                        ['ALPRAZolam (Xanax)', 'Short'],
+                        ['ChlordiazePOXIDE (Librium)', 'Long'],
+                        ['DiazePAM (Valium)', 'Long'],
+                        ['ClonazePAM (KlonoPIN)', 'Long'],
+                        ['LORazepam (Ativan)', 'Intermediate'],
+                        ['Oxazepam (Serax)', 'Short'],
+                        ['Temazepam (Restoril)', 'Intermediate'],
+                        ['Triazolam (Halcion)', 'Short']
+                    ]
+                })}
+
+                <h4 class="mt-20 mb-10">Conversion Factors</h4>
+                <p class="text-sm text-muted mb-10">Highlighted cell is used for example below</p>
+                <div class="ui-table-wrapper">
+                    <table class="ui-table ui-table--compact">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>From Xanax</th>
+                                <th>From Librium</th>
+                                <th>From Valium</th>
+                                <th>From Klonopin</th>
+                                <th>From Ativan</th>
+                                <th>From Serax</th>
+                                <th>From Restoril</th>
+                                <th>From Halcion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>To Xanax</strong></td>
+                                <td>1</td>
+                                <td>÷ 25</td>
+                                <td>÷ 10</td>
+                                <td>× 2</td>
+                                <td>× 2</td>
+                                <td>÷ 20</td>
+                                <td>÷ 20</td>
+                                <td>× 2</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>n/a</td>
+                                <td>15-50</td>
+                                <td>5-20</td>
+                                <td>0.5-4</td>
+                                <td>1-4</td>
+                                <td>5-40</td>
+                                <td>5-40</td>
+                                <td>1-4</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Librium</strong></td>
+                                <td>× 25</td>
+                                <td>1</td>
+                                <td>× 3</td>
+                                <td>× 20</td>
+                                <td>× 10</td>
+                                <td>÷ 0.5</td>
+                                <td>÷ 0.5</td>
+                                <td>× 75</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>15-50</td>
+                                <td>n/a</td>
+                                <td>1.25-5</td>
+                                <td>6.25-50</td>
+                                <td>6.25-25</td>
+                                <td>0.2-1.6</td>
+                                <td>0.2-1.6</td>
+                                <td>25-100</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Valium</strong></td>
+                                <td>× 10</td>
+                                <td>÷ 3</td>
+                                <td>1</td>
+                                <td>× 10</td>
+                                <td>× 6</td>
+                                <td>× 2</td>
+                                <td>× 2</td>
+                                <td>× 20</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>5-20</td>
+                                <td>1.25-5</td>
+                                <td>n/a</td>
+                                <td>2.5-20</td>
+                                <td>2.5-10</td>
+                                <td>0.5-4</td>
+                                <td>0.5-4</td>
+                                <td>10-40</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Klonopin</strong></td>
+                                <td>÷ 2</td>
+                                <td>÷ 20</td>
+                                <td>÷ 10</td>
+                                <td>1</td>
+                                <td>÷ 2</td>
+                                <td>÷ 20</td>
+                                <td>÷ 20</td>
+                                <td>× 4</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>0.5-4</td>
+                                <td>6.25-50</td>
+                                <td>2.5-20</td>
+                                <td>n/a</td>
+                                <td>0.5-4</td>
+                                <td>2.5-40</td>
+                                <td>2.5-40</td>
+                                <td>1-8</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Ativan</strong></td>
+                                <td>÷ 2</td>
+                                <td>÷ 10</td>
+                                <td>÷ 6</td>
+                                <td>× 2</td>
+                                <td>1</td>
+                                <td>÷ 10</td>
+                                <td>÷ 10</td>
+                                <td>× 4</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>1-4</td>
+                                <td>6.25-25</td>
+                                <td>2.5-10</td>
+                                <td>0.5-4</td>
+                                <td>n/a</td>
+                                <td>2.5-20</td>
+                                <td>2.5-20</td>
+                                <td>2-8</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Serax</strong></td>
+                                <td>× 20</td>
+                                <td>× 0.5</td>
+                                <td>÷ 2</td>
+                                <td>× 20</td>
+                                <td>× 10</td>
+                                <td>1</td>
+                                <td>× 1</td>
+                                <td>× 40</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>5-40</td>
+                                <td>0.2-1.6</td>
+                                <td>0.5-4</td>
+                                <td>2.5-40</td>
+                                <td>2.5-20</td>
+                                <td>n/a</td>
+                                <td>0.25-4</td>
+                                <td>10-80</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Restoril</strong></td>
+                                <td>× 20</td>
+                                <td>× 0.5</td>
+                                <td>÷ 2</td>
+                                <td>× 20</td>
+                                <td>× 10</td>
+                                <td>× 1</td>
+                                <td>1</td>
+                                <td>× 40</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>5-40</td>
+                                <td>0.2-1.6</td>
+                                <td>0.5-4</td>
+                                <td>2.5-40</td>
+                                <td>2.5-20</td>
+                                <td>0.25-4</td>
+                                <td>n/a</td>
+                                <td>10-80</td>
+                            </tr>
+                            <tr>
+                                <td><strong>To Halcion</strong></td>
+                                <td>÷ 2</td>
+                                <td>÷ 75</td>
+                                <td>÷ 20</td>
+                                <td>÷ 4</td>
+                                <td>÷ 4</td>
+                                <td>÷ 40</td>
+                                <td>÷ 40</td>
+                                <td>1</td>
+                            </tr>
+                            <tr class="text-muted">
+                                <td>Range</td>
+                                <td>1-4</td>
+                                <td>25-100</td>
+                                <td>10-40</td>
+                                <td>1-8</td>
+                                <td>2-8</td>
+                                <td>10-80</td>
+                                <td>10-80</td>
+                                <td>n/a</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `
+        })}
     `
 });
