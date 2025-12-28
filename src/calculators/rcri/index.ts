@@ -178,14 +178,56 @@ export const rcri = {
     generateHTML(): string {
         const html = baseCalculator.generateHTML();
 
+        // Formula Table
+        const formulaTable = `
+            ${uiBuilder.createSection({
+                title: 'FORMULA',
+                icon: '📐',
+                content: `
+                    <p class="mb-15">Addition of the selected points:</p>
+                    ${uiBuilder.createTable({
+                        headers: ['Risk Factor', 'Description', 'Points'],
+                        rows: [
+                            ['<strong>High-risk surgery</strong>', 'Intraperitoneal; intrathoracic; suprainguinal vascular', '+1'],
+                            ['<strong>History of ischemic heart disease</strong>', 'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves', '+1'],
+                            ['<strong>History of congestive heart failure</strong>', 'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution', '+1'],
+                            ['<strong>History of cerebrovascular disease</strong>', 'Prior transient ischemic attack (TIA) or stroke', '+1'],
+                            ['<strong>Pre-operative treatment with insulin</strong>', '—', '+1'],
+                            ['<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>', '—', '+1']
+                        ],
+                        stickyFirstColumn: true
+                    })}
+                `
+            })}
+        `;
+
+        // Facts & Figures Table
+        const factsTable = `
+            ${uiBuilder.createSection({
+                title: 'FACTS & FIGURES',
+                icon: '📊',
+                content: `
+                    <p class="mb-15">Interpretation per the original 1999 study. Values are based on a combination of derivation and validation sets.</p>
+                    ${uiBuilder.createTable({
+                        headers: ['RCRI Score', 'Approximate Risk of Major Cardiac Event (95% CI)*'],
+                        rows: [
+                            ['0', '0.5%'],
+                            ['1', '1.1%'],
+                            ['2', '5%'],
+                            ['≥3', '10%']
+                        ]
+                    })}
+                `
+            })}
+        `;
+
         const referenceSection = `
             <div class="info-section mt-20">
-                <h4>Reference</h4>
+                <h4>📚 Reference</h4>
                 <p>Lee, T. H., et al. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.</p>
-                <img src="js/calculators/rcri/Lees-Revised-Cardiac-Risk-Index-RCRI_W640.jpg" alt="RCRI Risk Stratification Table" class="img-reference" />
             </div>
         `;
 
-        return html + referenceSection;
+        return html + formulaTable + factsTable + referenceSection;
     }
 };

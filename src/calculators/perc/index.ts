@@ -61,6 +61,22 @@ const config: ScoreCalculatorConfig = {
         }
     ],
 
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'If any of the following is/are present, PE cannot be ruled out:',
+        footnotes: [
+            'Age ≥50.',
+            'HR ≥100.',
+            'O₂ sat on room air <95%.',
+            'Unilateral leg swelling.',
+            'Hemoptysis.',
+            'Recent trauma or surgery.',
+            'Prior PE or DVT.',
+            'Hormone use (oral contraceptives, hormone replacement or estrogenic hormones use in males or female patients).'
+        ]
+    },
+
     // 自定義結果渲染
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         const criteriaMet = score;

@@ -132,9 +132,6 @@ const config: RadioScoreCalculatorConfig = {
             description: 'ICU Mortality: >80%'
         }
     ],
-    references: [
-        'Vincent JL, et al. The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure. <em>Intensive Care Med</em>. 1996;22(7):707-710.'
-    ],
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         let mortalityRisk = '';
         let mortalityPercentage = '';
@@ -359,4 +356,113 @@ const config: RadioScoreCalculatorConfig = {
     }
 };
 
-export const sofa = createRadioScoreCalculator(config);
+const baseCalculator = createRadioScoreCalculator(config);
+
+// 導出帶有公式表格的計算器
+export const sofa = {
+    ...baseCalculator,
+
+    generateHTML(): string {
+        const html = baseCalculator.generateHTML();
+
+        // Formula Section
+        const formulaSection = `
+            ${uiBuilder.createSection({
+                title: 'FORMULA',
+                icon: '📐',
+                content: `
+                    <p class="mb-15">Addition of the selected points:</p>
+                    ${uiBuilder.createTable({
+                        headers: ['Variable', 'Points'],
+                        rows: [
+                            ['<strong>PaO₂/FiO₂, mmHg</strong>', ''],
+                            ['≥400', '0'],
+                            ['300-399', '+1'],
+                            ['200-299', '+2'],
+                            ['<199 and NOT mechanically ventilated', '+2'],
+                            ['100-199 and mechanically ventilated', '+3'],
+                            ['<100 and mechanically ventilated', '+4'],
+                            ['<strong>Platelets, ×10³/µL</strong>', ''],
+                            ['≥150', '0'],
+                            ['100-149', '+1'],
+                            ['50-99', '+2'],
+                            ['20-49', '+3'],
+                            ['<20', '+4'],
+                            ['<strong><a href="#gcs" class="text-link">Glasgow Coma Scale</a></strong>', ''],
+                            ['15', '0'],
+                            ['13-14', '+1'],
+                            ['10-12', '+2'],
+                            ['6-9', '+3'],
+                            ['<6', '+4'],
+                            ['<strong>Bilirubin, mg/dL (µmol/L)</strong>', ''],
+                            ['<1.2 (<20)', '0'],
+                            ['1.2-1.9 (20-32)', '+1'],
+                            ['2.0-5.9 (33-101)', '+2'],
+                            ['6.0-11.9 (102-204)', '+3'],
+                            ['≥12.0 (≥204)', '+4'],
+                            ['<strong>Mean arterial pressure OR administration of vasoactive agents required (listed doses are in units of mcg/kg/min)</strong>', ''],
+                            ['No hypotension', '0'],
+                            ['MAP <70 mmHg', '+1'],
+                            ['DOPamine ≤5 or DOBUTamine (any dose)', '+2'],
+                            ['DOPamine >5, EPINEPHrine ≤0.1, or norEPINEPHrine ≤0.1', '+3'],
+                            ['DOPamine >15, EPINEPHrine >0.1, or norEPINEPHrine >0.1', '+4'],
+                            ['<strong>Creatinine, mg/dL (µmol/L) (or urine output)</strong>', ''],
+                            ['<1.2 (<110)', '0'],
+                            ['1.2-1.9 (110-170)', '+1'],
+                            ['2.0-3.4 (171-299)', '+2'],
+                            ['3.5-4.9 (300-440) or UOP <500 mL/day', '+3'],
+                            ['≥5.0 (>440) or UOP <200 mL/day', '+4']
+                        ],
+                        stickyFirstColumn: true
+                    })}
+                `
+            })}
+        `;
+
+        // Facts & Figures Section
+        const factsSection = `
+            ${uiBuilder.createSection({
+                title: 'FACTS & FIGURES',
+                icon: '📊',
+                content: `
+                    <p class="mb-15"><strong>Interpretation:</strong></p>
+                    ${uiBuilder.createTable({
+                        headers: ['SOFA Score', 'Mortality if initial score', 'Mortality if highest score'],
+                        rows: [
+                            ['0-1', '0.0%', '0.0%'],
+                            ['2-3', '6.4%', '1.5%'],
+                            ['4-5', '20.2%', '6.7%'],
+                            ['6-7', '21.5%', '18.2%'],
+                            ['8-9', '33.3%', '26.3%'],
+                            ['10-11', '50.0%', '45.8%'],
+                            ['12-14', '95.2%', '80.0%'],
+                            ['>14', '95.2%', '89.7%']
+                        ]
+                    })}
+                    
+                    <h5 class="mt-20 mb-10">Mean SOFA Score Mortality:</h5>
+                    ${uiBuilder.createTable({
+                        headers: ['Mean SOFA Score', 'Mortality'],
+                        rows: [
+                            ['0-1.0', '1.2%'],
+                            ['1.1-2.0', '5.4%'],
+                            ['2.1-3.0', '20.0%'],
+                            ['3.1-4.0', '36.1%'],
+                            ['4.1-5.0', '73.1%'],
+                            ['>5.1', '84.4%']
+                        ]
+                    })}
+                `
+            })}
+        `;
+
+        const referenceSection = `
+            <div class="info-section mt-20">
+                <h4>📚 Reference</h4>
+                <p>Vincent JL, et al. The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure. <em>Intensive Care Med</em>. 1996;22(7):707-710.</p>
+            </div>
+        `;
+
+        return html + formulaSection + factsSection + referenceSection;
+    }
+};

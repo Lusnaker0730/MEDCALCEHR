@@ -63,24 +63,27 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        type: 'list',
-        show: true,
-        scoringCriteria: [
-            {
-                criteria: 'MELD Score',
-                points: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643'
-            },
-            {
-                criteria: 'MELD-Na Score (if MELD > 11)',
-                points: 'MELD + 1.32 × (137 - Na) - [0.033 × MELD × (137 - Na)]'
-            },
-            {
-                criteria: 'Constraints',
-                points: 'Min lab values: 1.0; Max Creat: 4.0; Na capped: 125-137; Score range: 6-40'
-            }
-        ]
-    },
+    formulas: [
+        {
+            label: 'MELD Score',
+            formula: '0.957 × ln(Creat) + 0.378 × ln(Bili) + 1.120 × ln(INR) + 0.643'
+        },
+        {
+            label: 'MELD-Na Score (if MELD > 11)',
+            formula: 'MELD + 1.32 × (137 − Na) − [0.033 × MELD × (137 − Na)]'
+        },
+        {
+            label: 'Constraints',
+            formula: `
+                <ul class="info-list text-sm">
+                    <li>Minimum lab values: 1.0 (if actual value is lower)</li>
+                    <li>Maximum Creatinine: 4.0 (or if on dialysis ≥2x/week)</li>
+                    <li>Sodium capped: 125-137 mEq/L</li>
+                    <li>Final score range: 6-40</li>
+                </ul>
+            `
+        }
+    ],
     calculate: (values) => {
         const bili = values['bili'] as number;
         const inr = values['inr'] as number;

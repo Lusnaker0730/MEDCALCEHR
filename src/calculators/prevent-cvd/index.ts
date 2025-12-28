@@ -8,6 +8,7 @@
 import { createComplexFormulaCalculator } from '../shared/complex-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 // ==========================================
 // QRISK3 係數
@@ -231,11 +232,32 @@ export const preventCVD = createComplexFormulaCalculator({
     },
 
     fhirAutoPopulate: [
-        { fieldId: 'qrisk-sbp', loincCode: LOINC_CODES.SYSTOLIC_BP, formatter: v => v.toFixed(0) },
         { fieldId: 'qrisk-cholesterol', loincCode: LOINC_CODES.CHOLESTEROL_TOTAL, targetUnit: 'mmol/L', unitType: 'cholesterol', formatter: v => v.toFixed(2) },
         { fieldId: 'qrisk-hdl', loincCode: LOINC_CODES.HDL, targetUnit: 'mmol/L', unitType: 'cholesterol', formatter: v => v.toFixed(2) },
         { fieldId: 'qrisk-egfr', loincCode: LOINC_CODES.EGFR, formatter: v => v.toFixed(0) }
     ],
+
+    // 使用 customInitialize 處理血壓 (因為 BP 是 panel observation)
+    customInitialize: async (client, patient, container, calculate) => {
+        if (!fhirDataService.isReady()) {
+            return;
+        }
+
+        try {
+            // 使用 getBloodPressure 獲取血壓 (處理 panel observation)
+            const bpResult = await fhirDataService.getBloodPressure({ trackStaleness: true });
+            
+            if (bpResult.systolic !== null) {
+                const sbpInput = container.querySelector('#qrisk-sbp') as HTMLInputElement;
+                if (sbpInput) {
+                    sbpInput.value = bpResult.systolic.toFixed(0);
+                    sbpInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        } catch (error) {
+            console.warn('Error fetching blood pressure for QRISK3:', error);
+        }
+    },
 
     reference: `
         ${uiBuilder.createFormulaSection({

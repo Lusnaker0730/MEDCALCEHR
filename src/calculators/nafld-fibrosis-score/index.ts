@@ -89,15 +89,28 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
+    formulas: [
+        {
+            label: 'NAFLD Score',
+            formula: '−1.675 + (0.037 × age [years]) + (0.094 × BMI [kg/m²]) + (1.13 × IFG/diabetes [yes = 1, no = 0]) + (0.99 × AST/ALT ratio) − (0.013 × platelet count [×10⁹/L]) − (0.66 × albumin [g/dL])'
+        }
+    ],
     formulaSection: {
         show: true,
-        type: 'list',
-        title: 'FORMULA',
-        scoringCriteria: [
-            {
-                criteria: 'Score',
-                points: '-1.675 + (0.037 × Age) + (0.094 × BMI) + (1.13 × Diabetes) + (0.99 × AST/ALT) - (0.013 × Platelet) - (0.66 × Albumin)'
-            }
+        title: 'FACTS & FIGURES',
+        tableHeaders: ['NAFLD Score', 'Correlated Fibrosis Severity'],
+        interpretations: [
+            { score: '< −1.455', interpretation: 'F0-F2', severity: 'success' },
+            { score: '−1.455 – 0.675', interpretation: 'Indeterminant score', severity: 'warning' },
+            { score: '> 0.675', interpretation: 'F3-F4', severity: 'danger' }
+        ],
+        footnotes: [
+            '<strong>Fibrosis Severity Scale:</strong>',
+            'F0 = no fibrosis',
+            'F1 = mild fibrosis',
+            'F2 = moderate fibrosis',
+            'F3 = severe fibrosis',
+            'F4 = cirrhosis'
         ]
     },
     calculate: values => {

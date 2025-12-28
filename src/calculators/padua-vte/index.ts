@@ -57,6 +57,16 @@ export const paduaVTE = createYesNoCalculator({
         }
     ],
 
+    formulaSection: {
+        show: true,
+        title: 'FACTS & FIGURES',
+        calculationNote: 'Score interpretation:',
+        footnotes: [
+            '<strong>Padua Score ≥4 points</strong> – Pharmacologic prophylaxis is indicated. If high risk of bleeding, use mechanical prophylaxis.',
+            '<strong>Padua Score <4 points</strong> – Pharmacologic prophylaxis is <em>not</em> indicated, consider using mechanical prophylaxis.'
+        ]
+    },
+
     // 使用 customInitialize 處理年齡和 BMI 自動填充
     customInitialize: async (client, patient, container, calculate) => {
         const setRadioValue = (name: string, value: string) => {

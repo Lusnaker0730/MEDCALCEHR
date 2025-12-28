@@ -97,6 +97,25 @@ const config: YesNoCalculatorConfig = {
                 '14-Day Event Rate: 26-41%. Early invasive strategy; urgent cardiology consultation; aggressive antiplatelet therapy; consider GP IIb/IIIa inhibitors.'
         }
     ],
+
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points:',
+        tableHeaders: ['Variable', 'Points'],
+        scoringCriteria: [
+            { criteria: 'Age ≥65', points: '1' },
+            { criteria: '≥3 CAD risk factors*', points: '1' },
+            { criteria: 'Known CAD (stenosis ≥50%)', points: '1' },
+            { criteria: 'ASA use in past 7 days', points: '1' },
+            { criteria: 'Severe angina (≥2 episodes in 24 hrs)', points: '1' },
+            { criteria: 'EKG ST changes ≥0.5mm', points: '1' },
+            { criteria: 'Positive cardiac marker', points: '1' }
+        ],
+        footnotes: [
+            '*Risk factors for CAD: Family history of CAD, hypertension, hypercholesterolemia, diabetes, or current smoker (thanks to Jeff Geske at Mayo for this update!)'
+        ]
+    },
     references: [
         'Antman EM, et al. The TIMI risk score for unstable angina/non-ST elevation MI: A method for prognostication and therapeutic decision making. <em>JAMA</em>. 2000;284(7):835-842.'
     ],

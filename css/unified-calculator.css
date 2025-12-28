@@ -541,13 +541,13 @@
 .formula-code {
     font-family: 'Courier New', Courier, monospace;
     background: #f7fafc;
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 0.9em;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
     color: #2d3748;
     border: 1px solid #e2e8f0;
     overflow-x: auto;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 
 /* =============================================

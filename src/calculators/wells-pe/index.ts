@@ -73,6 +73,21 @@ const config: YesNoCalculatorConfig = {
     references: [
         'Wells PS, Anderson DR, Rodger M, et al. Derivation of a simple clinical model to categorize patients probability of pulmonary embolism: increasing the models utility with the SimpliRED D-dimer. <em>Thromb Haemost</em>. 2000;83(3):416-420.'
     ],
+
+    formulaSection: {
+        show: true,
+        title: 'FACTS & FIGURES',
+        calculationNote: 'Score interpretation:',
+        scoringCriteria: [
+            { criteria: 'Three-Tier Model', isHeader: true },
+            { criteria: '0-1', points: 'Low Risk' },
+            { criteria: '2-6', points: 'Moderate Risk' },
+            { criteria: '>6', points: 'High Risk' },
+            { criteria: 'Two Tier Model', isHeader: true },
+            { criteria: '≤4', points: 'PE Unlikely (with d-dimer)' },
+            { criteria: '≥5', points: 'PE Likely (with CTA)' }
+        ]
+    },
     customResultRenderer: (score: number): string => {
         let risk = '';
         let twoTierModel = '';

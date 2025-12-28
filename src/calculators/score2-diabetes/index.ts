@@ -268,13 +268,12 @@ export const score2Diabetes = createMixedInputCalculator({
         if (!client) return;
 
         try {
-            // Systolic BP
-            const sbpResult = await fhirDataService.getObservation(LOINC_CODES.SYSTOLIC_BP, {
-                trackStaleness: true,
-                stalenessLabel: 'Systolic BP'
+            // Systolic BP (使用 getBloodPressure 處理 panel observation)
+            const bpResult = await fhirDataService.getBloodPressure({
+                trackStaleness: true
             });
-            if (sbpResult.value !== null) {
-                setValue('score2d-sbp', sbpResult.value.toFixed(0));
+            if (bpResult.systolic !== null) {
+                setValue('score2d-sbp', bpResult.systolic.toFixed(0));
             }
 
             // Total Cholesterol

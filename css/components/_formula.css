@@ -59,15 +59,16 @@
 
 .formula-equation,
 .formula-math {
-    font-size: 1.3em;
-    font-weight: bold;
+    font-size: 1.1rem;
+    font-weight: 500;
     color: var(--text-code, #2d3748);
     font-family: 'Courier New', monospace;
     background: var(--bg-code-block, rgba(102, 126, 234, 0.1));
-    padding: 15px;
+    padding: 16px 20px;
     border-radius: 8px;
     border: 1px solid var(--border-color, rgba(102, 126, 234, 0.2));
     display: block;
+    line-height: 1.8;
     /* Ensure block display for correct padding/margin */
 }
 
@@ -170,9 +171,11 @@
         padding: 15px;
     }
 
-    .formula-equation {
-        font-size: 1.1em;
-        padding: 20px 15px;
+    .formula-equation,
+    .formula-math,
+    .formula-code {
+        font-size: 1rem;
+        padding: 14px 16px;
     }
 
     .values-grid {
@@ -181,8 +184,10 @@
 }
 
 @media (max-width: 480px) {
-    .formula-equation {
-        font-size: 1em;
-        padding: 15px 10px;
+    .formula-equation,
+    .formula-math,
+    .formula-code {
+        font-size: 0.95rem;
+        padding: 12px 14px;
     }
 }

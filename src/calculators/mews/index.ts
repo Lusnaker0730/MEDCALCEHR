@@ -106,6 +106,46 @@ const config: RadioScoreCalculatorConfig = {
         }
     ],
 
+    formulaSection: {
+        show: true,
+        title: 'FACTS & FIGURES',
+        calculationNote: 'See formula table; below:',
+        scoringCriteria: [
+            { criteria: 'Systolic BP (mmHg)', isHeader: true },
+            { criteria: '≤70', points: '+3' },
+            { criteria: '71-80', points: '+2' },
+            { criteria: '81-100', points: '+1' },
+            { criteria: '101-199', points: '0' },
+            { criteria: '≥200', points: '+2' },
+            { criteria: 'Heart rate (beats per minute)', isHeader: true },
+            { criteria: '<40', points: '+2' },
+            { criteria: '41-50', points: '+1' },
+            { criteria: '51-100', points: '0' },
+            { criteria: '101-110', points: '+1' },
+            { criteria: '111-129', points: '+2' },
+            { criteria: '>130', points: '+3' },
+            { criteria: 'Respiratory rate (breaths per minute)', isHeader: true },
+            { criteria: '<9', points: '+2' },
+            { criteria: '9-14', points: '0' },
+            { criteria: '15-20', points: '+1' },
+            { criteria: '21-29', points: '+2' },
+            { criteria: '>30', points: '+3' },
+            { criteria: 'Temperature in °C (°F)', isHeader: true },
+            { criteria: '<35 (<95)', points: '+2' },
+            { criteria: '35.0-38.4 (95-101.12)', points: '0' },
+            { criteria: '>38.5 (101.3)', points: '+2' },
+            { criteria: 'AVPU', isHeader: true },
+            { criteria: 'Alert?', points: '0' },
+            { criteria: 'Voice?', points: '+1' },
+            { criteria: 'Pain?', points: '+2' },
+            { criteria: 'Unresponsive?', points: '+3' }
+        ],
+        footnotes: [
+            'A score ≥5 is statistically linked to increased likelihood of death or admission to an intensive care unit.',
+            'For any single physiological parameter scored +3, consider higher level of care for patient.'
+        ]
+    },
+
     // 自定義結果渲染（包含危急參數警告）
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         // 檢查是否有危急參數（+3 分）

@@ -220,11 +220,12 @@
 .formula-math,
 .ui-formula-math {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base, 1rem);
     background: var(--color-bg-card);
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-5);
     border-radius: var(--radius-md);
     margin-top: var(--spacing-2);
+    line-height: 1.7;
 }
 
 /* Formula Fraction Display (e.g., Cockcroft-Gault) */

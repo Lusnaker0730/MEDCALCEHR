@@ -69,6 +69,31 @@ export const intraopFluid = {
                 <div class="ui-result-header">Fluid Requirements</div>
                 <div class="ui-result-content"></div>
             </div>
+
+            ${uiBuilder.createSection({
+                title: 'FORMULA',
+                icon: '📐',
+                content: `
+                    <ul class="info-list">
+                        <li><a href="#" class="text-link">Hourly maintenance fluid</a>, mL/hr = body weight, kg + 40 mL</li>
+                        <li><strong>NPO fluid deficit</strong>, mL = hourly maintenance fluid, mL/hr × time spent NPO, hrs</li>
+                        <li><strong>1st hour fluids:</strong> ½ NPO fluid deficit + hourly maintenance fluid + fluid loss from surgical trauma*</li>
+                        <li><strong>2nd hour fluids:</strong> ¼ NPO fluid deficit + hourly maintenance fluid + fluid loss from surgical trauma*</li>
+                        <li><strong>3rd hour fluids:</strong> ¼ NPO fluid deficit + hourly maintenance fluid + fluid loss from surgical trauma*</li>
+                        <li><strong>4th hour fluids and beyond:</strong> hourly maintenance fluid + fluid loss from surgical trauma*</li>
+                    </ul>
+                    <p class="text-sm text-muted mt-15">*Estimated fluid loss from surgical trauma:</p>
+                    ${uiBuilder.createTable({
+                        headers: ['Severity', 'Example', 'Fluid Loss'],
+                        rows: [
+                            ['Minimal', 'e.g. hernia repair, laparoscopy', '2-4 mL/kg/hr (calculator uses 3 mL/kg/hr)'],
+                            ['Moderate', 'e.g. open cholecystectomy, open appendectomy', '4-6 mL/kg/hr (calculator uses 5 mL/kg/hr)'],
+                            ['Severe', 'e.g. bowel resection', '6-8 mL/kg/hr (calculator uses 7 mL/kg/hr)']
+                        ],
+                        stickyFirstColumn: true
+                    })}
+                `
+            })}
         `;
     },
     initialize: function (client: any, patient: any, container: HTMLElement): void {

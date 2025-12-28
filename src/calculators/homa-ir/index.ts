@@ -48,17 +48,12 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    formulaSection: {
-        show: true,
-        type: 'list',
-        title: 'FORMULA',
-        scoringCriteria: [
-            {
-                criteria: 'HOMA-IR',
-                points: '(Fasting Glucose [mg/dL] × Fasting Insulin [μU/mL]) / 405'
-            }
-        ]
-    },
+    formulas: [
+        {
+            label: 'HOMA-IR',
+            formula: '<span class="formula-fraction"><span class="numerator">Fasting Glucose (mg/dL) × Fasting Insulin (µU/mL)</span><span class="denominator">405</span></span>'
+        }
+    ],
     calculate: values => {
         const glucose = values['homa-glucose'] as number | null;
         const insulin = values['homa-insulin'] as number | null;
