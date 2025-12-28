@@ -1,5 +1,5 @@
 import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
-import { getPatientConditions, getObservation } from '../../utils.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 export const bacterialMeningitisScore = createRadioScoreCalculator({
@@ -115,13 +115,14 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
             })}
         `;
     },
-    customInitialize: (
+    customInitialize: async (
         client: unknown,
-        _patient: unknown,
+        patient: unknown,
         container: HTMLElement,
         calculate: () => void
     ) => {
-        const fhirClient = client as any;
+        // Initialize fhirDataService with the client and patient
+        fhirDataService.initialize(client, patient, container);
 
         const setRadio = (name: string, value: string) => {
             const radio = container.querySelector(
@@ -133,56 +134,54 @@ export const bacterialMeningitisScore = createRadioScoreCalculator({
             }
         };
 
-        if (fhirClient) {
-            // CSF Gram Stain (LOINC: 664-3)
-            getObservation(fhirClient, '664-3')
-                .then(obs => {
-                    if (obs && obs.valueCodeableConcept && obs.valueCodeableConcept.coding) {
-                        const isPositive = obs.valueCodeableConcept.coding.some(
-                            (c: any) => c.code === '260348003'
-                        );
-                        if (isPositive) {
-                            setRadio('gram_stain', '2');
-                        }
+        if (fhirDataService.isReady()) {
+            try {
+                // CSF Gram Stain (LOINC: 664-3) - needs raw observation for CodeableConcept
+                const gramStainObs = await fhirDataService.getRawObservation('664-3');
+                if (gramStainObs?.valueCodeableConcept?.coding) {
+                    const isPositive = gramStainObs.valueCodeableConcept.coding.some(
+                        (c: any) => c.code === '260348003' // SNOMED: Positive
+                    );
+                    if (isPositive) {
+                        setRadio('gram_stain', '2');
                     }
-                })
-                .catch(e => console.warn(e));
+                }
 
-            // CSF ANC (LOINC: 26485-3)
-            getObservation(fhirClient, '26485-3')
-                .then(obs => {
-                    if (obs && obs.valueQuantity && obs.valueQuantity.value >= 1000) {
-                        setRadio('csf_anc', '1');
-                    }
-                })
-                .catch(e => console.warn(e));
+                // CSF ANC (LOINC: 26485-3)
+                const csfAncResult = await fhirDataService.getObservation('26485-3', {
+                    trackStaleness: true,
+                    stalenessLabel: 'CSF ANC'
+                });
+                if (csfAncResult.value !== null && csfAncResult.value >= 1000) {
+                    setRadio('csf_anc', '1');
+                }
 
-            // CSF Protein (LOINC: 3137-7)
-            getObservation(fhirClient, '3137-7')
-                .then(obs => {
-                    if (obs && obs.valueQuantity && obs.valueQuantity.value >= 80) {
-                        setRadio('csf_protein', '1');
-                    }
-                })
-                .catch(e => console.warn(e));
+                // CSF Protein (LOINC: 3137-7)
+                const csfProteinResult = await fhirDataService.getObservation('3137-7', {
+                    trackStaleness: true,
+                    stalenessLabel: 'CSF Protein'
+                });
+                if (csfProteinResult.value !== null && csfProteinResult.value >= 80) {
+                    setRadio('csf_protein', '1');
+                }
 
-            // Peripheral Blood ANC (LOINC: 751-8)
-            getObservation(fhirClient, '751-8')
-                .then(obs => {
-                    if (obs && obs.valueQuantity && obs.valueQuantity.value >= 10000) {
-                        setRadio('blood_anc', '1');
-                    }
-                })
-                .catch(e => console.warn(e));
+                // Peripheral Blood ANC (LOINC: 751-8)
+                const bloodAncResult = await fhirDataService.getObservation('751-8', {
+                    trackStaleness: true,
+                    stalenessLabel: 'Blood ANC'
+                });
+                if (bloodAncResult.value !== null && bloodAncResult.value >= 10000) {
+                    setRadio('blood_anc', '1');
+                }
 
-            // Seizure (SNOMED: 91175000)
-            getPatientConditions(fhirClient, ['91175000'])
-                .then(conditions => {
-                    if (conditions.length > 0) {
-                        setRadio('seizure', '1');
-                    }
-                })
-                .catch(e => console.warn(e));
+                // Seizure (SNOMED: 91175000)
+                const hasSeizure = await fhirDataService.hasCondition(['91175000']);
+                if (hasSeizure) {
+                    setRadio('seizure', '1');
+                }
+            } catch (e) {
+                console.warn('Error auto-populating bacterial meningitis score:', e);
+            }
         }
 
         calculate();

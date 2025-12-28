@@ -336,6 +336,51 @@ export class FHIRDataService {
     }
 
     /**
+     * Get all historical observations for a LOINC code (sorted by date)
+     * Useful for growth charts and trend analysis
+     */
+    async getAllObservations(
+        code: string,
+        options: { sortOrder?: 'asc' | 'desc' } = {}
+    ): Promise<any[]> {
+        if (!this.client) {
+            return [];
+        }
+
+        try {
+            const sortDirection = options.sortOrder === 'desc' ? '-date' : 'date';
+            const response = await this.client.patient.request(
+                `Observation?code=${code}&_sort=${sortDirection}`
+            );
+
+            if (response.entry && Array.isArray(response.entry)) {
+                return response.entry.map((entry: any) => entry.resource);
+            }
+
+            return [];
+        } catch (error) {
+            console.error(`Error fetching all observations for ${code}:`, error);
+            return [];
+        }
+    }
+
+    /**
+     * Get raw observation with full FHIR resource (for non-numeric values like CodeableConcept)
+     */
+    async getRawObservation(code: string): Promise<any | null> {
+        if (!this.client) {
+            return null;
+        }
+
+        try {
+            return await getMostRecentObservation(this.client, code);
+        } catch (error) {
+            console.error(`Error fetching raw observation ${code}:`, error);
+            return null;
+        }
+    }
+
+    /**
      * Result of blood pressure fetch
      */
     /**

@@ -1,6 +1,7 @@
 import { cdcData } from './cdc-data.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 // Declare Chart.js type assuming it's available globally as in original JS
 declare const Chart: any;
@@ -119,6 +120,9 @@ export const growthChart: CalculatorModule = {
     },
     initialize: function (client, patient, container) {
         uiBuilder.initializeComponents(container);
+
+        // Initialize fhirDataService with the client and patient
+        fhirDataService.initialize(client, patient, container);
 
         const heightCanvas = container.querySelector(
             '#growthChartCanvasHeight'
@@ -275,8 +279,10 @@ export const growthChart: CalculatorModule = {
             }
         }
 
-        async function getGrowthData(client: any, patient: any): Promise<GrowthData | null> {
-            if (!client || !client.patient || !patient || !patient.birthDate) {
+        async function getGrowthData(): Promise<GrowthData | null> {
+            const patientData = fhirDataService.getPatient();
+            
+            if (!fhirDataService.isReady() || !patientData?.birthDate) {
                 return { height: [], weight: [], head: [] };
             }
 
@@ -285,29 +291,35 @@ export const growthChart: CalculatorModule = {
                 weight: LOINC_CODES.WEIGHT,
                 head: LOINC_CODES.HEAD_CIRCUMFERENCE
             };
-            const requests = Object.entries(loincCodes).map(([key, code]) =>
-                client.patient
-                    .request(`Observation?code=${code}&_sort=date`)
-                    .then((response: any) => ({ key, response }))
-            );
+
             try {
-                const results = await Promise.all(requests);
-                const data: any = { height: [], weight: [], head: [] };
-                results.forEach(({ key, response }) => {
-                    if (response.entry) {
-                        data[key] = response.entry
-                            .map((item: any) => ({
-                                ageMonths:
-                                    (new Date(item.resource.effectiveDateTime).getTime() -
-                                        new Date(patient.birthDate).getTime()) /
-                                    (1000 * 60 * 60 * 24 * 30.4375),
-                                value: item.resource.valueQuantity.value,
-                                unit: item.resource.valueQuantity.unit
-                            }))
-                            .filter((item: any) => item.ageMonths >= 0);
-                    }
-                });
-                return data as GrowthData;
+                // Use fhirDataService to get all historical observations
+                const [heightObs, weightObs, headObs] = await Promise.all([
+                    fhirDataService.getAllObservations(loincCodes.height, { sortOrder: 'asc' }),
+                    fhirDataService.getAllObservations(loincCodes.weight, { sortOrder: 'asc' }),
+                    fhirDataService.getAllObservations(loincCodes.head, { sortOrder: 'asc' })
+                ]);
+
+                const birthDate = new Date(patientData.birthDate);
+
+                const processObservations = (observations: any[]): GrowthDataPoint[] => {
+                    return observations
+                        .filter(obs => obs.valueQuantity?.value !== undefined && obs.effectiveDateTime)
+                        .map(obs => ({
+                            ageMonths:
+                                (new Date(obs.effectiveDateTime).getTime() - birthDate.getTime()) /
+                                (1000 * 60 * 60 * 24 * 30.4375),
+                            value: obs.valueQuantity.value,
+                            unit: obs.valueQuantity.unit
+                        }))
+                        .filter(item => item.ageMonths >= 0);
+                };
+
+                return {
+                    height: processObservations(heightObs),
+                    weight: processObservations(weightObs),
+                    head: processObservations(headObs)
+                };
             } catch (error) {
                 console.error('Error fetching growth data:', error);
                 const errorBox = document.createElement('div');
@@ -677,7 +689,7 @@ export const growthChart: CalculatorModule = {
             container.appendChild(velocitySection);
         }
 
-        getGrowthData(client, patient).then(data => {
+        getGrowthData().then(data => {
             if (data) {
                 if (data.height.length === 0 && data.weight.length === 0) {
                     // Keep placeholder or show empty state
@@ -692,7 +704,7 @@ export const growthChart: CalculatorModule = {
                 const bmiData = calculateBmiData(filteredHeight, filteredWeight);
                 const filteredBMI = bmiData; // Already filtered because filtered height/weight used
 
-                const gender = patient.gender || 'female';
+                const gender = fhirDataService.getPatientGender() || 'female';
 
                 // Get latest measurements
                 const latestHeight =
