@@ -53,8 +53,20 @@ describe('Mixed Input Calculator Factory', () => {
             }
         ],
         riskLevels: [
-            { minScore: 0, maxScore: 50, label: 'Low', severity: 'success', description: 'Low level' },
-            { minScore: 51, maxScore: 100, label: 'High', severity: 'danger', description: 'High level' }
+            {
+                minScore: 0,
+                maxScore: 50,
+                label: 'Low',
+                severity: 'success',
+                description: 'Low level'
+            },
+            {
+                minScore: 51,
+                maxScore: 100,
+                label: 'High',
+                severity: 'danger',
+                description: 'High level'
+            }
         ],
         calculate: (values) => {
             const numValue = values['test-number'] || 0;

@@ -12,8 +12,8 @@ export const LOINC_CODES = {
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
     TEMPERATURE: '8310-5,8331-1', // Body temperature (and Oral)
-    OXYGEN_SATURATION: '59408-5', // Oxygen saturation
-    OXYGEN_SATURATION_PULSE_OX: '2708-6', // O2 saturation by pulse oximetry
+    OXYGEN_SATURATION: '59408-5', // Oxygen saturation (Pulse Ox)
+    OXYGEN_SATURATION_ARTERIAL: '2708-6', // Oxygen saturation (Arterial)
     // Body Measurements
     HEIGHT: '8302-2', // Body height
     WEIGHT: '29463-7', // Body weight
@@ -23,8 +23,8 @@ export const LOINC_CODES = {
     HEMOGLOBIN: '718-7', // Hemoglobin
     HEMATOCRIT: '4544-3', // Hematocrit
     WBC: '6690-2', // White blood cells
-    PLATELETS: '777-3', // Platelets
-    PLATELETS_ALT: '2160-0', // Platelets (alternative code)
+    PLATELETS: '777-3', // Platelets (automated count)
+    PLATELETS_ALT: '26515-7', // Platelets (in blood)
     EOSINOPHILS: '26478-8', // Eosinophils
     // Laboratory - Chemistry
     SODIUM: '2951-2', // Sodium

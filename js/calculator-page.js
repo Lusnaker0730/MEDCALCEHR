@@ -89,7 +89,7 @@ window.onload = () => {
     const loadCalculatorModule = async () => {
         try {
             // Use the new loadCalculator function from index.js
-            const calculator = await loadCalculator(calculatorId);
+            const calculator = (await loadCalculator(calculatorId));
             if (!calculator || typeof calculator.generateHTML !== 'function') {
                 throw new Error('Invalid calculator module structure.');
             }
@@ -116,7 +116,8 @@ window.onload = () => {
             })
                 .catch((error) => {
                 console.error(error);
-                patientInfoDiv.innerText = 'No patient data available. Please launch from the EHR.';
+                patientInfoDiv.innerText =
+                    'No patient data available. Please launch from the EHR.';
                 // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
                 initializeCalculator(null, null);
             });

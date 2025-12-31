@@ -25,6 +25,7 @@ interface Patient {
     name?: Array<{
         given?: string[];
         family?: string;
+        text?: string;
     }>;
 }
 

@@ -41,9 +41,27 @@ describe('Score Calculator Factory', () => {
             }
         ],
         riskLevels: [
-            { minScore: 0, maxScore: 2, risk: 'Low Risk', category: 'Low', severity: 'success' },
-            { minScore: 3, maxScore: 5, risk: 'Medium Risk', category: 'Medium', severity: 'warning' },
-            { minScore: 6, maxScore: 10, risk: 'High Risk', category: 'High', severity: 'danger' }
+            {
+                minScore: 0,
+                maxScore: 2,
+                risk: 'Low Risk',
+                category: 'Low',
+                severity: 'success'
+            },
+            {
+                minScore: 3,
+                maxScore: 5,
+                risk: 'Medium Risk',
+                category: 'Medium',
+                severity: 'warning'
+            },
+            {
+                minScore: 6,
+                maxScore: 10,
+                risk: 'High Risk',
+                category: 'High',
+                severity: 'danger'
+            }
         ]
     };
     test('should create calculator with valid config', () => {

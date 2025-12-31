@@ -45,8 +45,12 @@ describe('Formula Calculator Factory', () => {
             { label: 'Product', formula: 'A × B' }
         ],
         calculate: (values) => {
-            const a = typeof values['test-value-a'] === 'number' ? values['test-value-a'] : parseFloat(values['test-value-a']);
-            const b = typeof values['test-value-b'] === 'number' ? values['test-value-b'] : parseFloat(values['test-value-b']);
+            const a = typeof values['test-value-a'] === 'number'
+                ? values['test-value-a']
+                : parseFloat(values['test-value-a']);
+            const b = typeof values['test-value-b'] === 'number'
+                ? values['test-value-b']
+                : parseFloat(values['test-value-b']);
             if (isNaN(a) || isNaN(b))
                 return null;
             return [

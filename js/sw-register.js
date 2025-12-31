@@ -222,7 +222,7 @@ export async function clearServiceWorkerCaches() {
  */
 export async function getCacheStats() {
     try {
-        const result = await sendMessageToSW({ type: 'GET_CACHE_STATS' });
+        const result = (await sendMessageToSW({ type: 'GET_CACHE_STATS' }));
         return result.stats;
     }
     catch (error) {

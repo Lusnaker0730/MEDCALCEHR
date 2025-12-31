@@ -203,7 +203,7 @@ window.onload = () => {
     if (typeof window.FHIR !== 'undefined') {
         window.FHIR.oauth2
             .ready()
-            .then((client) => {
+            .then(client => {
             displayPatientInfo(client, patientInfoDiv);
         })
             .catch(() => {
