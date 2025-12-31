@@ -202,7 +202,7 @@ window.onload = () => {
         const searchTerm = searchBar.value;
 
         // Filter and sort
-        let filtered = filterCalculators(
+        const filtered = filterCalculators(
             calculatorModules,
             currentFilterType,
             currentCategory,
