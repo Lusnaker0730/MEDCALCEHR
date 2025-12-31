@@ -49,9 +49,9 @@ function showUpdateNotification(registration) {
     notification.innerHTML = `
         <div class="sw-update-content">
             <span class="sw-update-icon">🔄</span>
-            <span class="sw-update-text">新版本可用！</span>
-            <button class="sw-update-button" id="sw-update-btn">更新</button>
-            <button class="sw-dismiss-button" id="sw-dismiss-btn">稍後</button>
+            <span class="sw-update-text">New version available!</span>
+            <button class="sw-update-button" id="sw-update-btn">Update</button>
+            <button class="sw-dismiss-button" id="sw-dismiss-btn">Later</button>
         </div>
     `;
     // Add styles

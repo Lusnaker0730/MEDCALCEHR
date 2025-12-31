@@ -247,7 +247,7 @@ export async function loadCalculator(calculatorId: string): Promise<CalculatorMo
         return module.default || (Object.values(module)[0] as CalculatorModule);
     } catch (error) {
         console.error(`Failed to load calculator: ${calculatorId}`, error);
-        throw new Error(`無法載入計算器模組：${calculatorId}`);
+        throw new Error(`Unable to load calculator module: ${calculatorId}`);
     }
 }
 

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-TW">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>CGMH EHRCALC - 健康檢查</title>
+        <title>CGMH EHRCALC - Health Check</title>
         <style>
             body {
                 font-family:
@@ -123,24 +123,24 @@
 
     <body>
         <div class="container">
-            <h1>🏥 CGMH EHRCALC - 系統健康檢查</h1>
+            <h1>🏥 CGMH EHRCALC - System Health Check</h1>
 
             <div id="checks">
                 <div class="check-item pending">
                     <div class="icon">⏳</div>
                     <div class="check-content">
-                        <div class="check-title">正在檢查...</div>
+                        <div class="check-title">Checking...</div>
                     </div>
                 </div>
             </div>
 
             <div class="info-box">
-                <h3>📋 快速連結</h3>
+                <h3>📋 Quick Links</h3>
                 <ul class="link-list">
-                    <li>🏠 <a href="index.html">應用程式首頁</a></li>
-                    <li>🚀 <a href="launch.html">SMART 啟動頁面</a></li>
-                    <li>🧪 <a href="test-calculators.html">計算器測試工具</a></li>
-                    <li>🧮 <a href="calculator.html?name=bmi-bsa">測試計算器 (BMI/BSA)</a></li>
+                    <li>🏠 <a href="index.html">App Home</a></li>
+                    <li>🚀 <a href="launch.html">SMART Launch Page</a></li>
+                    <li>🧪 <a href="test-calculators.html">Calculator Test Tool</a></li>
+                    <li>🧮 <a href="calculator.html?name=bmi-bsa">Test Calculator (BMI/BSA)</a></li>
                     <li>
                         🔗
                         <a href="https://launch.smarthealthit.org/" target="_blank"
@@ -150,13 +150,13 @@
                 </ul>
             </div>
 
-            <button onclick="runChecks()">🔄 重新檢查</button>
+            <button onclick="runChecks()">🔄 Re-run Checks</button>
         </div>
 
         <script>
             const checks = [
                 {
-                    name: '基本檔案存在',
+                    name: 'Base File Existence',
                     test: async () => {
                         const files = [
                             'index.html',
@@ -179,13 +179,13 @@
                             success: failed.length === 0,
                             detail:
                                 failed.length === 0
-                                    ? '所有基本檔案都存在'
-                                    : `缺少檔案: ${failed.map(f => f.file).join(', ')}`
+                                    ? 'All base files exist'
+                                    : `Missing files: ${failed.map(f => f.file).join(', ')}`
                         };
                     }
                 },
                 {
-                    name: 'JavaScript 模組載入',
+                    name: 'JavaScript Modules Loading',
                     test: async () => {
                         const modules = [
                             'js/main.js',
@@ -208,27 +208,27 @@
                             success: failed.length === 0,
                             detail:
                                 failed.length === 0
-                                    ? 'JavaScript 模組可正常訪問'
-                                    : `無法訪問: ${failed.map(f => f.module).join(', ')}`
+                                    ? 'JavaScript modules are accessible'
+                                    : `Inaccessible modules: ${failed.map(f => f.module).join(', ')}`
                         };
                     }
                 },
                 {
-                    name: 'CSS 樣式表載入',
+                    name: 'CSS Stylesheet Loading',
                     test: async () => {
                         try {
                             const response = await fetch('css/main.css', { method: 'HEAD' });
                             return {
                                 success: response.ok,
-                                detail: response.ok ? 'CSS 樣式表可正常訪問' : 'CSS 樣式表無法訪問'
+                                detail: response.ok ? 'CSS stylesheet accessible' : 'CSS stylesheet inaccessible'
                             };
                         } catch {
-                            return { success: false, detail: 'CSS 樣式表載入失敗' };
+                            return { success: false, detail: 'CSS stylesheet failed to load' };
                         }
                     }
                 },
                 {
-                    name: 'FHIR Client 庫',
+                    name: 'FHIR Client Library',
                     test: async () => {
                         try {
                             const response = await fetch(
@@ -238,26 +238,26 @@
                             return {
                                 success: response.ok,
                                 detail: response.ok
-                                    ? 'FHIR Client 庫可正常訪問'
-                                    : 'FHIR Client 庫無法訪問'
+                                    ? 'FHIR Client library accessible'
+                                    : 'FHIR Client library inaccessible'
                             };
                         } catch {
                             return {
                                 success: false,
-                                detail: 'FHIR Client 庫載入失敗（檢查網路連線）'
+                                detail: 'FHIR Client library failed to load (check network connection)'
                             };
                         }
                     }
                 },
                 {
-                    name: 'SMART 啟動頁面配置',
+                    name: 'SMART Launch Configuration',
                     test: async () => {
                         try {
                             const response = await fetch('launch.html');
                             if (!response.ok) {
                                 return {
                                     success: false,
-                                    detail: 'launch.html 不存在（需要重建 Docker 容器）'
+                                    detail: 'launch.html missing (Docker container rebuild needed)'
                                 };
                             }
                             const text = await response.text();
@@ -267,31 +267,31 @@
                                 success: hasOAuth && hasClientId,
                                 detail:
                                     hasOAuth && hasClientId
-                                        ? 'SMART 啟動配置正確'
-                                        : '配置不完整（缺少 OAuth2 設定）'
+                                        ? 'SMART launch configuration correct'
+                                        : 'Configuration incomplete (missing OAuth2 settings)'
                             };
                         } catch {
-                            return { success: false, detail: 'launch.html 無法訪問' };
+                            return { success: false, detail: 'launch.html inaccessible' };
                         }
                     }
                 },
                 {
-                    name: '計算器模組',
+                    name: 'Calculator Modules',
                     test: async () => {
                         try {
                             const response = await fetch('js/calculators/index.js');
                             if (!response.ok) {
-                                return { success: false, detail: '計算器索引檔案無法訪問' };
+                                return { success: false, detail: 'Calculator index file inaccessible' };
                             }
                             const text = await response.text();
                             const hasExport =
                                 text.includes('export') && text.includes('calculatorModules');
                             return {
                                 success: hasExport,
-                                detail: hasExport ? '計算器模組載入正常' : '計算器模組格式錯誤'
+                                detail: hasExport ? 'Calculator modules loaded normally' : 'Calculator module format error'
                             };
                         } catch {
-                            return { success: false, detail: '計算器模組載入失敗' };
+                            return { success: false, detail: 'Calculator modules failed to load' };
                         }
                     }
                 }
@@ -300,7 +300,7 @@
             async function runChecks() {
                 const container = document.getElementById('checks');
                 container.innerHTML =
-                    '<div class="check-item pending"><div class="icon">⏳</div><div class="check-content"><div class="check-title">執行檢查中...</div></div></div>';
+                    '<div class="check-item pending"><div class="icon">⏳</div><div class="check-content"><div class="check-title">Running checks...</div></div></div>';
 
                 const results = [];
 
@@ -308,7 +308,7 @@
                     const result = await check.test();
                     results.push({ ...check, ...result });
 
-                    // 更新顯示
+                    // Update display
                     container.innerHTML = results
                         .map(r => {
                             const className = r.success ? 'success' : 'error';
@@ -326,7 +326,7 @@
                         .join('');
                 }
 
-                // 顯示摘要
+                // Show summary
                 const allSuccess = results.every(r => r.success);
                 const successCount = results.filter(r => r.success).length;
                 const totalCount = results.length;
@@ -338,36 +338,36 @@
                       : 'error';
                 const summaryIcon = allSuccess ? '🎉' : successCount > 0 ? '⚠️' : '❌';
                 const summaryText = allSuccess
-                    ? '所有檢查通過！系統運行正常。'
-                    : `${successCount}/${totalCount} 項檢查通過。請檢查失敗項目。`;
+                    ? 'All checks passed! System is running normally.'
+                    : `${successCount}/${totalCount} checks passed. Please check failed items.`;
 
                 container.innerHTML += `
                 <div class="check-item ${summaryClass}" style="margin-top: 20px; font-weight: 600;">
                     <div class="icon">${summaryIcon}</div>
                     <div class="check-content">
-                        <div class="check-title">檢查摘要</div>
+                        <div class="check-title">Check Summary</div>
                         <div class="check-detail">${summaryText}</div>
                     </div>
                 </div>
             `;
 
-                // 如果有失敗項目，顯示建議
+                // If failures exist, show suggestion
                 if (!allSuccess) {
                     container.innerHTML += `
                     <div class="info-box" style="background: #fff3cd; border-color: #ffeaa7;">
-                        <h3>🔧 建議操作</h3>
-                        <p>如果 launch.html 缺失，請執行：</p>
+                        <h3>🔧 Suggested Actions</h3>
+                        <p>If launch.html is missing, please run:</p>
                         <pre style="background: white; padding: 10px; border-radius: 3px; overflow-x: auto;">cd MEDCALCEHR
 docker-compose down
 docker-compose build --no-cache
 docker-compose up -d</pre>
-                        <p>或執行：<code>rebuild-docker.ps1</code></p>
+                        <p>Or run: <code>rebuild-docker.ps1</code></p>
                     </div>
                 `;
                 }
             }
 
-            // 頁面載入時執行檢查
+            // Run checks on page load
             runChecks();
         </script>
     </body>

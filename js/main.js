@@ -156,7 +156,7 @@ window.onload = () => {
     function updateDisplay() {
         const searchTerm = searchBar.value;
         // Filter and sort
-        let filtered = filterCalculators(calculatorModules, currentFilterType, currentCategory, searchTerm);
+        const filtered = filterCalculators(calculatorModules, currentFilterType, currentCategory, searchTerm);
         const sorted = sortCalculators(filtered, currentSortType);
         // Render
         renderCalculatorList(sorted, calculatorListDiv);

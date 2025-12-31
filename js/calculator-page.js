@@ -25,7 +25,7 @@ function showLoading(element) {
                 height: 40px;
                 animation: spin 1s linear infinite;
             "></div>
-            <p style="margin-top: 20px; color: #666; font-size: 0.95em;">載入計算器中...</p>
+            <p style="margin-top: 20px; color: #666; font-size: 0.95em;">Loading calculator...</p>
         </div>
         <style>
             @keyframes spin {
@@ -48,7 +48,7 @@ function showError(element, message) {
             margin: 20px 0;
         ">
             <div style="font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
-                ⚠️ 錯誤
+                ⚠️ Error
             </div>
             <div style="color: #555; font-size: 0.9em;">
                 ${message}
@@ -124,7 +124,7 @@ window.onload = () => {
         }
         catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            showError(card, '此計算器暫時無法使用。請稍後再試或聯繫技術支援。');
+            showError(card, 'This calculator is temporarily unavailable. Please try again later or contact support.');
         }
     };
     loadCalculatorModule();
