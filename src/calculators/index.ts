@@ -229,6 +229,11 @@ export const calculatorModules: CalculatorMetadata[] = [
     { id: 'tpa-dosing-stroke', title: 'tPA Dosing for Acute Stroke', category: 'neurology' },
     { id: 'tpa-dosing', title: 'tPA Dosing for PE and MI', category: 'cardiovascular' },
     { id: 'ttkg', title: 'Transtubular Potassium Gradient (TTKG)', category: 'renal' },
+    {
+        id: 'trade-off-analysis',
+        title: 'Risk Trade-off Analysis (Bleeding vs. Ischemic)',
+        category: 'cardiovascular'
+    },
     { id: 'wells-dvt', title: 'Wells Criteria for DVT', category: 'cardiovascular' },
     { id: 'wells-pe', title: 'Wells Criteria for PE', category: 'cardiovascular' }
 ].sort((a, b) => a.title.localeCompare(b.title));
