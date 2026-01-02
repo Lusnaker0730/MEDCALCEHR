@@ -92,6 +92,7 @@ export type {
     RadioInputConfig,
     SelectOptionItem,
     SelectInputConfig,
+    CheckboxInputConfig,
     InputConfig,
 
     // 區塊配置

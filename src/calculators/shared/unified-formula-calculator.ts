@@ -27,6 +27,7 @@ export type {
     NumberInputConfig,
     RadioInputConfig,
     SelectInputConfig,
+    CheckboxInputConfig,
     InputConfig,
     InputSectionConfig,
     FormulaResultItem,
@@ -59,6 +60,7 @@ import type {
     NumberInputConfig,
     RadioInputConfig,
     SelectInputConfig,
+    CheckboxInputConfig,
     InputConfig,
     InputSectionConfig,
     FormulaResultItem,
@@ -104,6 +106,12 @@ function isSelectInput(input: InputConfig): input is SelectInputConfig {
     return false;
 }
 
+function isCheckboxInput(input: InputConfig): input is CheckboxInputConfig {
+    if (typeof input === 'string') return false;
+    if (input.type === 'checkbox') return true;
+    return false;
+}
+
 /**
  * 生成單個輸入欄位的 HTML
  */
@@ -126,10 +134,10 @@ function generateInputHTML(input: InputConfig): string {
             unit: unitToggle ? undefined : input.unit || input.standardUnit,
             unitToggle: unitToggle
                 ? {
-                      type: unitToggle.type,
-                      units: unitToggle.units,
-                      default: unitToggle.default
-                  }
+                    type: unitToggle.type,
+                    units: unitToggle.units,
+                    default: unitToggle.default
+                }
                 : undefined,
             required: input.required !== false
         });
@@ -151,6 +159,25 @@ function generateInputHTML(input: InputConfig): string {
             options: input.options,
             helpText: input.helpText
         });
+    }
+
+    if (isCheckboxInput(input)) {
+        if (input.options) {
+            return uiBuilder.createCheckboxGroup({
+                name: input.id,
+                label: input.label,
+                options: input.options,
+                helpText: input.helpText
+            });
+        } else {
+            return uiBuilder.createCheckbox({
+                id: input.id,
+                label: input.label,
+                value: input.value,
+                checked: input.checked,
+                description: input.description
+            });
+        }
     }
 
     return '';
@@ -220,9 +247,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 <div id="${config.id}-error-container"></div>
                 
                 ${uiBuilder.createResultBox({
-                    id: `${config.id}-result`,
-                    title: config.resultTitle || 'Results'
-                })}
+                id: `${config.id}-result`,
+                title: config.resultTitle || 'Results'
+            })}
 
                 ${formulaSection}
                 ${config.reference || ''}

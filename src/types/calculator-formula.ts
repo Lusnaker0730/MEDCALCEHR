@@ -102,8 +102,40 @@ export interface SelectInputConfig {
     helpText?: string;
 }
 
+/** Checkbox 選項 */
+export interface CheckboxOptionItem {
+    /** 選項值 */
+    value: string;
+    /** 顯示標籤 */
+    label: string;
+    /** 描述文字 */
+    description?: string;
+    /** 是否預設選中 */
+    checked?: boolean;
+}
+
+/** Checkbox 輸入配置 */
+export interface CheckboxInputConfig {
+    /** 輸入類型 */
+    type: 'checkbox';
+    /** ID (單個) 或 Name (群組) */
+    id: string;
+    /** 輸入標籤 */
+    label: string;
+    /** 選項列表 (若存在則為群組) */
+    options?: CheckboxOptionItem[];
+    /** 值 (單個 checkbox) */
+    value?: string;
+    /** 描述 (單個 checkbox) */
+    description?: string;
+    /** 是否預設選中 (單個 checkbox) */
+    checked?: boolean;
+    /** 幫助文字 */
+    helpText?: string;
+}
+
 /** 輸入配置類型 (聯合類型) */
-export type InputConfig = NumberInputConfig | RadioInputConfig | SelectInputConfig | string;
+export type InputConfig = NumberInputConfig | RadioInputConfig | SelectInputConfig | CheckboxInputConfig | string;
 
 // ==========================================
 // 區塊配置
