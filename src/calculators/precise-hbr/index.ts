@@ -130,21 +130,26 @@ export const preciseHbr = createComplexFormulaCalculator({
                 {
                     id: 'precise-hbr-hb',
                     label: 'Hemoglobin (Hb)',
-                    unit: 'g/dL',
-                    standardUnit: 'g/dL', // Triggers conversion if needed
                     placeholder: '5.0 - 15.0',
                     step: 0.1,
                     min: 1,
-                    max: 25
+                    max: 25,
+                    unitToggle: {
+                        type: 'hemoglobin',
+                        units: ['g/dL', 'g/L'],
+                        default: 'g/dL'
+                    },
+                    loincCode: LOINC_CODES.HEMOGLOBIN
                 },
                 {
                     id: 'precise-hbr-wbc',
                     label: 'White Blood Cell (WBC)',
-                    unit: '10⁹/L',
                     placeholder: '< 15',
                     step: 0.1,
                     min: 0,
-                    max: 100
+                    max: 100,
+                    unit: '10⁹/L',
+                    loincCode: LOINC_CODES.WBC
                 },
                 {
                     id: 'precise-hbr-egfr',
@@ -152,7 +157,8 @@ export const preciseHbr = createComplexFormulaCalculator({
                     unit: 'mL/min/1.73m²',
                     placeholder: '5 - 100',
                     min: 0,
-                    max: 200
+                    max: 200,
+                    loincCode: LOINC_CODES.EGFR
                 }
             ]
         },
