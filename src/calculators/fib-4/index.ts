@@ -1,11 +1,9 @@
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { fib4Calculation } from './calculation.js';
 
-const config: MixedInputCalculatorConfig = {
+export const fib4 = createUnifiedFormulaCalculator({
     id: 'fib-4',
     title: 'Fibrosis-4 (FIB-4) Index',
     description: 'Estimates liver fibrosis in patients with chronic liver disease.',
@@ -13,13 +11,14 @@ const config: MixedInputCalculatorConfig = {
         {
             title: 'Patient Parameters',
             icon: '👤',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'fib4-age',
                     label: 'Age',
                     unit: 'years',
-                    placeholder: 'e.g. 45'
+                    placeholder: 'e.g. 45',
+                    required: true
                 },
                 {
                     type: 'number',
@@ -27,7 +26,8 @@ const config: MixedInputCalculatorConfig = {
                     label: 'AST (Aspartate Aminotransferase)',
                     unit: 'U/L',
                     placeholder: 'e.g. 30',
-                    loincCode: LOINC_CODES.AST
+                    loincCode: LOINC_CODES.AST,
+                    required: true
                 },
                 {
                     type: 'number',
@@ -35,7 +35,8 @@ const config: MixedInputCalculatorConfig = {
                     label: 'ALT (Alanine Aminotransferase)',
                     unit: 'U/L',
                     placeholder: 'e.g. 30',
-                    loincCode: LOINC_CODES.ALT
+                    loincCode: LOINC_CODES.ALT,
+                    required: true
                 },
                 {
                     type: 'number',
@@ -47,7 +48,9 @@ const config: MixedInputCalculatorConfig = {
                         units: ['×10⁹/L', 'K/µL', 'thou/mm³'],
                         default: '×10⁹/L'
                     },
-                    loincCode: LOINC_CODES.PLATELETS
+                    loincCode: LOINC_CODES.PLATELETS,
+                    standardUnit: '×10⁹/L',
+                    required: true
                 }
             ]
         }
@@ -59,56 +62,35 @@ const config: MixedInputCalculatorConfig = {
                 '<span class="formula-fraction"><span class="numerator">Age × AST</span><span class="denominator">Platelets × √ALT</span></span>'
         }
     ],
-    dataRequirements: {
-        autoPopulateAge: { inputId: 'fib4-age' }
-    },
-    calculate: values => {
-        const age = values['fib4-age'] as number | null;
-        const ast = values['fib4-ast'] as number | null;
-        const alt = values['fib4-alt'] as number | null;
-        const plt = values['fib4-plt'] as number | null;
+    autoPopulateAge: 'fib4-age',
+    calculate: fib4Calculation,
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-        if (age === null || ast === null || alt === null || plt === null) {
-            return null;
-        }
+        const alertClass = res.alertClass || 'info';
 
-        if (plt === 0 || alt < 0) return null; // Prevent division by zero or sqrt of negative
-
-        return (age * ast) / (plt * Math.sqrt(alt));
-    },
-    customResultRenderer: (score, values) => {
-        let interpretation = '';
         let recommendation = '';
-        let alertType: 'success' | 'danger' | 'warning' = 'info' as any;
-
-        if (score < 1.3) {
-            interpretation = 'Low Risk (Low probability of advanced fibrosis F3-F4)';
+        if (alertClass === 'success') {
             recommendation = 'Continue routine monitoring.';
-            alertType = 'success';
-        } else if (score > 2.67) {
-            interpretation = 'High Risk (High probability of advanced fibrosis F3-F4)';
+        } else if (alertClass === 'danger') {
             recommendation = 'Referral to hepatology recommended. Consider FibroScan or biopsy.';
-            alertType = 'danger';
         } else {
-            interpretation = 'Indeterminate Risk';
             recommendation = 'Further evaluation needed (e.g. FibroScan, elastography).';
-            alertType = 'warning';
         }
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'FIB-4 Score',
-                value: score.toFixed(2),
-                unit: 'points',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: res.label,
+            value: res.value,
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     }
-};
-
-export const fib4 = createMixedInputCalculator(config);
+});
