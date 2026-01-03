@@ -350,5 +350,67 @@ export default {
     isValidLoincCode,
     isValidSnomedCode,
     getVitalSignsCodes,
-    getLabCodesByCategory
+    getLabCodesByCategory,
+    getMeasurementType
 };
+
+/**
+ * Get the measurement type for a LOINC code
+ * Used for unit conversion
+ * @param {string} code - LOINC code
+ * @returns {string} - Measurement type (e.g., 'temperature', 'weight') or 'concentration' default
+ */
+export function getMeasurementType(code: string): string {
+    // Handle comma-separated codes (take first)
+    const primaryCode = code.split(',')[0].trim();
+
+    // Map LOINC codes to measurement types
+    const codeMap: Record<string, string> = {
+        // Vital Signs
+        [LOINC_CODES.TEMPERATURE]: 'temperature', // Body temperature 8310-5
+        '8331-1': 'temperature', // Oral temperature
+
+        // Cholesterol/Lipids
+        [LOINC_CODES.CHOLESTEROL_TOTAL]: 'cholesterol',
+        [LOINC_CODES.HDL]: 'hdl',
+        [LOINC_CODES.LDL]: 'ldl',
+        [LOINC_CODES.TRIGLYCERIDES]: 'triglycerides',
+
+        // Glucose
+        [LOINC_CODES.GLUCOSE]: 'glucose',
+        '2339-0': 'glucose', // Fasting glucose
+
+        // Creatinine
+        [LOINC_CODES.CREATININE]: 'creatinine',
+        '38483-4': 'creatinine', // Creatinine (blood)
+
+        // Calcium
+        [LOINC_CODES.CALCIUM]: 'calcium',
+
+        // Albumin
+        [LOINC_CODES.ALBUMIN_SERUM]: 'albumin',
+        [LOINC_CODES.ALBUMIN]: 'albumin',
+
+        // Bilirubin
+        [LOINC_CODES.BILIRUBIN_TOTAL]: 'bilirubin',
+        [LOINC_CODES.BILIRUBIN_DIRECT]: 'bilirubin',
+
+        // Hemoglobin
+        [LOINC_CODES.HEMOGLOBIN]: 'hemoglobin',
+
+        // BUN
+        [LOINC_CODES.BUN]: 'bun',
+        [LOINC_CODES.BUN_ALT]: 'bun',
+        '6299-2': 'bun', // BUN
+
+        // Electrolytes (Na, K)
+        [LOINC_CODES.SODIUM]: 'electrolyte',
+        [LOINC_CODES.POTASSIUM]: 'electrolyte',
+
+        // Weight/Height
+        [LOINC_CODES.WEIGHT]: 'weight',
+        [LOINC_CODES.HEIGHT]: 'height'
+    };
+
+    return codeMap[primaryCode] || 'concentration';
+}

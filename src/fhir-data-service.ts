@@ -8,7 +8,7 @@ import {
     getPatientConditions,
     getMedicationRequests
 } from './utils.js';
-import { LOINC_CODES, SNOMED_CODES, getLoincName } from './fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES, getLoincName, getMeasurementType } from './fhir-codes.js';
 // @ts-ignore - no type declarations
 import { fhirCache } from './cache-manager.js';
 import { createStalenessTracker, DataStalenessTracker } from './data-staleness.js';
@@ -302,7 +302,7 @@ export class FHIRDataService {
         // Unit conversion
         if (options.targetUnit && result.value !== null && result.unit) {
             // Use provided unitType or determine measurement type from LOINC code
-            const measurementType = options.unitType || this.getMeasurementTypeFromCode(code);
+            const measurementType = options.unitType || getMeasurementType(code);
             const converted = UnitConverter.convert(
                 result.value,
                 result.unit,
@@ -423,7 +423,7 @@ export class FHIRDataService {
                 const sbpComp = bpPanel.component.find((c: any) =>
                     c.code?.coding?.some(
                         (coding: any) =>
-                            coding.code === LOINC_CODES.SYSTOLIC_BP || coding.code === '8480-6'
+                            coding.code === LOINC_CODES.SYSTOLIC_BP
                     )
                 );
                 if (sbpComp?.valueQuantity?.value !== undefined) {
@@ -434,7 +434,7 @@ export class FHIRDataService {
                 const dbpComp = bpPanel.component.find((c: any) =>
                     c.code?.coding?.some(
                         (coding: any) =>
-                            coding.code === LOINC_CODES.DIASTOLIC_BP || coding.code === '8462-4'
+                            coding.code === LOINC_CODES.DIASTOLIC_BP
                     )
                 );
                 if (dbpComp?.valueQuantity?.value !== undefined) {
@@ -553,13 +553,11 @@ export class FHIRDataService {
 
         try {
             // Special handling for Blood Pressure
-            // FHIR often stores BP as a panel (85354-9), so querying for individual components (8480-6/8462-4) might fail
+            // FHIR often stores BP as a panel (85354-9), so querying for individual components might fail
             const bpFields = fields.filter(
                 f =>
                     f.code === LOINC_CODES.SYSTOLIC_BP ||
-                    f.code === '8480-6' ||
-                    f.code === LOINC_CODES.DIASTOLIC_BP ||
-                    f.code === '8462-4'
+                    f.code === LOINC_CODES.DIASTOLIC_BP
             );
 
             const processedBPCodes: string[] = [];
@@ -571,8 +569,7 @@ export class FHIRDataService {
 
                     if (bpResult.observation) {
                         for (const field of bpFields) {
-                            const isSystolic =
-                                field.code === LOINC_CODES.SYSTOLIC_BP || field.code === '8480-6';
+                            const isSystolic = field.code === LOINC_CODES.SYSTOLIC_BP;
                             const value = isSystolic ? bpResult.systolic : bpResult.diastolic;
 
                             if (value !== null && this.container) {
@@ -774,62 +771,6 @@ export class FHIRDataService {
             return null;
         }
         return this.patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
-    }
-
-    /**
-     * Determine measurement type from LOINC code for unit conversion
-     * Maps LOINC codes to UnitConverter measurement types
-     */
-    private getMeasurementTypeFromCode(code: string): string {
-        // Handle comma-separated codes (take first)
-        const primaryCode = code.split(',')[0].trim();
-
-        // Map LOINC codes to measurement types
-        const codeMap: Record<string, string> = {
-            // Vital Signs
-            '8310-5': 'temperature', // Body temperature
-            '8331-1': 'temperature', // Oral temperature
-
-            // Cholesterol/Lipids
-            '2093-3': 'cholesterol', // Total cholesterol
-            '2085-9': 'hdl', // HDL
-            '2089-1': 'ldl', // LDL
-            '2571-8': 'triglycerides', // Triglycerides
-
-            // Glucose
-            '2345-7': 'glucose', // Glucose
-            '2339-0': 'glucose', // Fasting glucose
-
-            // Creatinine
-            '2160-0': 'creatinine', // Creatinine
-            '38483-4': 'creatinine', // Creatinine (blood)
-
-            // Calcium
-            '17861-6': 'calcium', // Calcium
-
-            // Albumin
-            '1751-7': 'albumin', // Albumin
-
-            // Bilirubin
-            '1975-2': 'bilirubin', // Bilirubin total
-            '1968-7': 'bilirubin', // Bilirubin direct
-
-            // Hemoglobin
-            '718-7': 'hemoglobin', // Hemoglobin
-
-            // BUN
-            '6299-2': 'bun', // BUN
-
-            // Electrolytes (Na, K)
-            '2951-2': 'electrolyte', // Sodium
-            '2823-3': 'electrolyte', // Potassium
-
-            // Weight/Height
-            '29463-7': 'weight', // Body weight
-            '8302-2': 'height' // Body height
-        };
-
-        return codeMap[primaryCode] || 'concentration';
     }
 }
 

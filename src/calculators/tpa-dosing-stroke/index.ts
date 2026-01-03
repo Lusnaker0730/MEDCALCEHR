@@ -1,237 +1,172 @@
+import { createFormulaCalculator } from '../shared/formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { UnitConverter } from '../../unit-converter.js';
-import { ValidationRules, validateCalculatorInput } from '../../validator.js';
-import { ValidationError, displayError, logError } from '../../errorHandler.js';
-import { fhirDataService } from '../../fhir-data-service.js';
 
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-export const tpaDosing: CalculatorModule = {
+export const tpaDosing = createFormulaCalculator({
     id: 'tpa-dosing-stroke',
     title: 'tPA Dosing for Acute Stroke',
     description: 'Calculates tissue plasminogen activator (tPA) dosing for acute ischemic stroke.',
-    generateHTML: function () {
-        return `
-            <div class="calculator-header">
-                <h3>${this.title}</h3>
-                <p class="description">${this.description}</p>
-            </div>
-            ${uiBuilder.createSection({
-                title: 'Patient & Event Details',
-                content: `
-                    ${uiBuilder.createInput({
-                        id: 'weight',
-                        label: 'Weight',
-                        type: 'number',
-                        placeholder: 'Enter weight',
-                        unitToggle: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' },
-                        min: 0
-                    })}
-                    ${uiBuilder.createInput({
-                        id: 'symptom-onset',
-                        label: 'Time from symptom onset',
-                        type: 'number',
-                        unit: 'hours',
-                        placeholder: 'e.g., 2.5',
-                        min: 0,
-                        max: 4.5,
-                        helpText: 'Must be ≤ 4.5 hours for IV tPA eligibility'
-                    })}
-                `
-            })}
-            
-            <div id="tpa-error-container"></div>
-            ${uiBuilder.createResultBox({ id: 'tpa-stroke-result', title: 'Dosing & Eligibility' })}
-            
-            ${uiBuilder.createAlert({
-                type: 'warning',
-                message: `
-                    <h4>Important Reminders</h4>
-                    <ul>
-                        <li>Verify all inclusion/exclusion criteria before administration</li>
-                        <li>Obtain informed consent when possible</li>
-                        <li>Ensure BP < 185/110 mmHg before treatment</li>
-                        <li>Have reversal agents available (cryoprecipitate, aminocaproic acid)</li>
-                    </ul>
-                `
-            })}
-            ${uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Total Dose', formula: '0.9 mg/kg (Max 90 mg)' },
-                    { label: 'Bolus', formula: '10% of Total Dose (over 1 min)' },
-                    { label: 'Infusion', formula: '90% of Total Dose (over 60 min)' }
-                ]
-            })}
-        ${uiBuilder.createAlert({
-            type: 'info',
-            message: 'Maximum dose is 90 mg regardless of weight.'
-        })}
-`;
-    },
-    initialize: function (client: any, patient: any, container: HTMLElement) {
-        uiBuilder.initializeComponents(container);
+    inputs: [
+        {
+            id: 'tpa-stroke-weight',
+            label: 'Weight',
+            type: 'number',
+            standardUnit: 'kg',
+            min: 2,
+            max: 200,
+            step: 0.1,
+            unitConfig: {
+                type: 'weight',
+                units: ['kg', 'lbs'],
+                default: 'kg'
+            },
+            loincCode: LOINC_CODES.WEIGHT
+        },
+        {
+            id: 'tpa-stroke-onset',
+            label: 'Time from symptom onset',
+            type: 'number',
+            standardUnit: 'hours',
+            min: 0,
+            max: 24,
+            step: 0.1,
+            helpText: 'Must be ≤ 4.5 hours for IV tPA eligibility'
+        }
+    ],
+    formulas: [
+        {
+            label: 'Total Dose',
+            formula: '0.9 mg/kg (Max 90 mg)'
+        },
+        {
+            label: 'Bolus',
+            formula: '10% of Total Dose (over 1 min)'
+        },
+        {
+            label: 'Infusion',
+            formula: '90% of Total Dose (over 60 min)'
+        }
+    ],
+    calculate: (values) => {
+        const weight = values['tpa-stroke-weight'] as number;
+        const onset = values['tpa-stroke-onset'] as number;
 
-        // Initialize FHIRDataService
-        fhirDataService.initialize(client, patient, container);
+        if (!weight || weight <= 0) return null;
 
-        const weightInput = container.querySelector('#weight') as HTMLInputElement;
-        const symptomOnsetInput = container.querySelector('#symptom-onset') as HTMLInputElement;
-        const resultBox = container.querySelector('#tpa-stroke-result');
+        // Dosing Logic
+        const effectiveWeight = weight > 100 ? 100 : weight;
+        const totalDose = effectiveWeight * 0.9;
+        const bolusDose = totalDose * 0.1;
+        const infusionDose = totalDose * 0.9;
+        const infusionRate = infusionDose; // mg/hour (since it's over 60 mins)
 
-        const calculate = () => {
-            try {
-                // Clear validation errors
-                const errorContainer = container.querySelector('#tpa-error-container');
-                if (errorContainer) {
-                    errorContainer.innerHTML = '';
-                }
+        const isCapped = weight > 100;
 
-                // Unit Conversion
-                const weight = UnitConverter.getStandardValue(weightInput, 'kg');
-                const symptomOnset = parseFloat(symptomOnsetInput.value);
-
-                const validation = validateCalculatorInput(
-                    { weight: weight },
-                    { weight: ValidationRules.weight }
-                );
-
-                if (!validation.isValid) {
-                    // Check if empty specifically
-                    if (
-                        weightInput.value !== '' &&
-                        validation.errors.some((e: string) => !e.includes('required'))
-                    ) {
-                        if (errorContainer) {
-                            displayError(
-                                errorContainer as HTMLElement,
-                                new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
-                            );
-                        }
-                    }
-                    if (resultBox) {
-                        resultBox.classList.remove('show');
-                    }
-                    return;
-                }
-
-                if (weight === null || isNaN(weight) || weight <= 0) {
-                    if (resultBox) {
-                        resultBox.classList.remove('show');
-                    }
-                    return;
-                }
-
-                if (resultBox) {
-                    const totalDose = Math.min(0.9 * weight, 90);
-                    const bolus = totalDose * 0.1;
-                    const infusion = totalDose * 0.9;
-                    const infusionRate = infusion; // mg/hour
-
-                    let eligibilityHtml = '';
-                    let alertType: 'success' | 'warning' | 'danger' | 'info' = 'info';
-
-                    if (!isNaN(symptomOnset)) {
-                        if (symptomOnset <= 4.5) {
-                            eligibilityHtml = uiBuilder.createAlert({
-                                type: 'success',
-                                message:
-                                    '<strong>Eligibility:</strong> Within time window for IV tPA (≤ 4.5 hours)'
-                            });
-                            alertType = 'success';
-                        } else {
-                            eligibilityHtml = uiBuilder.createAlert({
-                                type: 'danger',
-                                message:
-                                    '<strong>Eligibility:</strong> Outside time window for IV tPA (> 4.5 hours)'
-                            });
-                            alertType = 'danger';
-                        }
-                    } else {
-                        eligibilityHtml = uiBuilder.createAlert({
-                            type: 'warning',
-                            message:
-                                '<strong>Note:</strong> Please enter time from symptom onset to check eligibility.'
-                        });
-                        alertType = 'warning';
-                    }
-
-                    const resultContent = resultBox.querySelector('.ui-result-content');
-                    if (resultContent) {
-                        resultContent.innerHTML = `
-                        ${eligibilityHtml}
-                        ${uiBuilder.createResultItem({
-                            label: 'Total Dose',
-                            value: totalDose.toFixed(1),
-                            unit: 'mg',
-                            interpretation: '0.9 mg/kg, max 90 mg'
-                        })}
-<hr>
-    ${uiBuilder.createResultItem({
-        label: 'Step 1: IV Bolus',
-        value: bolus.toFixed(1),
-        unit: 'mg',
-        interpretation: 'IV push over 1 minute'
-    })}
-                        ${uiBuilder.createResultItem({
-                            label: 'Step 2: Continuous Infusion',
-                            value: infusion.toFixed(1),
-                            unit: 'mg',
-                            interpretation: `Rate: ${infusionRate.toFixed(1)} mg/hr over 60 minutes`
-                        })}
-`;
-                    }
-                    resultBox.classList.add('show');
-                }
-            } catch (error) {
-                const errorContainer = container.querySelector('#tpa-error-container');
-                if (errorContainer) {
-                    displayError(errorContainer as HTMLElement, error as Error);
-                } else {
-                    console.error(error);
-                }
-                logError(error as Error, { calculator: 'tpa-dosing-stroke', action: 'calculate' });
-                if (resultBox) {
-                    resultBox.classList.remove('show');
-                }
-            }
-        };
-
-        weightInput.addEventListener('input', calculate);
-        symptomOnsetInput.addEventListener('input', calculate);
-        weightInput.addEventListener('change', calculate); // Ensure changes trigger calc, especially unit toggle
-        // Also listen for unit changes if feasible, normally unitToggle doesn't expose clean event without deeper UI integration
-        // container.querySelectorAll('select').forEach(s => s.addEventListener('change', calculate)); // ui-builder usually attaches change to inputs if they have conversion? No, typically we need to listen.
-        // Assuming UnitConverter integration in uiBuilder might handle some, but manual listening is safer if structure is known.
-        // With createInput unitToggle, uiBuilder usually handles unit change logic internally or exposes select.
-        // Adding a general change listener to the container inputs covers most cases.
-        container
-            .querySelectorAll('input, select')
-            .forEach(el => el.addEventListener('change', calculate));
-
-        if (client) {
-            fhirDataService
-                .getObservation(LOINC_CODES.WEIGHT, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Weight',
-                    targetUnit: 'kg',
-                    unitType: 'weight'
-                })
-                .then(result => {
-                    if (result.value !== null) {
-                        weightInput.value = result.value.toFixed(1);
-                        calculate();
-                    }
-                })
-                .catch(e => console.warn(e));
+        // Eligibility Logic
+        let eligibilityStatus: 'eligible' | 'ineligible' | 'unknown' = 'unknown';
+        if (onset !== undefined && onset !== null) {
+            eligibilityStatus = onset <= 4.5 ? 'eligible' : 'ineligible';
         }
 
-        calculate();
+        return [
+            {
+                label: 'Eligibility Status',
+                value: eligibilityStatus,
+                unit: '',
+                // Use alertClass to carry status info to renderer
+                alertClass: eligibilityStatus === 'eligible' ? 'success' : (eligibilityStatus === 'ineligible' ? 'danger' : 'warning')
+            },
+            {
+                label: 'Total Dose',
+                value: totalDose.toFixed(1),
+                unit: 'mg',
+                interpretation: isCapped ? '0.9 mg/kg, max 90 mg (Capped)' : '0.9 mg/kg, max 90 mg'
+            },
+            {
+                label: 'Step 1: IV Bolus',
+                value: bolusDose.toFixed(1),
+                unit: 'mg',
+                interpretation: 'IV push over 1 minute'
+            },
+            {
+                label: 'Step 2: Continuous Infusion',
+                value: infusionDose.toFixed(1),
+                unit: 'mg',
+                interpretation: `Rate: ${infusionRate.toFixed(1)} mg/hr over 60 minutes`
+            }
+        ];
+    },
+    customResultRenderer: (results) => {
+        // Extract Eligibility Item
+        const eligibilityItem = results.find(r => r.label === 'Eligibility Status');
+        const dosingItems = results.filter(r => r.label !== 'Eligibility Status');
+
+        let eligibilityHtml = '';
+        if (eligibilityItem) {
+            if (eligibilityItem.value === 'eligible') {
+                eligibilityHtml = uiBuilder.createAlert({
+                    type: 'success',
+                    message: '<strong>Eligibility:</strong> Within time window for IV tPA (≤ 4.5 hours)'
+                });
+            } else if (eligibilityItem.value === 'ineligible') {
+                eligibilityHtml = uiBuilder.createAlert({
+                    type: 'danger',
+                    message: '<strong>Eligibility:</strong> Outside time window for IV tPA (> 4.5 hours)'
+                });
+            } else {
+                eligibilityHtml = uiBuilder.createAlert({
+                    type: 'warning',
+                    message: '<strong>Note:</strong> Please enter time from symptom onset to check eligibility.'
+                });
+            }
+        }
+
+        // Static Reminders
+        const remindersHtml = uiBuilder.createAlert({
+            type: 'warning',
+            message: `
+                <h4>Important Reminders</h4>
+                <ul>
+                    <li>Verify all inclusion/exclusion criteria before administration</li>
+                    <li>Obtain informed consent when possible</li>
+                    <li>Ensure BP < 185/110 mmHg before treatment</li>
+                    <li>Have reversal agents available (cryoprecipitate, aminocaproic acid)</li>
+                </ul>
+            `
+        });
+
+        // Helper to generate result item HTML (reusing standard style)
+        const renderItem = (res: any) => `
+            <div class="ui-result-item">
+                <div class="ui-result-label">${res.label}</div>
+                <div class="ui-result-value-container">
+                    <span class="ui-result-value">${res.value}</span>
+                    ${res.unit ? `<span class="ui-result-unit">${res.unit}</span>` : ''}
+                </div>
+                ${res.interpretation ? `<div class="ui-result-interpretation">${res.interpretation}</div>` : ''}
+            </div>
+        `;
+
+        // Render Total Dose separate from Steps if desired, or just list them
+        // The original had "Total Dose" then divider then Steps
+        const totalDoseItem = dosingItems.find(r => r.label === 'Total Dose');
+        const stepItems = dosingItems.filter(r => r.label !== 'Total Dose');
+
+        return `
+            ${remindersHtml}
+            ${eligibilityHtml}
+            
+            ${totalDoseItem ? renderItem(totalDoseItem) : ''}
+            
+            ${stepItems.length > 0 ? '<hr>' : ''}
+            
+            ${stepItems.map(item => renderItem(item)).join('')}
+            
+            <div class="ui-alert ui-alert-info mt-10">
+                <div class="ui-alert-content">
+                    Maximum dose is 90 mg regardless of weight.
+                </div>
+            </div>
+        `;
     }
-};
+});

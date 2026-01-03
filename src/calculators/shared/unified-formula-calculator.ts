@@ -17,6 +17,12 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { fhirDataService, FieldDataRequirement } from '../../fhir-data-service.js';
 import { ValidationError, displayError } from '../../errorHandler.js';
+import {
+    ValidationRules,
+    validateCalculatorInput,
+    ValidationSchema,
+    ValidationRule
+} from '../../validator.js';
 
 // ==========================================
 // 從集中類型定義導入並重新導出
@@ -113,6 +119,31 @@ function isCheckboxInput(input: InputConfig): input is CheckboxInputConfig {
 }
 
 /**
+ * Get the validation rule for an input configuration
+ * Merges explicit config with default rules based on type
+ */
+function getValidationRuleForInput(input: NumberInputConfig): ValidationRule {
+    const unitType =
+        input.unitConfig?.type ||
+        input.unitToggle?.type ||
+        (input.unitConfig && typeof input.unitConfig.type === 'string'
+            ? input.unitConfig.type
+            : undefined);
+
+    // Get default rule from type
+    const defaultRule = unitType && ValidationRules[unitType] ? ValidationRules[unitType] : {};
+
+    // Specific overrides
+    // 1. Explicit min/max in input config takes precedence
+    // 2. Otherwise fall back to default rule
+    return {
+        min: input.min !== undefined ? input.min : defaultRule.min,
+        max: input.max !== undefined ? input.max : defaultRule.max,
+        required: input.required !== false
+    };
+}
+
+/**
  * 生成單個輸入欄位的 HTML
  */
 function generateInputHTML(input: InputConfig): string {
@@ -122,13 +153,17 @@ function generateInputHTML(input: InputConfig): string {
 
     if (isNumberInput(input)) {
         const unitToggle = input.unitConfig || input.unitToggle;
+
+        // Resolve validation rules (min/max) for HTML attributes
+        const validationRule = getValidationRuleForInput(input);
+
         return uiBuilder.createInput({
             id: input.id,
             label: input.label,
             type: 'number',
             placeholder: input.placeholder,
-            min: input.min,
-            max: input.max,
+            min: validationRule.min,
+            max: validationRule.max,
             step: input.step,
             helpText: input.helpText,
             unit: unitToggle ? undefined : input.unit || input.standardUnit,
@@ -305,15 +340,14 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             }
 
             /**
-             * Simple 模式計算
+             * 驗證所有輸入
+             * 回傳驗證結果物件
              */
-            const performSimpleCalculation = (): void => {
-                if (!config.calculate) return;
+            const validateInputs = (): { isValid: boolean; values: Record<string, any> } => {
+                const values: Record<string, any> = {};
+                const schema: ValidationSchema = {};
 
-                if (errorContainer) errorContainer.innerHTML = '';
-
-                const values: Record<string, number | string> = {};
-                const errors: string[] = [];
+                // Helper to check requirements
                 let allRequiredPresent = true;
 
                 allInputs.forEach(inputConfig => {
@@ -325,43 +359,46 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         ) as HTMLInputElement;
                         if (!inputEl) return;
 
+                        let val: number | null = null;
+
                         if (inputEl.value === '') {
                             if (inputConfig.required !== false) {
                                 allRequiredPresent = false;
                             }
-                            return;
-                        }
-
-                        let val = parseFloat(inputEl.value);
-                        if (isNaN(val)) {
-                            allRequiredPresent = false;
-                            return;
-                        }
-
-                        // 單位轉換
-                        if (inputConfig.standardUnit) {
-                            try {
-                                const standardVal = UnitConverter.getStandardValue(
-                                    inputEl,
-                                    inputConfig.standardUnit
-                                );
-                                if (standardVal !== null) {
-                                    val = standardVal;
+                        } else {
+                            val = parseFloat(inputEl.value);
+                            if (isNaN(val)) {
+                                allRequiredPresent = false;
+                            } else {
+                                // 單位轉換
+                                if (inputConfig.standardUnit) {
+                                    try {
+                                        const standardVal = UnitConverter.getStandardValue(
+                                            inputEl,
+                                            inputConfig.standardUnit
+                                        );
+                                        if (standardVal !== null) {
+                                            val = standardVal;
+                                        }
+                                    } catch (e) {
+                                        // 靜默失敗
+                                    }
                                 }
-                            } catch (e) {
-                                // 靜默失敗
                             }
                         }
 
-                        // 範圍驗證
-                        if (inputConfig.min !== undefined && val < inputConfig.min) {
-                            errors.push(`${inputConfig.label} must be at least ${inputConfig.min}`);
-                        }
-                        if (inputConfig.max !== undefined && val > inputConfig.max) {
-                            errors.push(`${inputConfig.label} must be at most ${inputConfig.max}`);
-                        }
+                        // Add to schema based on resolved rules
+                        const rule = getValidationRuleForInput(inputConfig);
+                        schema[inputConfig.id] = {
+                            required: rule.required,
+                            min: rule.min,
+                            max: rule.max,
+                            message: rule.message
+                        };
 
-                        values[inputConfig.id] = val;
+                        if (val !== null && !isNaN(val)) {
+                            values[inputConfig.id] = val;
+                        }
                     } else if (isRadioInput(inputConfig)) {
                         const name = inputConfig.id || inputConfig.name || '';
                         const checked = container.querySelector(
@@ -380,15 +417,36 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     }
                 });
 
-                if (errors.length > 0) {
-                    if (resultBox) resultBox.classList.remove('show');
-                    if (errorContainer && allRequiredPresent) {
-                        displayError(errorContainer, new ValidationError(errors[0]));
-                    }
-                    return;
+                if (!allRequiredPresent) {
+                    return { isValid: false, values };
                 }
 
-                if (!allRequiredPresent) {
+                const validation = validateCalculatorInput(values, schema);
+                if (!validation.isValid) {
+                    if (errorContainer) {
+                        displayError(
+                            errorContainer,
+                            new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
+                        );
+                    }
+                    return { isValid: false, values };
+                }
+
+                return { isValid: true, values };
+            };
+
+
+            /**
+             * Simple 模式計算
+             */
+            const performSimpleCalculation = (): void => {
+                if (!config.calculate) return;
+
+                if (errorContainer) errorContainer.innerHTML = '';
+
+                const { isValid, values } = validateInputs();
+
+                if (!isValid) {
                     if (resultBox) resultBox.classList.remove('show');
                     return;
                 }
@@ -430,6 +488,13 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 if (!config.complexCalculate) return;
 
                 if (errorContainer) errorContainer.innerHTML = '';
+
+                // Also run validation for complex mode
+                const { isValid } = validateInputs();
+                if (!isValid) {
+                    if (resultBox) resultBox.classList.remove('show');
+                    return;
+                }
 
                 try {
                     const result = config.complexCalculate(
@@ -511,6 +576,8 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             container.addEventListener('input', e => {
                 const target = e.target as HTMLInputElement;
                 if (target.type === 'number' || target.type === 'text') {
+                    // 清除錯誤（但不一定計算，視需求）
+                    // 這裡保持原樣：即時計算
                     calculate();
                 }
             });
