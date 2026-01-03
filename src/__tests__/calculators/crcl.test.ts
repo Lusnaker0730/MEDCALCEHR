@@ -1,106 +1,78 @@
-/**
- * @jest-environment jsdom
- */
+import { crclCalculation } from '../../calculators/crcl/calculation.js';
 
-import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { crcl } from '../../calculators/crcl/index';
-import { fhirDataService } from '../../fhir-data-service';
+describe('Creatinine Clearance Calculator', () => {
+    test('Should calculate correct CrCl for Male', () => {
+        // (140 - 40) * 70 / (72 * 1.0) = 100 * 70 / 72 = 97.22...
+        const result = crclCalculation({
+            gender: 'male',
+            age: 40,
+            weight: 70,
+            creatinine: 1.0
+        });
 
-// Mock FHIR services
-jest.spyOn(fhirDataService, 'initialize').mockImplementation(() => {});
-jest.spyOn(fhirDataService, 'isReady').mockReturnValue(false);
-
-describe('Creatinine Clearance (CrCl) Calculator', () => {
-    let container: HTMLElement;
-
-    beforeEach(() => {
-        container = document.createElement('div');
-        container.innerHTML = crcl.generateHTML();
-        document.body.appendChild(container);
-        crcl.initialize({}, {}, container);
+        expect(result).toHaveLength(1);
+        expect(result[0].value).toBe('97.2');
+        expect(result[0].alertClass).toBe('success');
     });
 
-    afterEach(() => {
-        document.body.innerHTML = '';
-        jest.clearAllMocks();
+    test('Should calculate correct CrCl for Female', () => {
+        // Male val (97.22) * 0.85 = 82.63...
+        const result = crclCalculation({
+            gender: 'female',
+            age: 40,
+            weight: 70,
+            creatinine: 1.0
+        });
+
+        expect(result[0].value).toBe('82.6');
     });
 
-    test('should export valid calculator module', () => {
-        expect(crcl).toBeDefined();
-        expect(crcl.id).toBe('crcl');
-        expect(typeof crcl.generateHTML).toBe('function');
-        expect(typeof crcl.initialize).toBe('function');
+    test('Should return error for zero creatinine', () => {
+        const result = crclCalculation({
+            gender: 'male',
+            age: 50,
+            weight: 70,
+            creatinine: 0
+        });
+
+        expect(result[0].label).toBe('Error');
+        expect(result[0].value).toContain('cannot be 0');
     });
 
-    test('should calculate CrCl for male patient', () => {
-        const ageInput = container.querySelector('#crcl-age') as HTMLInputElement;
-        const weightInput = container.querySelector('#crcl-weight') as HTMLInputElement;
-        const creatinineInput = container.querySelector('#crcl-creatinine') as HTMLInputElement;
-        const maleRadio = container.querySelector(
-            'input[name="crcl-sex"][value="male"]'
-        ) as HTMLInputElement;
-
-        if (ageInput && weightInput && creatinineInput && maleRadio) {
-            ageInput.value = '50';
-            weightInput.value = '70';
-            creatinineInput.value = '1.0';
-            maleRadio.checked = true;
-
-            ageInput.dispatchEvent(new Event('input', { bubbles: true }));
-            weightInput.dispatchEvent(new Event('input', { bubbles: true }));
-            creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
-            maleRadio.dispatchEvent(new Event('change', { bubbles: true }));
-
-            // CrCl = (140 - 50) * 70 / (72 * 1.0) = 87.5 mL/min
-            const resultText = container.textContent || '';
-            expect(resultText).toContain('87');
-        }
+    test('Should handle missing values gracefully (return empty array)', () => {
+        const result = crclCalculation({
+            age: 40
+            // missing others
+        });
+        expect(result).toHaveLength(0);
     });
 
-    test('should calculate CrCl for female patient (0.85 factor)', () => {
-        const ageInput = container.querySelector('#crcl-age') as HTMLInputElement;
-        const weightInput = container.querySelector('#crcl-weight') as HTMLInputElement;
-        const creatinineInput = container.querySelector('#crcl-creatinine') as HTMLInputElement;
-        const femaleRadio = container.querySelector(
-            'input[name="crcl-sex"][value="female"]'
-        ) as HTMLInputElement;
-
-        if (ageInput && weightInput && creatinineInput && femaleRadio) {
-            ageInput.value = '50';
-            weightInput.value = '70';
-            creatinineInput.value = '1.0';
-            femaleRadio.checked = true;
-
-            ageInput.dispatchEvent(new Event('input', { bubbles: true }));
-            weightInput.dispatchEvent(new Event('input', { bubbles: true }));
-            creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
-            femaleRadio.dispatchEvent(new Event('change', { bubbles: true }));
-
-            // CrCl = (140 - 50) * 70 / (72 * 1.0) * 0.85 = 74.4 mL/min
-            const resultText = container.textContent || '';
-            expect(resultText).toContain('74');
-        }
+    // Severity Checks
+    test('Should identify Kidney Failure (<15)', () => {
+        // (140 - 90) * 50 / (72 * 4.0) = 50 * 50 / 288 = 8.68
+        const result = crclCalculation({
+            gender: 'male',
+            age: 90,
+            weight: 50,
+            creatinine: 4.0
+        });
+        // value is number | string, parseFloat needs string
+        expect(parseFloat(result[0].value as string)).toBeLessThan(15);
+        expect(result[0].alertClass).toBe('danger');
+        // interpretation is optional
+        expect(result[0].interpretation!).toContain('Kidney failure');
     });
 
-    test('should show appropriate kidney function classification', () => {
-        const ageInput = container.querySelector('#crcl-age') as HTMLInputElement;
-        const weightInput = container.querySelector('#crcl-weight') as HTMLInputElement;
-        const creatinineInput = container.querySelector('#crcl-creatinine') as HTMLInputElement;
-
-        if (ageInput && weightInput && creatinineInput) {
-            // Set values for normal kidney function
-            ageInput.value = '30';
-            weightInput.value = '70';
-            creatinineInput.value = '0.8';
-
-            ageInput.dispatchEvent(new Event('input', { bubbles: true }));
-            weightInput.dispatchEvent(new Event('input', { bubbles: true }));
-            creatinineInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-            setTimeout(() => {
-                const resultText = container.textContent || '';
-                expect(resultText.toLowerCase()).toMatch(/normal|mild|moderate|severe/);
-            }, 100);
-        }
+    test('Should identify Severe Reduction (15-29)', () => {
+        // (140 - 80) * 60 / (72 * 2.0) = 60 * 60 / 144 = 25
+        const result = crclCalculation({
+            gender: 'male',
+            age: 80,
+            weight: 60,
+            creatinine: 2.0
+        });
+        expect(parseFloat(result[0].value as string)).toBe(25.0);
+        expect(result[0].alertClass).toBe('danger');
+        expect(result[0].interpretation!).toContain('Severe reduction');
     });
 });

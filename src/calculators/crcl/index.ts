@@ -1,12 +1,9 @@
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { fhirDataService } from '../../fhir-data-service.js';
+import { crclCalculation } from './calculation.js';
 
-const config: MixedInputCalculatorConfig = {
+export const crcl = createUnifiedFormulaCalculator({
     id: 'crcl',
     title: 'Creatinine Clearance (Cockcroft-Gault Equation)',
     description: 'Calculates CrCl according to the Cockcroft-Gault equation.',
@@ -17,14 +14,15 @@ const config: MixedInputCalculatorConfig = {
             <li>May overestimate clearance in elderly patients.</li>
         </ul>
     `,
+    autoPopulateAge: 'age',
     sections: [
         {
             title: 'Patient Information',
             icon: '👤',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: 'gender',
+                    id: 'gender',
                     label: 'Gender',
                     options: [
                         { value: 'male', label: 'Male', checked: true },
@@ -36,7 +34,9 @@ const config: MixedInputCalculatorConfig = {
                     id: 'age',
                     label: 'Age',
                     unit: 'years',
-                    placeholder: 'e.g., 65'
+                    placeholder: 'e.g., 65',
+                    min: 1, max: 120,
+                    required: true
                 },
                 {
                     type: 'number',
@@ -48,14 +48,16 @@ const config: MixedInputCalculatorConfig = {
                         units: ['kg', 'lbs'],
                         default: 'kg'
                     },
-                    loincCode: LOINC_CODES.WEIGHT
+                    loincCode: LOINC_CODES.WEIGHT,
+                    min: 1, max: 300,
+                    required: true
                 }
             ]
         },
         {
             title: 'Lab Values',
             icon: '🧪',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'creatinine',
@@ -66,7 +68,9 @@ const config: MixedInputCalculatorConfig = {
                         units: ['mg/dL', 'µmol/L'],
                         default: 'mg/dL'
                     },
-                    loincCode: LOINC_CODES.CREATININE
+                    loincCode: LOINC_CODES.CREATININE,
+                    min: 0.1, max: 20,
+                    required: true
                 }
             ]
         }
@@ -83,81 +87,37 @@ const config: MixedInputCalculatorConfig = {
                 '<span class="formula-fraction"><span class="numerator">(140 − Age) × Weight × 0.85</span><span class="denominator">72 × Serum Creatinine</span></span>'
         }
     ],
-    calculate: values => {
-        const gender = (values['gender'] as string) || 'male';
-        const age = values['age'] as number | null;
-        const weight = values['weight'] as number | null;
-        const creatinine = values['creatinine'] as number | null;
+    calculate: crclCalculation,
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-        if (age === null || weight === null || creatinine === null) {
-            return null;
-        }
-
-        if (creatinine === 0) return 0; // Avoid division by zero
-
-        let crcl = ((140 - age) * weight) / (72 * creatinine);
-        if (gender === 'female') {
-            crcl *= 0.85;
-        }
-
-        return crcl;
-    },
-    customResultRenderer: (score, values) => {
-        let category = '';
-        let severityClass = 'ui-alert-success';
-        let alertType: 'info' | 'warning' | 'danger' = 'info';
-        let alertMsg = '';
-
-        if (score >= 90) {
-            category = 'Normal kidney function';
-            severityClass = 'ui-alert-success';
-            alertMsg = 'Normal creatinine clearance.';
-        } else if (score >= 60) {
-            category = 'Mild reduction';
-            severityClass = 'ui-alert-success';
-            alertMsg = 'Mildly reduced creatinine clearance.';
-        } else if (score >= 30) {
-            category = 'Moderate reduction';
-            severityClass = 'ui-alert-warning';
-            alertMsg =
-                'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
-            alertType = 'warning';
-        } else if (score >= 15) {
-            category = 'Severe reduction';
-            severityClass = 'ui-alert-danger';
-            alertMsg =
-                'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
-            alertType = 'danger';
-        } else {
-            category = 'Kidney failure';
-            severityClass = 'ui-alert-danger';
-            alertMsg =
-                'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
-            alertType = 'danger';
+        let alertHtml = '';
+        if (res.alertPayload) {
+            alertHtml = uiBuilder.createAlert(res.alertPayload);
         }
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Creatinine Clearance',
-                value: score.toFixed(1),
-                unit: 'mL/min',
-                interpretation: category,
-                alertClass: severityClass
-            })}
-            ${uiBuilder.createAlert({
-                type: alertType,
-                message: alertMsg
-            })}
+            label: res.label,
+            value: res.value,
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
+        })}
+            ${alertHtml}
         `;
     },
-    dataRequirements: {
-        autoPopulateAge: { inputId: 'age' },
-        autoPopulateGender: {
-            radioName: 'gender',
-            maleValue: 'male',
-            femaleValue: 'female'
+    customInitialize: (client, patient, container) => {
+        if (client && patient) {
+            const gender = (patient as any).gender;
+            if (gender) {
+                const radio = container.querySelector(`input[name="gender"][value="${gender}"]`) as HTMLInputElement;
+                if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change'));
+                }
+            }
         }
     }
-};
-
-export const crcl = createMixedInputCalculator(config);
+});

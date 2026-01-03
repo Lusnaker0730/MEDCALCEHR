@@ -99,6 +99,8 @@ function isRadioInput(input: InputConfig): input is RadioInputConfig {
 function isNumberInput(input: InputConfig): input is NumberInputConfig {
     if (typeof input === 'string') return false;
     if (input.type === 'number') return true;
+    // Fix: Explicitly exclude other known types to avoid false positives for inputs with ID but no options
+    if ((input as any).type && (input as any).type !== 'number') return false;
     // 有 id 且沒有 options 的是 number
     if ('id' in input && !('options' in input)) return true;
     return false;
@@ -558,8 +560,11 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 }
             };
 
-            // 選擇計算函數
-            const calculate = isComplexMode ? performComplexCalculation : performSimpleCalculation;
+            // 選擇計算函數 (如果沒有提供 complexCalculate，即使是 complex 模式也使用 simple 計算)
+            const calculate =
+                isComplexMode && config.complexCalculate
+                    ? performComplexCalculation
+                    : performSimpleCalculation;
 
             // 事件監聽
             container.addEventListener('change', e => {

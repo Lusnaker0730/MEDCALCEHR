@@ -169,6 +169,8 @@ export interface FormulaResultItem {
     interpretation?: string;
     /** 警示樣式 */
     alertClass?: AlertSeverity;
+    /** 警示負載 (如自定義 HTML 或 AlertConfig) */
+    alertPayload?: any;
 }
 
 /** 複雜計算結果 */
