@@ -4,11 +4,32 @@
  */
 export class FavoritesManager {
     constructor() {
-        this.storageKey = 'calculator-favorites';
-        this.recentKey = 'calculator-recent';
-        this.usageKey = 'calculator-usage';
+        this.baseStorageKey = 'calculator-favorites';
+        this.baseRecentKey = 'calculator-recent';
+        this.baseUsageKey = 'calculator-usage';
+        this.practitionerId = null;
         this.maxRecent = 10; // Maximum number of recent items to keep
         this.listeners = [];
+    }
+    /**
+     * Set Practitioner ID for namespacing
+     * @param id - Practitioner ID
+     */
+    setPractitionerId(id) {
+        this.practitionerId = id;
+        // Notify listeners of a 'clear' event effectively to force refresh, 
+        // though distinct event 'practitionerChange' might be better, 
+        // reusing 'import' or 'clear' triggers UI update.
+        this.notifyListeners('import', null);
+    }
+    get storageKey() {
+        return this.practitionerId ? `${this.baseStorageKey}-${this.practitionerId}` : this.baseStorageKey;
+    }
+    get recentKey() {
+        return this.practitionerId ? `${this.baseRecentKey}-${this.practitionerId}` : this.baseRecentKey;
+    }
+    get usageKey() {
+        return this.practitionerId ? `${this.baseUsageKey}-${this.practitionerId}` : this.baseUsageKey;
     }
     // ========== Favorites Functionality ==========
     /**

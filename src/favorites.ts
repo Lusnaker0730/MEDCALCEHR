@@ -30,11 +30,36 @@ interface MostUsedItem {
  * Favorites and Recent Usage Manager Class
  */
 export class FavoritesManager {
-    private storageKey: string = 'calculator-favorites';
-    private recentKey: string = 'calculator-recent';
-    private usageKey: string = 'calculator-usage';
+    private baseStorageKey: string = 'calculator-favorites';
+    private baseRecentKey: string = 'calculator-recent';
+    private baseUsageKey: string = 'calculator-usage';
+    private practitionerId: string | null = null;
     private maxRecent: number = 10; // Maximum number of recent items to keep
     private listeners: ListenerCallback[] = [];
+
+    /**
+     * Set Practitioner ID for namespacing
+     * @param id - Practitioner ID
+     */
+    setPractitionerId(id: string | null): void {
+        this.practitionerId = id;
+        // Notify listeners of a 'clear' event effectively to force refresh, 
+        // though distinct event 'practitionerChange' might be better, 
+        // reusing 'import' or 'clear' triggers UI update.
+        this.notifyListeners('import', null);
+    }
+
+    private get storageKey(): string {
+        return this.practitionerId ? `${this.baseStorageKey}-${this.practitionerId}` : this.baseStorageKey;
+    }
+
+    private get recentKey(): string {
+        return this.practitionerId ? `${this.baseRecentKey}-${this.practitionerId}` : this.baseRecentKey;
+    }
+
+    private get usageKey(): string {
+        return this.practitionerId ? `${this.baseUsageKey}-${this.practitionerId}` : this.baseUsageKey;
+    }
 
     // ========== Favorites Functionality ==========
 

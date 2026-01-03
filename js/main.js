@@ -203,8 +203,37 @@ window.onload = () => {
     if (typeof window.FHIR !== 'undefined') {
         window.FHIR.oauth2
             .ready()
-            .then(client => {
+            .then(async (client) => {
             displayPatientInfo(client, patientInfoDiv);
+            // Fetch User/Practitioner Info
+            try {
+                // Try to read the user (Practitioner) from the client
+                const user = await client.user.read();
+                const practitionerNameEl = document.getElementById('practitioner-name');
+                const practitionerInfoEl = document.getElementById('practitioner-info');
+                if (user && (user.resourceType === 'Practitioner' || user.resourceType === 'PractitionerRole')) {
+                    let name = 'Unknown Practitioner';
+                    if (user.resourceType === 'Practitioner') {
+                        name = user.name?.[0]?.text ||
+                            `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
+                    }
+                    else if (user.resourceType === 'PractitionerRole' && user.practitioner?.display) {
+                        name = user.practitioner.display;
+                    }
+                    if (practitionerNameEl)
+                        practitionerNameEl.textContent = name || 'Practitioner';
+                    if (practitionerInfoEl)
+                        practitionerInfoEl.style.display = 'flex';
+                    // Set Practitioner ID for favorites
+                    if (user.id) {
+                        favoritesManager.setPractitionerId(user.id);
+                        console.log(`[MedCalc] Practitioner set to: ${user.id}`);
+                    }
+                }
+            }
+            catch (error) {
+                console.warn('[MedCalc] Failed to fetch user info:', error);
+            }
         })
             .catch(() => {
             console.log('FHIR client not ready, patient info will be loaded from cache if available.');

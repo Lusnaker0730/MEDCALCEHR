@@ -33,6 +33,31 @@
     margin-bottom: 0;
 }
 
+.header-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.practitioner-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.practitioner-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
 /* ===================
    Patient Info
    =================== */
