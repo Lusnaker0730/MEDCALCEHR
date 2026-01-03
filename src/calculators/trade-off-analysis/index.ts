@@ -80,270 +80,8 @@ function generateHTML(): string {
     };
 
     return `
-        <style>
-            .trade-off-container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-                margin-top: 1rem;
-            }
-            
-            @media (max-width: 1024px) {
-                .trade-off-container {
-                    grid-template-columns: 1fr;
-                }
-            }
-            
-            .chart-container {
-                position: relative;
-                width: 100%;
-                max-width: 500px;
-                margin: 0 auto;
-            }
-            
-            .factors-container {
-                max-height: 600px;
-                overflow-y: auto;
-            }
-            
-            .risk-factor-item {
-                padding: 0.75rem;
-                border: 1px solid var(--border-color, #e5e7eb);
-                border-radius: 0.5rem;
-                margin-bottom: 0.5rem;
-                transition: background 0.2s;
-            }
-            
-            .risk-factor-item:hover {
-                background: var(--bg-hover, #f9fafb);
-            }
-            
-            .risk-factor-label {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                cursor: pointer;
-                font-weight: 500;
-            }
-            
-            .risk-factor-label input[type="checkbox"] {
-                width: 1.25rem;
-                height: 1.25rem;
-            }
-            
-            .hr-badges {
-                display: flex;
-                gap: 0.5rem;
-                margin-top: 0.5rem;
-                margin-left: 1.75rem;
-            }
-            
-            .hr-badge {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
-            }
-            
-            .hr-badge-bleeding {
-                background: rgba(249, 115, 22, 0.15);
-                color: #c2410c;
-            }
-            
-            .hr-badge-ischemic {
-                background: rgba(13, 148, 136, 0.15);
-                color: #0f766e;
-            }
-            
-            .trade-off-legend {
-                margin-top: 1rem;
-                padding: 1rem;
-                background: var(--bg-secondary, #f9fafb);
-                border-radius: 0.5rem;
-                font-size: 0.875rem;
-            }
-            
-            .legend-item {
-                display: flex;
-                align-items: flex-start;
-                gap: 0.5rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .legend-color {
-                flex-shrink: 0;
-                width: 1rem;
-                height: 1rem;
-                border-radius: 0.25rem;
-                margin-top: 0.125rem;
-            }
-            
-            .result-zone {
-                padding: 1rem;
-                border-radius: 0.5rem;
-                margin-top: 1rem;
-                font-weight: 500;
-            }
-            
-            .result-zone.ischemic_dominant {
-                background: rgba(13, 148, 136, 0.15);
-                border: 1px solid #0d9488;
-                color: #0f766e;
-            }
-            
-            .result-zone.equivalent {
-                background: rgba(107, 114, 128, 0.15);
-                border: 1px solid #6b7280;
-                color: #374151;
-            }
-            
-            .result-zone.bleeding_dominant {
-                background: rgba(249, 115, 22, 0.15);
-                border: 1px solid #f97316;
-                color: #c2410c;
-            }
-            
-            .result-zone p {
-                margin-top: 0.5rem;
-                font-weight: normal;
-            }
-            
-            .risk-values {
-                display: flex;
-                gap: 2rem;
-                justify-content: center;
-                margin: 1rem 0;
-                font-size: 1.125rem;
-            }
-            
-            .risk-value {
-                text-align: center;
-            }
-            
-            .risk-value .value {
-                font-size: 1.5rem;
-                font-weight: 700;
-            }
-            
-            .risk-value.bleeding .value {
-                color: #f97316;
-            }
-            
-            .risk-value.ischemic .value {
-                color: #0d9488;
-            }
-            
-            .factor-group-title {
-                font-weight: 600;
-                margin: 1rem 0 0.5rem;
-                padding-bottom: 0.25rem;
-                border-bottom: 2px solid var(--border-color, #e5e7eb);
-            }
-            
-            .vertical-bar-chart {
-                display: flex;
-                justify-content: center;
-                align-items: flex-end;
-                gap: 3rem;
-                height: 360px;
-                margin: 1.5rem 0;
-                padding: 1.5rem 3rem;
-                background: var(--bg-secondary, #f9fafb);
-                border-radius: 0.75rem;
-            }
-            
-            .vertical-bar-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 120px;
-            }
-            
-            .vertical-bar-wrapper {
-                width: 100%;
-                height: 280px;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-end;
-                background: #e5e7eb;
-                border-radius: 0.5rem 0.5rem 0 0;
-                overflow: hidden;
-            }
-            
-            .vertical-bar-fill {
-                width: 100%;
-                height: 7%;
-                transition: height 0.5s ease-out;
-                display: flex;
-                align-items: flex-start;
-                justify-content: center;
-                padding-top: 0.75rem;
-                font-size: 1.1rem;
-                font-weight: 700;
-                color: white;
-            }
-            
-            .vertical-bar-fill.bleeding {
-                background: linear-gradient(180deg, #fb923c, #ea580c);
-            }
-            
-            .vertical-bar-fill.ischemic {
-                background: linear-gradient(180deg, #14b8a6, #0d9488);
-            }
-            
-            .vertical-bar-label {
-                font-size: 1rem;
-                font-weight: 600;
-                text-align: center;
-                margin-top: 0.75rem;
-                color: #374151;
-            }
-            
-            .vertical-bar-value {
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin-top: 0.5rem;
-            }
-            
-            .vertical-bar-value.bleeding {
-                color: var(--color-bleeding, #ea580c);
-            }
-            
-            .vertical-bar-value.ischemic {
-                color: var(--color-ischemic, #0d9488);
-            }
-            
-            .calculator-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 1.5rem;
-                border-radius: 0.75rem;
-                margin-bottom: 1rem;
-            }
-            
-            .calculator-header h1 {
-                margin: 0;
-                font-size: 2.25rem;
-                font-weight: 700;
-            }
-            
-            .calculator-header .subtitle {
-                margin: 0.5rem 0 0;
-                font-size: 1.75rem;
-                font-weight: 600;
-                opacity: 0.95;
-            }
-            
-            .calculator-header .description {
-                margin: 0.5rem 0 0;
-                font-size: 1rem;
-                opacity: 0.85;
-            }
-            
-            .loading-text {
-                text-align: center;
-                color: var(--text-muted, #6b7280);
-            }
-        </style>
+        <!-- Styles moved to css/pages/_trade-off-analysis.css -->
+
         
         <div class="calculator-header">
             <h1>Risk Trade-off Analysis</h1>
@@ -497,6 +235,9 @@ function initialize(
     _patient: unknown,
     _container: HTMLElement
 ): void {
+    // Initialize data service with current context
+    fhirDataService.initialize(_client, _patient, _container);
+
     // Add change listeners to all checkboxes
     const checkboxes = document.querySelectorAll<HTMLInputElement>('[data-factor-id]');
     checkboxes.forEach(cb => {
@@ -523,12 +264,18 @@ function initialize(
 async function autoPopulate(): Promise<void> {
     try {
         // Get age
-        const patient = await fhirDataService.getPatient();
-        if (patient?.birthDate) {
-            const age = new Date().getFullYear() - new Date(patient.birthDate).getFullYear();
+        const age = fhirDataService.getPatientAge();
+        if (age !== null) {
+            console.log(`[TradeOff] Detected Age: ${age}`);
+
             if (age >= 65) {
                 const ageCheckbox = document.getElementById('factor-age_65') as HTMLInputElement;
-                if (ageCheckbox) ageCheckbox.checked = true;
+                if (ageCheckbox) {
+                    ageCheckbox.checked = true;
+                    console.log('[TradeOff] Checked age >= 65');
+                } else {
+                    console.warn('[TradeOff] Could not find checkbox factor-age_65');
+                }
             }
         }
 
@@ -543,11 +290,16 @@ async function autoPopulate(): Promise<void> {
             SNOMED_CODES.COPD,
             SNOMED_CODES.SMOKING
         ];
+        // Check for conditions
+        console.log('[TradeOff] Checking for conditions:', snomedCodesToCheck);
         const conditions = await fhirDataService.getConditions(snomedCodesToCheck) || [];
+        console.log('[TradeOff] Found conditions:', conditions);
 
         for (const condition of conditions) {
             const code = condition.code?.coding?.[0]?.code;
             if (!code) continue;
+
+            console.log(`[TradeOff] Processing condition code: ${code}`);
 
             // Map SNOMED codes to factor checkboxes
             const snomedToFactor: Record<string, string> = {
@@ -564,7 +316,14 @@ async function autoPopulate(): Promise<void> {
             const factorId = snomedToFactor[code];
             if (factorId) {
                 const checkbox = document.getElementById(`factor-${factorId}`) as HTMLInputElement;
-                if (checkbox) checkbox.checked = true;
+                if (checkbox) {
+                    checkbox.checked = true;
+                    console.log(`[TradeOff] Auto-checked factor: ${factorId} based on code ${code}`);
+                } else {
+                    console.warn(`[TradeOff] Could not find checkbox for factor: ${factorId}`);
+                }
+            } else {
+                console.log(`[TradeOff] No factor mapped for code: ${code}`);
             }
         }
 

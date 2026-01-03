@@ -185,7 +185,7 @@ export function createTradeOffChart(config: TradeOffChartConfig): any {
                         font: { weight: 'bold', size: 11 }
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(128, 128, 128, 0.2)'
                     },
                     ticks: {
                         callback: function (value: number) {
@@ -207,7 +207,7 @@ export function createTradeOffChart(config: TradeOffChartConfig): any {
                         font: { weight: 'bold', size: 11 }
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(128, 128, 128, 0.2)'
                     },
                     ticks: {
                         callback: function (value: number) {

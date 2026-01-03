@@ -38,8 +38,15 @@
 }
 
 @keyframes shimmer {
-    0%, 100% { background-position: 200% 0; }
-    50% { background-position: -200% 0; }
+
+    0%,
+    100% {
+        background-position: 200% 0;
+    }
+
+    50% {
+        background-position: -200% 0;
+    }
 }
 
 /* ===================
@@ -113,4 +120,3 @@
     padding-left: var(--container-padding);
     padding-right: var(--container-padding);
 }
-
