@@ -35,7 +35,7 @@ const calculateScore = (
     if (age > 80) ageClamped = 80;
 
     if (age > 30) {
-        const agePoints = (ageClamped - 30) * 0.25;
+        const agePoints = (ageClamped - 30) * 0.26;
         if (agePoints > 0) {
             score += agePoints;
             breakdownParts.push(`Age ${age} (Clamped: ${ageClamped}) -> +${agePoints.toFixed(2)}`);
