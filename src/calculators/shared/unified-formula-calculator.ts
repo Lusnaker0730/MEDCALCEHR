@@ -373,11 +373,17 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                                 allRequiredPresent = false;
                             } else {
                                 // 單位轉換
-                                if (inputConfig.standardUnit) {
+                                const targetUnit =
+                                    inputConfig.standardUnit ||
+                                    (inputConfig.unitToggle
+                                        ? inputConfig.unitToggle.default
+                                        : inputConfig.unit);
+
+                                if (targetUnit) {
                                     try {
                                         const standardVal = UnitConverter.getStandardValue(
                                             inputEl,
-                                            inputConfig.standardUnit
+                                            targetUnit
                                         );
                                         if (standardVal !== null) {
                                             val = standardVal;
