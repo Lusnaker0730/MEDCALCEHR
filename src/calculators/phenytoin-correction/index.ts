@@ -1,11 +1,9 @@
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { phenytoinCorrectionCalculation } from './calculation.js';
 
-const config: MixedInputCalculatorConfig = {
+export const phenytoinCorrection = createUnifiedFormulaCalculator({
     id: 'phenytoin-correction',
     title: 'Phenytoin (Dilantin) Correction for Albumin/Renal Failure',
     description: 'Corrects serum phenytoin level for renal failure and/or hypoalbuminemia.',
@@ -21,7 +19,7 @@ const config: MixedInputCalculatorConfig = {
         {
             title: 'Lab Values & Clinical Status',
             icon: '🧪',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'pheny-total',
@@ -32,7 +30,9 @@ const config: MixedInputCalculatorConfig = {
                         units: ['mcg/mL', 'µmol/L', 'mg/L'],
                         default: 'mcg/mL'
                     },
-                    loincCode: '4038-8'
+                    loincCode: '4038-8',
+                    standardUnit: 'mcg/mL',
+                    required: true
                 },
                 {
                     type: 'number',
@@ -44,11 +44,13 @@ const config: MixedInputCalculatorConfig = {
                         units: ['g/dL', 'g/L'],
                         default: 'g/dL'
                     },
-                    loincCode: LOINC_CODES.ALBUMIN
+                    loincCode: LOINC_CODES.ALBUMIN,
+                    standardUnit: 'g/dL',
+                    required: true
                 },
                 {
                     type: 'radio',
-                    name: 'pheny-renal',
+                    id: 'pheny-renal',
                     label: 'Renal Status (CrCl < 10 mL/min)',
                     options: [
                         { value: 'no', label: 'No (Normal Function)', checked: true },
@@ -62,65 +64,36 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'Corrected Level',
-            formula:
-                '<span class="formula-fraction"><span class="numerator">Total Phenytoin</span><span class="denominator">((1 − K) × Albumin / 4.4) + K</span></span>'
-        },
-        {
-            label: 'K',
-            formula: '0.1 (Normal Renal Function) or 0.2 (Renal Failure)'
+            formula: '<span class="formula-fraction"><span class="numerator">Total Phenytoin</span><span class="denominator">((1 − K) × Albumin / 4.4) + K</span></span>',
+            notes: 'K = 0.1 (Normal) or 0.2 (Renal Failure)'
         }
     ],
-    calculate: values => {
-        const total = values['pheny-total'] as number | null;
-        const albumin = values['pheny-albumin'] as number | null;
-        const renalStatus = values['pheny-renal'] as string;
+    calculate: phenytoinCorrectionCalculation,
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-        if (total === null || albumin === null) {
-            return null;
-        }
-
-        const K = renalStatus === 'yes' ? 0.2 : 0.1;
-        return total / (((1 - K) * albumin) / 4.4 + K);
-    },
-    customResultRenderer: (score, values) => {
-        const total = values['pheny-total'] as number;
-
-        let status = '';
-        let statusClass = 'ui-alert-success';
-        let alertType: 'success' | 'warning' | 'danger' | 'info' = 'success';
-        let alertMsg = 'Within therapeutic range.';
-
-        if (score < 10) {
-            status = 'Subtherapeutic';
-            statusClass = 'ui-alert-info';
-            alertType = 'info';
-            alertMsg = 'Level is below therapeutic range.';
-        } else if (score > 20) {
-            status = 'Potentially Toxic';
-            statusClass = 'ui-alert-danger';
-            alertType = 'danger';
-            alertMsg = 'Level is above therapeutic range. Monitor for toxicity.';
-        }
+        const payload = res.alertPayload as { alertMsg: string, measuredTotal: number };
+        const alertMsg = payload.alertMsg;
+        const alertClass = res.alertClass || 'info';
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Corrected Phenytoin',
-                value: score.toFixed(1),
-                unit: 'mcg/mL',
-                interpretation: status,
-                alertClass: statusClass
-            })}
+            label: res.label,
+            value: res.value,
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Measured Total',
-                value: total.toFixed(1),
-                unit: 'mcg/mL'
-            })}
+            label: 'Measured Total',
+            value: payload.measuredTotal.toFixed(1),
+            unit: 'mcg/mL'
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: alertMsg
-            })}
+            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+            message: alertMsg
+        })}
         `;
     }
-};
-
-export const phenytoinCorrection = createMixedInputCalculator(config);
+});

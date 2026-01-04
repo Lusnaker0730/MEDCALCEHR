@@ -1,78 +1,91 @@
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
-import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { childPughCalculation } from './calculation.js';
 
-const config: MixedInputCalculatorConfig = {
+export const childPugh = createUnifiedFormulaCalculator({
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
     description: 'Estimates cirrhosis severity and prognosis.',
     infoAlert: `
-        <strong>About Child-Pugh Score:</strong> Assesses the prognosis of chronic liver disease, mainly cirrhosis. Uses five clinical measures to classify patients into three categories (A, B, C) with different survival rates and surgical risks.
+        <h4>Child-Pugh Classification:</h4>
+        <ul class="info-list">
+            <li><strong>Class A (5-6 points):</strong> Good prognosis</li>
+            <li><strong>Class B (7-9 points):</strong> Moderate prognosis</li>
+            <li><strong>Class C (10-15 points):</strong> Poor prognosis</li>
+        </ul>
     `,
     sections: [
         {
             title: 'Laboratory Parameters',
             icon: '🔬',
-            inputs: [
+            fields: [
                 {
-                    type: 'radio',
-                    name: 'bilirubin',
-                    label: 'Bilirubin (Total)',
-                    options: [
-                        { value: '1', label: '< 2 mg/dL (< 34.2 μmol/L) (+1)' },
-                        { value: '2', label: '2-3 mg/dL (34.2-51.3 μmol/L) (+2)' },
-                        { value: '3', label: '> 3 mg/dL (> 51.3 μmol/L) (+3)' }
-                    ]
+                    type: 'number',
+                    id: 'bilirubin',
+                    label: 'Total Bilirubin',
+                    placeholder: 'e.g., 1.5',
+                    unitToggle: {
+                        type: 'bilirubin',
+                        units: ['mg/dL', 'µmol/L'],
+                        default: 'mg/dL'
+                    },
+                    loincCode: LOINC_CODES.BILIRUBIN_TOTAL,
+                    standardUnit: 'mg/dL',
+                    required: true
                 },
                 {
-                    type: 'radio',
-                    name: 'albumin',
+                    type: 'number',
+                    id: 'albumin',
                     label: 'Albumin',
-                    options: [
-                        { value: '1', label: '> 3.5 g/dL (> 35 g/L) (+1)' },
-                        { value: '2', label: '2.8-3.5 g/dL (28-35 g/L) (+2)' },
-                        { value: '3', label: '< 2.8 g/dL (< 28 g/L) (+3)' }
-                    ]
+                    placeholder: 'e.g., 3.8',
+                    unitToggle: {
+                        type: 'albumin',
+                        units: ['g/dL', 'g/L'],
+                        default: 'g/dL'
+                    },
+                    loincCode: LOINC_CODES.ALBUMIN,
+                    standardUnit: 'g/dL',
+                    required: true
                 },
                 {
-                    type: 'radio',
-                    name: 'inr',
+                    type: 'number',
+                    id: 'inr',
                     label: 'INR',
-                    options: [
-                        { value: '1', label: '< 1.7 (+1)' },
-                        { value: '2', label: '1.7-2.3 (+2)' },
-                        { value: '3', label: '> 2.3 (+3)' }
-                    ]
+                    placeholder: 'e.g., 1.2',
+                    unitToggle: {
+                        type: 'none',
+                        units: [],
+                        default: ''
+                    },
+                    loincCode: LOINC_CODES.INR_COAG,
+                    required: true
                 }
             ]
         },
         {
             title: 'Clinical Parameters',
             icon: '🩺',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: 'ascites',
+                    id: 'ascites',
                     label: 'Ascites',
                     options: [
-                        { value: '1', label: 'Absent (+1)' },
-                        { value: '2', label: 'Slight (controlled with diuretics) (+2)' },
-                        { value: '3', label: 'Moderate (despite diuretic therapy) (+3)' }
+                        { value: '1', label: 'Absent (+1)', checked: true },
+                        { value: '2', label: 'Slight (+2)' },
+                        { value: '3', label: 'Moderate (+3)' }
                     ],
                     helpText: 'Fluid accumulation in peritoneal cavity'
                 },
                 {
                     type: 'radio',
-                    name: 'encephalopathy',
+                    id: 'encephalopathy',
                     label: 'Hepatic Encephalopathy',
                     options: [
-                        { value: '1', label: 'No Encephalopathy (+1)' },
-                        { value: '2', label: 'Grade 1-2 (mild confusion, asterixis) (+2)' },
-                        { value: '3', label: 'Grade 3-4 (severe confusion, coma) (+3)' }
+                        { value: '1', label: 'None (+1)', checked: true },
+                        { value: '2', label: 'Grade 1-2 (+2)' },
+                        { value: '3', label: 'Grade 3-4 (+3)' }
                     ],
                     helpText: 'Neuropsychiatric abnormalities'
                 }
@@ -81,159 +94,35 @@ const config: MixedInputCalculatorConfig = {
     ],
     formulas: [
         {
-            title: 'Scoring',
-            content: `
-                <p class="calculation-note mb-15">Addition of the selected points:</p>
-                ${uiBuilder.createTable({
-                    headers: ['Classification', 'Points'],
-                    rows: [
-                        ['Child Class A', '5-6 points'],
-                        ['Child Class B', '7-9 points'],
-                        ['Child Class C', '10-15 points']
-                    ]
-                })}
-            `
+            label: 'Scoring',
+            formula: 'Sum of points from 5 parameters (5-15 points)',
+            notes: 'Class A: 5-6, Class B: 7-9, Class C: 10-15'
         }
     ],
-    calculate: values => {
-        const bilirubin = parseInt(values['bilirubin'] as string);
-        const albumin = parseInt(values['albumin'] as string);
-        const inr = parseInt(values['inr'] as string);
-        const ascites = parseInt(values['ascites'] as string);
-        const encephalopathy = parseInt(values['encephalopathy'] as string);
+    calculate: childPughCalculation,
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-        if (
-            isNaN(bilirubin) ||
-            isNaN(albumin) ||
-            isNaN(inr) ||
-            isNaN(ascites) ||
-            isNaN(encephalopathy)
-        ) {
-            return null;
-        }
-
-        return bilirubin + albumin + inr + ascites + encephalopathy;
-    },
-    customResultRenderer: (score, values) => {
-        let classification = '';
-        let prognosis = '';
-        let alertClass = 'ui-alert-info';
-
-        if (score <= 6) {
-            classification = 'Child Class A';
-            prognosis =
-                'Well-compensated disease - Good prognosis<br>Life Expectancy: 15-20 years<br>Surgical Mortality: 10%';
-            alertClass = 'ui-alert-success';
-        } else if (score <= 9) {
-            classification = 'Child Class B';
-            prognosis =
-                'Significant functional compromise - Moderate prognosis<br>Life Expectancy: 4-14 years<br>Surgical Mortality: 30%';
-            alertClass = 'ui-alert-warning';
-        } else {
-            classification = 'Child Class C';
-            prognosis =
-                'Decompensated disease - Poor prognosis<br>Life Expectancy: 1-3 years<br>Surgical Mortality: 82%';
-            alertClass = 'ui-alert-danger';
-        }
+        const payload = res.alertPayload as { prognosis: string };
+        const prognosis = payload.prognosis;
+        const alertClass = res.alertClass || 'info';
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Points',
-                value: score.toString(),
-                unit: 'points'
-            })}
-            ${uiBuilder.createResultItem({
-                label: 'Classification',
-                value: classification,
-                interpretation: prognosis,
-                alertClass: alertClass
-            })}
+            label: res.label,
+            value: res.value.toString(),
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
+            
+            <div class="ui-alert ui-alert-${alertClass} mt-10">
+                <span class="ui-alert-icon">ℹ️</span>
+                <div class="ui-alert-content">
+                    <p><strong>Prognosis:</strong><br>${prognosis.replace(/\n/g, '<br>')}</p>
+                </div>
+            </div>
         `;
-    },
-    customInitialize: (client, patient, container) => {
-        // RangeCondition interface for helper
-        interface RangeCondition {
-            condition: (v: number) => boolean;
-            value: string;
-        }
-
-        const setRadioFromValue = (groupName: string, value: number, ranges: RangeCondition[]) => {
-            if (value === null || value === undefined) return;
-
-            const radioToSelect = ranges.find(range => range.condition(value));
-            if (radioToSelect) {
-                const radio = container.querySelector(
-                    `input[name="${groupName}"][value="${radioToSelect.value}"]`
-                ) as HTMLInputElement;
-                if (radio) {
-                    radio.checked = true;
-                    radio.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            }
-        };
-
-        if (client) {
-            // Bilirubin
-            fhirDataService
-                .getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Bilirubin'
-                })
-                .then(result => {
-                    if (result.value !== null) {
-                        setRadioFromValue('bilirubin', result.value, [
-                            { condition: v => v < 2, value: '1' },
-                            { condition: v => v >= 2 && v <= 3, value: '2' },
-                            { condition: v => v > 3, value: '3' }
-                        ]);
-                    }
-                })
-                .catch(console.warn);
-
-            // Albumin
-            fhirDataService
-                .getObservation(LOINC_CODES.ALBUMIN, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Albumin'
-                })
-                .then(result => {
-                    if (result.value !== null) {
-                        let valueGdL = result.value;
-                        const unit = result.unit || 'g/dL';
-                        if (
-                            unit.toLowerCase().includes('l') &&
-                            !unit.toLowerCase().includes('dl')
-                        ) {
-                            valueGdL = valueGdL / 10;
-                        }
-
-                        setRadioFromValue('albumin', valueGdL, [
-                            { condition: v => v > 3.5, value: '1' },
-                            { condition: v => v >= 2.8 && v <= 3.5, value: '2' },
-                            { condition: v => v < 2.8, value: '3' }
-                        ]);
-                    }
-                })
-                .catch(console.warn);
-
-            // INR
-            fhirDataService
-                .getObservation(LOINC_CODES.INR_COAG, {
-                    trackStaleness: true,
-                    stalenessLabel: 'INR'
-                })
-                .then(result => {
-                    if (result.value !== null) {
-                        setRadioFromValue('inr', result.value, [
-                            { condition: v => v < 1.7, value: '1' },
-                            { condition: v => v >= 1.7 && v <= 2.3, value: '2' },
-                            { condition: v => v > 2.3, value: '3' }
-                        ]);
-                    }
-                })
-                .catch(console.warn);
-        }
     }
-};
-
-export const childPugh = createMixedInputCalculator(config);
+});

@@ -1,98 +1,90 @@
-import { createFormulaCalculator } from '../shared/formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calciumCorrectionCalculation } from './calculation.js';
 
-export const calciumCorrection = createFormulaCalculator({
+export const calciumCorrection = createUnifiedFormulaCalculator({
     id: 'calcium-correction',
     title: 'Calcium Correction for Albumin',
     description: 'Calculates corrected calcium for patients with hypoalbuminemia.',
-    inputs: [
+    infoAlert: `
+        <h4>Interpretation:</h4>
+        <ul class="info-list">
+            <li><strong>Normal Range:</strong> 8.5 - 10.5 mg/dL</li>
+            <li><strong>Hypocalcemia:</strong> < 8.5 mg/dL</li>
+            <li><strong>Hypercalcemia:</strong> > 10.5 mg/dL</li>
+        </ul>
+        <p class="mt-10"><strong>Note:</strong> Used when serum albumin is low (< 4.0 g/dL).</p>
+    `,
+    sections: [
         {
-            id: 'ca-total',
-            label: 'Total Calcium',
-            type: 'number',
-            standardUnit: 'mg/dL',
-            unitConfig: { type: 'calcium', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
-            loincCode: LOINC_CODES.CALCIUM,
-            min: 1,
-            max: 20,
-            step: 0.1
-        },
-        {
-            id: 'ca-albumin',
-            label: 'Albumin',
-            type: 'number',
-            standardUnit: 'g/dL',
-            unitConfig: { type: 'albumin', units: ['g/dL', 'g/L'], default: 'g/dL' },
-            loincCode: LOINC_CODES.ALBUMIN,
-            min: 0.1,
-            max: 10,
-            step: 0.1
+            title: 'Lab Values',
+            icon: '🧪',
+            fields: [
+                {
+                    type: 'number',
+                    id: 'ca-total',
+                    label: 'Total Calcium',
+                    placeholder: 'e.g., 8.0',
+                    unitToggle: {
+                        type: 'calcium',
+                        units: ['mg/dL', 'mmol/L'],
+                        default: 'mg/dL'
+                    },
+                    loincCode: LOINC_CODES.CALCIUM,
+                    standardUnit: 'mg/dL',
+                    required: true
+                },
+                {
+                    type: 'number',
+                    id: 'ca-albumin',
+                    label: 'Albumin',
+                    placeholder: 'e.g., 3.0',
+                    unitToggle: {
+                        type: 'albumin',
+                        units: ['g/dL', 'g/L'],
+                        default: 'g/dL'
+                    },
+                    loincCode: LOINC_CODES.ALBUMIN,
+                    standardUnit: 'g/dL',
+                    required: true
+                }
+            ]
         }
     ],
     formulas: [
         {
-            label: 'Corrected Calcium (mg/dL)',
-            formula: 'Total Calcium + 0.8 × (4.0 - Albumin)'
-        },
-        { label: 'Note', formula: 'Normal albumin reference: 4.0 g/dL' }
-    ],
-    calculate: values => {
-        const totalCalciumMgDl = values['ca-total'] as number;
-        const albuminGdl = values['ca-albumin'] as number;
-
-        if (!totalCalciumMgDl || !albuminGdl) return null;
-
-        const correctedCalcium = totalCalciumMgDl + 0.8 * (4.0 - albuminGdl);
-        const correctedCalciumMmol = correctedCalcium * 0.2495;
-
-        let alertClass: 'success' | 'warning' | 'danger' | 'info' = 'success';
-        let interpretation = 'Normal Range';
-
-        if (correctedCalcium < 8.5) {
-            alertClass = 'warning'; // Hypocalcemia
-            interpretation = 'Hypocalcemia (< 8.5 mg/dL)';
-        } else if (correctedCalcium > 10.5) {
-            alertClass = 'danger'; // Hypercalcemia
-            interpretation = 'Hypercalcemia (> 10.5 mg/dL)';
+            label: 'Corrected Calcium',
+            formula: 'Total Calcium + 0.8 × (4.0 - Albumin)',
+            notes: 'Normal albumin assumed to be 4.0 g/dL.'
         }
+    ],
+    calculate: calciumCorrectionCalculation,
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-        return [
-            {
-                label: 'Corrected Calcium',
-                value: correctedCalcium.toFixed(2),
-                unit: 'mg/dL',
-                interpretation: interpretation,
-                alertClass: alertClass
-            },
-            {
-                label: 'Corrected Calcium (mmol/L)',
-                value: correctedCalciumMmol.toFixed(2),
-                unit: 'mmol/L'
-            }
-        ];
-    },
-    customResultRenderer: results => {
-        const [target, mmol] = results;
-
-        // Helper to generate result item HTML
-        const renderItem = (res: any) => `
-            <div class="ui-result-item ${res.alertClass ? 'ui-result-' + res.alertClass : ''}">
-                <div class="ui-result-label">${res.label}</div>
-                <div class="ui-result-value-container">
-                    <span class="ui-result-value">${res.value}</span>
-                    <span class="ui-result-unit">${res.unit}</span>
-                </div>
-                ${res.interpretation ? `<div class="ui-result-interpretation">${res.interpretation}</div>` : ''}
-            </div>
-        `;
+        const payload = res.alertPayload as { mmolValue: number, alertMsg: string };
+        const mmolValue = payload.mmolValue;
+        const alertMsg = payload.alertMsg;
+        const alertClass = res.alertClass || 'info';
 
         return `
-            ${renderItem(target)}
+            ${uiBuilder.createResultItem({
+            label: res.label,
+            value: res.value,
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             <div class="text-center mt-5 text-muted">
-                (${mmol.value} mmol/L)
+                (${mmolValue} mmol/L)
             </div>
-            
-             <div class="ui-alert ui-alert-warning mt-10">
+            ${uiBuilder.createAlert({
+            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+            message: alertMsg
+        })}
+            <div class="ui-alert ui-alert-warning mt-10">
                 <span class="ui-alert-icon">⚠️</span>
                 <div class="ui-alert-content">
                     <p><strong>Clinical Note:</strong> This correction is an estimation. For critically ill patients or precise assessment, measurement of ionized calcium is preferred.</p>
