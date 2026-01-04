@@ -494,7 +494,8 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                 const validation = validateCalculatorInput(values, schema);
                 
-                // 更新每個欄位的 UI 狀態
+                // 更新每個欄位的 UI 狀態，同時檢查是否有任何錯誤
+                let hasFieldErrors = false;
                 Object.keys(validation.fieldStatus).forEach(fieldId => {
                     const inputEl = container.querySelector(`#${fieldId}`) as HTMLInputElement;
                     if (!inputEl) return;
@@ -503,6 +504,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     const rule = schema[fieldId];
                     
                     if (status === 'error') {
+                        hasFieldErrors = true;
                         updateFieldValidationUI(inputEl, 'error', rule.message);
                     } else if (status === 'warning') {
                         updateFieldValidationUI(inputEl, 'warning', rule.warningMessage);
@@ -511,11 +513,19 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     }
                 });
 
-                // 紅區錯誤：阻擋計算
-                if (!validation.isValid) {
+                // 紅區錯誤：阻擋計算（使用 validation.isValid 或 hasFieldErrors）
+                if (!validation.isValid || hasFieldErrors) {
                     if (errorContainer) {
                         // 清除舊的錯誤容器訊息（現在用 inline 顯示）
                         errorContainer.innerHTML = '';
+                    }
+                    // 隱藏結果框
+                    if (resultBox) {
+                        resultBox.classList.remove('show');
+                        resultBox.classList.add('ui-hidden');
+                    }
+                    if (resultContent) {
+                        resultContent.innerHTML = '';
                     }
                     return { 
                         isValid: false, 
@@ -545,6 +555,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 if (resultBox) {
                     resultBox.classList.remove('show');
                     resultBox.classList.add('ui-hidden');
+                }
+                // 清空內容，確保舊結果不會殘留
+                if (resultContent) {
+                    resultContent.innerHTML = '';
                 }
             };
 

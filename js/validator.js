@@ -198,6 +198,16 @@ export const ValidationRules = {
         message: 'Urine sodium must be between 1-1000 mEq/L',
         warningMessage: 'Urine sodium is unusual; double-check.'
     },
+    // Urine potassium validation (mEq/L)
+    urinePotassium: {
+        required: true,
+        min: 1,
+        max: 500,
+        warnMin: 15,
+        warnMax: 150,
+        message: 'Urine potassium must be between 1-500 mEq/L',
+        warningMessage: 'Urine potassium is unusual; double-check.'
+    },
     // Urine creatinine validation (mg/dL)
     urineCreatinine: {
         required: true,
@@ -217,6 +227,16 @@ export const ValidationRules = {
         warnMax: 10,
         message: 'Creatinine must be between 0.1-20 mg/dL',
         warningMessage: 'Creatinine is extreme; double-check.'
+    },
+    // eGFR validation (mL/min/1.73m²)
+    egfr: {
+        required: true,
+        min: 1,
+        max: 200,
+        warnMin: 15,
+        warnMax: 120,
+        message: 'eGFR must be between 1-200 mL/min/1.73m²',
+        warningMessage: 'eGFR is unusual; double-check.'
     },
     // Sodium validation (mEq/L)
     sodium: {
