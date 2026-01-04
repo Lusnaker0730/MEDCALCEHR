@@ -1,133 +1,122 @@
-/**
- * qSOFA Score for Sepsis
- *
- * 使用 Checkbox 工廠函數
- * 已整合 FHIRDataService 進行自動填充
- */
-
-import { createScoreCalculator } from '../shared/score-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { fhirDataService } from '../../fhir-data-service.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { qsofaCalculation } from './calculation.js';
 
-export const qsofaScore = createScoreCalculator({
+export const qsofaScore = createUnifiedFormulaCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
-    description:
-        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 is positive.',
-
-    infoAlert:
-        'Check all criteria that apply. A score ≥ 2 suggests higher risk of mortality or prolonged ICU stay.',
-
+    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis).',
+    infoAlert: `
+        <h4>qSOFA Criteria (Score 1 each):</h4>
+        <ul class="info-list">
+            <li><strong>Respiratory Rate:</strong> ≥ 22 /min</li>
+            <li><strong>Systolic Blood Pressure:</strong> ≤ 100 mmHg</li>
+            <li><strong>Altered Mental Status:</strong> GCS < 15</li>
+        </ul>
+    `,
     sections: [
         {
-            title: 'qSOFA Criteria',
-            icon: '📋',
-            options: [
-                { id: 'qsofa-rr', label: 'Respiratory Rate ≥ 22/min (+1)', value: 1 },
-                { id: 'qsofa-ams', label: 'Altered Mental Status (GCS < 15) (+1)', value: 1 },
-                { id: 'qsofa-sbp', label: 'Systolic Blood Pressure ≤ 100 mmHg (+1)', value: 1 }
+            title: 'Clinical Signs',
+            icon: '🩺',
+            fields: [
+                {
+                    type: 'number',
+                    id: 'rr',
+                    label: 'Respiratory Rate',
+                    placeholder: '16',
+                    unitToggle: {
+                        type: 'none',
+                        units: [],
+                        default: '/min'
+                    },
+                    loincCode: LOINC_CODES.RESPIRATORY_RATE,
+                    required: true
+                },
+                {
+                    type: 'number',
+                    id: 'sbp',
+                    label: 'Systolic BP',
+                    placeholder: '120',
+                    unitToggle: {
+                        type: 'pressure',
+                        units: ['mmHg'],
+                        default: 'mmHg'
+                    },
+                    standardUnit: 'mmHg',
+                    required: true
+                }
+            ]
+        },
+        {
+            title: 'Neurological Status',
+            icon: '🧠',
+            fields: [
+                {
+                    type: 'number',
+                    id: 'gcs',
+                    label: 'Glasgow Coma Scale (GCS)',
+                    placeholder: '15',
+                    min: 3,
+                    max: 15,
+                    unitToggle: {
+                        type: 'none',
+                        units: [],
+                        default: 'points'
+                    },
+                    loincCode: LOINC_CODES.GCS
+                },
+                {
+                    type: 'radio',
+                    id: 'ams',
+                    label: 'Altered Mental Status?',
+                    options: [
+                        { value: 'no', label: 'No', checked: true },
+                        { value: 'yes', label: 'Yes' }
+                    ],
+                    helpText: 'Select "Yes" if GCS < 15 or not formally assessed but clinically altered.'
+                }
             ]
         }
     ],
-
-    riskLevels: [
+    formulas: [
         {
-            minScore: 0,
-            maxScore: 0,
-            risk: 'Negative Screen',
-            category: 'Lower Risk',
-            severity: 'success',
-            recommendation: 'Lower risk, but continue to monitor if infection is suspected.'
-        },
-        {
-            minScore: 1,
-            maxScore: 1,
-            risk: 'Intermediate',
-            category: 'Monitor Closely',
-            severity: 'warning',
-            recommendation:
-                'Monitor closely. Consider early intervention if clinical suspicion is high.'
-        },
-        {
-            minScore: 2,
-            maxScore: 3,
-            risk: 'Positive Screen',
-            category: 'High Risk',
-            severity: 'danger',
-            recommendation:
-                'Increased risk of poor outcomes. Consider further sepsis evaluation (SOFA score, lactate, blood cultures).'
+            label: 'Scoring',
+            formula: 'Sum of: RR ≥ 22 (+1), SBP ≤ 100 (+1), GCS < 15 (+1)'
         }
     ],
+    calculate: qsofaCalculation,
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-    formulaItems: [
-        {
-            title: 'Interpretation',
-            content: `
-                <ul class="info-list">
-                    <li><strong>Score ≥ 2:</strong> Positive screen; higher risk of poor outcomes.</li>
-                    <li><strong>Score < 2:</strong> Negative screen; lower risk but continue monitoring.</li>
+        const payload = res.alertPayload as { metCriteria: string[], recommendation: string };
+        const metCriteria = payload.metCriteria;
+        const recommendation = payload.recommendation;
+        const alertClass = res.alertClass || 'info';
+
+        return `
+            ${uiBuilder.createResultItem({
+            label: res.label,
+            value: res.value.toString(),
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
+            
+            ${metCriteria.length > 0 ? `
+            <div class="text-sm mt-5 mb-10 text-muted">
+                <strong>Criteria Met:</strong>
+                <ul class="list-disc pl-20">
+                    ${metCriteria.map(c => `<li>${c}</li>`).join('')}
                 </ul>
-            `
-        },
-        {
-            title: 'Next Steps for Positive qSOFA',
-            content: `
-                <ul class="info-list">
-                    <li>Calculate full SOFA score</li>
-                    <li>Measure serum lactate</li>
-                    <li>Obtain blood cultures</li>
-                    <li>Consider early antibiotic therapy</li>
-                    <li>Assess for organ dysfunction</li>
-                </ul>
-            `
-        }
-    ],
+            </div>
+            ` : ''}
 
-    // 使用 customInitialize 進行 FHIR 自動填充
-    customInitialize: async (client, patient, container, calculate) => {
-        if (!fhirDataService.isReady()) {
-            return;
-        }
-
-        const stalenessTracker = fhirDataService.getStalenessTracker();
-
-        const setCheckbox = (id: string, checked: boolean) => {
-            const box = container.querySelector(`#${id}`) as HTMLInputElement;
-            if (box) {
-                box.checked = checked;
-                box.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        };
-
-        try {
-            // 獲取呼吸速率
-            const rrResult = await fhirDataService.getObservation(LOINC_CODES.RESPIRATORY_RATE, {
-                trackStaleness: true,
-                stalenessLabel: 'Respiratory Rate'
-            });
-
-            if (rrResult.value !== null && rrResult.value >= 22) {
-                setCheckbox('qsofa-rr', true);
-                if (stalenessTracker && rrResult.observation) {
-                    stalenessTracker.trackObservation(
-                        '#qsofa-rr',
-                        rrResult.observation,
-                        LOINC_CODES.RESPIRATORY_RATE,
-                        'Respiratory Rate'
-                    );
-                }
-            }
-
-            // 獲取血壓（使用 blood pressure panel）
-            const bpResult = await fhirDataService.getBloodPressure({
-                trackStaleness: true
-            });
-
-            if (bpResult.systolic !== null && bpResult.systolic <= 100) {
-                setCheckbox('qsofa-sbp', true);
-            }
-        } catch (error) {
-            console.warn('Error auto-populating qSOFA:', error);
-        }
+            ${uiBuilder.createAlert({
+            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+            message: `<strong>🏥 Recommendation:</strong> ${recommendation}`
+        })}
+        `;
     }
 });
