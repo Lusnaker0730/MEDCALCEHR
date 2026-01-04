@@ -31,6 +31,7 @@ export const sirs = createUnifiedFormulaCalculator({
                         units: ['°C', '°F'],
                         default: '°C'
                     },
+                    validationType: 'temperature',
                     loincCode: LOINC_CODES.TEMPERATURE,
                     standardUnit: '°C',
                     required: true
@@ -45,6 +46,7 @@ export const sirs = createUnifiedFormulaCalculator({
                         units: [],
                         default: 'bpm'
                     },
+                    validationType: 'heartRate',
                     loincCode: LOINC_CODES.HEART_RATE,
                     required: true
                 },
@@ -58,6 +60,7 @@ export const sirs = createUnifiedFormulaCalculator({
                         units: [],
                         default: '/min'
                     },
+                    validationType: 'respiratoryRate',
                     loincCode: LOINC_CODES.RESPIRATORY_RATE
                 },
                 {
@@ -70,6 +73,7 @@ export const sirs = createUnifiedFormulaCalculator({
                         units: ['mmHg', 'kPa'],
                         default: 'mmHg'
                     },
+                    validationType: 'paCO2',
                     standardUnit: 'mmHg'
                 }
             ]
@@ -88,6 +92,7 @@ export const sirs = createUnifiedFormulaCalculator({
                         units: [],
                         default: 'K/µL'
                     },
+                    validationType: 'wbc',
                     loincCode: LOINC_CODES.WBC
                 },
                 {

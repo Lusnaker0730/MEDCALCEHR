@@ -31,6 +31,7 @@ export const bmiBsa = createUnifiedFormulaCalculator({
                         units: ['kg', 'lbs'],
                         default: 'kg'
                     },
+                    validationType: 'weight',
                     loincCode: LOINC_CODES.WEIGHT,
                     standardUnit: 'kg',
                     required: true
@@ -45,6 +46,7 @@ export const bmiBsa = createUnifiedFormulaCalculator({
                         units: ['cm', 'in'],
                         default: 'cm'
                     },
+                    validationType: 'height',
                     loincCode: LOINC_CODES.HEIGHT,
                     standardUnit: 'cm',
                     required: true

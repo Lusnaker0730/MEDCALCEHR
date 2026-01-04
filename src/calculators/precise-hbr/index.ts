@@ -125,7 +125,8 @@ export const preciseHbr = createComplexFormulaCalculator({
                     unit: 'years',
                     placeholder: '30 - 80',
                     min: 18,
-                    max: 120
+                    max: 120,
+                    validationType: 'age'
                 },
                 {
                     id: 'precise-hbr-hb',
@@ -139,6 +140,7 @@ export const preciseHbr = createComplexFormulaCalculator({
                         units: ['g/dL', 'g/L'],
                         default: 'g/dL'
                     },
+                    validationType: 'hemoglobin',
                     loincCode: LOINC_CODES.HEMOGLOBIN
                 },
                 {
@@ -149,6 +151,7 @@ export const preciseHbr = createComplexFormulaCalculator({
                     min: 0,
                     max: 100,
                     unit: '10⁹/L',
+                    validationType: 'wbc',
                     loincCode: LOINC_CODES.WBC
                 },
                 {
@@ -158,6 +161,7 @@ export const preciseHbr = createComplexFormulaCalculator({
                     placeholder: '5 - 100',
                     min: 0,
                     max: 200,
+                    validationType: 'egfr',
                     loincCode: LOINC_CODES.EGFR
                 }
             ]

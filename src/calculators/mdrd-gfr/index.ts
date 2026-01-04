@@ -34,7 +34,8 @@ export const mdrdGfr = createFormulaCalculator({
             id: 'mdrd-age',
             label: 'Age',
             standardUnit: 'years',
-            placeholder: 'e.g., 65'
+            placeholder: 'e.g., 65',
+            validationType: 'age'
         },
         {
             type: 'number',
@@ -42,6 +43,7 @@ export const mdrdGfr = createFormulaCalculator({
             label: 'Serum Creatinine',
             standardUnit: 'mg/dL',
             unitConfig: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+            validationType: 'creatinine',
             loincCode: LOINC_CODES.CREATININE,
             min: 0.1,
             max: 20

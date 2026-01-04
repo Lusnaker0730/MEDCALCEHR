@@ -30,6 +30,7 @@ export const childPugh = createUnifiedFormulaCalculator({
                         units: ['mg/dL', 'µmol/L'],
                         default: 'mg/dL'
                     },
+                    validationType: 'bilirubin',
                     loincCode: LOINC_CODES.BILIRUBIN_TOTAL,
                     standardUnit: 'mg/dL',
                     required: true
@@ -44,6 +45,7 @@ export const childPugh = createUnifiedFormulaCalculator({
                         units: ['g/dL', 'g/L'],
                         default: 'g/dL'
                     },
+                    validationType: 'albumin',
                     loincCode: LOINC_CODES.ALBUMIN,
                     standardUnit: 'g/dL',
                     required: true
@@ -58,6 +60,7 @@ export const childPugh = createUnifiedFormulaCalculator({
                         units: [],
                         default: ''
                     },
+                    validationType: 'inr',
                     loincCode: LOINC_CODES.INR_COAG,
                     required: true
                 }

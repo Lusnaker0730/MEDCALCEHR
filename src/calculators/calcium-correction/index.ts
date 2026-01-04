@@ -31,6 +31,7 @@ export const calciumCorrection = createUnifiedFormulaCalculator({
                         units: ['mg/dL', 'mmol/L'],
                         default: 'mg/dL'
                     },
+                    validationType: 'calcium',
                     loincCode: LOINC_CODES.CALCIUM,
                     standardUnit: 'mg/dL',
                     required: true
@@ -45,6 +46,7 @@ export const calciumCorrection = createUnifiedFormulaCalculator({
                         units: ['g/dL', 'g/L'],
                         default: 'g/dL'
                     },
+                    validationType: 'albumin',
                     loincCode: LOINC_CODES.ALBUMIN,
                     standardUnit: 'g/dL',
                     required: true

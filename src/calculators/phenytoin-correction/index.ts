@@ -30,6 +30,7 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
                         units: ['mcg/mL', 'µmol/L', 'mg/L'],
                         default: 'mcg/mL'
                     },
+                    validationType: 'phenytoin',
                     loincCode: '4038-8',
                     standardUnit: 'mcg/mL',
                     required: true
@@ -44,6 +45,7 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
                         units: ['g/dL', 'g/L'],
                         default: 'g/dL'
                     },
+                    validationType: 'albumin',
                     loincCode: LOINC_CODES.ALBUMIN,
                     standardUnit: 'g/dL',
                     required: true

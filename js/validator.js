@@ -1,16 +1,19 @@
 // js/validator.js
 import { ValidationError } from './errorHandler.js';
 /**
- * 验证计算器输入
- * @param {Object} input - 输入值对象
- * @param {Object<string, ValidationRule>} schema - 验证规则
- * @returns {{isValid: boolean, errors: Array<string>}} 验证结果
+ * 驗證計算器輸入
+ * @param {Object} input - 輸入值對象
+ * @param {Object<string, ValidationRule>} schema - 驗證規則
+ * @returns {ValidationResult} 驗證結果（包含錯誤與警告）
  */
 export function validateCalculatorInput(input, schema) {
     const errors = [];
+    const warnings = [];
+    const fieldStatus = {};
     Object.keys(schema).forEach(key => {
         const value = input[key];
         const rule = schema[key];
+        let status = 'valid';
         // Required field validation
         if (rule.required &&
             (value === null ||
@@ -18,6 +21,7 @@ export function validateCalculatorInput(input, schema) {
                 value === '' ||
                 (typeof value === 'number' && Number.isNaN(value)))) {
             errors.push(rule.message || `${key} is required`);
+            fieldStatus[key] = 'error';
             return;
         }
         // Skip further validation if value is empty and not required
@@ -25,35 +29,56 @@ export function validateCalculatorInput(input, schema) {
             value === undefined ||
             value === '' ||
             (typeof value === 'number' && Number.isNaN(value))) {
+            fieldStatus[key] = 'valid';
             return;
         }
-        // Minimum value validation
-        if (rule.min !== undefined && Number(value) < rule.min) {
+        const numValue = Number(value);
+        // 紅區檢查 - 最小值
+        if (rule.min !== undefined && numValue < rule.min) {
             errors.push(rule.message || `${key} must be at least ${rule.min}`);
+            status = 'error';
         }
-        // Maximum value validation
-        if (rule.max !== undefined && Number(value) > rule.max) {
+        // 紅區檢查 - 最大值
+        else if (rule.max !== undefined && numValue > rule.max) {
             errors.push(rule.message || `${key} must be at most ${rule.max}`);
+            status = 'error';
         }
-        // Pattern validation
+        // 黃區檢查 - 低於警告下限
+        else if (rule.warnMin !== undefined && numValue < rule.warnMin) {
+            warnings.push(rule.warningMessage || `${key} is very low; double-check.`);
+            status = 'warning';
+        }
+        // 黃區檢查 - 高於警告上限
+        else if (rule.warnMax !== undefined && numValue > rule.warnMax) {
+            warnings.push(rule.warningMessage || `${key} is very high; double-check.`);
+            status = 'warning';
+        }
+        // Pattern validation (紅區)
         if (rule.pattern && !rule.pattern.test(String(value))) {
             errors.push(rule.message || `${key} format is incorrect`);
+            status = 'error';
         }
         // Custom validation function
         if (rule.custom && typeof rule.custom === 'function') {
             const customResult = rule.custom(value, input);
             if (customResult !== true) {
                 errors.push(customResult || rule.message || `${key} validation failed`);
+                status = 'error';
             }
         }
+        fieldStatus[key] = status;
     });
     return {
         isValid: errors.length === 0,
-        errors
+        errors,
+        hasWarnings: warnings.length > 0,
+        warnings,
+        fieldStatus
     };
 }
 /**
- * 常用验证规则模板
+ * 常用驗證規則範本
+ * 包含紅區（硬限制，阻擋計算）和黃區（警告，允許計算）
  */
 export const ValidationRules = {
     // Age validation
@@ -61,59 +86,82 @@ export const ValidationRules = {
         required: true,
         min: 0,
         max: 150,
-        message: 'Age must be between 0-150 years'
+        warnMin: 1,
+        warnMax: 120,
+        message: 'Age must be between 0-150 years',
+        warningMessage: 'Age is unusual; double-check.'
     },
     // Temperature validation (°C)
     temperature: {
         required: true,
         min: 20,
         max: 45,
-        message: 'Temperature must be between 20-45°C'
+        warnMin: 35,
+        warnMax: 40,
+        message: 'Temperature must be between 20-45°C',
+        warningMessage: 'Temperature is extreme; double-check.'
     },
-    // Blood pressure validation
-    bloodPressure: {
-        systolic: {
-            required: true,
-            min: 50,
-            max: 250,
-            message: 'Systolic BP must be between 50-250 mmHg'
-        },
-        diastolic: {
-            required: true,
-            min: 30,
-            max: 150,
-            message: 'Diastolic BP must be between 30-150 mmHg'
-        }
+    // Systolic Blood pressure validation
+    systolicBP: {
+        required: true,
+        min: 50,
+        max: 250,
+        warnMin: 70,
+        warnMax: 200,
+        message: 'Systolic BP must be between 50-250 mmHg',
+        warningMessage: 'Systolic BP is extreme; double-check.'
+    },
+    // Diastolic Blood pressure validation
+    diastolicBP: {
+        required: true,
+        min: 30,
+        max: 150,
+        warnMin: 40,
+        warnMax: 110,
+        message: 'Diastolic BP must be between 30-150 mmHg',
+        warningMessage: 'Diastolic BP is extreme; double-check.'
     },
     // Heart rate validation
     heartRate: {
         required: true,
         min: 20,
         max: 250,
-        message: 'Heart rate must be between 20-250 bpm'
+        warnMin: 40,
+        warnMax: 150,
+        message: 'Heart rate must be between 20-250 bpm',
+        warningMessage: 'Heart rate is extreme; double-check.'
     },
     // pH validation
     pH: {
         required: true,
         min: 6.5,
         max: 8.0,
-        message: 'pH must be between 6.5-8.0'
+        warnMin: 7.25,
+        warnMax: 7.55,
+        message: 'Too low/high; please change to proceed.',
+        warningMessage: 'Extreme value; double-check.'
     },
     // Weight validation (kg)
     weight: {
         required: true,
         min: 0.5,
         max: 500,
-        message: 'Weight must be between 0.5-500 kg'
+        warnMin: 30,
+        warnMax: 200,
+        message: 'Weight must be between 0.5-500 kg',
+        warningMessage: 'Weight is unusual; double-check.'
     },
     // Height validation (cm)
     height: {
         required: true,
         min: 30,
         max: 250,
-        message: 'Height must be between 30-250 cm'
+        warnMin: 100,
+        warnMax: 220,
+        message: 'Height must be between 30-250 cm',
+        warningMessage: 'Height is unusual; double-check.'
     },
-    // GCS validation
+    // GCS validation (no warning zone - values are bounded)
     gcs: {
         required: true,
         min: 3,
@@ -125,238 +173,333 @@ export const ValidationRules = {
         required: true,
         min: 10,
         max: 2000,
-        message: 'Glucose must be between 10-2000 mg/dL'
+        warnMin: 50,
+        warnMax: 400,
+        message: 'Glucose must be between 10-2000 mg/dL',
+        warningMessage: 'Glucose is extreme; double-check.'
     },
     // BUN validation (mg/dL)
     bun: {
         required: true,
         min: 1,
         max: 200,
-        message: 'BUN must be between 1-200 mg/dL'
+        warnMin: 5,
+        warnMax: 80,
+        message: 'BUN must be between 1-200 mg/dL',
+        warningMessage: 'BUN is extreme; double-check.'
     },
     // Urine sodium validation (mEq/L)
     urineSodium: {
         required: true,
         min: 1,
         max: 1000,
-        message: 'Urine sodium must be between 1-1000 mEq/L'
+        warnMin: 10,
+        warnMax: 200,
+        message: 'Urine sodium must be between 1-1000 mEq/L',
+        warningMessage: 'Urine sodium is unusual; double-check.'
     },
     // Urine creatinine validation (mg/dL)
     urineCreatinine: {
         required: true,
         min: 1,
         max: 2000,
-        message: 'Urine creatinine must be between 1-2000 mg/dL'
+        warnMin: 20,
+        warnMax: 400,
+        message: 'Urine creatinine must be between 1-2000 mg/dL',
+        warningMessage: 'Urine creatinine is unusual; double-check.'
     },
     // Creatinine validation (mg/dL)
     creatinine: {
         required: true,
         min: 0.1,
         max: 20,
-        message: 'Creatinine must be between 0.1-20 mg/dL'
+        warnMin: 0.4,
+        warnMax: 10,
+        message: 'Creatinine must be between 0.1-20 mg/dL',
+        warningMessage: 'Creatinine is extreme; double-check.'
     },
     // Sodium validation (mEq/L)
     sodium: {
         required: true,
         min: 100,
         max: 200,
-        message: 'Sodium must be between 100-200 mEq/L'
+        warnMin: 120,
+        warnMax: 160,
+        message: 'Too low/high; please change to proceed.',
+        warningMessage: 'Very low/high; double-check.'
     },
     // Potassium validation (mEq/L)
     potassium: {
         required: true,
         min: 1.5,
         max: 10,
-        message: 'Potassium must be between 1.5-10 mEq/L'
+        warnMin: 2.5,
+        warnMax: 6.5,
+        message: 'Potassium must be between 1.5-10 mEq/L',
+        warningMessage: 'Potassium is extreme; double-check.'
     },
     // Bilirubin validation (mg/dL)
     bilirubin: {
         required: true,
         min: 0.1,
         max: 80,
-        message: 'Bilirubin must be between 0.1-80 mg/dL'
+        warnMin: 0.2,
+        warnMax: 30,
+        message: 'Bilirubin must be between 0.1-80 mg/dL',
+        warningMessage: 'Bilirubin is extreme; double-check.'
     },
     // Calcium validation (Total) (mg/dL)
     calcium: {
         required: true,
         min: 2.0,
         max: 20.0,
-        message: 'Calcium must be between 2.0-20.0 mg/dL'
+        warnMin: 7.0,
+        warnMax: 12.0,
+        message: 'Calcium must be between 2.0-20.0 mg/dL',
+        warningMessage: 'Calcium is extreme; double-check.'
     },
     // INR validation
     inr: {
         required: true,
         min: 0.5,
         max: 20,
-        message: 'INR must be between 0.5-20'
+        warnMin: 0.8,
+        warnMax: 6,
+        message: 'INR must be between 0.5-20',
+        warningMessage: 'INR is extreme; double-check.'
     },
     // Albumin validation (g/dL)
     albumin: {
         required: true,
         min: 0.5,
         max: 8.0,
-        message: 'Albumin must be between 0.5-8.0 g/dL'
+        warnMin: 2.0,
+        warnMax: 5.5,
+        message: 'Albumin must be between 0.5-8.0 g/dL',
+        warningMessage: 'Albumin is unusual; double-check.'
     },
     // Liver enzyme validation (AST/ALT) (U/L)
     liverEnzyme: {
         required: true,
         min: 1,
         max: 5000,
-        message: 'Enzyme level must be between 1-5000 U/L'
+        warnMin: 5,
+        warnMax: 500,
+        message: 'Enzyme level must be between 1-5000 U/L',
+        warningMessage: 'Enzyme level is extreme; double-check.'
     },
     // Platelet validation (10^9/L)
     platelets: {
         required: true,
         min: 1,
         max: 2000,
-        message: 'Platelets must be between 1-2000 ×10⁹/L'
+        warnMin: 50,
+        warnMax: 500,
+        message: 'Platelets must be between 1-2000 ×10⁹/L',
+        warningMessage: 'Platelet count is extreme; double-check.'
     },
     // MAP validation (mmHg)
     map: {
         required: true,
         min: 20,
         max: 300,
-        message: 'MAP must be between 20-300 mmHg'
+        warnMin: 50,
+        warnMax: 150,
+        message: 'Too low/high; please change to proceed.',
+        warningMessage: 'Very low/high; double-check.'
     },
     // Respiratory rate (breaths/min)
     respiratoryRate: {
         required: true,
         min: 0, // Allow for intubated patients
         max: 100,
-        message: 'Respiratory rate must be between 0-100 breaths/min'
+        warnMin: 8,
+        warnMax: 40,
+        message: 'Respiratory rate must be between 0-100 breaths/min',
+        warningMessage: 'Respiratory rate is extreme; double-check.'
     },
     // Hematocrit (Hct) (%)
     hematocrit: {
         required: true,
         min: 5,
         max: 80,
-        message: 'Hematocrit must be between 5-80%'
+        warnMin: 20,
+        warnMax: 55,
+        message: 'Hematocrit must be between 5-80%',
+        warningMessage: 'Hematocrit is extreme; double-check.'
     },
     // WBC count (10^9/L)
     wbc: {
         required: true,
         min: 0,
         max: 500,
-        message: 'WBC must be between 0-500 ×10⁹/L'
+        warnMin: 2,
+        warnMax: 30,
+        message: 'WBC must be between 0-500 ×10⁹/L',
+        warningMessage: 'WBC count is extreme; double-check.'
     },
     // QT interval validation (ms)
     qtInterval: {
         required: true,
         min: 200,
         max: 800,
-        message: 'QT interval must be between 200-800 ms'
+        warnMin: 350,
+        warnMax: 500,
+        message: 'QT interval must be between 200-800 ms',
+        warningMessage: 'QT interval is unusual; double-check.'
     },
-    // Arterial blood gas
-    arterialGas: {
-        paO2: {
-            required: true,
-            min: 10,
-            max: 800,
-            message: 'PaO₂ must be between 10-800 mmHg'
-        },
-        paCO2: {
-            required: true,
-            min: 5,
-            max: 200,
-            message: 'PaCO₂ must be between 5-200 mmHg'
-        },
-        fiO2: {
-            required: true,
-            min: 0.21,
-            max: 1.0,
-            message: 'FiO₂ must be between 0.21-1.0'
-        }
+    // PaO2 validation (mmHg)
+    paO2: {
+        required: true,
+        min: 10,
+        max: 800,
+        warnMin: 40,
+        warnMax: 500,
+        message: 'PaO₂ must be between 10-800 mmHg',
+        warningMessage: 'PaO₂ is extreme; double-check.'
+    },
+    // PaCO2 validation (mmHg)
+    paCO2: {
+        required: true,
+        min: 5,
+        max: 200,
+        warnMin: 25,
+        warnMax: 80,
+        message: 'PaCO₂ must be between 5-200 mmHg',
+        warningMessage: 'PaCO₂ is extreme; double-check.'
+    },
+    // FiO2 validation
+    fiO2: {
+        required: true,
+        min: 0.21,
+        max: 1.0,
+        message: 'FiO₂ must be between 0.21-1.0'
     },
     // Phenytoin (mcg/mL)
     phenytoin: {
         required: true,
         min: 0,
         max: 100,
-        message: 'Phenytoin level must be between 0-100 mcg/mL'
+        warnMin: 5,
+        warnMax: 30,
+        message: 'Phenytoin level must be between 0-100 mcg/mL',
+        warningMessage: 'Phenytoin level is unusual; double-check.'
     },
     // Bicarbonate validation (mEq/L)
     bicarbonate: {
         required: true,
         min: 2,
         max: 60,
-        message: 'HCO₃⁻ must be between 2-60 mEq/L'
+        warnMin: 15,
+        warnMax: 35,
+        message: 'HCO₃⁻ must be between 2-60 mEq/L',
+        warningMessage: 'Bicarbonate is extreme; double-check.'
     },
     // Chloride validation (mEq/L)
     chloride: {
         required: true,
         min: 50,
         max: 150,
-        message: 'Chloride must be between 50-150 mEq/L'
+        warnMin: 90,
+        warnMax: 115,
+        message: 'Chloride must be between 50-150 mEq/L',
+        warningMessage: 'Chloride is extreme; double-check.'
     },
     // Insulin validation (µU/mL)
     insulin: {
         required: true,
         min: 0.1,
         max: 500,
-        message: 'Insulin must be between 0.1-500 µU/mL'
+        warnMin: 2,
+        warnMax: 100,
+        message: 'Insulin must be between 0.1-500 µU/mL',
+        warningMessage: 'Insulin level is unusual; double-check.'
     },
     // Ethanol validation (mg/dL)
     ethanol: {
         required: false,
         min: 0,
         max: 1000,
-        message: 'Ethanol concentration must be between 0-1000 mg/dL'
+        warnMax: 400,
+        message: 'Ethanol concentration must be between 0-1000 mg/dL',
+        warningMessage: 'Ethanol level is very high; double-check.'
     },
     // Total Cholesterol (mg/dL)
     totalCholesterol: {
         required: true,
         min: 50,
         max: 1000,
-        message: 'Total cholesterol must be between 50-1000 mg/dL'
+        warnMin: 100,
+        warnMax: 350,
+        message: 'Total cholesterol must be between 50-1000 mg/dL',
+        warningMessage: 'Cholesterol is unusual; double-check.'
     },
     // HDL (mg/dL)
     hdl: {
         required: true,
         min: 10,
         max: 200,
-        message: 'HDL must be between 10-200 mg/dL'
+        warnMin: 25,
+        warnMax: 100,
+        message: 'HDL must be between 10-200 mg/dL',
+        warningMessage: 'HDL is unusual; double-check.'
     },
     // Triglycerides (mg/dL)
     triglycerides: {
         required: true,
         min: 10,
         max: 3000,
-        message: 'Triglycerides must be between 10-3000 mg/dL'
+        warnMin: 30,
+        warnMax: 500,
+        message: 'Triglycerides must be between 10-3000 mg/dL',
+        warningMessage: 'Triglycerides are unusual; double-check.'
     },
     // Osmolality (mOsm/kg)
     osmolality: {
         required: true,
         min: 0,
         max: 2000,
-        message: 'Osmolality must be between 0-2000 mOsm/kg'
+        warnMin: 250,
+        warnMax: 350,
+        message: 'Osmolality must be between 0-2000 mOsm/kg',
+        warningMessage: 'Osmolality is unusual; double-check.'
     },
     // Time (hours)
     hours: {
         required: true,
         min: 0,
         max: 168, // 1 week max reasonable cap
-        message: 'Time must be between 0-168 hours'
+        warnMax: 72,
+        message: 'Time must be between 0-168 hours',
+        warningMessage: 'Time duration is very long; double-check.'
     },
     // Volume (mL)
     volume: {
         required: true,
         min: 0,
         max: 5000,
-        message: 'Volume must be between 0-5000 mL'
+        warnMax: 2000,
+        message: 'Volume must be between 0-5000 mL',
+        warningMessage: 'Volume is very large; double-check.'
     },
     // Alcohol by volume (ABV) %
     abv: {
         required: true,
         min: 0,
         max: 100,
-        message: 'ABV must be between 0-100%'
+        warnMax: 60,
+        message: 'ABV must be between 0-100%',
+        warningMessage: 'ABV is very high; double-check.'
     },
     // Hemoglobin (g/dL)
     hemoglobin: {
         required: true,
         min: 1,
         max: 25,
-        message: 'Hemoglobin must be between 1-25 g/dL'
+        warnMin: 6,
+        warnMax: 18,
+        message: 'Hemoglobin must be between 1-25 g/dL',
+        warningMessage: 'Hemoglobin is extreme; double-check.'
     }
 };
 /**

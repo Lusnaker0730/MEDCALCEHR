@@ -13,6 +13,7 @@ export const map = createFormulaCalculator({
             type: 'number',
             standardUnit: 'mmHg',
             unitConfig: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' },
+            validationType: 'systolicBP',
             min: 1,
             max: 300,
             loincCode: LOINC_CODES.SYSTOLIC_BP
@@ -23,6 +24,7 @@ export const map = createFormulaCalculator({
             type: 'number',
             standardUnit: 'mmHg',
             unitConfig: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' },
+            validationType: 'diastolicBP',
             min: 1,
             max: 200,
             loincCode: LOINC_CODES.DIASTOLIC_BP

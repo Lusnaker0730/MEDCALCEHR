@@ -39,6 +39,7 @@ export const ttkg = createUnifiedFormulaCalculator({
                         units: ['mEq/L', 'mmol/L'],
                         default: 'mEq/L'
                     },
+                    validationType: 'urinePotassium',
                     loincCode: LOINC_CODES.URINE_POTASSIUM,
                     standardUnit: 'mEq/L',
                     required: true
@@ -53,6 +54,7 @@ export const ttkg = createUnifiedFormulaCalculator({
                         units: ['mEq/L', 'mmol/L'],
                         default: 'mEq/L'
                     },
+                    validationType: 'potassium',
                     loincCode: LOINC_CODES.POTASSIUM,
                     standardUnit: 'mEq/L',
                     required: true
@@ -63,6 +65,7 @@ export const ttkg = createUnifiedFormulaCalculator({
                     label: 'Urine Osmolality',
                     unit: 'mOsm/kg',
                     placeholder: 'Norm: 500 - 800',
+                    validationType: 'osmolality',
                     loincCode: '2697-2',
                     required: true
                 },
@@ -72,6 +75,7 @@ export const ttkg = createUnifiedFormulaCalculator({
                     label: 'Serum Osmolality',
                     unit: 'mOsm/kg',
                     placeholder: 'Norm: 275 - 295',
+                    validationType: 'osmolality',
                     loincCode: '2695-6',
                     required: true
                 }

@@ -181,6 +181,59 @@ select {
 }
 
 /* ===================
+   Validation States (MDCalc-style)
+   紅區 (Error) - 阻擋計算
+   黃區 (Warning) - 允許計算但警告
+   =================== */
+
+/* 紅區 - 錯誤狀態 */
+input.validation-error,
+.validation-error input {
+    border-color: #ef5350 !important;
+    background-color: rgba(239, 83, 80, 0.05);
+}
+
+input.validation-error:focus,
+.validation-error input:focus {
+    box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.2);
+}
+
+/* 黃區 - 警告狀態 */
+input.validation-warning,
+.validation-warning input {
+    border-color: #ffb74d !important;
+    background-color: rgba(255, 183, 77, 0.05);
+}
+
+input.validation-warning:focus,
+.validation-warning input:focus {
+    box-shadow: 0 0 0 3px rgba(255, 183, 77, 0.2);
+}
+
+/* 驗證訊息框 */
+.validation-message {
+    margin-top: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+/* 紅區訊息 */
+.validation-message.error {
+    background: #ffebee;
+    border: 1px solid #ef5350;
+    color: #c62828;
+}
+
+/* 黃區訊息 */
+.validation-message.warning {
+    background: #fff8e1;
+    border: 1px solid #ffb74d;
+    color: #e65100;
+}
+
+/* ===================
    Range Slider
    =================== */
 

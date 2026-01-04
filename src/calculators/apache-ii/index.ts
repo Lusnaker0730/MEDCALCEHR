@@ -137,7 +137,7 @@ export const apacheIi = createComplexFormulaCalculator({
         {
             title: 'Demographics & Vital Signs',
             fields: [
-                { id: 'apache-ii-age', label: 'Age', unit: 'years' },
+                { id: 'apache-ii-age', label: 'Age', unit: 'years', validationType: 'age' },
                 {
                     id: 'apache-ii-temp',
                     label: 'Temperature',
@@ -149,14 +149,22 @@ export const apacheIi = createComplexFormulaCalculator({
                     id: 'apache-ii-map',
                     label: 'Mean Arterial Pressure',
                     unit: 'mmHg',
-                    placeholder: '70 - 100'
+                    placeholder: '70 - 100',
+                    validationType: 'map'
                 },
-                { id: 'apache-ii-hr', label: 'Heart Rate', unit: 'bpm', placeholder: '60 - 100' },
+                { 
+                    id: 'apache-ii-hr', 
+                    label: 'Heart Rate', 
+                    unit: 'bpm', 
+                    placeholder: '60 - 100',
+                    validationType: 'heartRate'
+                },
                 {
                     id: 'apache-ii-rr',
                     label: 'Respiratory Rate',
                     unit: 'breaths/min',
-                    placeholder: '12 - 20'
+                    placeholder: '12 - 20',
+                    validationType: 'respiratoryRate'
                 }
             ]
         },
@@ -167,7 +175,8 @@ export const apacheIi = createComplexFormulaCalculator({
                     id: 'apache-ii-ph',
                     label: 'Arterial pH',
                     step: 0.01,
-                    placeholder: '7.38 - 7.44'
+                    placeholder: '7.38 - 7.44',
+                    validationType: 'pH'
                 },
                 {
                     id: 'apache-ii-sodium',
@@ -194,14 +203,16 @@ export const apacheIi = createComplexFormulaCalculator({
                     label: 'Hematocrit',
                     unit: '%',
                     step: 0.1,
-                    placeholder: '36 - 51'
+                    placeholder: '36 - 51',
+                    validationType: 'hematocrit'
                 },
                 {
                     id: 'apache-ii-wbc',
                     label: 'WBC Count',
                     unit: 'x 10⁹/L',
                     step: 0.1,
-                    placeholder: '3.7 - 10.7'
+                    placeholder: '3.7 - 10.7',
+                    validationType: 'wbc'
                 },
                 {
                     name: 'arf',
@@ -222,8 +233,7 @@ export const apacheIi = createComplexFormulaCalculator({
                     label: 'Glasgow Coma Scale',
                     unit: 'points',
                     placeholder: '3 - 15',
-                    min: 3,
-                    max: 15
+                    validationType: 'gcs'
                 }
             ]
         },
@@ -247,11 +257,10 @@ export const apacheIi = createComplexFormulaCalculator({
                     label: 'FiO₂',
                     step: 0.01,
                     placeholder: 'e.g. 0.5',
-                    min: 0,
-                    max: 1
+                    validationType: 'fiO2'
                 },
-                { id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg' },
-                { id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg' }
+                { id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg', validationType: 'paO2' },
+                { id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg', validationType: 'paCO2' }
             ]
         }
     ],

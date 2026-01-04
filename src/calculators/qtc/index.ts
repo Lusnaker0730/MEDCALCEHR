@@ -26,6 +26,7 @@ export const qtc = createFormulaCalculator({
             placeholder: 'e.g. 72',
             min: 20,
             max: 300,
+            validationType: 'heartRate',
             loincCode: LOINC_CODES.HEART_RATE,
             unitConfig: { type: 'rate', units: ['bpm'], default: 'bpm' }
         },

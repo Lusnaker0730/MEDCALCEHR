@@ -14,6 +14,7 @@ export const maintenanceFluids = createFormulaCalculator({
             type: 'number',
             standardUnit: 'kg',
             unitConfig: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' },
+            validationType: 'weight',
             loincCode: LOINC_CODES.WEIGHT,
             min: 0,
             max: 500,

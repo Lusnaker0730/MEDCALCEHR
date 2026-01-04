@@ -35,6 +35,7 @@ export const crcl = createUnifiedFormulaCalculator({
                     label: 'Age',
                     unit: 'years',
                     placeholder: 'e.g., 65',
+                    validationType: 'age',
                     min: 1, max: 120,
                     required: true
                 },
@@ -48,6 +49,7 @@ export const crcl = createUnifiedFormulaCalculator({
                         units: ['kg', 'lbs'],
                         default: 'kg'
                     },
+                    validationType: 'weight',
                     loincCode: LOINC_CODES.WEIGHT,
                     min: 1, max: 300,
                     required: true
@@ -68,6 +70,7 @@ export const crcl = createUnifiedFormulaCalculator({
                         units: ['mg/dL', 'µmol/L'],
                         default: 'mg/dL'
                     },
+                    validationType: 'creatinine',
                     loincCode: LOINC_CODES.CREATININE,
                     min: 0.1, max: 20,
                     required: true

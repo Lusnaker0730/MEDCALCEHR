@@ -36,6 +36,8 @@ export interface NumberInputConfig {
     unitConfig?: UnitToggleConfig;
     /** 單位切換配置（別名，向後兼容） */
     unitToggle?: UnitToggleConfig;
+    /** 驗證類型 (對應 ValidationRules 的 key，如 'pH', 'sodium') */
+    validationType?: string;
     /** 預設值占位符 */
     placeholder?: string;
     /** 最小值 */

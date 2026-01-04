@@ -80,7 +80,7 @@ export const preventCVD = createComplexFormulaCalculator({
             title: 'Patient Characteristics',
             icon: '👤',
             fields: [
-                { id: 'qrisk-age', label: 'Age', unit: 'years', min: 25, max: 84 },
+                { id: 'qrisk-age', label: 'Age', unit: 'years', min: 25, max: 84, validationType: 'age' },
                 `<div class="ui-input-group">
                     <label class="ui-label" for="qrisk-gender">Gender</label>
                     <select id="qrisk-gender" class="ui-select">
@@ -130,7 +130,7 @@ export const preventCVD = createComplexFormulaCalculator({
             title: 'Clinical Measurements',
             icon: '🩺',
             fields: [
-                { id: 'qrisk-sbp', label: 'Systolic BP', unit: 'mmHg' },
+                { id: 'qrisk-sbp', label: 'Systolic BP', unit: 'mmHg', validationType: 'systolicBP' },
                 {
                     id: 'qrisk-cholesterol',
                     label: 'Total Cholesterol',
@@ -139,7 +139,8 @@ export const preventCVD = createComplexFormulaCalculator({
                         type: 'cholesterol',
                         units: ['mmol/L', 'mg/dL'],
                         default: 'mmol/L'
-                    }
+                    },
+                    validationType: 'totalCholesterol'
                 },
                 {
                     id: 'qrisk-hdl',
@@ -149,9 +150,10 @@ export const preventCVD = createComplexFormulaCalculator({
                         type: 'cholesterol',
                         units: ['mmol/L', 'mg/dL'],
                         default: 'mmol/L'
-                    }
+                    },
+                    validationType: 'hdl'
                 },
-                { id: 'qrisk-egfr', label: 'eGFR', unit: 'mL/min/1.73m²' }
+                { id: 'qrisk-egfr', label: 'eGFR', unit: 'mL/min/1.73m²', validationType: 'egfr' }
             ]
         }
     ],

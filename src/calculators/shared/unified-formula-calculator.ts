@@ -21,7 +21,8 @@ import {
     ValidationRules,
     validateCalculatorInput,
     ValidationSchema,
-    ValidationRule
+    ValidationRule,
+    ValidationResult
 } from '../../validator.js';
 
 // ==========================================
@@ -123,9 +124,12 @@ function isCheckboxInput(input: InputConfig): input is CheckboxInputConfig {
 /**
  * Get the validation rule for an input configuration
  * Merges explicit config with default rules based on type
+ * Priority: validationType > unitConfig.type > unitToggle.type
  */
 function getValidationRuleForInput(input: NumberInputConfig): ValidationRule {
-    const unitType =
+    // 優先使用 validationType，其次是 unitConfig/unitToggle 的 type
+    const ruleType =
+        input.validationType ||
         input.unitConfig?.type ||
         input.unitToggle?.type ||
         (input.unitConfig && typeof input.unitConfig.type === 'string'
@@ -133,14 +137,16 @@ function getValidationRuleForInput(input: NumberInputConfig): ValidationRule {
             : undefined);
 
     // Get default rule from type
-    const defaultRule = unitType && ValidationRules[unitType] ? ValidationRules[unitType] : {};
+    const defaultRule: ValidationRule = ruleType && ValidationRules[ruleType] ? ValidationRules[ruleType] : {};
 
-    // Specific overrides
-    // 1. Explicit min/max in input config takes precedence
-    // 2. Otherwise fall back to default rule
+    // Merge: explicit input config takes precedence over default rules
     return {
         min: input.min !== undefined ? input.min : defaultRule.min,
         max: input.max !== undefined ? input.max : defaultRule.max,
+        warnMin: defaultRule.warnMin,
+        warnMax: defaultRule.warnMax,
+        message: defaultRule.message,
+        warningMessage: defaultRule.warningMessage,
         required: input.required !== false
     };
 }
@@ -342,15 +348,69 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             }
 
             /**
-             * 驗證所有輸入
-             * 回傳驗證結果物件
+             * 更新輸入欄位的驗證 UI 狀態
              */
-            const validateInputs = (): { isValid: boolean; values: Record<string, any> } => {
+            const updateFieldValidationUI = (
+                inputEl: HTMLInputElement,
+                status: 'valid' | 'warning' | 'error',
+                message?: string
+            ): void => {
+                // 清除現有狀態
+                inputEl.classList.remove('validation-error', 'validation-warning');
+                
+                // 找到或創建訊息容器
+                const inputWrapper = inputEl.closest('.ui-input-wrapper') || inputEl.parentElement;
+                let messageEl = inputWrapper?.querySelector('.validation-message') as HTMLElement;
+                
+                if (status === 'valid') {
+                    // 移除訊息
+                    if (messageEl) messageEl.remove();
+                    return;
+                }
+                
+                // 添加對應的 class
+                inputEl.classList.add(status === 'error' ? 'validation-error' : 'validation-warning');
+                
+                // 創建或更新訊息
+                if (message) {
+                    if (!messageEl) {
+                        messageEl = document.createElement('div');
+                        messageEl.className = 'validation-message';
+                        inputWrapper?.appendChild(messageEl);
+                    }
+                    messageEl.className = `validation-message ${status}`;
+                    messageEl.textContent = message;
+                }
+            };
+
+            /**
+             * 清除所有欄位的驗證 UI
+             */
+            const clearAllValidationUI = (): void => {
+                container.querySelectorAll('.validation-error, .validation-warning').forEach(el => {
+                    el.classList.remove('validation-error', 'validation-warning');
+                });
+                container.querySelectorAll('.validation-message').forEach(el => el.remove());
+            };
+
+            /**
+             * 驗證所有輸入
+             * 回傳驗證結果物件（包含 warnings）
+             */
+            const validateInputs = (): { 
+                isValid: boolean; 
+                values: Record<string, any>;
+                hasWarnings: boolean;
+                warnings: string[];
+            } => {
                 const values: Record<string, any> = {};
                 const schema: ValidationSchema = {};
 
                 // Helper to check requirements
                 let allRequiredPresent = true;
+
+                // 清除之前的驗證 UI
+                clearAllValidationUI();
 
                 allInputs.forEach(inputConfig => {
                     if (typeof inputConfig === 'string') return;
@@ -395,13 +455,16 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                             }
                         }
 
-                        // Add to schema based on resolved rules
+                        // Add to schema based on resolved rules (including warning thresholds)
                         const rule = getValidationRuleForInput(inputConfig);
                         schema[inputConfig.id] = {
                             required: rule.required,
                             min: rule.min,
                             max: rule.max,
-                            message: rule.message
+                            warnMin: rule.warnMin,
+                            warnMax: rule.warnMax,
+                            message: rule.message,
+                            warningMessage: rule.warningMessage
                         };
 
                         if (val !== null && !isNaN(val)) {
@@ -426,23 +489,74 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 });
 
                 if (!allRequiredPresent) {
-                    return { isValid: false, values };
+                    return { isValid: false, values, hasWarnings: false, warnings: [] };
                 }
 
                 const validation = validateCalculatorInput(values, schema);
+                
+                // 更新每個欄位的 UI 狀態
+                Object.keys(validation.fieldStatus).forEach(fieldId => {
+                    const inputEl = container.querySelector(`#${fieldId}`) as HTMLInputElement;
+                    if (!inputEl) return;
+                    
+                    const status = validation.fieldStatus[fieldId];
+                    const rule = schema[fieldId];
+                    
+                    if (status === 'error') {
+                        updateFieldValidationUI(inputEl, 'error', rule.message);
+                    } else if (status === 'warning') {
+                        updateFieldValidationUI(inputEl, 'warning', rule.warningMessage);
+                    } else {
+                        updateFieldValidationUI(inputEl, 'valid');
+                    }
+                });
+
+                // 紅區錯誤：阻擋計算
                 if (!validation.isValid) {
                     if (errorContainer) {
-                        displayError(
-                            errorContainer,
-                            new ValidationError(validation.errors[0], 'VALIDATION_ERROR')
-                        );
+                        // 清除舊的錯誤容器訊息（現在用 inline 顯示）
+                        errorContainer.innerHTML = '';
                     }
-                    return { isValid: false, values };
+                    return { 
+                        isValid: false, 
+                        values, 
+                        hasWarnings: validation.hasWarnings, 
+                        warnings: validation.warnings 
+                    };
                 }
 
-                return { isValid: true, values };
+                // 黃區警告：允許計算但顯示警告
+                return { 
+                    isValid: true, 
+                    values, 
+                    hasWarnings: validation.hasWarnings, 
+                    warnings: validation.warnings 
+                };
             };
 
+
+            /**
+             * Simple 模式計算
+             */
+            /**
+             * 隱藏結果框
+             */
+            const hideResultBox = (): void => {
+                if (resultBox) {
+                    resultBox.classList.remove('show');
+                    resultBox.classList.add('ui-hidden');
+                }
+            };
+
+            /**
+             * 顯示結果框
+             */
+            const showResultBox = (): void => {
+                if (resultBox) {
+                    resultBox.classList.add('show');
+                    resultBox.classList.remove('ui-hidden');
+                }
+            };
 
             /**
              * Simple 模式計算
@@ -455,14 +569,14 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 const { isValid, values } = validateInputs();
 
                 if (!isValid) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    hideResultBox();
                     return;
                 }
 
                 try {
                     const results = config.calculate(values);
 
-                    if (results && resultContent) {
+                    if (results && results.length > 0 && resultContent) {
                         if (config.customResultRenderer) {
                             resultContent.innerHTML = config.customResultRenderer(results);
                         } else {
@@ -478,11 +592,12 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                                 )
                                 .join('');
                         }
-                        resultBox?.classList.add('show');
-                    } else if (resultBox) {
-                        resultBox.classList.remove('show');
+                        showResultBox();
+                    } else {
+                        hideResultBox();
                     }
                 } catch (e) {
+                    hideResultBox();
                     if (errorContainer) {
                         displayError(errorContainer, e as Error);
                     }
@@ -500,7 +615,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 // Also run validation for complex mode
                 const { isValid } = validateInputs();
                 if (!isValid) {
-                    if (resultBox) resultBox.classList.remove('show');
+                    hideResultBox();
                     return;
                 }
 
@@ -513,7 +628,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     );
 
                     if (!result) {
-                        if (resultBox) resultBox.classList.remove('show');
+                        hideResultBox();
                         return;
                     }
 
@@ -556,13 +671,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         resultContent.innerHTML = html;
                     }
 
-                    if (resultBox) {
-                        resultBox.classList.add('show');
-                        resultBox.classList.remove('ui-hidden');
-                    }
+                    showResultBox();
                 } catch (e) {
                     console.error(`Error calculating ${config.id}:`, e);
-                    if (resultBox) resultBox.classList.remove('show');
+                    hideResultBox();
                 }
             };
 

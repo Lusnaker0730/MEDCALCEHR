@@ -27,6 +27,7 @@ export const serumOsmolality = createUnifiedFormulaCalculator({
                         units: ['mEq/L', 'mmol/L'],
                         default: 'mEq/L'
                     },
+                    validationType: 'sodium',
                     loincCode: LOINC_CODES.SODIUM,
                     standardUnit: 'mEq/L',
                     required: true
@@ -41,6 +42,7 @@ export const serumOsmolality = createUnifiedFormulaCalculator({
                         units: ['mg/dL', 'mmol/L'],
                         default: 'mg/dL'
                     },
+                    validationType: 'glucose',
                     loincCode: LOINC_CODES.GLUCOSE,
                     standardUnit: 'mg/dL',
                     required: true
@@ -55,6 +57,7 @@ export const serumOsmolality = createUnifiedFormulaCalculator({
                         units: ['mg/dL', 'mmol/L'],
                         default: 'mg/dL'
                     },
+                    validationType: 'bun',
                     loincCode: LOINC_CODES.BUN,
                     standardUnit: 'mg/dL',
                     required: true
@@ -65,6 +68,7 @@ export const serumOsmolality = createUnifiedFormulaCalculator({
                     label: 'Ethanol (Optional)',
                     placeholder: 'e.g., 0',
                     unit: 'mg/dL',
+                    validationType: 'ethanol',
                     helpText: 'If known, improves accuracy in suspected ingestion.',
                     standardUnit: 'mg/dL'
                 }

@@ -25,6 +25,7 @@ export const ett = createFormulaCalculator({
                 units: ['cm', 'in'],
                 default: 'cm'
             },
+            validationType: 'height',
             placeholder: 'e.g. 170',
             min: 50,
             max: 250,

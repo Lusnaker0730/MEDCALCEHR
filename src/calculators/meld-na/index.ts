@@ -21,6 +21,7 @@ export const meldNa = createUnifiedFormulaCalculator({
                     loincCode: LOINC_CODES.BILIRUBIN_TOTAL,
                     unit: 'mg/dL',
                     unitToggle: { type: 'bilirubin', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+                    validationType: 'bilirubin',
                     step: 0.1,
                     required: true
                 },
@@ -30,6 +31,7 @@ export const meldNa = createUnifiedFormulaCalculator({
                     type: 'number',
                     loincCode: LOINC_CODES.INR_COAG,
                     placeholder: 'e.g., 1.5',
+                    validationType: 'inr',
                     step: 0.01,
                     required: true
                 },
@@ -44,6 +46,7 @@ export const meldNa = createUnifiedFormulaCalculator({
                         units: ['mg/dL', 'µmol/L'],
                         default: 'mg/dL'
                     },
+                    validationType: 'creatinine',
                     step: 0.1,
                     required: true
                 },
@@ -54,6 +57,7 @@ export const meldNa = createUnifiedFormulaCalculator({
                     loincCode: LOINC_CODES.SODIUM,
                     unit: 'mEq/L',
                     unitToggle: { type: 'sodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' },
+                    validationType: 'sodium',
                     step: 1,
                     placeholder: '100 - 155',
                     required: true

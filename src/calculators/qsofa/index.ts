@@ -30,6 +30,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                         units: [],
                         default: '/min'
                     },
+                    validationType: 'respiratoryRate',
                     loincCode: LOINC_CODES.RESPIRATORY_RATE,
                     required: true
                 },
@@ -43,6 +44,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                         units: ['mmHg'],
                         default: 'mmHg'
                     },
+                    validationType: 'systolicBP',
                     standardUnit: 'mmHg',
                     required: true
                 }
@@ -57,8 +59,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                     id: 'gcs',
                     label: 'Glasgow Coma Scale (GCS)',
                     placeholder: '15',
-                    min: 3,
-                    max: 15,
+                    validationType: 'gcs',
                     unitToggle: {
                         type: 'none',
                         units: [],

@@ -20,6 +20,7 @@ export const tpaDosing = createFormulaCalculator({
                 units: ['kg', 'lbs'],
                 default: 'kg'
             },
+            validationType: 'weight',
             loincCode: LOINC_CODES.WEIGHT
         },
         {

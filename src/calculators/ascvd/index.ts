@@ -239,6 +239,7 @@ export const ascvd = createUnifiedFormulaCalculator({
             type: 'number',
             unit: 'years (40-79)',
             min: 20, max: 100, // Tech limit, generic limit
+            validationType: 'age',
             required: false // Handled in calculate
         },
         {
@@ -267,6 +268,7 @@ export const ascvd = createUnifiedFormulaCalculator({
             type: 'number',
             loincCode: LOINC_CODES.CHOLESTEROL_TOTAL,
             unitToggle: { type: 'totalCholesterol', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
+            validationType: 'totalCholesterol',
             required: false
         },
         {
@@ -275,6 +277,7 @@ export const ascvd = createUnifiedFormulaCalculator({
             type: 'number',
             loincCode: LOINC_CODES.HDL,
             unitToggle: { type: 'hdl', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
+            validationType: 'hdl',
             required: false
         },
         {
@@ -284,6 +287,7 @@ export const ascvd = createUnifiedFormulaCalculator({
             unit: 'mmHg',
             loincCode: LOINC_CODES.SYSTOLIC_BP,
             min: 50, max: 300,
+            validationType: 'systolicBP',
             required: false
         },
         // Risk Factors

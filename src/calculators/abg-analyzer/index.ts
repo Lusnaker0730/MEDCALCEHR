@@ -242,7 +242,7 @@ export const abgAnalyzer: CalculatorModule = {
 
                 const schema: any = {
                     ph: ValidationRules.pH,
-                    paCO2: ValidationRules.arterialGas.paCO2,
+                    paCO2: ValidationRules.paCO2,
                     bicarbonate: ValidationRules.bicarbonate
                 };
 

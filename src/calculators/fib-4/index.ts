@@ -18,6 +18,7 @@ export const fib4 = createUnifiedFormulaCalculator({
                     label: 'Age',
                     unit: 'years',
                     placeholder: 'e.g. 45',
+                    validationType: 'age',
                     required: true
                 },
                 {
@@ -26,6 +27,7 @@ export const fib4 = createUnifiedFormulaCalculator({
                     label: 'AST (Aspartate Aminotransferase)',
                     unit: 'U/L',
                     placeholder: 'e.g. 30',
+                    validationType: 'liverEnzyme',
                     loincCode: LOINC_CODES.AST,
                     required: true
                 },
@@ -35,6 +37,7 @@ export const fib4 = createUnifiedFormulaCalculator({
                     label: 'ALT (Alanine Aminotransferase)',
                     unit: 'U/L',
                     placeholder: 'e.g. 30',
+                    validationType: 'liverEnzyme',
                     loincCode: LOINC_CODES.ALT,
                     required: true
                 },
@@ -48,6 +51,7 @@ export const fib4 = createUnifiedFormulaCalculator({
                         units: ['×10⁹/L', 'K/µL', 'thou/mm³'],
                         default: '×10⁹/L'
                     },
+                    validationType: 'platelets',
                     loincCode: LOINC_CODES.PLATELETS,
                     standardUnit: '×10⁹/L',
                     required: true

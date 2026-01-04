@@ -31,6 +31,7 @@ export const serumAnionGap = createUnifiedFormulaCalculator({
                         units: ['mEq/L', 'mmol/L'],
                         default: 'mEq/L'
                     },
+                    validationType: 'sodium',
                     loincCode: LOINC_CODES.SODIUM,
                     standardUnit: 'mEq/L',
                     required: true
@@ -45,6 +46,7 @@ export const serumAnionGap = createUnifiedFormulaCalculator({
                         units: ['mEq/L', 'mmol/L'],
                         default: 'mEq/L'
                     },
+                    validationType: 'chloride',
                     loincCode: LOINC_CODES.CHLORIDE,
                     standardUnit: 'mEq/L',
                     required: true
@@ -59,6 +61,7 @@ export const serumAnionGap = createUnifiedFormulaCalculator({
                         units: ['mEq/L', 'mmol/L'],
                         default: 'mEq/L'
                     },
+                    validationType: 'bicarbonate',
                     loincCode: LOINC_CODES.BICARBONATE,
                     standardUnit: 'mEq/L',
                     required: true

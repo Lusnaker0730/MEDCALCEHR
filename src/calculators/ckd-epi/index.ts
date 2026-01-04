@@ -27,7 +27,8 @@ export const ckdEpi = createFormulaCalculator({
             id: 'ckd-epi-age',
             label: 'Age',
             standardUnit: 'years',
-            placeholder: 'Enter age'
+            placeholder: 'Enter age',
+            validationType: 'age'
         },
         {
             type: 'number',
@@ -35,6 +36,7 @@ export const ckdEpi = createFormulaCalculator({
             label: 'Serum Creatinine',
             standardUnit: 'mg/dL',
             unitConfig: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' },
+            validationType: 'creatinine',
             loincCode: LOINC_CODES.CREATININE
         }
     ],
