@@ -165,9 +165,15 @@ export interface ValueCalculationResult extends BaseCalculationResult {
 /** 公式參考項目 */
 export interface FormulaReferenceItem {
     /** 公式標籤 */
-    label: string;
+    label?: string;
+    /** 標題（別名） */
+    title?: string;
     /** 公式內容 */
-    formula: string;
+    formula?: string;
+    /** 內容（別名） */
+    content?: string;
+    /** 多公式陣列 */
+    formulas?: string[];
     /** 備註 */
     notes?: string;
 }

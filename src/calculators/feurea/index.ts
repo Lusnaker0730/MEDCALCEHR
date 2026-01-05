@@ -135,7 +135,11 @@ export const feureaConfig: FormulaCalculatorConfig = {
 
         return html;
     },
-    reference: '<p class="text-sm text-muted mt-10">Carvounis CP, Nisar S, Guro-Razuman S. Significance of the fractional excretion of urea in the differential diagnosis of acute renal failure. Kidney Int. 2002;62(6):2223-9.</p>'
+    reference: uiBuilder.createReference({
+        citations: [
+            'Carvounis CP, Nisar S, Guro-Razuman S. Significance of the fractional excretion of urea in the differential diagnosis of acute renal failure. <em>Kidney Int</em>. 2002;62(6):2223-9.'
+        ]
+    })
 };
 
 export const feurea = createUnifiedFormulaCalculator(feureaConfig);

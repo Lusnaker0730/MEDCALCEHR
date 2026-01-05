@@ -824,6 +824,31 @@ export class UIBuilder {
         return `<${type} class="ui-list ${className}">${itemsHTML}</${type}>`;
     }
 
+    /**
+     * Create a reference section for citations
+     * @param {Object} options - Configuration object
+     */
+    createReference({
+        title = 'Reference',
+        citations = [],
+        icon = '📚'
+    }: {
+        title?: string;
+        citations: string[];
+        icon?: string;
+    }): string {
+        const citationsHTML = citations
+            .map(citation => `<p>${citation}</p>`)
+            .join('');
+        
+        return `
+            <div class="info-section mt-20 text-sm text-muted">
+                <h4>${icon} ${title}</h4>
+                ${citationsHTML}
+            </div>
+        `;
+    }
+
 }
 
 // Create and export a singleton instance

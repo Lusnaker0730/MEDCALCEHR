@@ -7,6 +7,7 @@
 
 import { createConditionalScoreCalculator } from '../shared/conditional-score-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
 
 export const hepScore = createConditionalScoreCalculator({
     id: '4ts-hit',
@@ -231,10 +232,9 @@ export const hepScore = createConditionalScoreCalculator({
         </div>
     `,
 
-    reference: `
-        <div class="info-section mt-20 text-sm text-muted">
-            <h4>📚 Reference</h4>
-            <p>Cuker, A., et al. (2010). The HIT Expert Probability (HEP) Score. <em>J Thromb Haemost</em>.</p>
-        </div>
-    `
+    reference: uiBuilder.createReference({
+        citations: [
+            'Cuker A, et al. The HIT Expert Probability (HEP) Score. <em>J Thromb Haemost</em>. 2010.'
+        ]
+    })
 });

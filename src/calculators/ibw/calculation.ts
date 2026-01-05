@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const calculateIBW: SimpleCalculateFn = (values) => {
     const heightCm = Number(values['ibw-height']);
@@ -20,7 +20,7 @@ export const calculateIBW: SimpleCalculateFn = (values) => {
 
     if (ibw <= 0) return null;
 
-    const results = [
+    const results: FormulaResultItem[] = [
         {
             label: 'Ideal Body Weight (IBW)',
             value: ibw.toFixed(1),
