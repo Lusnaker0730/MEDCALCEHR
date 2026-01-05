@@ -6,7 +6,7 @@ import { qsofaCalculation } from './calculation.js';
 export const qsofaScore = createUnifiedFormulaCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
-    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis).',
+    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 suggests high risk.',
     infoAlert: `
         <h4>qSOFA Criteria (Score 1 each):</h4>
         <ul class="info-list">
@@ -17,7 +17,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
     `,
     sections: [
         {
-            title: 'Clinical Signs',
+            title: 'Vital Signs',
             icon: '🩺',
             fields: [
                 {
@@ -44,8 +44,8 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                         units: ['mmHg'],
                         default: 'mmHg'
                     },
-                    validationType: 'systolicBP',
                     standardUnit: 'mmHg',
+                    validationType: 'systolicBP',
                     required: true
                 }
             ]
@@ -59,12 +59,14 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                     id: 'gcs',
                     label: 'Glasgow Coma Scale (GCS)',
                     placeholder: '15',
-                    validationType: 'gcs',
+                    min: 3,
+                    max: 15,
                     unitToggle: {
                         type: 'none',
                         units: [],
                         default: 'points'
                     },
+                    validationType: 'gcs',
                     loincCode: LOINC_CODES.GCS
                 },
                 {
@@ -83,7 +85,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
     formulas: [
         {
             label: 'Scoring',
-            formula: 'Sum of: RR ≥ 22 (+1), SBP ≤ 100 (+1), GCS < 15 (+1)'
+            formula: 'Sum of criteria (0-3 points)'
         }
     ],
     calculate: qsofaCalculation,

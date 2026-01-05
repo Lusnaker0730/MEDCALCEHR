@@ -637,9 +637,13 @@ export class FHIRDataService {
                 const loaded = fields
                     .filter(f => results.get(f.code)?.value !== null)
                     .map(f => f.label);
+
                 const missing = fields
                     .filter(f => results.get(f.code)?.value === null)
-                    .map(f => f.label);
+                    .map(f => ({
+                        id: f.inputId.replace(/^#/, ''),
+                        label: f.label
+                    }));
 
                 fhirFeedback.createDataSummary(this.container, {
                     loaded,

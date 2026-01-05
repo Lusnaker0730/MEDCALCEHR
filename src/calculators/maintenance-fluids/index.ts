@@ -1,12 +1,13 @@
-import { createFormulaCalculator } from '../shared/formula-calculator.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calculateMaintenanceFluids } from './calculation.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-export const maintenanceFluids = createFormulaCalculator({
+export const maintenanceFluidsConfig: FormulaCalculatorConfig = {
     id: 'maintenance-fluids',
     title: 'Maintenance Fluids Calculations',
-    description: 'Calculates maintenance fluid requirements by weight.',
-    infoAlert: 'Calculates maintenance fluid requirements by weight (Holliday-Segar method).',
+    description: 'Calculates maintenance fluid requirements by weight using the Holliday-Segar method.',
     inputs: [
         {
             id: 'weight-fluids',
@@ -16,9 +17,10 @@ export const maintenanceFluids = createFormulaCalculator({
             unitConfig: { type: 'weight', units: ['kg', 'lbs'], default: 'kg' },
             validationType: 'weight',
             loincCode: LOINC_CODES.WEIGHT,
-            min: 0,
+            min: 0.1,
             max: 500,
-            placeholder: 'e.g., 70'
+            placeholder: 'e.g., 70',
+            required: true
         }
     ],
     formulas: [
@@ -27,6 +29,7 @@ export const maintenanceFluids = createFormulaCalculator({
         { label: 'Each kg above 20 kg', formula: '1 mL/kg/hr' },
         { label: 'Daily Total', formula: 'Hourly Rate × 24' }
     ],
+    calculate: calculateMaintenanceFluids,
     footerHTML: uiBuilder.createAlert({
         type: 'warning',
         message: `
@@ -39,33 +42,7 @@ export const maintenanceFluids = createFormulaCalculator({
                 <li>For critically ill patients, may need additional adjustment (e.g., 50-75% of calculated)</li>
             </ul>
         `
-    }),
-    calculate: values => {
-        const weightKg = values['weight-fluids'] as number;
+    })
+};
 
-        if (weightKg === undefined || weightKg <= 0) return null;
-
-        let hourlyRate = 0;
-        if (weightKg <= 10) {
-            hourlyRate = weightKg * 4;
-        } else if (weightKg <= 20) {
-            hourlyRate = 10 * 4 + (weightKg - 10) * 2;
-        } else {
-            hourlyRate = 10 * 4 + 10 * 2 + (weightKg - 20) * 1;
-        }
-        const dailyRate = hourlyRate * 24;
-
-        return [
-            {
-                label: 'IV Fluid Rate (Hourly)',
-                value: hourlyRate.toFixed(1),
-                unit: 'mL/hr'
-            },
-            {
-                label: 'Total Daily Fluids',
-                value: dailyRate.toFixed(1),
-                unit: 'mL/day'
-            }
-        ];
-    }
-});
+export const maintenanceFluids = createUnifiedFormulaCalculator(maintenanceFluidsConfig);

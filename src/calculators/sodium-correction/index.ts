@@ -1,137 +1,118 @@
-import { createFormulaCalculator } from '../shared/formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calculateSodiumCorrection } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-export const sodiumCorrection = createFormulaCalculator({
+export const sodiumCorrectionConfig: FormulaCalculatorConfig = {
     id: 'sodium-correction',
     title: 'Sodium Correction for Hyperglycemia',
-    description: 'Calculates the actual sodium level in patients with hyperglycemia.',
-    inputs: [
+    description: 'Calculates the corrected sodium level in patients with hyperglycemia.',
+    infoAlert: `
+        <h4>Correction Factor Selection:</h4>
+        ${uiBuilder.createList({
+        items: [
+            '<strong>1.6:</strong> Standard factor (Hillier). For every 100 mg/dL glucose above 100.',
+            '<strong>2.4:</strong> Suggested by Katz for glucose > 400 mg/dL.'
+        ],
+        className: 'info-list'
+    })}
+    `,
+    sections: [
         {
-            id: 'measured-sodium',
-            label: 'Measured Sodium',
-            type: 'number',
-            standardUnit: 'mEq/L',
-            unitConfig: { type: 'sodium', units: ['mEq/L', 'mmol/L'], default: 'mEq/L' },
-            validationType: 'sodium',
-            loincCode: LOINC_CODES.SODIUM,
-            placeholder: 'e.g., 135',
-            min: 100,
-            max: 200,
-            step: 1
+            title: 'Laboratory Values',
+            icon: '🧪',
+            fields: [
+                {
+                    type: 'number',
+                    id: 'measured-sodium',
+                    label: 'Measured Sodium',
+                    placeholder: '135',
+                    unitToggle: {
+                        type: 'sodium',
+                        units: ['mEq/L', 'mmol/L'],
+                        default: 'mEq/L'
+                    },
+                    standardUnit: 'mEq/L',
+                    validationType: 'sodium',
+                    loincCode: LOINC_CODES.SODIUM,
+                    required: true
+                },
+                {
+                    type: 'number',
+                    id: 'glucose',
+                    label: 'Serum Glucose',
+                    placeholder: '400',
+                    unitToggle: {
+                        type: 'glucose',
+                        units: ['mg/dL', 'mmol/L'],
+                        default: 'mg/dL'
+                    },
+                    standardUnit: 'mg/dL',
+                    validationType: 'glucose',
+                    loincCode: LOINC_CODES.GLUCOSE,
+                    required: true
+                }
+            ]
         },
         {
-            id: 'glucose',
-            label: 'Serum Glucose',
-            type: 'number',
-            standardUnit: 'mg/dL',
-            unitConfig: { type: 'glucose', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
-            validationType: 'glucose',
-            loincCode: LOINC_CODES.GLUCOSE,
-            placeholder: 'e.g., 400',
-            min: 0,
-            max: 2000,
-            step: 1
-        },
-        {
-            id: 'correction-factor',
-            label: 'Correction Factor',
-            type: 'radio',
-            options: [
-                { value: '1.6', label: '1.6 (Standard, Hillier)', checked: true },
-                { value: '2.4', label: '2.4 (Katz, suggested for Glucose > 400 mg/dL)' }
-            ],
-            helpText:
-                'Standard factor is 1.6 mEq/L for every 100 mg/dL glucose above 100. Some suggest 2.4 when glucose > 400 mg/dL.'
+            title: 'Calculation Settings',
+            icon: '⚙️',
+            fields: [
+                {
+                    type: 'radio',
+                    id: 'correction-factor',
+                    label: 'Correction Factor',
+                    options: [
+                        { value: '1.6', label: '1.6 (Standard/Hillier)', checked: true },
+                        { value: '2.4', label: '2.4 (Katz, for severe hyperglycemia)' }
+                    ],
+                    helpText: 'Katz et al. found a factor of 2.4 was more accurate when glucose > 400 mg/dL.'
+                }
+            ]
         }
     ],
     formulas: [
         {
             label: 'Corrected Na',
-            formula: 'Measured Na + [Correction Factor × (Glucose - 100) / 100]'
+            formula: 'Measured Na + Factor × [(Glucose - 100) / 100]'
         }
     ],
-    calculate: values => {
-        const measuredSodium = values['measured-sodium'] as number;
-        const glucoseMgDl = values['glucose'] as number;
-        const correctionFactor = parseFloat((values['correction-factor'] as string) || '1.6');
-
-        if (!measuredSodium || !glucoseMgDl) return null;
-
-        const correctedSodium = measuredSodium + correctionFactor * ((glucoseMgDl - 100) / 100);
-
-        // Interpretation
-        let interpretation = '';
-        let alertClass: 'success' | 'warning' | 'danger' | 'info' = 'success';
-
-        if (correctedSodium < 136) {
-            interpretation = 'Low (Hyponatremia)';
-            alertClass = 'warning';
-        } else if (correctedSodium > 145) {
-            interpretation = 'High (Hypernatremia)';
-            alertClass = 'danger';
-        } else {
-            interpretation = 'Normal';
-            alertClass = 'success';
-        }
-
-        return [
-            {
-                label: 'Corrected Sodium',
-                value: correctedSodium.toFixed(1),
-                unit: 'mEq/L',
-                interpretation: interpretation,
-                alertClass: alertClass
-            },
-            {
-                label: 'Correction Amount',
-                value: `+${(correctedSodium - measuredSodium).toFixed(1)}`,
-                unit: 'mEq/L'
-            },
-            // Hack to pass through extra data for custom renderer
-            { label: '_glucose', value: glucoseMgDl },
-            { label: '_factor', value: correctionFactor }
-        ];
-    },
-    customResultRenderer: results => {
+    calculate: calculateSodiumCorrection,
+    customResultRenderer: (results) => {
         const mainRes = results[0];
         const amountRes = results[1];
-        const glucose = results[2].value as number;
-        const factor = results[3].value as number;
+        if (!mainRes || !amountRes) return '';
 
-        // Helper to generate result item HTML
-        const renderItem = (res: any) => `
-            <div class="ui-result-item ${res.alertClass ? 'ui-result-' + res.alertClass : ''}">
-                <div class="ui-result-label">${res.label}</div>
-                <div class="ui-result-value-container">
-                    <span class="ui-result-value">${res.value}</span>
-                    <span class="ui-result-unit">${res.unit}</span>
-                </div>
-                ${res.interpretation ? `<div class="ui-result-interpretation">${res.interpretation}</div>` : ''}
-            </div>
-        `;
-
+        // Safe extraction of payload
+        const payload = mainRes.alertPayload as { glucose: number, factor: number } | undefined;
         let alertHTML = '';
-        if (factor === 1.6 && glucose > 400) {
-            alertHTML = `
-                <div class="ui-alert ui-alert-warning mt-10">
-                    <span class="ui-alert-icon">⚠️</span>
-                    <div class="ui-alert-content">
-                        Glucose > 400 mg/dL. Consider using correction factor of 2.4.
-                    </div>
-                </div>
-            `;
+
+        if (payload && payload.factor === 1.6 && payload.glucose > 400) {
+            alertHTML = uiBuilder.createAlert({
+                type: 'warning',
+                message: '<strong>Clinical Note:</strong> Glucose > 400 mg/dL. Consider using a correction factor of 2.4 (Katz et al).'
+            });
         }
 
         return `
-            ${renderItem(mainRes)}
-             <div class="ui-result-item">
-                <div class="ui-result-label">Amount Added</div>
-                <div class="ui-result-value-container">
-                    <span class="ui-result-value">${amountRes.value}</span>
-                    <span class="ui-result-unit">${amountRes.unit}</span>
-                 </div>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: mainRes.label,
+            value: mainRes.value.toString(),
+            unit: mainRes.unit,
+            interpretation: mainRes.interpretation,
+            alertClass: `ui-alert-${mainRes.alertClass}`
+        })}
+
+            ${uiBuilder.createResultItem({
+            label: amountRes.label,
+            value: amountRes.value.toString(),
+            unit: amountRes.unit
+        })}
+
             ${alertHTML}
         `;
     }
-});
+};
+
+export const sodiumCorrection = createUnifiedFormulaCalculator(sodiumCorrectionConfig);

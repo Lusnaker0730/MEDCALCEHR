@@ -1,11 +1,13 @@
-import { createFormulaCalculator } from '../shared/formula-calculator.js';
+import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calculateMAP } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-export const map = createFormulaCalculator({
+export const mapConfig: FormulaCalculatorConfig = {
     id: 'map',
     title: 'Mean Arterial Pressure (MAP)',
-    description:
-        'Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.',
+    description: 'Calculates the average arterial pressure during one cardiac cycle, important for organ perfusion assessment.',
     inputs: [
         {
             id: 'map-sbp',
@@ -14,9 +16,10 @@ export const map = createFormulaCalculator({
             standardUnit: 'mmHg',
             unitConfig: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' },
             validationType: 'systolicBP',
-            min: 1,
+            min: 50,
             max: 300,
-            loincCode: LOINC_CODES.SYSTOLIC_BP
+            loincCode: LOINC_CODES.SYSTOLIC_BP,
+            required: true
         },
         {
             id: 'map-dbp',
@@ -25,53 +28,21 @@ export const map = createFormulaCalculator({
             standardUnit: 'mmHg',
             unitConfig: { type: 'pressure', units: ['mmHg', 'kPa'], default: 'mmHg' },
             validationType: 'diastolicBP',
-            min: 1,
+            min: 30,
             max: 200,
-            loincCode: LOINC_CODES.DIASTOLIC_BP
+            loincCode: LOINC_CODES.DIASTOLIC_BP,
+            required: true
         }
     ],
     formulas: [
         { label: 'Formula', formula: 'MAP = DBP + (1/3 × (SBP - DBP))' },
         { label: 'Equivalent', formula: 'MAP = (SBP + 2 × DBP) / 3' }
     ],
-    calculate: values => {
-        const sbp = values['map-sbp'] as number;
-        const dbp = values['map-dbp'] as number;
-
-        if (!sbp || !dbp) return null;
-        if (sbp <= dbp) return null; // Logic check: SBP must be > DBP
-
-        const mapCalc = dbp + (sbp - dbp) / 3;
-
-        let interpretation = '';
-        let alertClass: 'danger' | 'warning' | 'success' | 'info' = 'info';
-
-        if (mapCalc < 60) {
-            interpretation = 'Critically Low (Shock Risk)';
-            alertClass = 'danger';
-        } else if (mapCalc < 70) {
-            interpretation = 'Below Normal';
-            alertClass = 'warning';
-        } else if (mapCalc <= 100) {
-            interpretation = 'Normal';
-            alertClass = 'success';
-        } else {
-            interpretation = 'Elevated (Hypertension)';
-            alertClass = 'danger';
-        }
-
-        return [
-            {
-                label: 'Mean Arterial Pressure',
-                value: mapCalc.toFixed(1),
-                unit: 'mmHg',
-                interpretation: interpretation,
-                alertClass: alertClass
-            }
-        ];
-    },
-    customResultRenderer: results => {
+    calculate: calculateMAP,
+    customResultRenderer: (results) => {
         const res = results[0];
+        if (!res) return '';
+
         const val = parseFloat(res.value as string);
 
         let note = '';
@@ -82,19 +53,20 @@ export const map = createFormulaCalculator({
         else note = 'Sustained MAP >100 mmHg requires management.';
 
         return `
-            <div class="ui-result-item ${res.alertClass ? 'ui-result-' + res.alertClass : ''}">
-                <div class="ui-result-label">${res.label}</div>
-                <div class="ui-result-value-container">
-                    <span class="ui-result-value">${res.value}</span>
-                    <span class="ui-result-unit">${res.unit}</span>
-                </div>
-                <div class="ui-result-interpretation">${res.interpretation}</div>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: res.label,
+            value: res.value.toString(),
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${res.alertClass}`
+        })}
             
-            <div class="ui-alert ui-alert-${res.alertClass === 'success' ? 'info' : res.alertClass} mt-10">
-                <span class="ui-alert-icon">${val < 60 || val > 100 ? '⚠️' : 'ℹ️'}</span>
-                <div class="ui-alert-content">${note}</div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: res.alertClass === 'success' ? 'info' : res.alertClass as any,
+            message: note
+        })}
         `;
     }
-});
+};
+
+export const map = createUnifiedFormulaCalculator(mapConfig);

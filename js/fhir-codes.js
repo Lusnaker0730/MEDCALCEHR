@@ -88,6 +88,8 @@ export const LOINC_CODES = {
     HCO3: '1960-4', // Bicarbonate
     BASE_EXCESS: '1925-7', // Base excess
     LACTATE: '2524-7', // Lactate
+    // Cardiac Measurements
+    QT_INTERVAL: '8633-1', // QT interval (raw)
     // Laboratory - Other
     HBA1C: '4548-4', // Hemoglobin A1c
     TSH: '3016-3', // Thyroid stimulating hormone

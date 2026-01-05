@@ -299,6 +299,46 @@ export class FHIRFeedback {
             <div class="fhir-feedback-tooltip">${message || defaultMessage}</div>
         `;
         wrapper.appendChild(indicator);
+
+        // Auto-dismiss on user input
+        const dismissHandler = () => {
+            indicator.remove();
+
+            // Also update summary banner if present
+            const fieldId = inputElement.id;
+            const summaryItem = document.querySelector(`#fhir-data-summary li[data-field-id="${fieldId}"]`);
+
+            if (summaryItem) {
+                summaryItem.remove();
+
+                // Check if list is empty
+                const summaryList = document.querySelector('#fhir-data-summary .missing-list');
+                if (summaryList && summaryList.children.length === 0) {
+                    const summaryBlock = document.querySelector('#fhir-data-summary');
+                    if (summaryBlock) summaryBlock.remove();
+                }
+            } else {
+                // Fallback to text matching for legacy/manual calls
+                const summaryList = document.querySelector('#fhir-data-summary .missing-list');
+                if (summaryList) {
+                    const items = Array.from(summaryList.querySelectorAll('li'));
+                    const matchedItem = items.find(li => li.textContent?.includes(label) && !li.hasAttribute('data-field-id'));
+                    if (matchedItem) {
+                        matchedItem.remove();
+                        if (summaryList.children.length === 0) {
+                            const summaryBlock = document.querySelector('#fhir-data-summary');
+                            if (summaryBlock) summaryBlock.remove();
+                        }
+                    }
+                }
+            }
+
+            inputElement.removeEventListener('input', dismissHandler);
+            inputElement.removeEventListener('change', dismissHandler);
+        };
+
+        inputElement.addEventListener('input', dismissHandler);
+        inputElement.addEventListener('change', dismissHandler);
     }
 
     /**
@@ -457,7 +497,15 @@ export class FHIRFeedback {
                 <div class="details">
                     <strong>Please enter manually:</strong>
                     <ul class="missing-list">
-                        ${missing.map((item: string) => `<li>${item}</li>`).join('')}
+
+                        ${missing
+                    .map((item: string | { id: string; label: string }) => {
+                        if (typeof item === 'string') {
+                            return `<li>${item}</li>`;
+                        }
+                        return `<li data-field-id="${item.id}">${item.label}</li>`;
+                    })
+                    .join('')}
                     </ul>
                 </div>
             `;
@@ -550,7 +598,7 @@ export class FHIRFeedback {
         // Show loading banner
         this.createLoadingBanner(container);
 
-        const results: { loaded: string[]; missing: string[]; failed: string[] } = {
+        const results: { loaded: string[]; missing: (string | { id: string; label: string })[]; failed: string[] } = {
             loaded: [],
             missing: [],
             failed: []
@@ -579,7 +627,10 @@ export class FHIRFeedback {
                         results.loaded.push(field.label);
                     } else {
                         this.showWarning(input, field.label);
-                        results.missing.push(field.label);
+                        results.missing.push({
+                            id: field.inputId.replace(/^#/, ''),
+                            label: field.label
+                        });
                     }
                 } catch (error: any) {
                     console.error(`Error loading ${field.label}:`, error);

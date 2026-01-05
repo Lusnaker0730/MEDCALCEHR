@@ -129,6 +129,12 @@ export interface UITableOptions {
     stickyFirstColumn?: boolean;
 }
 
+export interface UIListOptions {
+    items: string[];
+    type?: 'ul' | 'ol';
+    className?: string;
+}
+
 /**
  * UIBuilder - A comprehensive UI component generation system
  * Provides consistent styling and behavior across all calculators
@@ -798,16 +804,26 @@ export class UIBuilder {
         return `
             <div class="ui-table-container" ${wrapperId}>
                 <table class="${tableClass}">
-                    <thead>
-                        <tr>${headerHTML}</tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHTML}
-                    </tbody>
+                    <thead>${headerHTML}</thead>
+                    <tbody>${rowsHTML}</tbody>
                 </table>
             </div>
         `;
     }
+
+    /**
+     * Create a list (ul/ol)
+     * @param {Object} options - Configuration object
+     */
+    createList({
+        items = [],
+        type = 'ul',
+        className = ''
+    }: UIListOptions): string {
+        const itemsHTML = items.map(item => `<li>${item}</li>`).join('');
+        return `<${type} class="ui-list ${className}">${itemsHTML}</${type}>`;
+    }
+
 }
 
 // Create and export a singleton instance
