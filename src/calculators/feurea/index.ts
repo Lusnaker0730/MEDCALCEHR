@@ -1,80 +1,89 @@
 /**
  * Fractional Excretion of Urea (FEUrea) Calculator
  *
- * 使用 MixedInputCalculator 工廠函數
+ * 使用 UnifiedFormulaCalculator 工廠函數
  * 用於評估急性腎損傷（AKI）的病因，特別是在使用利尿劑的患者中
  */
 
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calculateFEUrea } from './calculation.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-const config: MixedInputCalculatorConfig = {
+export const feureaConfig: FormulaCalculatorConfig = {
     id: 'feurea',
     title: 'Fractional Excretion of Urea (FEUrea)',
-    description:
-        'Determines if renal failure is due to prerenal or intrinsic pathology, especially useful in patients on diuretics.',
-    infoAlert: `
-        <p>FEUrea is particularly useful when FENa is unreliable (e.g., patients on diuretics, contrast nephropathy, or early obstruction).</p>
-        <div class="ui-alert ui-alert-info mt-10">
-            <strong>Advantage:</strong> Unlike FENa, FEUrea is not significantly affected by diuretic use.
-        </div>
-    `,
+    description: 'Determines if renal failure is due to prerenal or intrinsic pathology, especially useful in patients on diuretics.',
+    infoAlert: '<p>FEUrea is particularly useful when FENa is unreliable (e.g., patients on diuretics, contrast nephropathy, or early obstruction).</p>' +
+        uiBuilder.createAlert({
+            type: 'info',
+            message: '<strong>Advantage:</strong> Unlike FENa, FEUrea is not significantly affected by diuretic use.'
+        }),
     sections: [
         {
             title: 'Laboratory Values',
             icon: '🧪',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'feurea-serum-cr',
                     label: 'Serum Creatinine',
                     placeholder: 'e.g., 1.0',
-                    unitToggle: {
+                    unitConfig: {
                         type: 'creatinine',
                         units: ['mg/dL', 'µmol/L'],
                         default: 'mg/dL'
                     },
-                    loincCode: LOINC_CODES.CREATININE
+                    validationType: 'creatinine',
+                    loincCode: LOINC_CODES.CREATININE,
+                    standardUnit: 'mg/dL',
+                    required: true
                 },
                 {
                     type: 'number',
                     id: 'feurea-urine-urea',
                     label: 'Urine Urea Nitrogen',
                     placeholder: 'e.g., 200',
-                    unitToggle: {
+                    unitConfig: {
                         type: 'bun',
                         units: ['mg/dL', 'mmol/L'],
                         default: 'mg/dL'
                     },
-                    loincCode: '3095-7' // Urine Urea Nitrogen
+                    validationType: 'bun',
+                    loincCode: '3095-7',
+                    standardUnit: 'mg/dL',
+                    required: true
                 },
                 {
                     type: 'number',
                     id: 'feurea-serum-urea',
                     label: 'Serum Urea Nitrogen (BUN)',
                     placeholder: 'e.g., 20',
-                    unitToggle: {
+                    unitConfig: {
                         type: 'bun',
                         units: ['mg/dL', 'mmol/L'],
                         default: 'mg/dL'
                     },
-                    loincCode: LOINC_CODES.BUN
+                    validationType: 'bun',
+                    loincCode: LOINC_CODES.BUN,
+                    standardUnit: 'mg/dL',
+                    required: true
                 },
                 {
                     type: 'number',
                     id: 'feurea-urine-cr',
                     label: 'Urine Creatinine',
                     placeholder: 'e.g., 100',
-                    unitToggle: {
-                        type: 'creatinine',
+                    unitConfig: {
+                        type: 'urineCreatinine',
                         units: ['mg/dL', 'µmol/L'],
                         default: 'mg/dL'
                     },
-                    loincCode: LOINC_CODES.URINE_CREATININE
+                    validationType: 'urineCreatinine',
+                    loincCode: LOINC_CODES.URINE_CREATININE,
+                    standardUnit: 'mg/dL',
+                    required: true
                 }
             ]
         }
@@ -82,96 +91,51 @@ const config: MixedInputCalculatorConfig = {
     formulas: [
         {
             label: 'FEUrea (%)',
-            formula:
-                '<span class="formula-fraction"><span class="numerator">Serum<sub>Cr</sub> × U<sub>Urea</sub></span><span class="denominator">Serum<sub>Urea</sub> × U<sub>Cr</sub></span></span> × 100'
+            formula: '<span class="formula-fraction"><span class="numerator">Serum<sub>Cr</sub> × U<sub>Urea</sub></span><span class="denominator">Serum<sub>Urea</sub> × U<sub>Cr</sub></span></span> × 100'
         }
     ],
-    calculate: values => {
-        const serumCr = values['feurea-serum-cr'] as number | null;
-        const urineUrea = values['feurea-urine-urea'] as number | null;
-        const serumUrea = values['feurea-serum-urea'] as number | null;
-        const urineCr = values['feurea-urine-cr'] as number | null;
+    calculate: calculateFEUrea,
+    customResultRenderer: (results) => {
+        const mainResult = results[0];
+        const noteResult = results[1];
 
-        if (serumCr === null || urineUrea === null || serumUrea === null || urineCr === null) {
-            return null;
+        if (!mainResult) return '';
+
+        let html = uiBuilder.createResultItem({
+            label: mainResult.label,
+            value: mainResult.value.toString(),
+            unit: mainResult.unit,
+            interpretation: mainResult.interpretation,
+            alertClass: mainResult.alertClass ? `ui-alert-${mainResult.alertClass}` : ''
+        });
+
+        if (noteResult && noteResult.value) {
+            html += uiBuilder.createAlert({
+                type: noteResult.alertClass as any,
+                message: noteResult.value.toString()
+            });
         }
 
-        if (serumUrea === 0 || urineCr === 0) return null; // Avoid division by zero
-
-        return ((serumCr * urineUrea) / (serumUrea * urineCr)) * 100;
-    },
-    customResultRenderer: (score, values) => {
-        let interpretation = '';
-        let alertClass = '';
-        let alertType: 'success' | 'warning' | 'danger' = 'success';
-
-        if (score <= 35) {
-            interpretation = 'Prerenal AKI (≤ 35%)';
-            alertClass = 'ui-alert-success';
-            alertType = 'success';
-        } else if (score > 50) {
-            interpretation = 'Intrinsic Renal AKI (> 50%)';
-            alertClass = 'ui-alert-danger';
-            alertType = 'danger';
-        } else {
-            interpretation = 'Indeterminate (35-50%)';
-            alertClass = 'ui-alert-warning';
-            alertType = 'warning';
-        }
-
-        return `
-            ${uiBuilder.createResultItem({
-                label: 'Fractional Excretion of Urea',
-                value: score.toFixed(2),
-                unit: '%',
-                interpretation: interpretation,
-                alertClass: alertClass
+        // Add comparison table
+        html += uiBuilder.createSection({
+            title: 'FACTS & FIGURES',
+            icon: '📊',
+            content: `
+                <p class="mb-15">This test can provide similar information to the <a href="#fena" class="text-link">FENa</a> equation, but can still be used in patients on diuretic therapy (diuretics alter the sodium concentration, making the FENa equation unusable).</p>
+                ${uiBuilder.createTable({
+                headers: ['', 'Prerenal', 'Intrinsic renal', 'Postrenal'],
+                rows: [
+                    ['FENa', '<1%', '>1%', '>4%'],
+                    ['FEUrea', '≤ 35%', '>50%', 'N/A']
+                ],
+                stickyFirstColumn: true
             })}
-            ${uiBuilder.createAlert({
-                type: alertType,
-                message:
-                    score <= 35
-                        ? 'Suggests prerenal etiology. Consider volume resuscitation.'
-                        : score > 50
-                          ? 'Suggests intrinsic renal injury (ATN). Consider nephrology consultation.'
-                          : 'Further evaluation needed. Clinical correlation required.'
-            })}
-        `;
+            `
+        });
+
+        return html;
     },
-    references: [
-        'Carvounis CP, Nisar S, Guro-Razuman S. Significance of the fractional excretion of urea in the differential diagnosis of acute renal failure. Kidney Int. 2002;62(6):2223-9.'
-    ]
+    reference: '<p class="text-sm text-muted mt-10">Carvounis CP, Nisar S, Guro-Razuman S. Significance of the fractional excretion of urea in the differential diagnosis of acute renal failure. Kidney Int. 2002;62(6):2223-9.</p>'
 };
 
-// 創建基礎計算器
-const baseCalculator = createMixedInputCalculator(config);
-
-// 導出帶有比較表格的計算器
-export const feurea = {
-    ...baseCalculator,
-
-    generateHTML(): string {
-        const html = baseCalculator.generateHTML();
-
-        // 添加 Facts & Figures 區塊
-        const factsSection = `
-            ${uiBuilder.createSection({
-                title: 'FACTS & FIGURES',
-                icon: '📊',
-                content: `
-                    <p class="mb-15">This test can provide similar information to the <a href="#fena" class="text-link">FENa</a> equation, but can still be used in patients on diuretic therapy (diuretics alter the sodium concentration, making the FENa equation unusable).</p>
-                    ${uiBuilder.createTable({
-                        headers: ['', 'Prerenal', 'Intrinsic renal', 'Postrenal'],
-                        rows: [
-                            ['FENa', '<1%', '>1%', '>4%'],
-                            ['FEUrea', '≤ 35%', '>50%', 'N/A']
-                        ],
-                        stickyFirstColumn: true
-                    })}
-                `
-            })}
-        `;
-
-        return html + factsSection;
-    }
-};
+export const feurea = createUnifiedFormulaCalculator(feureaConfig);

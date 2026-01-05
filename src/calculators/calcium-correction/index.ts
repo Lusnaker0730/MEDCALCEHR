@@ -7,15 +7,14 @@ export const calciumCorrection = createUnifiedFormulaCalculator({
     id: 'calcium-correction',
     title: 'Calcium Correction for Albumin',
     description: 'Calculates corrected calcium for patients with hypoalbuminemia.',
-    infoAlert: `
-        <h4>Interpretation:</h4>
-        <ul class="info-list">
-            <li><strong>Normal Range:</strong> 8.5 - 10.5 mg/dL</li>
-            <li><strong>Hypocalcemia:</strong> < 8.5 mg/dL</li>
-            <li><strong>Hypercalcemia:</strong> > 10.5 mg/dL</li>
-        </ul>
-        <p class="mt-10"><strong>Note:</strong> Used when serum albumin is low (< 4.0 g/dL).</p>
-    `,
+    infoAlert: '<h4>Interpretation:</h4>' + uiBuilder.createList({
+        items: [
+            '<strong>Normal Range:</strong> 8.5 - 10.5 mg/dL',
+            '<strong>Hypocalcemia:</strong> < 8.5 mg/dL',
+            '<strong>Hypercalcemia:</strong> > 10.5 mg/dL'
+        ],
+        className: 'info-list'
+    }) + '<p class="mt-10"><strong>Note:</strong> Used when serum albumin is low (< 4.0 g/dL).</p>',
     sections: [
         {
             title: 'Lab Values',

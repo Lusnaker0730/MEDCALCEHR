@@ -7,15 +7,15 @@ export const sirs = createUnifiedFormulaCalculator({
     id: 'sirs',
     title: 'SIRS Criteria for Systemic Inflammatory Response',
     description: 'Evaluates SIRS criteria and progression to sepsis and septic shock using clinical parameters.',
-    infoAlert: `
-        <h4>SIRS Criteria (Requires ≥ 2):</h4>
-        <ul class="info-list">
-            <li><strong>Temperature:</strong> < 36°C or > 38°C</li>
-            <li><strong>Heart Rate:</strong> > 90 bpm</li>
-            <li><strong>Resp Rate:</strong> > 20/min OR PaCO2 < 32 mmHg</li>
-            <li><strong>WBC:</strong> < 4,000 or > 12,000 or > 10% Bands</li>
-        </ul>
-    `,
+    infoAlert: '<h4>SIRS Criteria (Requires ≥ 2):</h4>' + uiBuilder.createList({
+        items: [
+            '<strong>Temperature:</strong> < 36°C or > 38°C',
+            '<strong>Heart Rate:</strong> > 90 bpm',
+            '<strong>Resp Rate:</strong> > 20/min OR PaCO2 < 32 mmHg',
+            '<strong>WBC:</strong> < 4,000 or > 12,000 or > 10% Bands'
+        ],
+        className: 'info-list'
+    }),
     sections: [
         {
             title: 'Vital Signs',

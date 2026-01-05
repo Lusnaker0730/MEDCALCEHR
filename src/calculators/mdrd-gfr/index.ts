@@ -1,15 +1,17 @@
-import { createFormulaCalculator } from '../shared/formula-calculator.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { fhirDataService } from '../../fhir-data-service.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calculateMDRD } from './calculation.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-export const mdrdGfr = createFormulaCalculator({
+export const mdrdGfrConfig: FormulaCalculatorConfig = {
     id: 'mdrd-gfr',
     title: 'MDRD GFR Equation',
-    description:
-        'Estimates GFR using the MDRD equation. Note: CKD-EPI is now preferred for most patients.',
-    infoAlert:
-        '<strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.',
+    description: 'Estimates GFR using the MDRD equation. Note: CKD-EPI is now preferred for most patients.',
+    infoAlert: uiBuilder.createAlert({
+        type: 'info',
+        message: '<strong>Note:</strong> MDRD is less accurate at higher GFR values (>60). Consider using CKD-EPI for general use.'
+    }),
     inputs: [
         {
             type: 'radio',
@@ -35,7 +37,8 @@ export const mdrdGfr = createFormulaCalculator({
             label: 'Age',
             standardUnit: 'years',
             placeholder: 'e.g., 65',
-            validationType: 'age'
+            validationType: 'age',
+            required: true
         },
         {
             type: 'number',
@@ -46,7 +49,8 @@ export const mdrdGfr = createFormulaCalculator({
             validationType: 'creatinine',
             loincCode: LOINC_CODES.CREATININE,
             min: 0.1,
-            max: 20
+            max: 20,
+            required: true
         }
     ],
     formulas: [
@@ -54,128 +58,33 @@ export const mdrdGfr = createFormulaCalculator({
         { label: 'Gender Adjustment', formula: 'If female: multiply by 0.742' },
         { label: 'Race Adjustment', formula: 'If African American: multiply by 1.212' }
     ],
-    calculate: values => {
-        const age = values['mdrd-age'] as number;
-        const creatinine = values['mdrd-creatinine'] as number;
-        const gender = values['mdrd-gender'] as string;
-        const race = values['mdrd-race'] as string;
+    calculate: calculateMDRD,
+    autoPopulateAge: 'mdrd-age',
+    autoPopulateGender: 'mdrd-gender',
+    customResultRenderer: (results) => {
+        const res = results[0];
+        if (!res) return '';
 
-        if (!age || !creatinine) return null;
+        let note = '';
+        if (res.alertClass === 'success') note = 'Normal or mildly decreased kidney function.';
+        else if (res.alertClass === 'warning') note = 'Moderate reduction. Monitor closely.';
+        else if (res.alertClass === 'danger') note = 'Severe reduction or kidney failure. Immediate attention required.';
 
-        const isFemale = gender === 'female';
-        const isAA = race === 'aa';
-
-        let gfr = 175 * Math.pow(creatinine, -1.154) * Math.pow(age, -0.203);
-        if (isFemale) gfr *= 0.742;
-        if (isAA) gfr *= 1.212;
-
-        let stage = '';
-        let alertType: 'success' | 'warning' | 'danger' | 'info' = 'info';
-        let alertMsg = '';
-
-        if (gfr >= 90) {
-            stage = 'Stage 1 (Normal or high)';
-            alertType = 'success';
-            alertMsg = 'Normal kidney function.';
-        } else if (gfr >= 60) {
-            stage = 'Stage 2 (Mild)';
-            alertType = 'success';
-            alertMsg = 'Mildly decreased kidney function.';
-        } else if (gfr >= 45) {
-            stage = 'Stage 3a (Mild to moderate)';
-            alertType = 'warning';
-            alertMsg = 'Mild to moderate reduction in kidney function.';
-        } else if (gfr >= 30) {
-            stage = 'Stage 3b (Moderate to severe)';
-            alertType = 'warning';
-            alertMsg =
-                'Moderate to severe reduction in kidney function. Consider nephrology referral.';
-        } else if (gfr >= 15) {
-            stage = 'Stage 4 (Severe)';
-            alertType = 'danger';
-            alertMsg = 'Severe reduction in kidney function. Nephrology referral required.';
-        } else {
-            stage = 'Stage 5 (Kidney failure)';
-            alertType = 'danger';
-            alertMsg = 'Kidney failure. Consider dialysis or transplantation.';
-        }
-
-        return [
-            {
-                label: 'Estimated GFR',
-                value: gfr.toFixed(0),
-                unit: 'mL/min/1.73m²',
-                interpretation: stage,
-                alertClass: alertType
-            },
-            {
-                label: '__ALERT__',
-                value: '',
-                interpretation: alertMsg,
-                alertClass: alertType
-            }
-        ];
-    },
-    customResultRenderer: results => {
-        const gfrResult = results.find(r => r.label !== '__ALERT__');
-        const alertResult = results.find(r => r.label === '__ALERT__');
-
-        if (!gfrResult) return '';
-
-        let html = uiBuilder.createResultItem({
-            label: gfrResult.label,
-            value: gfrResult.value.toString(),
-            unit: gfrResult.unit,
-            interpretation: gfrResult.interpretation,
-            alertClass: gfrResult.alertClass ? `ui-alert-${gfrResult.alertClass}` : ''
-        });
-
-        if (alertResult) {
-            html += uiBuilder.createAlert({
-                type: alertResult.alertClass as any,
-                message: alertResult.interpretation || ''
-            });
-        }
-        return html;
-    },
-    customInitialize: (client, patient, container) => {
-        // Auto-populate Age
-        // Note: getPatientAge might differ in implementation (sync/async) in different contexts
-        // but assuming fhirDataService is initialized, we can try to get it.
-        // If getPatientAge is async, we handle promise.
-
-        const ageInput = container.querySelector('#mdrd-age') as HTMLInputElement;
-        const genderMale = container.querySelector(
-            'input[name="mdrd-gender"][value="male"]'
-        ) as HTMLInputElement;
-        const genderFemale = container.querySelector(
-            'input[name="mdrd-gender"][value="female"]'
-        ) as HTMLInputElement;
-
-        const populate = async () => {
-            try {
-                // Try sync first if patient object is available
-                const age = fhirDataService.getPatientAge();
-                if (age !== null && ageInput) {
-                    ageInput.value = age.toString();
-                    ageInput.dispatchEvent(new Event('input'));
-                }
-
-                // Gender
-                const gender = fhirDataService.getPatientGender();
-                if (gender) {
-                    if (gender.toLowerCase() === 'female' && genderFemale) {
-                        genderFemale.checked = true;
-                        genderFemale.dispatchEvent(new Event('change'));
-                    } else if (genderMale) {
-                        genderMale.checked = true;
-                        genderMale.dispatchEvent(new Event('change'));
-                    }
-                }
-            } catch (e) {
-                console.warn(e);
-            }
-        };
-        populate();
+        return `
+            ${uiBuilder.createResultItem({
+            label: res.label,
+            value: res.value.toString(),
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${res.alertClass}`
+        })}
+            
+            ${uiBuilder.createAlert({
+            type: res.alertClass === 'success' ? 'info' : res.alertClass as any,
+            message: note
+        })}
+        `;
     }
-});
+};
+
+export const mdrdGfr = createUnifiedFormulaCalculator(mdrdGfrConfig);

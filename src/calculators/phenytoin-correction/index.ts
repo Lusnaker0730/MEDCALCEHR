@@ -7,14 +7,14 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
     id: 'phenytoin-correction',
     title: 'Phenytoin (Dilantin) Correction for Albumin/Renal Failure',
     description: 'Corrects serum phenytoin level for renal failure and/or hypoalbuminemia.',
-    infoAlert: `
-        <h4>Therapeutic Range:</h4>
-        <ul class="info-list">
-            <li>10-20 mcg/mL</li>
-            <li>>20 mcg/mL: Toxic</li>
-            <li><10 mcg/mL: Subtherapeutic</li>
-        </ul>
-    `,
+    infoAlert: '<h4>Therapeutic Range:</h4>' + uiBuilder.createList({
+        items: [
+            '10-20 mcg/mL',
+            '>20 mcg/mL: Toxic',
+            '<10 mcg/mL: Subtherapeutic'
+        ],
+        className: 'info-list'
+    }),
     sections: [
         {
             title: 'Lab Values & Clinical Status',

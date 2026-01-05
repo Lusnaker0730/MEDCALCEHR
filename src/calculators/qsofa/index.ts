@@ -7,14 +7,14 @@ export const qsofaScore = createUnifiedFormulaCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
     description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 suggests high risk.',
-    infoAlert: `
-        <h4>qSOFA Criteria (Score 1 each):</h4>
-        <ul class="info-list">
-            <li><strong>Respiratory Rate:</strong> ≥ 22 /min</li>
-            <li><strong>Systolic Blood Pressure:</strong> ≤ 100 mmHg</li>
-            <li><strong>Altered Mental Status:</strong> GCS < 15</li>
-        </ul>
-    `,
+    infoAlert: '<h4>qSOFA Criteria (Score 1 each):</h4>' + uiBuilder.createList({
+        items: [
+            '<strong>Respiratory Rate:</strong> ≥ 22 /min',
+            '<strong>Systolic Blood Pressure:</strong> ≤ 100 mmHg',
+            '<strong>Altered Mental Status:</strong> GCS < 15'
+        ],
+        className: 'info-list'
+    }),
     sections: [
         {
             title: 'Vital Signs',

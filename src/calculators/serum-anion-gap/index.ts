@@ -7,15 +7,14 @@ export const serumAnionGap = createUnifiedFormulaCalculator({
     id: 'serum-anion-gap',
     title: 'Serum Anion Gap',
     description: 'Evaluates states of metabolic acidosis.',
-    infoAlert: `
-        <h4>Interpretation:</h4>
-        <ul class="info-list">
-            <li><strong>Normal Range:</strong> 6-12 mEq/L</li>
-            <li><strong>High (>12):</strong> High Anion Gap Metabolic Acidosis (MUDPILES)</li>
-            <li><strong>Low (<6):</strong> Uncommon, possible lab error or hypoalbuminemia</li>
-        </ul>
-        <p class="mt-10"><strong>Note:</strong> For every 1 g/dL decrease in albumin below 4 g/dL, add 2.5 mEq/L to the anion gap (corrected gap).</p>
-    `,
+    infoAlert: '<h4>Interpretation:</h4>' + uiBuilder.createList({
+        items: [
+            '<strong>Normal Range:</strong> 6-12 mEq/L',
+            '<strong>High (>12):</strong> High Anion Gap Metabolic Acidosis (MUDPILES)',
+            '<strong>Low (<6):</strong> Uncommon, possible lab error or hypoalbuminemia'
+        ],
+        className: 'info-list'
+    }) + '<p class="mt-10"><strong>Note:</strong> For every 1 g/dL decrease in albumin below 4 g/dL, add 2.5 mEq/L to the anion gap (corrected gap).</p>',
     sections: [
         {
             title: 'Electrolytes',

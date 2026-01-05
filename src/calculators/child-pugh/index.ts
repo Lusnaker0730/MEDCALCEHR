@@ -7,14 +7,14 @@ export const childPugh = createUnifiedFormulaCalculator({
     id: 'child-pugh',
     title: 'Child-Pugh Score for Cirrhosis Mortality',
     description: 'Estimates cirrhosis severity and prognosis.',
-    infoAlert: `
-        <h4>Child-Pugh Classification:</h4>
-        <ul class="info-list">
-            <li><strong>Class A (5-6 points):</strong> Good prognosis</li>
-            <li><strong>Class B (7-9 points):</strong> Moderate prognosis</li>
-            <li><strong>Class C (10-15 points):</strong> Poor prognosis</li>
-        </ul>
-    `,
+    infoAlert: '<h4>Child-Pugh Classification:</h4>' + uiBuilder.createList({
+        items: [
+            '<strong>Class A (5-6 points):</strong> Good prognosis',
+            '<strong>Class B (7-9 points):</strong> Moderate prognosis',
+            '<strong>Class C (10-15 points):</strong> Poor prognosis'
+        ],
+        className: 'info-list'
+    }),
     sections: [
         {
             title: 'Laboratory Parameters',

@@ -7,11 +7,12 @@ export const serumOsmolality = createUnifiedFormulaCalculator({
     id: 'serum-osmolality',
     title: 'Serum Osmolality/Osmolarity',
     description: 'Calculates expected serum osmolarity, for comparison to measured osmolality to detect unmeasured compounds in the serum.',
-    infoAlert: `
-        <h4>Normal Range:</h4><p>275-295 mOsm/kg</p>
-        <p class="mt-10"><strong>Osmolar Gap:</strong> Measured Osmolality - Calculated Osmolality</p>
-        <p>Gap > 10 mOsm/kg suggests unmeasured osmoles (e.g., toxic alcohols, ketones).</p>
-    `,
+    infoAlert: '<h4>Normal Range:</h4><p>275-295 mOsm/kg</p>' +
+        '<p class="mt-10"><strong>Osmolar Gap:</strong> Measured Osmolality - Calculated Osmolality</p>' +
+        uiBuilder.createAlert({
+            type: 'info',
+            message: 'Gap > 10 mOsm/kg suggests unmeasured osmoles (e.g., toxic alcohols, ketones).'
+        }),
     sections: [
         {
             title: 'Lab Values',
