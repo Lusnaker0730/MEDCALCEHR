@@ -360,7 +360,10 @@ export const ascvd = createUnifiedFormulaCalculator({
                 if (!resultsEl) return;
 
                 if (currentBaselineRisk <= 0) {
-                    resultsEl.innerHTML = '<div class="ui-alert ui-alert-danger">Calculate baseline risk first.</div>';
+                    resultsEl.innerHTML = uiBuilder.createAlert({
+                        type: 'danger',
+                        message: 'Calculate baseline risk first.'
+                    });
                     resultsEl.classList.remove('ui-hidden');
                     return;
                 }

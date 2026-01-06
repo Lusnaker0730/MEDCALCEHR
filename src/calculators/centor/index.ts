@@ -90,19 +90,17 @@ const config: YesNoCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 5 points',
-                interpretation: `Probability of Strep: ${probability}`,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 5 points',
+            interpretation: `Probability of Strep: ${probability}`,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
-            <div class="ui-alert ui-alert-${alertClass} mt-10">
-                <span class="ui-alert-icon">${alertClass === 'success' ? '✓' : '⚠️'}</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${recommendation}
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass,
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     }
 };
@@ -185,20 +183,20 @@ export const centor = {
             content: `
                 <p class="mb-10"><strong>Interpretation:</strong></p>
                 ${uiBuilder.createTable({
-                    headers: ['Centor Score', 'Probability of strep pharyngitis', 'Recommendation'],
-                    rows: [
-                        ['0', '1-2.5%', 'No further testing or antibiotics.'],
-                        ['1', '5-10%', 'No further testing or antibiotics.'],
-                        ['2', '11-17%', 'Optional rapid strep testing and/or culture.'],
-                        ['3', '28-35%', 'Consider rapid strep testing and/or culture.'],
-                        [
-                            '≥4',
-                            '51-53%',
-                            'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
-                        ]
-                    ],
-                    stickyFirstColumn: true
-                })}
+                headers: ['Centor Score', 'Probability of strep pharyngitis', 'Recommendation'],
+                rows: [
+                    ['0', '1-2.5%', 'No further testing or antibiotics.'],
+                    ['1', '5-10%', 'No further testing or antibiotics.'],
+                    ['2', '11-17%', 'Optional rapid strep testing and/or culture.'],
+                    ['3', '28-35%', 'Consider rapid strep testing and/or culture.'],
+                    [
+                        '≥4',
+                        '51-53%',
+                        'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
+                    ]
+                ],
+                stickyFirstColumn: true
+            })}
             `
         });
 

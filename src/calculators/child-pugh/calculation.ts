@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function childPughCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function childPughCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const biliInput = values['bilirubin'];
     const albInput = values['albumin'];
     const inrInput = values['inr'];

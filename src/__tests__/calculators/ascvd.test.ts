@@ -1,4 +1,4 @@
-import { ascvdCalculation } from '../../calculators/ascvd/index.js';
+import { ascvdCalculation } from '../../calculators/ascvd/calculation.js';
 import { ValidationError } from '../../errorHandler.js';
 
 describe('ASCVD Risk Calculator', () => {
@@ -7,9 +7,10 @@ describe('ASCVD Risk Calculator', () => {
             'known-ascvd': true
         });
 
+        expect(result).not.toBeNull();
         expect(result).toHaveLength(2);
-        expect(result[0].value).toBe('High Risk');
-        expect(result[0].alertClass).toBe('danger');
+        expect(result![0].value).toBe('High Risk');
+        expect(result![0].alertClass).toBe('danger');
     });
 
     test('Should throw ValidationError if required fields are missing', () => {
@@ -51,8 +52,9 @@ describe('ASCVD Risk Calculator', () => {
 
         const result = ascvdCalculation(inputs);
 
+        expect(result).not.toBeNull();
         expect(result).toHaveLength(1);
-        const risk = parseFloat(result[0].value);
+        const risk = parseFloat(String(result![0].value));
         expect(risk).toBeGreaterThan(0);
         expect(risk).toBeLessThan(100);
     });
@@ -73,7 +75,8 @@ describe('ASCVD Risk Calculator', () => {
         };
 
         const result = ascvdCalculation(inputs);
-        const risk = parseFloat(result[0].value);
+        expect(result).not.toBeNull();
+        const risk = parseFloat(String(result![0].value));
         expect(risk).toBeGreaterThan(0.5); // Ensure it's substantial
         expect(risk).toBeLessThan(100);
     });

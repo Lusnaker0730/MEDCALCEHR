@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function qtcCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function qtcCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const qtInput = values['qt'];
     const hrInput = values['hr'];
     const gender = values['gender'] as string || 'male'; // default male if not specified

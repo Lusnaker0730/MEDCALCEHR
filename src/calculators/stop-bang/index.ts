@@ -5,7 +5,7 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/score-calculator.js';
+import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -76,18 +76,28 @@ const config: ScoreCalculatorConfig = {
             recommendation: 'Strongly consider polysomnography. May benefit from CPAP therapy.'
         }
     ],
-    formulaItems: [
-        {
-            title: 'Risk Categories',
-            content: `
-                <ul class="info-list">
-                    <li><strong>Low Risk (0-2):</strong> Low probability of moderate to severe OSA</li>
-                    <li><strong>Intermediate Risk (3-4):</strong> Intermediate probability of moderate to severe OSA</li>
-                    <li><strong>High Risk (5-8):</strong> High probability of moderate to severe OSA</li>
-                </ul>
-            `
-        }
-    ],
+    formulaSection: {
+        show: true,
+        title: 'Scoring Criteria',
+        calculationNote: 'Each criterion scores 1 point. Total score ranges from 0-8.',
+        scoringCriteria: [
+            { criteria: 'Snoring - Loud snoring', points: '+1' },
+            { criteria: 'Tired - Daytime fatigue/sleepiness', points: '+1' },
+            { criteria: 'Observed - Witnessed apneas', points: '+1' },
+            { criteria: 'Pressure - High blood pressure', points: '+1' },
+            { criteria: 'BMI > 35 kg/m²', points: '+1' },
+            { criteria: 'Age > 50 years', points: '+1' },
+            { criteria: 'Neck circumference > 40 cm', points: '+1' },
+            { criteria: 'Male gender', points: '+1' }
+        ],
+        interpretationTitle: 'Risk Categories',
+        tableHeaders: ['Score', 'OSA Probability', 'Risk Level'],
+        interpretations: [
+            { score: '0-2', category: 'Low', interpretation: 'Low probability of moderate to severe OSA', severity: 'success' },
+            { score: '3-4', category: 'Intermediate', interpretation: 'Intermediate probability of moderate to severe OSA', severity: 'warning' },
+            { score: '5-8', category: 'High', interpretation: 'High probability of moderate to severe OSA', severity: 'danger' }
+        ]
+    },
     references: [
         'Chung F, et al. STOP questionnaire: a tool to screen patients for obstructive sleep apnea. <em>Anesthesiology</em>. 2008;108(5):812-821.',
         'Chung F, et al. High STOP-Bang score indicates a high probability of obstructive sleep apnoea. <em>Br J Anaesth</em>. 2012;108(5):768-775.'

@@ -10,7 +10,7 @@
  * JAMA Neurology, 74(12), 1419–1424.
  */
 
-import { createScoreCalculator } from '../shared/score-calculator.js';
+import { createScoreCalculator } from '../shared/scoring-calculator.js';
 
 export const helps2bScore = createScoreCalculator({
     id: '2helps2b',

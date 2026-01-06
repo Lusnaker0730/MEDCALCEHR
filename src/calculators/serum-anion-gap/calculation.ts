@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function serumAnionGapCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function serumAnionGapCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const naInput = values['sag-na'];
     const clInput = values['sag-cl'];
     const hco3Input = values['sag-hco3'];

@@ -5,7 +5,7 @@
  * 功能容量評估計算器，不需要 FHIR 自動填充
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/score-calculator.js';
+import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 const config: ScoreCalculatorConfig = {
@@ -99,25 +99,22 @@ const config: ScoreCalculatorConfig = {
             recommendation: '> 7 METs: Good functional capacity'
         }
     ],
-    formulaItems: [
-        {
-            title: 'Formula',
-            content: `
-                <strong>VO₂peak</strong> = (0.43 × DASI) + 9.6 mL/kg/min<br>
-                <strong>METs</strong> = VO₂peak / 3.5
-            `
-        },
-        {
-            title: 'Interpretation',
-            content: `
-                <ul>
-                    <li><strong>Poor:</strong> &lt; 4 METs</li>
-                    <li><strong>Moderate:</strong> 4 - 7 METs</li>
-                    <li><strong>Good:</strong> &gt; 7 METs</li>
-                </ul>
-            `
-        }
-    ],
+    formulaSection: {
+        show: true,
+        title: 'Formula & Interpretation',
+        calculationNote: 'Sum of points for all activities you can perform.',
+        footnotes: [
+            '<strong>VO₂peak</strong> = (0.43 × DASI) + 9.6 mL/kg/min',
+            '<strong>METs</strong> = VO₂peak / 3.5'
+        ],
+        interpretationTitle: 'Functional Capacity Categories',
+        tableHeaders: ['METs', 'DASI Score', 'Functional Capacity'],
+        interpretations: [
+            { score: '< 4', category: '< 9.7', interpretation: 'Poor', severity: 'danger' },
+            { score: '4-7', category: '9.7-28.2', interpretation: 'Moderate', severity: 'warning' },
+            { score: '> 7', category: '> 28.2', interpretation: 'Good', severity: 'success' }
+        ]
+    },
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         const vo2peak = 0.43 * score + 9.6;
         const mets = vo2peak / 3.5;
@@ -138,22 +135,22 @@ const config: ScoreCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'DASI Score',
-                value: score.toFixed(2),
-                unit: '/ 58.2 points'
-            })}
+            label: 'DASI Score',
+            value: score.toFixed(2),
+            unit: '/ 58.2 points'
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated VO₂ peak',
-                value: vo2peak.toFixed(1),
-                unit: 'mL/kg/min'
-            })}
+            label: 'Estimated VO₂ peak',
+            value: vo2peak.toFixed(1),
+            unit: 'mL/kg/min'
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated Peak METs',
-                value: mets.toFixed(1),
-                unit: '',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Estimated Peak METs',
+            value: mets.toFixed(1),
+            unit: '',
+            interpretation: interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
         `;
     }
 };

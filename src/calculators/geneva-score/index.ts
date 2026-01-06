@@ -219,25 +219,23 @@ const config: MixedInputCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskLevel,
+            alertClass: alertClass
+        })}
             ${uiBuilder.createResultItem({
-                label: 'PE Prevalence',
-                value: prevalence,
-                unit: '',
-                alertClass: alertClass
-            })}
+            label: 'PE Prevalence',
+            value: prevalence,
+            unit: '',
+            alertClass: alertClass
+        })}
             
-            <div class="ui-alert ${alertClass} mt-10">
-                <span class="ui-alert-icon">💡</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${recommendation}
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass.replace('ui-alert-', '') as 'success' | 'warning' | 'danger',
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     },
     customInitialize: async (client, patient, container, calculate, setValue) => {

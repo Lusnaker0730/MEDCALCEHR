@@ -1,4 +1,4 @@
-import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const calculate6MWD: SimpleCalculateFn = (values) => {
     const age = Number(values['mwd6-age']);

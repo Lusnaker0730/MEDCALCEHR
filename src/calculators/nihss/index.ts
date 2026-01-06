@@ -237,17 +237,17 @@ const config: RadioScoreCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 42 points',
-                interpretation: severity,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 42 points',
+            interpretation: severity,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
-            <div class="ui-alert ui-alert-${alertClass} mt-10">
-                <span class="ui-alert-icon">${score >= 16 ? '⚠️' : 'ℹ️'}</span>
-                <div class="ui-alert-content">${interpretation}</div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass,
+            message: interpretation
+        })}
         `;
     }
 };

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * tPA (Alteplase) Dosing Calculator for Ischemic Stroke
  * 
  * Formula:

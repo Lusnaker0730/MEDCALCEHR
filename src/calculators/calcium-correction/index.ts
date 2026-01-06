@@ -85,12 +85,10 @@ export const calciumCorrection = createUnifiedFormulaCalculator({
             type: alertClass as 'success' | 'warning' | 'danger' | 'info',
             message: alertMsg
         })}
-            <div class="ui-alert ui-alert-warning mt-10">
-                <span class="ui-alert-icon">⚠️</span>
-                <div class="ui-alert-content">
-                    <p><strong>Clinical Note:</strong> This correction is an estimation. For critically ill patients or precise assessment, measurement of ionized calcium is preferred.</p>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: 'warning',
+            message: '<strong>Clinical Note:</strong> This correction is an estimation. For critically ill patients or precise assessment, measurement of ionized calcium is preferred.'
+        })}
         `;
     }
 });

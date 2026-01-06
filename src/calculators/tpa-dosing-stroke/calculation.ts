@@ -1,4 +1,4 @@
-/**
+﻿/**
  * tPA Dosing for Acute Stroke Calculator
  * 
  * Formula:

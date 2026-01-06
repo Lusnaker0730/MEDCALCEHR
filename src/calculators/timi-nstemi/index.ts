@@ -147,25 +147,23 @@ const config: YesNoCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 7 points',
-                interpretation: risk,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 7 points',
+            interpretation: risk,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             ${uiBuilder.createResultItem({
-                label: '14-Day Event Rate',
-                value: eventRate,
-                unit: '',
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: '14-Day Event Rate',
+            value: eventRate,
+            unit: '',
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
-            <div class="ui-alert ui-alert-${alertClass} mt-10">
-                <span class="ui-alert-icon">💡</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${recommendation}
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass,
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     },
 

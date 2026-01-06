@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 
 export const calculateMaintenanceFluids: SimpleCalculateFn = (values) => {
     const weightKg = Number(values['weight-fluids']);

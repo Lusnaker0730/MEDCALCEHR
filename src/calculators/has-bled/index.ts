@@ -166,24 +166,21 @@ const config: YesNoCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 9 points',
-                interpretation: data.risk,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 9 points',
+            interpretation: data.risk,
+            alertClass: alertClass
+        })}
             
-            <div class="result-item mt-10 text-center">
-                <span class="label text-muted">Annual Bleeding Risk:</span>
-                <span class="value font-semibold">${data.bleeds}</span>
-            </div>
-
-            <div class="ui-alert ${alertClass} mt-10">
-                <span class="ui-alert-icon">${score >= 3 ? '⚠️' : 'ℹ️'}</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${recommendation}
-                </div>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: 'Annual Bleeding Risk',
+            value: data.bleeds
+        })}
+            ${uiBuilder.createAlert({
+            type: data.level as 'success' | 'warning' | 'danger',
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     },
 
@@ -267,40 +264,40 @@ export const hasBled = {
         // 添加 Facts & Figures 區塊
         const factsSection = `
             ${uiBuilder.createSection({
-                title: 'FACTS & FIGURES',
-                icon: '📊',
-                content: uiBuilder.createTable({
-                    headers: [
-                        'HAS-BLED Score',
-                        'Risk group',
-                        'Risk of major bleeding**',
-                        'Bleeds per 100 patient-years***',
-                        'Recommendation'
+            title: 'FACTS & FIGURES',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: [
+                    'HAS-BLED Score',
+                    'Risk group',
+                    'Risk of major bleeding**',
+                    'Bleeds per 100 patient-years***',
+                    'Recommendation'
+                ],
+                rows: [
+                    ['0', 'Low', '0.9%', '1.13', 'Anticoagulation should be considered'],
+                    ['1', 'Low', '3.4%', '1.02', 'Anticoagulation should be considered'],
+                    ['2', 'Moderate', '4.1%', '1.88', 'Anticoagulation can be considered'],
+                    ['3', 'Moderate', '5.8%', '3.72', 'Anticoagulation can be considered'],
+                    [
+                        '4',
+                        'High',
+                        '8.9%',
+                        '8.70',
+                        'Alternatives to anticoagulation should be considered'
                     ],
-                    rows: [
-                        ['0', 'Low', '0.9%', '1.13', 'Anticoagulation should be considered'],
-                        ['1', 'Low', '3.4%', '1.02', 'Anticoagulation should be considered'],
-                        ['2', 'Moderate', '4.1%', '1.88', 'Anticoagulation can be considered'],
-                        ['3', 'Moderate', '5.8%', '3.72', 'Anticoagulation can be considered'],
-                        [
-                            '4',
-                            'High',
-                            '8.9%',
-                            '8.70',
-                            'Alternatives to anticoagulation should be considered'
-                        ],
-                        [
-                            '5',
-                            'High',
-                            '9.1%',
-                            '12.50',
-                            'Alternatives to anticoagulation should be considered'
-                        ],
-                        ['>5*', 'Very high', '-', '-', '-']
+                    [
+                        '5',
+                        'High',
+                        '9.1%',
+                        '12.50',
+                        'Alternatives to anticoagulation should be considered'
                     ],
-                    stickyFirstColumn: true
-                })
-            })}
+                    ['>5*', 'Very high', '-', '-', '-']
+                ],
+                stickyFirstColumn: true
+            })
+        })}
         `;
 
         return html + factsSection;

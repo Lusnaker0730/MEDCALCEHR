@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 
 export const calculateFreeWaterDeficit: SimpleCalculateFn = (values) => {
     const weight = Number(values['fwd-weight']);

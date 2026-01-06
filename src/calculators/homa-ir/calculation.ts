@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 
 export const calculateHOMAIR: SimpleCalculateFn = (values) => {
     const glucose = Number(values['homa-glucose']);

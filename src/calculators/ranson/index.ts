@@ -5,7 +5,7 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/score-calculator.js';
+import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -79,24 +79,34 @@ const config: ScoreCalculatorConfig = {
             recommendation: 'Mortality: >50%'
         }
     ],
-    formulaItems: [
-        {
-            title: 'Mortality Estimation',
-            content: `
-                <table class="ui-data-table">
-                    <thead>
-                        <tr><th>Score</th><th>Mortality</th><th>Severity</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>0-2</td><td>0-3%</td><td>Low Risk</td></tr>
-                        <tr><td>3-4</td><td>15-20%</td><td>Moderate Risk</td></tr>
-                        <tr><td>5-6</td><td>~40%</td><td>High Risk</td></tr>
-                        <tr><td>≥7</td><td>>50%</td><td>Very High Risk</td></tr>
-                    </tbody>
-                </table>
-            `
-        }
-    ],
+    formulaSection: {
+        show: true,
+        title: 'Scoring Criteria',
+        calculationNote: 'Select all applicable criteria. At admission (5 criteria) + 48 hours (6 criteria) = possible 11 points.',
+        scoringCriteria: [
+            { criteria: 'At Admission Criteria', isHeader: true },
+            { criteria: 'Age > 55 years', points: '+1' },
+            { criteria: 'WBC > 16,000/mm³', points: '+1' },
+            { criteria: 'Blood Glucose > 200 mg/dL', points: '+1' },
+            { criteria: 'AST > 250 IU/L', points: '+1' },
+            { criteria: 'LDH > 350 IU/L', points: '+1' },
+            { criteria: '48 Hour Criteria', isHeader: true },
+            { criteria: 'Calcium < 8.0 mg/dL', points: '+1' },
+            { criteria: 'Hematocrit fall > 10%', points: '+1' },
+            { criteria: 'PaO₂ < 60 mmHg', points: '+1' },
+            { criteria: 'BUN increase > 5 mg/dL', points: '+1' },
+            { criteria: 'Base deficit > 4 mEq/L', points: '+1' },
+            { criteria: 'Fluid sequestration > 6 L', points: '+1' }
+        ],
+        interpretationTitle: 'Mortality Estimation',
+        tableHeaders: ['Score', 'Mortality', 'Severity'],
+        interpretations: [
+            { score: '0-2', category: '0-3%', interpretation: 'Low Risk', severity: 'success' },
+            { score: '3-4', category: '15-20%', interpretation: 'Moderate Risk', severity: 'warning' },
+            { score: '5-6', category: '~40%', interpretation: 'High Risk', severity: 'danger' },
+            { score: '≥7', category: '>50%', interpretation: 'Very High Risk', severity: 'danger' }
+        ]
+    },
     customResultRenderer: (score: number, sectionScores: Record<string, number>): string => {
         let mortality = '';
         let severity = '';
@@ -122,17 +132,17 @@ const config: ScoreCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Ranson Score',
-                value: score.toString(),
-                unit: '/ 11 points',
-                interpretation: severity,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Ranson Score',
+            value: score.toString(),
+            unit: '/ 11 points',
+            interpretation: severity,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated Mortality',
-                value: mortality,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Estimated Mortality',
+            value: mortality,
+            alertClass: `ui-alert-${alertType}`
+        })}
         `;
     },
 

@@ -1,4 +1,4 @@
-import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const calculateABL: SimpleCalculateFn = (values) => {
     const weightKg = Number(values['abl-weight']);

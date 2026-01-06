@@ -120,12 +120,10 @@ export const childPugh = createUnifiedFormulaCalculator({
             alertClass: `ui-alert-${alertClass}`
         })}
             
-            <div class="ui-alert ui-alert-${alertClass} mt-10">
-                <span class="ui-alert-icon">ℹ️</span>
-                <div class="ui-alert-content">
-                    <p><strong>Prognosis:</strong><br>${prognosis.replace(/\n/g, '<br>')}</p>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass as 'info' | 'success' | 'warning' | 'danger',
+            message: `<strong>Prognosis:</strong><br>${prognosis.replace(/\n/g, '<br>')}`
+        })}
         `;
     }
 });

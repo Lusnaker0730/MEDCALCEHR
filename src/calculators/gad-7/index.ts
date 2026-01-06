@@ -140,19 +140,17 @@ export const gad7 = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 21 points',
-                interpretation: severity,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 21 points',
+            interpretation: severity,
+            alertClass: alertClass
+        })}
             
-            <div class="ui-alert ${alertClass} mt-10">
-                <span class="ui-alert-icon">🩺</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${recommendation}
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass.replace('ui-alert-', '') as 'success' | 'info' | 'warning' | 'danger',
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     }
 });

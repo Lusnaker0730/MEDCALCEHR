@@ -1,4 +1,4 @@
-import { FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import { FormulaResultItem } from '../../types/calculator-formula.js';
 
 interface SodiumCorrectionInput {
     'measured-sodium': number;

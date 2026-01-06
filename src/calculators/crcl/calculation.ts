@@ -1,4 +1,4 @@
-import { FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import { FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const crclCalculation = (values: Record<string, any>): FormulaResultItem[] => {
     const gender = values['gender'] || 'male';

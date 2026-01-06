@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function ttkgCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function ttkgCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const uK = values['ttkg-urine-k'];
     const sK = values['ttkg-serum-k'];
     const uO = values['ttkg-urine-osmo'];

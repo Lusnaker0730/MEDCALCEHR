@@ -85,19 +85,17 @@ const config: YesNoCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 6 points',
-                interpretation: data.risk,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 6 points',
+            interpretation: data.risk,
+            alertClass: alertClass
+        })}
             
-            <div class="ui-alert ${alertClass} mt-10">
-                <span class="ui-alert-icon">📊</span>
-                <div class="ui-alert-content">
-                    Major Cardiac Complications Rate: <strong>${data.rate}</strong>
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: data.level,
+            message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
+        })}
         `;
     },
 
@@ -181,67 +179,67 @@ export const rcri = {
         // Formula Table
         const formulaTable = `
             ${uiBuilder.createSection({
-                title: 'FORMULA',
-                icon: '📐',
-                content: `
+            title: 'FORMULA',
+            icon: '📐',
+            content: `
                     <p class="mb-15">Addition of the selected points:</p>
                     ${uiBuilder.createTable({
-                        headers: ['Risk Factor', 'Description', 'Points'],
-                        rows: [
-                            [
-                                '<strong>High-risk surgery</strong>',
-                                'Intraperitoneal; intrathoracic; suprainguinal vascular',
-                                '+1'
-                            ],
-                            [
-                                '<strong>History of ischemic heart disease</strong>',
-                                'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves',
-                                '+1'
-                            ],
-                            [
-                                '<strong>History of congestive heart failure</strong>',
-                                'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution',
-                                '+1'
-                            ],
-                            [
-                                '<strong>History of cerebrovascular disease</strong>',
-                                'Prior transient ischemic attack (TIA) or stroke',
-                                '+1'
-                            ],
-                            ['<strong>Pre-operative treatment with insulin</strong>', '—', '+1'],
-                            [
-                                '<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>',
-                                '—',
-                                '+1'
-                            ]
-                        ],
-                        stickyFirstColumn: true
-                    })}
-                `
+                headers: ['Risk Factor', 'Description', 'Points'],
+                rows: [
+                    [
+                        '<strong>High-risk surgery</strong>',
+                        'Intraperitoneal; intrathoracic; suprainguinal vascular',
+                        '+1'
+                    ],
+                    [
+                        '<strong>History of ischemic heart disease</strong>',
+                        'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves',
+                        '+1'
+                    ],
+                    [
+                        '<strong>History of congestive heart failure</strong>',
+                        'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution',
+                        '+1'
+                    ],
+                    [
+                        '<strong>History of cerebrovascular disease</strong>',
+                        'Prior transient ischemic attack (TIA) or stroke',
+                        '+1'
+                    ],
+                    ['<strong>Pre-operative treatment with insulin</strong>', '—', '+1'],
+                    [
+                        '<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>',
+                        '—',
+                        '+1'
+                    ]
+                ],
+                stickyFirstColumn: true
             })}
+                `
+        })}
         `;
 
         // Facts & Figures Table
         const factsTable = `
             ${uiBuilder.createSection({
-                title: 'FACTS & FIGURES',
-                icon: '📊',
-                content: `
+            title: 'FACTS & FIGURES',
+            icon: '📊',
+            content: `
                     <p class="mb-15">Interpretation per the original 1999 study. Values are based on a combination of derivation and validation sets.</p>
                     ${uiBuilder.createTable({
-                        headers: [
-                            'RCRI Score',
-                            'Approximate Risk of Major Cardiac Event (95% CI)*'
-                        ],
-                        rows: [
-                            ['0', '0.5%'],
-                            ['1', '1.1%'],
-                            ['2', '5%'],
-                            ['≥3', '10%']
-                        ]
-                    })}
-                `
+                headers: [
+                    'RCRI Score',
+                    'Approximate Risk of Major Cardiac Event (95% CI)*'
+                ],
+                rows: [
+                    ['0', '0.5%'],
+                    ['1', '1.1%'],
+                    ['2', '5%'],
+                    ['≥3', '10%']
+                ]
             })}
+                `
+        })}
         `;
 
         const referenceSection = `

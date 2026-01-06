@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function calciumCorrectionCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function calciumCorrectionCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const calciumInput = values['ca-total'];
     const albuminInput = values['ca-albumin'];
 

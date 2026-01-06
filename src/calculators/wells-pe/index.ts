@@ -122,24 +122,21 @@ const config: YesNoCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: risk,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: risk,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
-            <div class="result-item mt-15 p-10">
-                <span class="result-item-label font-semibold text-muted">Two-Tier Model:</span>
-                <span class="result-item-value font-bold">${twoTierModel}</span>
-            </div>
-            
-            <div class="ui-alert ui-alert-${alertClass} mt-20">
-                <span class="ui-alert-icon">${alertClass === 'danger' ? '⚠️' : 'ℹ️'}</span>
-                <div class="ui-alert-content">
-                    <p>${interpretation}</p>
-                </div>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: 'Two-Tier Model',
+            value: twoTierModel
+        })}
+            ${uiBuilder.createAlert({
+            type: alertClass,
+            message: interpretation
+        })}
         `;
     },
 

@@ -1,4 +1,4 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
 export interface SerumOsmoBreakdown {
@@ -8,7 +8,7 @@ export interface SerumOsmoBreakdown {
     ethanolTerm: number;
 }
 
-export function serumOsmolalityCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function serumOsmolalityCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const naInput = values['osmo-na'];
     const glucoseInput = values['osmo-glucose'];
     const bunInput = values['osmo-bun'];

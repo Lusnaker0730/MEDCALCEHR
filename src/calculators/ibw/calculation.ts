@@ -1,4 +1,4 @@
-import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const calculateIBW: SimpleCalculateFn = (values) => {
     const heightCm = Number(values['ibw-height']);

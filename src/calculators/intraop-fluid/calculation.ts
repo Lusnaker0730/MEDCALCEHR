@@ -1,4 +1,4 @@
-import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const calculateIntraopFluid: SimpleCalculateFn = (values) => {
     const weightKg = Number(values['ifd-weight']);

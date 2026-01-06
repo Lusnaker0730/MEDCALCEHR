@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 
 export const calculateFEUrea: SimpleCalculateFn = (values) => {
     const serumCr = Number(values['feurea-serum-cr']);

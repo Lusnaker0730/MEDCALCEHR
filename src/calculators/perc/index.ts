@@ -5,7 +5,7 @@
  * 已整合 FHIRDataService，使用 dataRequirements 和 customInitialize
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/score-calculator.js';
+import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -98,25 +98,21 @@ const config: ScoreCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Status',
-                value: resultTitle,
-                alertClass: `ui-alert-${alertClass}`
-            })}
-            ${
-                criteriaMet > 0
-                    ? uiBuilder.createResultItem({
-                          label: 'Criteria Met',
-                          value: `${criteriaMet} / 8`
-                      })
-                    : ''
+            label: 'Status',
+            value: resultTitle,
+            alertClass: `ui-alert-${alertClass}`
+        })}
+            ${criteriaMet > 0
+                ? uiBuilder.createResultItem({
+                    label: 'Criteria Met',
+                    value: `${criteriaMet} / 8`
+                })
+                : ''
             }
-            
-            <div class="ui-alert ui-alert-${alertClass} mt-10">
-                <span class="ui-alert-icon">${alertClass === 'success' ? '✓' : '⚠️'}</span>
-                <div class="ui-alert-content">
-                    <strong>Result:</strong> ${interpretation}
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+                type: alertClass,
+                message: `<strong>Result:</strong> ${interpretation}`
+            })}
         `;
     },
 

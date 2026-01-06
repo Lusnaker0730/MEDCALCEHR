@@ -10,8 +10,8 @@ import {
 } from '../../calculators/shared/unified-formula-calculator';
 
 // Mock console
-jest.spyOn(console, 'warn').mockImplementation(() => {});
-jest.spyOn(console, 'error').mockImplementation(() => {});
+jest.spyOn(console, 'warn').mockImplementation(() => { });
+jest.spyOn(console, 'error').mockImplementation(() => { });
 
 describe('Unified Formula Calculator Factory', () => {
     let container: HTMLElement;
@@ -47,7 +47,7 @@ describe('Unified Formula Calculator Factory', () => {
                 }
             ],
             formulas: [{ label: 'Result', formula: 'A + B' }],
-            calculate: (values: Record<string, string | number>) => {
+            calculate: (values: Record<string, string | number | boolean>) => {
                 const a = parseFloat(String(values['value-a'])) || 0;
                 const b = parseFloat(String(values['value-b'])) || 0;
                 return [{ label: 'Sum', value: String(a + b), unit: 'units' }];

@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 
 export const calculateMDRD: SimpleCalculateFn = (values) => {
     const age = Number(values['mdrd-age']);

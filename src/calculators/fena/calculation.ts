@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 
 export const calculateFENa: SimpleCalculateFn = (values) => {
     const uNa = Number(values['fena-urine-na']);

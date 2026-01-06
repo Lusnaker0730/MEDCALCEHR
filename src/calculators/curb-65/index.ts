@@ -170,31 +170,28 @@ const config: YesNoCalculatorConfig = {
             score <= 1
                 ? 'Low Risk'
                 : score === 2
-                  ? 'Moderate Risk'
-                  : score === 3
-                    ? 'High Risk'
-                    : 'Very High Risk';
+                    ? 'Moderate Risk'
+                    : score === 3
+                        ? 'High Risk'
+                        : 'Very High Risk';
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 5 points',
-                interpretation: riskLabel,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 5 points',
+            interpretation: riskLabel,
+            alertClass: alertClass
+        })}
             
-            <div class="result-item mt-10 text-center">
-                <span class="label text-muted">30-Day Mortality Risk:</span>
-                <span class="value font-semibold">${mortality}</span>
-            </div>
-
-            <div class="ui-alert ${alertClass} mt-10">
-                <span class="ui-alert-icon">${rec.level === 'success' ? '✓' : '⚠️'}</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${rec.text}
-                </div>
-            </div>
+            ${uiBuilder.createResultItem({
+            label: '30-Day Mortality Risk',
+            value: mortality
+        })}
+            ${uiBuilder.createAlert({
+            type: rec.level as 'success' | 'warning' | 'danger',
+            message: `<strong>Recommendation:</strong> ${rec.text}`
+        })}
         `;
     },
 

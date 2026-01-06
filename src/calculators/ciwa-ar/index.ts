@@ -231,19 +231,17 @@ const config: RadioScoreCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'CIWA-Ar Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: severity,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'CIWA-Ar Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: severity,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
-            <div class="ui-alert ui-alert-${alertClass} mt-10">
-                <span class="ui-alert-icon">🩺</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${recommendation}
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: alertClass,
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     }
 };

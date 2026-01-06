@@ -1,4 +1,4 @@
-import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
+﻿import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 export const calculateEthanolConcentration: SimpleCalculateFn = (values) => {
     const volumeMl = Number(values['eth-amount']);

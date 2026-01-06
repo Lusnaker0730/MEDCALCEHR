@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function bmiBsaCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function bmiBsaCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const weightInput = values['bmi-bsa-weight'];
     const heightInput = values['bmi-bsa-height'];
 

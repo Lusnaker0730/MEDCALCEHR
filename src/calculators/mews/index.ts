@@ -171,32 +171,24 @@ const config: RadioScoreCalculatorConfig = {
         }
 
         const criticalWarning = hasCriticalParam
-            ? `
-            <div class="ui-alert ui-alert-danger mt-10">
-                <span class="ui-alert-icon">⚠️</span>
-                <div class="ui-alert-content">
-                    <strong>Critical Parameter Alert:</strong> One or more parameters scored +3 points. Consider higher level of care regardless of total score.
-                </div>
-            </div>
-        `
+            ? uiBuilder.createAlert({
+                type: 'danger',
+                message: '<strong>Critical Parameter Alert:</strong> One or more parameters scored +3 points. Consider higher level of care regardless of total score.'
+            })
             : '';
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total MEWS Score',
-                value: score.toString(),
-                unit: '/ 14 points',
-                interpretation: riskLabel,
-                alertClass: `ui-alert-${riskSeverity}`
-            })}
-            
-            <div class="ui-alert ui-alert-${riskSeverity} mt-10">
-                <span class="ui-alert-icon">📋</span>
-                <div class="ui-alert-content">
-                    <strong>Recommendation:</strong> ${riskDescription}
-                </div>
-            </div>
-            
+            label: 'Total MEWS Score',
+            value: score.toString(),
+            unit: '/ 14 points',
+            interpretation: riskLabel,
+            alertClass: `ui-alert-${riskSeverity}`
+        })}
+            ${uiBuilder.createAlert({
+            type: riskSeverity,
+            message: `<strong>Recommendation:</strong> ${riskDescription}`
+        })}
             ${criticalWarning}
         `;
     },

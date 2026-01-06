@@ -1,7 +1,7 @@
-import { AlertSeverity } from '../../types/calculator-base.js';
+﻿import { AlertSeverity } from '../../types/calculator-base.js';
 import { FormulaResultItem } from '../../types/calculator-formula.js';
 
-export function sirsCalculation(values: Record<string, number | string>): FormulaResultItem[] {
+export function sirsCalculation(values: Record<string, number | string | boolean>): FormulaResultItem[] {
     const tempInput = values['temp'];
     const hrInput = values['hr'];
 

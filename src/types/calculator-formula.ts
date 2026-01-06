@@ -213,7 +213,7 @@ export type GetCheckboxValueFn = (id: string) => boolean;
 
 /** 簡單計算函數類型 */
 export type SimpleCalculateFn = (
-    values: Record<string, number | string>
+    values: Record<string, number | string | boolean>
 ) => FormulaResultItem[] | null;
 
 /** 複雜計算函數類型 */

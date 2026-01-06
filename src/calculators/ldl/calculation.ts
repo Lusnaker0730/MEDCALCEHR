@@ -1,4 +1,4 @@
-import { SimpleCalculateFn } from '../../types/calculator-formula.js';
+﻿import { SimpleCalculateFn } from '../../types/calculator-formula.js';
 import { UnitConverter } from '../../unit-converter.js';
 
 export interface LDLResult {

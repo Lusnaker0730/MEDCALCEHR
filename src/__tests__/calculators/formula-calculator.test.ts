@@ -3,11 +3,11 @@
  */
 
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { createFormulaCalculator } from '../../calculators/shared/formula-calculator';
+import { createFormulaCalculator } from '../../calculators/shared/unified-formula-calculator';
 
 // Mock console
-jest.spyOn(console, 'warn').mockImplementation(() => {});
-jest.spyOn(console, 'error').mockImplementation(() => {});
+jest.spyOn(console, 'warn').mockImplementation(() => { });
+jest.spyOn(console, 'error').mockImplementation(() => { });
 
 describe('Formula Calculator Factory', () => {
     let container: HTMLElement;
@@ -50,7 +50,7 @@ describe('Formula Calculator Factory', () => {
             { label: 'Sum', formula: 'A + B' },
             { label: 'Product', formula: 'A × B' }
         ],
-        calculate: (values: Record<string, string | number>) => {
+        calculate: (values: Record<string, string | number | boolean>) => {
             const a =
                 typeof values['test-value-a'] === 'number'
                     ? values['test-value-a']

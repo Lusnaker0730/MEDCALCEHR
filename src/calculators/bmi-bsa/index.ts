@@ -83,12 +83,10 @@ export const bmiBsa = createUnifiedFormulaCalculator({
             interpretation: bsaRes.interpretation
         })}
             
-            <div class="ui-alert ui-alert-info mt-10">
-                <span class="ui-alert-icon">ℹ️</span>
-                <div class="ui-alert-content">
-                    BSA calculated using Du Bois formula. Used for medication dosing and cardiac index calculation.
-                </div>
-            </div>
+            ${uiBuilder.createAlert({
+            type: 'info',
+            message: 'BSA calculated using Du Bois formula. Used for medication dosing and cardiac index calculation.'
+        })}
         `;
     }
 });
