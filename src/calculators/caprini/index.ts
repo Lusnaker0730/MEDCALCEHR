@@ -1,9 +1,14 @@
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
+/**
+ * Caprini Score for Venous Thromboembolism (2005)
+ *
+ * Migrated to createUnifiedFormulaCalculator
+ */
+
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { calculateCaprini } from './calculation.js';
+import type { FormulaCalculatorConfig, InputConfig } from '../../types/calculator-formula.js';
 
 const riskFactors = {
     '1 Point': [
@@ -47,10 +52,10 @@ const sections = [
     {
         title: 'Age',
         icon: '📅',
-        inputs: [
+        fields: [
             {
-                type: 'radio' as const,
-                name: 'age',
+                type: 'radio',
+                id: 'age',
                 label: 'Patient Age',
                 options: [
                     { value: '0', label: 'Age < 41', checked: true },
@@ -59,15 +64,15 @@ const sections = [
                     { value: '3', label: 'Age ≥ 75 (+3)' }
                 ]
             }
-        ]
+        ] as InputConfig[]
     }
 ];
 
 // Helper to generate input configs for risk factors
-const generateRiskInputs = (factors: { id: string; label: string }[], points: number) => {
+const generateRiskInputs = (factors: { id: string; label: string }[], points: number): InputConfig[] => {
     return factors.map(f => ({
-        type: 'radio' as const,
-        name: f.id,
+        type: 'radio',
+        id: f.id,
         label: f.label,
         options: [
             { value: '0', label: 'No', checked: true },
@@ -81,139 +86,112 @@ for (const [group, factors] of Object.entries(riskFactors)) {
     sections.push({
         title: `${group} Risk Factors`,
         icon: '⚠️',
-        inputs: generateRiskInputs(factors, points) as any
+        fields: generateRiskInputs(factors, points)
     });
 }
 
-const config: MixedInputCalculatorConfig = {
+const config: FormulaCalculatorConfig = {
     id: 'caprini',
     title: 'Caprini Score for Venous Thromboembolism (2005)',
     description: 'Stratifies VTE risk in surgical patients, guiding prophylaxis decisions.',
     sections: sections,
 
-    formulas: [
-        {
-            title: 'Facts & Figures',
-            content: `
-                ${uiBuilder.createTable({
-                    headers: [
-                        'Caprini Score',
-                        'Risk category',
-                        'Risk percent*',
-                        'Recommended prophylaxis**',
-                        'Duration of chemoprophylaxis'
-                    ],
-                    rows: [
-                        [
-                            '0',
-                            'Lowest',
-                            'Minimal',
-                            'Early frequent ambulation only, OR at discretion of surgical team: Pneumatic compression devices OR graduated compression stockings',
-                            'During hospitalization'
-                        ],
-                        [
-                            '1–2',
-                            'Low',
-                            'Minimal',
-                            'Pneumatic compression devices ± graduated compression stockings',
-                            'During hospitalization'
-                        ],
-                        [
-                            '3–4',
-                            'Moderate',
-                            '0.7%',
-                            'Pneumatic compression devices ± graduated compression stockings',
-                            'During hospitalization'
-                        ],
-                        [
-                            '5–6',
-                            'High',
-                            '1.8%',
-                            'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin',
-                            '7–10 days total'
-                        ],
-                        [
-                            '7–8',
-                            'High',
-                            '4.0%',
-                            'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin',
-                            '7–10 days total'
-                        ],
-                        [
-                            '≥9',
-                            'Highest',
-                            '10.7%',
-                            'Pneumatic compression devices AND low dose heparin OR low molecular weight heparin',
-                            '30 days total'
-                        ]
-                    ],
-                    stickyFirstColumn: true
-                })}
-                <div class="footnotes-section mt-15">
-                    <p class="footnote-item text-sm text-muted">*Percent represents VTE risk without prophylaxis. From Bahl 2010, which looked at 8,216 general, vascular, and urological surgery patients.</p>
-                    <p class="footnote-item text-sm text-muted">**Adapted from Gould 2012.</p>
-                </div>
-            `
-        }
-    ],
+    formulaSection: {
+        show: true,
+        title: 'Facts & Figures',
+        calculationNote: 'Score interpretation:',
+        tableHeaders: [
+            'Caprini Score',
+            'Risk category',
+            'Risk percent*',
+            'Recommended prophylaxis**',
+            'Duration'
+        ],
+        rows: [
+            [
+                '0',
+                'Lowest',
+                'Minimal',
+                'Early frequent ambulation only, OR at discretion',
+                'During hospitalization'
+            ],
+            [
+                '1–2',
+                'Low',
+                'Minimal',
+                'Pneumatic compression devices ± stockings',
+                'During hospitalization'
+            ],
+            [
+                '3–4',
+                'Moderate',
+                '0.7%',
+                'Pneumatic compression ± stockings',
+                'During hospitalization'
+            ],
+            [
+                '5–6',
+                'High',
+                '1.8%',
+                'Pneumatic compression AND Heparin/LMWH',
+                '7–10 days total'
+            ],
+            [
+                '7–8',
+                'High',
+                '4.0%',
+                'Pneumatic compression AND Heparin/LMWH',
+                '7–10 days total'
+            ],
+            [
+                '≥9',
+                'Highest',
+                '10.7%',
+                'Pneumatic compression AND Heparin/LMWH',
+                '30 days total'
+            ]
+        ],
+        footnotes: [
+            '*Percent represents VTE risk without prophylaxis. From Bahl 2010.',
+            '**Adapted from Gould 2012.'
+        ]
+    },
 
-    calculate: values => {
-        let score = 0;
-        for (const key in values) {
-            if (values[key]) {
-                score += parseInt(values[key] as string);
+    calculate: calculateCaprini,
+
+    customResultRenderer: (results) => {
+        let html = '';
+        results.forEach(item => {
+            if (item.label === 'Recommendation' && item.alertPayload) {
+                html += uiBuilder.createAlert(item.alertPayload);
+            } else {
+                html += uiBuilder.createResultItem({
+                    label: item.label,
+                    value: item.value as string,
+                    unit: item.unit,
+                    interpretation: item.interpretation,
+                    alertClass: item.alertClass ? `ui-alert-${item.alertClass}` : ''
+                });
             }
-        }
-        return score;
+        });
+        return html;
     },
-    customResultRenderer: (score, values) => {
-        let riskCategory = '';
-        let recommendation = '';
-        let alertClass = '';
 
-        if (score === 0) {
-            riskCategory = 'Lowest Risk';
-            recommendation = 'Early ambulation.';
-            alertClass = 'ui-alert-success';
-        } else if (score >= 1 && score <= 2) {
-            riskCategory = 'Low Risk';
-            recommendation =
-                'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
-            alertClass = 'ui-alert-info';
-        } else if (score >= 3 && score <= 4) {
-            riskCategory = 'Moderate Risk';
-            recommendation =
-                'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
-            alertClass = 'ui-alert-warning';
-        } else {
-            riskCategory = 'High Risk';
-            recommendation =
-                'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';
-            alertClass = 'ui-alert-danger';
-        }
+    customInitialize: async (client, patient, container, calculate) => {
+        const setValue = (id: string, value: string) => {
+            const input = container.querySelector(`#${id}`) as HTMLInputElement;
+            if (input) {
+                // Not standard input, radio group
+            }
+            const radio = container.querySelector(
+                `input[name="${id}"][value="${value}"]`
+            ) as HTMLInputElement;
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
 
-        return `
-            ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskCategory,
-                alertClass: alertClass
-            })}
-            ${uiBuilder.createAlert({
-                type:
-                    alertClass === 'ui-alert-success'
-                        ? 'success'
-                        : alertClass === 'ui-alert-info'
-                          ? 'info'
-                          : alertClass === 'ui-alert-warning'
-                            ? 'warning'
-                            : 'danger',
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
-        `;
-    },
-    customInitialize: (client, patient, container, calculate, setValue) => {
         if (patient && (patient as any).birthDate) {
             const age = calculateAge((patient as any).birthDate);
             let ageScore = '0';
@@ -224,16 +202,12 @@ const config: MixedInputCalculatorConfig = {
             } else if (age >= 41) {
                 ageScore = '1';
             }
-
-            const radio = container.querySelector(
-                `input[name="age"][value="${ageScore}"]`
-            ) as HTMLInputElement;
-            if (radio) {
-                radio.checked = true;
-                radio.dispatchEvent(new Event('change'));
-            }
+            setValue('age', ageScore);
         }
+
+        // No async data fetching in original, but good to trigger calculate
+        calculate();
     }
 };
 
-export const caprini = createMixedInputCalculator(config);
+export const caprini = createUnifiedFormulaCalculator(config);

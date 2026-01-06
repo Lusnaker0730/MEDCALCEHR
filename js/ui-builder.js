@@ -356,7 +356,7 @@ export class UIBuilder {
      * Create a formula section
      * @param {Object} options - { items: [{ label, formula, notes }] }
      */
-    createFormulaSection({ items = [] }) {
+    createFormulaSection({ items = [], hideTitle = false }) {
         const itemsHTML = items
             .map(item => {
             const label = item.label || item.title || 'Formula';
@@ -378,7 +378,7 @@ export class UIBuilder {
             .join('');
         return `
             <div class="ui-formula-section">
-                <div class="ui-formula-title">Formulas</div>
+                ${hideTitle ? '' : '<div class="ui-formula-title">Formulas</div>'}
                 ${itemsHTML}
             </div>
         `;

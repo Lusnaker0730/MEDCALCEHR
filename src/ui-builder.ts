@@ -119,6 +119,7 @@ export interface UIFormulaItem {
 
 export interface UIFormulaSectionOptions {
     items: UIFormulaItem[];
+    hideTitle?: boolean;
 }
 
 export interface UITableOptions {
@@ -570,7 +571,7 @@ export class UIBuilder {
      * Create a formula section
      * @param {Object} options - { items: [{ label, formula, notes }] }
      */
-    createFormulaSection({ items = [] }: UIFormulaSectionOptions): string {
+    createFormulaSection({ items = [], hideTitle = false }: UIFormulaSectionOptions): string {
         const itemsHTML = items
             .map(item => {
                 const label = item.label || item.title || 'Formula';
@@ -595,7 +596,7 @@ export class UIBuilder {
 
         return `
             <div class="ui-formula-section">
-                <div class="ui-formula-title">Formulas</div>
+                ${hideTitle ? '' : '<div class="ui-formula-title">Formulas</div>'}
                 ${itemsHTML}
             </div>
         `;
@@ -840,7 +841,7 @@ export class UIBuilder {
         const citationsHTML = citations
             .map(citation => `<p>${citation}</p>`)
             .join('');
-        
+
         return `
             <div class="info-section mt-20 text-sm text-muted">
                 <h4>${icon} ${title}</h4>

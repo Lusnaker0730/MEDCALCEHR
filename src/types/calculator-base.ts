@@ -204,6 +204,8 @@ export interface InterpretationItem {
 export interface FormulaSectionConfig {
     /** 是否顯示 */
     show: boolean;
+    /** 顯示類型 ('table' | 'list') */
+    type?: 'table' | 'list';
     /** 標題 */
     title?: string;
     /** 計算說明 */
@@ -216,6 +218,8 @@ export interface FormulaSectionConfig {
     interpretationTitle?: string;
     /** 表格標頭 */
     tableHeaders?: string[];
+    /** 表格行數據 */
+    rows?: string[][];
     /** 解釋列表 */
     interpretations?: InterpretationItem[];
 }

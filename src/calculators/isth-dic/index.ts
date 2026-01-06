@@ -1,17 +1,18 @@
 /**
  * ISTH Criteria for Disseminated Intravascular Coagulation (DIC)
  *
- * 使用 Mixed Input Calculator 工廠函數
- * 診斷明顯的瀰散性血管內凝血
+ * Migrated to createUnifiedFormulaCalculator
  */
 
-import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { calculateIsthDic } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-export const isthDic = createMixedInputCalculator({
+const config: FormulaCalculatorConfig = {
     id: 'isth-dic',
     title: 'ISTH Criteria for Disseminated Intravascular Coagulation (DIC)',
     description: 'Diagnoses overt disseminated intravascular coagulation (DIC).',
@@ -22,7 +23,7 @@ export const isthDic = createMixedInputCalculator({
     sections: [
         {
             title: 'Laboratory Criteria',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'isth-platelet-input',
@@ -37,7 +38,7 @@ export const isthDic = createMixedInputCalculator({
                 },
                 {
                     type: 'radio',
-                    name: 'isth-platelet',
+                    id: 'isth-platelet',
                     label: 'Platelet Score',
                     options: [
                         { value: '0', label: '≥100 (0)', checked: true },
@@ -59,7 +60,7 @@ export const isthDic = createMixedInputCalculator({
                 },
                 {
                     type: 'radio',
-                    name: 'isth-fibrin_marker',
+                    id: 'isth-fibrin_marker',
                     label: 'D-dimer Score (Fibrin-related marker)',
                     options: [
                         { value: '0', label: 'No increase (<0.5 mg/L) (0)', checked: true },
@@ -76,7 +77,7 @@ export const isthDic = createMixedInputCalculator({
                 },
                 {
                     type: 'radio',
-                    name: 'isth-pt',
+                    id: 'isth-pt',
                     label: 'PT Prolongation Score',
                     options: [
                         { value: '0', label: 'Prolongation <3s (0)', checked: true },
@@ -98,7 +99,7 @@ export const isthDic = createMixedInputCalculator({
                 },
                 {
                     type: 'radio',
-                    name: 'isth-fibrinogen',
+                    id: 'isth-fibrinogen',
                     label: 'Fibrinogen Score',
                     options: [
                         { value: '0', label: '≥1.0 g/L (0)', checked: true },
@@ -109,46 +110,43 @@ export const isthDic = createMixedInputCalculator({
         }
     ],
 
-    riskLevels: [
-        {
-            minScore: 0,
-            maxScore: 4,
-            label: 'Not Overt DIC',
-            severity: 'success',
-            description: 'Not suggestive of overt DIC. May be non-overt DIC.'
-        },
-        {
-            minScore: 5,
-            maxScore: 999,
-            label: 'Overt DIC',
-            severity: 'danger',
-            description: 'Compatible with overt DIC. Repeat score daily.'
-        }
-    ],
-
     formulaSection: {
         show: true,
         title: 'ISTH DIC Scoring',
         calculationNote: 'Sum of laboratory criteria points:',
-        scoringCriteria: [
-            { criteria: 'Platelet Count', isHeader: true },
-            { criteria: '≥100 × 10⁹/L', points: '0' },
-            { criteria: '50 to <100 × 10⁹/L', points: '+1' },
-            { criteria: '<50 × 10⁹/L', points: '+2' },
-            { criteria: 'D-dimer (Fibrin-related marker)', isHeader: true },
-            { criteria: 'No increase (<0.5 mg/L)', points: '0' },
-            { criteria: 'Moderate increase (0.5-5 mg/L)', points: '+2' },
-            { criteria: 'Severe increase (>5 mg/L)', points: '+3' },
-            { criteria: 'PT Prolongation', isHeader: true },
-            { criteria: '<3 seconds', points: '0' },
-            { criteria: '3 to <6 seconds', points: '+1' },
-            { criteria: '≥6 seconds', points: '+2' },
-            { criteria: 'Fibrinogen Level', isHeader: true },
-            { criteria: '≥1.0 g/L', points: '0' },
-            { criteria: '<1.0 g/L', points: '+1' }
+        // FormulaSectionConfig doesn't usually support 'scoringCriteria' as a custom property unless extended?
+        // But generateFormulaSectionHTML (Step 255) in unified-formula-calculator.ts iterates `interpretations` and `footnotes`.
+        // It DOES NOT seem to support `scoringCriteria` array directly in `FormulaSectionConfig`.
+        // The original `mixed-input-calculator` supported it. I need to check `UnifiedFormulaCalculator`'s implementation of `generateFormulaSectionHTML`.
+        // Step 247/255 showed implementation.
+        // It supports `interpretations`, `footnotes`.
+        // It might NOT port `scoringCriteria` array automatically?
+        // I will check `FormulaSectionConfig` definition again in Step 255/425.
+        // `FormulaSectionConfig` = { title, tableHeaders?, rows?, interpretations?, footnotes?, ... }
+        // It does NOT have `scoringCriteria`.
+        // So I should convert the scoring criteria to `tableHeaders` and `rows` or put in `footerHTML`.
+        // Or simple text.
+        // The original `scoringCriteria` was an array of objects.
+        // I can render it as a table.
+        // Let's use `rows` and `tableHeaders`.  
+        tableHeaders: ['Criteria', 'Points'],
+        rows: [
+            ['<strong>Platelet Count</strong>', ''],
+            ['≥100 × 10⁹/L', '0'],
+            ['50 to <100 × 10⁹/L', '+1'],
+            ['<50 × 10⁹/L', '+2'],
+            ['<strong>D-dimer</strong>', ''],
+            ['No increase (<0.5 mg/L)', '0'],
+            ['Moderate increase (0.5-5 mg/L)', '+2'],
+            ['Severe increase (>5 mg/L)', '+3'],
+            ['<strong>PT Prolongation</strong>', ''],
+            ['<3 seconds', '0'],
+            ['3 to <6 seconds', '+1'],
+            ['≥6 seconds', '+2'],
+            ['<strong>Fibrinogen Level</strong>', ''],
+            ['≥1.0 g/L', '0'],
+            ['<1.0 g/L', '+1']
         ],
-        interpretationTitle: 'Interpretation',
-        tableHeaders: ['Score', 'Diagnosis'],
         interpretations: [
             {
                 score: '<5',
@@ -164,49 +162,27 @@ export const isthDic = createMixedInputCalculator({
         ]
     },
 
-    calculate: values => {
-        const groups = ['isth-platelet', 'isth-fibrin_marker', 'isth-pt', 'isth-fibrinogen'];
-        let score = 0;
+    calculate: calculateIsthDic,
 
-        for (const group of groups) {
-            const val = values[group];
-            if (val !== null && val !== undefined && val !== '') {
-                score += parseInt(val as string, 10);
+    customResultRenderer: (results) => {
+        let alertHtml = '';
+        const items = results.map(r => {
+            if (r.label === 'Interpretation' && r.alertPayload) {
+                alertHtml = uiBuilder.createAlert(r.alertPayload);
+                return '';
             }
-        }
-
-        return score;
+            return uiBuilder.createResultItem({
+                label: r.label,
+                value: r.value.toString(),
+                unit: r.unit,
+                interpretation: r.interpretation,
+                alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
+            });
+        }).join('');
+        return items + alertHtml;
     },
 
-    customResultRenderer: (score: number) => {
-        let interpretation = '';
-        let alertType: 'success' | 'danger' = 'success';
-
-        if (score >= 5) {
-            interpretation = 'Compatible with overt DIC. Repeat score daily.';
-            alertType = 'danger';
-        } else {
-            interpretation =
-                'Not suggestive of overt DIC. May be non-overt DIC. Repeat within 1-2 days.';
-            alertType = 'success';
-        }
-
-        return `
-            ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: score >= 5 ? 'Overt DIC' : 'Not Overt DIC',
-                alertClass: `ui-alert-${alertType}`
-            })}
-            ${uiBuilder.createAlert({
-                type: alertType,
-                message: interpretation
-            })}
-        `;
-    },
-
-    customInitialize: async (client, patient, container, calculate, setValue) => {
+    customInitialize: async (client, patient, container, calculate) => {
         // Helper to set radio based on input value
         const setRadioFromValue = (
             groupName: string,
@@ -221,6 +197,8 @@ export const isthDic = createMixedInputCalculator({
                 ) as HTMLInputElement;
                 if (radio) {
                     radio.checked = true;
+                    // Trigger change to update other listeners if any (and calculation if auto-calc enabled)
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
                     calculate();
                 }
             }
@@ -330,4 +308,6 @@ export const isthDic = createMixedInputCalculator({
             console.warn('FHIR data fetch failed:', e);
         }
     }
-});
+};
+
+export const isthDic = createUnifiedFormulaCalculator(config);

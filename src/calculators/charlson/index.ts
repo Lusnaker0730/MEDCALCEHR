@@ -1,22 +1,15 @@
 /**
  * Charlson Comorbidity Index (CCI) Calculator
  *
- * 已整合 FHIRDataService 進行自動填充
- *
- * 這是一個複雜的計算器，包含：
- * - 年齡分層評分
- * - 多個 Yes/No 條件
- * - 多層級條件（肝病、糖尿病、腫瘤）
- * - 大量的 FHIR ICD 代碼自動填充
+ * Migrated to createUnifiedFormulaCalculator
  */
 
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
+import { calculateCharlson } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
 interface ConditionMapItem {
     codes: string[];
@@ -27,87 +20,20 @@ interface ConditionMap {
     [key: string]: ConditionMapItem;
 }
 
-const config: MixedInputCalculatorConfig = {
+const config: FormulaCalculatorConfig = {
     id: 'charlson',
     title: 'Charlson Comorbidity Index (CCI)',
     description: 'Predicts 10-year survival in patients with multiple comorbidities.',
     infoAlert:
         'The Charlson Comorbidity Index predicts 10-year mortality based on age and 17 comorbid conditions. Higher scores indicate more severe comorbidity burden.',
 
-    formulas: [
-        {
-            title: 'Formula',
-            content: `
-                <p class="calculation-note mb-15">Addition of the selected points:</p>
-                ${uiBuilder.createTable({
-                    headers: ['Variable', 'Definition', 'Points'],
-                    rows: [
-                        [
-                            'Myocardial infarction',
-                            'History of definite or probable MI (EKG changes and/or enzyme changes)',
-                            '1'
-                        ],
-                        [
-                            'Congestive heart failure',
-                            'Exertional or paroxysmal nocturnal dyspnea and has responded to digitalis, diuretics, or afterload reducing agents',
-                            '1'
-                        ],
-                        [
-                            'Peripheral vascular disease',
-                            'Intermittent claudication or past bypass for chronic arterial insufficiency, history of gangrene or acute arterial insufficiency, or untreated thoracic or abdominal aneurysm (≥6 cm)',
-                            '1'
-                        ],
-                        [
-                            'Cerebrovascular accident or transient ischemic attack',
-                            'History of a cerebrovascular accident with minor or no residua and transient ischemic attacks',
-                            '1'
-                        ],
-                        ['Dementia', 'Chronic cognitive deficit', '1'],
-                        ['Chronic pulmonary disease', '—', '1'],
-                        ['Connective tissue disease', '—', '1'],
-                        [
-                            'Peptic ulcer disease',
-                            'Any history of treatment for ulcer disease or history of ulcer bleeding',
-                            '1'
-                        ],
-                        [
-                            'Mild liver disease',
-                            'Mild = chronic hepatitis (or cirrhosis without portal hypertension)',
-                            '1'
-                        ],
-                        ['Uncomplicated diabetes', '—', '1'],
-                        ['Hemiplegia', '—', '2'],
-                        [
-                            'Moderate to severe chronic kidney disease',
-                            'Severe = on dialysis, status post kidney transplant, uremia; moderate = creatinine >3 mg/dL (0.27 mmol/L)',
-                            '2'
-                        ],
-                        ['Diabetes with end-organ damage', '—', '2'],
-                        ['Localized solid tumor', '—', '2'],
-                        ['Leukemia', '—', '2'],
-                        ['Lymphoma', '—', '2'],
-                        [
-                            'Moderate to severe liver disease',
-                            'Severe = cirrhosis and portal hypertension with variceal bleeding history; moderate = cirrhosis and portal hypertension but no variceal bleeding history',
-                            '3'
-                        ],
-                        ['Metastatic solid tumor', '—', '6'],
-                        ['AIDS*', '—', '6']
-                    ],
-                    stickyFirstColumn: true
-                })}
-                <p class="footnote-item text-sm text-muted mt-10">*Not just HIV positive, but "full-blown" AIDS.</p>
-            `
-        }
-    ],
-
     sections: [
         {
             title: 'Age',
             icon: '🎂',
-            inputs: [
+            fields: [
                 {
-                    name: 'age',
+                    id: 'age',
                     label: 'Age Group',
                     type: 'radio',
                     options: [
@@ -123,9 +49,9 @@ const config: MixedInputCalculatorConfig = {
         {
             title: 'Comorbidities',
             icon: '🏥',
-            inputs: [
+            fields: [
                 {
-                    name: 'mi',
+                    id: 'mi',
                     label: 'Myocardial infarction',
                     helpText: 'History of definite or probable MI',
                     type: 'radio',
@@ -135,7 +61,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'chf',
+                    id: 'chf',
                     label: 'CHF',
                     helpText: 'Exertional or paroxysmal nocturnal dyspnea',
                     type: 'radio',
@@ -145,7 +71,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'pvd',
+                    id: 'pvd',
                     label: 'Peripheral vascular disease',
                     helpText: 'Intermittent claudication, past bypass, gangrene, or aneurysm',
                     type: 'radio',
@@ -155,7 +81,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'cva',
+                    id: 'cva',
                     label: 'CVA or TIA',
                     helpText: 'History of a cerebrovascular accident',
                     type: 'radio',
@@ -165,7 +91,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'dementia',
+                    id: 'dementia',
                     label: 'Dementia',
                     helpText: 'Chronic cognitive deficit',
                     type: 'radio',
@@ -175,7 +101,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'cpd',
+                    id: 'cpd',
                     label: 'Chronic pulmonary disease',
                     type: 'radio',
                     options: [
@@ -184,7 +110,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'ctd',
+                    id: 'ctd',
                     label: 'Connective tissue disease',
                     type: 'radio',
                     options: [
@@ -193,7 +119,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'pud',
+                    id: 'pud',
                     label: 'Peptic ulcer disease',
                     helpText: 'Any history of treatment for ulcer disease',
                     type: 'radio',
@@ -203,7 +129,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'liver',
+                    id: 'liver',
                     label: 'Liver disease',
                     helpText:
                         'Mild = chronic hepatitis. Moderate/Severe = cirrhosis and portal hypertension.',
@@ -215,7 +141,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'diabetes',
+                    id: 'diabetes',
                     label: 'Diabetes mellitus',
                     helpText: 'End-organ damage includes retinopathy, nephropathy, or neuropathy.',
                     type: 'radio',
@@ -226,7 +152,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'hemiplegia',
+                    id: 'hemiplegia',
                     label: 'Hemiplegia',
                     type: 'radio',
                     options: [
@@ -235,7 +161,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'ckd',
+                    id: 'ckd',
                     label: 'Moderate to severe CKD',
                     helpText: 'Severe on dialysis, uremia, or creatinine >3 mg/dL',
                     type: 'radio',
@@ -245,7 +171,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'tumor',
+                    id: 'tumor',
                     label: 'Solid tumor',
                     type: 'radio',
                     options: [
@@ -255,7 +181,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'leukemia',
+                    id: 'leukemia',
                     label: 'Leukemia',
                     type: 'radio',
                     options: [
@@ -264,7 +190,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'lymphoma',
+                    id: 'lymphoma',
                     label: 'Lymphoma',
                     type: 'radio',
                     options: [
@@ -273,7 +199,7 @@ const config: MixedInputCalculatorConfig = {
                     ]
                 },
                 {
-                    name: 'aids',
+                    id: 'aids',
                     label: 'AIDS',
                     helpText: 'Not just HIV positive, but "full-blown" AIDS',
                     type: 'radio',
@@ -285,66 +211,84 @@ const config: MixedInputCalculatorConfig = {
             ]
         }
     ],
-    calculate: values => {
-        let score = 0;
-        // Access values by name (which are radio values, so strings)
-        Object.values(values).forEach(val => {
-            const num = parseInt(val as string, 10);
-            if (!isNaN(num)) {
-                score += num;
-            }
-        });
-        return score;
-    },
-    customResultRenderer: score => {
-        // Adjusted formula from literature
-        const survival = 100 * Math.pow(0.983, Math.exp(score * 0.9));
 
-        return `
-            ${uiBuilder.createResultItem({
-                label: 'Charlson Comorbidity Index',
-                value: score.toString(),
-                unit: 'points'
-            })}
-            
-            ${uiBuilder.createResultItem({
-                label: 'Estimated 10-year survival',
-                value: `${survival.toFixed(0)}%`,
-                unit: ''
-            })}
-            
+    formulaSection: {
+        show: true,
+        title: 'Formula',
+        calculationNote: 'Addition of the selected points:',
+        tableHeaders: ['Variable', 'Definition', 'Points'],
+        rows: [
+            ['Myocardial infarction', 'History of definite or probable MI', '1'],
+            ['Congestive heart failure', 'Exertional or paroxysmal nocturnal dyspnea', '1'],
+            ['Peripheral vascular disease', 'Intermittent claudication or past bypass', '1'],
+            ['CVA or TIA', 'History of CVA with minor/no residua', '1'],
+            ['Dementia', 'Chronic cognitive deficit', '1'],
+            ['Chronic pulmonary disease', '—', '1'],
+            ['Connective tissue disease', '—', '1'],
+            ['Peptic ulcer disease', 'Any history of treatment for ulcer', '1'],
+            ['Mild liver disease', 'Chronic hepatitis', '1'],
+            ['Uncomplicated diabetes', '—', '1'],
+            ['Hemiplegia', '—', '2'],
+            ['Moderate to severe CKD', 'Creatinine >3 mg/dL', '2'],
+            ['Diabetes with end-organ damage', '—', '2'],
+            ['Localized solid tumor', '—', '2'],
+            ['Leukemia', '—', '2'],
+            ['Lymphoma', '—', '2'],
+            ['Moderate to severe liver disease', 'Cirrhosis and portal hypertension', '3'],
+            ['Metastatic solid tumor', '—', '6'],
+            ['AIDS', 'Full-blown AIDS', '6']
+        ],
+        footnotes: ['*Not just HIV positive, but "full-blown" AIDS.']
+    },
+
+    calculate: calculateCharlson,
+
+    customResultRenderer: (results) => {
+        let html = '';
+        results.forEach(item => {
+            html += uiBuilder.createResultItem({
+                label: item.label,
+                value: item.value as string,
+                unit: item.unit,
+                interpretation: item.interpretation,
+                alertClass: item.alertClass ? `ui-alert-${item.alertClass}` : ''
+            });
+        });
+
+        html += `
              <div class="info-section mt-20">
                 <h4>📚 References</h4>
                 <p>Charlson ME, Pompei P, Ales KL, MacKenzie CR. A new method of classifying prognostic comorbidity in longitudinal studies: development and validation. <em>J Chronic Dis</em>. 1987;40(5):373-383.</p>
             </div>
         `;
+        return html;
     },
+
     customInitialize: async (client, patient, container, calculate) => {
-        // fhirDataService.initialize and uiBuilder.initializeComponents are handled by createMixedInputCalculator
+        fhirDataService.initialize(client, patient, container);
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
-        // Auto-populate age using FHIRDataService
-        if (fhirDataService.isReady()) {
+        const setValue = (id: string, value: string) => {
+            // For radios, we search for input[name="id"][value="value"]
+            // In unified structure, id is the group name.
+            const radio = container.querySelector(`input[name="${id}"][value="${value}"]`) as HTMLInputElement;
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+
+        if (client && fhirDataService.isReady()) {
+            // Auto-populate age
             const age = fhirDataService.getPatientAge();
             if (age !== null) {
                 let ageValue = 0;
-                if (age >= 80) {
-                    ageValue = 4;
-                } else if (age >= 70) {
-                    ageValue = 3;
-                } else if (age >= 60) {
-                    ageValue = 2;
-                } else if (age >= 50) {
-                    ageValue = 1;
-                }
-                const ageRadio = container.querySelector(
-                    `input[name="age"][value="${ageValue}"]`
-                ) as HTMLInputElement | null;
-                if (ageRadio) {
-                    ageRadio.checked = true;
-                    // Trigger change manually since factory listeners are on 'change'
-                    ageRadio.dispatchEvent(new Event('change', { bubbles: true }));
-                }
+                if (age >= 80) ageValue = 4;
+                else if (age >= 70) ageValue = 3;
+                else if (age >= 60) ageValue = 2;
+                else if (age >= 50) ageValue = 1;
+
+                setValue('age', ageValue.toString());
             }
 
             const conditionMap: ConditionMap = {
@@ -367,43 +311,24 @@ const config: MixedInputCalculatorConfig = {
                     .hasCondition(codes)
                     .then(hasCondition => {
                         if (hasCondition) {
-                            const radio = container.querySelector(
-                                `input[name="${key}"][value="${value}"]`
-                            ) as HTMLInputElement | null;
-                            if (radio) {
-                                radio.checked = true;
-                                radio.dispatchEvent(new Event('change', { bubbles: true }));
-                            }
+                            setValue(key, value.toString());
                         }
                     })
                     .catch(e => console.warn(`Error fetching ${key} conditions:`, e));
             }
 
-            // Special handling for multi-level conditions
-            // Liver disease (moderate/severe first, then mild)
+            // Liver disease
             fhirDataService
                 .hasCondition(['K70.3', 'K74', 'I85'])
                 .then(hasSevere => {
                     if (hasSevere) {
-                        const radio = container.querySelector(
-                            'input[name="liver"][value="3"]'
-                        ) as HTMLInputElement | null;
-                        if (radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
+                        setValue('liver', '3');
                     } else {
                         fhirDataService
                             .hasCondition(['K73', 'B18'])
                             .then(hasMild => {
                                 if (hasMild) {
-                                    const radio = container.querySelector(
-                                        'input[name="liver"][value="1"]'
-                                    ) as HTMLInputElement | null;
-                                    if (radio) {
-                                        radio.checked = true;
-                                        radio.dispatchEvent(new Event('change', { bubbles: true }));
-                                    }
+                                    setValue('liver', '1');
                                 }
                             })
                             .catch(e => console.warn('Error fetching mild liver conditions:', e));
@@ -411,49 +336,29 @@ const config: MixedInputCalculatorConfig = {
                 })
                 .catch(e => console.warn('Error fetching severe liver conditions:', e));
 
-            // Diabetes (with end-organ damage first, then uncomplicated)
+            // Diabetes
             fhirDataService
                 .hasCondition([
-                    'E10.2',
-                    'E10.3',
-                    'E10.4',
-                    'E10.5',
-                    'E11.2',
-                    'E11.3',
-                    'E11.4',
-                    'E11.5'
+                    'E10.2', 'E10.3', 'E10.4', 'E10.5',
+                    'E11.2', 'E11.3', 'E11.4', 'E11.5'
                 ])
                 .then(hasEOD => {
                     if (hasEOD) {
-                        const radio = container.querySelector(
-                            'input[name="diabetes"][value="2"]'
-                        ) as HTMLInputElement | null;
-                        if (radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
+                        setValue('diabetes', '2');
                     } else {
                         fhirDataService
                             .hasCondition(['E10', 'E11'])
                             .then(hasUncomplicated => {
                                 if (hasUncomplicated) {
-                                    const radio = container.querySelector(
-                                        'input[name="diabetes"][value="1"]'
-                                    ) as HTMLInputElement | null;
-                                    if (radio) {
-                                        radio.checked = true;
-                                        radio.dispatchEvent(new Event('change', { bubbles: true }));
-                                    }
+                                    setValue('diabetes', '1');
                                 }
                             })
-                            .catch(e =>
-                                console.warn('Error fetching uncomplicated diabetes conditions:', e)
-                            );
+                            .catch(e => console.warn('Error fetching uncomplicated diabetes conditions:', e));
                     }
                 })
                 .catch(e => console.warn('Error fetching diabetes w/ EOD conditions:', e));
 
-            // Solid tumor (check for metastatic vs localized)
+            // Solid tumor
             interface FhirCondition {
                 code?: {
                     coding?: Array<{
@@ -473,30 +378,17 @@ const config: MixedInputCalculatorConfig = {
                                 c.code?.coding?.[0]?.code &&
                                 metastaticCodes.includes(c.code.coding[0].code.substring(0, 3))
                         );
-                        const value = isMetastatic ? 6 : 2;
-                        const radio = container.querySelector(
-                            `input[name="tumor"][value="${value}"]`
-                        ) as HTMLInputElement | null;
-                        if (radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
+                        setValue('tumor', isMetastatic ? '6' : '2');
                     }
                 })
                 .catch(e => console.warn('Error fetching tumor conditions:', e));
 
-            // CKD via conditions
+            // CKD
             fhirDataService
                 .hasCondition(['N18.3', 'N18.4', 'N18.5', 'Z99.2'])
                 .then(hasCKD => {
                     if (hasCKD) {
-                        const radio = container.querySelector(
-                            'input[name="ckd"][value="2"]'
-                        ) as HTMLInputElement | null;
-                        if (radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
+                        setValue('ckd', '2');
                     }
                 })
                 .catch(e => console.warn('Error fetching CKD conditions:', e));
@@ -509,13 +401,7 @@ const config: MixedInputCalculatorConfig = {
                 })
                 .then(result => {
                     if (result.value !== null && result.value > 3) {
-                        const radio = container.querySelector(
-                            'input[name="ckd"][value="2"]'
-                        ) as HTMLInputElement | null;
-                        if (radio) {
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
+                        setValue('ckd', '2');
                         if (stalenessTracker && result.observation) {
                             stalenessTracker.trackObservation(
                                 'input[name="ckd"][value="2"]',
@@ -529,9 +415,8 @@ const config: MixedInputCalculatorConfig = {
                 .catch(e => console.warn('Error fetching creatinine:', e));
         }
 
-        // Initial calculation
-        calculate();
+        setTimeout(calculate, 200);
     }
 };
 
-export const charlson = createMixedInputCalculator(config);
+export const charlson = createUnifiedFormulaCalculator(config);

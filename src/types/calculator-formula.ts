@@ -13,7 +13,8 @@ import type {
     FormulaReferenceItem,
     UnitToggleConfig,
     FHIRClientType,
-    PatientType
+    PatientType,
+    FormulaSectionConfig
 } from './calculator-base.js';
 
 // ==========================================
@@ -250,7 +251,10 @@ export interface FormulaCalculatorConfig extends BaseCalculatorConfig {
     /** 複雜計算函數 */
     complexCalculate?: ComplexCalculateFn;
 
-    /** 公式參考 */
+    /** Formula Section (Rich HTML table/list) */
+    formulaSection?: FormulaSectionConfig;
+
+    /** 公式參考 (Legacy Simple List) */
     formulas?: FormulaReferenceItem[];
 
     /** 自定義結果渲染器 */

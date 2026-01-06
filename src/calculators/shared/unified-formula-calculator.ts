@@ -59,8 +59,10 @@ export type {
     RadioFieldConfig,
     InputSection,
     ComplexFormulaCalculatorConfig,
-    CalculationResult
+    CalculationResult,
 } from '../../types/index.js';
+
+import type { FormulaSectionConfig } from '../../types/calculator-base.js';
 
 // 導入類型供內部使用
 import type {
@@ -226,6 +228,179 @@ function generateInputHTML(input: InputConfig): string {
     return '';
 }
 
+/**
+ * 生成 Formula Section HTML (Rich Table / List)
+ * Ported from mixed-input-calculator.ts
+ */
+function generateFormulaSectionHTML(fs: FormulaSectionConfig): string {
+    const formulaTitle = fs.title || 'FORMULA';
+    const calcNote = fs.calculationNote || '';
+    const displayType = fs.type || 'table';
+
+    // Scoring Table
+    let scoringContentHTML = '';
+    if (fs.scoringCriteria?.length) {
+        if (displayType === 'list') {
+            // Render as List/Block
+            const listItems = fs.scoringCriteria
+                .map(item => {
+                    return `
+                    <div class="ui-formula-list-item">
+                        <div class="criteria-header">${item.criteria}</div>
+                        <div class="criteria-points">${item.points}</div>
+                    </div>
+                `;
+                })
+                .join('');
+
+            scoringContentHTML = `
+                <div class="ui-formula-list mt-15">
+                    ${listItems}
+                </div>
+            `;
+        } else {
+            // Render as Table (default)
+            const scoringRows = fs.scoringCriteria
+                .map(item => {
+                    if (item.isHeader) {
+                        return `
+                        <tr class="ui-scoring-table__category">
+                            <td colspan="2">${item.criteria}</td>
+                        </tr>
+                    `;
+                    } else {
+                        return `
+                        <tr class="ui-scoring-table__item">
+                            <td class="ui-scoring-table__criteria">${item.criteria}</td>
+                            <td class="ui-scoring-table__points">${item.points || ''}</td>
+                        </tr>
+                    `;
+                    }
+                })
+                .join('');
+
+            scoringContentHTML = `
+                <div class="ui-table-wrapper">
+                    <table class="ui-scoring-table">
+                        <thead>
+                            <tr>
+                                <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
+                                <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${scoringRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+    } else if (fs.rows?.length && fs.tableHeaders?.length) {
+        // Generic Table
+        const headerCells = fs.tableHeaders
+            .map(h => `<th class="ui-scoring-table__header">${h}</th>`)
+            .join('');
+
+        const tableRows = fs.rows
+            .map(row => {
+                const cells = row
+                    .map(cell => `<td class="ui-scoring-table__criteria">${cell}</td>`)
+                    .join('');
+                return `<tr class="ui-scoring-table__item">${cells}</tr>`;
+            })
+            .join('');
+
+        scoringContentHTML = `
+            <div class="ui-table-wrapper">
+                <table class="ui-scoring-table">
+                    <thead>
+                        <tr>${headerCells}</tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Footnotes
+    const footnotesHTML = fs.footnotes?.length
+        ? `<div class="footnotes-section">
+            ${fs.footnotes.map(fn => `<p class="footnote-item">${fn}</p>`).join('')}
+           </div>`
+        : '';
+
+    // Interpretation Table
+    let interpretationTableHTML = '';
+    if (fs.interpretations?.length) {
+        const interpTitle = fs.interpretationTitle || 'FACTS & FIGURES';
+        const hasCategory = fs.interpretations.some(item => item.category);
+        const defaultHeaders = hasCategory
+            ? ['Score', 'Risk Category', 'Description']
+            : ['Score', 'Interpretation'];
+        const headers = fs.tableHeaders || defaultHeaders;
+
+        const interpRows = fs.interpretations
+            .map(item => {
+                const severityClass = item.severity
+                    ? `ui-interpretation-table__row--${item.severity}`
+                    : '';
+
+                if (hasCategory) {
+                    return `
+                    <tr class="ui-interpretation-table__row ${severityClass}">
+                        <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
+                        <td class="ui-interpretation-table__cell text-center">${item.category || ''}</td>
+                        <td class="ui-interpretation-table__cell">${item.interpretation}</td>
+                    </tr>
+                `;
+                } else {
+                    return `
+                    <tr class="ui-interpretation-table__row ${severityClass}">
+                        <td class="ui-interpretation-table__cell ui-interpretation-table__score">${item.score}</td>
+                        <td class="ui-interpretation-table__cell">${item.interpretation}</td>
+                    </tr>
+                `;
+                }
+            })
+            .join('');
+
+        const headerCells = headers
+            .map(
+                (h, i) =>
+                    `<th class="ui-interpretation-table__header ${i === 0 ? 'text-center' : ''}">${h}</th>`
+            )
+            .join('');
+
+        interpretationTableHTML = `
+            <div class="ui-section mt-20">
+                <div class="ui-section-title">📊 ${interpTitle}</div>
+                <div class="ui-table-wrapper">
+                    <table class="ui-interpretation-table">
+                        <thead>
+                            <tr>${headerCells}</tr>
+                        </thead>
+                        <tbody>
+                            ${interpRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="ui-section mt-20">
+            <div class="ui-section-title">📐 ${formulaTitle}</div>
+            ${calcNote ? `<p class="calculation-note">${calcNote}</p>` : ''}
+            ${scoringContentHTML}
+            ${footnotesHTML}
+        </div>
+        ${interpretationTableHTML}
+    `;
+}
+
 // ==========================================
 // 主要工廠函數
 // ==========================================
@@ -269,9 +444,12 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             }
 
             // 公式參考區塊
-            const formulaSection = config.formulas
-                ? uiBuilder.createFormulaSection({ items: config.formulas })
-                : '';
+            let formulaSection = '';
+            if (config.formulaSection?.show) {
+                formulaSection = generateFormulaSectionHTML(config.formulaSection);
+            } else if (config.formulas) {
+                formulaSection = uiBuilder.createFormulaSection({ items: config.formulas });
+            }
 
             // 提示訊息
             const infoAlertHTML = config.infoAlert
@@ -357,20 +535,20 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             ): void => {
                 // 清除現有狀態
                 inputEl.classList.remove('validation-error', 'validation-warning');
-                
+
                 // 找到或創建訊息容器
                 const inputWrapper = inputEl.closest('.ui-input-wrapper') || inputEl.parentElement;
                 let messageEl = inputWrapper?.querySelector('.validation-message') as HTMLElement;
-                
+
                 if (status === 'valid') {
                     // 移除訊息
                     if (messageEl) messageEl.remove();
                     return;
                 }
-                
+
                 // 添加對應的 class
                 inputEl.classList.add(status === 'error' ? 'validation-error' : 'validation-warning');
-                
+
                 // 創建或更新訊息
                 if (message) {
                     if (!messageEl) {
@@ -397,8 +575,8 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
              * 驗證所有輸入
              * 回傳驗證結果物件（包含 warnings）
              */
-            const validateInputs = (): { 
-                isValid: boolean; 
+            const validateInputs = (): {
+                isValid: boolean;
                 values: Record<string, any>;
                 hasWarnings: boolean;
                 warnings: string[];
@@ -493,16 +671,16 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 }
 
                 const validation = validateCalculatorInput(values, schema);
-                
+
                 // 更新每個欄位的 UI 狀態，同時檢查是否有任何錯誤
                 let hasFieldErrors = false;
                 Object.keys(validation.fieldStatus).forEach(fieldId => {
                     const inputEl = container.querySelector(`#${fieldId}`) as HTMLInputElement;
                     if (!inputEl) return;
-                    
+
                     const status = validation.fieldStatus[fieldId];
                     const rule = schema[fieldId];
-                    
+
                     if (status === 'error') {
                         hasFieldErrors = true;
                         updateFieldValidationUI(inputEl, 'error', rule.message);
@@ -527,20 +705,20 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     if (resultContent) {
                         resultContent.innerHTML = '';
                     }
-                    return { 
-                        isValid: false, 
-                        values, 
-                        hasWarnings: validation.hasWarnings, 
-                        warnings: validation.warnings 
+                    return {
+                        isValid: false,
+                        values,
+                        hasWarnings: validation.hasWarnings,
+                        warnings: validation.warnings
                     };
                 }
 
                 // 黃區警告：允許計算但顯示警告
-                return { 
-                    isValid: true, 
-                    values, 
-                    hasWarnings: validation.hasWarnings, 
-                    warnings: validation.warnings 
+                return {
+                    isValid: true,
+                    values,
+                    hasWarnings: validation.hasWarnings,
+                    warnings: validation.warnings
                 };
             };
 

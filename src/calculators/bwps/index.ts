@@ -1,27 +1,26 @@
 /**
  * Burch-Wartofsky Point Scale (BWPS) for Thyrotoxicosis
  *
- * 使用 Mixed Input Calculator 工廠函數
- * 預測生化甲狀腺毒症是否為甲狀腺風暴
+ * Migrated to createUnifiedFormulaCalculator
  */
 
-import { createMixedInputCalculator } from '../shared/mixed-input-calculator.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
-import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { calculateBwps } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-export const bwps = createMixedInputCalculator({
+const config: FormulaCalculatorConfig = {
     id: 'bwps',
     title: 'Burch-Wartofsky Point Scale (BWPS) for Thyrotoxicosis',
     description: 'Predicts likelihood that biochemical thyrotoxicosis is thyroid storm.',
-
     infoAlert:
         '<strong>INSTRUCTIONS:</strong> Use in patients >18 years old with biochemical thyrotoxicosis.',
 
     sections: [
         {
             title: 'Clinical Parameters',
-            inputs: [
+            fields: [
                 {
                     type: 'select',
                     id: 'bwps-temp',
@@ -106,36 +105,10 @@ export const bwps = createMixedInputCalculator({
         }
     ],
 
-    riskLevels: [
-        {
-            minScore: 0,
-            maxScore: 24,
-            label: 'Unlikely',
-            severity: 'success',
-            description: 'Unlikely to represent thyroid storm'
-        },
-        {
-            minScore: 25,
-            maxScore: 44,
-            label: 'Impending Storm',
-            severity: 'warning',
-            description: 'Suggests impending storm'
-        },
-        {
-            minScore: 45,
-            maxScore: 999,
-            label: 'Thyroid Storm',
-            severity: 'danger',
-            description: 'Highly suggestive of thyroid storm'
-        }
-    ],
-
     formulaSection: {
         show: true,
         title: 'Scoring',
-        calculationNote: 'Sum of all selected point values:',
-        interpretationTitle: 'Interpretation',
-        tableHeaders: ['Score', 'Diagnosis'],
+        calculationNote: 'Sum of all selected point values.',
         interpretations: [
             {
                 score: '<25',
@@ -151,62 +124,19 @@ export const bwps = createMixedInputCalculator({
         ]
     },
 
-    references: [
-        'Burch, H. B., & Wartofsky, L. (1993). Life-threatening thyrotoxicosis. Thyroid storm. <em>Endocrinology and metabolism clinics of North America</em>, 22(2), 263-277.'
-    ],
+    calculate: calculateBwps,
 
-    calculate: values => {
-        let score = 0;
-        const fields = [
-            'bwps-temp',
-            'bwps-cns',
-            'bwps-gi',
-            'bwps-hr',
-            'bwps-chf',
-            'bwps-afib',
-            'bwps-precip'
-        ];
-
-        for (const field of fields) {
-            const val = values[field];
-            if (val !== null && val !== undefined && val !== '') {
-                score += parseInt(val as string, 10);
-            }
-        }
-
-        return score;
-    },
-
-    customResultRenderer: (score: number) => {
-        let interpretation = '';
-        let alertType: 'success' | 'warning' | 'danger' = 'success';
-
-        if (score >= 45) {
-            interpretation = 'Highly suggestive of thyroid storm';
-            alertType = 'danger';
-        } else if (score >= 25) {
-            interpretation = 'Suggests impending storm';
-            alertType = 'warning';
-        } else {
-            interpretation = 'Unlikely to represent thyroid storm';
-            alertType = 'success';
-        }
-
-        return `
-            ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertType}`
-            })}
-        `;
-    },
-
-    customInitialize: async (client, patient, container, calculate, setValue) => {
+    customInitialize: async (client, patient, container, calculate) => {
         if (!client) return;
-
         fhirDataService.initialize(client, patient, container);
+
+        const setValue = (id: string, value: string) => {
+            const input = container.querySelector(`#${id}`) as HTMLSelectElement;
+            if (input) {
+                input.value = value;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
 
         try {
             // Temperature (convert to Fahrenheit)
@@ -253,4 +183,6 @@ export const bwps = createMixedInputCalculator({
             console.warn('FHIR data fetch failed:', e);
         }
     }
-});
+};
+
+export const bwps = createUnifiedFormulaCalculator(config);

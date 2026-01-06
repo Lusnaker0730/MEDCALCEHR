@@ -1,18 +1,17 @@
 /**
  * Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)
  *
- * 使用 createMixedInputCalculator 工廠函數遷移
+ * Migrated to createUnifiedFormulaCalculator
  */
 
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { calculateGuptaMica } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-const config: MixedInputCalculatorConfig = {
+const config: FormulaCalculatorConfig = {
     id: 'gupta-mica',
     title: 'Gupta Perioperative Risk for Myocardial Infarction or Cardiac Arrest (MICA)',
     description:
@@ -21,7 +20,7 @@ const config: MixedInputCalculatorConfig = {
     sections: [
         {
             title: 'Patient Demographics',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'mica-age',
@@ -33,7 +32,7 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Clinical Status',
-            inputs: [
+            fields: [
                 {
                     type: 'select',
                     id: 'mica-status',
@@ -64,7 +63,7 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Laboratory Values',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'mica-creat',
@@ -77,7 +76,7 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Type of Procedure',
-            inputs: [
+            fields: [
                 {
                     type: 'select',
                     id: 'mica-procedure',
@@ -121,143 +120,105 @@ const config: MixedInputCalculatorConfig = {
         ]
     },
 
-    formulas: [
-        {
-            label: 'Variable Coefficients',
-            formula:
-                uiBuilder.createTable({
-                    headers: ['Variable', 'Options', 'Value'],
-                    rows: [
-                        ['<strong>Age per year of increase</strong>', '', 'Age × 0.02'],
-                        ['<strong>Functional status</strong>', 'Independent', '0'],
-                        ['', 'Partially dependent', '0.65'],
-                        ['', 'Totally dependent', '1.03'],
-                        ['<strong>ASA Class</strong>', '1: normal healthy patient', '−5.17'],
-                        ['', '2: mild systemic disease', '−3.29'],
-                        ['', '3: severe systemic disease', '−1.92'],
-                        [
-                            '',
-                            '4: severe systemic disease that is a constant threat to life*',
-                            '−0.95'
-                        ],
-                        ['', '5: moribund, not expected to survive without surgery', '0'],
-                        ['<strong>Creatinine</strong>', 'Normal (<1.5 mg/dL, 133 µmol/L)', '0'],
-                        ['', 'Elevated (≥1.5 mg/dL, 133 µmol/L)', '0.61'],
-                        ['', 'Unknown', '−0.10'],
-                        ['<strong>Type of procedure</strong>', 'Anorectal', '−0.16'],
-                        ['', 'Aortic', '1.60'],
-                        ['', 'Bariatric', '−0.25'],
-                        ['', 'Brain', '1.40'],
-                        ['', 'Breast', '−1.61'],
-                        ['', 'Cardiac', '1.01'],
-                        ['', 'ENT (except thyroid/parathyroid)', '0.71'],
-                        ['', 'Foregut or hepatopancreatobiliary', '1.39'],
-                        ['', 'Gallbladder, appendix, adrenals, or spleen', '0.59'],
-                        ['', 'Hernia (ventral, inguinal, femoral)', '0'],
-                        ['', 'Intestinal', '1.14'],
-                        ['', 'Neck (thyroid/parathyroid)', '0.18'],
-                        ['', 'Obstetric/gynecologic', '0.76'],
-                        ['', 'Orthopedic and non-vascular extremity', '0.80'],
-                        ['', 'Other abdominal', '1.13'],
-                        ['', 'Peripheral vascular**', '0.86'],
-                        ['', 'Skin', '0.54'],
-                        ['', 'Spine', '0.21'],
-                        ['', 'Non-esophageal thoracic', '0.40'],
-                        ['', 'Vein', '−1.09'],
-                        ['', 'Urology', '−0.26']
-                    ],
-                    stickyFirstColumn: true
-                }) +
-                `
-                <p class="table-note text-sm text-muted mt-10">
-                    *I.e., patient could die acutely without intervention.<br>
-                    **Non-aortic, non-vein vascular surgeries.
-                </p>
-            `
-        }
-    ],
+    calculate: calculateGuptaMica,
 
-    calculate: values => {
-        const age = values['mica-age'] as number | null;
-        const creat = values['mica-creat'] as number | null;
+    customResultRenderer: (results) => {
+        let html = '';
 
-        if (age === null || creat === null) {
-            return null;
+        // Find specific items
+        const riskItem = results.find(r => r.label === 'Cardiac Risk');
+        const descItem = results.find(r => r.label === 'Risk Description');
+        const componentsItem = results.find(r => r.label === 'Formula Components');
+
+        if (riskItem) {
+            html += uiBuilder.createResultItem({
+                label: riskItem.label,
+                value: riskItem.value as string,
+                unit: riskItem.unit,
+                interpretation: riskItem.interpretation,
+                alertClass: riskItem.alertClass ? `ui-alert-${riskItem.alertClass}` : ''
+            });
         }
 
-        const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
-        const asaClass = parseFloat((values['mica-asa'] as string) || '-6.17');
-        const procedure = parseFloat((values['mica-procedure'] as string) || '-0.74');
-
-        let x = -5.25;
-        x += age * 0.02;
-        x += functionalStatus;
-        x += asaClass;
-        if (creat >= 1.5) {
-            x += 0.61;
-        }
-        x += procedure;
-
-        // 返回 x 值以便在結果渲染器中計算風險百分比
-        // 使用一個技巧：返回 x 乘以一個大數，然後在渲染器中還原
-        return x;
-    },
-
-    customResultRenderer: (x, values) => {
-        const age = values['mica-age'] as number;
-        const creat = values['mica-creat'] as number;
-        const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
-        const asaClass = parseFloat((values['mica-asa'] as string) || '-6.17');
-        const procedure = parseFloat((values['mica-procedure'] as string) || '-0.74');
-
-        const risk = (1 / (1 + Math.exp(-x))) * 100;
-        const riskPercent = risk.toFixed(2);
-
-        let riskLevel = 'Low Risk';
-        let riskDescription = 'Low risk of postoperative MI or cardiac arrest';
-        let alertType: 'success' | 'warning' | 'danger' = 'success';
-
-        if (risk > 5) {
-            riskLevel = 'High Risk';
-            riskDescription = 'High risk - Consider risk modification strategies';
-            alertType = 'danger';
-        } else if (risk > 2) {
-            riskLevel = 'Intermediate Risk';
-            riskDescription = 'Intermediate risk - Consider perioperative optimization';
-            alertType = 'warning';
+        if (descItem && descItem.alertPayload) {
+            html += uiBuilder.createAlert(descItem.alertPayload);
         }
 
-        return `
-            ${uiBuilder.createResultItem({
-                label: 'Cardiac Risk',
-                value: riskPercent,
-                unit: '%',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
-            ${uiBuilder.createAlert({
-                type: alertType,
-                message: riskDescription
-            })}
-            ${uiBuilder.createSection({
+        if (componentsItem && componentsItem.alertPayload) {
+            html += uiBuilder.createSection({
                 title: 'Formula Components',
-                content: `
-                    <div class="text-sm text-muted">
-                        <p>Age Component: ${(age * 0.02).toFixed(2)}</p>
-                        <p>Functional Status: ${functionalStatus.toFixed(2)}</p>
-                        <p>ASA Class: ${asaClass.toFixed(2)}</p>
-                        <p>Creatinine (≥1.5 mg/dL): ${creat >= 1.5 ? '0.61' : '0.00'}</p>
-                        <p>Procedure Type: ${procedure.toFixed(2)}</p>
-                        <p><strong>X Value: ${x.toFixed(2)}</strong></p>
-                    </div>
-                `
-            })}
-        `;
+                content: componentsItem.alertPayload.message
+            });
+        }
+
+        return html;
     },
 
-    customInitialize: async (client, patient, container, calculate, setValue) => {
+    footerHTML: `
+        <div class="ui-section mt-20">
+            <div class="ui-section-title">Variable Coefficients</div>
+            ${uiBuilder.createTable({
+        headers: ['Variable', 'Options', 'Value'],
+        rows: [
+            ['<strong>Age per year of increase</strong>', '', 'Age × 0.02'],
+            ['<strong>Functional status</strong>', 'Independent', '0'],
+            ['', 'Partially dependent', '0.65'],
+            ['', 'Totally dependent', '1.03'],
+            ['<strong>ASA Class</strong>', '1: normal healthy patient', '−5.17'],
+            ['', '2: mild systemic disease', '−3.29'],
+            ['', '3: severe systemic disease', '−1.92'],
+            [
+                '',
+                '4: severe systemic disease that is a constant threat to life*',
+                '−0.95'
+            ],
+            ['', '5: moribund, not expected to survive without surgery', '0'],
+            ['<strong>Creatinine</strong>', 'Normal (<1.5 mg/dL, 133 µmol/L)', '0'],
+            ['', 'Elevated (≥1.5 mg/dL, 133 µmol/L)', '0.61'],
+            ['', 'Unknown', '−0.10'],
+            ['<strong>Type of procedure</strong>', 'Anorectal', '−0.16'],
+            ['', 'Aortic', '1.60'],
+            ['', 'Bariatric', '−0.25'],
+            ['', 'Brain', '1.40'],
+            ['', 'Breast', '−1.61'],
+            ['', 'Cardiac', '1.01'],
+            ['', 'ENT (except thyroid/parathyroid)', '0.71'],
+            ['', 'Foregut or hepatopancreatobiliary', '1.39'],
+            ['', 'Gallbladder, appendix, adrenals, or spleen', '0.59'],
+            ['', 'Hernia (ventral, inguinal, femoral)', '0'],
+            ['', 'Intestinal', '1.14'],
+            ['', 'Neck (thyroid/parathyroid)', '0.18'],
+            ['', 'Obstetric/gynecologic', '0.76'],
+            ['', 'Orthopedic and non-vascular extremity', '0.80'],
+            ['', 'Other abdominal', '1.13'],
+            ['', 'Peripheral vascular**', '0.86'],
+            ['', 'Skin', '0.54'],
+            ['', 'Spine', '0.21'],
+            ['', 'Non-esophageal thoracic', '0.40'],
+            ['', 'Vein', '−1.09'],
+            ['', 'Urology', '−0.26']
+        ],
+        stickyFirstColumn: true
+    })}
+            <p class="table-note text-sm text-muted mt-10">
+                *I.e., patient could die acutely without intervention.<br>
+                **Non-aortic, non-vein vascular surgeries.
+            </p>
+        </div>
+    `,
+
+    customInitialize: async (client, patient, container, calculate) => {
         // Initialize FHIRDataService
         fhirDataService.initialize(client, patient, container);
+
+        const setValue = (id: string, value: string) => {
+            const input = container.querySelector(`#${id}`) as HTMLInputElement | HTMLSelectElement;
+            if (input) {
+                input.value = value;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
 
         // Age from patient using FHIRDataService
         const age = fhirDataService.getPatientAge();
@@ -286,4 +247,4 @@ const config: MixedInputCalculatorConfig = {
     }
 };
 
-export const guptaMica = createMixedInputCalculator(config);
+export const guptaMica = createUnifiedFormulaCalculator(config);

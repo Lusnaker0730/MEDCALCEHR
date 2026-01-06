@@ -1,55 +1,61 @@
-import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
+/**
+ * Revised Geneva Score (Simplified)
+ *
+ * Migrated to createUnifiedFormulaCalculator
+ */
+
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { calculateGenevaScore } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-const config: MixedInputCalculatorConfig = {
+const config: FormulaCalculatorConfig = {
     id: 'geneva-score',
     title: 'Revised Geneva Score (Simplified)',
     description: 'Estimates the pre-test probability of pulmonary embolism (PE).',
     infoAlert:
         '<strong>Note:</strong> This is the Simplified (Modified) Revised Geneva Score. Each criterion is worth 1 point (except heart rate scoring).',
+
     sections: [
         {
             title: 'Clinical Assessment',
             icon: '📋',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: 'geneva-age',
+                    id: 'geneva-age',
                     label: 'Age > 65 years (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
-                    name: 'geneva-prev-dvt',
+                    id: 'geneva-prev-dvt',
                     label: 'Previous DVT or PE (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
-                    name: 'geneva-surgery',
+                    id: 'geneva-surgery',
                     label: 'Surgery or fracture within 1 month (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
-                    name: 'geneva-malignancy',
+                    id: 'geneva-malignancy',
                     label: 'Active malignancy (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 }
@@ -58,31 +64,31 @@ const config: MixedInputCalculatorConfig = {
         {
             title: 'Clinical Signs',
             icon: '⚕️',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: 'geneva-limb-pain',
+                    id: 'geneva-limb-pain',
                     label: 'Unilateral lower limb pain (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
-                    name: 'geneva-hemoptysis',
+                    id: 'geneva-hemoptysis',
                     label: 'Hemoptysis (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
-                    name: 'geneva-palpation',
+                    id: 'geneva-palpation',
                     label: 'Pain on deep vein palpation AND unilateral edema (+1)',
                     options: [
-                        { value: '0', label: 'No' },
+                        { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
                     ]
                 }
@@ -91,43 +97,19 @@ const config: MixedInputCalculatorConfig = {
         {
             title: 'Vital Signs',
             icon: '🩺',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'geneva-hr',
                     label: 'Heart Rate',
                     unit: 'bpm',
                     placeholder: 'Enter heart rate',
-                    helpText: '75-94 bpm (+1), ≥ 95 bpm (+2)',
-                    loincCode: LOINC_CODES.HEART_RATE
+                    helpText: '75-94 bpm (+1), ≥ 95 bpm (+2)'
                 }
             ]
         }
     ],
-    riskLevels: [
-        {
-            minScore: 0,
-            maxScore: 1,
-            label: 'Low Risk',
-            severity: 'success',
-            description:
-                'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.'
-        },
-        {
-            minScore: 2,
-            maxScore: 4,
-            label: 'Intermediate Risk',
-            severity: 'warning',
-            description: 'Consider imaging (CT pulmonary angiography) or age-adjusted D-dimer.'
-        },
-        {
-            minScore: 5,
-            maxScore: 100,
-            label: 'High Risk',
-            severity: 'danger',
-            description: 'PE is likely. Proceed directly to CT pulmonary angiography.'
-        }
-    ],
+
     formulaSection: {
         show: true,
         title: 'FORMULA',
@@ -164,81 +146,64 @@ const config: MixedInputCalculatorConfig = {
             }
         ]
     },
-    calculate: values => {
-        let score = 0;
 
-        // Radios
-        const radioKeys = [
-            'geneva-age',
-            'geneva-prev-dvt',
-            'geneva-surgery',
-            'geneva-malignancy',
-            'geneva-limb-pain',
-            'geneva-hemoptysis',
-            'geneva-palpation'
-        ];
+    calculate: calculateGenevaScore,
 
-        radioKeys.forEach(key => {
-            if (values[key] === '1') {
-                score += 1;
+    customResultRenderer: (results) => {
+        let html = '';
+        results.forEach(item => {
+            if (item.label === 'Recommendation' && item.alertPayload) {
+                html += uiBuilder.createAlert(item.alertPayload);
+            } else {
+                html += uiBuilder.createResultItem({
+                    label: item.label,
+                    value: item.value as string,
+                    unit: item.unit,
+                    interpretation: item.interpretation,
+                    alertClass: item.alertClass ? `ui-alert-${item.alertClass}` : ''
+                });
             }
         });
+        return html;
+    },
 
-        // Heart Rate
-        const hr = values['geneva-hr'] as number | null;
-        if (hr !== null) {
-            if (hr >= 75 && hr <= 94) {
-                score += 1;
-            } else if (hr >= 95) {
-                score += 2;
+    customInitialize: async (client, patient, container, calculate) => {
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+
+        const setValue = (id: string, value: string) => {
+            const input = container.querySelector(`#${id}`) as HTMLInputElement;
+            if (input) {
+                if (input.type === 'radio') {
+                    // Find radio with that value
+                    const radio = container.querySelector(`input[name="${id}"][value="${value}"]`) as HTMLInputElement;
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                } else {
+                    input.value = value;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            } else {
+                // Try finding radio group
+                const radio = container.querySelector(`input[id="${id}"][value="${value}"]`) as HTMLInputElement;
+                if (radio) { // unified-formula-calculator uses ID for radio group name?
+                    // Config uses id='geneva-age'.
+                    // Unified calculator:
+                    // Group name = input.id (Step 559 lines 212: `name: input.id`).
+                    // Radios don't have IDs individually usually, but name attribute.
+                    // The loop checks `input[name="${id}"]`.
+                    // Let's fix loop to use name selector.
+                    const targetRadio = container.querySelector(`input[name="${id}"][value="${value}"]`) as HTMLInputElement;
+                    if (targetRadio) {
+                        targetRadio.checked = true;
+                        targetRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
             }
-        }
+        };
 
-        return score;
-    },
-    customResultRenderer: (score, values) => {
-        let riskLevel: string, alertClass: string, prevalence: string, recommendation: string;
-
-        if (score <= 1) {
-            riskLevel = 'Low Risk';
-            alertClass = 'ui-alert-success';
-            prevalence = '8%';
-            recommendation =
-                'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
-        } else if (score <= 4) {
-            riskLevel = 'Intermediate Risk';
-            alertClass = 'ui-alert-warning';
-            prevalence = '28%';
-            recommendation = 'Consider imaging (CT pulmonary angiography) or age-adjusted D-dimer.';
-        } else {
-            riskLevel = 'High Risk';
-            alertClass = 'ui-alert-danger';
-            prevalence = '74%';
-            recommendation = 'PE is likely. Proceed directly to CT pulmonary angiography.';
-        }
-
-        return `
-            ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskLevel,
-            alertClass: alertClass
-        })}
-            ${uiBuilder.createResultItem({
-            label: 'PE Prevalence',
-            value: prevalence,
-            unit: '',
-            alertClass: alertClass
-        })}
-            
-            ${uiBuilder.createAlert({
-            type: alertClass.replace('ui-alert-', '') as 'success' | 'warning' | 'danger',
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
-        `;
-    },
-    customInitialize: async (client, patient, container, calculate, setValue) => {
         // Auto-populate Age Logic
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
@@ -249,10 +214,24 @@ const config: MixedInputCalculatorConfig = {
             }
         }
 
-        // Heart Rate is handled by auto-generated LOINC requirements in MixedInputCalculator
-        // But we need to handle specific conditions (DVT/PE history, malignancy)
+        if (client && fhirDataService.isReady()) {
+            // Heart Rate
+            try {
+                const hrResult = await fhirDataService.getObservation(LOINC_CODES.HEART_RATE, {
+                    trackStaleness: true,
+                    stalenessLabel: 'Heart Rate'
+                });
+                if (hrResult.value !== null) {
+                    const hrInput = container.querySelector('#geneva-hr') as HTMLInputElement;
+                    if (hrInput) {
+                        hrInput.value = Math.round(hrResult.value).toString();
+                        hrInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+            } catch (e) {
+                console.warn('Error fetching Heart Rate', e);
+            }
 
-        if (fhirDataService.isReady()) {
             // Check for previous DVT/PE
             fhirDataService
                 .hasCondition(['128053003', '59282003'])
@@ -273,7 +252,10 @@ const config: MixedInputCalculatorConfig = {
                 })
                 .catch(e => console.warn('Error checking malignancy:', e));
         }
+
+        // Wait slightly for async checks to complete or just initial calculate
+        setTimeout(calculate, 200);
     }
 };
 
-export const genevaScore = createMixedInputCalculator(config);
+export const genevaScore = createUnifiedFormulaCalculator(config);

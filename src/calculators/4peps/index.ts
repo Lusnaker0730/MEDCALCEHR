@@ -1,20 +1,25 @@
 /**
  * 4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)
  *
- * 使用 createMixedInputCalculator 工廠函數遷移
+ * Migrated to createUnifiedFormulaCalculator
  */
 
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import {
-    createMixedInputCalculator,
-    MixedInputCalculatorConfig
-} from '../shared/mixed-input-calculator.js';
+    createUnifiedFormulaCalculator
+} from '../shared/unified-formula-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { calculateFourPeps } from './calculation.js';
+import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
-const config: MixedInputCalculatorConfig = {
+const config: FormulaCalculatorConfig = {
     id: '4peps',
     title: '4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)',
+    description: 'Rules out PE based on clinical criteria.',
+    infoAlert:
+        '<strong>Instructions:</strong> Use clinician judgment to assess which vital sign should be used for the 4PEPS score.',
+
     formulaSection: {
         show: true,
         title: 'FORMULA',
@@ -91,15 +96,12 @@ const config: MixedInputCalculatorConfig = {
             }
         ]
     },
-    description: 'Rules out PE based on clinical criteria.',
-    infoAlert:
-        '<strong>Instructions:</strong> Use clinician judgment to assess which vital sign should be used for the 4PEPS score.',
 
     sections: [
         {
             title: 'Age',
             icon: '👴',
-            inputs: [
+            fields: [
                 {
                     type: 'number',
                     id: 'fourpeps-age',
@@ -112,10 +114,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Sex',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-sex',
+                    id: '4peps-sex',
                     label: '',
                     options: [
                         { value: '0', label: 'Female', checked: true },
@@ -126,10 +128,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Chronic Respiratory Disease',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-resp_disease',
+                    id: '4peps-resp_disease',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -140,10 +142,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Heart Rate < 80 bpm',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-hr',
+                    id: '4peps-hr',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -154,10 +156,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Chest pain AND acute dyspnea',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-chest_pain',
+                    id: '4peps-chest_pain',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -168,10 +170,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Current Estrogen Use',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-estrogen',
+                    id: '4peps-estrogen',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -182,10 +184,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Prior History of VTE',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-vte',
+                    id: '4peps-vte',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -196,10 +198,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Syncope',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-syncope',
+                    id: '4peps-syncope',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -210,10 +212,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Immobility (last 4 weeks)',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-immobility',
+                    id: '4peps-immobility',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -224,10 +226,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'O₂ Saturation < 95%',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-o2_sat',
+                    id: '4peps-o2_sat',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -238,10 +240,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'Calf pain / Unilateral Edema',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-calf_pain',
+                    id: '4peps-calf_pain',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -252,10 +254,10 @@ const config: MixedInputCalculatorConfig = {
         },
         {
             title: 'PE is the most likely diagnosis',
-            inputs: [
+            fields: [
                 {
                     type: 'radio',
-                    name: '4peps-pe_likely',
+                    id: '4peps-pe_likely',
                     label: '',
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -266,103 +268,41 @@ const config: MixedInputCalculatorConfig = {
         }
     ],
 
-    references: [
-        'Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. <em>JAMA Cardiology</em>.'
+    formulas: [
+        { label: 'Reference', formula: 'Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. JAMA Cardiology.' }
     ],
 
-    resultTitle: '4PEPS Score Results',
+    calculate: calculateFourPeps,
 
-    calculate: values => {
-        let score = 0;
+    customResultRenderer: (results) => {
+        // Find recommendation payload if exists
+        const recommendationItem = results.find(r => r.label === 'Recommendation');
+        const alertHtml = recommendationItem?.alertPayload
+            ? uiBuilder.createAlert(recommendationItem.alertPayload)
+            : '';
 
-        // Age scoring
-        const age = values['fourpeps-age'] as number | null;
-        if (age !== null) {
-            if (age < 50) {
-                score += -2;
-            } else if (age <= 64) {
-                score += -1;
-            }
-            // >64 is 0 points
-        }
+        const resultItems = results
+            .filter(r => r.label !== 'Recommendation')
+            .map(r => uiBuilder.createResultItem({
+                label: r.label,
+                value: r.value.toString(),
+                unit: r.unit,
+                interpretation: r.interpretation,
+                alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
+            }))
+            .join('');
 
-        // Radio group scoring
-        const radioGroups = [
-            '4peps-sex',
-            '4peps-resp_disease',
-            '4peps-hr',
-            '4peps-chest_pain',
-            '4peps-estrogen',
-            '4peps-vte',
-            '4peps-syncope',
-            '4peps-immobility',
-            '4peps-o2_sat',
-            '4peps-calf_pain',
-            '4peps-pe_likely'
-        ];
-
-        radioGroups.forEach(name => {
-            const val = values[name];
-            if (val !== null && val !== undefined) {
-                score += parseInt(val as string);
-            }
-        });
-
-        return score;
+        return resultItems + alertHtml;
     },
 
-    customResultRenderer: score => {
-        let probability = '';
-        let riskLevel = '';
-        let recommendation = '';
-        let alertType: 'success' | 'warning' | 'danger' | 'info' = 'info';
-
-        if (score < 0) {
-            probability = '<2%';
-            riskLevel = 'Very low CPP';
-            alertType = 'success';
-            recommendation = 'PE can be ruled out.';
-        } else if (score <= 5) {
-            probability = '2-20%';
-            riskLevel = 'Low CPP';
-            alertType = 'success';
-            recommendation = 'PE can be ruled out if D-dimer level <1.0 µg/mL.';
-        } else if (score <= 12) {
-            probability = '20-65%';
-            riskLevel = 'Moderate CPP';
-            alertType = 'warning';
-            recommendation =
-                'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL.';
-        } else {
-            probability = '>65%';
-            riskLevel = 'High CPP';
-            alertType = 'danger';
-            recommendation = 'PE cannot be ruled out without imaging testing.';
-        }
-
-        return `
-            ${uiBuilder.createResultItem({
-                label: '4PEPS Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
-            ${uiBuilder.createResultItem({
-                label: 'Clinical Pretest Probability',
-                value: probability,
-                alertClass: `ui-alert-${alertType}`
-            })}
-            ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
-        `;
-    },
-
-    customInitialize: async (client, patient, container, calculate, setValue) => {
-        // Initialize FHIRDataService
-        fhirDataService.initialize(client, patient, container);
+    customInitialize: async (client, patient, container, calculate) => {
+        const setValue = (id: string, value: string) => {
+            const input = container.querySelector(`#${id}`) as HTMLInputElement;
+            if (input) {
+                input.value = value;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        };
 
         const setRadio = (name: string, value: string) => {
             const radio = container.querySelector(
@@ -375,7 +315,8 @@ const config: MixedInputCalculatorConfig = {
         };
 
         try {
-            // Age and gender from FHIRDataService
+            // Age handles by autoPopulateAge via helper, but logic was mixed here. 
+            // We can use standard fhirDataService calls.
             const age = fhirDataService.getPatientAge();
             if (age !== null) {
                 setValue('fourpeps-age', age.toString());
@@ -390,7 +331,7 @@ const config: MixedInputCalculatorConfig = {
                 const chronicRespCodes = [SNOMED_CODES.COPD, '13645005', 'J44.9'];
                 const vteCodes = ['I82.90', '451574005'];
 
-                // Fetch conditions and observations using FHIRDataService
+                // Fetch conditions and observations
                 const [hasCOPD, hasVTE, hrResult, o2Result] = await Promise.all([
                     fhirDataService.hasCondition(chronicRespCodes).catch(() => false),
                     fhirDataService.hasCondition(vteCodes).catch(() => false),
@@ -431,4 +372,4 @@ const config: MixedInputCalculatorConfig = {
     }
 };
 
-export const fourPeps = createMixedInputCalculator(config);
+export const fourPeps = createUnifiedFormulaCalculator(config);
