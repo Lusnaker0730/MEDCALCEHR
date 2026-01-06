@@ -5,11 +5,12 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
-export const paduaVTE = createYesNoCalculator({
+export const paduaVTE = createScoringCalculator({
+    inputType: 'yesno',
     id: 'padua-vte',
     title: 'Padua Prediction Score for Risk of VTE',
     description: 'Determines anticoagulation need in hospitalized patients by risk of VTE.',

@@ -5,10 +5,10 @@
  * 根據臨床標準診斷川崎病
  */
 
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-export const kawasaki = createRadioScoreCalculator({
+export const kawasaki = createScoringCalculator({
     id: 'kawasaki',
     title: 'Kawasaki Disease Diagnostic Criteria',
     description: 'Diagnoses Kawasaki Disease based on clinical criteria.',
@@ -148,17 +148,17 @@ export const kawasaki = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Fever Present',
-                value: hasFever ? 'Yes' : 'No'
-            })}
+            label: 'Fever Present',
+            value: hasFever ? 'Yes' : 'No'
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Principal Features Present',
-                value: `${featureCount} / 5`
-            })}
+            label: 'Principal Features Present',
+            value: `${featureCount} / 5`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: interpretation
-            })}
+            type: alertType,
+            message: interpretation
+        })}
         `;
     }
 });

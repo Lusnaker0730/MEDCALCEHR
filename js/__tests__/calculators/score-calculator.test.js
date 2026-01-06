@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { createScoreCalculator } from '../../calculators/shared/score-calculator';
+import { createScoreCalculator } from '../../calculators/shared/scoring-calculator';
 // Mock console to reduce noise
 jest.spyOn(console, 'warn').mockImplementation(() => { });
 jest.spyOn(console, 'error').mockImplementation(() => { });

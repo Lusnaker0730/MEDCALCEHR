@@ -6,12 +6,12 @@
  */
 
 import {
-    createRadioScoreCalculator,
-    RadioScoreCalculatorConfig
-} from '../shared/radio-score-calculator.js';
+    createScoringCalculator,
+    ScoringCalculatorConfig
+} from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: RadioScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
     id: 'nihss',
     title: 'NIH Stroke Scale/Score (NIHSS)',
     description: 'Quantifies stroke severity and monitors for neurological changes over time.',
@@ -252,4 +252,4 @@ const config: RadioScoreCalculatorConfig = {
     }
 };
 
-export const nihss = createRadioScoreCalculator(config);
+export const nihss = createScoringCalculator(config);

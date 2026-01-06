@@ -570,6 +570,21 @@ export class UIBuilder {
         const itemsHTML = items.map(item => `<li>${item}</li>`).join('');
         return `<${type} class="ui-list ${className}">${itemsHTML}</${type}>`;
     }
+    /**
+     * Create a reference section for citations
+     * @param {Object} options - Configuration object
+     */
+    createReference({ title = 'Reference', citations = [], icon = '📚' }) {
+        const citationsHTML = citations
+            .map(citation => `<p>${citation}</p>`)
+            .join('');
+        return `
+            <div class="info-section mt-20 text-sm text-muted">
+                <h4>${icon} ${title}</h4>
+                ${citationsHTML}
+            </div>
+        `;
+    }
 }
 // Create and export a singleton instance
 export const uiBuilder = new UIBuilder();

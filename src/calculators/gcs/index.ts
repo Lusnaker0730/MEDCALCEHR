@@ -5,10 +5,10 @@
  * 代碼從 172 行減少到約 80 行
  */
 
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-export const gcs = createRadioScoreCalculator({
+export const gcs = createScoringCalculator({
     id: 'gcs',
     title: 'Glasgow Coma Scale (GCS)',
     description: 'Coma severity based on Eye (4), Verbal (5), and Motor (6) criteria.',
@@ -105,22 +105,22 @@ export const gcs = createRadioScoreCalculator({
     // 自定義結果渲染器，顯示各組件分數
     customResultRenderer: (score, sectionScores) => `
         ${uiBuilder.createResultItem({
-            label: 'Total GCS Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation:
-                score >= 13
-                    ? 'Mild Brain Injury'
-                    : score >= 9
-                      ? 'Moderate Brain Injury'
-                      : 'Severe Brain Injury (Coma)',
-            alertClass:
-                score >= 13
-                    ? 'ui-alert-success'
-                    : score >= 9
-                      ? 'ui-alert-warning'
-                      : 'ui-alert-danger'
-        })}
+        label: 'Total GCS Score',
+        value: score.toString(),
+        unit: 'points',
+        interpretation:
+            score >= 13
+                ? 'Mild Brain Injury'
+                : score >= 9
+                    ? 'Moderate Brain Injury'
+                    : 'Severe Brain Injury (Coma)',
+        alertClass:
+            score >= 13
+                ? 'ui-alert-success'
+                : score >= 9
+                    ? 'ui-alert-warning'
+                    : 'ui-alert-danger'
+    })}
         <div class="mt-15 text-center font-semibold text-muted">
             Component Breakdown: E${sectionScores['eye'] || 0} V${sectionScores['verbal'] || 0} M${sectionScores['motor'] || 0}
         </div>

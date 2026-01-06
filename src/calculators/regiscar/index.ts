@@ -1,9 +1,9 @@
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
-export const regiscar = createRadioScoreCalculator({
+export const regiscar = createScoringCalculator({
     id: 'regiscar',
     title: 'RegiSCAR Score for DRESS',
     description: 'Diagnoses Drug Reaction with Eosinophilia and Systemic Symptoms (DRESS).',

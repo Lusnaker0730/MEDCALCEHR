@@ -6,12 +6,12 @@
  */
 
 import {
-    createRadioScoreCalculator,
-    RadioScoreCalculatorConfig
-} from '../shared/radio-score-calculator.js';
+    createScoringCalculator,
+    ScoringCalculatorConfig
+} from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: RadioScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
     id: 'ciwa-ar',
     title: 'CIWA-Ar for Alcohol Withdrawal',
     description: 'The CIWA-Ar objectifies severity of alcohol withdrawal.',
@@ -246,4 +246,4 @@ const config: RadioScoreCalculatorConfig = {
     }
 };
 
-export const ciwaAr = createRadioScoreCalculator(config);
+export const ciwaAr = createScoringCalculator(config);

@@ -5,12 +5,13 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: YesNoCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'yesno',
     id: 'wells-pe',
     title: "Wells' Criteria for Pulmonary Embolism",
     description:
@@ -194,4 +195,4 @@ const config: YesNoCalculatorConfig = {
     }
 };
 
-export const wellsPE = createYesNoCalculator(config);
+export const wellsPE = createScoringCalculator(config);

@@ -5,7 +5,7 @@
  * 代碼從 144 行減少到約 100 行
  */
 
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 // PHQ-9 問題列表
@@ -29,7 +29,7 @@ const frequencyOptions = [
     { value: '3', label: 'Nearly every day (+3)' }
 ];
 
-export const phq9 = createRadioScoreCalculator({
+export const phq9 = createScoringCalculator({
     id: 'phq-9',
     title: 'PHQ-9 (Patient Health Questionnaire-9)',
     description: 'Screens for depression and monitors treatment response.',

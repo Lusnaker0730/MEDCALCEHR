@@ -5,13 +5,14 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: YesNoCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'yesno',
     id: 'rcri',
     title: 'Revised Cardiac Risk Index for Pre-Operative Risk',
     description: 'Estimates risk of cardiac complications after noncardiac surgery.',
@@ -167,7 +168,7 @@ const config: YesNoCalculatorConfig = {
 };
 
 // 創建基礎計算器
-const baseCalculator = createYesNoCalculator(config);
+const baseCalculator = createScoringCalculator(config);
 
 // 導出帶有參考圖片的計算器
 export const rcri = {

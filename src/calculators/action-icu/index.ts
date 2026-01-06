@@ -1,4 +1,4 @@
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
@@ -8,7 +8,7 @@ const riskMap = [
     86.6, 90.6
 ];
 
-export const actionIcu = createRadioScoreCalculator({
+export const actionIcu = createScoringCalculator({
     id: 'action-icu',
     title: 'ACTION ICU Score for Intensive Care in NSTEMI',
     description:
@@ -163,23 +163,23 @@ export const actionIcu = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskLevel,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'ICU Risk',
-                value: riskPercent.toFixed(1),
-                unit: '%',
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'ICU Risk',
+            value: riskPercent.toFixed(1),
+            unit: '%',
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message:
-                    '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
-            })}
+            type: alertType,
+            message:
+                '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
+        })}
         `;
     },
     customInitialize: (

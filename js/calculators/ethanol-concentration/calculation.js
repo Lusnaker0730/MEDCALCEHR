@@ -1,6 +1,14 @@
-export const calculateEthanolConcentration = ({ volumeMl, abv, weightKg, gender }) => {
-    if (weightKg <= 0)
-        throw new Error("Weight must be positive");
+export const calculateEthanolConcentration = (values) => {
+    const volumeMl = Number(values['eth-amount']);
+    const abv = Number(values['eth-abv']);
+    const weightKg = Number(values['eth-weight']);
+    const gender = values['eth-gender'];
+    if (!volumeMl || !abv || !weightKg || isNaN(volumeMl) || isNaN(abv) || isNaN(weightKg)) {
+        return null;
+    }
+    if (weightKg <= 0) {
+        return null;
+    }
     // Vd (Volume of Distribution)
     // Male: 0.68 L/kg, Female: 0.55 L/kg
     const volumeDistribution = gender === 'male' ? 0.68 : 0.55;
@@ -8,25 +16,29 @@ export const calculateEthanolConcentration = ({ volumeMl, abv, weightKg, gender 
     const gramsAlcohol = volumeMl * (abv / 100) * 0.789;
     // Concentration = Grams / Total Body Water(L)
     // Result in g/L. Convert to mg/dL by multiplying by 100.
-    // Formula in original code: (grams * 1000) / (weight * Vd * 10) -> equivalent to (grams/L)*100
     const concentrationMgDl = (gramsAlcohol * 1000) / (weightKg * volumeDistribution * 10);
     let severityText = 'Below Legal Limit';
-    let alertClass = 'ui-alert-success';
+    let alertClass = 'success';
     if (concentrationMgDl >= 400) {
         severityText = 'Potentially Fatal Level';
-        alertClass = 'ui-alert-danger';
+        alertClass = 'danger';
     }
     else if (concentrationMgDl >= 300) {
         severityText = 'Severe Intoxication';
-        alertClass = 'ui-alert-danger';
+        alertClass = 'danger';
     }
     else if (concentrationMgDl >= 80) {
         severityText = 'Above Legal Limit (0.08%)';
-        alertClass = 'ui-alert-warning';
+        alertClass = 'warning';
     }
-    return {
-        concentrationMgDl,
-        severityText,
-        alertClass
-    };
+    const results = [
+        {
+            label: 'Estimated Concentration',
+            value: concentrationMgDl.toFixed(0),
+            unit: 'mg/dL',
+            interpretation: severityText,
+            alertClass: alertClass
+        }
+    ];
+    return results;
 };

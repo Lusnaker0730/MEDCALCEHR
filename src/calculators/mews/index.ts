@@ -6,14 +6,14 @@
  */
 
 import {
-    createRadioScoreCalculator,
-    RadioScoreCalculatorConfig
-} from '../shared/radio-score-calculator.js';
+    createScoringCalculator,
+    ScoringCalculatorConfig
+} from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: RadioScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
     id: 'mews',
     title: 'Modified Early Warning Score (MEWS)',
     description:
@@ -332,4 +332,4 @@ const config: RadioScoreCalculatorConfig = {
     }
 };
 
-export const mewsScore = createRadioScoreCalculator(config);
+export const mewsScore = createScoringCalculator(config);

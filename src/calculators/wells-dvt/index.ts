@@ -5,9 +5,10 @@
  * 已整合 FHIRDataService，使用 dataRequirements 聲明式配置自動填充
  */
 
-import { createYesNoCalculator } from '../shared/yes-no-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 
-export const wellsDVT = createYesNoCalculator({
+export const wellsDVT = createScoringCalculator({
+    inputType: 'yesno',
     id: 'wells-dvt',
     title: "Wells' Criteria for DVT",
     description: 'Calculates risk of deep vein thrombosis (DVT) based on clinical criteria.',

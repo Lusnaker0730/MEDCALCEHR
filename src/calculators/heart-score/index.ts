@@ -6,13 +6,13 @@
  */
 
 import {
-    createRadioScoreCalculator,
-    RadioScoreCalculatorConfig
-} from '../shared/radio-score-calculator.js';
+    createScoringCalculator,
+    ScoringCalculatorConfig
+} from '../shared/scoring-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: RadioScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
     id: 'heart-score',
     title: 'HEART Score for Major Cardiac Events',
     description:
@@ -175,7 +175,7 @@ const config: RadioScoreCalculatorConfig = {
 };
 
 // 創建基礎計算器
-const baseCalculator = createRadioScoreCalculator(config);
+const baseCalculator = createScoringCalculator(config);
 
 // 導出帶有詳細 Formula 表格的計算器
 export const heartScore = {

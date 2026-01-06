@@ -5,11 +5,12 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: YesNoCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'yesno',
     id: 'timi-nstemi',
     title: 'TIMI Risk Score for UA/NSTEMI',
     description: 'Estimates mortality for patients with unstable angina and non-ST elevation MI.',
@@ -232,4 +233,4 @@ const config: YesNoCalculatorConfig = {
     }
 };
 
-export const timiNstemi = createYesNoCalculator(config);
+export const timiNstemi = createScoringCalculator(config);

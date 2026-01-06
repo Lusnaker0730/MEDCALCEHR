@@ -4,7 +4,7 @@
  * 使用 Radio Group 工廠函數重構
  */
 
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
 // GAD-7 問題列表
@@ -26,7 +26,7 @@ const frequencyOptions = [
     { value: '3', label: 'Nearly every day (+3)' }
 ];
 
-export const gad7 = createRadioScoreCalculator({
+export const gad7 = createScoringCalculator({
     id: 'gad-7',
     title: 'GAD-7 (General Anxiety Disorder-7)',
     description: 'Screens for generalized anxiety disorder and monitors treatment response.',

@@ -6,15 +6,15 @@
  */
 
 import {
-    createRadioScoreCalculator,
-    RadioScoreCalculatorConfig
-} from '../shared/radio-score-calculator.js';
+    createScoringCalculator,
+    ScoringCalculatorConfig
+} from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: RadioScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
     id: 'sofa',
     title: 'SOFA Score for Sepsis Organ Failure',
     description:
@@ -354,7 +354,7 @@ const config: RadioScoreCalculatorConfig = {
     }
 };
 
-const baseCalculator = createRadioScoreCalculator(config);
+const baseCalculator = createScoringCalculator(config);
 
 // 導出帶有公式表格的計算器
 export const sofa = {

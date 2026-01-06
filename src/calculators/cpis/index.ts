@@ -1,10 +1,10 @@
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
-export const cpis = createRadioScoreCalculator({
+export const cpis = createScoringCalculator({
     id: 'cpis',
     title: 'Clinical Pulmonary Infection Score (CPIS) for VAP',
     description:
@@ -101,20 +101,20 @@ export const cpis = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'CPIS Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'CPIS Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: interpretation,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Interpretation:</strong> ${detail}`
-            })}
+            type: alertType,
+            message: `<strong>Interpretation:</strong> ${detail}`
+        })}
             ${uiBuilder.createSection({
-                title: 'Management Considerations',
-                content: management
-            })}
+            title: 'Management Considerations',
+            content: management
+        })}
         `;
     },
     customInitialize: (

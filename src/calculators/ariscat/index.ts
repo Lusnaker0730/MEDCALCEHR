@@ -1,9 +1,9 @@
-import { createRadioScoreCalculator } from '../shared/radio-score-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 
-export const ariscat = createRadioScoreCalculator({
+export const ariscat = createScoringCalculator({
     id: 'ariscat',
     title: 'ARISCAT Score for Postoperative Pulmonary Complications',
     description:
@@ -174,22 +174,22 @@ export const ariscat = createRadioScoreCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'ARISCAT Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskCategory,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'ARISCAT Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskCategory,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Pulmonary Complication Risk',
-                value: riskInfo,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Pulmonary Complication Risk',
+            value: riskInfo,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message:
-                    'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
-            })}
+            type: alertType,
+            message:
+                'Risk of in-hospital post-op pulmonary complications (respiratory failure, infection, pleural effusion, atelectasis, pneumothorax, bronchospasm, aspiration pneumonitis).'
+        })}
         `;
     },
     customInitialize: (

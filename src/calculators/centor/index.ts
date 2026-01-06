@@ -5,11 +5,12 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createYesNoCalculator, YesNoCalculatorConfig } from '../shared/yes-no-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: YesNoCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'yesno',
     id: 'centor',
     title: 'Centor Score (Modified/McIsaac) for Strep Pharyngitis',
     description:
@@ -106,7 +107,7 @@ const config: YesNoCalculatorConfig = {
 };
 
 // 創建基礎計算器
-const baseCalculator = createYesNoCalculator(config);
+const baseCalculator = createScoringCalculator(config);
 
 // 導出帶有年齡選項和 FHIR 自動填入的計算器
 export const centor = {
@@ -227,7 +228,7 @@ export const centor = {
             let score = 0;
 
             // 計算臨床標準分數
-            config.questions.forEach(q => {
+            (config.questions || []).forEach(q => {
                 const radio = container.querySelector(
                     `input[name="${q.id}"]:checked`
                 ) as HTMLInputElement | null;
@@ -249,7 +250,7 @@ export const centor = {
             if (resultBox) {
                 const resultContent = resultBox.querySelector('.ui-result-content');
                 if (resultContent && config.customResultRenderer) {
-                    resultContent.innerHTML = config.customResultRenderer(score);
+                    resultContent.innerHTML = config.customResultRenderer(score, {});
                 }
                 resultBox.classList.add('show');
             }

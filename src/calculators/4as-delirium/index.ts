@@ -6,11 +6,11 @@
  */
 
 import {
-    createRadioScoreCalculator,
-    RadioScoreCalculatorConfig
-} from '../shared/radio-score-calculator.js';
+    createScoringCalculator,
+    ScoringCalculatorConfig
+} from '../shared/scoring-calculator.js';
 
-const config: RadioScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
     id: '4as-delirium',
     title: "4 A's Test (4AT) for Delirium Screening",
     description:
@@ -139,4 +139,4 @@ const config: RadioScoreCalculatorConfig = {
     ]
 };
 
-export const fourAsDelirium = createRadioScoreCalculator(config);
+export const fourAsDelirium = createScoringCalculator(config);
