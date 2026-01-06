@@ -383,12 +383,17 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                 : '';
 
             // 生成參考文獻
-            const referencesHTML = config.references?.length
-                ? `<div class="info-section reference-section">
-                    <h4>📚 Reference</h4>
-                    ${config.references.map(ref => `<p>${ref}</p>`).join('')}
-                   </div>`
-                : '';
+            let referencesHTML = '';
+            if (config.references && config.references.length) {
+                const refList = config.references
+                    .map((ref, i) => `<div class="reference-item">${i + 1}. ${ref}</div>`)
+                    .join('');
+                referencesHTML = uiBuilder.createSection({
+                    title: 'References',
+                    icon: '📚',
+                    content: `<div class="references-list text-sm text-muted">${refList}</div>`
+                });
+            }
 
             // 生成 Formula 區塊
             let formulaSectionHTML = '';

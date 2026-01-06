@@ -85,14 +85,16 @@ export const meldNa = createUnifiedFormulaCalculator({
         },
         {
             label: 'Constraints',
-            formula: `
-                <ul class="info-list text-sm">
-                    <li>Minimum lab values: 1.0 (if actual value is lower)</li>
-                    <li>Maximum Creatinine: 4.0 (or if on dialysis ≥2x/week)</li>
-                    <li>Sodium capped: 125-137 mEq/L</li>
-                    <li>Final score range: 6-40</li>
-                </ul>
-            `
+            formula: uiBuilder.createList({
+                items: [
+                    'Minimum lab values: 1.0 (if actual value is lower)',
+                    'Maximum Creatinine: 4.0 (or if on dialysis ≥2x/week)',
+                    'Sodium capped: 125-137 mEq/L',
+                    'Final score range: 6-40'
+                ],
+                type: 'ul',
+                className: 'info-list text-sm'
+            })
         }
     ],
     calculate: meldNaCalculation,

@@ -240,4 +240,6 @@ export interface BaseCalculatorConfig {
     infoAlert?: string;
     /** 參考文獻 (HTML) */
     reference?: string;
+    /** 參考文獻列表 */
+    references?: string[];
 }

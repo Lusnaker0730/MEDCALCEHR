@@ -456,6 +456,19 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 ? uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
                 : '';
 
+            // 參考文獻區塊
+            let referencesHTML = config.reference || '';
+            if (config.references && config.references.length > 0) {
+                const refList = config.references
+                    .map((ref, i) => `<div class="reference-item">${i + 1}. ${ref}</div>`)
+                    .join('');
+                referencesHTML += uiBuilder.createSection({
+                    title: 'References',
+                    icon: '📚',
+                    content: `<div class="references-list text-sm text-muted">${refList}</div>`
+                });
+            }
+
             return `
                 <div class="calculator-header">
                     <h3>${config.title}</h3>
@@ -473,7 +486,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             })}
 
                 ${formulaSection}
-                ${config.reference || ''}
+                ${referencesHTML}
                 ${config.footerHTML || ''}
             `;
         },

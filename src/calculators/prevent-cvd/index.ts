@@ -80,50 +80,33 @@ export const preventCVD = createUnifiedFormulaCalculator({
             title: 'Patient Characteristics',
             icon: '👤',
             fields: [
+
                 { id: 'qrisk-age', label: 'Age', unit: 'years', min: 25, max: 84, validationType: 'age' },
-                `<div class="ui-input-group">
-                    <label class="ui-label" for="qrisk-gender">Gender</label>
-                    <select id="qrisk-gender" class="ui-select">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                </div>`,
-                `<div class="ui-checkbox-group">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="qrisk-smoker" class="ui-checkbox">
-                        <span>Current Smoker</span>
-                    </label>
-                </div>`,
-                `<div class="ui-checkbox-group">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="qrisk-diabetes" class="ui-checkbox">
-                        <span>Diabetes</span>
-                    </label>
-                </div>`,
-                `<div class="ui-checkbox-group">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="qrisk-bpad" class="ui-checkbox">
-                        <span>On Blood Pressure Treatment</span>
-                    </label>
-                </div>`,
-                `<div class="ui-checkbox-group">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="qrisk-fhcvd" class="ui-checkbox">
-                        <span>Family History of CVD (in 1st degree relative &lt;60)</span>
-                    </label>
-                </div>`,
-                `<div class="ui-checkbox-group">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="qrisk-chronic" class="ui-checkbox">
-                        <span>Chronic Kidney Disease (Stage 3, 4 or 5)</span>
-                    </label>
-                </div>`,
-                `<div class="ui-checkbox-group">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="qrisk-rheum" class="ui-checkbox">
-                        <span>Rheumatoid Arthritis</span>
-                    </label>
-                </div>`
+                {
+                    type: 'radio',
+                    id: 'qrisk-gender',
+                    label: 'Gender',
+                    options: [
+                        { value: 'male', label: 'Male' },
+                        { value: 'female', label: 'Female' }
+                    ]
+                },
+                { type: 'checkbox', id: 'qrisk-smoker', label: 'Current Smoker' },
+                { type: 'checkbox', id: 'qrisk-diabetes', label: 'Diabetes' },
+                { type: 'checkbox', id: 'qrisk-bpad', label: 'On Blood Pressure Treatment' },
+                {
+                    type: 'checkbox',
+                    id: 'qrisk-fhcvd',
+                    label: 'Family History of CVD',
+                    description: '(in 1st degree relative <60)'
+                },
+                {
+                    type: 'checkbox',
+                    id: 'qrisk-chronic',
+                    label: 'Chronic Kidney Disease',
+                    description: '(Stage 3, 4 or 5)'
+                },
+                { type: 'checkbox', id: 'qrisk-rheum', label: 'Rheumatoid Arthritis' }
             ]
         },
         {
@@ -167,9 +150,8 @@ export const preventCVD = createUnifiedFormulaCalculator({
         const hdl = getStdValue('qrisk-hdl', 'mmol/L');
         const egfr = getValue('qrisk-egfr');
 
-        // Get gender from select
-        const genderEl = document.querySelector('#qrisk-gender') as HTMLSelectElement;
-        const gender = genderEl?.value || 'male';
+        // Get gender from radio
+        const gender = getRadioValue('qrisk-gender') || 'male';
 
         const smoker = getCheckboxValue('qrisk-smoker') ? 1 : 0;
         const diabetes = getCheckboxValue('qrisk-diabetes') ? 1 : 0;

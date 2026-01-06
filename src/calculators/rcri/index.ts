@@ -67,6 +67,53 @@ const config: ScoringCalculatorConfig = {
     references: [
         'Lee, T. H., Marcantonio, E. R., Mangione, C. M., Thomas, E. J., Polanczyk, C. A., Cook, E. F., ... & Goldman, L. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.'
     ],
+    formulaSection: {
+        show: true,
+        title: 'FORMULA',
+        calculationNote: 'Addition of the selected points:',
+        scoringCriteria: [
+            {
+                criteria:
+                    '<strong>High-risk surgery</strong><div class="text-sm text-muted">Intraperitoneal; intrathoracic; suprainguinal vascular</div>',
+                points: '+1'
+            },
+            {
+                criteria:
+                    '<strong>History of ischemic heart disease</strong><div class="text-sm text-muted">History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves</div>',
+                points: '+1'
+            },
+            {
+                criteria:
+                    '<strong>History of congestive heart failure</strong><div class="text-sm text-muted">Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution</div>',
+                points: '+1'
+            },
+            {
+                criteria:
+                    '<strong>History of cerebrovascular disease</strong><div class="text-sm text-muted">Prior transient ischemic attack (TIA) or stroke</div>',
+                points: '+1'
+            },
+            {
+                criteria: '<strong>Pre-operative treatment with insulin</strong>',
+                points: '+1'
+            },
+            {
+                criteria:
+                    '<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>',
+                points: '+1'
+            }
+        ],
+        interpretationTitle: 'FACTS & FIGURES',
+        tableHeaders: ['RCRI Score', 'Approximate Risk of Major Cardiac Event (95% CI)*'],
+        interpretations: [
+            { score: '0', interpretation: '0.5%' },
+            { score: '1', interpretation: '1.1%' },
+            { score: '2', interpretation: '5%' },
+            { score: '≥3', interpretation: '10%' }
+        ],
+        footnotes: [
+            'Interpretation per the original 1999 study. Values are based on a combination of derivation and validation sets.'
+        ]
+    },
     customResultRenderer: (score: number): string => {
         const riskData: Record<
             number,
@@ -167,89 +214,4 @@ const config: ScoringCalculatorConfig = {
     }
 };
 
-// 創建基礎計算器
-const baseCalculator = createScoringCalculator(config);
-
-// 導出帶有參考圖片的計算器
-export const rcri = {
-    ...baseCalculator,
-
-    generateHTML(): string {
-        const html = baseCalculator.generateHTML();
-
-        // Formula Table
-        const formulaTable = `
-            ${uiBuilder.createSection({
-            title: 'FORMULA',
-            icon: '📐',
-            content: `
-                    <p class="mb-15">Addition of the selected points:</p>
-                    ${uiBuilder.createTable({
-                headers: ['Risk Factor', 'Description', 'Points'],
-                rows: [
-                    [
-                        '<strong>High-risk surgery</strong>',
-                        'Intraperitoneal; intrathoracic; suprainguinal vascular',
-                        '+1'
-                    ],
-                    [
-                        '<strong>History of ischemic heart disease</strong>',
-                        'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves',
-                        '+1'
-                    ],
-                    [
-                        '<strong>History of congestive heart failure</strong>',
-                        'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution',
-                        '+1'
-                    ],
-                    [
-                        '<strong>History of cerebrovascular disease</strong>',
-                        'Prior transient ischemic attack (TIA) or stroke',
-                        '+1'
-                    ],
-                    ['<strong>Pre-operative treatment with insulin</strong>', '—', '+1'],
-                    [
-                        '<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>',
-                        '—',
-                        '+1'
-                    ]
-                ],
-                stickyFirstColumn: true
-            })}
-                `
-        })}
-        `;
-
-        // Facts & Figures Table
-        const factsTable = `
-            ${uiBuilder.createSection({
-            title: 'FACTS & FIGURES',
-            icon: '📊',
-            content: `
-                    <p class="mb-15">Interpretation per the original 1999 study. Values are based on a combination of derivation and validation sets.</p>
-                    ${uiBuilder.createTable({
-                headers: [
-                    'RCRI Score',
-                    'Approximate Risk of Major Cardiac Event (95% CI)*'
-                ],
-                rows: [
-                    ['0', '0.5%'],
-                    ['1', '1.1%'],
-                    ['2', '5%'],
-                    ['≥3', '10%']
-                ]
-            })}
-                `
-        })}
-        `;
-
-        const referenceSection = `
-            <div class="info-section mt-20">
-                <h4>📚 Reference</h4>
-                <p>Lee, T. H., et al. (1999). Derivation and prospective validation of a simple index for prediction of cardiac risk of major noncardiac surgery. <em>Circulation</em>, 100(10), 1043-1049.</p>
-            </div>
-        `;
-
-        return html + formulaTable + factsTable + referenceSection;
-    }
-};
+export const rcri = createScoringCalculator(config);

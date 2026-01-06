@@ -103,22 +103,17 @@ export const regiscar = createScoringCalculator({
         { minScore: 4, maxScore: 5, label: 'Probable case', severity: 'danger' },
         { minScore: 6, maxScore: 9, label: 'Definite case', severity: 'danger' }
     ],
-    interpretationInfo: `
-        <h4>📊 Score Interpretation</h4>
-        <div class="ui-data-table">
-            <table>
-                <thead>
-                    <tr><th>Score</th><th>Diagnosis</th><th>Likelihood</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>< 2</td><td>No case</td><td>Unlikely</td></tr>
-                    <tr><td>2-3</td><td>Possible case</td><td>Consider DRESS</td></tr>
-                    <tr><td>4-5</td><td>Probable case</td><td>High likelihood</td></tr>
-                    <tr><td>> 5</td><td>Definite case</td><td>Confirmed</td></tr>
-                </tbody>
-            </table>
-        </div>
-    `,
+    formulaSection: {
+        show: true,
+        interpretationTitle: 'Score Interpretation',
+        tableHeaders: ['Score', 'Diagnosis', 'Likelihood'],
+        interpretations: [
+            { score: '< 2', category: 'No case', interpretation: 'Unlikely', severity: 'success' },
+            { score: '2-3', category: 'Possible case', interpretation: 'Consider DRESS', severity: 'warning' },
+            { score: '4-5', category: 'Probable case', interpretation: 'High likelihood', severity: 'danger' },
+            { score: '> 5', category: 'Definite case', interpretation: 'Confirmed', severity: 'danger' }
+        ]
+    },
     customResultRenderer: (score: number) => {
         let diagnosis = '';
         let alertType: 'success' | 'warning' | 'danger' = 'success';

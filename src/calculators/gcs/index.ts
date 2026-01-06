@@ -88,19 +88,16 @@ export const gcs = createScoringCalculator({
             { criteria: 'No motor response', points: '+1' },
             { criteria: 'Not testable*', points: 'NT' }
         ],
+        interpretations: [
+            { score: '13-15', interpretation: 'Mild Brain Injury', severity: 'success' },
+            { score: '9-12', interpretation: 'Moderate Brain Injury', severity: 'warning' },
+            { score: '3-8', interpretation: 'Severe Brain Injury (Coma)', severity: 'danger' }
+        ],
+        interpretationTitle: 'Interpretation',
         footnotes: [
             '*NT = Not Testable. Document reason (e.g., "E-NT due to periorbital swelling", "V-NT due to intubation").'
         ]
     },
-
-    interpretationInfo: `
-        <h4>📊 Interpretation</h4>
-        <ul class="info-list">
-            <li><strong>13-15:</strong> Mild Brain Injury</li>
-            <li><strong>9-12:</strong> Moderate Brain Injury</li>
-            <li><strong>3-8:</strong> Severe Brain Injury (Coma)</li>
-        </ul>
-    `,
 
     // 自定義結果渲染器，顯示各組件分數
     customResultRenderer: (score, sectionScores) => `
