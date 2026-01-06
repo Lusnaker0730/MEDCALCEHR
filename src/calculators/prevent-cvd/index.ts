@@ -5,7 +5,7 @@
  * 預測 10 年心血管疾病風險
  */
 
-import { createComplexFormulaCalculator } from '../shared/complex-formula-calculator.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
@@ -63,7 +63,7 @@ const coefficients: { [key: string]: Coeffs } = {
     }
 };
 
-export const preventCVD = createComplexFormulaCalculator({
+export const preventCVD = createUnifiedFormulaCalculator({
     id: 'prevent-cvd',
     title: 'QRISK3-Based CVD Risk (UK)',
     description:
@@ -160,7 +160,7 @@ export const preventCVD = createComplexFormulaCalculator({
 
     resultTitle: 'QRISK3 10-Year Risk',
 
-    calculate: (getValue, getStdValue, getRadioValue, getCheckboxValue) => {
+    complexCalculate: (getValue, getStdValue, getRadioValue, getCheckboxValue) => {
         const age = getValue('qrisk-age');
         const sbp = getValue('qrisk-sbp');
         const chol = getStdValue('qrisk-cholesterol', 'mmol/L');
@@ -286,13 +286,13 @@ export const preventCVD = createComplexFormulaCalculator({
 
     reference: `
         ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'QRISK3 Calculation',
-                    formula: 'Risk = 100 × (1 - S(t)^exp(index))',
-                    notes: 'Uses gender-specific coefficients and baseline survival S(t). Index = Σ(Coefficients × Values) - Mean.'
-                }
-            ]
-        })}
+        items: [
+            {
+                label: 'QRISK3 Calculation',
+                formula: 'Risk = 100 × (1 - S(t)^exp(index))',
+                notes: 'Uses gender-specific coefficients and baseline survival S(t). Index = Σ(Coefficients × Values) - Mean.'
+            }
+        ]
+    })}
     `
 });

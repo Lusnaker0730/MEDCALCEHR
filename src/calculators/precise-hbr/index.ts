@@ -8,7 +8,7 @@
  * 我們將實現這個特定的 "PRECISE-HBR" 計算器。
  */
 
-import { createComplexFormulaCalculator } from '../shared/complex-formula-calculator.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 
@@ -107,7 +107,7 @@ const calculateScore = (
     return { score: finalScore, breakdown: breakdownParts.join('<br>') };
 };
 
-export const preciseHbr = createComplexFormulaCalculator({
+export const preciseHbr = createUnifiedFormulaCalculator({
     id: 'precise-hbr',
     title: 'PRECISE-HBR Score',
     description: 'Predicts bleeding risk in patients undergoing stent implantation.',
@@ -242,7 +242,7 @@ export const preciseHbr = createComplexFormulaCalculator({
 
     resultTitle: 'PRECISE-HBR Score',
 
-    calculate: (getValue, getStdValue, getRadioValue, getCheckboxValue) => {
+    complexCalculate: (getValue, getStdValue, getRadioValue, getCheckboxValue) => {
         const age = getValue('precise-hbr-age');
         // Use getStdValue if standardUnit is set to ensure we get g/dL
         // But unified-calculator handles getStdValue logic inside performComplexCalculation if we passed it.
