@@ -5,10 +5,11 @@
  * 功能容量評估計算器，不需要 FHIR 自動填充
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: ScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'checkbox',
     id: 'dasi',
     title: 'Duke Activity Status Index (DASI)',
     description: 'Estimates functional capacity based on ability to perform daily activities.',
@@ -155,4 +156,4 @@ const config: ScoreCalculatorConfig = {
     }
 };
 
-export const dasi = createScoreCalculator(config);
+export const dasi = createScoringCalculator(config);

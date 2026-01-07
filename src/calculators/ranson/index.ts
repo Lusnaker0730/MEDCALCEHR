@@ -5,12 +5,13 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: ScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'checkbox',
     id: 'ranson',
     title: 'Ranson Score for Pancreatitis',
     description: 'Predicts severity and mortality of acute pancreatitis (for non-gallstone cases).',
@@ -285,4 +286,4 @@ const config: ScoreCalculatorConfig = {
     }
 };
 
-export const ransonScore = createScoreCalculator(config);
+export const ransonScore = createScoringCalculator(config);

@@ -5,12 +5,13 @@
  * 已整合 FHIRDataService，使用 dataRequirements 和 customInitialize
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: ScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'checkbox',
     id: 'perc',
     title: 'PERC Rule for Pulmonary Embolism',
     description: 'Rules out PE if no criteria are present and pre-test probability is ≤15%.',
@@ -186,4 +187,4 @@ const config: ScoreCalculatorConfig = {
     }
 };
 
-export const perc = createScoreCalculator(config);
+export const perc = createScoringCalculator(config);

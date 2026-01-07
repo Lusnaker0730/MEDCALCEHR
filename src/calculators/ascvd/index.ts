@@ -238,8 +238,8 @@ export const ascvd = createUnifiedFormulaCalculator({
             label: 'Age',
             type: 'number',
             unit: 'years (40-79)',
-            min: 20, max: 100, // Tech limit, generic limit
-            validationType: 'age',
+            min: 40,
+            max: 79,
             required: false // Handled in calculate
         },
         {

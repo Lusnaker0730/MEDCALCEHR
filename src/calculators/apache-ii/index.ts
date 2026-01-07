@@ -49,28 +49,51 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Temperature',
                     step: 0.1,
                     placeholder: '36.1 - 37.8',
+                    loincCode: LOINC_CODES.TEMPERATURE,
+                    validationType: 'temperature',
                     unitToggle: { type: 'temperature', units: ['C', 'F'], default: 'C' }
+                },
+                {
+                    id: 'apache-ii-sbp',
+                    label: 'SBP (Optional)',
+                    placeholder: 'Systolic',
+                    unit: 'mmHg',
+                    required: false,
+                    validationType: 'systolicBP',
+                    loincCode: LOINC_CODES.SYSTOLIC_BP
+                },
+                {
+                    id: 'apache-ii-dbp',
+                    label: 'DBP (Optional)',
+                    placeholder: 'Diastolic',
+                    unit: 'mmHg',
+                    required: false,
+                    validationType: 'diastolicBP',
+                    loincCode: LOINC_CODES.DIASTOLIC_BP
                 },
                 {
                     id: 'apache-ii-map',
                     label: 'Mean Arterial Pressure',
                     unit: 'mmHg',
                     placeholder: '70 - 100',
-                    validationType: 'map'
+                    validationType: 'map',
+                    helpText: 'Auto-calculated if SBP and DBP are provided'
                 },
                 {
                     id: 'apache-ii-hr',
                     label: 'Heart Rate',
                     unit: 'bpm',
                     placeholder: '60 - 100',
-                    validationType: 'heartRate'
+                    validationType: 'heartRate',
+                    loincCode: LOINC_CODES.HEART_RATE
                 },
                 {
                     id: 'apache-ii-rr',
                     label: 'Respiratory Rate',
                     unit: 'breaths/min',
                     placeholder: '12 - 20',
-                    validationType: 'respiratoryRate'
+                    validationType: 'respiratoryRate',
+                    loincCode: LOINC_CODES.RESPIRATORY_RATE
                 }
             ]
         },
@@ -82,12 +105,14 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Arterial pH',
                     step: 0.01,
                     placeholder: '7.38 - 7.44',
-                    validationType: 'pH'
+                    validationType: 'pH',
+                    loincCode: LOINC_CODES.PH
                 },
                 {
                     id: 'apache-ii-sodium',
                     label: 'Sodium',
                     placeholder: '136 - 145',
+                    loincCode: LOINC_CODES.SODIUM,
                     unitToggle: { type: 'sodium', units: ['mmol/L', 'mEq/L'], default: 'mmol/L' }
                 },
                 {
@@ -95,6 +120,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Potassium',
                     step: 0.1,
                     placeholder: '3.5 - 5.2',
+                    loincCode: LOINC_CODES.POTASSIUM,
                     unitToggle: { type: 'potassium', units: ['mmol/L', 'mEq/L'], default: 'mmol/L' }
                 },
                 {
@@ -102,6 +128,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Creatinine',
                     step: 0.1,
                     placeholder: '0.7 - 1.3',
+                    loincCode: LOINC_CODES.CREATININE,
                     unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 },
                 {
@@ -110,7 +137,8 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     unit: '%',
                     step: 0.1,
                     placeholder: '36 - 51',
-                    validationType: 'hematocrit'
+                    validationType: 'hematocrit',
+                    loincCode: LOINC_CODES.HEMATOCRIT
                 },
                 {
                     id: 'apache-ii-wbc',
@@ -118,7 +146,8 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     unit: 'x 10⁹/L',
                     step: 0.1,
                     placeholder: '3.7 - 10.7',
-                    validationType: 'wbc'
+                    validationType: 'wbc',
+                    loincCode: LOINC_CODES.WBC
                 },
                 {
                     name: 'arf',
@@ -139,7 +168,8 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Glasgow Coma Scale',
                     unit: 'points',
                     placeholder: '3 - 15',
-                    validationType: 'gcs'
+                    validationType: 'gcs',
+                    loincCode: LOINC_CODES.GCS
                 }
             ]
         },
@@ -163,10 +193,23 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'FiO₂',
                     step: 0.01,
                     placeholder: 'e.g. 0.5',
-                    validationType: 'fiO2'
+                    validationType: 'fiO2',
+                    loincCode: LOINC_CODES.FIO2
                 },
-                { id: 'apache-ii-pao2', label: 'PaO₂', unit: 'mmHg', validationType: 'paO2' },
-                { id: 'apache-ii-paco2', label: 'PaCO₂', unit: 'mmHg', validationType: 'paCO2' }
+                {
+                    id: 'apache-ii-pao2',
+                    label: 'PaO₂',
+                    unit: 'mmHg',
+                    validationType: 'paO2',
+                    loincCode: LOINC_CODES.PO2
+                },
+                {
+                    id: 'apache-ii-paco2',
+                    label: 'PaCO₂',
+                    unit: 'mmHg',
+                    validationType: 'paCO2',
+                    loincCode: LOINC_CODES.PCO2
+                }
             ]
         }
     ],
@@ -176,50 +219,58 @@ export const apacheIi = createUnifiedFormulaCalculator({
     // 使用導入的計算函數
     complexCalculate: apacheIiCalculation,
 
-    fhirAutoPopulate: [
-        {
-            fieldId: 'apache-ii-temp',
-            loincCode: LOINC_CODES.TEMPERATURE,
-            formatter: v => v.toFixed(1)
-        },
-        {
-            fieldId: 'apache-ii-hr',
-            loincCode: LOINC_CODES.HEART_RATE,
-            formatter: v => v.toFixed(0)
-        },
-        {
-            fieldId: 'apache-ii-rr',
-            loincCode: LOINC_CODES.RESPIRATORY_RATE,
-            formatter: v => v.toFixed(0)
-        },
-        { fieldId: 'apache-ii-ph', loincCode: LOINC_CODES.PH, formatter: v => v.toFixed(2) },
-        {
-            fieldId: 'apache-ii-sodium',
-            loincCode: LOINC_CODES.SODIUM,
-            targetUnit: 'mmol/L',
-            formatter: v => v.toFixed(0)
-        },
-        {
-            fieldId: 'apache-ii-potassium',
-            loincCode: LOINC_CODES.POTASSIUM,
-            targetUnit: 'mmol/L',
-            formatter: v => v.toFixed(1)
-        },
-        {
-            fieldId: 'apache-ii-creatinine',
-            loincCode: LOINC_CODES.CREATININE,
-            targetUnit: 'mg/dL',
-            unitType: 'creatinine',
-            formatter: v => v.toFixed(2)
-        },
-        {
-            fieldId: 'apache-ii-hct',
-            loincCode: LOINC_CODES.HEMATOCRIT,
-            formatter: v => v.toFixed(1)
-        },
-        { fieldId: 'apache-ii-wbc', loincCode: LOINC_CODES.WBC, formatter: v => v.toFixed(1) },
-        { fieldId: 'apache-ii-gcs', loincCode: LOINC_CODES.GCS, formatter: v => v.toFixed(0) }
-    ],
+    customInitialize: (client, patient, container) => {
+        // 1. MAP Calculation Logic
+        const sbpInput = container.querySelector('#apache-ii-sbp') as HTMLInputElement;
+        const dbpInput = container.querySelector('#apache-ii-dbp') as HTMLInputElement;
+        const mapInput = container.querySelector('#apache-ii-map') as HTMLInputElement;
+
+        const updateMap = () => {
+            if (sbpInput && dbpInput && mapInput) {
+                const sbp = parseFloat(sbpInput.value);
+                const dbp = parseFloat(dbpInput.value);
+
+                if (!isNaN(sbp) && !isNaN(dbp)) {
+                    const map = (sbp + 2 * dbp) / 3;
+                    mapInput.value = map.toFixed(0);
+                    // Dispatch input event to trigger calculation
+                    mapInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        };
+
+        if (sbpInput) sbpInput.addEventListener('input', updateMap);
+        if (dbpInput) dbpInput.addEventListener('input', updateMap);
+
+        // 2. PaCO2 Visibility Logic
+        const paco2Input = container.querySelector('#apache-ii-paco2') as HTMLInputElement;
+        // Find the group (container for label + input wrapper) to hide everything
+        const paco2Group = paco2Input?.closest('.ui-input-group') as HTMLElement;
+
+        const updatePaco2Visibility = () => {
+            const method = container.querySelector('input[name="oxy_method"]:checked') as HTMLInputElement;
+            if (method && paco2Group) {
+                if (method.value === 'pao2_only') {
+                    paco2Group.style.display = 'none';
+                    // Reset value when hidden to avoid affecting calculation if logic didn't handle null
+                    paco2Input.value = '';
+                } else {
+                    paco2Group.style.display = '';
+                }
+            }
+        };
+
+        // Attach to radio buttons
+        const methodRadios = container.querySelectorAll('input[name="oxy_method"]');
+        methodRadios.forEach(radio => {
+            radio.addEventListener('change', updatePaco2Visibility);
+        });
+
+        // Initial check
+        updatePaco2Visibility();
+    },
+
+
 
     reference: `
         ${uiBuilder.createSection({

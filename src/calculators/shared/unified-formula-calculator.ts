@@ -495,15 +495,15 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             uiBuilder.initializeComponents(container);
             fhirDataService.initialize(client, patient, container);
 
-            const resultBox = container.querySelector(`#${config.id}-result`) as HTMLElement;
+            const resultBox = container.querySelector(`[id="${config.id}-result"]`) as HTMLElement;
             const resultContent = resultBox?.querySelector('.ui-result-content') as HTMLElement;
             const errorContainer = container.querySelector(
-                `#${config.id}-error-container`
+                `[id="${config.id}-error-container"]`
             ) as HTMLElement;
 
             // 值取得輔助函數
             const getValue: GetValueFn = (id: string) => {
-                const el = container.querySelector(`#${id}`) as HTMLInputElement;
+                const el = container.querySelector(`[id="${id}"]`) as HTMLInputElement;
                 const val = el?.value;
                 if (val === '' || val === null || val === undefined) return null;
                 const num = parseFloat(val);
@@ -511,7 +511,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             };
 
             const getStdValue: GetStdValueFn = (id: string, unit: string) => {
-                const el = container.querySelector(`#${id}`) as HTMLInputElement;
+                const el = container.querySelector(`[id="${id}"]`) as HTMLInputElement;
                 if (!el || el.value === '') return null;
                 const val = UnitConverter.getStandardValue(el, unit);
                 return val === null || isNaN(val) ? null : val;
@@ -525,7 +525,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             };
 
             const getCheckboxValue: GetCheckboxValueFn = (id: string) => {
-                const checkbox = container.querySelector(`#${id}`) as HTMLInputElement;
+                const checkbox = container.querySelector(`[id="${id}"]`) as HTMLInputElement;
                 return checkbox?.checked || false;
             };
 
@@ -608,7 +608,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                     if (isNumberInput(inputConfig)) {
                         const inputEl = container.querySelector(
-                            `#${inputConfig.id}`
+                            `[id="${inputConfig.id}"]`
                         ) as HTMLInputElement;
                         if (!inputEl) return;
 
@@ -671,7 +671,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         }
                     } else if (isSelectInput(inputConfig)) {
                         const select = container.querySelector(
-                            `#${inputConfig.id}`
+                            `[id="${inputConfig.id}"]`
                         ) as HTMLSelectElement;
                         if (select) {
                             values[inputConfig.id] = select.value;
@@ -680,6 +680,17 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 });
 
                 if (!allRequiredPresent) {
+                    // 顯示提示訊息 "Please fill out required fields."
+                    if (resultContent) {
+                        resultContent.innerHTML = uiBuilder.createAlert({
+                            type: 'info',
+                            message: 'Please fill out required fields.'
+                        });
+                    }
+                    if (resultBox) {
+                        resultBox.classList.add('show');
+                        resultBox.classList.remove('ui-hidden');
+                    }
                     return { isValid: false, values, hasWarnings: false, warnings: [] };
                 }
 
@@ -688,7 +699,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 // 更新每個欄位的 UI 狀態，同時檢查是否有任何錯誤
                 let hasFieldErrors = false;
                 Object.keys(validation.fieldStatus).forEach(fieldId => {
-                    const inputEl = container.querySelector(`#${fieldId}`) as HTMLInputElement;
+                    const inputEl = container.querySelector(`[id="${fieldId}"]`) as HTMLInputElement;
                     if (!inputEl) return;
 
                     const status = validation.fieldStatus[fieldId];
@@ -710,14 +721,19 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         // 清除舊的錯誤容器訊息（現在用 inline 顯示）
                         errorContainer.innerHTML = '';
                     }
-                    // 隱藏結果框
-                    if (resultBox) {
-                        resultBox.classList.remove('show');
-                        resultBox.classList.add('ui-hidden');
-                    }
+
+                    // 顯示提示訊息 "Please fill out required fields."
                     if (resultContent) {
-                        resultContent.innerHTML = '';
+                        resultContent.innerHTML = uiBuilder.createAlert({
+                            type: 'info',
+                            message: 'Please fill out required fields.'
+                        });
                     }
+                    if (resultBox) {
+                        resultBox.classList.add('show');
+                        resultBox.classList.remove('ui-hidden');
+                    }
+
                     return {
                         isValid: false,
                         values,
@@ -774,7 +790,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 const { isValid, values } = validateInputs();
 
                 if (!isValid) {
-                    hideResultBox();
+                    // validateInputs handles waiting message
                     return;
                 }
 
@@ -820,7 +836,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 // Also run validation for complex mode
                 const { isValid } = validateInputs();
                 if (!isValid) {
-                    hideResultBox();
+                    // validateInputs handles waiting message
                     return;
                 }
 
@@ -915,7 +931,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 const age = fhirDataService.getPatientAge();
                 if (age !== null) {
                     const ageInput = container.querySelector(
-                        `#${config.autoPopulateAge}`
+                        `[id="${config.autoPopulateAge}"]`
                     ) as HTMLInputElement;
                     if (ageInput) ageInput.value = age.toString();
                 }
@@ -951,7 +967,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                 if (numberInputs.length > 0 && fhirDataService.isReady()) {
                     const requirements: FieldDataRequirement[] = numberInputs.map(i => ({
-                        inputId: `#${i.id}`,
+                        inputId: `[id="${i.id}"]`,
                         code: i.loincCode!,
                         label: i.label,
                         targetUnit: (i.unitConfig || i.unitToggle)?.default || i.standardUnit,
@@ -977,7 +993,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                             );
                             if (result.value !== null) {
                                 const el = container.querySelector(
-                                    `#${autoConfig.fieldId}`
+                                    `[id="${autoConfig.fieldId}"]`
                                 ) as HTMLInputElement;
                                 if (el) {
                                     el.value = autoConfig.formatter
@@ -1004,35 +1020,4 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
     };
 }
 
-// ==========================================
-// 向後兼容的工廠函數
-// ==========================================
 
-/**
- * 創建簡單公式計算器（向後兼容）
- */
-export function createFormulaCalculator(
-    config: Omit<FormulaCalculatorConfig, 'mode' | 'sections' | 'complexCalculate'> & {
-        calculate: SimpleCalculateFn;
-    }
-): CalculatorModule {
-    return createUnifiedFormulaCalculator({ ...config, mode: 'simple' });
-}
-
-/**
- * 創建複雜公式計算器（向後兼容）
- */
-export function createComplexFormulaCalculator(
-    config: Omit<FormulaCalculatorConfig, 'mode' | 'inputs' | 'calculate'> & {
-        calculate: ComplexCalculateFn;
-    }
-): CalculatorModule {
-    // Note: The old API used `calculate` for complex functions
-    // We need to map it to `complexCalculate`
-    const { calculate: complexFn, ...rest } = config;
-    return createUnifiedFormulaCalculator({
-        ...rest,
-        mode: 'complex',
-        complexCalculate: complexFn
-    });
-}

@@ -10,9 +10,10 @@
  * JAMA Neurology, 74(12), 1419–1424.
  */
 
-import { createScoreCalculator } from '../shared/scoring-calculator.js';
+import { createScoringCalculator } from '../shared/scoring-calculator.js';
 
-export const helps2bScore = createScoreCalculator({
+export const helps2bScore = createScoringCalculator({
+    inputType: 'checkbox',
     id: '2helps2b',
     title: '2HELPS2B Score',
     description:

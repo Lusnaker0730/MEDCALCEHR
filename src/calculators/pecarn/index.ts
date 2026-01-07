@@ -64,45 +64,45 @@ export const pecarn: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-                title: 'Patient Age',
-                icon: '👶',
-                content: uiBuilder.createRadioGroup({
-                    name: 'pecarn-age',
-                    options: [
-                        { value: 'under2', label: '< 2 years', checked: true },
-                        { value: 'over2', label: '≥ 2 years' }
-                    ]
-                })
-            })}
+            title: 'Patient Age',
+            icon: '👶',
+            content: uiBuilder.createRadioGroup({
+                name: 'pecarn-age',
+                options: [
+                    { value: 'under2', label: '< 2 years', checked: true },
+                    { value: 'over2', label: '≥ 2 years' }
+                ]
+            })
+        })}
 
             <div id="pecarn-group-under2">
                 ${uiBuilder.createSection({
-                    title: 'Criteria for Children < 2 Years',
-                    icon: '📋',
-                    content: uiBuilder.createCheckboxGroup({
-                        name: 'pecarn-criteria-under2',
-                        options: criteriaUnder2
-                    })
-                })}
+            title: 'Criteria for Children < 2 Years',
+            icon: '📋',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'pecarn-criteria-under2',
+                options: criteriaUnder2
+            })
+        })}
             </div>
 
             <div id="pecarn-group-over2" class="ui-hidden">
                 ${uiBuilder.createSection({
-                    title: 'Criteria for Children ≥ 2 Years',
-                    icon: '📋',
-                    content: uiBuilder.createCheckboxGroup({
-                        name: 'pecarn-criteria-over2',
-                        options: criteriaOver2
-                    })
-                })}
+            title: 'Criteria for Children ≥ 2 Years',
+            icon: '📋',
+            content: uiBuilder.createCheckboxGroup({
+                name: 'pecarn-criteria-over2',
+                options: criteriaOver2
+            })
+        })}
             </div>
 
             <div id="pecarn-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'pecarn-result', title: 'PECARN Assessment' })}
 
             ${uiBuilder.createAlert({
-                type: 'info',
-                message: `
+            type: 'info',
+            message: `
                     <h4>📊 Risk Interpretation</h4>
                     <div class="ui-data-table">
                         <table>
@@ -117,7 +117,7 @@ export const pecarn: CalculatorModule = {
                         </table>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -249,7 +249,7 @@ export const pecarn: CalculatorModule = {
             cb.addEventListener('change', calculate);
         });
 
-        // Auto-populate
+        // Auto-populate from patient data
         if (patient && patient.birthDate) {
             const age = calculateAge(patient.birthDate);
             const isUnder2 = age < 2;
@@ -260,6 +260,9 @@ export const pecarn: CalculatorModule = {
                 radio.checked = true;
                 setAgeGroup(isUnder2);
             }
+        } else {
+            // Default: under2 is checked, ensure visibility is correct
+            setAgeGroup(true);
         }
 
         calculate();

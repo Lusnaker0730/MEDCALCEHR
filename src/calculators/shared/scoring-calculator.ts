@@ -761,43 +761,4 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
     };
 }
 
-// ==========================================
-// 向後兼容的別名函數
-// ==========================================
 
-// Type aliases for backward compatibility
-export type RadioOption = ScoringOption;
-export type RadioSection = ScoringSection;
-export type RiskLevel = ScoringRiskLevel;
-export type RadioFHIRDataRequirements = ScoringFHIRDataRequirements;
-export type ScoreCalculatorConfig = Omit<ScoringCalculatorConfig, 'inputType' | 'questions'>;
-
-/**
- * @deprecated 使用 createScoringCalculator({ inputType: 'radio', ... }) 代替
- */
-export function createRadioScoreCalculator(
-    config: Omit<ScoringCalculatorConfig, 'inputType' | 'questions'>
-): CalculatorModule {
-    return createScoringCalculator({ ...config, inputType: 'radio' });
-}
-
-/**
- * @deprecated 使用 createScoringCalculator({ inputType: 'checkbox', ... }) 代替
- */
-export function createScoreCalculator(
-    config: Omit<ScoringCalculatorConfig, 'inputType' | 'questions'>
-): CalculatorModule {
-    return createScoringCalculator({ ...config, inputType: 'checkbox' });
-}
-
-/**
- * @deprecated 使用 createScoringCalculator({ inputType: 'yesno', questions: [...] }) 代替
- */
-export function createYesNoCalculator(
-    config: Omit<ScoringCalculatorConfig, 'inputType' | 'sections'> & {
-        questions: YesNoQuestion[];
-        customResultRenderer?: (score: number, questionScores: Record<string, number>) => string;
-    }
-): CalculatorModule {
-    return createScoringCalculator({ ...config, inputType: 'yesno' });
-}

@@ -2,6 +2,7 @@
 import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata, CalculatorModule } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
+import { displayError } from './errorHandler.js';
 
 declare global {
     interface Window {
@@ -61,28 +62,6 @@ function showLoading(element: HTMLElement): void {
                 100% { transform: rotate(360deg); }
             }
         </style>
-    `;
-}
-
-/**
- * Show error message
- */
-function showError(element: HTMLElement, message: string): void {
-    element.innerHTML = `
-        <div class="error-box" style="
-            background: #fee;
-            border-left: 4px solid #d32f2f;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-        ">
-            <div style="font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
-                ⚠️ Error
-            </div>
-            <div style="color: #555; font-size: 0.9em;">
-                ${message}
-            </div>
-        </div>
     `;
 }
 
@@ -168,7 +147,7 @@ window.onload = () => {
                 });
         } catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            showError(card, 'This calculator is temporarily unavailable. Please try again later or contact support.');
+            displayError(card, error as Error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
         }
     };
 

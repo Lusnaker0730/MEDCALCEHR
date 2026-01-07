@@ -96,36 +96,44 @@ export function displayError(
         return;
     }
 
+    // Ensure CSS is loaded
+    loadErrorStyles();
+
     const message = userMessage || getUserFriendlyMessage(error);
 
     container.innerHTML = `
-        <div class="error-message" style="
-            background: #fee;
-            border-left: 4px solid #d32f2f;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-        ">
-            <div style="font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
+        <div class="error-message">
+            <div class="error-title">
                 ⚠️ Error
             </div>
-            <div style="color: #555; font-size: 0.9em;">
+            <div class="error-content">
                 ${message}
             </div>
-            ${
-                typeof window !== 'undefined' && window.location.hostname === 'localhost'
-                    ? `
-                <details style="margin-top: 10px; font-size: 0.85em; color: #666;">
-                    <summary style="cursor: pointer;">Technical Details</summary>
-                    <pre style="margin-top: 8px; padding: 8px; background: #f5f5f5; border-radius: 3px; overflow-x: auto;">
-${error.stack || error.message}
-                    </pre>
+            ${typeof window !== 'undefined' && window.location.hostname === 'localhost'
+            ? `
+                <details>
+                    <summary>Technical Details</summary>
+                    <pre>${error.stack || error.message}</pre>
                 </details>
             `
-                    : ''
-            }
+            : ''
+        }
         </div>
     `;
+}
+
+/**
+ * Load error handler CSS
+ */
+function loadErrorStyles(): void {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById('error-handler-styles')) return;
+
+    const link = document.createElement('link');
+    link.id = 'error-handler-styles';
+    link.rel = 'stylesheet';
+    link.href = './css/error-handler.css';
+    document.head.appendChild(link);
 }
 
 /**

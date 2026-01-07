@@ -5,12 +5,13 @@
  * 已整合 FHIRDataService 進行自動填充
  */
 
-import { createScoreCalculator, ScoreCalculatorConfig } from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: ScoreCalculatorConfig = {
+const config: ScoringCalculatorConfig = {
+    inputType: 'checkbox',
     id: 'stop-bang',
     title: 'STOP-BANG Score for Obstructive Sleep Apnea',
     description: 'Screens for obstructive sleep apnea using validated clinical criteria.',
@@ -161,4 +162,4 @@ const config: ScoreCalculatorConfig = {
     }
 };
 
-export const stopBang = createScoreCalculator(config);
+export const stopBang = createScoringCalculator(config);

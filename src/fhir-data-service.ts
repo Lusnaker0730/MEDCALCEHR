@@ -6,7 +6,8 @@ import {
     getMostRecentObservation,
     getObservationValue,
     getPatientConditions,
-    getMedicationRequests
+    getMedicationRequests,
+    calculateAge
 } from './utils.js';
 import { LOINC_CODES, SNOMED_CODES, getLoincName, getMeasurementType } from './fhir-codes.js';
 // @ts-ignore - no type declarations
@@ -749,22 +750,13 @@ export class FHIRDataService {
 
     /**
      * Calculate age from patient birthDate
+     * Uses calculateAge from utils.ts for consistent implementation
      */
     getPatientAge(): number | null {
         if (!this.patient?.birthDate) {
             return null;
         }
-
-        const today = new Date();
-        const birthDate = new Date(this.patient.birthDate);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-
-        return age;
+        return calculateAge(this.patient.birthDate);
     }
 
     /**

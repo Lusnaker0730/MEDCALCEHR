@@ -1,30 +1,20 @@
-import { cdcData } from './cdc-data.js';
+import { cdcData, mapLmsToPercentileData, type PercentileDataPoint } from './cdc-data.js';
+import {
+    calculateZScore,
+    estimatePercentile,
+    calculateBmiData,
+    calculateVelocity,
+    formatAge,
+    type GrowthDataPoint,
+    type GrowthData
+} from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import type { CalculatorModule } from '../../types/index.js';
 
-// Declare Chart.js type assuming it's available globally as in original JS
+// Declare Chart.js type assuming it's available globally
 declare const Chart: any;
-
-interface CalculatorModule {
-    id: string;
-    title: string;
-    description: string;
-    generateHTML: () => string;
-    initialize: (client: any, patient: any, container: HTMLElement) => void;
-}
-
-interface GrowthDataPoint {
-    ageMonths: number;
-    value: number;
-    unit?: string;
-}
-
-interface GrowthData {
-    height: GrowthDataPoint[];
-    weight: GrowthDataPoint[];
-    head: GrowthDataPoint[];
-}
 
 export const growthChart: CalculatorModule = {
     id: 'growth-chart',
@@ -73,16 +63,16 @@ export const growthChart: CalculatorModule = {
                     </div>
                     <div class="chart-summary" id="bmi-summary"></div>
                     ${uiBuilder.createAlert({
-                        type: 'info',
-                        message:
-                            '<strong>Note:</strong> BMI patterns in infants are normal - BMI typically peaks around 8-12 months, then decreases until age 5-6 years (adiposity rebound).'
-                    })}
+            type: 'info',
+            message:
+                '<strong>Note:</strong> BMI patterns in infants are normal - BMI typically peaks around 8-12 months, then decreases until age 5-6 years (adiposity rebound).'
+        })}
                 </div>
             </div>
 
             ${uiBuilder.createSection({
-                title: 'Chart Information',
-                content: `
+            title: 'Chart Information',
+            content: `
                     <ul>
                         <li><strong>Reference:</strong> CDC Growth Charts (2000)</li>
                         <li><strong>Age Range:</strong> Birth to 36 months</li>
@@ -91,11 +81,11 @@ export const growthChart: CalculatorModule = {
                         <li><strong>Normal Range:</strong> Between P5 and P95 (green shaded area)</li>
                     </ul>
                 `
-            })}
+        })}
 
             ${uiBuilder.createSection({
-                title: 'Clinical Interpretation Guidelines',
-                content: `
+            title: 'Clinical Interpretation Guidelines',
+            content: `
                     <div class="interpretation-grid">
                         <div class="interpretation-item">
                             <strong>Normal Growth:</strong>
@@ -115,7 +105,7 @@ export const growthChart: CalculatorModule = {
                         </div>
                     </div>
                 `
-            })}
+        })}
         `;
     },
     initialize: function (client, patient, container) {
@@ -132,93 +122,8 @@ export const growthChart: CalculatorModule = {
         ) as HTMLCanvasElement;
         const bmiCanvas = container.querySelector('#growthChartCanvasBMI') as HTMLCanvasElement;
 
-        // Z-score calculation function
-        function calculateZScore(ageMonths: number, value: number, cdcDataArray: any[]) {
-            if (!cdcDataArray || cdcDataArray.length === 0) {
-                return null;
-            }
-
-            // Find closest age point in CDC data
-            const closestPoint = cdcDataArray.reduce((prev, curr) =>
-                Math.abs(curr.Agemos - ageMonths) < Math.abs(prev.Agemos - ageMonths) ? curr : prev
-            );
-
-            if (Math.abs(closestPoint.Agemos - ageMonths) > 1) {
-                return null;
-            } // Too far from reference point
-
-            // Use LMS Method for precise calculation
-            if (
-                closestPoint.L !== undefined &&
-                closestPoint.M !== undefined &&
-                closestPoint.S !== undefined
-            ) {
-                const L = closestPoint.L;
-                const M = closestPoint.M;
-                const S = closestPoint.S;
-
-                if (value <= 0) {
-                    return null;
-                }
-
-                if (Math.abs(L) < 0.01) {
-                    return Math.log(value / M) / S;
-                } else {
-                    return (Math.pow(value / M, L) - 1) / (L * S);
-                }
-            }
-
-            // Approximate Z-score using P50 and standard deviation estimation (Legacy Fallback)
-            const p50 = closestPoint.P50;
-            const p5 = closestPoint.P5;
-            const p95 = closestPoint.P95;
-
-            if (p50 === undefined || p5 === undefined || p95 === undefined) {
-                return null;
-            }
-
-            // Rough estimate: assume normal distribution where P5 ≈ -1.645 SD, P95 ≈ +1.645 SD
-            const sdEstimate = (p95 - p5) / (2 * 1.645);
-
-            return (value - p50) / sdEstimate;
-        }
-
-        // Function to estimate percentile from Z-score
-        function estimatePercentile(zscore: number | null) {
-            if (zscore === null) {
-                return '';
-            }
-
-            // Rough approximation
-            if (zscore <= -2.33) {
-                return '3';
-            }
-            if (zscore <= -1.645) {
-                return '5';
-            }
-            if (zscore <= -1.28) {
-                return '10';
-            }
-            if (zscore <= -0.674) {
-                return '25';
-            }
-            if (zscore <= 0) {
-                return '50';
-            }
-            if (zscore <= 0.674) {
-                return '75';
-            }
-            if (zscore <= 1.28) {
-                return '90';
-            }
-            if (zscore <= 1.645) {
-                return '95';
-            }
-            if (zscore <= 2.33) {
-                return '97';
-            }
-            return '>97';
-        }
+        // Note: calculateZScore, estimatePercentile, calculateBmiData, calculateVelocity, and formatAge
+        // are now imported from './calculation.js'
 
         // Function to update chart status and summary
         function updateChartStatus(
@@ -330,31 +235,6 @@ export const growthChart: CalculatorModule = {
                 container.appendChild(errorBox);
                 return null;
             }
-        }
-
-        function calculateBmiData(
-            heightData: GrowthDataPoint[],
-            weightData: GrowthDataPoint[]
-        ): GrowthDataPoint[] {
-            if (heightData.length === 0 || weightData.length === 0) {
-                return [];
-            }
-            const bmiData: GrowthDataPoint[] = [];
-            weightData.forEach(w => {
-                const closestHeight = heightData.reduce((prev, curr) =>
-                    Math.abs(curr.ageMonths - w.ageMonths) < Math.abs(prev.ageMonths - w.ageMonths)
-                        ? curr
-                        : prev
-                );
-                if (Math.abs(closestHeight.ageMonths - w.ageMonths) < 0.5) {
-                    const heightInMeters = closestHeight.value / 100;
-                    if (heightInMeters > 0) {
-                        const bmi = w.value / (heightInMeters * heightInMeters);
-                        bmiData.push({ ageMonths: w.ageMonths, value: bmi });
-                    }
-                }
-            });
-            return bmiData;
         }
 
         function createChart(
@@ -637,39 +517,6 @@ export const growthChart: CalculatorModule = {
             });
         }
 
-        function calculateVelocity(
-            type: string,
-            measurements: GrowthDataPoint[],
-            unit: string,
-            multiplier = 1
-        ) {
-            if (measurements.length < 2) {
-                return '';
-            }
-
-            const recent = measurements.slice(-2);
-            const timeDiff = recent[1].ageMonths - recent[0].ageMonths;
-            const valueDiff = (recent[1].value - recent[0].value) * multiplier;
-
-            if (timeDiff <= 0) {
-                return '';
-            }
-
-            const velocity = valueDiff / timeDiff;
-            const timeStr =
-                timeDiff < 2 ? `${timeDiff.toFixed(1)} month` : `${timeDiff.toFixed(1)} months`;
-
-            return `
-                <div class="velocity-item">
-                    <strong>${type} Velocity:</strong>
-                    <div class="velocity-value ${velocity > 0 ? 'text-success' : 'text-danger'}">
-                        ${velocity > 0 ? '+' : ''}${velocity.toFixed(1)} ${unit}
-                    </div>
-                    <small class="text-muted">over last ${timeStr}</small>
-                </div>
-            `;
-        }
-
         // Function to add growth velocity analysis
         function addGrowthVelocityAnalysis(
             container: HTMLElement,
@@ -716,18 +563,7 @@ export const growthChart: CalculatorModule = {
                 const latestBMI =
                     filteredBMI.length > 0 ? filteredBMI[filteredBMI.length - 1] : null;
 
-                // Helper to transform LMS array to object
-                const mapLmsToObj = (lmsArray: any[]) => {
-                    if (!lmsArray) {
-                        return [];
-                    }
-                    const headers = ['P3', 'P5', 'P10', 'P25', 'P50', 'P75', 'P90', 'P95', 'P97'];
-                    return lmsArray.map(row => {
-                        const obj: any = { Agemos: row[0], L: row[1], M: row[2], S: row[3] };
-                        headers.forEach((h, i) => (obj[h] = row[4 + i]));
-                        return obj;
-                    });
-                };
+                // Use imported mapLmsToPercentileData helper
 
                 // Create Height Chart (Legacy Format)
                 const cdcHeightDataSet =
@@ -754,7 +590,7 @@ export const growthChart: CalculatorModule = {
                 // Create Weight Chart (New LMS Format)
                 const cdcWeightDataRaw =
                     gender === 'female' ? cdcData.wtageinf.female : cdcData.wtageinf.male;
-                const cdcWeightData = mapLmsToObj(cdcWeightDataRaw || []);
+                const cdcWeightData = mapLmsToPercentileData(cdcWeightDataRaw || []);
 
                 if (weightCanvas) {
                     createChart(
