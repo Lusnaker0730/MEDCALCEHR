@@ -9,7 +9,8 @@ import {
     getMedicationRequests,
     calculateAge
 } from './utils.js';
-import { LOINC_CODES, SNOMED_CODES, getLoincName, getMeasurementType } from './fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES, getLoincName, getMeasurementType, isValidLoincCode } from './fhir-codes.js';
+import { getTextNameByLoinc } from './lab-name-mapping.js';
 // @ts-ignore - no type declarations
 import { fhirCache } from './cache-manager.js';
 import { createStalenessTracker, DataStalenessTracker } from './data-staleness.js';
@@ -60,7 +61,10 @@ export interface GetObservationOptions {
     /** Target unit for automatic conversion */
     targetUnit?: string;
     /** Unit type for conversion (e.g., 'creatinine', 'weight', 'height') */
+    /** Unit type for conversion (e.g., 'creatinine', 'weight', 'height') */
     unitType?: string;
+    /** Use text-based query instead of LOINC code (for hospitals without LOINC support) */
+    useTextQuery?: boolean;
 }
 
 /**
@@ -230,17 +234,37 @@ export class FHIRDataService {
                 }
             }
 
-            // Fetch from FHIR server
-            const observation = await getMostRecentObservation(this.client, code);
+            let observation = null;
 
-            // Cache the result
+            // Determine if we should use text-based query
+            const useTextQuery = options.useTextQuery || !isValidLoincCode(code);
+
+            if (useTextQuery) {
+                // Try to resolve text name from LOINC, or use code as-is if it's already text
+                const textName = getTextNameByLoinc(code) || code;
+
+                // Perform text-based search (using code:text modifier or fallback to code for some servers)
+                // We use direct client request here to bypass getMostRecentObservation's hardcoded query
+                const response = await this.client.patient.request(
+                    `Observation?code:text=${encodeURIComponent(textName)}&_sort=-date&_count=1`
+                );
+
+                if (response.entry && response.entry.length > 0) {
+                    observation = response.entry[0].resource;
+                }
+            } else {
+                // Standard LOINC query
+                observation = await getMostRecentObservation(this.client, code);
+            }
+
+            // Cache the result (cache key remains the original code/LOINC for consistency)
             if (observation && this.patientId) {
                 await fhirCache.cacheObservation(this.patientId, code, observation);
             }
 
             return this.processObservation(observation, code, options);
         } catch (error) {
-            console.error(`Error fetching observation ${code}:`, error);
+            console.error(`Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`, error);
             return result;
         }
     }
