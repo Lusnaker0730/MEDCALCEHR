@@ -77,6 +77,17 @@
 }
 
 /* ===================
+   Formula Notes
+   =================== */
+
+.ui-formula-notes {
+    margin-top: 8px;
+    font-style: italic;
+    color: var(--text-secondary, #666);
+    font-size: 0.9em;
+}
+
+/* ===================
    Formula Explanation
    =================== */
 

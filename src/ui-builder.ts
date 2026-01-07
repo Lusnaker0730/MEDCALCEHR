@@ -137,12 +137,45 @@ export interface UIListOptions {
 }
 
 /**
+ * Union type for form fields - improves type safety in createForm
+ */
+export type UIFormField =
+    | (UIInputOptions & { type: 'input' | 'number' | 'text' })
+    | (UIRadioGroupOptions & { type: 'radio' })
+    | (UICheckboxGroupOptions & { type: 'checkbox'; options: UICheckboxOption[] })
+    | (UICheckboxOptions & { type: 'checkbox' })
+    | (UISelectOptions & { type: 'select' })
+    | (UIRangeOptions & { type: 'range' })
+    | (UISectionOptions & { type: 'section' });
+
+/**
+ * DOM element IDs used throughout the application
+ */
+const DOM_IDS = {
+    CALCULATOR_CONTAINER: 'calculator-container',
+    PAGE_TITLE: 'page-title',
+    PATIENT_INFO: 'patient-info'
+} as const;
+
+/**
  * UIBuilder - A comprehensive UI component generation system
  * Provides consistent styling and behavior across all calculators
  */
 export class UIBuilder {
-    constructor() {
-        // Styles are now loaded from css/ui-builder.css via index.html
+    /**
+     * Escape HTML special characters to prevent XSS attacks
+     * @param text - The text to escape
+     * @returns Escaped HTML-safe string
+     */
+    private escapeHtml(text: string): string {
+        const htmlEntities: Record<string, string> = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return text.replace(/[&<>"']/g, char => htmlEntities[char]);
     }
 
     /**
@@ -415,12 +448,12 @@ export class UIBuilder {
     /**
      * Generate textual report from current inputs and results
      */
-    generateReport(containerId: string = 'calculator-container'): string {
+    generateReport(containerId: string = DOM_IDS.CALCULATOR_CONTAINER): string {
         const container = document.getElementById(containerId);
         if (!container) return '';
 
-        const title = document.getElementById('page-title')?.textContent || 'Calculator Report';
-        const patientInfo = document.getElementById('patient-info')?.innerText || 'Patient: Unknown';
+        const title = document.getElementById(DOM_IDS.PAGE_TITLE)?.textContent || 'Calculator Report';
+        const patientInfo = document.getElementById(DOM_IDS.PATIENT_INFO)?.innerText || 'Patient: Unknown';
         const date = new Date().toLocaleString();
 
         let report = `*** ${title} ***\n`;
@@ -535,7 +568,7 @@ export class UIBuilder {
     }: UIResultItemOptions): string {
         let html = `
             <div class="ui-result-score">
-                ${label ? `<div class="ui-section-subtitle" style="text-align:center; margin-top:0;">${label}</div>` : ''}
+                ${label ? `<div class="ui-result-label">${label}</div>` : ''}
                 <div class="ui-result-value">${value}<span class="ui-result-unit">${unit}</span></div>
             </div>
         `;
@@ -581,7 +614,7 @@ export class UIBuilder {
                     : formulaText;
 
                 const notesHTML = item.notes
-                    ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>`
+                    ? `<div class="ui-formula-notes">${item.notes}</div>`
                     : '';
 
                 return `
@@ -628,11 +661,11 @@ export class UIBuilder {
         const inputsWithToggle = container.querySelectorAll('[data-unit-toggle]');
         inputsWithToggle.forEach(wrapper => {
             const input = wrapper.querySelector('.ui-input') as HTMLInputElement;
-            let config: any = null;
+            let config: { type: string; units: string[]; default?: string } | null = null;
             try {
                 config = JSON.parse((wrapper as HTMLElement).dataset.unitToggle || 'null');
             } catch (e) {
-                /* ignore */
+                console.warn('Failed to parse unit toggle config:', e);
             }
 
             // Ensure config is a proper object with units before attempting to enhance
@@ -715,14 +748,14 @@ export class UIBuilder {
 
     /**
      * Create a complete form with multiple fields
-     * @param {Object} options - { fields: [], onSubmit }
+     * @param options - Configuration object with fields array
      */
     createForm({
         fields = [],
         submitLabel = 'Calculate',
         showSubmit = false
     }: {
-        fields: any[];
+        fields: UIFormField[];
         submitLabel?: string;
         showSubmit?: boolean;
     }): string {
@@ -732,21 +765,21 @@ export class UIBuilder {
                     case 'input':
                     case 'number':
                     case 'text':
-                        return this.createInput(field as UIInputOptions);
+                        return this.createInput(field);
                     case 'radio':
-                        return this.createRadioGroup(field as UIRadioGroupOptions);
+                        return this.createRadioGroup(field);
                     case 'checkbox':
-                        if ((field as any).options) {
+                        if ('options' in field && Array.isArray(field.options)) {
                             return this.createCheckboxGroup(field as UICheckboxGroupOptions);
                         } else {
                             return this.createCheckbox(field as UICheckboxOptions);
                         }
                     case 'select':
-                        return this.createSelect(field as UISelectOptions);
+                        return this.createSelect(field);
                     case 'range':
-                        return this.createRange(field as UIRangeOptions);
+                        return this.createRange(field);
                     case 'section':
-                        return this.createSection(field as UISectionOptions);
+                        return this.createSection(field);
                     default:
                         return '';
                 }
@@ -805,7 +838,7 @@ export class UIBuilder {
         return `
             <div class="ui-table-container" ${wrapperId}>
                 <table class="${tableClass}">
-                    <thead>${headerHTML}</thead>
+                    <thead><tr>${headerHTML}</tr></thead>
                     <tbody>${rowsHTML}</tbody>
                 </table>
             </div>
