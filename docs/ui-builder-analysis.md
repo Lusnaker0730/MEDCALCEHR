@@ -72,42 +72,44 @@ Relies on a companion CSS file (`css/ui-builder.css` or embedded in `utilities.c
 3.  **Template Engine**: As complexity grows, moving from string concatenation strings to a lightweight template engine (e.g., `lit-html` or similar) might improve performance and security (XSS prevention).
 
 
-## 7. Operational Flowchart
 
-The following diagram illustrates the lifecycle of a calculator interface built with `UIBuilder`.
+## 7. 運作流程圖 (Operational Flowchart)
+
+下圖展示了使用 `UIBuilder` 建構計算器介面的完整生命週期。
 
 ```mermaid
 sequenceDiagram
-    participant Calc as Calculator Module
-    participant UI as UIBuilder
-    participant DOM as Browser DOM
-    participant User as End User
+    participant Calc as 計算器模組
+    participant UI as UI建構器
+    participant DOM as 瀏覽器 DOM
+    participant User as 終端用戶
 
-    Note over Calc, DOM: 1. Construction Phase
-    Calc->>UI: createInput(options)
-    UI-->>Calc: Return HTML String
-    Calc->>UI: createSection(options)
-    UI-->>Calc: Return HTML String
+    Note over Calc, DOM: 1. 建構階段 (Construction)
+    Calc->>UI: createInput(選項)
+    UI-->>Calc: 返回 HTML 字串
+    Calc->>UI: createSection(選項)
+    UI-->>Calc: 返回 HTML 字串
     
-    Note over Calc, DOM: 2. Rendering Phase
-    Calc->>DOM: container.innerHTML = html_string
+    Note over Calc, DOM: 2. 渲染階段 (Rendering)
+    Calc->>DOM: 容器.innerHTML = HTML字串
     
-    Note over Calc, DOM: 3. Hydration Phase
-    Calc->>UI: initializeComponents(container)
-    UI->>DOM: Query Selectors (.ui-input, .range-slider)
-    UI->>DOM: Add Event Listeners (Unit Toggle, Sliders)
+    Note over Calc, DOM: 3. 初始化階段 (Hydration)
+    Calc->>UI: initializeComponents(容器)
+    UI->>DOM: 查詢選擇器 (.ui-input, .range-slider)
+    UI->>DOM: 添加事件監聽器 (單位切換, 滑桿)
     
-    Note over User, DOM: 4. Runtime Interaction
-    User->>DOM: Interact (Change Unit, Slide Range)
-    DOM->>UI: Event Triggered
-    UI->>DOM: Update View (New Unit, Slider Value)
+    Note over User, DOM: 4. 運行時交互 (Runtime)
+    User->>DOM: 交互 (切換單位, 滑動數值)
+    DOM->>UI: 觸發事件
+    UI->>DOM: 更新畫面 (新單位, 滑桿數值)
     
-    Note over User, DOM: 5. Reporting
-    User->>DOM: Click "Copy Report"
-    DOM->>UI: Click Event
-    UI->>DOM: Scan Inputs & Results
-    UI->>User: Write to Clipboard
+    Note over User, DOM: 5. 產生報告 (Reporting)
+    User->>DOM: 點擊 "複製報告"
+    DOM->>UI: 點擊事件
+    UI->>DOM: 掃描輸入與結果
+    UI->>User: 寫入剪貼簿
 ```
+
 
 ## Summary
 `ui-builder.ts` is a mature, robust foundation for the application. Its strict typing and comprehensive component set make it easy to rapidly develop new clinical calculators while maintaining a professional, uniform aesthetic.
