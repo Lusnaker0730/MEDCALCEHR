@@ -214,31 +214,105 @@ npx http-server -p 8000
 
 ## 🛠️ Technical Stack
 
-- **Frontend**: Vanilla JavaScript (ES6+), HTML5, CSS3
-- **FHIR Client**: SMART on FHIR JavaScript client
-- **Charts**: Chart.js for pediatric growth charts
-- **Design**: Modern CSS with gradients and animations
-- **Architecture**: Modular calculator system
+| 類別 | 技術 |
+|------|------|
+| **語言** | TypeScript, HTML5, CSS3 |
+| **FHIR 整合** | SMART on FHIR JavaScript Client |
+| **圖表** | Chart.js（生長曲線圖） |
+| **架構** | 模組化計算器系統 + Factory Pattern |
+| **UI 系統** | UIBuilder 元件庫 |
+| **驗證** | 三級驗證系統（綠/黃/紅） |
+| **代碼標準** | LOINC、SNOMED CT、RxNorm |
+| **部署** | Docker + Nginx |
+| **測試** | Jest + SaMD 驗證
+
+### 🏗️ 系統架構
+
+```mermaid
+flowchart TB
+    subgraph EHR["🏥 EHR 系統"]
+        FHIR["FHIR Server"]
+    end
+    
+    subgraph App["📱 CGMH EHRCALC"]
+        direction TB
+        Launch["launch.html<br/>SMART 啟動"]
+        Index["index.html<br/>計算器列表"]
+        Calc["calculator.html<br/>計算器頁面"]
+        
+        subgraph Core["核心模組"]
+            UIBuilder["UIBuilder<br/>UI 元件"]
+            Validator["Validator<br/>輸入驗證"]
+            UnitConv["UnitConverter<br/>單位轉換"]
+            FHIRCodes["FHIR Codes<br/>標準代碼"]
+        end
+        
+        subgraph Calculators["計算器模組 (92+)"]
+            Scoring["計分型<br/>APACHE, SOFA..."]
+            Formula["公式型<br/>GFR, BMI..."]
+            Convert["轉換型<br/>MME, 類固醇..."]
+        end
+        
+        subgraph Factories["Factory 函數"]
+            SF["createScoringCalculator"]
+            FF["createUnifiedFormulaCalculator"]
+            CF["createConversionCalculator"]
+        end
+    end
+    
+    FHIR <-->|"OAuth 2.0"| Launch
+    Launch --> Index
+    Index --> Calc
+    Calc --> Core
+    Core --> Factories
+    Factories --> Calculators
+    
+    style EHR fill:#e3f2fd
+    style App fill:#f5f5f5
+    style Core fill:#fff3e0
+    style Calculators fill:#e8f5e9
+    style Factories fill:#fce4ec
+```
 
 ## 📁 Project Structure
 
 ```
 MEDCALCEHR/
-├── index.html              # Main calculator list
-├── calculator.html          # Individual calculator page
-├── launch.html             # SMART on FHIR launch page
-├── style.css               # Main stylesheet
-├── js/
-│   ├── main.js             # Main application logic
-│   ├── calculator-page.js  # Calculator page logic
-│   ├── utils.js            # FHIR utilities
-│   └── calculators/        # Calculator modules
-│       ├── index.js        # Calculator registry
-│       ├── apache-ii/      # APACHE II calculator
-│       ├── growth-chart/   # Pediatric growth charts
-│       ├── bwps/          # BWPS calculator
-│       └── ...            # 89 other calculators
-└── README.md
+├── index.html                    # 主頁（計算器列表）
+├── calculator.html               # 計算器頁面
+├── launch.html                   # SMART on FHIR 啟動頁
+│
+├── src/                          # TypeScript 原始碼
+│   ├── fhir-codes.ts             # LOINC/SNOMED 代碼定義
+│   ├── validator.ts              # 輸入驗證規則
+│   ├── ui-builder.ts             # UI 元件建構器
+│   ├── unit-converter.ts         # 單位轉換器
+│   ├── lab-name-mapping.ts       # 檢驗名稱對照
+│   │
+│   ├── calculators/              # 計算器模組
+│   │   ├── shared/               # 共用 Factory 函數
+│   │   │   ├── scoring-calculator.ts
+│   │   │   ├── unified-formula-calculator.ts
+│   │   │   └── conversion-calculator.ts
+│   │   ├── apache-ii/            # APACHE II
+│   │   ├── ckd-epi/              # CKD-EPI GFR
+│   │   └── ...                   # 其他 90+ 計算器
+│   │
+│   ├── types/                    # TypeScript 型別定義
+│   └── __tests__/                # 測試檔案
+│
+├── js/                           # 編譯後的 JavaScript
+├── css/                          # 樣式檔案
+│   ├── main.css                  # 主樣式
+│   ├── unified-calculator.css    # 統一計算器樣式
+│   └── components/               # 元件樣式
+│
+├── docs/                         # 開發文件
+│   └── DEVELOPER_GUIDE.md        # 開發者指南
+│
+└── text/                         # 其他文件
+    ├── UI_BUILDER_GUIDE.md
+    └── CALCULATOR_STYLE_GUIDE.md
 ```
 
 ## 🔄 Recent Updates
@@ -345,9 +419,77 @@ MEDCALCEHR/
 
 </details>
 
+## 👨‍💻 Developer Guide
+
+### 🚨 開發規則 (Development Rules)
+
+建立新計算器時，請遵守以下 **SaMD (Software as a Medical Device)** 合規要求：
+
+| 規則 | 說明 |
+|------|------|
+| **必須有臨床代碼** | 每個數值輸入必須有對應的標準代碼（LOINC/SNOMED/RxNorm） |
+| **必須有驗證規則** | 每個數值輸入必須定義驗證規則（綠/黃/紅區間） |
+| **禁止原始 HTML** | 使用 `uiBuilder` 或 Factory 函數，不可自行撰寫 HTML |
+| **必須有測試** | 每個計算器必須有對應的測試檔案驗證 |
+
+### 🏭 選擇正確的 Factory
+
+| 計算器類型 | Factory 函數 | 檔案位置 |
+|------------|--------------|----------|
+| **計分型** | `createScoringCalculator` | `src/calculators/shared/scoring-calculator.ts` |
+| **公式型** | `createUnifiedFormulaCalculator` | `src/calculators/shared/unified-formula-calculator.ts` |
+| **單位轉換** | `createConversionCalculator` | `src/calculators/shared/conversion-calculator.ts` |
+
+### 📝 建立新計算器步驟
+
+```mermaid
+flowchart LR
+    A["1️⃣ 建立資料夾<br/>src/calculators/my-calc/"] --> B["2️⃣ 定義代碼<br/>fhir-codes.ts"]
+    B --> C["3️⃣ 定義驗證<br/>validator.ts"]
+    C --> D["4️⃣ 實作邏輯<br/>calculation.ts"]
+    D --> E["5️⃣ 設定 UI<br/>index.ts"]
+    E --> F["6️⃣ 撰寫測試<br/>__tests__/"]
+```
+
+### 🧪 必要測試案例
+
+- **TC-001**: 標準計算驗證
+- **TC-002**: 風險分級驗證
+- **TC-003**: 邊界值測試
+- **TC-004**: 無效輸入處理
+- **TC-005**: Golden Dataset 驗證
+
+### 📚 開發文件
+
+| 文件 | 說明 |
+|------|------|
+| [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | 完整開發指南 |
+| [UI_BUILDER_GUIDE.md](text/UI_BUILDER_GUIDE.md) | UIBuilder 使用指南 |
+| [CALCULATOR_STYLE_GUIDE.md](text/CALCULATOR_STYLE_GUIDE.md) | 樣式指南 |
+| [CALCULATOR_TESTING_GUIDE.md](text/CALCULATOR_TESTING_GUIDE.md) | 測試指南 |
+
+### ✅ 開發檢查清單
+
+```
+□ 每個數值輸入都有 loincCode？
+□ 每個數值輸入都有 validationType？
+□ 缺少的代碼已加入 fhir-codes.ts？
+□ 缺少的驗證規則已加入 validator.ts？
+□ 使用 uiBuilder / Factory（無原始 HTML）？
+□ 有測試檔案驗證計算邏輯？
+```
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+
+在提交 PR 之前，請確保：
+1. ✅ 遵循開發規則
+2. ✅ 所有測試通過
+3. ✅ 程式碼經過 linting
+4. ✅ 新功能有對應文件
 
 ## 📄 License
 
