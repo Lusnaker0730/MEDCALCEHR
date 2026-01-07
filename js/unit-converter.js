@@ -398,59 +398,14 @@ export const UnitConverter = {
         return this.convert(value, currentUnit, standardUnit, type) || value;
     }
 };
-// Add CSS for unit toggle buttons
+// Load external CSS for unit toggle buttons
 if (typeof document !== 'undefined') {
-    const style = document.createElement('style');
-    style.textContent = `
-    .unit-converter-wrapper {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-        width: 100%;
+    if (!document.getElementById('unit-converter-styles')) {
+        const link = document.createElement('link');
+        link.id = 'unit-converter-styles';
+        link.rel = 'stylesheet';
+        link.href = './css/unit-converter.css';
+        document.head.appendChild(link);
     }
-
-    .unit-toggle-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1.3rem !important;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        min-width: 80px;
-        text-align: center;
-        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .unit-toggle-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(102, 126, 234, 0.5);
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    }
-
-    .unit-toggle-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 3px 6px rgba(102, 126, 234, 0.3);
-    }
-
-    .unit-converter-wrapper input {
-        flex: 1;
-        min-width: 120px;
-    }
-
-    @media (max-width: 768px) {
-        .unit-toggle-btn {
-            padding: 10px 16px;
-            font-size: 1.2rem !important;
-            min-width: 70px;
-        }
-    }
-    `;
-    document.head.appendChild(style);
 }
 export default UnitConverter;

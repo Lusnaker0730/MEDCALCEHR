@@ -54,79 +54,14 @@ function showUpdateNotification(registration) {
             <button class="sw-dismiss-button" id="sw-dismiss-btn">Later</button>
         </div>
     `;
-    // Add styles
-    const style = document.createElement('style');
-    style.textContent = `
-        .sw-update-notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 16px 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .sw-update-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .sw-update-icon {
-            font-size: 1.5em;
-        }
-
-        .sw-update-text {
-            flex: 1;
-            font-size: 0.9em;
-            color: #333;
-        }
-
-        .sw-update-button,
-        .sw-dismiss-button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.85em;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .sw-update-button {
-            background: #2196F3;
-            color: white;
-        }
-
-        .sw-update-button:hover {
-            background: #1976D2;
-        }
-
-        .sw-dismiss-button {
-            background: #f5f5f5;
-            color: #666;
-        }
-
-        .sw-dismiss-button:hover {
-            background: #e0e0e0;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-    `;
-    document.head.appendChild(style);
+    // Load styles if not already loaded
+    if (!document.getElementById('sw-update-styles')) {
+        const link = document.createElement('link');
+        link.id = 'sw-update-styles';
+        link.rel = 'stylesheet';
+        link.href = './css/sw-register.css';
+        document.head.appendChild(link);
+    }
     document.body.appendChild(notification);
     // Handle update button click
     document.getElementById('sw-update-btn')?.addEventListener('click', () => {

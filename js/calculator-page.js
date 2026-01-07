@@ -2,6 +2,7 @@
 import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
+import { displayError } from './errorHandler.js';
 // Cache version - increment this when you update calculators to force reload
 window.CACHE_VERSION = '1.0.5';
 /**
@@ -33,27 +34,6 @@ function showLoading(element) {
                 100% { transform: rotate(360deg); }
             }
         </style>
-    `;
-}
-/**
- * Show error message
- */
-function showError(element, message) {
-    element.innerHTML = `
-        <div class="error-box" style="
-            background: #fee;
-            border-left: 4px solid #d32f2f;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-        ">
-            <div style="font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
-                ⚠️ Error
-            </div>
-            <div style="color: #555; font-size: 0.9em;">
-                ${message}
-            </div>
-        </div>
     `;
 }
 window.onload = () => {
@@ -124,7 +104,7 @@ window.onload = () => {
         }
         catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            showError(card, 'This calculator is temporarily unavailable. Please try again later or contact support.');
+            displayError(card, error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
         }
     };
     loadCalculatorModule();

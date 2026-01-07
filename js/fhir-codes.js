@@ -88,6 +88,7 @@ export const LOINC_CODES = {
     HCO3: '1960-4', // Bicarbonate
     BASE_EXCESS: '1925-7', // Base excess
     LACTATE: '2524-7', // Lactate
+    FIO2: '3150-0', // Inhaled oxygen concentration
     // Cardiac Measurements
     QT_INTERVAL: '8633-1', // QT interval (raw)
     // Laboratory - Other

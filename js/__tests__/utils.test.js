@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
-import { calculateAge, convertUnit } from '../utils';
+import { calculateAge } from '../utils';
+import { UnitConverter } from '../unit-converter';
 describe('Utility Functions', () => {
     describe('calculateAge', () => {
         test('should calculate age accurately for past date', () => {
@@ -28,36 +29,36 @@ describe('Utility Functions', () => {
             global.Date = realDate;
         });
     });
-    describe('convertUnit', () => {
+    describe('UnitConverter.convert', () => {
         test('should return same value if units are identical', () => {
-            expect(convertUnit(100, 'mg/dL', 'mg/dL', 'glucose')).toBe(100);
+            expect(UnitConverter.convert(100, 'mg/dL', 'mg/dL', 'glucose')).toBe(100);
         });
         test('should convert glucose mg/dL to mmol/L', () => {
             // Factor: 0.0555
-            const result = convertUnit(100, 'mg/dL', 'mmol/L', 'glucose');
+            const result = UnitConverter.convert(100, 'mg/dL', 'mmol/L', 'glucose');
             expect(result).toBeCloseTo(5.55);
         });
         test('should convert glucose mmol/L to mg/dL', () => {
             // Factor: 18.018
-            const result = convertUnit(5.55, 'mmol/L', 'mg/dL', 'glucose');
+            const result = UnitConverter.convert(5.55, 'mmol/L', 'mg/dL', 'glucose');
             expect(result).toBeCloseTo(99.9999);
         });
         test('should convert temperature C to F', () => {
             // (100 * 9/5) + 32 = 212
-            const result = convertUnit(100, 'C', 'F', 'temperature');
+            const result = UnitConverter.convert(100, 'C', 'F', 'temperature');
             expect(result).toBe(212);
         });
         test('should convert temperature F to C', () => {
             // (212 - 32) * 5/9 = 100
-            const result = convertUnit(212, 'F', 'C', 'temperature');
+            const result = UnitConverter.convert(212, 'F', 'C', 'temperature');
             expect(result).toBe(100);
         });
         test('should return null for invalid measurement type', () => {
             // @ts-ignore
-            expect(convertUnit(100, 'kg', 'lbs', 'invalidType')).toBeNull();
+            expect(UnitConverter.convert(100, 'kg', 'lbs', 'invalidType')).toBeNull();
         });
         test('should return null for invalid unit conversion', () => {
-            expect(convertUnit(100, 'kg', 'meter', 'weight')).toBeNull();
+            expect(UnitConverter.convert(100, 'kg', 'meter', 'weight')).toBeNull();
         });
     });
 });

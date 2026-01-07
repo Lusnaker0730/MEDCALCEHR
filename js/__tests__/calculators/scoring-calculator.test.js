@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { createScoringCalculator, createRadioScoreCalculator, createYesNoCalculator, createScoreCalculator } from '../../calculators/shared/scoring-calculator';
+import { createScoringCalculator } from '../../calculators/shared/scoring-calculator';
 // Mock console
 jest.spyOn(console, 'warn').mockImplementation(() => { });
 jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -54,11 +54,12 @@ describe('Unified Scoring Calculator Factory', () => {
             expect(calculator).toBeDefined();
             expect(calculator.id).toBe('test-radio-score');
         });
-        test('should create radio calculator with convenience function', () => {
-            const calculator = createRadioScoreCalculator({
+        test('should create radio calculator via unified factory', () => {
+            const calculator = createScoringCalculator({
                 id: 'test-radio-2',
                 title: 'Test Radio 2',
                 description: 'Test description',
+                inputType: 'radio',
                 sections: radioConfig.sections,
                 riskLevels: radioConfig.riskLevels
             });
@@ -104,11 +105,12 @@ describe('Unified Scoring Calculator Factory', () => {
             expect(calculator).toBeDefined();
             expect(calculator.id).toBe('test-checkbox-score');
         });
-        test('should create checkbox calculator with convenience function', () => {
-            const calculator = createScoreCalculator({
+        test('should create checkbox calculator via unified factory', () => {
+            const calculator = createScoringCalculator({
                 id: 'test-checkbox-2',
                 title: 'Test Checkbox 2',
                 description: 'Test description',
+                inputType: 'checkbox',
                 sections: checkboxConfig.sections,
                 riskLevels: checkboxConfig.riskLevels
             });
@@ -116,10 +118,11 @@ describe('Unified Scoring Calculator Factory', () => {
             expect(calculator.id).toBe('test-checkbox-2');
         });
         test('should generate HTML with checkboxes', () => {
-            const calculator = createScoreCalculator({
+            const calculator = createScoringCalculator({
                 id: 'test-checkbox-html',
                 title: 'Test',
                 description: 'Test description',
+                inputType: 'checkbox',
                 sections: checkboxConfig.sections,
                 riskLevels: checkboxConfig.riskLevels
             });
@@ -160,11 +163,12 @@ describe('Unified Scoring Calculator Factory', () => {
             expect(calculator).toBeDefined();
             expect(calculator.id).toBe('test-yesno-score');
         });
-        test('should create yes/no calculator with convenience function', () => {
-            const calculator = createYesNoCalculator({
+        test('should create yes/no calculator via unified factory', () => {
+            const calculator = createScoringCalculator({
                 id: 'test-yesno-2',
                 title: 'Test Yes/No 2',
                 description: 'Test description',
+                inputType: 'yesno',
                 questions: yesNoConfig.questions,
                 riskLevels: yesNoConfig.riskLevels
             });
@@ -172,10 +176,11 @@ describe('Unified Scoring Calculator Factory', () => {
             expect(calculator.id).toBe('test-yesno-2');
         });
         test('should generate HTML with Yes/No options', () => {
-            const calculator = createYesNoCalculator({
+            const calculator = createScoringCalculator({
                 id: 'test-yesno-html',
                 title: 'Test',
                 description: 'Test description',
+                inputType: 'yesno',
                 questions: yesNoConfig.questions,
                 riskLevels: yesNoConfig.riskLevels
             });
@@ -186,10 +191,11 @@ describe('Unified Scoring Calculator Factory', () => {
     });
     describe('Formula Section Support', () => {
         test('should include formula section when configured', () => {
-            const calculator = createScoreCalculator({
+            const calculator = createScoringCalculator({
                 id: 'test-with-formula',
                 title: 'Test With Formula',
                 description: 'Test description',
+                inputType: 'checkbox',
                 sections: [
                     {
                         title: 'Test',
@@ -206,8 +212,8 @@ describe('Unified Scoring Calculator Factory', () => {
                     }
                 ],
                 formulaSection: {
-                    show: true,
                     title: 'SCORING FORMULA',
+                    show: true,
                     calculationNote: 'Add selected points',
                     scoringCriteria: [
                         { criteria: 'Item 1', points: '1' },

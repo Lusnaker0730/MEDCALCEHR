@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
-import { createUnifiedFormulaCalculator, createFormulaCalculator, createComplexFormulaCalculator } from '../../calculators/shared/unified-formula-calculator';
+import { createUnifiedFormulaCalculator } from '../../calculators/shared/unified-formula-calculator';
 // Mock console
 jest.spyOn(console, 'warn').mockImplementation(() => { });
 jest.spyOn(console, 'error').mockImplementation(() => { });
@@ -48,11 +48,12 @@ describe('Unified Formula Calculator Factory', () => {
             expect(calculator).toBeDefined();
             expect(calculator.id).toBe('test-simple-formula');
         });
-        test('should create via convenience function', () => {
-            const calculator = createFormulaCalculator({
+        test('should create via unified function', () => {
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-simple-2',
                 title: 'Test Simple 2',
                 description: 'Test description',
+                mode: 'simple',
                 inputs: simpleConfig.inputs,
                 calculate: simpleConfig.calculate
             });
@@ -60,10 +61,11 @@ describe('Unified Formula Calculator Factory', () => {
             expect(calculator.id).toBe('test-simple-2');
         });
         test('should generate HTML with number inputs', () => {
-            const calculator = createFormulaCalculator({
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-html',
                 title: 'Test',
                 description: 'Test description',
+                mode: 'simple',
                 inputs: simpleConfig.inputs,
                 calculate: simpleConfig.calculate
             });
@@ -73,10 +75,11 @@ describe('Unified Formula Calculator Factory', () => {
             expect(html).toContain('type="number"');
         });
         test('should initialize without errors', () => {
-            const calculator = createFormulaCalculator({
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-init',
                 title: 'Test',
                 description: 'Test description',
+                mode: 'simple',
                 inputs: simpleConfig.inputs,
                 calculate: simpleConfig.calculate
             });
@@ -124,24 +127,26 @@ describe('Unified Formula Calculator Factory', () => {
                 severity: 'info'
             };
         };
-        test('should create complex formula calculator via convenience function', () => {
-            const calculator = createComplexFormulaCalculator({
+        test('should create complex formula calculator', () => {
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-complex-2',
                 title: 'Test Complex 2',
                 description: 'Test description',
+                mode: 'complex',
                 sections: complexSections,
-                calculate: complexCalculate
+                complexCalculate: complexCalculate
             });
             expect(calculator).toBeDefined();
             expect(calculator.id).toBe('test-complex-2');
         });
         test('should generate HTML with sections', () => {
-            const calculator = createComplexFormulaCalculator({
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-sections',
                 title: 'Test',
                 description: 'Test description',
+                mode: 'complex',
                 sections: complexSections,
-                calculate: complexCalculate
+                complexCalculate: complexCalculate
             });
             const html = calculator.generateHTML();
             expect(html).toContain('Patient Data');
@@ -150,10 +155,11 @@ describe('Unified Formula Calculator Factory', () => {
     });
     describe('Formula Display', () => {
         test('should include formulas section when configured', () => {
-            const calculator = createFormulaCalculator({
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-formulas',
                 title: 'Test',
                 description: 'Test description',
+                mode: 'simple',
                 inputs: [{ type: 'number', id: 'x', label: 'X', standardUnit: 'units' }],
                 formulas: [
                     { label: 'Square', formula: 'X²' },
@@ -171,10 +177,11 @@ describe('Unified Formula Calculator Factory', () => {
     });
     describe('Unit Toggle Support', () => {
         test('should support unit toggle in inputs', () => {
-            const calculator = createFormulaCalculator({
+            const calculator = createUnifiedFormulaCalculator({
                 id: 'test-unit-toggle',
                 title: 'Test',
                 description: 'Test description',
+                mode: 'simple',
                 inputs: [
                     {
                         type: 'number',

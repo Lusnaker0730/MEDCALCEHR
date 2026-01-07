@@ -262,67 +262,15 @@ export function isObservationStale(observation, thresholdMs = DEFAULT_STALENESS_
 export function createStalenessTracker(options = {}) {
     return new DataStalenessTracker(options);
 }
-// Inject CSS styles for staleness warnings
+// Load external CSS for staleness warnings
 if (typeof document !== 'undefined') {
-    (function injectStalenessStyles() {
-        const styleId = 'staleness-warning-styles';
-        if (document.getElementById(styleId))
-            return;
-        const styles = document.createElement('style');
-        styles.id = styleId;
-        styles.textContent = `
-            .staleness-warning-container {
-                margin: 10px 0 15px 0;
-            }
-
-            .staleness-warning {
-                animation: staleness-fade-in 0.3s ease-out;
-            }
-
-            .staleness-list {
-                list-style-type: disc;
-                font-size: 1.25rem;
-            }
-
-            .staleness-item {
-                margin: 4px 0;
-                line-height: 1.5;
-            }
-
-            .staleness-date {
-                color: #22d3ee;
-                font-family: monospace;
-                font-size: 1.25rem;
-            }
-
-            .staleness-age {
-                color: #06b6d4;
-                font-size: 1.15rem;
-            }
-
-            @keyframes staleness-fade-in {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            /* Dark mode support */
-            @media (prefers-color-scheme: dark) {
-                .staleness-date {
-                    color: #22d3ee;
-                }
-                .staleness-age {
-                    color: #06b6d4;
-                }
-            }
-        `;
-        document.head.appendChild(styles);
-    })();
+    if (!document.getElementById('staleness-warning-styles')) {
+        const link = document.createElement('link');
+        link.id = 'staleness-warning-styles';
+        link.rel = 'stylesheet';
+        link.href = './css/data-staleness.css';
+        document.head.appendChild(link);
+    }
 }
 export default {
     DataStalenessTracker,

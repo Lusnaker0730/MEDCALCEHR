@@ -1,7 +1,7 @@
 // src/fhir-data-service.ts
 // Unified FHIR Data Management Layer
 // Consolidates data fetching, caching, staleness tracking, and UI feedback
-import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests } from './utils.js';
+import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests, calculateAge } from './utils.js';
 import { LOINC_CODES, getLoincName, getMeasurementType } from './fhir-codes.js';
 // @ts-ignore - no type declarations
 import { fhirCache } from './cache-manager.js';
@@ -482,19 +482,13 @@ export class FHIRDataService {
     // ========================================================================
     /**
      * Calculate age from patient birthDate
+     * Uses calculateAge from utils.ts for consistent implementation
      */
     getPatientAge() {
         if (!this.patient?.birthDate) {
             return null;
         }
-        const today = new Date();
-        const birthDate = new Date(this.patient.birthDate);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
+        return calculateAge(this.patient.birthDate);
     }
     /**
      * Get patient gender
