@@ -5,7 +5,7 @@ import { fhirDataService } from '../fhir-data-service';
 // Mock dependencies if needed
 // For now, we use real UnitConverter and UIBuilder as they are pure logic/string generation
 // Mock FHIR services to prevent network calls
-jest.spyOn(fhirDataService, 'initialize').mockImplementation(() => {});
+jest.spyOn(fhirDataService, 'initialize').mockImplementation(() => { });
 jest.spyOn(fhirDataService, 'isReady').mockReturnValue(false);
 
 describe('BMI & BSA Calculator', () => {
@@ -82,13 +82,24 @@ describe('BMI & BSA Calculator', () => {
 
     test('should handle invalid inputs gracefully', () => {
         const weightInput = container.querySelector('#bmi-bsa-weight') as HTMLInputElement;
+        const heightInput = container.querySelector('#bmi-bsa-height') as HTMLInputElement;
         const resultBox = container.querySelector('#bmi-bsa-result') as HTMLElement;
 
+        // Set valid height first, then invalid weight
+        heightInput.value = '175';
         weightInput.value = '-5'; // Invalid negative weight
+        heightInput.dispatchEvent(new Event('input', { bubbles: true }));
         weightInput.dispatchEvent(new Event('input', { bubbles: true }));
 
-        // Result should be hidden or show error
-        // The implementation hides result on invalid input if other input is empty or invalid
-        expect(resultBox.classList.contains('show')).toBe(false);
+        // The unified-formula-calculator shows result box with validation message
+        // but should NOT show actual BMI calculation results
+        const content = resultBox.textContent || '';
+
+        // Should NOT contain valid BMI calculation results
+        expect(content).not.toContain('kg/m²');
+        expect(content).not.toContain('Normal weight');
+        expect(content).not.toContain('Underweight');
+        expect(content).not.toContain('Overweight');
+        expect(content).not.toContain('Obese');
     });
 });

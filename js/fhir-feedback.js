@@ -26,6 +26,11 @@ const STATUS_CLASSES = {
 export class FHIRFeedback {
     constructor() {
         this.stylesInjected = false;
+        // Dynamic tracking for missing fields
+        this.trackedFields = new Map();
+        this.currentMissingIds = new Set();
+        this.summaryContainer = null;
+        this.boundInputHandlers = new Map();
         this.injectStyles();
     }
     /**
@@ -334,14 +339,162 @@ export class FHIRFeedback {
      */
     updateSummaryOnInput(inputElement) {
         const fieldId = inputElement.id;
+        const input = inputElement;
+        const hasValue = input.value && input.value.trim() !== '';
+        if (hasValue) {
+            this.removeFieldFromMissingList(fieldId);
+        }
+        else {
+            this.addFieldToMissingList(fieldId);
+        }
+    }
+    /**
+     * Remove a field from the missing list in the summary
+     * @private
+     */
+    removeFieldFromMissingList(fieldId) {
+        if (!this.currentMissingIds.has(fieldId))
+            return;
+        this.currentMissingIds.delete(fieldId);
         const summaryItem = document.querySelector(`#fhir-data-summary li[data-field-id="${fieldId}"]`);
         if (summaryItem) {
-            summaryItem.remove();
-            const summaryList = document.querySelector('#fhir-data-summary .missing-list');
-            if (summaryList && summaryList.children.length === 0) {
-                document.querySelector('#fhir-data-summary')?.remove();
-            }
+            summaryItem.classList.add('removing');
+            setTimeout(() => summaryItem.remove(), 300);
         }
+        this.updateSummaryBannerState();
+    }
+    /**
+     * Add a field back to the missing list in the summary
+     * @private
+     */
+    addFieldToMissingList(fieldId) {
+        if (this.currentMissingIds.has(fieldId))
+            return;
+        const field = this.trackedFields.get(fieldId);
+        if (!field)
+            return;
+        this.currentMissingIds.add(fieldId);
+        const missingList = document.querySelector('#fhir-data-summary .missing-list');
+        if (missingList) {
+            const li = document.createElement('li');
+            li.setAttribute('data-field-id', fieldId);
+            li.textContent = field.label;
+            li.classList.add('adding');
+            missingList.appendChild(li);
+            // Trigger reflow for animation
+            li.offsetHeight;
+            li.classList.remove('adding');
+        }
+        else {
+            // Need to recreate the summary banner
+            this.recreateSummaryBanner();
+        }
+        this.updateSummaryBannerState();
+    }
+    /**
+     * Update the summary banner state based on current missing fields
+     * @private
+     */
+    updateSummaryBannerState() {
+        const summary = document.querySelector('#fhir-data-summary');
+        if (!summary)
+            return;
+        const missingList = summary.querySelector('.missing-list');
+        const missingCount = missingList?.children.length || 0;
+        if (missingCount === 0) {
+            // All fields filled - change to success state
+            summary.className = 'fhir-data-summary success';
+            const icon = summary.querySelector('.icon');
+            const title = summary.querySelector('.title');
+            if (icon)
+                icon.textContent = '✓';
+            if (title)
+                title.textContent = 'All required data has been entered';
+            // Hide the details section
+            summary.querySelectorAll('.details').forEach(d => d.style.display = 'none');
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                if (summary.classList.contains('success')) {
+                    summary.style.opacity = '0';
+                    setTimeout(() => summary.remove(), 300);
+                }
+            }, 3000);
+        }
+        else {
+            // Still have missing fields - ensure warning state
+            summary.className = 'fhir-data-summary warning';
+            const icon = summary.querySelector('.icon');
+            const title = summary.querySelector('.title');
+            if (icon)
+                icon.textContent = '⚠️';
+            if (title)
+                title.textContent = 'Some patient data is missing';
+            // Show the details section
+            summary.querySelectorAll('.details').forEach(d => d.style.display = '');
+        }
+    }
+    /**
+     * Recreate the summary banner when fields become missing again
+     * @private
+     */
+    recreateSummaryBanner() {
+        if (!this.summaryContainer || this.currentMissingIds.size === 0)
+            return;
+        // Remove existing banner if any
+        this.removeDataSummary(this.summaryContainer);
+        // Build missing list from current tracked missing IDs
+        const missingFields = [];
+        this.currentMissingIds.forEach(id => {
+            const field = this.trackedFields.get(id);
+            if (field)
+                missingFields.push(field);
+        });
+        if (missingFields.length > 0) {
+            this.createDataSummary(this.summaryContainer, {
+                loaded: [],
+                missing: missingFields,
+                failed: []
+            });
+        }
+    }
+    /**
+     * Setup dynamic tracking for all input fields
+     * Call this after createDataSummary to enable real-time updates
+     */
+    setupDynamicTracking(container, missingFields) {
+        this.summaryContainer = container;
+        this.trackedFields.clear();
+        this.currentMissingIds.clear();
+        this.cleanupEventListeners();
+        missingFields.forEach(field => {
+            const fieldObj = typeof field === 'string'
+                ? { id: field, label: field }
+                : field;
+            this.trackedFields.set(fieldObj.id, fieldObj);
+            this.currentMissingIds.add(fieldObj.id);
+            const input = container.querySelector(`#${fieldObj.id}`);
+            if (input) {
+                const handler = () => this.updateSummaryOnInput(input);
+                this.boundInputHandlers.set(fieldObj.id, handler);
+                input.addEventListener('input', handler);
+                input.addEventListener('change', handler);
+            }
+        });
+    }
+    /**
+     * Cleanup event listeners when no longer needed
+     */
+    cleanupEventListeners() {
+        if (!this.summaryContainer)
+            return;
+        this.boundInputHandlers.forEach((handler, fieldId) => {
+            const input = this.summaryContainer?.querySelector(`#${fieldId}`);
+            if (input) {
+                input.removeEventListener('input', handler);
+                input.removeEventListener('change', handler);
+            }
+        });
+        this.boundInputHandlers.clear();
     }
 }
 // ============================================================================

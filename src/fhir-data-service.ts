@@ -675,6 +675,11 @@ export class FHIRDataService {
                     missing,
                     failed: []
                 });
+
+                // Enable dynamic tracking for missing fields
+                if (missing.length > 0) {
+                    fhirFeedback.setupDynamicTracking(this.container, missing);
+                }
             }
         } finally {
             // Remove loading banner
