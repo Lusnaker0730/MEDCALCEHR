@@ -214,6 +214,150 @@ export const apacheIi = createUnifiedFormulaCalculator({
         }
     ],
 
+    formulaSection: {
+        show: true,
+        title: 'APACHE II Scoring Criteria',
+        calculationNote: 'Total Score = Acute Physiology Score (APS) + Age Points + Chronic Health Points',
+        scoringCriteria: [
+            // Age
+            { criteria: 'Age (years)', isHeader: true },
+            { criteria: '≤44', points: '0' },
+            { criteria: '45-54', points: '+2' },
+            { criteria: '55-64', points: '+3' },
+            { criteria: '65-74', points: '+5' },
+            { criteria: '>74', points: '+6' },
+
+            // Chronic Health Status
+            { criteria: 'History of severe organ insufficiency or immunocompromised', isHeader: true },
+            { criteria: 'Yes, nonoperative or emergency postoperative', points: '+5' },
+            { criteria: 'Yes, elective postoperative', points: '+2' },
+            { criteria: 'No', points: '0' },
+
+            // Temperature
+            { criteria: 'Rectal Temperature (°C)', isHeader: true },
+            { criteria: '≥41', points: '+4' },
+            { criteria: '39 to <41', points: '+3' },
+            { criteria: '38.5 to <39', points: '+1' },
+            { criteria: '36 to <38.5', points: '0' },
+            { criteria: '34 to <36', points: '+1' },
+            { criteria: '32 to <34', points: '+2' },
+            { criteria: '30 to <32', points: '+3' },
+            { criteria: '<30', points: '+4' },
+
+            // Mean Arterial Pressure
+            { criteria: 'Mean Arterial Pressure (mmHg)', isHeader: true },
+            { criteria: '>159', points: '+4' },
+            { criteria: '130-159', points: '+3' },
+            { criteria: '110-129', points: '+2' },
+            { criteria: '70-109', points: '0' },
+            { criteria: '50-69', points: '+2' },
+            { criteria: '≤49', points: '+4' },
+
+            // Heart Rate
+            { criteria: 'Heart Rate (beats/min)', isHeader: true },
+            { criteria: '≥180', points: '+4' },
+            { criteria: '140 to <180', points: '+3' },
+            { criteria: '110 to <140', points: '+2' },
+            { criteria: '70 to <110', points: '0' },
+            { criteria: '55 to <70', points: '+2' },
+            { criteria: '40 to <55', points: '+3' },
+            { criteria: '<40', points: '+4' },
+
+            // Respiratory Rate
+            { criteria: 'Respiratory Rate (breaths/min)', isHeader: true },
+            { criteria: '≥50', points: '+4' },
+            { criteria: '35 to <50', points: '+3' },
+            { criteria: '25 to <35', points: '+1' },
+            { criteria: '12 to <25', points: '0' },
+            { criteria: '10 to <12', points: '+1' },
+            { criteria: '6 to <10', points: '+2' },
+            { criteria: '<6', points: '+4' },
+
+            // Oxygenation
+            { criteria: 'Oxygenation (use PaO₂ if FiO₂ <50%, otherwise use A-a gradient)', isHeader: true },
+            { criteria: 'A-a gradient ≥500', points: '+4' },
+            { criteria: 'A-a gradient 350-499', points: '+3' },
+            { criteria: 'A-a gradient 200-349', points: '+2' },
+            { criteria: 'A-a gradient <200 (if FiO₂ ≥50%) or PaO₂ >70 (if FiO₂ <50%)', points: '0' },
+            { criteria: 'PaO₂ 61-70', points: '+1' },
+            { criteria: 'PaO₂ 55-60', points: '+3' },
+            { criteria: 'PaO₂ <55', points: '+4' },
+
+            // Arterial pH
+            { criteria: 'Arterial pH', isHeader: true },
+            { criteria: '≥7.70', points: '+4' },
+            { criteria: '7.60 to <7.70', points: '+3' },
+            { criteria: '7.50 to <7.60', points: '+1' },
+            { criteria: '7.33 to <7.50', points: '0' },
+            { criteria: '7.25 to <7.33', points: '+2' },
+            { criteria: '7.15 to <7.25', points: '+3' },
+            { criteria: '<7.15', points: '+4' },
+
+            // Serum Sodium
+            { criteria: 'Serum Sodium (mmol/L)', isHeader: true },
+            { criteria: '≥180', points: '+4' },
+            { criteria: '160 to <180', points: '+3' },
+            { criteria: '155 to <160', points: '+2' },
+            { criteria: '150 to <155', points: '+1' },
+            { criteria: '130 to <150', points: '0' },
+            { criteria: '120 to <130', points: '+2' },
+            { criteria: '111 to <120', points: '+3' },
+            { criteria: '<111', points: '+4' },
+
+            // Serum Potassium
+            { criteria: 'Serum Potassium (mmol/L)', isHeader: true },
+            { criteria: '≥7.0', points: '+4' },
+            { criteria: '6.0 to <7.0', points: '+3' },
+            { criteria: '5.5 to <6.0', points: '+1' },
+            { criteria: '3.5 to <5.5', points: '0' },
+            { criteria: '3.0 to <3.5', points: '+1' },
+            { criteria: '2.5 to <3.0', points: '+2' },
+            { criteria: '<2.5', points: '+4' },
+
+            // Serum Creatinine
+            { criteria: 'Serum Creatinine (mg/dL)', isHeader: true },
+            { criteria: '≥3.5 and ACUTE renal failure*', points: '+8' },
+            { criteria: '2.0 to <3.5 and ACUTE renal failure', points: '+6' },
+            { criteria: '≥3.5 and CHRONIC renal failure', points: '+4' },
+            { criteria: '1.5 to <2.0 and ACUTE renal failure', points: '+4' },
+            { criteria: '2.0 to <3.5 and CHRONIC renal failure', points: '+3' },
+            { criteria: '1.5 to <2.0 and CHRONIC renal failure', points: '+2' },
+            { criteria: '0.6 to <1.5', points: '0' },
+            { criteria: '<0.6', points: '+2' },
+
+            // Hematocrit
+            { criteria: 'Hematocrit (%)', isHeader: true },
+            { criteria: '≥60', points: '+4' },
+            { criteria: '50 to <60', points: '+2' },
+            { criteria: '46 to <50', points: '+1' },
+            { criteria: '30 to <46', points: '0' },
+            { criteria: '20 to <30', points: '+2' },
+            { criteria: '<20', points: '+4' },
+
+            // WBC
+            { criteria: 'WBC Count (x10⁹/L)', isHeader: true },
+            { criteria: '≥40', points: '+4' },
+            { criteria: '20 to <40', points: '+2' },
+            { criteria: '15 to <20', points: '+1' },
+            { criteria: '3 to <15', points: '0' },
+            { criteria: '1 to <3', points: '+2' },
+            { criteria: '<1', points: '+4' },
+
+            // GCS
+            { criteria: 'Glasgow Coma Scale (GCS)', isHeader: true },
+            { criteria: '15', points: '0' },
+            { criteria: '14', points: '+1' },
+            { criteria: '13', points: '+2' },
+            { criteria: '10-12', points: '+3' },
+            { criteria: '6-9', points: '+6' },
+            { criteria: '3-5', points: '+9' }
+        ],
+        footnotes: [
+            '*Acute renal failure was not defined in the original study. Use clinical judgment to determine if patient has acute kidney injury.',
+            'Score calculated from worst values in the first 24 hours of ICU admission.'
+        ]
+    },
+
     resultTitle: 'APACHE II Score',
 
     // 使用導入的計算函數
