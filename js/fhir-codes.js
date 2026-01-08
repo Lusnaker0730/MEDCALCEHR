@@ -100,7 +100,7 @@ export const LOINC_CODES = {
     AMYLASE: '1798-8', // Amylase
     LIPASE: '3040-3', // Lipase
     LDH: '2532-0', // Lactate dehydrogenase
-    CULTURE: '3150-0', // Culture result
+    CULTURE: '630-4', // Bacteria identified in Unspecified specimen by Culture
     ETHANOL: '49765-1', // Ethanol concentration
     FERRITIN: '2276-4', // Ferritin
     VITAMIN_D: '1989-3', // Vitamin D 25-hydroxy

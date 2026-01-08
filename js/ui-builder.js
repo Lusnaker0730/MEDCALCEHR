@@ -1,12 +1,32 @@
 // Universal UI Component Builder for MedCalcEHR Calculators
 import { UnitConverter } from './unit-converter.js';
 /**
+ * DOM element IDs used throughout the application
+ */
+const DOM_IDS = {
+    CALCULATOR_CONTAINER: 'calculator-container',
+    PAGE_TITLE: 'page-title',
+    PATIENT_INFO: 'patient-info'
+};
+/**
  * UIBuilder - A comprehensive UI component generation system
  * Provides consistent styling and behavior across all calculators
  */
 export class UIBuilder {
-    constructor() {
-        // Styles are now loaded from css/ui-builder.css via index.html
+    /**
+     * Escape HTML special characters to prevent XSS attacks
+     * @param text - The text to escape
+     * @returns Escaped HTML-safe string
+     */
+    escapeHtml(text) {
+        const htmlEntities = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return text.replace(/[&<>"']/g, char => htmlEntities[char]);
     }
     /**
      * Create a section container
@@ -222,12 +242,12 @@ export class UIBuilder {
     /**
      * Generate textual report from current inputs and results
      */
-    generateReport(containerId = 'calculator-container') {
+    generateReport(containerId = DOM_IDS.CALCULATOR_CONTAINER) {
         const container = document.getElementById(containerId);
         if (!container)
             return '';
-        const title = document.getElementById('page-title')?.textContent || 'Calculator Report';
-        const patientInfo = document.getElementById('patient-info')?.innerText || 'Patient: Unknown';
+        const title = document.getElementById(DOM_IDS.PAGE_TITLE)?.textContent || 'Calculator Report';
+        const patientInfo = document.getElementById(DOM_IDS.PATIENT_INFO)?.innerText || 'Patient: Unknown';
         const date = new Date().toLocaleString();
         let report = `*** ${title} ***\n`;
         report += `${patientInfo} \n`;
@@ -325,7 +345,7 @@ export class UIBuilder {
     createResultItem({ label, value, unit = '', interpretation = '', alertClass = '' }) {
         let html = `
             <div class="ui-result-score">
-                ${label ? `<div class="ui-section-subtitle" style="text-align:center; margin-top:0;">${label}</div>` : ''}
+                ${label ? `<div class="ui-result-label">${label}</div>` : ''}
                 <div class="ui-result-value">${value}<span class="ui-result-unit">${unit}</span></div>
             </div>
         `;
@@ -365,7 +385,7 @@ export class UIBuilder {
                 ? item.formulas.map(f => `<div>${f}</div>`).join('')
                 : formulaText;
             const notesHTML = item.notes
-                ? `<div style="margin-top:5px; font-style:italic; color:#666;">${item.notes}</div>`
+                ? `<div class="ui-formula-notes">${item.notes}</div>`
                 : '';
             return `
             <div class="ui-formula-item">
@@ -411,7 +431,7 @@ export class UIBuilder {
                 config = JSON.parse(wrapper.dataset.unitToggle || 'null');
             }
             catch (e) {
-                /* ignore */
+                console.warn('Failed to parse unit toggle config:', e);
             }
             // Ensure config is a proper object with units before attempting to enhance
             if (input && config && typeof config === 'object' && Array.isArray(config.units)) {
@@ -483,7 +503,7 @@ export class UIBuilder {
     }
     /**
      * Create a complete form with multiple fields
-     * @param {Object} options - { fields: [], onSubmit }
+     * @param options - Configuration object with fields array
      */
     createForm({ fields = [], submitLabel = 'Calculate', showSubmit = false }) {
         const fieldsHTML = fields
@@ -496,7 +516,7 @@ export class UIBuilder {
                 case 'radio':
                     return this.createRadioGroup(field);
                 case 'checkbox':
-                    if (field.options) {
+                    if ('options' in field && Array.isArray(field.options)) {
                         return this.createCheckboxGroup(field);
                     }
                     else {
@@ -556,7 +576,7 @@ export class UIBuilder {
         return `
             <div class="ui-table-container" ${wrapperId}>
                 <table class="${tableClass}">
-                    <thead>${headerHTML}</thead>
+                    <thead><tr>${headerHTML}</tr></thead>
                     <tbody>${rowsHTML}</tbody>
                 </table>
             </div>

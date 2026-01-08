@@ -123,8 +123,9 @@ export const LAB_NAME_MAPPING = {
 export function getTextNameByLoinc(loincCode) {
     // Find the key in LOINC_CODES that matches the value
     const entry = Object.entries(LOINC_CODES).find(([, value]) => {
-        // Handle comma-separated codes (take first for matching)
-        return value.includes(loincCode);
+        // Handle comma-separated codes with exact matching
+        const codes = value.split(',').map(c => c.trim());
+        return codes.includes(loincCode);
     });
     if (!entry)
         return null;

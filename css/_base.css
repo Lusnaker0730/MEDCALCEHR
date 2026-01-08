@@ -20,7 +20,12 @@ body {
    Typography
    =================== */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-weight: var(--font-weight-bold);
     line-height: var(--line-height-tight);
     margin-bottom: var(--spacing-4);
@@ -67,6 +72,7 @@ h4 {
 .ui-section h4 {
     background: none;
     -webkit-background-clip: border-box;
+    background-clip: border-box;
     -webkit-text-fill-color: var(--heading-solid-text-fill);
     color: var(--heading-solid-color);
 }
@@ -76,6 +82,7 @@ h4 {
 .calculator-header h4 {
     background: none;
     -webkit-background-clip: border-box;
+    background-clip: border-box;
     -webkit-text-fill-color: var(--color-text-white);
     color: var(--color-text-white);
 }
@@ -84,7 +91,8 @@ p {
     margin-bottom: var(--spacing-4);
 }
 
-strong, b {
+strong,
+b {
     font-weight: var(--font-weight-semibold);
 }
 
@@ -109,7 +117,8 @@ a:hover {
    Lists
    =================== */
 
-ul, ol {
+ul,
+ol {
     padding-left: var(--spacing-6);
     margin-bottom: var(--spacing-4);
 }
@@ -130,7 +139,8 @@ li {
    Code
    =================== */
 
-code, pre {
+code,
+pre {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-sm);
 }
@@ -171,4 +181,3 @@ hr {
     background: var(--color-primary);
     color: var(--color-text-white);
 }
-
