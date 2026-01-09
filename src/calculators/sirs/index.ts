@@ -74,6 +74,7 @@ export const sirs = createUnifiedFormulaCalculator({
                         default: 'mmHg'
                     },
                     validationType: 'paCO2',
+                    loincCode: LOINC_CODES.PCO2,
                     standardUnit: 'mmHg'
                 }
             ]
@@ -169,9 +170,7 @@ export const sirs = createUnifiedFormulaCalculator({
             
             ${metDetails.length > 0 ? `
             <div class="text-sm mt-5 mb-10 text-muted">
-                <ul class="list-disc pl-20">
-                    ${metDetails.map(d => `<li>${d}</li>`).join('')}
-                </ul>
+                ${uiBuilder.createList({ items: metDetails })}
             </div>
             ` : ''}
 
