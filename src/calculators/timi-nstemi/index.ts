@@ -8,6 +8,7 @@
 import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
 
 const config: ScoringCalculatorConfig = {
     inputType: 'yesno',
@@ -16,16 +17,14 @@ const config: ScoringCalculatorConfig = {
     description: 'Estimates mortality for patients with unstable angina and non-ST elevation MI.',
     infoAlert: `
         <h4>📊 Risk Stratification (14-day events)</h4>
-        <table class="ui-data-table">
-            <thead>
-                <tr><th>Score</th><th>Risk</th><th>Event Rate</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>0-2</td><td>Low</td><td>5-8%</td></tr>
-                <tr><td>3-4</td><td>Intermediate</td><td>13-20%</td></tr>
-                <tr><td>5-7</td><td>High</td><td>26-41%</td></tr>
-            </tbody>
-        </table>
+        ${uiBuilder.createTable({
+        headers: ['Score', 'Risk', 'Event Rate'],
+        rows: [
+            ['0-2', 'Low', '5-8%'],
+            ['3-4', 'Intermediate', '13-20%'],
+            ['5-7', 'High', '26-41%']
+        ]
+    })}
     `,
     questions: [
         {
@@ -192,7 +191,10 @@ const config: ScoringCalculatorConfig = {
 
         try {
             // 檢測已知冠心病
-            const hasCAD = await fhirDataService.hasCondition(['53741008', '414545008']); // CAD, IHD
+            const hasCAD = await fhirDataService.hasCondition([
+                SNOMED_CODES.CORONARY_ARTERY_DISEASE,
+                SNOMED_CODES.ISCHEMIC_HEART_DISEASE
+            ]);
             if (hasCAD) {
                 setYes('timi-known-cad');
             }
@@ -201,19 +203,23 @@ const config: ScoringCalculatorConfig = {
             let riskFactorCount = 0;
 
             // 高血壓
-            const hasHTN = await fhirDataService.hasCondition(['38341003']);
+            const hasHTN = await fhirDataService.hasCondition([SNOMED_CODES.HYPERTENSION]);
             if (hasHTN) {
                 riskFactorCount++;
             }
 
             // 高血脂
-            const hasHyperlipidemia = await fhirDataService.hasCondition(['55822004']);
+            const hasHyperlipidemia = await fhirDataService.hasCondition([SNOMED_CODES.HYPERLIPIDEMIA]);
             if (hasHyperlipidemia) {
                 riskFactorCount++;
             }
 
             // 糖尿病
-            const hasDM = await fhirDataService.hasCondition(['73211009', 'E10', 'E11']);
+            const hasDM = await fhirDataService.hasCondition([
+                SNOMED_CODES.DIABETES_MELLITUS,
+                SNOMED_CODES.DIABETES_TYPE_1,
+                SNOMED_CODES.DIABETES_TYPE_2
+            ]);
             if (hasDM) {
                 riskFactorCount++;
             }
@@ -223,7 +229,7 @@ const config: ScoringCalculatorConfig = {
             }
 
             // 檢測阿斯匹靈使用
-            const onAspirin = await fhirDataService.isOnMedication(['1191']); // Aspirin RxNorm
+            const onAspirin = await fhirDataService.isOnMedication([RXNORM_CODES.ASPIRIN]);
             if (onAspirin) {
                 setYes('timi-asa');
             }

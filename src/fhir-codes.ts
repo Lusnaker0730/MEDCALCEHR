@@ -227,7 +227,33 @@ export const SNOMED_CODES: Record<string, string> = {
     FAMILY_HISTORY_CAD: '266897004',
     PREVIOUS_MI: '399211009',
     PREVIOUS_STROKE: '161505003',
-    PREVIOUS_BLEEDING: '131148009'
+    PREVIOUS_BLEEDING: '131148009',
+    ISCHEMIC_HEART_DISEASE: '414545008'
+};
+
+/**
+ * RxNorm Codes Registry
+ * Standard codes for medications
+ * Reference: https://www.nlm.nih.gov/research/umls/rxnorm/
+ */
+export const RXNORM_CODES: Record<string, string> = {
+    // Antiplatelets
+    ASPIRIN: '1191',
+    CLOPIDOGREL: '32968',
+    TICAGRELOR: '1116632',
+    PRASUGREL: '855812',
+
+    // Anticoagulants
+    WARFARIN: '11289',
+    HEPARIN: '5224',
+    ENOXAPARIN: '67108',
+    RIVAROXABAN: '1114195',
+    APIXABAN: '1364430',
+    DABIGATRAN: '1037042',
+    EDOXABAN: '1599538',
+
+    // P2Y12 Inhibitors (alias for common names)
+    P2Y12_INHIBITOR: '32968,1116632,855812' // Clopidogrel, Ticagrelor, Prasugrel
 };
 
 /**

@@ -43,7 +43,7 @@ const config: ScoringCalculatorConfig = {
                     label: 'Pressure - Do you have or are you being treated for high blood pressure?',
                     value: 1,
                     // SNOMED code for hypertension
-                    conditionCode: '38341003'
+                    conditionCode: SNOMED_CODES.HYPERTENSION
                 },
                 { id: 'sb-bmi', label: 'BMI more than 35 kg/m²', value: 1 },
                 { id: 'sb-age', label: 'Age over 50 years old', value: 1 },
@@ -152,7 +152,7 @@ const config: ScoringCalculatorConfig = {
             }
 
             // 獲取高血壓病史
-            const hasHypertension = await fhirDataService.hasCondition(['38341003']);
+            const hasHypertension = await fhirDataService.hasCondition([SNOMED_CODES.HYPERTENSION]);
             if (hasHypertension) {
                 setCheckbox('sb-pressure', true);
             }

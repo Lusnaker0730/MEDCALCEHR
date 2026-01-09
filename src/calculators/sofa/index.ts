@@ -464,12 +464,12 @@ export const sofa = {
         })}
         `;
 
-        const referenceSection = `
-            <div class="info-section mt-20">
-                <h4>📚 Reference</h4>
-                <p>Vincent JL, et al. The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure. <em>Intensive Care Med</em>. 1996;22(7):707-710.</p>
-            </div>
-        `;
+        const referenceSection = uiBuilder.createReference({
+            title: 'Reference',
+            citations: [
+                'Vincent JL, et al. The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure. <em>Intensive Care Med</em>. 1996;22(7):707-710.'
+            ]
+        });
 
         return html + formulaSection + factsSection + referenceSection;
     }

@@ -472,15 +472,57 @@ Use `snomedCode` on radio fields to detect if patient has a condition:
 
 | Condition | Code Name | SNOMED |
 |-----------|-----------|--------|
+| Hypertension | `SNOMED_CODES.HYPERTENSION` | 38341003 |
+| CAD | `SNOMED_CODES.CORONARY_ARTERY_DISEASE` | 53741008 |
+| IHD | `SNOMED_CODES.ISCHEMIC_HEART_DISEASE` | 414545008 |
 | Type 1 Diabetes | `SNOMED_CODES.DIABETES_TYPE_1` | 46635009 |
+| Type 2 Diabetes | `SNOMED_CODES.DIABETES_TYPE_2` | 44054006 |
+| Hyperlipidemia | `SNOMED_CODES.HYPERLIPIDEMIA` | 55822004 |
 | COPD | `SNOMED_CODES.COPD` | 13645005 |
 | Heart Failure | `SNOMED_CODES.HEART_FAILURE` | 84114007 |
 | MI | `SNOMED_CODES.MYOCARDIAL_INFARCTION` | 22298006 |
-| Pulmonary HTN | `SNOMED_CODES.PULMONARY_HYPERTENSION` | 70995007 |
-| Endocarditis | `SNOMED_CODES.ENDOCARDITIS` | 56819008 |
-| PAD | `SNOMED_CODES.PERIPHERAL_ARTERY_DISEASE` | 399957001 |
-| Dialysis | `SNOMED_CODES.DIALYSIS_DEPENDENT` | 429451001 |
-| Previous CABG | `SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY` | 232717009 |
+| DVT | `SNOMED_CODES.DEEP_VEIN_THROMBOSIS` | 128053003 |
+| Malignancy | `SNOMED_CODES.MALIGNANCY` | 363346000 |
+| Paralysis | `SNOMED_CODES.PARALYSIS` | 166001 |
+
+### RxNorm Codes for Medications
+
+Use `RXNORM_CODES` for medication detection:
+
+```typescript
+import { RXNORM_CODES } from '../../fhir-codes.js';
+
+// In customInitialize:
+const onAspirin = await fhirDataService.isOnMedication([RXNORM_CODES.ASPIRIN]);
+```
+
+| Medication | Code Name | RxNorm |
+|------------|-----------|--------|
+| Aspirin | `RXNORM_CODES.ASPIRIN` | 1191 |
+| Clopidogrel | `RXNORM_CODES.CLOPIDOGREL` | 32968 |
+| Ticagrelor | `RXNORM_CODES.TICAGRELOR` | 1116632 |
+| Warfarin | `RXNORM_CODES.WARFARIN` | 11289 |
+| Rivaroxaban | `RXNORM_CODES.RIVAROXABAN` | 1114195 |
+| Apixaban | `RXNORM_CODES.APIXABAN` | 1364430 |
+
+### Custom FHIR Initialization
+
+For complex auto-population logic, use `customInitialize`:
+
+```typescript
+customInitialize: async (client, patient, container, calculate) => {
+    // Check conditions
+    const hasHTN = await fhirDataService.hasCondition([SNOMED_CODES.HYPERTENSION]);
+    if (hasHTN) {
+        const checkbox = container.querySelector('#my-htn-checkbox') as HTMLInputElement;
+        if (checkbox) checkbox.checked = true;
+    }
+    
+    // Check medications
+    const onAspirin = await fhirDataService.isOnMedication([RXNORM_CODES.ASPIRIN]);
+    // ...
+}
+```
 
 ### Additional LOINC Codes for Cardiac
 
@@ -496,6 +538,7 @@ Use `snomedCode` on radio fields to detect if patient has a condition:
 - [ ] Does every numeric input have a `loincCode`?
 - [ ] Does every numeric input have a `validationType`?
 - [ ] Do Yes/No radio fields have `snomedCode` for condition detection?
+- [ ] Are hardcoded SNOMED/LOINC/RxNorm codes replaced with constants?
 - [ ] Are missing codes added to `fhir-codes.ts`?
 - [ ] Are missing validation rules added to `validator.ts`?
 - [ ] Is `uiBuilder` / factory used (no raw HTML)?
@@ -503,5 +546,6 @@ Use `snomedCode` on radio fields to detect if patient has a condition:
 - [ ] Is there a test file verifying the calculation?
 - [ ] Are coefficients exported and tested against published values?
 - [ ] Is `autoPopulateAge` / `autoPopulateGender` configured if applicable?
+
 
 
