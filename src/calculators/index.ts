@@ -187,6 +187,11 @@ export const calculatorModules: CalculatorMetadata[] = [
     { id: 'nihss', title: 'NIH Stroke Scale (NIHSS)', category: 'neurology' },
     { id: 'padua-vte', title: 'Padua Prediction Score for VTE Risk', category: 'cardiovascular' },
     { id: 'pecarn', title: 'PECARN Head Trauma Rule for Children', category: 'pediatric' },
+    {
+        id: 'pediatric-bp',
+        title: 'Pediatric Blood Pressure Percentile',
+        category: 'pediatric'
+    },
     { id: 'perc', title: 'PERC Rule for Pulmonary Embolism', category: 'cardiovascular' },
     {
         id: 'phenytoin-correction',
