@@ -123,6 +123,11 @@ export const calculatorModules: CalculatorMetadata[] = [
         category: 'metabolic'
     },
     { id: 'ett', title: 'ETT Depth and Tidal Volume Calculator', category: 'respiratory' },
+    {
+        id: 'euroscore-ii',
+        title: 'EuroSCORE II for Cardiac Surgery Mortality',
+        category: 'cardiovascular'
+    },
     { id: 'fena', title: 'Fractional Excretion of Sodium (FENa)', category: 'renal' },
     { id: 'feurea', title: 'Fractional Excretion of Urea (FEUrea)', category: 'renal' },
     { id: 'fib-4', title: 'FIB-4 Score for Liver Fibrosis', category: 'gastroenterology' },
