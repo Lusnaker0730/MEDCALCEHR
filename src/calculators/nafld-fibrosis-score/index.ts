@@ -27,7 +27,8 @@ const config: FormulaCalculatorConfig = {
                     type: 'number',
                     id: 'age',
                     label: 'Age',
-                    unit: 'years'
+                    unit: 'years',
+                    validationType: 'age'
                 },
                 {
                     type: 'number',
@@ -55,13 +56,15 @@ const config: FormulaCalculatorConfig = {
                     type: 'number',
                     id: 'ast',
                     label: 'AST',
-                    unit: 'U/L'
+                    unit: 'U/L',
+                    validationType: 'liverEnzyme'
                 },
                 {
                     type: 'number',
                     id: 'alt',
                     label: 'ALT',
-                    unit: 'U/L'
+                    unit: 'U/L',
+                    validationType: 'liverEnzyme'
                 },
                 {
                     type: 'number',

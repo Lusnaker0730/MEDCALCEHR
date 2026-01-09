@@ -27,21 +27,24 @@ const config: FormulaCalculatorConfig = {
                     id: 'grace-age',
                     label: 'Age',
                     placeholder: 'Enter age',
-                    unit: 'years'
+                    unit: 'years',
+                    validationType: 'age'
                 },
                 {
                     type: 'number',
                     id: 'grace-hr',
                     label: 'Heart Rate',
                     placeholder: 'Enter heart rate',
-                    unit: 'bpm'
+                    unit: 'bpm',
+                    validationType: 'heartRate'
                 },
                 {
                     type: 'number',
                     id: 'grace-sbp',
                     label: 'Systolic BP',
                     placeholder: 'Enter systolic BP',
-                    unit: 'mmHg'
+                    unit: 'mmHg',
+                    validationType: 'systolicBP'
                 },
                 {
                     type: 'number',

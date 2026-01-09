@@ -104,7 +104,8 @@ const config: FormulaCalculatorConfig = {
                     label: 'Heart Rate',
                     unit: 'bpm',
                     placeholder: 'Enter heart rate',
-                    helpText: '75-94 bpm (+1), ≥ 95 bpm (+2)'
+                    helpText: '75-94 bpm (+1), ≥ 95 bpm (+2)',
+                    validationType: 'heartRate'
                 }
             ]
         }

@@ -28,7 +28,8 @@ const config: FormulaCalculatorConfig = {
                     type: 'number',
                     id: 'maggic-age',
                     label: 'Age',
-                    unit: 'years'
+                    unit: 'years',
+                    validationType: 'age'
                 },
                 {
                     type: 'radio',
@@ -66,14 +67,17 @@ const config: FormulaCalculatorConfig = {
                     type: 'number',
                     id: 'maggic-ef',
                     label: 'Ejection Fraction',
-                    unit: '%'
+                    unit: '%',
+                    min: 5,
+                    max: 100
                 },
                 {
                     type: 'number',
                     id: 'maggic-sbp',
                     label: 'Systolic BP',
                     unit: 'mmHg',
-                    placeholder: 'Norm: 100-120'
+                    placeholder: 'Norm: 100-120',
+                    validationType: 'systolicBP'
                 },
                 {
                     type: 'number',

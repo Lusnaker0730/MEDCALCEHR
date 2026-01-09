@@ -26,7 +26,8 @@ const config: FormulaCalculatorConfig = {
                     id: 'mica-age',
                     label: 'Age',
                     unit: 'years',
-                    placeholder: 'Enter age'
+                    placeholder: 'Enter age',
+                    validationType: 'age'
                 }
             ]
         },
@@ -70,7 +71,8 @@ const config: FormulaCalculatorConfig = {
                     label: 'Creatinine',
                     unit: 'mg/dL',
                     step: 0.1,
-                    placeholder: 'Enter creatinine'
+                    placeholder: 'Enter creatinine',
+                    validationType: 'creatinine'
                 }
             ]
         },

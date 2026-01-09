@@ -231,7 +231,8 @@ const config: FormulaCalculatorConfig = {
                     unit: 'mg/dL',
                     step: 0.1,
                     min: 0,
-                    placeholder: 'e.g. 1.2'
+                    placeholder: 'e.g. 1.2',
+                    validationType: 'creatinine'
                 },
                 {
                     type: 'number',

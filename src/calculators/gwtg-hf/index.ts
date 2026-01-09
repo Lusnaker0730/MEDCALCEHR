@@ -27,35 +27,40 @@ const config: FormulaCalculatorConfig = {
                     id: 'gwtg-sbp',
                     label: 'Systolic BP',
                     unit: 'mmHg',
-                    placeholder: '120'
+                    placeholder: '120',
+                    validationType: 'systolicBP'
                 },
                 {
                     type: 'number',
                     id: 'gwtg-bun',
                     label: 'BUN',
                     unit: 'mg/dL',
-                    placeholder: '30'
+                    placeholder: '30',
+                    validationType: 'bun'
                 },
                 {
                     type: 'number',
                     id: 'gwtg-sodium',
                     label: 'Sodium',
                     unit: 'mEq/L',
-                    placeholder: '140'
+                    placeholder: '140',
+                    validationType: 'sodium'
                 },
                 {
                     type: 'number',
                     id: 'gwtg-age',
                     label: 'Age',
                     unit: 'years',
-                    placeholder: '65'
+                    placeholder: '65',
+                    validationType: 'age'
                 },
                 {
                     type: 'number',
                     id: 'gwtg-hr',
                     label: 'Heart Rate',
                     unit: 'bpm',
-                    placeholder: '80'
+                    placeholder: '80',
+                    validationType: 'heartRate'
                 }
             ]
         },

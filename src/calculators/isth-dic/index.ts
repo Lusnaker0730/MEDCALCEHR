@@ -30,6 +30,7 @@ const config: FormulaCalculatorConfig = {
                     label: 'Platelet count',
                     unit: '×10⁹/L',
                     placeholder: 'Enter value',
+                    validationType: 'platelets',
                     unitToggle: {
                         type: 'platelet',
                         units: ['×10⁹/L', 'K/µL'],
