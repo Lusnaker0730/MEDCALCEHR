@@ -967,7 +967,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                 if (numberInputs.length > 0 && fhirDataService.isReady()) {
                     const requirements: FieldDataRequirement[] = numberInputs.map(i => ({
-                        inputId: `[id="${i.id}"]`,
+                        inputId: `#${i.id}`,
                         code: i.loincCode!,
                         label: i.label,
                         targetUnit: (i.unitConfig || i.unitToggle)?.default || i.standardUnit,
