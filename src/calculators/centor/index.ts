@@ -145,35 +145,22 @@ export const centor = {
             icon: '📐',
             content: `
                 <p class="calculation-note mb-15">Addition of the selected points:</p>
-                <div class="ui-table-wrapper">
-                    <table class="ui-scoring-table">
-                        <thead>
-                            <tr>
-                                <th class="ui-scoring-table__header ui-scoring-table__header--criteria">Criteria</th>
-                                <th class="ui-scoring-table__header"></th>
-                                <th class="ui-scoring-table__header ui-scoring-table__header--points">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="ui-scoring-table__category"><td colspan="3">Age</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>3-14 years</td><td class="text-center">+1</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>15-44 years</td><td class="text-center">0</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>≥45 years</td><td class="text-center">-1</td></tr>
-                            <tr class="ui-scoring-table__category"><td colspan="3">Exudate or swelling on tonsils</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>No</td><td class="text-center">0</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>Yes</td><td class="text-center">+1</td></tr>
-                            <tr class="ui-scoring-table__category"><td colspan="3">Tender/swollen anterior cervical lymph nodes</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>No</td><td class="text-center">0</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>Yes</td><td class="text-center">+1</td></tr>
-                            <tr class="ui-scoring-table__category"><td colspan="3">Temp >38°C (100.4°F)</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>No</td><td class="text-center">0</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>Yes</td><td class="text-center">+1</td></tr>
-                            <tr class="ui-scoring-table__category"><td colspan="3">Cough</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>Cough present</td><td class="text-center">0</td></tr>
-                            <tr class="ui-scoring-table__item"><td></td><td>Cough absent</td><td class="text-center">+1</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                ${uiBuilder.createTable({
+                headers: ['Criteria', 'Option', 'Points'],
+                rows: [
+                    ['<strong>Age</strong>', '3-14 years', '+1'],
+                    ['', '15-44 years', '0'],
+                    ['', '≥45 years', '-1'],
+                    ['<strong>Exudate or swelling on tonsils</strong>', 'No', '0'],
+                    ['', 'Yes', '+1'],
+                    ['<strong>Tender/swollen anterior cervical lymph nodes</strong>', 'No', '0'],
+                    ['', 'Yes', '+1'],
+                    ['<strong>Temp >38°C (100.4°F)</strong>', 'No', '0'],
+                    ['', 'Yes', '+1'],
+                    ['<strong>Cough</strong>', 'Cough present', '0'],
+                    ['', 'Cough absent', '+1']
+                ]
+            })}
             `
         });
 

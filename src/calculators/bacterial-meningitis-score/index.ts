@@ -1,6 +1,7 @@
 import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 
 export const bacterialMeningitisScore = createScoringCalculator({
     id: 'bacterial-meningitis-score',
@@ -137,10 +138,10 @@ export const bacterialMeningitisScore = createScoringCalculator({
         if (fhirDataService.isReady()) {
             try {
                 // CSF Gram Stain (LOINC: 664-3) - needs raw observation for CodeableConcept
-                const gramStainObs = await fhirDataService.getRawObservation('664-3');
+                const gramStainObs = await fhirDataService.getRawObservation(LOINC_CODES.CSF_GRAM_STAIN);
                 if (gramStainObs?.valueCodeableConcept?.coding) {
                     const isPositive = gramStainObs.valueCodeableConcept.coding.some(
-                        (c: any) => c.code === '260348003' // SNOMED: Positive
+                        (c: any) => c.code === SNOMED_CODES.POSITIVE_RESULT
                     );
                     if (isPositive) {
                         setRadio('gram_stain', '2');
@@ -148,7 +149,7 @@ export const bacterialMeningitisScore = createScoringCalculator({
                 }
 
                 // CSF ANC (LOINC: 26485-3)
-                const csfAncResult = await fhirDataService.getObservation('26485-3', {
+                const csfAncResult = await fhirDataService.getObservation(LOINC_CODES.CSF_ANC, {
                     trackStaleness: true,
                     stalenessLabel: 'CSF ANC'
                 });
@@ -157,7 +158,7 @@ export const bacterialMeningitisScore = createScoringCalculator({
                 }
 
                 // CSF Protein (LOINC: 3137-7)
-                const csfProteinResult = await fhirDataService.getObservation('3137-7', {
+                const csfProteinResult = await fhirDataService.getObservation(LOINC_CODES.CSF_PROTEIN, {
                     trackStaleness: true,
                     stalenessLabel: 'CSF Protein'
                 });
@@ -166,7 +167,7 @@ export const bacterialMeningitisScore = createScoringCalculator({
                 }
 
                 // Peripheral Blood ANC (LOINC: 751-8)
-                const bloodAncResult = await fhirDataService.getObservation('751-8', {
+                const bloodAncResult = await fhirDataService.getObservation(LOINC_CODES.NEUTROPHILS_ABSOLUTE, {
                     trackStaleness: true,
                     stalenessLabel: 'Blood ANC'
                 });
@@ -174,8 +175,8 @@ export const bacterialMeningitisScore = createScoringCalculator({
                     setRadio('blood_anc', '1');
                 }
 
-                // Seizure (SNOMED: 91175000)
-                const hasSeizure = await fhirDataService.hasCondition(['91175000']);
+                // Seizure (SNOMED coverage)
+                const hasSeizure = await fhirDataService.hasCondition([SNOMED_CODES.SEIZURE]);
                 if (hasSeizure) {
                     setRadio('seizure', '1');
                 }

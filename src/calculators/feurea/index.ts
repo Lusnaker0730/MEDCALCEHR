@@ -51,7 +51,7 @@ export const feureaConfig: FormulaCalculatorConfig = {
                         default: 'mg/dL'
                     },
                     validationType: 'bun',
-                    loincCode: '3095-7',
+                    loincCode: LOINC_CODES.URINE_UREA_NITROGEN,
                     standardUnit: 'mg/dL',
                     required: true
                 },

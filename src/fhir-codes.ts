@@ -27,6 +27,7 @@ export const LOINC_CODES: Record<string, string> = {
     HEMATOCRIT: '4544-3', // Hematocrit
     WBC: '6690-2', // White blood cells
     PLATELETS: '777-3', // Platelets (automated count)
+    PLATELET_COUNT: '777-3', // Alias for Platelets
     PLATELETS_ALT: '26515-7', // Platelets (in blood)
     EOSINOPHILS: '26478-8', // Eosinophils
 
@@ -44,6 +45,10 @@ export const LOINC_CODES: Record<string, string> = {
     MAGNESIUM: '2601-3', // Magnesium
     PHOSPHATE: '2777-1', // Phosphate
     ALBUMIN: '1751-7', // Albumin
+
+    // Specialized Tests
+    INSULIN_LEVEL: '20448-7', // Fasting Insulin
+    FASTING_GLUCOSE: '2339-0', // Fasting Glucose
 
     // Laboratory - Liver Function
     BILIRUBIN_TOTAL: '1975-2', // Bilirubin total
@@ -67,8 +72,9 @@ export const LOINC_CODES: Record<string, string> = {
     URINE_POTASSIUM: '2829-0', // Urine potassium
     SERUM_OSMOLALITY: '2695-6', // Serum osmolality
     URINE_OSMOLALITY: '2697-2', // Urine osmolality
-    URINE_SODIUM: '2828-2', // Urine sodium
+    URINE_SODIUM: '2828-2,2955-3', // Urine sodium
     URINE_CREATININE: '2161-8', // Urine creatinine
+    URINE_UREA_NITROGEN: '3095-7', // Urine Urea Nitrogen
 
     // Laboratory - Inflammatory Markers
     CRP: '1988-5', // C-reactive protein
@@ -121,6 +127,10 @@ export const LOINC_CODES: Record<string, string> = {
     ETHANOL: '49765-1', // Ethanol concentration
     FERRITIN: '2276-4', // Ferritin
     VITAMIN_D: '1989-3', // Vitamin D 25-hydroxy
+    CSF_GRAM_STAIN: '664-3', // Microscopic observation [Identifier] in Cerebrospinal fluid by Gram stain
+    CSF_ANC: '26485-3', // Neutrophils [#/volume] in Cerebrospinal fluid
+    CSF_PROTEIN: '3137-7', // Protein [Mass/volume] in Cerebrospinal fluid
+    NEUTROPHILS_ABSOLUTE: '751-8', // Neutrophils [#/volume] in Blood
 
     // Clinical Assessments
     GCS: '9269-2', // Glasgow Coma Scale
@@ -132,7 +142,8 @@ export const LOINC_CODES: Record<string, string> = {
     // Other Observations
     UREA: '3094-0', // Urea
     BLOOD_TYPE: '882-1', // Blood type
-    RH_FACTOR: '10331-7' // Rh factor
+    RH_FACTOR: '10331-7', // Rh factor
+    ASA_PHYSICAL_STATUS: '11368-0' // ASA Physical Status Class
 };
 
 /**
@@ -157,6 +168,7 @@ export const SNOMED_CODES: Record<string, string> = {
     PULMONARY_HYPERTENSION: '70995007',
     PREVIOUS_CARDIAC_SURGERY: '232717009', // CABG as marker
     DEEP_VEIN_THROMBOSIS: '128053003', // DVT
+    CARDIAC_ARREST: '410429000',
 
     // Respiratory Conditions
     COPD: '13645005',
@@ -229,7 +241,16 @@ export const SNOMED_CODES: Record<string, string> = {
     PREVIOUS_MI: '399211009',
     PREVIOUS_STROKE: '161505003',
     PREVIOUS_BLEEDING: '131148009',
-    ISCHEMIC_HEART_DISEASE: '414545008'
+    ISCHEMIC_HEART_DISEASE: '414545008',
+    FRACTURE: '125605004',
+    HEMOPTYSIS: '66857006',
+    CONNECTIVE_TISSUE_DISEASE: '105969002',
+    PEPTIC_ULCER_DISEASE: '13200003',
+    HEMIPLEGIA: '50582007',
+    AIDS: '62479008',
+    SEIZURE: '91175000',
+    POSITIVE_RESULT: '260348003',
+    HISTORY_OF_VTE: '451574005'
 };
 
 /**
@@ -274,7 +295,29 @@ export const RXNORM_CODES: Record<string, string> = {
     TRIAMCINOLONE: '10759',
 
     // P2Y12 Inhibitors (alias for common names)
-    P2Y12_INHIBITOR: '32968,1116632,855812' // Clopidogrel, Ticagrelor, Prasugrel
+    P2Y12_INHIBITOR: '32968,1116632,855812', // Clopidogrel, Ticagrelor, Prasugrel
+
+    // Beta Blockers
+    METOPROLOL: '6918',
+    CARVEDILOL: '20352',
+    BISOPROLOL: '16154',
+    ATENOLOL: '1202',
+    PROPRANOLOL: '8787',
+    LABETALOL: '6221',
+
+    // ACE Inhibitors
+    LISINOPRIL: '29046',
+    ENALAPRIL: '3827',
+    RAMIPRIL: '35296',
+    CAPTOPRIL: '1998',
+    BENAZEPRIL: '1886',
+
+    // ARBs (Angiotensin II Receptor Blockers)
+    LOSARTAN: '52175',
+    VALSARTAN: '69749',
+    CANDESARTAN: '83367',
+    IRBESARTAN: '83515',
+    OLMESARTAN: '259255'
 };
 
 /**

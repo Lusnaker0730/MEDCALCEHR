@@ -131,6 +131,11 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     ETHANOL: { primary: 'Ethanol', aliases: ['ETOH', 'Alcohol'] },
     FERRITIN: { primary: 'Ferritin', aliases: [] },
     VITAMIN_D: { primary: 'Vitamin D', aliases: ['Vit D', '25-OH Vit D'] },
+    CSF_GRAM_STAIN: { primary: 'CSF Gram Stain', aliases: ['Gram Stain CSF'] },
+    CSF_ANC: { primary: 'CSF ANC', aliases: ['CSF Neutrophils', 'Cerebrospinal Fluid Neutrophils'] },
+    CSF_PROTEIN: { primary: 'CSF Protein', aliases: ['Cerebrospinal Fluid Protein'] },
+    NEUTROPHILS_ABSOLUTE: { primary: 'Absolute Neutrophil Count', aliases: ['ANC', 'Neutrophils'] },
+    URINE_UREA_NITROGEN: { primary: 'Urine Urea Nitrogen', aliases: ['UUN', 'Urine Urea'] },
 
     // Clinical Assessments
     GCS: { primary: 'GCS', aliases: ['Glasgow Coma Scale'] },

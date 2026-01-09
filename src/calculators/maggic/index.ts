@@ -5,7 +5,7 @@
  */
 
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
-import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateMaggic } from './calculation.js';
@@ -168,6 +168,9 @@ const config: FormulaCalculatorConfig = {
 
     resultTitle: 'MAGGIC Risk Score',
 
+    autoPopulateAge: 'maggic-age',
+    autoPopulateGender: 'maggic-gender',
+
     calculate: calculateMaggic,
 
     footerHTML: `
@@ -258,15 +261,8 @@ const config: FormulaCalculatorConfig = {
     `,
 
     customInitialize: async (client, patient, container, calculate) => {
-        fhirDataService.initialize(client, patient, container);
-
-        const setValue = (id: string, value: string) => {
-            const input = container.querySelector(`#${id}`) as HTMLInputElement;
-            if (input) {
-                input.value = value;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        };
+        // Initialize FHIR service (already done by factory, but harmless to repeat)
+        if (!fhirDataService.isReady()) return;
 
         const setRadio = (name: string, value: string) => {
             const radio = container.querySelector(
@@ -278,68 +274,98 @@ const config: FormulaCalculatorConfig = {
             }
         };
 
-        const age = fhirDataService.getPatientAge();
-        if (age !== null) {
-            setValue('maggic-age', age.toString());
-        }
+        // Age and Gender are handled by autoPopulateAge/autoPopulateGender in config!
 
-        const gender = fhirDataService.getPatientGender();
-        if (gender) {
-            setRadio('maggic-gender', gender === 'male' ? '1' : '0');
-        }
-
-        if (client) {
-            try {
-                const [bmiResult, bpResult, creatResult] = await Promise.all([
-                    fhirDataService
-                        .getObservation(LOINC_CODES.BMI, {
-                            trackStaleness: true,
-                            stalenessLabel: 'BMI'
-                        })
-                        .catch(() => ({ value: null })),
-                    fhirDataService
-                        .getBloodPressure({ trackStaleness: true })
-                        .catch(() => ({ systolic: null })),
-                    fhirDataService
-                        .getObservation(LOINC_CODES.CREATININE, {
-                            trackStaleness: true,
-                            stalenessLabel: 'Creatinine',
-                            targetUnit: 'mg/dL',
-                            unitType: 'creatinine'
-                        })
-                        .catch(() => ({ value: null }))
-                ]);
-
-                if (bmiResult.value !== null) {
-                    setValue('maggic-bmi', bmiResult.value.toFixed(1));
+        try {
+            // LVEF (Ejection Fraction)
+            const efResult = await fhirDataService.getObservation(LOINC_CODES.LVEF, {
+                trackStaleness: true,
+                stalenessLabel: 'LVEF'
+            });
+            if (efResult.value !== null) {
+                const input = container.querySelector('#maggic-ef') as HTMLInputElement;
+                if (input) {
+                    input.value = efResult.value.toFixed(0);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
                 }
-
-                if (bpResult.systolic !== null) {
-                    setValue('maggic-sbp', bpResult.systolic.toFixed(0));
-                }
-
-                if (creatResult.value !== null) {
-                    setValue('maggic-creatinine', creatResult.value.toFixed(2));
-                }
-
-                const hasDiabetes = await fhirDataService.hasCondition([
-                    SNOMED_CODES.DIABETES_MELLITUS,
-                    '414990002'
-                ]);
-                if (hasDiabetes) {
-                    setRadio('maggic-diabetes', '3');
-                }
-
-                const hasCopd = await fhirDataService.hasCondition([
-                    SNOMED_CODES.COPD,
-                    '195967001'
-                ]);
-                if (hasCopd) {
-                    setRadio('maggic-copd', '2');
-                }
-            } catch (e) {
-                console.warn('Error fetching conditions for MAGGIC', e);
             }
+
+            // BMI
+            const bmiResult = await fhirDataService.getObservation(LOINC_CODES.BMI, { trackStaleness: true });
+            if (bmiResult.value !== null) {
+                const input = container.querySelector('#maggic-bmi') as HTMLInputElement;
+                if (input) {
+                    input.value = bmiResult.value.toFixed(1);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+
+            // Systolic BP
+            const bpResult = await fhirDataService.getBloodPressure({ trackStaleness: true });
+            if (bpResult.systolic !== null) {
+                const input = container.querySelector('#maggic-sbp') as HTMLInputElement;
+                if (input) {
+                    input.value = bpResult.systolic.toFixed(0);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+
+            // Creatinine
+            const creatResult = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                targetUnit: 'mg/dL',
+                unitType: 'creatinine'
+            });
+            if (creatResult.value !== null) {
+                const input = container.querySelector('#maggic-creatinine') as HTMLInputElement;
+                if (input) {
+                    input.value = creatResult.value.toFixed(2);
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+
+            // Conditions: Diabetes & COPD
+
+
+            // Diabetes
+            const hasDiabetes = await fhirDataService.hasCondition([
+                SNOMED_CODES.DIABETES_MELLITUS,
+                SNOMED_CODES.DIABETES_TYPE_1,
+                SNOMED_CODES.DIABETES_TYPE_2
+            ]);
+            if (hasDiabetes) setRadio('maggic-diabetes', '3'); // Yes (+3)
+
+            // COPD
+            const hasCopd = await fhirDataService.hasCondition([
+                SNOMED_CODES.COPD,
+                SNOMED_CODES.ASTHMA // Sometimes considered relevant, keeping strict to COPD codes primarily but user had asthma code before
+            ]);
+            if (hasCopd) setRadio('maggic-copd', '2'); // Yes (+2)
+
+            // Smoker
+            const isSmoker = await fhirDataService.hasCondition([SNOMED_CODES.SMOKING_STATUS, SNOMED_CODES.SMOKING]);
+            // Or better check observation for smoking status if available, but condition is a good proxy for "Current Smoker" often
+            if (isSmoker) setRadio('maggic-smoker', '1');
+
+            // Medications
+            // Beta Blockers
+            const bbCodes = [
+                RXNORM_CODES.METOPROLOL, RXNORM_CODES.CARVEDILOL, RXNORM_CODES.BISOPROLOL,
+                RXNORM_CODES.ATENOLOL, RXNORM_CODES.PROPRANOLOL, RXNORM_CODES.LABETALOL
+            ];
+            const onBB = await fhirDataService.isOnMedication(bbCodes);
+            if (onBB) setRadio('maggic-bb', '0'); // Yes (0 points) - Note: Logic is "No (+3)" so if Yes, select 0.
+
+            // ACEi / ARB
+            const aceArbCodes = [
+                RXNORM_CODES.LISINOPRIL, RXNORM_CODES.ENALAPRIL, RXNORM_CODES.RAMIPRIL, RXNORM_CODES.CAPTOPRIL, RXNORM_CODES.BENAZEPRIL,
+                RXNORM_CODES.LOSARTAN, RXNORM_CODES.VALSARTAN, RXNORM_CODES.CANDESARTAN, RXNORM_CODES.IRBESARTAN, RXNORM_CODES.OLMESARTAN
+            ];
+            const onAceArb = await fhirDataService.isOnMedication(aceArbCodes);
+            if (onAceArb) setRadio('maggic-acei', '0'); // Yes (0 points)
+
+        } catch (e) {
+            console.warn('Error fetching FHIR data for MAGGIC', e);
         }
 
         calculate();

@@ -17,6 +17,8 @@ const config: FormulaCalculatorConfig = {
     description:
         'Predicts risk of MI or cardiac arrest after surgery. Formula: Cardiac risk, % = [1/(1+e^-x)] × 100 where x = -5.25 + sum of selected variables.',
 
+    autoPopulateAge: 'mica-age',
+
     sections: [
         {
             title: 'Patient Demographics',
@@ -49,6 +51,7 @@ const config: FormulaCalculatorConfig = {
                     id: 'mica-asa',
                     label: 'ASA Class',
                     helpText: 'Physical status classification',
+                    loincCode: LOINC_CODES.ASA_PHYSICAL_STATUS,
                     options: [
                         { value: '-6.17', label: 'Class 1 - Normal healthy patient' },
                         { value: '-3.29', label: 'Class 2 - Mild systemic disease' },
@@ -72,7 +75,8 @@ const config: FormulaCalculatorConfig = {
                     unit: 'mg/dL',
                     step: 0.1,
                     placeholder: 'Enter creatinine',
-                    validationType: 'creatinine'
+                    validationType: 'creatinine',
+                    loincCode: LOINC_CODES.CREATININE
                 }
             ]
         },
@@ -104,7 +108,7 @@ const config: FormulaCalculatorConfig = {
                     ]
                 }
             ]
-        }
+        },
     ],
 
     resultTitle: 'Gupta MICA Risk Assessment',
@@ -222,11 +226,7 @@ const config: FormulaCalculatorConfig = {
             }
         };
 
-        // Age from patient using FHIRDataService
-        const age = fhirDataService.getPatientAge();
-        if (age !== null && age > 0) {
-            setValue('mica-age', age.toString());
-        }
+        // Age is automatically handled by autoPopulateAge
 
         if (client) {
             try {

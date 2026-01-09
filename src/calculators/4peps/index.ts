@@ -328,8 +328,11 @@ const config: FormulaCalculatorConfig = {
             }
 
             if (client) {
-                const chronicRespCodes = [SNOMED_CODES.COPD, '13645005', 'J44.9'];
-                const vteCodes = ['I82.90', '451574005'];
+                // COPD (SNOMED: 13645005) and ICD-10 J44.9
+                const chronicRespCodes = [SNOMED_CODES.COPD, 'J44.9'];
+
+                // History of VTE (SNOMED: 451574005) and ICD-10 I82.90
+                const vteCodes = [SNOMED_CODES.HISTORY_OF_VTE, 'I82.90'];
 
                 // Fetch conditions and observations
                 const [hasCOPD, hasVTE, hrResult, o2Result] = await Promise.all([

@@ -29,7 +29,7 @@ export const fenaConfig: FormulaCalculatorConfig = {
                         default: 'mEq/L'
                     },
                     validationType: 'urineSodium',
-                    loincCode: '2955-3',
+                    loincCode: LOINC_CODES.URINE_SODIUM,
                     standardUnit: 'mEq/L',
                     required: true
                 },
