@@ -67,6 +67,7 @@ export const pediatricBP = createUnifiedFormulaCalculator({
                     unit: 'cm',
                     loincCode: LOINC_CODES.HEIGHT,
                     placeholder: 'e.g., 110',
+                    validationType: 'height',
                     min: 50,
                     max: 200
                 }

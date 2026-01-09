@@ -103,6 +103,10 @@ export const LOINC_CODES: Record<string, string> = {
 
     // Cardiac Measurements
     QT_INTERVAL: '8633-1', // QT interval (raw)
+    LVEF: '10230-1', // Left ventricular ejection fraction
+    LVEF_2D: '18043-0', // LVEF by 2D Echo
+    PA_SYSTOLIC_PRESSURE: '8480-6', // Pulmonary artery systolic pressure
+    PA_MEAN_PRESSURE: '8414-5', // Pulmonary artery mean pressure
 
     // Laboratory - Other
     HBA1C: '4548-4', // Hemoglobin A1c
@@ -148,6 +152,9 @@ export const SNOMED_CODES: Record<string, string> = {
     PERIPHERAL_ARTERY_DISEASE: '399957001',
     CARDIOGENIC_SHOCK: '27885002',
     ACUTE_CORONARY_SYNDROME: '394659003',
+    ENDOCARDITIS: '56819008',
+    PULMONARY_HYPERTENSION: '70995007',
+    PREVIOUS_CARDIAC_SURGERY: '232717009', // CABG as marker
 
     // Respiratory Conditions
     COPD: '13645005',

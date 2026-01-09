@@ -9,6 +9,7 @@
 
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { calculateEuroScoreII } from './calculation.js';
 
 export const euroscoreII = createUnifiedFormulaCalculator({
@@ -52,6 +53,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-renal',
                     label: 'Renal Function (Creatinine Clearance)',
+                    loincCode: LOINC_CODES.EGFR,
                     options: [
                         { value: 'normal', label: '>85 mL/min (Normal)', checked: true },
                         { value: 'moderate', label: '51-85 mL/min (Moderate impairment)' },
@@ -63,6 +65,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-diabetes',
                     label: 'Insulin-dependent Diabetes Mellitus',
+                    snomedCode: SNOMED_CODES.DIABETES_TYPE_1,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -73,6 +76,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     name: 'es2-pulmonary',
                     label: 'Chronic Pulmonary Dysfunction',
                     helpText: 'Long-term use of bronchodilators or steroids for lung disease',
+                    snomedCode: SNOMED_CODES.COPD,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -131,6 +135,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-lvef',
                     label: 'LV Function (LVEF)',
+                    loincCode: LOINC_CODES.LVEF,
                     options: [
                         { value: 'good', label: 'Good (≥51%)', checked: true },
                         { value: 'moderate', label: 'Moderate (31-50%)' },
@@ -142,6 +147,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-recent-mi',
                     label: 'Recent MI (≤90 days)',
+                    snomedCode: SNOMED_CODES.MYOCARDIAL_INFARCTION,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -151,6 +157,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-pa-pressure',
                     label: 'Pulmonary Artery Systolic Pressure',
+                    snomedCode: SNOMED_CODES.PULMONARY_HYPERTENSION,
                     options: [
                         { value: 'normal', label: '<31 mmHg', checked: true },
                         { value: 'moderate', label: '31-54 mmHg' },
@@ -162,6 +169,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     name: 'es2-arteriopathy',
                     label: 'Extracardiac Arteriopathy',
                     helpText: 'Claudication, carotid >50% stenosis, amputation, aortic intervention',
+                    snomedCode: SNOMED_CODES.PERIPHERAL_ARTERY_DISEASE,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -172,6 +180,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     name: 'es2-previous-surgery',
                     label: 'Previous Cardiac Surgery',
                     helpText: '≥1 prior operation opening the pericardium',
+                    snomedCode: SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -182,6 +191,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     name: 'es2-endocarditis',
                     label: 'Active Endocarditis',
                     helpText: 'On antibiotics at time of surgery',
+                    snomedCode: SNOMED_CODES.ENDOCARDITIS,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }

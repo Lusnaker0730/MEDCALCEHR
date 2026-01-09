@@ -330,12 +330,164 @@ describe('My Calc SaMD Validation', () => {
 
 ## 4. UI Best Practices
 
-*   **Info Alerts**: Use `infoAlert` config property for clinical notes.
-*   **Warning Alerts**: Use `warningAlert` for important safety information.
-*   **Formulas**: Use `formulaSection` config to display scoring criteria and formulas.
-*   **Icons**: Use emoji icons in `sections` titles (e.g., '👤', '🧪', '❤️', '🔪').
-*   **Help Text**: Use `helpText` in fields for additional clarification.
-*   **References**: Use `reference` config with `uiBuilder.createSection` and `uiBuilder.createTable`.
+### Using `uiBuilder` Methods
+
+Use `uiBuilder` for consistent styling. **Never write raw HTML.**
+
+```typescript
+import { uiBuilder } from '../../ui-builder.js';
+
+// 1. Create styled lists (instead of raw <ul><li>)
+infoAlert: `
+    <strong>Important Notes:</strong>
+    ${uiBuilder.createList({
+        items: [
+            'First point',
+            'Second point',
+            'Third point'
+        ],
+        type: 'ul'  // or 'ol' for ordered list
+    })}
+`,
+
+// 2. Create sections with icons
+reference: `
+    ${uiBuilder.createSection({
+        title: 'Risk Stratification',
+        icon: '📊',
+        content: uiBuilder.createTable({
+            headers: ['Score', 'Risk Level'],
+            rows: [
+                ['<5', 'Low Risk'],
+                ['≥5', 'High Risk']
+            ]
+        })
+    })}
+`,
+
+// 3. Create tables
+uiBuilder.createTable({
+    headers: ['Column 1', 'Column 2'],
+    rows: [
+        ['Row 1 Col 1', 'Row 1 Col 2'],
+        ['Row 2 Col 1', 'Row 2 Col 2']
+    ]
+})
+```
+
+### Config Options
+*   **`infoAlert`**: Clinical notes and important information
+*   **`warningAlert`**: Safety warnings
+*   **`formulas`**: Display mathematical formulas
+*   **`formulaSection`**: Scoring criteria table with `scoringCriteria` array
+*   **`reference`**: Reference section at bottom
+
+### Field Options
+*   **`icon`**: Emoji icons in section titles (e.g., '👤', '🧪', '❤️', '💓')
+*   **`helpText`**: Additional clarification below field label
+*   **`placeholder`**: Example input text
+
+---
+
+## 5. FHIR Auto-Population
+
+### Enable Auto-Population
+
+Add `loincCode` to numeric fields for automatic FHIR data population:
+
+```typescript
+{
+    type: 'number',
+    id: 'my-sbp',
+    label: 'Systolic BP',
+    loincCode: LOINC_CODES.SYSTOLIC_BP,  // Will auto-fill from FHIR
+    unit: 'mmHg',
+    validationType: 'systolicBP'
+}
+```
+
+### Common LOINC Codes (already in `fhir-codes.ts`)
+
+| Variable | Code Name | LOINC |
+|----------|-----------|-------|
+| Systolic BP | `LOINC_CODES.SYSTOLIC_BP` | 8480-6 |
+| Diastolic BP | `LOINC_CODES.DIASTOLIC_BP` | 8462-4 |
+| Heart Rate | `LOINC_CODES.HEART_RATE` | 8867-4 |
+| Height | `LOINC_CODES.HEIGHT` | 8302-2 |
+| Weight | `LOINC_CODES.WEIGHT` | 29463-7 |
+| Temperature | `LOINC_CODES.TEMPERATURE` | 8310-5 |
+| Hemoglobin | `LOINC_CODES.HEMOGLOBIN` | 718-7 |
+| Creatinine | `LOINC_CODES.CREATININE` | 2160-0 |
+| Glucose | `LOINC_CODES.GLUCOSE` | 2345-7 |
+
+### Auto-Populate Patient Demographics
+
+Use these config options for automatic age/sex population:
+
+```typescript
+export const myCalc = createUnifiedFormulaCalculator({
+    // ... other config
+    autoPopulateAge: 'my-age-field-id',    // Field ID for age
+    autoPopulateGender: 'my-sex-field-id', // Field ID for sex (radio)
+});
+```
+
+### Auto-Populate Radio Fields from Observations
+
+For radio fields where FHIR values map to categories (e.g., LVEF % → Good/Moderate/Poor):
+
+```typescript
+{
+    type: 'radio',
+    name: 'es2-lvef',
+    label: 'LV Function (LVEF)',
+    loincCode: LOINC_CODES.LVEF,  // Maps LVEF % to categories
+    options: [
+        { value: 'good', label: 'Good (≥51%)', checked: true },
+        { value: 'moderate', label: 'Moderate (31-50%)' },
+        { value: 'poor', label: 'Poor (21-30%)' },
+        { value: 'very-poor', label: 'Very poor (≤20%)' }
+    ]
+}
+```
+
+### Auto-Populate from Conditions (snomedCode)
+
+Use `snomedCode` on radio fields to detect if patient has a condition:
+
+```typescript
+{
+    type: 'radio',
+    name: 'es2-diabetes',
+    label: 'Insulin-dependent Diabetes Mellitus',
+    snomedCode: SNOMED_CODES.DIABETES_TYPE_1,  // Auto-select "Yes" if condition found
+    options: [
+        { value: '0', label: 'No', checked: true },
+        { value: '1', label: 'Yes' }
+    ]
+}
+```
+
+### Common SNOMED Codes for Conditions
+
+| Condition | Code Name | SNOMED |
+|-----------|-----------|--------|
+| Type 1 Diabetes | `SNOMED_CODES.DIABETES_TYPE_1` | 46635009 |
+| COPD | `SNOMED_CODES.COPD` | 13645005 |
+| Heart Failure | `SNOMED_CODES.HEART_FAILURE` | 84114007 |
+| MI | `SNOMED_CODES.MYOCARDIAL_INFARCTION` | 22298006 |
+| Pulmonary HTN | `SNOMED_CODES.PULMONARY_HYPERTENSION` | 70995007 |
+| Endocarditis | `SNOMED_CODES.ENDOCARDITIS` | 56819008 |
+| PAD | `SNOMED_CODES.PERIPHERAL_ARTERY_DISEASE` | 399957001 |
+| Dialysis | `SNOMED_CODES.DIALYSIS_DEPENDENT` | 429451001 |
+| Previous CABG | `SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY` | 232717009 |
+
+### Additional LOINC Codes for Cardiac
+
+| Variable | Code Name | LOINC |
+|----------|-----------|-------|
+| LVEF | `LOINC_CODES.LVEF` | 10230-1 |
+| eGFR | `LOINC_CODES.EGFR` | 33914-3 |
 
 ---
 
@@ -343,9 +495,13 @@ describe('My Calc SaMD Validation', () => {
 
 - [ ] Does every numeric input have a `loincCode`?
 - [ ] Does every numeric input have a `validationType`?
+- [ ] Do Yes/No radio fields have `snomedCode` for condition detection?
 - [ ] Are missing codes added to `fhir-codes.ts`?
 - [ ] Are missing validation rules added to `validator.ts`?
 - [ ] Is `uiBuilder` / factory used (no raw HTML)?
 - [ ] Is the calculator registered in `src/calculators/index.ts`?
 - [ ] Is there a test file verifying the calculation?
 - [ ] Are coefficients exported and tested against published values?
+- [ ] Is `autoPopulateAge` / `autoPopulateGender` configured if applicable?
+
+

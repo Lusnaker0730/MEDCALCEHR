@@ -113,6 +113,10 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
 
     // Cardiac Measurements
     QT_INTERVAL: { primary: 'QT Interval', aliases: ['QT'] },
+    LVEF: { primary: 'LVEF', aliases: ['Ejection Fraction', 'EF', 'Left Ventricular Ejection Fraction'] },
+    LVEF_2D: { primary: 'LVEF (2D Echo)', aliases: ['EF 2D'] },
+    PA_SYSTOLIC_PRESSURE: { primary: 'PA Systolic Pressure', aliases: ['PASP', 'Pulmonary Artery Pressure'] },
+    PA_MEAN_PRESSURE: { primary: 'PA Mean Pressure', aliases: ['PAMP', 'Mean PA Pressure'] },
 
     // Laboratory - Other
     HBA1C: { primary: 'HbA1c', aliases: ['A1c', 'Glycated Hemoglobin'] },
