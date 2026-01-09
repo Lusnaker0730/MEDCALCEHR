@@ -6,7 +6,7 @@
  */
 
 import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
-import { LOINC_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -191,9 +191,25 @@ const config: ScoringCalculatorConfig = {
 
             // 檢測相關病史
             const conditionsToCheck = [
-                { codes: ['22298006', '410429000'], inputName: 'rcri-ihd' }, // IHD, MI
-                { codes: ['84114007', '42343007'], inputName: 'rcri-hf' }, // Heart failure
-                { codes: ['230690007', '266257000'], inputName: 'rcri-cvd' } // Stroke, TIA
+                {
+                    codes: [
+                        SNOMED_CODES.MYOCARDIAL_INFARCTION,
+                        SNOMED_CODES.PREVIOUS_MI,
+                        SNOMED_CODES.ISCHEMIC_HEART_DISEASE
+                    ],
+                    inputName: 'rcri-ihd'
+                }, // IHD, MI
+                {
+                    codes: [
+                        SNOMED_CODES.HEART_FAILURE,
+                        SNOMED_CODES.CONGESTIVE_HEART_FAILURE
+                    ],
+                    inputName: 'rcri-hf'
+                }, // Heart failure
+                {
+                    codes: [SNOMED_CODES.STROKE, SNOMED_CODES.TIA],
+                    inputName: 'rcri-cvd'
+                } // Stroke, TIA
             ];
 
             for (const condition of conditionsToCheck) {
@@ -204,7 +220,7 @@ const config: ScoringCalculatorConfig = {
             }
 
             // 檢測胰島素使用
-            const onInsulin = await fhirDataService.isOnMedication(['274783']); // Insulin RxNorm
+            const onInsulin = await fhirDataService.isOnMedication([RXNORM_CODES.INSULIN]); // Insulin RxNorm
             if (onInsulin) {
                 setRadioValue('rcri-insulin', '1');
             }

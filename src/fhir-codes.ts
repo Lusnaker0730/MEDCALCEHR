@@ -146,6 +146,7 @@ export const SNOMED_CODES: Record<string, string> = {
     CORONARY_ARTERY_DISEASE: '53741008',
     MYOCARDIAL_INFARCTION: '22298006',
     HEART_FAILURE: '84114007',
+    CONGESTIVE_HEART_FAILURE: '42343007',
     ATRIAL_FIBRILLATION: '49436004',
     STROKE: '230690007',
     TIA: '266257000',
@@ -251,6 +252,26 @@ export const RXNORM_CODES: Record<string, string> = {
     APIXABAN: '1364430',
     DABIGATRAN: '1037042',
     EDOXABAN: '1599538',
+
+    // Diabetic Medications
+    INSULIN: '274783',
+
+    // NSAIDs
+    IBUPROFEN: '5640',
+    NAPROXEN: '7258',
+    DICLOFENAC: '3355',
+    KETOROLAC: '6130',
+    INDOMETHACIN: '5775',
+    MELOXICAM: '6835',
+    CELECOXIB: '202472',
+
+    // Corticosteroids
+    PREDNISONE: '8640',
+    PREDNISOLONE: '8638',
+    METHYLPREDNISOLONE: '6902',
+    DEXAMETHASONE: '3264',
+    HYDROCORTISONE: '5492',
+    TRIAMCINOLONE: '10759',
 
     // P2Y12 Inhibitors (alias for common names)
     P2Y12_INHIBITOR: '32968,1116632,855812' // Clopidogrel, Ticagrelor, Prasugrel

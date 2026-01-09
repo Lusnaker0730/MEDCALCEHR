@@ -46,6 +46,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                     },
                     standardUnit: 'mmHg',
                     validationType: 'systolicBP',
+                    loincCode: LOINC_CODES.SYSTOLIC_BLOOD_PRESSURE,
                     required: true
                 }
             ]

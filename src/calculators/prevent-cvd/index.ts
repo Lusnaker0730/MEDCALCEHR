@@ -60,7 +60,8 @@ export const preventCVD = createUnifiedFormulaCalculator({
                         units: ['mmol/L', 'mg/dL'],
                         default: 'mmol/L'
                     },
-                    validationType: 'totalCholesterol'
+                    validationType: 'totalCholesterol',
+                    loincCode: LOINC_CODES.TOTAL_CHOLESTEROL
                 },
                 {
                     id: 'prevent-hdl',
@@ -71,9 +72,10 @@ export const preventCVD = createUnifiedFormulaCalculator({
                         units: ['mmol/L', 'mg/dL'],
                         default: 'mmol/L'
                     },
-                    validationType: 'hdl'
+                    validationType: 'hdl',
+                    loincCode: LOINC_CODES.HDL_CHOLESTEROL
                 },
-                { id: 'prevent-egfr', label: 'eGFR', unit: 'mL/min/1.73m²', validationType: 'egfr' }
+                { id: 'prevent-egfr', label: 'eGFR', unit: 'mL/min/1.73m²', validationType: 'egfr', loincCode: LOINC_CODES.EGFR }
             ]
         }
     ],
