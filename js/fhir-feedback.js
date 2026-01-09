@@ -470,12 +470,15 @@ export class FHIRFeedback {
             const fieldObj = typeof field === 'string'
                 ? { id: field, label: field }
                 : field;
-            this.trackedFields.set(fieldObj.id, fieldObj);
-            this.currentMissingIds.add(fieldObj.id);
-            const input = container.querySelector(`#${fieldObj.id}`);
+            // Normalize ID: remove leading # if present
+            const cleanId = fieldObj.id.replace(/^#/, '');
+            const normalizedField = { id: cleanId, label: fieldObj.label };
+            this.trackedFields.set(cleanId, normalizedField);
+            this.currentMissingIds.add(cleanId);
+            const input = container.querySelector(`#${cleanId}`);
             if (input) {
                 const handler = () => this.updateSummaryOnInput(input);
-                this.boundInputHandlers.set(fieldObj.id, handler);
+                this.boundInputHandlers.set(cleanId, handler);
                 input.addEventListener('input', handler);
                 input.addEventListener('change', handler);
             }

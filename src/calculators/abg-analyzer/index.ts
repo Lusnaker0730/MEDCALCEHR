@@ -1,7 +1,7 @@
-import { uiBuilder } from '../../ui-builder';
-import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator';
-import { calculateABG } from './calculation';
-import { LOINC_CODES } from '../../fhir-codes';
+import { uiBuilder } from '../../ui-builder.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { calculateABG } from './calculation.js';
+import { LOINC_CODES } from '../../fhir-codes.js';
 
 export const abgAnalyzer = createUnifiedFormulaCalculator({
     id: 'abg-analyzer',
