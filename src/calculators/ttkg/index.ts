@@ -9,20 +9,20 @@ export const ttkg = createUnifiedFormulaCalculator({
     description: 'May help in assessment of hyperkalemia or hypokalemia.',
     infoAlert: `
         <h4>Clinical Interpretation</h4>
-        <ul>
-            <li><strong>Hypokalemia (K < 3.5):</strong>
-                <ul>
-                    <li>TTKG < 3: Non-renal loss (GI, etc.)</li>
-                    <li>TTKG > 3: Renal loss</li>
-                </ul>
-            </li>
-            <li><strong>Hyperkalemia (K > 5.2):</strong>
-                <ul>
-                    <li>TTKG > 10: Normal renal response</li>
-                    <li>TTKG < 7: Hypoaldosteronism or resistance</li>
-                </ul>
-            </li>
-        </ul>
+        <strong>Hypokalemia (K < 3.5):</strong>
+        ${uiBuilder.createList({
+        items: [
+            'TTKG < 3: Non-renal loss (GI, etc.)',
+            'TTKG > 3: Renal loss'
+        ]
+    })}
+        <strong>Hyperkalemia (K > 5.2):</strong>
+        ${uiBuilder.createList({
+        items: [
+            'TTKG > 10: Normal renal response',
+            'TTKG < 7: Hypoaldosteronism or resistance'
+        ]
+    })}
     `,
     sections: [
         {
@@ -41,7 +41,6 @@ export const ttkg = createUnifiedFormulaCalculator({
                     },
                     validationType: 'urinePotassium',
                     loincCode: LOINC_CODES.URINE_POTASSIUM,
-                    standardUnit: 'mEq/L',
                     required: true
                 },
                 {
@@ -56,7 +55,6 @@ export const ttkg = createUnifiedFormulaCalculator({
                     },
                     validationType: 'potassium',
                     loincCode: LOINC_CODES.POTASSIUM,
-                    standardUnit: 'mEq/L',
                     required: true
                 },
                 {
@@ -66,7 +64,7 @@ export const ttkg = createUnifiedFormulaCalculator({
                     unit: 'mOsm/kg',
                     placeholder: 'Norm: 500 - 800',
                     validationType: 'osmolality',
-                    loincCode: '2697-2',
+                    loincCode: LOINC_CODES.URINE_OSMOLALITY,
                     required: true
                 },
                 {
@@ -76,7 +74,7 @@ export const ttkg = createUnifiedFormulaCalculator({
                     unit: 'mOsm/kg',
                     placeholder: 'Norm: 275 - 295',
                     validationType: 'osmolality',
-                    loincCode: '2695-6',
+                    loincCode: LOINC_CODES.SERUM_OSMOLALITY,
                     required: true
                 }
             ]

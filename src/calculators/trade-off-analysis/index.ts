@@ -35,49 +35,18 @@ function generateHTML(): string {
     const hbFactors = RISK_FACTORS.filter(f => f.group === 'hemoglobin');
     const egfrFactors = RISK_FACTORS.filter(f => f.group === 'egfr');
 
-    const renderFactorCheckbox = (factor: typeof RISK_FACTORS[0]) => {
-        const bleedingBadge = factor.bleedingHR !== null && factor.bleedingHR !== 1.0
-            ? `<span class="hr-badge hr-badge-bleeding">Bleeding HR: ${factor.bleedingHR}</span>`
-            : '';
-        const ischemicBadge = factor.ischemicHR !== null && factor.ischemicHR !== 1.0
-            ? `<span class="hr-badge hr-badge-ischemic">Thrombotic HR: ${factor.ischemicHR}</span>`
-            : '';
-
-        return `
-            <div class="risk-factor-item">
-                <label class="risk-factor-label">
-                    <input type="checkbox" id="factor-${factor.id}" data-factor-id="${factor.id}">
-                    <span class="factor-text">${factor.label}</span>
-                </label>
-                <div class="hr-badges">
-                    ${bleedingBadge}
-                    ${ischemicBadge}
-                </div>
-            </div>
-        `;
-    };
-
-    const renderGroupedRadio = (factor: typeof RISK_FACTORS[0], groupName: string, isDefault: boolean = false) => {
-        const bleedingBadge = factor.bleedingHR !== null && factor.bleedingHR !== 1.0
-            ? `<span class="hr-badge hr-badge-bleeding">Bleeding HR: ${factor.bleedingHR}</span>`
-            : '';
-        const ischemicBadge = factor.ischemicHR !== null && factor.ischemicHR !== 1.0
-            ? `<span class="hr-badge hr-badge-ischemic">Thrombotic HR: ${factor.ischemicHR}</span>`
-            : '';
-
-        return `
-            <div class="risk-factor-item">
-                <label class="risk-factor-label">
-                    <input type="radio" name="${groupName}" id="factor-${factor.id}" data-factor-id="${factor.id}" ${isDefault ? 'checked' : ''}>
-                    <span class="factor-text">${factor.label}</span>
-                </label>
-                <div class="hr-badges">
-                    ${bleedingBadge}
-                    ${ischemicBadge}
-                </div>
-            </div>
-        `;
-    };
+    // Convert factor to uiBuilder format
+    const toRiskFactorItem = (factor: typeof RISK_FACTORS[0], type: 'checkbox' | 'radio' = 'checkbox', groupName?: string, isDefault = false) =>
+        uiBuilder.createRiskFactorItem({
+            id: `factor-${factor.id}`,
+            label: factor.label,
+            type,
+            name: groupName,
+            checked: isDefault,
+            bleedingHR: factor.bleedingHR,
+            ischemicHR: factor.ischemicHR,
+            dataFactorId: factor.id
+        });
 
     return `
         <!-- Styles moved to css/pages/_trade-off-analysis.css -->
@@ -128,19 +97,19 @@ function generateHTML(): string {
             
             <div class="factors-container">
                 <h3 class="factor-group-title">🧪 Hemoglobin Level</h3>
-                ${hbFactors.map((f, i) => renderGroupedRadio(f, 'hemoglobin-group', f.id === 'hb_gte_13')).join('')}
+                ${hbFactors.map(f => toRiskFactorItem(f, 'radio', 'hemoglobin-group', f.id === 'hb_gte_13')).join('')}
                 
                 <h3 class="factor-group-title">🧪 eGFR Level</h3>
-                ${egfrFactors.map(f => renderGroupedRadio(f, 'egfr-group', f.id === 'egfr_gte_60')).join('')}
+                ${egfrFactors.map(f => toRiskFactorItem(f, 'radio', 'egfr-group', f.id === 'egfr_gte_60')).join('')}
                 
                 <h3 class="factor-group-title">🩸 Affects Bleeding Risk Only</h3>
-                ${bleedingOnlyFactors.map(renderFactorCheckbox).join('')}
+                ${bleedingOnlyFactors.map(f => toRiskFactorItem(f)).join('')}
                 
                 <h3 class="factor-group-title">💔 Affects Ischemic Risk Only</h3>
-                ${ischemicOnlyFactors.map(renderFactorCheckbox).join('')}
+                ${ischemicOnlyFactors.map(f => toRiskFactorItem(f)).join('')}
                 
                 <h3 class="factor-group-title">⚠️ Affects Both Risks</h3>
-                ${bothFactors.map(renderFactorCheckbox).join('')}
+                ${bothFactors.map(f => toRiskFactorItem(f)).join('')}
             </div>
         </div>
         
@@ -150,10 +119,12 @@ function generateHTML(): string {
         content: `
                 <p><strong>Source:</strong> Urban P, Giustino G, et al. "Trade-Off in Thrombotic Risk Between Bleeding and Stent Thrombosis or Myocardial Infarction After PCI in High Bleeding Risk Patients." <em>JAMA Cardiology</em>, 2021.</p>
                 <p><strong>Mortality Hazard Ratios:</strong></p>
-                <ul>
-                    <li>MI/ST → HR for death: 6.1 (95% CI: 4.8-7.7)</li>
-                    <li>BARC 3-5 bleeding → HR for death: 3.7 (95% CI: 2.9-4.8)</li>
-                </ul>
+                ${uiBuilder.createList({
+            items: [
+                'MI/ST → HR for death: 6.1 (95% CI: 4.8-7.7)',
+                'BARC 3-5 bleeding → HR for death: 3.7 (95% CI: 2.9-4.8)'
+            ]
+        })}
                 <p><strong>Mortality-weighted slope:</strong> ${TRADE_OFF_SLOPES.MORTALITY_WEIGHTED.toFixed(2)}</p>
             `
     })}
@@ -266,15 +237,10 @@ async function autoPopulate(): Promise<void> {
         // Get age
         const age = fhirDataService.getPatientAge();
         if (age !== null) {
-            console.log(`[TradeOff] Detected Age: ${age}`);
-
             if (age >= 65) {
                 const ageCheckbox = document.getElementById('factor-age_65') as HTMLInputElement;
                 if (ageCheckbox) {
                     ageCheckbox.checked = true;
-                    console.log('[TradeOff] Checked age >= 65');
-                } else {
-                    console.warn('[TradeOff] Could not find checkbox factor-age_65');
                 }
             }
         }
@@ -291,15 +257,11 @@ async function autoPopulate(): Promise<void> {
             SNOMED_CODES.SMOKING
         ];
         // Check for conditions
-        console.log('[TradeOff] Checking for conditions:', snomedCodesToCheck);
         const conditions = await fhirDataService.getConditions(snomedCodesToCheck) || [];
-        console.log('[TradeOff] Found conditions:', conditions);
 
         for (const condition of conditions) {
             const code = condition.code?.coding?.[0]?.code;
             if (!code) continue;
-
-            console.log(`[TradeOff] Processing condition code: ${code}`);
 
             // Map SNOMED codes to factor checkboxes
             const snomedToFactor: Record<string, string> = {
@@ -318,12 +280,7 @@ async function autoPopulate(): Promise<void> {
                 const checkbox = document.getElementById(`factor-${factorId}`) as HTMLInputElement;
                 if (checkbox) {
                     checkbox.checked = true;
-                    console.log(`[TradeOff] Auto-checked factor: ${factorId} based on code ${code}`);
-                } else {
-                    console.warn(`[TradeOff] Could not find checkbox for factor: ${factorId}`);
                 }
-            } else {
-                console.log(`[TradeOff] No factor mapped for code: ${code}`);
             }
         }
 

@@ -883,6 +883,86 @@ export class UIBuilder {
         `;
     }
 
+    /**
+     * Create a risk factor item with badges (checkbox or radio)
+     * Used for calculators like trade-off analysis that show HR values
+     * @param {Object} options - Configuration object
+     */
+    createRiskFactorItem({
+        id,
+        label,
+        type = 'checkbox',
+        name,
+        checked = false,
+        bleedingHR,
+        ischemicHR,
+        dataFactorId
+    }: {
+        id: string;
+        label: string;
+        type?: 'checkbox' | 'radio';
+        name?: string;
+        checked?: boolean;
+        bleedingHR?: number | null;
+        ischemicHR?: number | null;
+        dataFactorId?: string;
+    }): string {
+        const checkedAttr = checked ? 'checked' : '';
+        const nameAttr = name ? `name="${name}"` : '';
+        const dataAttr = dataFactorId ? `data-factor-id="${dataFactorId}"` : '';
+
+        const bleedingBadge = bleedingHR && bleedingHR !== 1.0
+            ? `<span class="hr-badge hr-badge-bleeding">Bleeding HR: ${bleedingHR}</span>`
+            : '';
+        const ischemicBadge = ischemicHR && ischemicHR !== 1.0
+            ? `<span class="hr-badge hr-badge-ischemic">Thrombotic HR: ${ischemicHR}</span>`
+            : '';
+
+        return `
+            <div class="risk-factor-item">
+                <label class="risk-factor-label">
+                    <input type="${type}" id="${id}" ${nameAttr} ${dataAttr} ${checkedAttr}>
+                    <span class="factor-text">${label}</span>
+                </label>
+                <div class="hr-badges">
+                    ${bleedingBadge}
+                    ${ischemicBadge}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Create a group of risk factor items with a title
+     * @param {Object} options - Configuration object
+     */
+    createRiskFactorGroup({
+        title,
+        icon,
+        items
+    }: {
+        title: string;
+        icon?: string;
+        items: Array<{
+            id: string;
+            label: string;
+            type?: 'checkbox' | 'radio';
+            name?: string;
+            checked?: boolean;
+            bleedingHR?: number | null;
+            ischemicHR?: number | null;
+            dataFactorId?: string;
+        }>;
+    }): string {
+        const iconHTML = icon ? `${icon} ` : '';
+        const itemsHTML = items.map(item => this.createRiskFactorItem(item)).join('');
+
+        return `
+            <h3 class="factor-group-title">${iconHTML}${title}</h3>
+            ${itemsHTML}
+        `;
+    }
+
 }
 
 // Create and export a singleton instance

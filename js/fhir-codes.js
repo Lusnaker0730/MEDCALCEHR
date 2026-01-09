@@ -91,6 +91,10 @@ export const LOINC_CODES = {
     FIO2: '3150-0', // Inhaled oxygen concentration
     // Cardiac Measurements
     QT_INTERVAL: '8633-1', // QT interval (raw)
+    LVEF: '10230-1', // Left ventricular ejection fraction
+    LVEF_2D: '18043-0', // LVEF by 2D Echo
+    PA_SYSTOLIC_PRESSURE: '8480-6', // Pulmonary artery systolic pressure
+    PA_MEAN_PRESSURE: '8414-5', // Pulmonary artery mean pressure
     // Laboratory - Other
     HBA1C: '4548-4', // Hemoglobin A1c
     TSH: '3016-3', // Thyroid stimulating hormone
@@ -132,6 +136,10 @@ export const SNOMED_CODES = {
     PERIPHERAL_ARTERY_DISEASE: '399957001',
     CARDIOGENIC_SHOCK: '27885002',
     ACUTE_CORONARY_SYNDROME: '394659003',
+    ENDOCARDITIS: '56819008',
+    PULMONARY_HYPERTENSION: '70995007',
+    PREVIOUS_CARDIAC_SURGERY: '232717009', // CABG as marker
+    DEEP_VEIN_THROMBOSIS: '128053003', // DVT
     // Respiratory Conditions
     COPD: '13645005',
     ASTHMA: '195967001',
@@ -167,6 +175,7 @@ export const SNOMED_CODES = {
     EPILEPSY: '84757009',
     PARKINSONS_DISEASE: '49049000',
     MULTIPLE_SCLEROSIS: '24700007',
+    PARALYSIS: '166001',
     // Malignancies
     MALIGNANCY: '363346000',
     METASTATIC_CANCER: '94225005',

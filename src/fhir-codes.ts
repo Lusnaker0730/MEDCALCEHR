@@ -155,6 +155,7 @@ export const SNOMED_CODES: Record<string, string> = {
     ENDOCARDITIS: '56819008',
     PULMONARY_HYPERTENSION: '70995007',
     PREVIOUS_CARDIAC_SURGERY: '232717009', // CABG as marker
+    DEEP_VEIN_THROMBOSIS: '128053003', // DVT
 
     // Respiratory Conditions
     COPD: '13645005',
@@ -196,6 +197,7 @@ export const SNOMED_CODES: Record<string, string> = {
     EPILEPSY: '84757009',
     PARKINSONS_DISEASE: '49049000',
     MULTIPLE_SCLEROSIS: '24700007',
+    PARALYSIS: '166001',
 
     // Malignancies
     MALIGNANCY: '363346000',
