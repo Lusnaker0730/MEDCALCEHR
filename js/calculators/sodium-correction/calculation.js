@@ -1,14 +1,12 @@
-export const calculateSodiumCorrection = values => {
+export const calculateSodiumCorrection = (values) => {
     const inputs = values;
     const measuredSodium = inputs['measured-sodium'];
     const glucose = inputs['glucose'];
     const factorStr = inputs['correction-factor'] || '1.6';
-    if (
-        measuredSodium === undefined ||
+    if (measuredSodium === undefined ||
         measuredSodium === null ||
         glucose === undefined ||
-        glucose === null
-    ) {
+        glucose === null) {
         return null;
     }
     const factor = parseFloat(factorStr);
@@ -25,7 +23,8 @@ export const calculateSodiumCorrection = values => {
     if (correctedSodium < 136) {
         interpretation = 'Low (Hyponatremia)';
         alertClass = 'warning';
-    } else if (correctedSodium > 145) {
+    }
+    else if (correctedSodium > 145) {
         interpretation = 'High (Hypernatremia)';
         alertClass = 'danger';
     }

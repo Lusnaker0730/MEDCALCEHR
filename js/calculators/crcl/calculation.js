@@ -1,13 +1,19 @@
-export const crclCalculation = values => {
+export const crclCalculation = (values) => {
     const gender = values['gender'] || 'male';
     const age = values['age'];
     const weight = values['weight'];
     const creatinine = values['creatinine'];
     // Check for null/undefined specifically, allowing 0 to pass through for explicit error handling
-    if (age == null || weight == null || creatinine == null) {
+    if (age === undefined ||
+        age === null ||
+        weight === undefined ||
+        weight === null ||
+        creatinine === undefined ||
+        creatinine === null) {
         return [];
     }
-    if (creatinine === 0) return [{ label: 'Error', value: 'Creatinine cannot be 0' }];
+    if (creatinine === 0)
+        return [{ label: 'Error', value: 'Creatinine cannot be 0' }];
     let crcl = ((140 - age) * weight) / (72 * creatinine);
     if (gender === 'female') {
         crcl *= 0.85;
@@ -20,23 +26,27 @@ export const crclCalculation = values => {
         category = 'Normal kidney function';
         severityClass = 'success';
         alertMsg = 'Normal creatinine clearance.';
-    } else if (crcl >= 60) {
+    }
+    else if (crcl >= 60) {
         category = 'Mild reduction';
         severityClass = 'success';
         alertMsg = 'Mildly reduced creatinine clearance.';
-    } else if (crcl >= 30) {
+    }
+    else if (crcl >= 30) {
         category = 'Moderate reduction';
         severityClass = 'warning';
         alertMsg =
             'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
         alertType = 'warning';
-    } else if (crcl >= 15) {
+    }
+    else if (crcl >= 15) {
         category = 'Severe reduction';
         severityClass = 'danger';
         alertMsg =
             'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
         alertType = 'danger';
-    } else {
+    }
+    else {
         category = 'Kidney failure';
         severityClass = 'danger';
         alertMsg =

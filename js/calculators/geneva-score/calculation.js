@@ -16,36 +16,37 @@ export const calculateGenevaScore = values => {
         }
     });
     // Heart Rate
-    const hr =
-        values['geneva-hr'] !== '' &&
+    const hr = values['geneva-hr'] !== '' &&
         values['geneva-hr'] !== undefined &&
         values['geneva-hr'] !== null
-            ? Number(values['geneva-hr'])
-            : null;
+        ? Number(values['geneva-hr'])
+        : null;
     if (hr !== null) {
         if (hr >= 75 && hr <= 94) {
             score += 1;
-        } else if (hr >= 95) {
+        }
+        else if (hr >= 95) {
             score += 2;
         }
     }
     let riskLevel = 'Low Risk';
     let alertClass = 'success';
     let prevalence = '8%';
-    let recommendation =
-        'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
+    let recommendation = 'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
     if (score <= 1) {
         riskLevel = 'Low Risk';
         alertClass = 'success';
         prevalence = '8%';
         recommendation =
             'PE is unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
-    } else if (score <= 4) {
+    }
+    else if (score <= 4) {
         riskLevel = 'Intermediate Risk';
         alertClass = 'warning';
         prevalence = '28%';
         recommendation = 'Consider imaging (CT pulmonary angiography) or age-adjusted D-dimer.';
-    } else {
+    }
+    else {
         riskLevel = 'High Risk';
         alertClass = 'danger';
         prevalence = '74%';

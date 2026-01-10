@@ -24,7 +24,8 @@ export const calculateGuptaMica = values => {
         riskLevel = 'High Risk';
         riskDescription = 'High risk - Consider risk modification strategies';
         alertType = 'danger';
-    } else if (risk > 2) {
+    }
+    else if (risk > 2) {
         riskLevel = 'Intermediate Risk';
         riskDescription = 'Intermediate risk - Consider perioperative optimization';
         alertType = 'warning';

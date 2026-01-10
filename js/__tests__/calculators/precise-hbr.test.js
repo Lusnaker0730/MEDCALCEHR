@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /**
  * PRECISE-HBR Score Calculator - Verification Tests
  *
@@ -9,29 +9,32 @@ describe('PRECISE-HBR Score Calculator', () => {
     const calculateScore = (age, hb, egfr, wbc, priorBleeding, oralAnticoagulation, arcHbrRisk) => {
         let score = 2; // Base Score
         // Age: Range 30-80. If > 30: + (Age - 30) * 0.26
-        let ageClamped = Math.min(Math.max(age, 30), 80);
+        const ageClamped = Math.min(Math.max(age, 30), 80);
         if (age > 30) {
             score += (ageClamped - 30) * 0.26;
         }
         // Hb: Range 5.0 - 15.0 g/dL. If < 15: + (15 - Hb) * 2.5
-        let hbClamped = Math.min(Math.max(hb, 5.0), 15.0);
+        const hbClamped = Math.min(Math.max(hb, 5.0), 15.0);
         if (hb < 15.0) {
             score += (15 - hbClamped) * 2.5;
         }
         // eGFR: Range 5 - 100. If < 100: + (100 - eGFR) * 0.05
-        let egfrClamped = Math.min(Math.max(egfr, 5), 100);
+        const egfrClamped = Math.min(Math.max(egfr, 5), 100);
         if (egfr < 100) {
             score += (100 - egfrClamped) * 0.05;
         }
         // WBC: Upper limit 15.0. If > 3: + (WBC - 3) * 0.8
-        let wbcClamped = Math.min(wbc, 15.0);
+        const wbcClamped = Math.min(wbc, 15.0);
         if (wbcClamped > 3) {
             score += (wbcClamped - 3) * 0.8;
         }
         // Categorical
-        if (priorBleeding) score += 7;
-        if (oralAnticoagulation) score += 5;
-        if (arcHbrRisk) score += 3;
+        if (priorBleeding)
+            score += 7;
+        if (oralAnticoagulation)
+            score += 5;
+        if (arcHbrRisk)
+            score += 3;
         return Math.round(score);
     };
     // ===========================================

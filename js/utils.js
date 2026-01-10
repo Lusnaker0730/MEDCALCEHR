@@ -11,16 +11,16 @@ export function getMostRecentObservation(client, code) {
     }
     return client.patient
         .request(`Observation?code=${code}&_sort=-date&_count=1`)
-        .then(response => {
-            if (response.entry && response.entry.length > 0) {
-                return response.entry[0].resource;
-            }
-            return null;
-        })
-        .catch(error => {
-            console.error('Error fetching observation:', error);
-            return null;
-        });
+        .then((response) => {
+        if (response.entry && response.entry.length > 0) {
+            return response.entry[0].resource;
+        }
+        return null;
+    })
+        .catch((error) => {
+        console.error('Error fetching observation:', error);
+        return null;
+    });
 }
 /**
  * Extracts a value from an observation, handling both valueQuantity and components.
@@ -29,16 +29,15 @@ export function getMostRecentObservation(client, code) {
  * @returns {number|null} - The value or null if not found.
  */
 export function getObservationValue(observation, code) {
-    if (!observation) return null;
+    if (!observation)
+        return null;
     // 1. Check top-level valueQuantity
     if (observation.valueQuantity && observation.valueQuantity.value !== undefined) {
         return observation.valueQuantity.value;
     }
     // 2. Check components if code is provided
     if (observation.component && code) {
-        const component = observation.component.find(
-            c => c.code.coding && c.code.coding.some(coding => coding.code === code)
-        );
+        const component = observation.component.find((c) => c.code.coding && c.code.coding.some((coding) => coding.code === code));
         if (component && component.valueQuantity) {
             return component.valueQuantity.value;
         }
@@ -67,11 +66,10 @@ export function calculateAge(birthDate) {
  * @returns {Promise<Object>} A promise that resolves to the patient resource.
  */
 export function displayPatientInfo(client, patientInfoDiv) {
-    const renderPatient = patient => {
+    const renderPatient = (patient) => {
         const name = patient.name[0];
         // Prioritize text field (Taiwanese format), if missing use given and family names
-        const formattedName =
-            name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
+        const formattedName = name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
         const age = calculateAge(patient.birthDate);
         // Use escapeHTML to prevent XSS attacks from FHIR data
         const safeName = escapeHTML(formattedName);
@@ -95,20 +93,17 @@ export function displayPatientInfo(client, patientInfoDiv) {
         }
         return Promise.resolve(cachedPatient ? JSON.parse(cachedPatient) : null);
     }
-    return client.patient.read().then(
-        patient => {
-            sessionStorage.setItem('patientData', JSON.stringify(patient));
-            renderPatient(patient);
-            return patient;
-        },
-        error => {
-            console.error(error);
-            if (!cachedPatient) {
-                patientInfoDiv.innerText = 'Error fetching patient data.';
-            }
-            throw error;
+    return client.patient.read().then((patient) => {
+        sessionStorage.setItem('patientData', JSON.stringify(patient));
+        renderPatient(patient);
+        return patient;
+    }, (error) => {
+        console.error(error);
+        if (!cachedPatient) {
+            patientInfoDiv.innerText = 'Error fetching patient data.';
         }
-    );
+        throw error;
+    });
 }
 /**
  * Gets patient's conditions for a given set of SNOMED codes.
@@ -123,16 +118,16 @@ export function getPatientConditions(client, codes) {
     const codeString = codes.join(',');
     return client.patient
         .request(`Condition?clinical-status=active&code=${codeString}`)
-        .then(response => {
-            if (response.entry) {
-                return response.entry.map(e => e.resource);
-            }
-            return [];
-        })
-        .catch(error => {
-            console.error('Error fetching patient conditions:', error);
-            return [];
-        });
+        .then((response) => {
+        if (response.entry) {
+            return response.entry.map((e) => e.resource);
+        }
+        return [];
+    })
+        .catch((error) => {
+        console.error('Error fetching patient conditions:', error);
+        return [];
+    });
 }
 /**
  * Fetches the patient resource.
@@ -145,11 +140,11 @@ export function getPatient(client) {
     }
     return client.patient
         .read()
-        .then(patient => patient || null)
-        .catch(error => {
-            console.error('Error fetching patient:', error);
-            return null;
-        });
+        .then((patient) => patient || null)
+        .catch((error) => {
+        console.error('Error fetching patient:', error);
+        return null;
+    });
 }
 /**
  * Fetches the most recent observation for a given LOINC code.
@@ -163,16 +158,16 @@ export function getObservation(client, code) {
     }
     return client.patient
         .request(`Observation?code=${code}&_sort=-date&_count=1`)
-        .then(response => {
-            if (response.entry && response.entry.length > 0) {
-                return response.entry[0].resource;
-            }
-            return null;
-        })
-        .catch(error => {
-            console.error('Error fetching observation:', error);
-            return null;
-        });
+        .then((response) => {
+        if (response.entry && response.entry.length > 0) {
+            return response.entry[0].resource;
+        }
+        return null;
+    })
+        .catch((error) => {
+        console.error('Error fetching observation:', error);
+        return null;
+    });
 }
 /**
  * Converts a lab value from mg/dL to mmol/L.
@@ -213,8 +208,9 @@ export async function getMedicationRequests(client, rxnormCodes) {
             status: 'active'
         });
         const response = await client.request(`MedicationRequest?${query}`);
-        return response.entry ? response.entry.map(e => e.resource) : [];
-    } catch (error) {
+        return response.entry ? response.entry.map((e) => e.resource) : [];
+    }
+    catch (error) {
         console.error('Error fetching medication requests:', error);
         return [];
     }
@@ -233,11 +229,12 @@ export function initializeSegmentedControls(container) {
         const radioInputs = control.querySelectorAll('input[type="radio"]');
         // Function to update selected state
         const updateSelectedState = () => {
-            radioInputs.forEach(input => {
+            radioInputs.forEach((input) => {
                 const label = input.parentElement;
                 if (input.checked) {
                     label.classList.add('selected');
-                } else {
+                }
+                else {
                     label.classList.remove('selected');
                 }
             });

@@ -56,12 +56,10 @@ export const preventCoefficients = {
 /**
  * Calculate transformed variables for PREVENT equation
  */
-export function calculateTransformedVariables(
-    age,
-    tc, // mmol/L
-    hdl, // mmol/L
-    sbp, // mmHg
-    egfr // mL/min/1.73m²
+export function calculateTransformedVariables(age, tc, // mmol/L
+hdl, // mmol/L
+sbp, // mmHg
+egfr // mL/min/1.73m²
 ) {
     return {
         cage: (age - 55) / 10,
@@ -119,18 +117,11 @@ export function calculateRiskPercentage(x) {
  * Pure calculation function for PREVENT CVD Risk
  * Can be used independently for testing
  */
-export function calculatePreventRisk(
-    age,
-    gender,
-    tc, // mmol/L
-    hdl, // mmol/L
-    sbp, // mmHg
-    egfr, // mL/min/1.73m²
-    diabetes,
-    smoker,
-    antihtn,
-    statin
-) {
+export function calculatePreventRisk(age, gender, tc, // mmol/L
+hdl, // mmol/L
+sbp, // mmHg
+egfr, // mL/min/1.73m²
+diabetes, smoker, antihtn, statin) {
     const transformed = calculateTransformedVariables(age, tc, hdl, sbp, egfr);
     const x = calculateLinearPredictor(transformed, gender, diabetes, smoker, antihtn, statin);
     return calculateRiskPercentage(x);
@@ -144,7 +135,7 @@ export function preventCvdCalculation(getValue, getStdValue, getRadioValue, getC
     const tc = getStdValue('prevent-cholesterol', 'mmol/L');
     const hdl = getStdValue('prevent-hdl', 'mmol/L');
     const egfr = getValue('prevent-egfr');
-    const gender = getRadioValue('prevent-gender') || 'male';
+    const gender = (getRadioValue('prevent-gender') || 'male');
     const smoker = getCheckboxValue('prevent-smoker');
     const diabetes = getCheckboxValue('prevent-diabetes');
     const antihtn = getCheckboxValue('prevent-antihtn');
@@ -152,18 +143,7 @@ export function preventCvdCalculation(getValue, getStdValue, getRadioValue, getC
     if (age === null || sbp === null || tc === null || hdl === null || egfr === null) {
         return null;
     }
-    const riskVal = calculatePreventRisk(
-        age,
-        gender,
-        tc,
-        hdl,
-        sbp,
-        egfr,
-        diabetes,
-        smoker,
-        antihtn,
-        statin
-    );
+    const riskVal = calculatePreventRisk(age, gender, tc, hdl, sbp, egfr, diabetes, smoker, antihtn, statin);
     let riskCategory = '';
     let severity = 'success';
     let recommendation = '';
@@ -171,15 +151,18 @@ export function preventCvdCalculation(getValue, getStdValue, getRadioValue, getC
         riskCategory = 'Low Risk (<5%)';
         severity = 'success';
         recommendation = 'Focus on lifestyle modifications.';
-    } else if (riskVal < 7.5) {
+    }
+    else if (riskVal < 7.5) {
         riskCategory = 'Borderline Risk (5-7.5%)';
         severity = 'success';
         recommendation = 'Lifestyle counseling. Consider risk-enhancing factors.';
-    } else if (riskVal < 20) {
+    }
+    else if (riskVal < 20) {
         riskCategory = 'Intermediate Risk (7.5-20%)';
         severity = 'warning';
         recommendation = 'Consider statin therapy. Lifestyle interventions recommended.';
-    } else {
+    }
+    else {
         riskCategory = 'High Risk (≥20%)';
         severity = 'danger';
         recommendation = 'High-intensity statin recommended. Intensive lifestyle interventions.';

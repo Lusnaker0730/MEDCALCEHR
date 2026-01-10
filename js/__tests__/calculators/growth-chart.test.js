@@ -3,13 +3,7 @@
  *
  * Tests for pediatric growth calculations.
  */
-import {
-    calculateZScore,
-    estimatePercentile,
-    calculateBmiData,
-    calculateVelocity,
-    formatAge
-} from '../../calculators/growth-chart/calculation';
+import { calculateZScore, estimatePercentile, calculateBmiData, calculateVelocity, formatAge } from '../../calculators/growth-chart/calculation';
 describe('Growth Chart Calculator', () => {
     // ===========================================
     // TC-001: Z-Score Calculation
@@ -112,9 +106,7 @@ describe('Growth Chart Calculator', () => {
     describe('Growth Velocity Calculation', () => {
         test('Should return empty string for insufficient data', () => {
             expect(calculateVelocity('Height', [], 'cm/month')).toBe('');
-            expect(calculateVelocity('Height', [{ ageMonths: 12, value: 75 }], 'cm/month')).toBe(
-                ''
-            );
+            expect(calculateVelocity('Height', [{ ageMonths: 12, value: 75 }], 'cm/month')).toBe('');
         });
         test('Should calculate positive velocity', () => {
             const measurements = [

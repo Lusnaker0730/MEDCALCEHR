@@ -1,11 +1,11 @@
-export const meldNaCalculation = values => {
+export const meldNaCalculation = (values) => {
     const bili = values['bili'];
     const inr = values['inr'];
     const creat = values['creat'];
     const sodium = values['sodium'];
     const onDialysis = values['dialysis'] === 'yes';
     // Check for null/undefined (allow 0 to pass through if logic permits, though 0 bili/inr is invalid clinically)
-    if (bili == null || inr == null || creat == null || sodium == null) {
+    if (bili === null || inr === null || creat === null || sodium === null) {
         return [];
     }
     // Apply UNOS/OPTN rules
@@ -18,8 +18,7 @@ export const meldNaCalculation = values => {
         cappedForDialysis = true;
     }
     // Calculate original MELD
-    let meldScore =
-        0.957 * Math.log(adjustedCreat) +
+    let meldScore = 0.957 * Math.log(adjustedCreat) +
         0.378 * Math.log(adjustedBili) +
         1.12 * Math.log(adjustedInr) +
         0.643;
@@ -43,19 +42,23 @@ export const meldNaCalculation = values => {
         riskCategory = 'Low Risk';
         mortalityRate = '1.9%';
         alertClass = 'success';
-    } else if (meldNaScore <= 19) {
+    }
+    else if (meldNaScore <= 19) {
         riskCategory = 'Low-Moderate Risk';
         mortalityRate = '6.0%';
         alertClass = 'info';
-    } else if (meldNaScore <= 29) {
+    }
+    else if (meldNaScore <= 29) {
         riskCategory = 'Moderate Risk';
         mortalityRate = '19.6%';
         alertClass = 'warning';
-    } else if (meldNaScore <= 39) {
+    }
+    else if (meldNaScore <= 39) {
         riskCategory = 'High Risk';
         mortalityRate = '52.6%';
         alertClass = 'danger';
-    } else {
+    }
+    else {
         riskCategory = 'Very High Risk';
         mortalityRate = '71.3%';
         alertClass = 'danger';

@@ -63,9 +63,12 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-smoker': 'no'
         };
 
-        const result = ascvdCalculation(input);
-        const risk = parseFloat(result[0].value);
-        expect(risk).toBeGreaterThan(0);
+        // Use ascvdCalculationPure to get full result with unrounded risk value
+        const fullResult = ascvdCalculationPure(input);
+        // The risk for this profile is very low (~0.01%), which rounds to "0.0" in display
+        // We check the raw risk value to verify calculation correctness
+        expect(fullResult.risk).toBeGreaterThan(0);
+        expect(fullResult.results[0].unit).toBe('%');
     });
 
     // TC-003: Risk Level Classification

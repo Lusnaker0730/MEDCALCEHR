@@ -114,6 +114,14 @@ export const LAB_NAME_MAPPING = {
     ETHANOL: { primary: 'Ethanol', aliases: ['ETOH', 'Alcohol'] },
     FERRITIN: { primary: 'Ferritin', aliases: [] },
     VITAMIN_D: { primary: 'Vitamin D', aliases: ['Vit D', '25-OH Vit D'] },
+    CSF_GRAM_STAIN: { primary: 'CSF Gram Stain', aliases: ['Gram Stain CSF'] },
+    CSF_ANC: {
+        primary: 'CSF ANC',
+        aliases: ['CSF Neutrophils', 'Cerebrospinal Fluid Neutrophils']
+    },
+    CSF_PROTEIN: { primary: 'CSF Protein', aliases: ['Cerebrospinal Fluid Protein'] },
+    NEUTROPHILS_ABSOLUTE: { primary: 'Absolute Neutrophil Count', aliases: ['ANC', 'Neutrophils'] },
+    URINE_UREA_NITROGEN: { primary: 'Urine Urea Nitrogen', aliases: ['UUN', 'Urine Urea'] },
     // Clinical Assessments
     GCS: { primary: 'GCS', aliases: ['Glasgow Coma Scale'] },
     PAIN_SCORE: { primary: 'Pain Score', aliases: [] },
@@ -137,7 +145,8 @@ export function getTextNameByLoinc(loincCode) {
         const codes = value.split(',').map(c => c.trim());
         return codes.includes(loincCode);
     });
-    if (!entry) return null;
+    if (!entry)
+        return null;
     const key = entry[0];
     const mapping = LAB_NAME_MAPPING[key];
     return mapping ? mapping.primary : null;
@@ -148,12 +157,15 @@ export function getTextNameByLoinc(loincCode) {
  * @returns The corresponding LOINC code if found, otherwise null
  */
 export function getLoincByTextName(textName) {
-    if (!textName) return null;
+    if (!textName)
+        return null;
     const search = textName.toLowerCase().trim();
     // Iterate through mappings to find a match
     const match = Object.entries(LAB_NAME_MAPPING).find(([, def]) => {
-        if (def.primary.toLowerCase() === search) return true;
-        if (def.aliases && def.aliases.some(alias => alias.toLowerCase() === search)) return true;
+        if (def.primary.toLowerCase() === search)
+            return true;
+        if (def.aliases && def.aliases.some(alias => alias.toLowerCase() === search))
+            return true;
         return false;
     });
     if (match) {

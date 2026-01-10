@@ -22,10 +22,12 @@ export const calculateEthanolConcentration = values => {
     if (concentrationMgDl >= 400) {
         severityText = 'Potentially Fatal Level';
         alertClass = 'danger';
-    } else if (concentrationMgDl >= 300) {
+    }
+    else if (concentrationMgDl >= 300) {
         severityText = 'Severe Intoxication';
         alertClass = 'danger';
-    } else if (concentrationMgDl >= 80) {
+    }
+    else if (concentrationMgDl >= 80) {
         severityText = 'Above Legal Limit (0.08%)';
         alertClass = 'warning';
     }

@@ -3,8 +3,7 @@ export function ttkgCalculation(values) {
     const sK = values['ttkg-serum-k'];
     const uO = values['ttkg-urine-osmo'];
     const sO = values['ttkg-serum-osmo'];
-    if (
-        uK === undefined ||
+    if (uK === undefined ||
         uK === null ||
         uK === '' ||
         sK === undefined ||
@@ -15,8 +14,7 @@ export function ttkgCalculation(values) {
         uO === '' ||
         sO === undefined ||
         sO === null ||
-        sO === ''
-    ) {
+        sO === '') {
         return [];
     }
     const urineK = Number(uK);
@@ -57,25 +55,30 @@ export function ttkgCalculation(values) {
             interpretation =
                 'Suggests non-renal potassium loss (e.g., GI loss, transcellular shift).';
             alertClass = 'success';
-        } else {
+        }
+        else {
             interpretation = 'Suggests renal potassium wasting.';
             alertClass = 'warning';
         }
-    } else if (serumK > 5.2) {
+    }
+    else if (serumK > 5.2) {
         // Hyperkalemia
         if (ttkg > 10) {
             interpretation =
                 'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
             alertClass = 'success';
-        } else if (ttkg < 7) {
+        }
+        else if (ttkg < 7) {
             interpretation =
                 'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
             alertClass = 'warning';
-        } else {
+        }
+        else {
             interpretation = 'Intermediate value.';
             alertClass = 'info';
         }
-    } else {
+    }
+    else {
         interpretation =
             'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
         alertClass = 'info';

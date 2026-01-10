@@ -4,11 +4,7 @@
  * Tests for ICU mortality score.
  * Reference: Knaus et al., 1985
  */
-import {
-    getPoints,
-    calculateMortality,
-    apacheIiCalculation
-} from '../../calculators/apache-ii/calculation';
+import { getPoints, calculateMortality, apacheIiCalculation } from '../../calculators/apache-ii/calculation';
 describe('APACHE II Calculator', () => {
     // ===========================================
     // TC-001: Individual Scoring Functions
@@ -121,15 +117,11 @@ describe('APACHE II Calculator', () => {
     // TC-003: Full Calculation
     // ===========================================
     describe('Full APACHE II Calculation', () => {
-        const mockGetValue = values => key => values[key] ?? null;
-        const mockGetStdValue = values => key => values[key] ?? null;
-        const mockGetRadioValue = values => key => values[key] || '0';
+        const mockGetValue = (values) => (key) => values[key] ?? null;
+        const mockGetStdValue = (values) => (key) => values[key] ?? null;
+        const mockGetRadioValue = (values) => (key) => values[key] || '0';
         test('Should return null for missing required values', () => {
-            const result = apacheIiCalculation(
-                mockGetValue({}),
-                mockGetStdValue({}),
-                mockGetRadioValue({})
-            );
+            const result = apacheIiCalculation(mockGetValue({}), mockGetStdValue({}), mockGetRadioValue({}));
             expect(result).toBeNull();
         });
         test('Low risk patient calculation', () => {
@@ -147,11 +139,7 @@ describe('APACHE II Calculator', () => {
                 'apache-ii-gcs': 15,
                 'apache-ii-age': 40
             };
-            const result = apacheIiCalculation(
-                mockGetValue(values),
-                mockGetStdValue(values),
-                mockGetRadioValue({ arf: '0', chronic: '0' })
-            );
+            const result = apacheIiCalculation(mockGetValue(values), mockGetStdValue(values), mockGetRadioValue({ arf: '0', chronic: '0' }));
             expect(result).not.toBeNull();
             expect(result.score).toBeLessThan(10);
             expect(result.severity).toBe('success');

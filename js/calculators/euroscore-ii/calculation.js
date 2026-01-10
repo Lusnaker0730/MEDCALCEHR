@@ -70,7 +70,8 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     const procedureWeight = getRadioValue('es2-procedure-weight');
     const thoracicAorta = getRadioValue('es2-thoracic-aorta');
     // Check required
-    if (age === null) return null;
+    if (age === null)
+        return null;
     // Calculate linear predictor (y)
     let y = INTERCEPT;
     const breakdown = [];
@@ -89,10 +90,12 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (creatinineClearance === 'moderate') {
         y += COEFFICIENTS.renalModerate;
         breakdown.push(`Renal (CrCl 51-85): +${COEFFICIENTS.renalModerate}`);
-    } else if (creatinineClearance === 'severe') {
+    }
+    else if (creatinineClearance === 'severe') {
         y += COEFFICIENTS.renalSevere;
         breakdown.push(`Renal (CrCl ≤50): +${COEFFICIENTS.renalSevere}`);
-    } else if (creatinineClearance === 'dialysis') {
+    }
+    else if (creatinineClearance === 'dialysis') {
         y += COEFFICIENTS.dialysis;
         breakdown.push(`On Dialysis: +${COEFFICIENTS.dialysis}`);
     }
@@ -120,10 +123,12 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (nyha === '2') {
         y += COEFFICIENTS.nyhaII;
         breakdown.push(`NYHA II: +${COEFFICIENTS.nyhaII}`);
-    } else if (nyha === '3') {
+    }
+    else if (nyha === '3') {
         y += COEFFICIENTS.nyhaIII;
         breakdown.push(`NYHA III: +${COEFFICIENTS.nyhaIII}`);
-    } else if (nyha === '4') {
+    }
+    else if (nyha === '4') {
         y += COEFFICIENTS.nyhaIV;
         breakdown.push(`NYHA IV: +${COEFFICIENTS.nyhaIV}`);
     }
@@ -151,10 +156,12 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (lvef === 'moderate') {
         y += COEFFICIENTS.lvefModerate;
         breakdown.push(`LVEF 31-50%: +${COEFFICIENTS.lvefModerate}`);
-    } else if (lvef === 'poor') {
+    }
+    else if (lvef === 'poor') {
         y += COEFFICIENTS.lvefPoor;
         breakdown.push(`LVEF 21-30%: +${COEFFICIENTS.lvefPoor}`);
-    } else if (lvef === 'very-poor') {
+    }
+    else if (lvef === 'very-poor') {
         y += COEFFICIENTS.lvefVeryPoor;
         breakdown.push(`LVEF ≤20%: +${COEFFICIENTS.lvefVeryPoor}`);
     }
@@ -167,7 +174,8 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (paPressure === 'moderate') {
         y += COEFFICIENTS.paPressureModerate;
         breakdown.push(`PA pressure 31-54: +${COEFFICIENTS.paPressureModerate}`);
-    } else if (paPressure === 'high') {
+    }
+    else if (paPressure === 'high') {
         y += COEFFICIENTS.paPressureHigh;
         breakdown.push(`PA pressure ≥55: +${COEFFICIENTS.paPressureHigh}`);
     }
@@ -175,10 +183,12 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (urgency === 'urgent') {
         y += COEFFICIENTS.urgencyUrgent;
         breakdown.push(`Urgent: +${COEFFICIENTS.urgencyUrgent}`);
-    } else if (urgency === 'emergency') {
+    }
+    else if (urgency === 'emergency') {
         y += COEFFICIENTS.urgencyEmergency;
         breakdown.push(`Emergency: +${COEFFICIENTS.urgencyEmergency}`);
-    } else if (urgency === 'salvage') {
+    }
+    else if (urgency === 'salvage') {
         y += COEFFICIENTS.urgencySalvage;
         breakdown.push(`Salvage: +${COEFFICIENTS.urgencySalvage}`);
     }
@@ -186,10 +196,12 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (procedureWeight === 'non-cabg') {
         y += COEFFICIENTS.procedureNonCABG;
         breakdown.push(`Non-CABG single: +${COEFFICIENTS.procedureNonCABG}`);
-    } else if (procedureWeight === '2-procedures') {
+    }
+    else if (procedureWeight === '2-procedures') {
         y += COEFFICIENTS.procedure2;
         breakdown.push(`2 procedures: +${COEFFICIENTS.procedure2}`);
-    } else if (procedureWeight === '3-or-more') {
+    }
+    else if (procedureWeight === '3-or-more') {
         y += COEFFICIENTS.procedure3OrMore;
         breakdown.push(`≥3 procedures: +${COEFFICIENTS.procedure3OrMore}`);
     }
@@ -206,13 +218,16 @@ export function calculateEuroScoreII(getValue, getStdValue, getRadioValue) {
     if (mortality < 2) {
         severity = 'success';
         riskLevel = 'Low Risk';
-    } else if (mortality < 5) {
+    }
+    else if (mortality < 5) {
         severity = 'warning';
         riskLevel = 'Moderate Risk';
-    } else if (mortality < 10) {
+    }
+    else if (mortality < 10) {
         severity = 'danger';
         riskLevel = 'High Risk';
-    } else {
+    }
+    else {
         severity = 'danger';
         riskLevel = 'Very High Risk';
     }

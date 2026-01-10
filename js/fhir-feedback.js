@@ -38,7 +38,8 @@ export class FHIRFeedback {
      * Loads external CSS file or injects minimal fallback
      */
     injectStyles() {
-        if (typeof document === 'undefined' || this.stylesInjected) return;
+        if (typeof document === 'undefined' || this.stylesInjected)
+            return;
         if (document.getElementById('fhir-feedback-styles')) {
             this.stylesInjected = true;
             return;
@@ -140,7 +141,8 @@ export class FHIRFeedback {
      */
     addFieldFeedback(inputElement, message, type = 'info') {
         const inputGroup = inputElement.closest('.ui-input-group');
-        if (!inputGroup) return;
+        if (!inputGroup)
+            return;
         // Remove existing feedback
         inputGroup.querySelector('.fhir-field-feedback')?.remove();
         const icons = { success: '✓', warning: '⚠️', info: 'ℹ️' };
@@ -153,7 +155,8 @@ export class FHIRFeedback {
         const wrapper = inputElement.closest('.ui-input-wrapper, .fhir-feedback-wrapper');
         if (wrapper?.parentNode) {
             wrapper.parentNode.insertBefore(feedback, wrapper.nextSibling);
-        } else if (inputElement.parentNode) {
+        }
+        else if (inputElement.parentNode) {
             inputElement.parentNode.insertBefore(feedback, inputElement.nextSibling);
         }
     }
@@ -200,7 +203,8 @@ export class FHIRFeedback {
             type = 'error';
             icon = '❌';
             title = 'Error loading some patient data';
-        } else if (missing.length > 0) {
+        }
+        else if (missing.length > 0) {
             type = 'warning';
             icon = '⚠️';
             title = 'Some patient data is missing';
@@ -215,9 +219,10 @@ export class FHIRFeedback {
         if (missing.length > 0) {
             const listItems = missing
                 .map(item => {
-                    if (typeof item === 'string') return `<li>${item}</li>`;
-                    return `<li data-field-id="${item.id}">${item.label}</li>`;
-                })
+                if (typeof item === 'string')
+                    return `<li>${item}</li>`;
+                return `<li data-field-id="${item.id}">${item.label}</li>`;
+            })
                 .join('');
             detailsHTML += `
                 <div class="details">
@@ -268,33 +273,35 @@ export class FHIRFeedback {
         // Show loading indicators
         dataFields.forEach(field => {
             const input = container.querySelector(`#${field.inputId}`);
-            if (input) this.showLoading(input, field.label);
+            if (input)
+                this.showLoading(input, field.label);
         });
         // Process all promises
-        await Promise.allSettled(
-            dataFields.map(async field => {
-                const input = container.querySelector(`#${field.inputId}`);
-                if (!input) return;
-                try {
-                    const data = await field.promise;
-                    if (data && field.setValue) {
-                        field.setValue(input, data);
-                        this.showSuccess(input, field.label, input.value);
-                        results.loaded.push(field.label);
-                    } else {
-                        this.showWarning(input, field.label);
-                        results.missing.push({
-                            id: field.inputId.replace(/^#/, ''),
-                            label: field.label
-                        });
-                    }
-                } catch (error) {
-                    console.error(`Error loading ${field.label}:`, error);
-                    this.showError(input, field.label, error);
-                    results.failed.push(field.label);
+        await Promise.allSettled(dataFields.map(async (field) => {
+            const input = container.querySelector(`#${field.inputId}`);
+            if (!input)
+                return;
+            try {
+                const data = await field.promise;
+                if (data && field.setValue) {
+                    field.setValue(input, data);
+                    this.showSuccess(input, field.label, input.value);
+                    results.loaded.push(field.label);
                 }
-            })
-        );
+                else {
+                    this.showWarning(input, field.label);
+                    results.missing.push({
+                        id: field.inputId.replace(/^#/, ''),
+                        label: field.label
+                    });
+                }
+            }
+            catch (error) {
+                console.error(`Error loading ${field.label}:`, error);
+                this.showError(input, field.label, error);
+                results.failed.push(field.label);
+            }
+        }));
         this.removeLoadingBanner(container);
         this.createDataSummary(container, results);
         return results;
@@ -313,7 +320,8 @@ export class FHIRFeedback {
             if (existingWrapper && !existingWrapper.classList.contains('fhir-feedback-wrapper')) {
                 existingWrapper.classList.add('fhir-feedback-wrapper');
                 wrapper = existingWrapper;
-            } else if (!existingWrapper) {
+            }
+            else if (!existingWrapper) {
                 wrapper = document.createElement('div');
                 wrapper.className = 'fhir-feedback-wrapper';
                 inputElement.parentNode?.insertBefore(wrapper, inputElement);
@@ -340,7 +348,8 @@ export class FHIRFeedback {
         const hasValue = input.value && input.value.trim() !== '';
         if (hasValue) {
             this.removeFieldFromMissingList(fieldId);
-        } else {
+        }
+        else {
             this.addFieldToMissingList(fieldId);
         }
     }
@@ -349,11 +358,10 @@ export class FHIRFeedback {
      * @private
      */
     removeFieldFromMissingList(fieldId) {
-        if (!this.currentMissingIds.has(fieldId)) return;
+        if (!this.currentMissingIds.has(fieldId))
+            return;
         this.currentMissingIds.delete(fieldId);
-        const summaryItem = document.querySelector(
-            `#fhir-data-summary li[data-field-id="${fieldId}"]`
-        );
+        const summaryItem = document.querySelector(`#fhir-data-summary li[data-field-id="${fieldId}"]`);
         if (summaryItem) {
             summaryItem.classList.add('removing');
             setTimeout(() => summaryItem.remove(), 300);
@@ -365,9 +373,11 @@ export class FHIRFeedback {
      * @private
      */
     addFieldToMissingList(fieldId) {
-        if (this.currentMissingIds.has(fieldId)) return;
+        if (this.currentMissingIds.has(fieldId))
+            return;
         const field = this.trackedFields.get(fieldId);
-        if (!field) return;
+        if (!field)
+            return;
         this.currentMissingIds.add(fieldId);
         const missingList = document.querySelector('#fhir-data-summary .missing-list');
         if (missingList) {
@@ -377,9 +387,10 @@ export class FHIRFeedback {
             li.classList.add('adding');
             missingList.appendChild(li);
             // Trigger reflow for animation
-            li.offsetHeight;
+            void li.offsetHeight;
             li.classList.remove('adding');
-        } else {
+        }
+        else {
             // Need to recreate the summary banner
             this.recreateSummaryBanner();
         }
@@ -391,7 +402,8 @@ export class FHIRFeedback {
      */
     updateSummaryBannerState() {
         const summary = document.querySelector('#fhir-data-summary');
-        if (!summary) return;
+        if (!summary)
+            return;
         const missingList = summary.querySelector('.missing-list');
         const missingCount = missingList?.children.length || 0;
         if (missingCount === 0) {
@@ -399,10 +411,14 @@ export class FHIRFeedback {
             summary.className = 'fhir-data-summary success';
             const icon = summary.querySelector('.icon');
             const title = summary.querySelector('.title');
-            if (icon) icon.textContent = '✓';
-            if (title) title.textContent = 'All required data has been entered';
+            if (icon)
+                icon.textContent = '✓';
+            if (title)
+                title.textContent = 'All required data has been entered';
             // Hide the details section
-            summary.querySelectorAll('.details').forEach(d => (d.style.display = 'none'));
+            summary
+                .querySelectorAll('.details')
+                .forEach(d => (d.style.display = 'none'));
             // Auto-hide after 3 seconds
             setTimeout(() => {
                 if (summary.classList.contains('success')) {
@@ -410,15 +426,20 @@ export class FHIRFeedback {
                     setTimeout(() => summary.remove(), 300);
                 }
             }, 3000);
-        } else {
+        }
+        else {
             // Still have missing fields - ensure warning state
             summary.className = 'fhir-data-summary warning';
             const icon = summary.querySelector('.icon');
             const title = summary.querySelector('.title');
-            if (icon) icon.textContent = '⚠️';
-            if (title) title.textContent = 'Some patient data is missing';
+            if (icon)
+                icon.textContent = '⚠️';
+            if (title)
+                title.textContent = 'Some patient data is missing';
             // Show the details section
-            summary.querySelectorAll('.details').forEach(d => (d.style.display = ''));
+            summary
+                .querySelectorAll('.details')
+                .forEach(d => (d.style.display = ''));
         }
     }
     /**
@@ -426,14 +447,16 @@ export class FHIRFeedback {
      * @private
      */
     recreateSummaryBanner() {
-        if (!this.summaryContainer || this.currentMissingIds.size === 0) return;
+        if (!this.summaryContainer || this.currentMissingIds.size === 0)
+            return;
         // Remove existing banner if any
         this.removeDataSummary(this.summaryContainer);
         // Build missing list from current tracked missing IDs
         const missingFields = [];
         this.currentMissingIds.forEach(id => {
             const field = this.trackedFields.get(id);
-            if (field) missingFields.push(field);
+            if (field)
+                missingFields.push(field);
         });
         if (missingFields.length > 0) {
             this.createDataSummary(this.summaryContainer, {
@@ -472,7 +495,8 @@ export class FHIRFeedback {
      * Cleanup event listeners when no longer needed
      */
     cleanupEventListeners() {
-        if (!this.summaryContainer) return;
+        if (!this.summaryContainer)
+            return;
         this.boundInputHandlers.forEach((handler, fieldId) => {
             const input = this.summaryContainer?.querySelector(`#${fieldId}`);
             if (input) {

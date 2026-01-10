@@ -14,7 +14,7 @@ function sortCalculators(calculators, sortType) {
             return sorted.sort((a, b) => b.title.localeCompare(a.title));
         case 'recently-added':
             return sorted.reverse();
-        case 'most-used':
+        case 'most-used': {
             // Sort by usage stats
             const usage = favoritesManager.getUsage();
             return sorted.sort((a, b) => {
@@ -22,6 +22,7 @@ function sortCalculators(calculators, sortType) {
                 const countB = usage[b.id] || 0;
                 return countB - countA;
             });
+        }
         default:
             return sorted;
     }
@@ -33,16 +34,18 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
     let filtered = [...calculators];
     // Filter by special filters
     switch (filterType) {
-        case 'favorites':
+        case 'favorites': {
             const favorites = favoritesManager.getFavorites();
             filtered = filtered.filter(calc => favorites.includes(calc.id));
             break;
-        case 'recent':
+        }
+        case 'recent': {
             const recent = favoritesManager.getRecent();
             filtered = recent
                 .map(id => calculators.find(calc => calc.id === id))
-                .filter(calc => calc !== undefined);
+                .filter((calc) => calc !== undefined);
             return filtered; // Keep order for recent
+        }
         case 'all':
         default:
             // No special filter
@@ -55,11 +58,8 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
     // Filter by search term
     if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        filtered = filtered.filter(
-            calc =>
-                calc.title.toLowerCase().includes(term) ||
-                (calc.description && calc.description.toLowerCase().includes(term))
-        );
+        filtered = filtered.filter(calc => calc.title.toLowerCase().includes(term) ||
+            (calc.description && calc.description.toLowerCase().includes(term)));
     }
     return filtered;
 }
@@ -108,7 +108,7 @@ function renderCalculatorList(calculators, container) {
             ? 'Remove from Favorites'
             : 'Add to Favorites';
         // Prevent clicking favorite button from triggering link
-        favoriteBtn.addEventListener('click', e => {
+        favoriteBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             const isFavorite = favoritesManager.toggleFavorite(calc.id);
@@ -159,12 +159,7 @@ window.onload = () => {
     function updateDisplay() {
         const searchTerm = searchBar.value;
         // Filter and sort
-        const filtered = filterCalculators(
-            calculatorModules,
-            currentFilterType,
-            currentCategory,
-            searchTerm
-        );
+        const filtered = filterCalculators(calculatorModules, currentFilterType, currentCategory, searchTerm);
         const sorted = sortCalculators(filtered, currentSortType);
         // Render
         renderCalculatorList(sorted, calculatorListDiv);
@@ -179,7 +174,8 @@ window.onload = () => {
             const filterType = btn.getAttribute('data-filter');
             if (filterType === currentFilterType) {
                 btn.classList.add('active');
-            } else {
+            }
+            else {
                 btn.classList.remove('active');
             }
             // Update counts
@@ -192,7 +188,8 @@ window.onload = () => {
                     countBadge.textContent = count.toString();
                     btn.appendChild(countBadge);
                 }
-            } else if (filterType === 'recent') {
+            }
+            else if (filterType === 'recent') {
                 const count = favoritesManager.getRecent().length;
                 btn.querySelector('.filter-count')?.remove();
                 if (count > 0) {
@@ -209,48 +206,45 @@ window.onload = () => {
     if (typeof window.FHIR !== 'undefined') {
         window.FHIR.oauth2
             .ready()
-            .then(async client => {
-                displayPatientInfo(client, patientInfoDiv);
-                // Fetch User/Practitioner Info
-                try {
-                    // Try to read the user (Practitioner) from the client
-                    const user = await client.user.read();
-                    const practitionerNameEl = document.getElementById('practitioner-name');
-                    const practitionerInfoEl = document.getElementById('practitioner-info');
-                    if (
-                        user &&
-                        (user.resourceType === 'Practitioner' ||
-                            user.resourceType === 'PractitionerRole')
-                    ) {
-                        let name = 'Unknown Practitioner';
-                        if (user.resourceType === 'Practitioner') {
-                            name =
-                                user.name?.[0]?.text ||
+            .then(async (client) => {
+            displayPatientInfo(client, patientInfoDiv);
+            // Fetch User/Practitioner Info
+            try {
+                // Try to read the user (Practitioner) from the client
+                const user = await client.user.read();
+                const practitionerNameEl = document.getElementById('practitioner-name');
+                const practitionerInfoEl = document.getElementById('practitioner-info');
+                if (user &&
+                    (user.resourceType === 'Practitioner' ||
+                        user.resourceType === 'PractitionerRole')) {
+                    let name = 'Unknown Practitioner';
+                    if (user.resourceType === 'Practitioner') {
+                        name =
+                            user.name?.[0]?.text ||
                                 `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
-                        } else if (
-                            user.resourceType === 'PractitionerRole' &&
-                            user.practitioner?.display
-                        ) {
-                            name = user.practitioner.display;
-                        }
-                        if (practitionerNameEl)
-                            practitionerNameEl.textContent = name || 'Practitioner';
-                        if (practitionerInfoEl) practitionerInfoEl.style.display = 'flex';
-                        // Set Practitioner ID for favorites
-                        if (user.id) {
-                            favoritesManager.setPractitionerId(user.id);
-                            console.log(`[MedCalc] Practitioner set to: ${user.id}`);
-                        }
                     }
-                } catch (error) {
-                    console.warn('[MedCalc] Failed to fetch user info:', error);
+                    else if (user.resourceType === 'PractitionerRole' &&
+                        user.practitioner?.display) {
+                        name = user.practitioner.display;
+                    }
+                    if (practitionerNameEl)
+                        practitionerNameEl.textContent = name || 'Practitioner';
+                    if (practitionerInfoEl)
+                        practitionerInfoEl.style.display = 'flex';
+                    // Set Practitioner ID for favorites
+                    if (user.id) {
+                        favoritesManager.setPractitionerId(user.id);
+                        console.log(`[MedCalc] Practitioner set to: ${user.id}`);
+                    }
                 }
-            })
+            }
+            catch (error) {
+                console.warn('[MedCalc] Failed to fetch user info:', error);
+            }
+        })
             .catch(() => {
-                console.log(
-                    'FHIR client not ready, patient info will be loaded from cache if available.'
-                );
-            });
+            console.log('FHIR client not ready, patient info will be loaded from cache if available.');
+        });
     }
     // ========== Initialize Category Selector ==========
     if (categorySelect) {
@@ -266,7 +260,7 @@ window.onload = () => {
             option.textContent = categories[categoryKey];
             categorySelect.appendChild(option);
         });
-        categorySelect.addEventListener('change', e => {
+        categorySelect.addEventListener('change', (e) => {
             currentCategory = e.target.value;
             updateDisplay();
         });
@@ -282,7 +276,7 @@ window.onload = () => {
     // ========== Search Function ==========
     searchBar.addEventListener('input', updateDisplay);
     // ========== Sort Function ==========
-    sortSelect.addEventListener('change', e => {
+    sortSelect.addEventListener('change', (e) => {
         currentSortType = e.target.value;
         updateDisplay();
     });

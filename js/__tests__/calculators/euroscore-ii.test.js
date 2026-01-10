@@ -4,15 +4,11 @@
  * Tests for cardiac surgery mortality prediction.
  * Reference: Nashef SA, et al. Eur J Cardiothorac Surg. 2012
  */
-import {
-    calculateEuroScoreII,
-    COEFFICIENTS,
-    INTERCEPT
-} from '../../calculators/euroscore-ii/calculation';
+import { calculateEuroScoreII, COEFFICIENTS, INTERCEPT } from '../../calculators/euroscore-ii/calculation';
 describe('EuroSCORE II Calculator', () => {
     // Mock functions
-    const createMockGetter = values => key => values[key] ?? null;
-    const createMockRadioGetter = values => key => values[key] || '';
+    const createMockGetter = (values) => (key) => values[key] ?? null;
+    const createMockRadioGetter = (values) => (key) => values[key] || '';
     // ===========================================
     // TC-001: Coefficient Validation
     // ===========================================
@@ -58,11 +54,7 @@ describe('EuroSCORE II Calculator', () => {
                 'es2-procedure-weight': 'cabg',
                 'es2-thoracic-aorta': '0'
             };
-            const result = calculateEuroScoreII(
-                createMockGetter(values),
-                createMockGetter(values),
-                createMockRadioGetter(radioValues)
-            );
+            const result = calculateEuroScoreII(createMockGetter(values), createMockGetter(values), createMockRadioGetter(radioValues));
             expect(result).not.toBeNull();
             expect(result.score).toBeLessThan(2);
             expect(result.interpretation).toBe('Low Risk');
@@ -93,16 +85,8 @@ describe('EuroSCORE II Calculator', () => {
                 'es2-procedure-weight': 'cabg',
                 'es2-thoracic-aorta': '0'
             };
-            const result60 = calculateEuroScoreII(
-                createMockGetter({ 'es2-age': 60 }),
-                createMockGetter({ 'es2-age': 60 }),
-                createMockRadioGetter(radioValues)
-            );
-            const result50 = calculateEuroScoreII(
-                createMockGetter({ 'es2-age': 50 }),
-                createMockGetter({ 'es2-age': 50 }),
-                createMockRadioGetter(radioValues)
-            );
+            const result60 = calculateEuroScoreII(createMockGetter({ 'es2-age': 60 }), createMockGetter({ 'es2-age': 60 }), createMockRadioGetter(radioValues));
+            const result50 = calculateEuroScoreII(createMockGetter({ 'es2-age': 50 }), createMockGetter({ 'es2-age': 50 }), createMockRadioGetter(radioValues));
             // Both should have same score since age ≤60 doesn't add points
             expect(result60).not.toBeNull();
             expect(result50).not.toBeNull();
@@ -128,16 +112,8 @@ describe('EuroSCORE II Calculator', () => {
                 'es2-procedure-weight': 'cabg',
                 'es2-thoracic-aorta': '0'
             };
-            const result70 = calculateEuroScoreII(
-                createMockGetter({ 'es2-age': 70 }),
-                createMockGetter({ 'es2-age': 70 }),
-                createMockRadioGetter(radioValues)
-            );
-            const result80 = calculateEuroScoreII(
-                createMockGetter({ 'es2-age': 80 }),
-                createMockGetter({ 'es2-age': 80 }),
-                createMockRadioGetter(radioValues)
-            );
+            const result70 = calculateEuroScoreII(createMockGetter({ 'es2-age': 70 }), createMockGetter({ 'es2-age': 70 }), createMockRadioGetter(radioValues));
+            const result80 = calculateEuroScoreII(createMockGetter({ 'es2-age': 80 }), createMockGetter({ 'es2-age': 80 }), createMockRadioGetter(radioValues));
             expect(result70).not.toBeNull();
             expect(result80).not.toBeNull();
             expect(result80?.score).toBeGreaterThan(result70?.score ?? 0);
@@ -168,11 +144,7 @@ describe('EuroSCORE II Calculator', () => {
                 'es2-procedure-weight': '2-procedures',
                 'es2-thoracic-aorta': '0'
             };
-            const result = calculateEuroScoreII(
-                createMockGetter(values),
-                createMockGetter(values),
-                createMockRadioGetter(radioValues)
-            );
+            const result = calculateEuroScoreII(createMockGetter(values), createMockGetter(values), createMockRadioGetter(radioValues));
             expect(result).not.toBeNull();
             expect(result.score).toBeGreaterThan(5);
             expect(['High Risk', 'Very High Risk']).toContain(result.interpretation);
@@ -188,11 +160,7 @@ describe('EuroSCORE II Calculator', () => {
                 'es2-sex': 'male',
                 'es2-renal': 'normal'
             };
-            const result = calculateEuroScoreII(
-                createMockGetter(values),
-                createMockGetter(values),
-                createMockRadioGetter(radioValues)
-            );
+            const result = calculateEuroScoreII(createMockGetter(values), createMockGetter(values), createMockRadioGetter(radioValues));
             expect(result).toBeNull();
         });
     });
@@ -220,16 +188,8 @@ describe('EuroSCORE II Calculator', () => {
                 'es2-procedure-weight': 'cabg',
                 'es2-thoracic-aorta': '0'
             };
-            const resultElective = calculateEuroScoreII(
-                createMockGetter(values),
-                createMockGetter(values),
-                createMockRadioGetter({ ...baseRadio, 'es2-urgency': 'elective' })
-            );
-            const resultSalvage = calculateEuroScoreII(
-                createMockGetter(values),
-                createMockGetter(values),
-                createMockRadioGetter({ ...baseRadio, 'es2-urgency': 'salvage' })
-            );
+            const resultElective = calculateEuroScoreII(createMockGetter(values), createMockGetter(values), createMockRadioGetter({ ...baseRadio, 'es2-urgency': 'elective' }));
+            const resultSalvage = calculateEuroScoreII(createMockGetter(values), createMockGetter(values), createMockRadioGetter({ ...baseRadio, 'es2-urgency': 'salvage' }));
             expect(resultElective).not.toBeNull();
             expect(resultSalvage).not.toBeNull();
             expect(resultSalvage?.score).toBeGreaterThan((resultElective?.score ?? 0) * 2);

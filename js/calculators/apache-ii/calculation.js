@@ -10,92 +10,137 @@
 // APACHE II 評分函數
 // ==========================================
 export const getPoints = {
-    temp: v => {
-        if (v >= 41 || v <= 29.9) return 4;
-        if (v >= 39 || v <= 31.9) return 3;
-        if (v <= 33.9) return 2;
-        if (v >= 38.5 || v <= 35.9) return 1;
+    temp: (v) => {
+        if (v >= 41 || v <= 29.9)
+            return 4;
+        if (v >= 39 || v <= 31.9)
+            return 3;
+        if (v <= 33.9)
+            return 2;
+        if (v >= 38.5 || v <= 35.9)
+            return 1;
         return 0;
     },
-    map: v => {
-        if (v >= 160 || v <= 49) return 4;
-        if (v >= 130) return 3;
-        if (v >= 110 || v <= 69) return 2;
+    map: (v) => {
+        if (v >= 160 || v <= 49)
+            return 4;
+        if (v >= 130)
+            return 3;
+        if (v >= 110 || v <= 69)
+            return 2;
         return 0;
     },
-    ph: v => {
-        if (v >= 7.7 || v < 7.15) return 4;
-        if (v >= 7.6 || v < 7.25) return 3;
-        if (v < 7.33) return 2;
-        if (v >= 7.5) return 1;
+    ph: (v) => {
+        if (v >= 7.7 || v < 7.15)
+            return 4;
+        if (v >= 7.6 || v < 7.25)
+            return 3;
+        if (v < 7.33)
+            return 2;
+        if (v >= 7.5)
+            return 1;
         return 0;
     },
-    hr: v => {
-        if (v >= 180 || v <= 39) return 4;
-        if (v >= 140 || v <= 54) return 3;
-        if (v >= 110 || v <= 69) return 2;
+    hr: (v) => {
+        if (v >= 180 || v <= 39)
+            return 4;
+        if (v >= 140 || v <= 54)
+            return 3;
+        if (v >= 110 || v <= 69)
+            return 2;
         return 0;
     },
-    rr: v => {
-        if (v >= 50 || v <= 5) return 4;
-        if (v >= 35) return 3;
-        if (v <= 9) return 2;
-        if (v >= 25 || v <= 11) return 1;
+    rr: (v) => {
+        if (v >= 50 || v <= 5)
+            return 4;
+        if (v >= 35)
+            return 3;
+        if (v <= 9)
+            return 2;
+        if (v >= 25 || v <= 11)
+            return 1;
         return 0;
     },
-    sodium: v => {
-        if (v >= 180 || v <= 110) return 4;
-        if (v >= 160 || v <= 119) return 3;
-        if (v >= 155 || v <= 129) return 2;
-        if (v >= 150) return 1;
+    sodium: (v) => {
+        if (v >= 180 || v <= 110)
+            return 4;
+        if (v >= 160 || v <= 119)
+            return 3;
+        if (v >= 155 || v <= 129)
+            return 2;
+        if (v >= 150)
+            return 1;
         return 0;
     },
-    potassium: v => {
-        if (v >= 7 || v < 2.5) return 4;
-        if (v >= 6) return 3;
-        if (v <= 2.9) return 2;
-        if (v >= 5.5 || v <= 3.4) return 1;
+    potassium: (v) => {
+        if (v >= 7 || v < 2.5)
+            return 4;
+        if (v >= 6)
+            return 3;
+        if (v <= 2.9)
+            return 2;
+        if (v >= 5.5 || v <= 3.4)
+            return 1;
         return 0;
     },
     creatinine: (v, arf) => {
         let score = 0;
-        if (v >= 3.5) score = 4;
-        else if (v >= 2.0) score = 3;
-        else if (v >= 1.5 || v < 0.6) score = 2;
+        if (v >= 3.5)
+            score = 4;
+        else if (v >= 2.0)
+            score = 3;
+        else if (v >= 1.5 || v < 0.6)
+            score = 2;
         return arf ? score * 2 : score;
     },
-    hct: v => {
-        if (v >= 60 || v < 20) return 4;
-        if (v >= 50 || v < 30) return 2;
+    hct: (v) => {
+        if (v >= 60 || v < 20)
+            return 4;
+        if (v >= 50 || v < 30)
+            return 2;
         return 0;
     },
-    wbc: v => {
-        if (v >= 40 || v < 1) return 4;
-        if (v >= 20 || v < 3) return 2;
-        if (v >= 15) return 1;
+    wbc: (v) => {
+        if (v >= 40 || v < 1)
+            return 4;
+        if (v >= 20 || v < 3)
+            return 2;
+        if (v >= 15)
+            return 1;
         return 0;
     },
-    gcs: v => 15 - v,
+    gcs: (v) => 15 - v,
     oxygenation: (fio2, pao2, paco2) => {
         if (fio2 >= 0.5 && paco2 !== null && pao2 !== null) {
             const A_a_gradient = fio2 * 713 - paco2 / 0.8 - pao2;
-            if (A_a_gradient >= 500) return 4;
-            if (A_a_gradient >= 350) return 3;
-            if (A_a_gradient >= 200) return 2;
+            if (A_a_gradient >= 500)
+                return 4;
+            if (A_a_gradient >= 350)
+                return 3;
+            if (A_a_gradient >= 200)
+                return 2;
             return 0;
-        } else if (pao2 !== null) {
-            if (pao2 < 55) return 4;
-            if (pao2 <= 60) return 3;
-            if (pao2 <= 70) return 1;
+        }
+        else if (pao2 !== null) {
+            if (pao2 < 55)
+                return 4;
+            if (pao2 <= 60)
+                return 3;
+            if (pao2 <= 70)
+                return 1;
             return 0;
         }
         return 0;
     },
-    age: v => {
-        if (v >= 75) return 6;
-        if (v >= 65) return 5;
-        if (v >= 55) return 3;
-        if (v >= 45) return 2;
+    age: (v) => {
+        if (v >= 75)
+            return 6;
+        if (v >= 65)
+            return 5;
+        if (v >= 55)
+            return 3;
+        if (v >= 45)
+            return 2;
         return 0;
     }
 };
@@ -150,7 +195,8 @@ export function apacheIiCalculation(getValue, getStdValue, getRadioValue) {
         gcs,
         age
     ];
-    if (requiredFields.some(v => v === null)) return null;
+    if (requiredFields.some(v => v === null))
+        return null;
     // Calculate APS
     let aps = 0;
     aps += getPoints.temp(temp);
@@ -166,7 +212,8 @@ export function apacheIiCalculation(getValue, getStdValue, getRadioValue) {
     aps += getPoints.gcs(gcs);
     if (oxyMethod === 'fio2_pao2' && fio2 !== null && pao2 !== null && paco2 !== null) {
         aps += getPoints.oxygenation(fio2, pao2, paco2);
-    } else if (pao2 !== null) {
+    }
+    else if (pao2 !== null) {
         aps += getPoints.oxygenation(0.21, pao2, null);
     }
     const agePoints = getPoints.age(age);
@@ -178,13 +225,16 @@ export function apacheIiCalculation(getValue, getStdValue, getRadioValue) {
     if (mortality < 10) {
         severity = 'success';
         riskLevel = 'Low Risk';
-    } else if (mortality < 25) {
+    }
+    else if (mortality < 25) {
         severity = 'warning';
         riskLevel = 'Moderate Risk';
-    } else if (mortality < 50) {
+    }
+    else if (mortality < 50) {
         severity = 'danger';
         riskLevel = 'High Risk';
-    } else {
+    }
+    else {
         severity = 'danger';
         riskLevel = 'Very High Risk';
     }

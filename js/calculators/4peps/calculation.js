@@ -3,16 +3,16 @@ export const calculateFourPeps = values => {
     // Age scoring
     // Note: unified calculator passes values as strings or numbers, so we parse safely
     const ageVal = values['fourpeps-age'];
-    const age =
-        typeof ageVal === 'string'
-            ? parseFloat(ageVal)
-            : typeof ageVal === 'number'
-              ? ageVal
-              : null;
+    const age = typeof ageVal === 'string'
+        ? parseFloat(ageVal)
+        : typeof ageVal === 'number'
+            ? ageVal
+            : null;
     if (age !== null && !isNaN(age)) {
         if (age < 50) {
             score += -2;
-        } else if (age <= 64) {
+        }
+        else if (age <= 64) {
             score += -1;
         }
         // >64 is 0 points
@@ -46,17 +46,20 @@ export const calculateFourPeps = values => {
         riskLevel = 'Very low CPP';
         alertType = 'success';
         recommendation = 'PE can be ruled out.';
-    } else if (score <= 5) {
+    }
+    else if (score <= 5) {
         probability = '2-20%';
         riskLevel = 'Low CPP';
         alertType = 'success';
         recommendation = 'PE can be ruled out if D-dimer level <1.0 µg/mL.';
-    } else if (score <= 12) {
+    }
+    else if (score <= 12) {
         probability = '20-65%';
         riskLevel = 'Moderate CPP';
         alertType = 'warning';
         recommendation = 'PE can be ruled out if D-dimer level <0.5 µg/mL OR <(age x 0.01) µg/mL.';
-    } else {
+    }
+    else {
         probability = '>65%';
         riskLevel = 'High CPP';
         alertType = 'danger';

@@ -3,8 +3,10 @@ export const calculateFEUrea = values => {
     const urineUrea = Number(values['feurea-urine-urea']);
     const serumUrea = Number(values['feurea-serum-urea']);
     const urineCr = Number(values['feurea-urine-cr']);
-    if (!serumCr || !urineUrea || !serumUrea || !urineCr) return null;
-    if (serumUrea === 0 || urineCr === 0) return null; // Avoid division by zero
+    if (!serumCr || !urineUrea || !serumUrea || !urineCr)
+        return null;
+    if (serumUrea === 0 || urineCr === 0)
+        return null; // Avoid division by zero
     // FEUrea = (Serum Cr * Urine Urea) / (Serum Urea * Urine Cr) * 100
     const feurea = ((serumCr * urineUrea) / (serumUrea * urineCr)) * 100;
     let interpretation = '';
@@ -14,11 +16,13 @@ export const calculateFEUrea = values => {
         interpretation = 'Prerenal AKI (≤ 35%)';
         alertClass = 'success';
         note = 'Suggests prerenal etiology. Consider volume resuscitation.';
-    } else if (feurea > 50) {
+    }
+    else if (feurea > 50) {
         interpretation = 'Intrinsic Renal AKI (> 50%)';
         alertClass = 'danger';
         note = 'Suggests intrinsic renal injury (ATN). Consider nephrology consultation.';
-    } else {
+    }
+    else {
         interpretation = 'Indeterminate (35-50%)';
         alertClass = 'warning';
         note = 'Further evaluation needed. Clinical correlation required.';

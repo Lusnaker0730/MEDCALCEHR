@@ -2,14 +2,12 @@ export const calculateIntraopFluid = values => {
     const weightKg = Number(values['ifd-weight']);
     const npoHours = Number(values['ifd-npo']);
     const traumaLevel = Number(values['ifd-trauma']);
-    if (
-        !weightKg ||
+    if (!weightKg ||
         !npoHours ||
         !traumaLevel ||
         isNaN(weightKg) ||
         isNaN(npoHours) ||
-        isNaN(traumaLevel)
-    ) {
+        isNaN(traumaLevel)) {
         return null;
     }
     if (weightKg <= 10) {
@@ -19,8 +17,7 @@ export const calculateIntraopFluid = values => {
     // First 10kg: 4ml/kg/hr -> 40ml
     // Second 10kg: 2ml/kg/hr -> 20ml (Total 60ml for 20kg)
     // Remaining: 1ml/kg/hr
-    const maintenanceRate =
-        weightKg > 20 ? weightKg + 40 : weightKg > 10 ? 40 + (weightKg - 10) * 2 : weightKg * 4;
+    const maintenanceRate = weightKg > 20 ? weightKg + 40 : weightKg > 10 ? 40 + (weightKg - 10) * 2 : weightKg * 4;
     const npoDeficit = maintenanceRate * npoHours;
     const traumaLossRate = traumaLevel * weightKg;
     // Hour-by-hour

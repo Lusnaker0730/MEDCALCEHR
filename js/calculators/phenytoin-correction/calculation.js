@@ -2,15 +2,13 @@ export function phenytoinCorrectionCalculation(values) {
     const totalInput = values['pheny-total'];
     const albuminInput = values['pheny-albumin'];
     const renalStatus = values['pheny-renal'];
-    if (
-        totalInput === undefined ||
+    if (totalInput === undefined ||
         totalInput === null ||
         totalInput === '' ||
         albuminInput === undefined ||
         albuminInput === null ||
         albuminInput === '' ||
-        !renalStatus
-    ) {
+        !renalStatus) {
         return [];
     }
     const total = Number(totalInput);
@@ -23,7 +21,8 @@ export function phenytoinCorrectionCalculation(values) {
     const K = renalStatus === 'yes' ? 0.2 : 0.1;
     // Avoid division by zero if albumin and K result in 0 (highly unlikely mathematically for positive K)
     const denominator = ((1 - K) * albumin) / 4.4 + K;
-    if (denominator === 0) return [];
+    if (denominator === 0)
+        return [];
     const corrected = total / denominator;
     let interpretation = '';
     let alertClass = 'success';
@@ -32,7 +31,8 @@ export function phenytoinCorrectionCalculation(values) {
         interpretation = 'Subtherapeutic';
         alertClass = 'info';
         alertMsg = 'Level is below therapeutic range (10-20 mcg/mL).';
-    } else if (corrected > 20) {
+    }
+    else if (corrected > 20) {
         interpretation = 'Potentially Toxic';
         alertClass = 'danger';
         alertMsg = 'Level is above therapeutic range (>20 mcg/mL). Monitor for toxicity.';

@@ -29,19 +29,20 @@ export class DataStalenessTracker {
      * @returns {Object|null} - Staleness info { isStale, date, ageInDays } or null if no date
      */
     checkStaleness(observation) {
-        if (!observation) return null;
+        if (!observation)
+            return null;
         // FHIR Observation date can be in:
         // - effectiveDateTime (single point in time)
         // - effectiveInstant (precise point in time)
         // - effectivePeriod.start or effectivePeriod.end
         // - issued (when the observation was made available)
-        const dateStr =
-            observation.effectiveDateTime ||
+        const dateStr = observation.effectiveDateTime ||
             observation.effectiveInstant ||
             observation.effectivePeriod?.end ||
             observation.effectivePeriod?.start ||
             observation.issued;
-        if (!dateStr) return null;
+        if (!dateStr)
+            return null;
         const observationDate = new Date(dateStr);
         const now = new Date();
         const ageMs = now.getTime() - observationDate.getTime();
@@ -76,7 +77,8 @@ export class DataStalenessTracker {
             });
             this._updateWarningDisplay();
             return stalenessInfo;
-        } else {
+        }
+        else {
             // Remove from stale items if it was previously stale but now updated
             if (this.staleItems.has(fieldId)) {
                 this.staleItems.delete(fieldId);
@@ -124,7 +126,8 @@ export class DataStalenessTracker {
      * @private
      */
     _ensureWarningContainer() {
-        if (!this.container) return;
+        if (!this.container)
+            return;
         let warningContainer = this.container.querySelector(`#${this.warningContainerId}`);
         if (!warningContainer) {
             warningContainer = document.createElement('div');
@@ -134,7 +137,8 @@ export class DataStalenessTracker {
             const header = this.container.querySelector('.calculator-header');
             if (header && header.nextSibling && header.parentNode) {
                 header.parentNode.insertBefore(warningContainer, header.nextSibling);
-            } else {
+            }
+            else {
                 this.container.insertBefore(warningContainer, this.container.firstChild);
             }
         }
@@ -144,9 +148,11 @@ export class DataStalenessTracker {
      * @private
      */
     _updateWarningDisplay() {
-        if (!this.container) return;
+        if (!this.container)
+            return;
         const warningContainer = this.container.querySelector(`#${this.warningContainerId}`);
-        if (!warningContainer) return;
+        if (!warningContainer)
+            return;
         if (this.staleItems.size === 0) {
             warningContainer.innerHTML = '';
             warningContainer.style.display = 'none';
@@ -155,15 +161,13 @@ export class DataStalenessTracker {
         warningContainer.style.display = 'block';
         const items = this.getStaleItems();
         const itemsHtml = items
-            .map(
-                item => `
+            .map(item => `
             <li class="staleness-item" data-field="${item.fieldId}">
                 <strong>${item.label}</strong>: 
                 <span class="staleness-date">${item.dateStr}</span>
                 <span class="staleness-age">(${item.ageFormatted})</span>
             </li>
-        `
-            )
+        `)
             .join('');
         warningContainer.innerHTML = `
             <div class="staleness-warning ui-alert ui-alert-warning">
@@ -203,10 +207,12 @@ export class DataStalenessTracker {
                 return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''} ago`;
             }
             return `${years} year${years > 1 ? 's' : ''} ago`;
-        } else if (days >= 30) {
+        }
+        else if (days >= 30) {
             const months = Math.floor(days / 30);
             return `${months} month${months > 1 ? 's' : ''} ago`;
-        } else {
+        }
+        else {
             return `${days} day${days > 1 ? 's' : ''} ago`;
         }
     }
@@ -227,9 +233,9 @@ export class DataStalenessTracker {
  * @returns {Date|null}
  */
 export function getObservationDate(observation) {
-    if (!observation) return null;
-    const dateStr =
-        observation.effectiveDateTime ||
+    if (!observation)
+        return null;
+    const dateStr = observation.effectiveDateTime ||
         observation.effectiveInstant ||
         observation.effectivePeriod?.end ||
         observation.effectivePeriod?.start ||
@@ -244,7 +250,8 @@ export function getObservationDate(observation) {
  */
 export function isObservationStale(observation, thresholdMs = DEFAULT_STALENESS_THRESHOLD_MS) {
     const date = getObservationDate(observation);
-    if (!date) return false;
+    if (!date)
+        return false;
     return new Date().getTime() - date.getTime() > thresholdMs;
 }
 /**

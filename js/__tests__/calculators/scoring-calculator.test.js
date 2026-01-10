@@ -4,8 +4,8 @@
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
 import { createScoringCalculator } from '../../calculators/shared/scoring-calculator';
 // Mock console
-jest.spyOn(console, 'warn').mockImplementation(() => {});
-jest.spyOn(console, 'error').mockImplementation(() => {});
+jest.spyOn(console, 'warn').mockImplementation(() => { });
+jest.spyOn(console, 'error').mockImplementation(() => { });
 describe('Unified Scoring Calculator Factory', () => {
     let container;
     beforeEach(() => {

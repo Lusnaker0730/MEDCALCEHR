@@ -1,9 +1,11 @@
 export const calculateMAP = values => {
     const sbp = Number(values['map-sbp']);
     const dbp = Number(values['map-dbp']);
-    if (!sbp || !dbp) return null;
+    if (!sbp || !dbp)
+        return null;
     // Logic check: SBP must be greater than DBP
-    if (sbp <= dbp) return null;
+    if (sbp <= dbp)
+        return null;
     // MAP = (SBP + 2 * DBP) / 3
     const map = (sbp + 2 * dbp) / 3;
     let interpretation = '';
@@ -11,13 +13,16 @@ export const calculateMAP = values => {
     if (map < 60) {
         interpretation = 'Critically Low (Shock Risk)';
         alertClass = 'danger';
-    } else if (map < 70) {
+    }
+    else if (map < 70) {
         interpretation = 'Below Normal';
         alertClass = 'warning';
-    } else if (map <= 100) {
+    }
+    else if (map <= 100) {
         interpretation = 'Normal';
         alertClass = 'success';
-    } else {
+    }
+    else {
         interpretation = 'Elevated (Hypertension)';
         alertClass = 'danger';
     }

@@ -4,8 +4,8 @@
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
 import { createUnifiedFormulaCalculator } from '../../calculators/shared/unified-formula-calculator';
 // Mock console
-jest.spyOn(console, 'warn').mockImplementation(() => {});
-jest.spyOn(console, 'error').mockImplementation(() => {});
+jest.spyOn(console, 'warn').mockImplementation(() => { });
+jest.spyOn(console, 'error').mockImplementation(() => { });
 describe('Unified Formula Calculator Factory', () => {
     let container;
     beforeEach(() => {
@@ -37,7 +37,7 @@ describe('Unified Formula Calculator Factory', () => {
                 }
             ],
             formulas: [{ label: 'Result', formula: 'A + B' }],
-            calculate: values => {
+            calculate: (values) => {
                 const a = parseFloat(String(values['value-a'])) || 0;
                 const b = parseFloat(String(values['value-b'])) || 0;
                 return [{ label: 'Sum', value: String(a + b), unit: 'units' }];
@@ -119,7 +119,8 @@ describe('Unified Formula Calculator Factory', () => {
         const complexCalculate = (getValue, getStdValue, getRadioValue) => {
             const age = getValue('age');
             const lab = getValue('lab-value');
-            if (age === null || lab === null) return null;
+            if (age === null || lab === null)
+                return null;
             return {
                 results: [{ label: 'Score', value: String(age + lab), unit: 'points' }],
                 interpretation: 'Test interpretation',

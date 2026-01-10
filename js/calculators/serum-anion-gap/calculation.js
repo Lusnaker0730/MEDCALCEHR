@@ -2,8 +2,7 @@ export function serumAnionGapCalculation(values) {
     const naInput = values['sag-na'];
     const clInput = values['sag-cl'];
     const hco3Input = values['sag-hco3'];
-    if (
-        naInput === undefined ||
+    if (naInput === undefined ||
         naInput === null ||
         naInput === '' ||
         clInput === undefined ||
@@ -11,8 +10,7 @@ export function serumAnionGapCalculation(values) {
         clInput === '' ||
         hco3Input === undefined ||
         hco3Input === null ||
-        hco3Input === ''
-    ) {
+        hco3Input === '') {
         return [];
     }
     const na = Number(naInput);
@@ -31,11 +29,13 @@ export function serumAnionGapCalculation(values) {
         alertClass = 'danger';
         alertMsg =
             'Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions - MUDPILES).';
-    } else if (anionGap < 6) {
+    }
+    else if (anionGap < 6) {
         interpretation = 'Low Anion Gap';
         alertClass = 'warning';
         alertMsg = 'Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
-    } else {
+    }
+    else {
         interpretation = 'Normal Anion Gap';
         alertClass = 'success';
         alertMsg =

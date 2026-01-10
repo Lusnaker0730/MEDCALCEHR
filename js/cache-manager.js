@@ -43,21 +43,19 @@ export class CacheManager {
         if (this.cacheEnabled) {
             try {
                 const cache = await caches.open(cacheName);
-                const response = new Response(
-                    JSON.stringify({
-                        data,
-                        timestamp: Date.now(),
-                        expiry: expiryTime
-                    }),
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Cache-Timestamp': Date.now().toString()
-                        }
+                const response = new Response(JSON.stringify({
+                    data,
+                    timestamp: Date.now(),
+                    expiry: expiryTime
+                }), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Cache-Timestamp': Date.now().toString()
                     }
-                );
+                });
                 await cache.put(key, response);
-            } catch (error) {
+            }
+            catch (error) {
                 console.warn('Failed to write to cache:', error);
             }
         }
@@ -72,7 +70,8 @@ export class CacheManager {
         if (memCached) {
             if (!checkExpiry || !memCached.expiry || Date.now() < memCached.expiry) {
                 return memCached.data;
-            } else {
+            }
+            else {
                 this.memoryCache.delete(key);
             }
         }
@@ -90,12 +89,14 @@ export class CacheManager {
                             expiry: cached.expiry
                         });
                         return cached.data;
-                    } else {
+                    }
+                    else {
                         // Expired, remove from cache
                         await cache.delete(key);
                     }
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.warn('Failed to read from cache:', error);
             }
         }
@@ -110,7 +111,8 @@ export class CacheManager {
             try {
                 const cache = await caches.open(cacheName);
                 await cache.delete(key);
-            } catch (error) {
+            }
+            catch (error) {
                 console.warn('Failed to delete from cache:', error);
             }
         }
@@ -122,7 +124,8 @@ export class CacheManager {
         if (this.cacheEnabled) {
             try {
                 await caches.delete(cacheName);
-            } catch (error) {
+            }
+            catch (error) {
                 console.warn('Failed to clear cache:', error);
             }
         }
@@ -135,9 +138,10 @@ export class CacheManager {
         if (this.cacheEnabled) {
             try {
                 const keys = await caches.keys();
-                const promises = keys.map(key => caches.delete(key));
+                const promises = keys.map((key) => caches.delete(key));
                 await Promise.all(promises);
-            } catch (error) {
+            }
+            catch (error) {
                 console.warn('Failed to clear all caches:', error);
             }
         }
@@ -146,7 +150,8 @@ export class CacheManager {
      * Clear expired items from cache
      */
     async cleanExpired(cacheName) {
-        if (!this.cacheEnabled) return;
+        if (!this.cacheEnabled)
+            return;
         try {
             const cache = await caches.open(cacheName);
             const requests = await cache.keys();
@@ -158,13 +163,15 @@ export class CacheManager {
                         if (cached.expiry && Date.now() >= cached.expiry) {
                             await cache.delete(request);
                         }
-                    } catch (e) {
+                    }
+                    catch (e) {
                         // Invalid cache entry, remove it
                         await cache.delete(request);
                     }
                 }
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.warn('Failed to clean expired cache:', error);
         }
     }
@@ -172,12 +179,14 @@ export class CacheManager {
      * Get cache size
      */
     async getCacheSize(cacheName) {
-        if (!this.cacheEnabled) return 0;
+        if (!this.cacheEnabled)
+            return 0;
         try {
             const cache = await caches.open(cacheName);
             const requests = await cache.keys();
             return requests.length;
-        } catch (error) {
+        }
+        catch (error) {
             console.warn('Failed to get cache size:', error);
             return 0;
         }
@@ -220,14 +229,15 @@ export class CalculatorCacheManager extends CacheManager {
      * Preload popular calculators
      */
     async preloadPopularCalculators(calculatorIds) {
-        const promises = calculatorIds.map(async id => {
+        const promises = calculatorIds.map(async (id) => {
             try {
                 const response = await fetch(`/js/calculators/${id}/index.js`);
                 if (response.ok) {
                     const text = await response.text();
                     await this.cacheCalculator(id, text);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.warn(`Failed to preload calculator: ${id}`, error);
             }
         });
@@ -270,20 +280,20 @@ export class FHIRCacheManager extends CacheManager {
      * Clear patient-specific cache
      */
     async clearPatientCache(patientId) {
-        if (!this.cacheEnabled) return;
+        if (!this.cacheEnabled)
+            return;
         try {
             const cache = await caches.open(CACHE_NAMES.fhir);
             const requests = await cache.keys();
             for (const request of requests) {
                 const url = request.url;
-                if (
-                    url.includes(`patient-${patientId}`) ||
-                    url.includes(`observation-${patientId}`)
-                ) {
+                if (url.includes(`patient-${patientId}`) ||
+                    url.includes(`observation-${patientId}`)) {
                     await cache.delete(request);
                 }
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.warn('Failed to clear patient cache:', error);
         }
     }
@@ -296,11 +306,13 @@ export class StaticCacheManager extends CacheManager {
      * Cache static resources
      */
     async cacheStaticResources(urls) {
-        if (!this.cacheEnabled) return;
+        if (!this.cacheEnabled)
+            return;
         try {
             const cache = await caches.open(CACHE_NAMES.static);
             await cache.addAll(urls);
-        } catch (error) {
+        }
+        catch (error) {
             console.warn('Failed to cache static resources:', error);
         }
     }
@@ -334,7 +346,8 @@ function getPopularCalculators() {
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10)
             .map(([id]) => id);
-    } catch (error) {
+    }
+    catch (error) {
         return [];
     }
 }

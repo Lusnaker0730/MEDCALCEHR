@@ -3,8 +3,7 @@ export function serumOsmolalityCalculation(values) {
     const glucoseInput = values['osmo-glucose'];
     const bunInput = values['osmo-bun'];
     const ethanolInput = values['osmo-ethanol'];
-    if (
-        naInput === undefined ||
+    if (naInput === undefined ||
         naInput === null ||
         naInput === '' ||
         glucoseInput === undefined ||
@@ -12,8 +11,7 @@ export function serumOsmolalityCalculation(values) {
         glucoseInput === '' ||
         bunInput === undefined ||
         bunInput === null ||
-        bunInput === ''
-    ) {
+        bunInput === '') {
         return [];
     }
     const na = Number(naInput);
@@ -37,7 +35,8 @@ export function serumOsmolalityCalculation(values) {
         interpretation = 'Low Osmolality';
         alertClass = 'info';
         alertMsg = 'Below normal range (275-295 mOsm/kg).';
-    } else if (score > 295) {
+    }
+    else if (score > 295) {
         interpretation = 'High Osmolality';
         alertClass = 'warning';
         alertMsg = 'Above normal range (275-295 mOsm/kg).';

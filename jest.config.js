@@ -30,6 +30,9 @@ export default {
     // 測試檔案匹配模式：src 目錄下的 __tests__ 資料夾或 .test.ts 結尾的檔案
     testMatch: ['**/src/**/__tests__/**/*.ts', '**/src/**/*.test.ts', '**/tests/**/*.test.ts'],
 
+    // Ignore utility files in __tests__/utils (not actual test files)
+    testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/'],
+
     // 覆蓋率設定
     collectCoverageFrom: [
         'src/**/*.ts',

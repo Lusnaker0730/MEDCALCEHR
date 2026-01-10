@@ -128,9 +128,7 @@ describe('tPA Dosing for Acute Stroke Calculator', () => {
                 'tpa-stroke-onset': 2
             });
             const total = parseFloat(result.find(r => r.label === 'Total Dose')?.value);
-            const infusion = parseFloat(
-                result.find(r => r.label === 'Step 2: Continuous Infusion')?.value
-            );
+            const infusion = parseFloat(result.find(r => r.label === 'Step 2: Continuous Infusion')?.value);
             expect(infusion).toBeCloseTo(total * 0.9, 1);
         });
     });
@@ -180,14 +178,10 @@ describe('tPA Dosing for Acute Stroke Calculator', () => {
                 });
                 expect(result).not.toBeNull();
                 const eligibility = result.find(r => r.label === 'Eligibility Status');
-                expect(eligibility?.eligibilityStatus).toBe(
-                    data.eligible ? 'eligible' : 'ineligible'
-                );
+                expect(eligibility?.eligibilityStatus).toBe(data.eligible ? 'eligible' : 'ineligible');
                 const total = parseFloat(result.find(r => r.label === 'Total Dose')?.value);
                 const bolus = parseFloat(result.find(r => r.label === 'Step 1: IV Bolus')?.value);
-                const infusion = parseFloat(
-                    result.find(r => r.label === 'Step 2: Continuous Infusion')?.value
-                );
+                const infusion = parseFloat(result.find(r => r.label === 'Step 2: Continuous Infusion')?.value);
                 expect(total).toBeCloseTo(data.total, 1);
                 expect(bolus).toBeCloseTo(data.bolus, 1);
                 expect(infusion).toBeCloseTo(data.infusion, 1);

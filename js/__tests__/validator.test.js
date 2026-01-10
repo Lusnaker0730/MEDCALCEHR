@@ -101,8 +101,9 @@ describe('Validator Module', () => {
             };
             const schema = {
                 password: {
-                    custom: value => {
-                        if (value.length < 8) return 'Password too short';
+                    custom: (value) => {
+                        if (value.length < 8)
+                            return 'Password too short';
                         return true;
                     }
                 }
@@ -117,7 +118,7 @@ describe('Validator Module', () => {
             };
             const schema = {
                 password: {
-                    custom: value => value.length >= 8
+                    custom: (value) => value.length >= 8
                 }
             };
             const result = validateCalculatorInput(input, schema);

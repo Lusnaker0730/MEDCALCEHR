@@ -26,7 +26,8 @@ export const calculateETT = values => {
     let ibw;
     if (gender === 'male') {
         ibw = 50 + 2.3 * heightInOver5Ft;
-    } else {
+    }
+    else {
         ibw = 45.5 + 2.3 * heightInOver5Ft;
     }
     // Tidal Volume Calculation (6-8 mL/kg of IBW)

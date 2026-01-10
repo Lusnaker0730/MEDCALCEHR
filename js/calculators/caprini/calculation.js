@@ -15,16 +15,19 @@ export const calculateCaprini = values => {
         riskCategory = 'Lowest Risk';
         recommendation = 'Early ambulation.';
         alertClass = 'success';
-    } else if (score >= 1 && score <= 2) {
+    }
+    else if (score >= 1 && score <= 2) {
         riskCategory = 'Low Risk';
         recommendation =
             'Mechanical prophylaxis (e.g., intermittent pneumatic compression devices).';
         alertClass = 'info';
-    } else if (score >= 3 && score <= 4) {
+    }
+    else if (score >= 3 && score <= 4) {
         riskCategory = 'Moderate Risk';
         recommendation = 'Pharmacologic prophylaxis (e.g., LMWH or UFH) OR Mechanical prophylaxis.';
         alertClass = 'warning';
-    } else {
+    }
+    else {
         riskCategory = 'High Risk';
         recommendation =
             'Pharmacologic prophylaxis (e.g., LMWH or UFH) AND Mechanical prophylaxis.';

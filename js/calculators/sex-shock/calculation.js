@@ -31,11 +31,11 @@ const MALE_COEFFS = {
     timi: 0.4966
 };
 export const calculateSexShock = values => {
-    const getVal = name => {
+    const getVal = (name) => {
         const v = values[name];
         return typeof v === 'string' ? parseInt(v, 10) : typeof v === 'number' ? v : 0;
     };
-    const getFloat = name => {
+    const getFloat = (name) => {
         const v = values[name];
         return typeof v === 'string' ? parseFloat(v) : typeof v === 'number' ? v : 0;
     };
@@ -79,7 +79,8 @@ export const calculateSexShock = values => {
         // So the usage is correct for the logic, but the variable name in original `SexShockCoeffs` might be confusing.
         // In original FEMALE_COEFFS: lvefLess50: -1.9474.
         // I will preserve exact original logic.
-    } else if (lvef === 42.5) {
+    }
+    else if (lvef === 42.5) {
         Y += coeffs.lvef35to50; // 35-50%
     }
     // lvef === 30 (<35%) is baseline, no adjustment
@@ -98,13 +99,16 @@ export const calculateSexShock = values => {
     if (score < 5) {
         riskLevel = 'Low Risk';
         alertType = 'success';
-    } else if (score < 15) {
+    }
+    else if (score < 15) {
         riskLevel = 'Moderate Risk';
         alertType = 'warning';
-    } else if (score < 30) {
+    }
+    else if (score < 30) {
         riskLevel = 'High Risk';
         alertType = 'danger';
-    } else {
+    }
+    else {
         riskLevel = 'Very High Risk';
         alertType = 'danger';
     }

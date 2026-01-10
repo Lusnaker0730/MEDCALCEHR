@@ -1,5 +1,5 @@
 export const calculateNafldFibrosisScore = values => {
-    const getFloat = key => {
+    const getFloat = (key) => {
         const val = values[key];
         return typeof val === 'string' ? parseFloat(val) : typeof val === 'number' ? val : NaN;
     };
@@ -14,10 +14,10 @@ export const calculateNafldFibrosisScore = values => {
     if (isNaN(age) || isNaN(bmi) || isNaN(ast) || isNaN(alt) || isNaN(platelet) || isNaN(albumin)) {
         return [];
     }
-    if (alt === 0) return []; // Avoid division by zero
+    if (alt === 0)
+        return []; // Avoid division by zero
     const astAltRatio = ast / alt;
-    const score =
-        -1.675 +
+    const score = -1.675 +
         0.037 * age +
         0.094 * bmi +
         1.13 * diabetes +
@@ -31,11 +31,13 @@ export const calculateNafldFibrosisScore = values => {
         stage = 'F0-F2';
         interpretation = 'Low probability of advanced fibrosis';
         alertType = 'success';
-    } else if (score <= 0.675) {
+    }
+    else if (score <= 0.675) {
         stage = 'Indeterminate';
         interpretation = 'Further testing needed (e.g., elastography)';
         alertType = 'warning';
-    } else {
+    }
+    else {
         stage = 'F3-F4';
         interpretation = 'High probability of advanced fibrosis';
         alertType = 'danger';

@@ -22,7 +22,8 @@ export const calculateIsthDic = values => {
     if (score >= 5) {
         interpretation = 'Compatible with overt DIC. Repeat score daily.';
         alertType = 'danger';
-    } else {
+    }
+    else {
         interpretation =
             'Not suggestive of overt DIC. May be non-overt DIC. Repeat within 1-2 days.';
         alertType = 'success';

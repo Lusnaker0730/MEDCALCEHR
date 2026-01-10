@@ -69,7 +69,7 @@ window.onload = () => {
     const loadCalculatorModule = async () => {
         try {
             // Use the new loadCalculator function from index.js
-            const calculator = await loadCalculator(calculatorId);
+            const calculator = (await loadCalculator(calculatorId));
             if (!calculator || typeof calculator.generateHTML !== 'function') {
                 throw new Error('Invalid calculator module structure.');
             }
@@ -79,7 +79,8 @@ window.onload = () => {
                 if (typeof calculator.initialize === 'function') {
                     try {
                         calculator.initialize(client, patient, card);
-                    } catch (initError) {
+                    }
+                    catch (initError) {
                         console.error('Error during calculator initialization:', initError);
                         card.innerHTML =
                             '<div class="error-box">An error occurred while initializing this calculator.</div>';
@@ -88,25 +89,22 @@ window.onload = () => {
             };
             window.FHIR.oauth2
                 .ready()
-                .then(client => {
-                    displayPatientInfo(client, patientInfoDiv).then(patient => {
-                        initializeCalculator(client, patient);
-                    });
-                })
-                .catch(error => {
-                    console.error(error);
-                    patientInfoDiv.innerText =
-                        'No patient data available. Please launch from the EHR.';
-                    // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
-                    initializeCalculator(null, null);
+                .then((client) => {
+                displayPatientInfo(client, patientInfoDiv).then((patient) => {
+                    initializeCalculator(client, patient);
                 });
-        } catch (error) {
+            })
+                .catch((error) => {
+                console.error(error);
+                patientInfoDiv.innerText =
+                    'No patient data available. Please launch from the EHR.';
+                // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
+                initializeCalculator(null, null);
+            });
+        }
+        catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            displayError(
-                card,
-                error,
-                'This calculator is temporarily unavailable. Please try again later or contact support.'
-            );
+            displayError(card, error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
         }
     };
     loadCalculatorModule();
