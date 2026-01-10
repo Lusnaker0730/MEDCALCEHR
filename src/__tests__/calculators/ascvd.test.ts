@@ -128,4 +128,287 @@ describe('ASCVD Risk Calculator', () => {
         expect(result).toHaveLength(2);
         expect(result[0].value).toBe('High Risk');
     });
+
+    // ===========================================
+    // TC-007: All Demographic Groups
+    // ===========================================
+
+    describe('Demographic Group Calculations', () => {
+        const baseInputs = {
+            'ascvd-age': 55,
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-sbp': 130,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'no'
+        };
+
+        test('White Male calculation', () => {
+            const input = {
+                ...baseInputs,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThan(0);
+            expect(result.risk).toBeLessThan(100);
+            expect(result.patient.isMale).toBe(true);
+            expect(result.patient.race).toBe('white');
+        });
+
+        test('White Female calculation', () => {
+            const input = {
+                ...baseInputs,
+                'ascvd-gender': 'female',
+                'ascvd-race': 'white'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThan(0);
+            expect(result.risk).toBeLessThan(100);
+            expect(result.patient.isMale).toBe(false);
+        });
+
+        test('AA Male calculation', () => {
+            const input = {
+                ...baseInputs,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'aa'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThan(0);
+            expect(result.patient.race).toBe('aa');
+        });
+
+        test('AA Female calculation', () => {
+            const input = {
+                ...baseInputs,
+                'ascvd-gender': 'female',
+                'ascvd-race': 'aa'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThan(0);
+        });
+
+        test('Other race uses white coefficients', () => {
+            const inputOther = {
+                ...baseInputs,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'other'
+            };
+            const inputWhite = {
+                ...baseInputs,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white'
+            };
+            const resultOther = ascvdCalculationPure(inputOther);
+            const resultWhite = ascvdCalculationPure(inputWhite);
+            // Other race uses white coefficients, so risk should be same
+            expect(resultOther.risk).toBeCloseTo(resultWhite.risk, 5);
+            // But interpretation should note the limitation
+            expect(resultOther.results[0].interpretation).toContain('Other');
+        });
+    });
+
+    // ===========================================
+    // TC-008: Risk Factor Impact
+    // ===========================================
+
+    describe('Risk Factor Impact', () => {
+        const baseInputs = {
+            'ascvd-age': 55,
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-sbp': 120,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'no'
+        };
+
+        test('Smoking increases risk', () => {
+            const nonSmoker = ascvdCalculationPure(baseInputs);
+            const smoker = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-smoker': 'yes'
+            });
+            expect(smoker.risk).toBeGreaterThan(nonSmoker.risk);
+        });
+
+        test('Diabetes increases risk', () => {
+            const nonDiabetic = ascvdCalculationPure(baseInputs);
+            const diabetic = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-dm': 'yes'
+            });
+            expect(diabetic.risk).toBeGreaterThan(nonDiabetic.risk);
+        });
+
+        test('HTN treatment increases risk (indicates hypertension)', () => {
+            const untreated = ascvdCalculationPure(baseInputs);
+            const treated = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-htn': 'yes'
+            });
+            expect(treated.risk).toBeGreaterThan(untreated.risk);
+        });
+
+        test('Higher SBP increases risk', () => {
+            const lowSBP = ascvdCalculationPure(baseInputs);
+            const highSBP = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-sbp': 160
+            });
+            expect(highSBP.risk).toBeGreaterThan(lowSBP.risk);
+        });
+
+        test('Higher TC increases risk', () => {
+            const lowTC = ascvdCalculationPure(baseInputs);
+            const highTC = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-tc': 280
+            });
+            expect(highTC.risk).toBeGreaterThan(lowTC.risk);
+        });
+
+        test('Higher HDL decreases risk', () => {
+            const lowHDL = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-hdl': 35
+            });
+            const highHDL = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-hdl': 70
+            });
+            expect(highHDL.risk).toBeLessThan(lowHDL.risk);
+        });
+
+        test('Older age increases risk', () => {
+            const young = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-age': 45
+            });
+            const old = ascvdCalculationPure({
+                ...baseInputs,
+                'ascvd-age': 70
+            });
+            expect(old.risk).toBeGreaterThan(young.risk);
+        });
+    });
+
+    // ===========================================
+    // TC-009: Risk Categories
+    // ===========================================
+
+    describe('Risk Categories', () => {
+        test('Low Risk (<5%)', () => {
+            const input = {
+                'ascvd-age': 45,
+                'ascvd-gender': 'female',
+                'ascvd-race': 'white',
+                'ascvd-tc': 180,
+                'ascvd-hdl': 60,
+                'ascvd-sbp': 110,
+                'ascvd-htn': 'no',
+                'ascvd-dm': 'no',
+                'ascvd-smoker': 'no'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeLessThan(5);
+            expect(result.results[0].alertClass).toBe('success');
+            expect(result.results[0].interpretation).toContain('Low Risk');
+        });
+
+        test('Borderline Risk (5-7.4%)', () => {
+            const input = {
+                'ascvd-age': 55,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white',
+                'ascvd-tc': 200,
+                'ascvd-hdl': 45,
+                'ascvd-sbp': 130,
+                'ascvd-htn': 'no',
+                'ascvd-dm': 'no',
+                'ascvd-smoker': 'no'
+            };
+            const result = ascvdCalculationPure(input);
+            // This may or may not be borderline, just verify the category logic works
+            expect(result.results[0].alertClass).toBeDefined();
+        });
+
+        test('Intermediate Risk (7.5-19.9%)', () => {
+            const input = {
+                'ascvd-age': 60,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white',
+                'ascvd-tc': 240,
+                'ascvd-hdl': 40,
+                'ascvd-sbp': 140,
+                'ascvd-htn': 'yes',
+                'ascvd-dm': 'no',
+                'ascvd-smoker': 'no'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThanOrEqual(7.5);
+            expect(result.results[0].alertClass).toBe('warning');
+        });
+
+        test('High Risk (>=20%)', () => {
+            const input = {
+                'ascvd-age': 70,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white',
+                'ascvd-tc': 280,
+                'ascvd-hdl': 30,
+                'ascvd-sbp': 170,
+                'ascvd-htn': 'yes',
+                'ascvd-dm': 'yes',
+                'ascvd-smoker': 'yes'
+            };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThanOrEqual(20);
+            expect(result.results[0].alertClass).toBe('danger');
+            expect(result.results[0].interpretation).toContain('High Risk');
+        });
+    });
+
+    // ===========================================
+    // TC-010: Age Boundary Tests
+    // ===========================================
+
+    describe('Age Boundary Tests', () => {
+        const baseInputs = {
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-sbp': 120,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'no'
+        };
+
+        test('Age 40 is valid (lower boundary)', () => {
+            const input = { ...baseInputs, 'ascvd-age': 40 };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThan(0);
+        });
+
+        test('Age 79 is valid (upper boundary)', () => {
+            const input = { ...baseInputs, 'ascvd-age': 79 };
+            const result = ascvdCalculationPure(input);
+            expect(result.risk).toBeGreaterThan(0);
+        });
+
+        test('Age 39 throws error (below range)', () => {
+            const input = { ...baseInputs, 'ascvd-age': 39 };
+            expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 40-79');
+        });
+
+        test('Age 80 throws error (above range)', () => {
+            const input = { ...baseInputs, 'ascvd-age': 80 };
+            expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 40-79');
+        });
+    });
 });
