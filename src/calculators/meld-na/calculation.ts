@@ -16,7 +16,7 @@ export const meldNaCalculation = (values: Record<string, any>): FormulaResultIte
     const onDialysis = values['dialysis'] === 'yes';
 
     // Check for null/undefined (allow 0 to pass through if logic permits, though 0 bili/inr is invalid clinically)
-    if (bili == null || inr == null || creat == null || sodium == null) {
+    if (bili === null || inr === null || creat === null || sodium === null) {
         return [];
     }
 

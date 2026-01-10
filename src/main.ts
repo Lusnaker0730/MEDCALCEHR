@@ -29,7 +29,7 @@ function sortCalculators(
             return sorted.sort((a, b) => b.title.localeCompare(a.title));
         case 'recently-added':
             return sorted.reverse();
-        case 'most-used':
+        case 'most-used': {
             // Sort by usage stats
             const usage = favoritesManager.getUsage();
             return sorted.sort((a, b) => {
@@ -37,6 +37,7 @@ function sortCalculators(
                 const countB = usage[b.id] || 0;
                 return countB - countA;
             });
+        }
         default:
             return sorted;
     }
@@ -55,16 +56,18 @@ function filterCalculators(
 
     // Filter by special filters
     switch (filterType) {
-        case 'favorites':
+        case 'favorites': {
             const favorites = favoritesManager.getFavorites();
             filtered = filtered.filter(calc => favorites.includes(calc.id));
             break;
-        case 'recent':
+        }
+        case 'recent': {
             const recent = favoritesManager.getRecent();
             filtered = recent
                 .map(id => calculators.find(calc => calc.id === id))
                 .filter((calc): calc is CalculatorMetadata => calc !== undefined);
             return filtered; // Keep order for recent
+        }
         case 'all':
         default:
             // No special filter

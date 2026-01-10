@@ -4,9 +4,8 @@ This directory contains the necessary documentation to demonstrate compliance wi
 
 ## Directory Structure
 
-- **SDP.md**: Software Development Plan - Defines the development lifecycle, tools, and standards.
-- **SRS.md**: Software Requirements Specification - Defines functional and non-functional requirements.
-- **SDS.md**: Software Design Specification - Detailed architectural and module-level design.
-- **RISK_MANAGEMENT.md**: Risk Management File - Hazard analysis and risk control measures (ISO 14971 compatible).
-- **SOUP_LIST.md**: Software of Unknown Provenance - List of 3rd party libraries and their risk assessment.
-- **TRACEABILITY_MATRIX.md**: Requirement to Test traceability matrix.
+- [SDP.md](SDP.md): **Software Development Plan** - Defines the development lifecycle, tools, and standards.
+- [SRS.md](SRS.md): **Software Requirements Specification** - Defines functional and non-functional requirements (Focus: APACHE II).
+- [SOUP_LIST.md](SOUP_LIST.md): **Software of Unknown Provenance** - List of 3rd party libraries and their risk assessment.
+- [RISK_MANAGEMENT.md](RISK_MANAGEMENT.md): **Risk Management File (ISO 14971)** - Failure Mode and Effects Analysis (FMEA).
+- [TRACEABILITY_MATRIX.md](TRACEABILITY_MATRIX.md): **Traceability Matrix** - Linking Requirements -> Design -> Verification.

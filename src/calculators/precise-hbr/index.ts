@@ -27,7 +27,7 @@ const calculateScore = (
     arcHbrRisk: boolean
 ): { score: number; breakdown: string } => {
     let score = 2; // Base Score
-    let breakdownParts: string[] = ['Base Score (2)'];
+    const breakdownParts: string[] = ['Base Score (2)'];
 
     // --- Age ---
     // Range 30-80. If > 30: + (Age - 30) * 0.25

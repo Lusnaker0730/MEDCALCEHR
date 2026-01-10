@@ -481,7 +481,7 @@ export class FHIRFeedback {
             li.classList.add('adding');
             missingList.appendChild(li);
             // Trigger reflow for animation
-            li.offsetHeight;
+            void li.offsetHeight;
             li.classList.remove('adding');
         } else {
             // Need to recreate the summary banner
