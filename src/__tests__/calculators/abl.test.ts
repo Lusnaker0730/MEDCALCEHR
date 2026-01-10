@@ -1,21 +1,21 @@
 /**
  * Allowable Blood Loss (ABL) Calculator - SaMD Verification Tests
- * 
+ *
  * Formulas:
  *   EBV (Estimated Blood Volume) = Weight (kg) × Blood Volume Factor (mL/kg)
  *   Hgb_avg = (Hgb_initial + Hgb_final) / 2
  *   ABL = EBV × (Hgb_initial - Hgb_final) / Hgb_avg
- * 
+ *
  * Blood Volume Factors:
  *   - Adult man: 75 mL/kg
  *   - Adult woman: 65 mL/kg
  *   - Infant: 80 mL/kg
  *   - Neonate: 85 mL/kg
  *   - Premature neonate: 96 mL/kg
- * 
+ *
  * Constraints:
  *   - Hgb_initial must be > Hgb_final (target)
- * 
+ *
  * Reference: Standard perioperative blood loss management calculations
  */
 
@@ -25,7 +25,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-001: Standard Calculation Tests
     // ===========================================
-    
+
     describe('Standard Calculations', () => {
         test('Should calculate correct ABL for Adult Male', () => {
             // 70 kg adult male (75 mL/kg)
@@ -37,19 +37,19 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 'abl-weight': 70,
                 'abl-hgb-initial': 14,
                 'abl-hgb-final': 7,
-                'abl-age-category': 75  // Adult male
+                'abl-age-category': 75 // Adult male
             });
 
             expect(result).not.toBeNull();
             expect(result).toHaveLength(3);
-            
+
             expect(result![0].label).toBe('Maximum Allowable Blood Loss');
             expect(result![0].value).toBe('3500');
             expect(result![0].unit).toBe('mL');
-            
+
             expect(result![1].label).toBe('Estimated Blood Volume (EBV)');
             expect(result![1].value).toBe('5250');
-            
+
             expect(result![2].label).toBe('Average Hemoglobin');
             expect(result![2].value).toBe('10.5');
         });
@@ -64,7 +64,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 'abl-weight': 60,
                 'abl-hgb-initial': 12,
                 'abl-hgb-final': 8,
-                'abl-age-category': 65  // Adult female
+                'abl-age-category': 65 // Adult female
             });
 
             expect(result).not.toBeNull();
@@ -83,7 +83,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 'abl-weight': 10,
                 'abl-hgb-initial': 11,
                 'abl-hgb-final': 9,
-                'abl-age-category': 80  // Infant
+                'abl-age-category': 80 // Infant
             });
 
             expect(result).not.toBeNull();
@@ -101,12 +101,12 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 'abl-weight': 3.5,
                 'abl-hgb-initial': 16,
                 'abl-hgb-final': 12,
-                'abl-age-category': 85  // Neonate
+                'abl-age-category': 85 // Neonate
             });
 
             expect(result).not.toBeNull();
             expect(result![0].value).toBe('85');
-            expect(result![1].value).toBe('298');  // Rounded from 297.5
+            expect(result![1].value).toBe('298'); // Rounded from 297.5
         });
 
         test('Should calculate correct ABL for Premature Neonate', () => {
@@ -119,7 +119,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 'abl-weight': 1.5,
                 'abl-hgb-initial': 14,
                 'abl-hgb-final': 10,
-                'abl-age-category': 96  // Premature neonate
+                'abl-age-category': 96 // Premature neonate
             });
 
             expect(result).not.toBeNull();
@@ -131,19 +131,19 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-002: Blood Volume Factor Tests
     // ===========================================
-    
+
     describe('Blood Volume Factors', () => {
         const testWeight = 50;
         const testHgbInitial = 14;
         const testHgbFinal = 10;
-        const hgbAvg = (testHgbInitial + testHgbFinal) / 2;  // 12
+        const hgbAvg = (testHgbInitial + testHgbFinal) / 2; // 12
 
         const bloodVolumeFactors = [
             { factor: 75, label: 'Adult man', expectedEBV: 3750 },
             { factor: 65, label: 'Adult woman', expectedEBV: 3250 },
             { factor: 80, label: 'Infant', expectedEBV: 4000 },
             { factor: 85, label: 'Neonate', expectedEBV: 4250 },
-            { factor: 96, label: 'Premature neonate', expectedEBV: 4800 },
+            { factor: 96, label: 'Premature neonate', expectedEBV: 4800 }
         ];
 
         bloodVolumeFactors.forEach(({ factor, label, expectedEBV }) => {
@@ -157,9 +157,11 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
 
                 expect(result).not.toBeNull();
                 expect(result![1].value).toBe(expectedEBV.toString());
-                
+
                 // Verify ABL calculation
-                const expectedABL = Math.round(expectedEBV * (testHgbInitial - testHgbFinal) / hgbAvg);
+                const expectedABL = Math.round(
+                    (expectedEBV * (testHgbInitial - testHgbFinal)) / hgbAvg
+                );
                 expect(result![0].value).toBe(expectedABL.toString());
             });
         });
@@ -168,7 +170,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-003: Hemoglobin Constraint Tests
     // ===========================================
-    
+
     describe('Hemoglobin Constraints', () => {
         test('Should return null when initial Hgb equals final Hgb', () => {
             const result = calculateABL({
@@ -210,7 +212,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-004: Boundary Value Tests
     // ===========================================
-    
+
     describe('Boundary Values', () => {
         test('Should handle minimum valid weight', () => {
             const result = calculateABL({
@@ -270,7 +272,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-005: Invalid Input Tests
     // ===========================================
-    
+
     describe('Invalid Inputs', () => {
         test('Should return null for zero weight', () => {
             const result = calculateABL({
@@ -328,7 +330,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-006: Golden Dataset Verification
     // ===========================================
-    
+
     describe('Golden Dataset', () => {
         const goldenDataset = [
             // weight, hgbInit, hgbFinal, factor, expectedABL, expectedEBV
@@ -336,7 +338,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
             { w: 60, hi: 12, hf: 8, f: 65, abl: 1560, ebv: 3900 },
             { w: 80, hi: 15, hf: 10, f: 75, abl: 2400, ebv: 6000 },
             { w: 5, hi: 15, hf: 10, f: 85, abl: 170, ebv: 425 },
-            { w: 2, hi: 14, hf: 12, f: 96, abl: 30, ebv: 192 },
+            { w: 2, hi: 14, hf: 12, f: 96, abl: 30, ebv: 192 }
         ];
 
         goldenDataset.forEach((data, index) => {
@@ -349,7 +351,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 });
 
                 expect(result).not.toBeNull();
-                expect(parseFloat(result![0].value as string)).toBeCloseTo(data.abl, -1);  // Within 10 mL
+                expect(parseFloat(result![0].value as string)).toBeCloseTo(data.abl, -1); // Within 10 mL
                 expect(parseFloat(result![1].value as string)).toBeCloseTo(data.ebv, 0);
             });
         });
@@ -358,14 +360,14 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
     // ===========================================
     // TC-007: Average Hemoglobin Calculation
     // ===========================================
-    
+
     describe('Average Hemoglobin Calculation', () => {
         test('Should correctly calculate average Hgb', () => {
             const testCases = [
                 { hi: 14, hf: 10, expected: 12.0 },
                 { hi: 15, hf: 7, expected: 11.0 },
                 { hi: 12, hf: 8, expected: 10.0 },
-                { hi: 10.5, hf: 7.5, expected: 9.0 },
+                { hi: 10.5, hf: 7.5, expected: 9.0 }
             ];
 
             testCases.forEach(({ hi, hf, expected }) => {
@@ -382,4 +384,3 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
         });
     });
 });
-

@@ -97,8 +97,7 @@ const config: ScoringCalculatorConfig = {
                 points: '+1'
             },
             {
-                criteria:
-                    '<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>',
+                criteria: '<strong>Pre-operative creatinine >2 mg/dL / 176.8 µmol/L</strong>',
                 points: '+1'
             }
         ],
@@ -133,17 +132,17 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 6 points',
-            interpretation: data.risk,
-            alertClass: alertClass
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 6 points',
+                interpretation: data.risk,
+                alertClass: alertClass
+            })}
             
             ${uiBuilder.createAlert({
-            type: data.level,
-            message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
-        })}
+                type: data.level,
+                message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
+            })}
         `;
     },
 
@@ -200,10 +199,7 @@ const config: ScoringCalculatorConfig = {
                     inputName: 'rcri-ihd'
                 }, // IHD, MI
                 {
-                    codes: [
-                        SNOMED_CODES.HEART_FAILURE,
-                        SNOMED_CODES.CONGESTIVE_HEART_FAILURE
-                    ],
+                    codes: [SNOMED_CODES.HEART_FAILURE, SNOMED_CODES.CONGESTIVE_HEART_FAILURE],
                     inputName: 'rcri-hf'
                 }, // Heart failure
                 {

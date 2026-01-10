@@ -3,7 +3,13 @@
  *
  * Tests for pediatric growth calculations.
  */
-import { calculateZScore, estimatePercentile, calculateBmiData, calculateVelocity, formatAge } from '../../calculators/growth-chart/calculation';
+import {
+    calculateZScore,
+    estimatePercentile,
+    calculateBmiData,
+    calculateVelocity,
+    formatAge
+} from '../../calculators/growth-chart/calculation';
 describe('Growth Chart Calculator', () => {
     // ===========================================
     // TC-001: Z-Score Calculation
@@ -23,7 +29,8 @@ describe('Growth Chart Calculator', () => {
             expect(result).toBeNull();
         });
         test('Should calculate Z-score using LMS method when available', () => {
-            const cdcData = [{
+            const cdcData = [
+                {
                     Agemos: 12,
                     L: 1,
                     M: 75,
@@ -31,17 +38,20 @@ describe('Growth Chart Calculator', () => {
                     P5: 70,
                     P50: 75,
                     P95: 80
-                }];
+                }
+            ];
             const result = calculateZScore(12, 75, cdcData);
             expect(result).toBe(0); // At median
         });
         test('Should calculate Z-score using percentile fallback', () => {
-            const cdcData = [{
+            const cdcData = [
+                {
                     Agemos: 12,
                     P5: 70,
                     P50: 75,
                     P95: 80
-                }];
+                }
+            ];
             const result = calculateZScore(12, 75, cdcData);
             expect(result).toBeCloseTo(0, 1); // At P50, Z-score ≈ 0
         });
@@ -91,9 +101,7 @@ describe('Growth Chart Calculator', () => {
                 { ageMonths: 12, value: 75 },
                 { ageMonths: 24, value: 86 }
             ];
-            const weightData = [
-                { ageMonths: 23.8, value: 12 }
-            ];
+            const weightData = [{ ageMonths: 23.8, value: 12 }];
             const bmiData = calculateBmiData(heightData, weightData);
             expect(bmiData.length).toBe(1);
         });
@@ -104,7 +112,9 @@ describe('Growth Chart Calculator', () => {
     describe('Growth Velocity Calculation', () => {
         test('Should return empty string for insufficient data', () => {
             expect(calculateVelocity('Height', [], 'cm/month')).toBe('');
-            expect(calculateVelocity('Height', [{ ageMonths: 12, value: 75 }], 'cm/month')).toBe('');
+            expect(calculateVelocity('Height', [{ ageMonths: 12, value: 75 }], 'cm/month')).toBe(
+                ''
+            );
         });
         test('Should calculate positive velocity', () => {
             const measurements = [

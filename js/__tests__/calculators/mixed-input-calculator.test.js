@@ -4,8 +4,8 @@
 import { describe, expect, test, jest, beforeEach, afterEach } from '@jest/globals';
 import { createMixedInputCalculator } from '../../calculators/shared/mixed-input-calculator';
 // Mock console
-jest.spyOn(console, 'warn').mockImplementation(() => { });
-jest.spyOn(console, 'error').mockImplementation(() => { });
+jest.spyOn(console, 'warn').mockImplementation(() => {});
+jest.spyOn(console, 'error').mockImplementation(() => {});
 describe('Mixed Input Calculator Factory', () => {
     let container;
     beforeEach(() => {
@@ -68,7 +68,7 @@ describe('Mixed Input Calculator Factory', () => {
                 description: 'High level'
             }
         ],
-        calculate: (values) => {
+        calculate: values => {
             const numValue = values['test-number'] || 0;
             const radioValue = parseInt(values['test-radio'] || '0', 10);
             return numValue + radioValue * 10;
@@ -113,7 +113,8 @@ describe('Mixed Input Calculator Factory', () => {
         // Score should be 30 + 2*10 = 50
         setTimeout(() => {
             const resultText = container.textContent || '';
-            const hasExpectedResult = resultText.includes('50') || resultText.toLowerCase().includes('low');
+            const hasExpectedResult =
+                resultText.includes('50') || resultText.toLowerCase().includes('low');
             expect(hasExpectedResult).toBe(true);
         }, 100);
     });

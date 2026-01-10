@@ -138,7 +138,7 @@ const config: FormulaCalculatorConfig = {
 
     calculate: calculateGraceAcs,
 
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         let html = '';
         results.forEach(item => {
             if (item.label === 'Interpretation' && item.alertPayload) {
@@ -216,11 +216,12 @@ const config: FormulaCalculatorConfig = {
                 }
 
                 // Check for Cardiac Arrest / Shock
-                const hasCardiacArrest = await fhirDataService.hasCondition([SNOMED_CODES.CARDIAC_ARREST]);
+                const hasCardiacArrest = await fhirDataService.hasCondition([
+                    SNOMED_CODES.CARDIAC_ARREST
+                ]);
                 if (hasCardiacArrest) {
                     setRadio('grace-cardiac-arrest', '39');
                 }
-
             } catch (e) {
                 console.warn('Error fetching FHIR data for GRACE ACS', e);
             }

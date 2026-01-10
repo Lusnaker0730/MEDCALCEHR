@@ -77,7 +77,7 @@ describe('ETT Depth and Tidal Volume Calculator', () => {
                 { height: 160, expectedDepth: 21 },
                 { height: 170, expectedDepth: 22 },
                 { height: 180, expectedDepth: 23 },
-                { height: 190, expectedDepth: 24 },
+                { height: 190, expectedDepth: 24 }
             ];
             testCases.forEach(({ height, expectedDepth }) => {
                 const result = calculateETT({
@@ -207,7 +207,7 @@ describe('ETT Depth and Tidal Volume Calculator', () => {
             { h: 180, g: 'male', depth: 23.0, ibw: 75 }, // 70.9", IBW = 75.0
             { h: 150, g: 'female', depth: 20.0, ibw: 46 }, // 59" < 60, so IBW = 45.5
             { h: 160, g: 'female', depth: 21.0, ibw: 52 }, // 63", IBW = 52.4
-            { h: 170, g: 'female', depth: 22.0, ibw: 61 }, // 66.9", IBW = 61.4
+            { h: 170, g: 'female', depth: 22.0, ibw: 61 } // 66.9", IBW = 61.4
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.h}cm ${data.g}`, () => {

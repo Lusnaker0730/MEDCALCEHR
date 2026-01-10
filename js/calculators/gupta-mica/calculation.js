@@ -1,4 +1,4 @@
-export const calculateGuptaMica = (values) => {
+export const calculateGuptaMica = values => {
     const age = values['mica-age'] ? parseFloat(values['mica-age']) : null;
     const creat = values['mica-creat'] ? parseFloat(values['mica-creat']) : null;
     const functionalStatus = parseFloat(values['mica-status'] || '0');
@@ -24,8 +24,7 @@ export const calculateGuptaMica = (values) => {
         riskLevel = 'High Risk';
         riskDescription = 'High risk - Consider risk modification strategies';
         alertType = 'danger';
-    }
-    else if (risk > 2) {
+    } else if (risk > 2) {
         riskLevel = 'Intermediate Risk';
         riskDescription = 'Intermediate risk - Consider perioperative optimization';
         alertType = 'warning';

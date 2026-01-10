@@ -12,9 +12,10 @@
  * Reference:
  * NINDS rt-PA Stroke Study Group. N Engl J Med. 1995;333(24):1581-1587.
  */
-export const calculateTpaDosingStroke = (values) => {
+export const calculateTpaDosingStroke = values => {
     const weight = Number(values['tpa-stroke-weight']);
-    const onset = values['tpa-stroke-onset'] !== undefined ? Number(values['tpa-stroke-onset']) : null;
+    const onset =
+        values['tpa-stroke-onset'] !== undefined ? Number(values['tpa-stroke-onset']) : null;
     if (!weight || isNaN(weight) || weight <= 0) {
         return null;
     }
@@ -35,7 +36,12 @@ export const calculateTpaDosingStroke = (values) => {
             label: 'Eligibility Status',
             value: eligibilityStatus,
             unit: '',
-            alertClass: eligibilityStatus === 'eligible' ? 'success' : (eligibilityStatus === 'ineligible' ? 'danger' : 'warning'),
+            alertClass:
+                eligibilityStatus === 'eligible'
+                    ? 'success'
+                    : eligibilityStatus === 'ineligible'
+                      ? 'danger'
+                      : 'warning',
             eligibilityStatus
         },
         {

@@ -97,9 +97,9 @@ const score2DiabetesData = {
         }
     }
 };
-export const calculateScore2Diabetes = (values) => {
-    const getString = (key) => values[key] || '';
-    const getFloat = (key) => {
+export const calculateScore2Diabetes = values => {
+    const getString = key => values[key] || '';
+    const getFloat = key => {
         const val = values[key];
         return typeof val === 'string' ? parseFloat(val) : typeof val === 'number' ? val : NaN;
     };
@@ -113,14 +113,23 @@ export const calculateScore2Diabetes = (values) => {
     const hba1c = getFloat('score2d-hba1c');
     const egfr = getFloat('score2d-egfr');
     // Validation
-    if (!region || !sex || isNaN(age) || isNaN(sbp) || isNaN(tchol) || isNaN(hdl) || isNaN(hba1c) || isNaN(egfr)) {
+    if (
+        !region ||
+        !sex ||
+        isNaN(age) ||
+        isNaN(sbp) ||
+        isNaN(tchol) ||
+        isNaN(hdl) ||
+        isNaN(hba1c) ||
+        isNaN(egfr)
+    ) {
         return [];
     }
     if (age < 40 || age > 69) {
         // Will be handled by customResultRenderer alert usually, but here we return empty or special value?
         // Original logic returned null. We return empty array which means no result items.
-        // Or better, we return an item that indicates invalid age? 
-        // Logic says: "Will be handled by customResultRenderer". 
+        // Or better, we return an item that indicates invalid age?
+        // Logic says: "Will be handled by customResultRenderer".
         // But if we return empty array, customResultRenderer might not run if it depends on results?
         // Wait, unified calculator calls customResultRenderer with results array.
         // If results array is empty, customResultRenderer can still append alerts.
@@ -129,13 +138,13 @@ export const calculateScore2Diabetes = (values) => {
         return [];
     }
     const coeffs = score2DiabetesData[region]?.[sex];
-    if (!coeffs)
-        return [];
+    if (!coeffs) return [];
     // Conversions
     const tchol_mmol = tchol / 38.67;
     const hdl_mmol = hdl / 38.67;
     const hba1c_mmol = hba1c * 10.93 - 23.5;
-    const ind_x = coeffs.age * age +
+    const ind_x =
+        coeffs.age * age +
         coeffs.sbp * sbp +
         coeffs.tchol * tchol_mmol +
         coeffs.hdl * hdl_mmol +
@@ -149,16 +158,13 @@ export const calculateScore2Diabetes = (values) => {
     if (score < 5) {
         riskCategory = 'Low Risk';
         alertType = 'success';
-    }
-    else if (score < 10) {
+    } else if (score < 10) {
         riskCategory = 'Moderate Risk';
         alertType = 'warning';
-    }
-    else if (score < 20) {
+    } else if (score < 20) {
         riskCategory = 'High Risk';
         alertType = 'danger';
-    }
-    else {
+    } else {
         riskCategory = 'Very High Risk';
         alertType = 'danger';
     }

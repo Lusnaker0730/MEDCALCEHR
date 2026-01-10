@@ -81,8 +81,7 @@ export function createSafeElement(tag, content = '', attributes = {}) {
     // Set text content safely (no HTML parsing)
     if (typeof content === 'string') {
         element.textContent = content;
-    }
-    else if (content && typeof content === 'object' && content.html) {
+    } else if (content && typeof content === 'object' && content.html) {
         // If explicitly marked as HTML, sanitize it first
         element.innerHTML = sanitizeHTML(content.html);
     }
@@ -97,12 +96,10 @@ export function createSafeElement(tag, content = '', attributes = {}) {
         if ((key === 'href' || key === 'src') && attributes[key]) {
             if (isValidURL(attributes[key])) {
                 element.setAttribute(key, attributes[key]);
-            }
-            else {
+            } else {
                 console.warn(`Invalid URL blocked: ${attributes[key]}`);
             }
-        }
-        else {
+        } else {
             element.setAttribute(key, attributes[key]);
         }
     });
@@ -126,11 +123,13 @@ export function isValidURL(url) {
         }
     }
     // Allow http, https, relative URLs, and anchors
-    return (trimmedURL.startsWith('http://') ||
+    return (
+        trimmedURL.startsWith('http://') ||
         trimmedURL.startsWith('https://') ||
         trimmedURL.startsWith('/') ||
         trimmedURL.startsWith('#') ||
-        trimmedURL.startsWith('.'));
+        trimmedURL.startsWith('.')
+    );
 }
 /**
  * Sanitizes FHIR data for safe display
@@ -188,8 +187,7 @@ export function validateInput(input, options = {}) {
     // Sanitize based on options
     if (allowHTML) {
         result.sanitized = sanitizeHTML(input);
-    }
-    else {
+    } else {
         result.sanitized = escapeHTML(input);
     }
     // Check pattern if provided
@@ -240,8 +238,7 @@ export function createSafeEventHandler(handler) {
         // Call the actual handler with sanitized event
         try {
             return handler.call(this, event);
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error in event handler:', error);
             return false;
         }

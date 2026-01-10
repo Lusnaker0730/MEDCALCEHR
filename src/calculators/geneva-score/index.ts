@@ -157,7 +157,7 @@ const config: FormulaCalculatorConfig = {
 
     calculate: calculateGenevaScore,
 
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         let html = '';
         results.forEach(item => {
             if (item.label === 'Recommendation' && item.alertPayload) {
@@ -211,7 +211,6 @@ const config: FormulaCalculatorConfig = {
 
                 // Check for manual conditions not covered by logic or requiring complex logic (e.g. combined palpation/edema not easily auto-populated)
                 // Conditions check is now largely handled by snomedCode in config for DVT/PE, Fracture, Malignancy, Hemoptysis
-
             } catch (e) {
                 console.warn('Error fetching FHIR data for Geneva', e);
             }

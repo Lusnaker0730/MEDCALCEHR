@@ -3,19 +3,21 @@ export function qsofaCalculation(values) {
     const sbpInput = values['sbp'];
     const gcsInput = values['gcs'];
     const amsInput = values['ams'];
-    if ((rrInput === undefined && sbpInput === undefined && gcsInput === undefined && amsInput === undefined)) {
+    if (
+        rrInput === undefined &&
+        sbpInput === undefined &&
+        gcsInput === undefined &&
+        amsInput === undefined
+    ) {
         return [];
     }
     const rr = Number(rrInput);
     const sbp = Number(sbpInput);
     const gcs = Number(gcsInput);
     // Validate required numbers if they are non-empty strings
-    if (rrInput !== '' && isNaN(rr))
-        return [];
-    if (sbpInput !== '' && isNaN(sbp))
-        return [];
-    if (gcsInput !== '' && isNaN(gcs))
-        return [];
+    if (rrInput !== '' && isNaN(rr)) return [];
+    if (sbpInput !== '' && isNaN(sbp)) return [];
+    if (gcsInput !== '' && isNaN(gcs)) return [];
     let score = 0;
     const metCriteria = [];
     // 1. Respiratory Rate >= 22
@@ -42,8 +44,7 @@ export function qsofaCalculation(values) {
         interpretation = 'Positive Screen (High Risk)';
         alertClass = 'danger';
         recommendation = 'Assess for organ dysfunction; Calculate full SOFA; Measure lactate.';
-    }
-    else {
+    } else {
         interpretation = 'Negative Screen (Lower Risk)';
         alertClass = 'success';
         recommendation = 'Continue monitoring; Re-evaluate if condition changes.';

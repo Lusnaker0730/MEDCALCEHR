@@ -193,14 +193,14 @@ describe('tPA (Alteplase) Dosing Calculator', () => {
     describe('Golden Dataset', () => {
         const goldenDataset = [
             // weight, expectedTotal, expectedBolus, expectedInfusion
-            { w: 50, total: 45.00, bolus: 4.50, infusion: 40.50 },
-            { w: 60, total: 54.00, bolus: 5.40, infusion: 48.60 },
-            { w: 70, total: 63.00, bolus: 6.30, infusion: 56.70 },
-            { w: 80, total: 72.00, bolus: 7.20, infusion: 64.80 },
-            { w: 90, total: 81.00, bolus: 8.10, infusion: 72.90 },
-            { w: 100, total: 90.00, bolus: 9.00, infusion: 81.00 },
-            { w: 110, total: 90.00, bolus: 9.00, infusion: 81.00 }, // Capped
-            { w: 120, total: 90.00, bolus: 9.00, infusion: 81.00 }, // Capped
+            { w: 50, total: 45.0, bolus: 4.5, infusion: 40.5 },
+            { w: 60, total: 54.0, bolus: 5.4, infusion: 48.6 },
+            { w: 70, total: 63.0, bolus: 6.3, infusion: 56.7 },
+            { w: 80, total: 72.0, bolus: 7.2, infusion: 64.8 },
+            { w: 90, total: 81.0, bolus: 8.1, infusion: 72.9 },
+            { w: 100, total: 90.0, bolus: 9.0, infusion: 81.0 },
+            { w: 110, total: 90.0, bolus: 9.0, infusion: 81.0 }, // Capped
+            { w: 120, total: 90.0, bolus: 9.0, infusion: 81.0 } // Capped
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.w} kg`, () => {

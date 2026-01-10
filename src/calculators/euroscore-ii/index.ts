@@ -1,9 +1,9 @@
 /**
  * EuroSCORE II Calculator
- * 
+ *
  * Predicts operative mortality for cardiac surgery.
  * Uses logistic regression model with patient, cardiac, and procedural factors.
- * 
+ *
  * Reference: Nashef SA, et al. EuroSCORE II. Eur J Cardiothorac Surg. 2012;41(4):734-744.
  */
 
@@ -96,7 +96,8 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-critical',
                     label: 'Critical Preoperative State',
-                    helpText: 'VT/VF, cardiac massage, ventilation, inotropes, IABP, VAD, anuria/oliguria',
+                    helpText:
+                        'VT/VF, cardiac massage, ventilation, inotropes, IABP, VAD, anuria/oliguria',
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -168,7 +169,8 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'es2-arteriopathy',
                     label: 'Extracardiac Arteriopathy',
-                    helpText: 'Claudication, carotid >50% stenosis, amputation, aortic intervention',
+                    helpText:
+                        'Claudication, carotid >50% stenosis, amputation, aortic intervention',
                     snomedCode: SNOMED_CODES.PERIPHERAL_ARTERY_DISEASE,
                     options: [
                         { value: '0', label: 'No', checked: true },
@@ -243,7 +245,8 @@ export const euroscoreII = createUnifiedFormulaCalculator({
     formulaSection: {
         show: true,
         title: 'EuroSCORE II Formula',
-        calculationNote: 'Predicted mortality = e<sup>y</sup> / (1 + e<sup>y</sup>), where y = -5.324537 + Σβᵢxᵢ',
+        calculationNote:
+            'Predicted mortality = e<sup>y</sup> / (1 + e<sup>y</sup>), where y = -5.324537 + Σβᵢxᵢ',
         scoringCriteria: [
             { criteria: 'Patient Factors', isHeader: true },
             { criteria: 'Age (if >60 years)', points: '+0.0285 per year' },
@@ -279,23 +282,24 @@ export const euroscoreII = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-        title: 'Risk Stratification',
-        icon: '📊',
-        content: uiBuilder.createTable({
-            headers: ['Mortality', 'Risk Category'],
-            rows: [
-                ['<2%', 'Low Risk'],
-                ['2-5%', 'Moderate Risk'],
-                ['5-10%', 'High Risk'],
-                ['>10%', 'Very High Risk']
-            ]
-        })
-    })}
+            title: 'Risk Stratification',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['Mortality', 'Risk Category'],
+                rows: [
+                    ['<2%', 'Low Risk'],
+                    ['2-5%', 'Moderate Risk'],
+                    ['5-10%', 'High Risk'],
+                    ['>10%', 'Very High Risk']
+                ]
+            })
+        })}
 
         ${uiBuilder.createSection({
-        title: 'Reference',
-        icon: '📚',
-        content: '<p>Nashef SA, et al. EuroSCORE II. <em>Eur J Cardiothorac Surg</em>. 2012;41(4):734-744.</p>'
-    })}
+            title: 'Reference',
+            icon: '📚',
+            content:
+                '<p>Nashef SA, et al. EuroSCORE II. <em>Eur J Cardiothorac Surg</em>. 2012;41(4):734-744.</p>'
+        })}
     `
 });

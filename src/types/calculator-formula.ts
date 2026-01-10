@@ -146,7 +146,12 @@ export interface CheckboxInputConfig {
 }
 
 /** 輸入配置類型 (聯合類型) */
-export type InputConfig = NumberInputConfig | RadioInputConfig | SelectInputConfig | CheckboxInputConfig | string;
+export type InputConfig =
+    | NumberInputConfig
+    | RadioInputConfig
+    | SelectInputConfig
+    | CheckboxInputConfig
+    | string;
 
 // ==========================================
 // 區塊配置

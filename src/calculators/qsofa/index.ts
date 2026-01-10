@@ -6,15 +6,18 @@ import { qsofaCalculation } from './calculation.js';
 export const qsofaScore = createUnifiedFormulaCalculator({
     id: 'qsofa',
     title: 'qSOFA Score for Sepsis',
-    description: 'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 suggests high risk.',
-    infoAlert: '<h4>qSOFA Criteria (Score 1 each):</h4>' + uiBuilder.createList({
-        items: [
-            '<strong>Respiratory Rate:</strong> ≥ 22 /min',
-            '<strong>Systolic Blood Pressure:</strong> ≤ 100 mmHg',
-            '<strong>Altered Mental Status:</strong> GCS < 15'
-        ],
-        className: 'info-list'
-    }),
+    description:
+        'Identifies patients with suspected infection at risk for poor outcomes (sepsis). Score ≥ 2 suggests high risk.',
+    infoAlert:
+        '<h4>qSOFA Criteria (Score 1 each):</h4>' +
+        uiBuilder.createList({
+            items: [
+                '<strong>Respiratory Rate:</strong> ≥ 22 /min',
+                '<strong>Systolic Blood Pressure:</strong> ≤ 100 mmHg',
+                '<strong>Altered Mental Status:</strong> GCS < 15'
+            ],
+            className: 'info-list'
+        }),
     sections: [
         {
             title: 'Vital Signs',
@@ -78,7 +81,8 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                         { value: 'no', label: 'No', checked: true },
                         { value: 'yes', label: 'Yes' }
                     ],
-                    helpText: 'Select "Yes" if GCS < 15 or not formally assessed but clinically altered.'
+                    helpText:
+                        'Select "Yes" if GCS < 15 or not formally assessed but clinically altered.'
                 }
             ]
         }
@@ -90,37 +94,41 @@ export const qsofaScore = createUnifiedFormulaCalculator({
         }
     ],
     calculate: qsofaCalculation,
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const res = results[0];
         if (!res) return '';
 
-        const payload = res.alertPayload as { metCriteria: string[], recommendation: string };
+        const payload = res.alertPayload as { metCriteria: string[]; recommendation: string };
         const metCriteria = payload.metCriteria;
         const recommendation = payload.recommendation;
         const alertClass = res.alertClass || 'info';
 
         return `
             ${uiBuilder.createResultItem({
-            label: res.label,
-            value: res.value.toString(),
-            unit: res.unit,
-            interpretation: res.interpretation,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: res.label,
+                value: res.value.toString(),
+                unit: res.unit,
+                interpretation: res.interpretation,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             
-            ${metCriteria.length > 0 ? `
+            ${
+                metCriteria.length > 0
+                    ? `
             <div class="text-sm mt-5 mb-10 text-muted">
                 <strong>Criteria Met:</strong>
                 <ul class="list-disc pl-20">
                     ${metCriteria.map(c => `<li>${c}</li>`).join('')}
                 </ul>
             </div>
-            ` : ''}
+            `
+                    : ''
+            }
 
             ${uiBuilder.createAlert({
-            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
-            message: `<strong>🏥 Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+                message: `<strong>🏥 Recommendation:</strong> ${recommendation}`
+            })}
         `;
     }
 });

@@ -1,15 +1,20 @@
 /**
  * Pediatric Blood Pressure Calculator
- * 
+ *
  * Evaluates blood pressure in children and adolescents based on AAP 2017 guidelines.
- * 
+ *
  * References:
- * - Flynn JT, et al. Clinical Practice Guideline for Screening and Management of High Blood 
+ * - Flynn JT, et al. Clinical Practice Guideline for Screening and Management of High Blood
  *   Pressure in Children and Adolescents. Pediatrics. 2017;140(3):e20171904.
  * - Rosner B, et al. Blood pressure percentiles for children. Am J Epidemiol. 2008.
  */
 
-import type { ComplexCalculationResult, GetValueFn, GetStdValueFn, GetRadioValueFn } from '../../types/calculator-formula.js';
+import type {
+    ComplexCalculationResult,
+    GetValueFn,
+    GetStdValueFn,
+    GetRadioValueFn
+} from '../../types/calculator-formula.js';
 
 // ==========================================
 // Simplified BP Screening Tables (AAP 2017)
@@ -80,9 +85,12 @@ function classifyChildBP(
     if (sbp >= sbp95 + 12 || dbp >= dbp95 + 12 || sbp >= 140 || dbp >= 90) {
         return {
             category: 'stage2',
-            sbpPercentileRange: sbp >= sbp95 + 12 ? '≥95th + 12 mmHg' : (sbp >= sbp95 ? '≥95th' : '<95th'),
-            dbpPercentileRange: dbp >= dbp95 + 12 ? '≥95th + 12 mmHg' : (dbp >= dbp95 ? '≥95th' : '<95th'),
-            recommendation: 'Refer to specialist within 1 week or immediately if symptomatic. Initiate lifestyle modifications.'
+            sbpPercentileRange:
+                sbp >= sbp95 + 12 ? '≥95th + 12 mmHg' : sbp >= sbp95 ? '≥95th' : '<95th',
+            dbpPercentileRange:
+                dbp >= dbp95 + 12 ? '≥95th + 12 mmHg' : dbp >= dbp95 ? '≥95th' : '<95th',
+            recommendation:
+                'Refer to specialist within 1 week or immediately if symptomatic. Initiate lifestyle modifications.'
         };
     }
 
@@ -90,9 +98,10 @@ function classifyChildBP(
     if (sbp >= sbp95 || dbp >= dbp95 || (sbp >= 130 && sbp < 140) || (dbp >= 80 && dbp < 90)) {
         return {
             category: 'stage1',
-            sbpPercentileRange: sbp >= sbp95 ? '≥95th' : (sbp >= sbp90 ? '90th-95th' : '<90th'),
-            dbpPercentileRange: dbp >= dbp95 ? '≥95th' : (dbp >= dbp90 ? '90th-95th' : '<90th'),
-            recommendation: 'Lifestyle modifications. Recheck in 1-2 weeks. If still elevated, repeat at 3 visits.'
+            sbpPercentileRange: sbp >= sbp95 ? '≥95th' : sbp >= sbp90 ? '90th-95th' : '<90th',
+            dbpPercentileRange: dbp >= dbp95 ? '≥95th' : dbp >= dbp90 ? '90th-95th' : '<90th',
+            recommendation:
+                'Lifestyle modifications. Recheck in 1-2 weeks. If still elevated, repeat at 3 visits.'
         };
     }
 
@@ -102,7 +111,8 @@ function classifyChildBP(
             category: 'elevated',
             sbpPercentileRange: sbp >= sbp90 ? '90th-95th' : '<90th',
             dbpPercentileRange: dbp >= dbp90 ? '90th-95th' : '<90th',
-            recommendation: 'Lifestyle modifications. Recheck in 6 months with nutrition and physical activity counseling.'
+            recommendation:
+                'Lifestyle modifications. Recheck in 6 months with nutrition and physical activity counseling.'
         };
     }
 
@@ -125,7 +135,8 @@ function classifyAdolescentBP(sbp: number, dbp: number): BPResult {
             category: 'stage2',
             sbpPercentileRange: sbp >= 140 ? '≥140 mmHg' : '<140 mmHg',
             dbpPercentileRange: dbp >= 90 ? '≥90 mmHg' : '<90 mmHg',
-            recommendation: 'Refer to specialist within 1 week or immediately if symptomatic. Initiate lifestyle modifications.'
+            recommendation:
+                'Refer to specialist within 1 week or immediately if symptomatic. Initiate lifestyle modifications.'
         };
     }
 
@@ -135,7 +146,8 @@ function classifyAdolescentBP(sbp: number, dbp: number): BPResult {
             category: 'stage1',
             sbpPercentileRange: sbp >= 130 ? '130-139 mmHg' : '<130 mmHg',
             dbpPercentileRange: dbp >= 80 ? '80-89 mmHg' : '<80 mmHg',
-            recommendation: 'Lifestyle modifications. Recheck in 1-2 weeks. If still elevated, repeat at 3 visits.'
+            recommendation:
+                'Lifestyle modifications. Recheck in 1-2 weeks. If still elevated, repeat at 3 visits.'
         };
     }
 
@@ -145,7 +157,8 @@ function classifyAdolescentBP(sbp: number, dbp: number): BPResult {
             category: 'elevated',
             sbpPercentileRange: '120-129 mmHg',
             dbpPercentileRange: '<80 mmHg',
-            recommendation: 'Lifestyle modifications. Recheck in 6 months with nutrition and physical activity counseling.'
+            recommendation:
+                'Lifestyle modifications. Recheck in 6 months with nutrition and physical activity counseling.'
         };
     }
 
@@ -213,11 +226,19 @@ export function calculatePediatricBP(
         const ageInt = Math.floor(age);
         interpretationNote = `Normal BP in this ${ageInt}-year-old ${sex === 'female' ? 'girl' : 'boy'} is SBP <${sex === 'female' ? GIRLS_BP_TABLE[ageInt]?.[0] : BOYS_BP_TABLE[ageInt]?.[0]} and DBP <${sex === 'female' ? GIRLS_BP_TABLE[ageInt]?.[1] : BOYS_BP_TABLE[ageInt]?.[1]}`;
     } else {
-        interpretationNote = 'For adolescents ≥13 years, static thresholds apply: Normal <120/80, Elevated 120-129/<80, Stage 1 ≥130/80, Stage 2 ≥140/90';
+        interpretationNote =
+            'For adolescents ≥13 years, static thresholds apply: Normal <120/80, Elevated 120-129/<80, Stage 1 ≥130/80, Stage 2 ≥140/90';
     }
 
     return {
-        score: result.category === 'normal' ? 0 : result.category === 'elevated' ? 1 : result.category === 'stage1' ? 2 : 3,
+        score:
+            result.category === 'normal'
+                ? 0
+                : result.category === 'elevated'
+                  ? 1
+                  : result.category === 'stage1'
+                    ? 2
+                    : 3,
         interpretation: info.label,
         severity: info.severity,
         additionalResults: [

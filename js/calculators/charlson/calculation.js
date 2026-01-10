@@ -1,4 +1,4 @@
-export const calculateCharlson = (values) => {
+export const calculateCharlson = values => {
     let score = 0;
     // All inputs are radios returning '0' or points (e.g. '1', '2', '3', '6').
     // Just sum them up.

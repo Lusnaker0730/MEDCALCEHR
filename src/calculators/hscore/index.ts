@@ -5,10 +5,7 @@
  * 診斷反應性噬血細胞症候群
  */
 
-import {
-    createScoringCalculator,
-    ScoringCalculatorConfig
-} from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
@@ -163,22 +160,22 @@ const config: ScoringCalculatorConfig = {
         const probability = getProbability(score);
         return `
             ${uiBuilder.createResultItem({
-            label: 'HScore',
-            value: score.toString(),
-            unit: 'points'
-        })}
+                label: 'HScore',
+                value: score.toString(),
+                unit: 'points'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Probability of Hemophagocytic Syndrome',
-            value: probability,
-            unit: '%'
-        })}
+                label: 'Probability of Hemophagocytic Syndrome',
+                value: probability,
+                unit: '%'
+            })}
             ${uiBuilder.createAlert({
-            type: score >= 169 ? 'danger' : 'success',
-            message:
-                score >= 169
-                    ? '<strong>High probability</strong> of hemophagocytic syndrome (sensitivity 93%, specificity 86%)'
-                    : '<strong>Low probability</strong> of hemophagocytic syndrome'
-        })}
+                type: score >= 169 ? 'danger' : 'success',
+                message:
+                    score >= 169
+                        ? '<strong>High probability</strong> of hemophagocytic syndrome (sensitivity 93%, specificity 86%)'
+                        : '<strong>Low probability</strong> of hemophagocytic syndrome'
+            })}
         `;
     },
 
@@ -321,37 +318,37 @@ export const hscore = {
         // 添加 Facts & Figures 區塊
         const factsSection = `
             ${uiBuilder.createSection({
-            title: 'FACTS & FIGURES',
-            icon: '📊',
-            content: `
+                title: 'FACTS & FIGURES',
+                icon: '📊',
+                content: `
                     <p class="mb-10">Interpretation:</p>
                     ${uiBuilder.createTable({
-                headers: ['HScore', 'Probability of hemophagocytic syndrome'],
-                rows: [
-                    ['≤90', '<1%'],
-                    ['91-100', '~1%'],
-                    ['101-110', '1-3%'],
-                    ['111-120', '3-5%'],
-                    ['121-130', '5-9%'],
-                    ['131-140', '9-16%'],
-                    ['141-150', '16-25%'],
-                    ['151-160', '25-40%'],
-                    ['161-170', '40-54%'],
-                    ['171-180', '54-70%'],
-                    ['181-190', '70-80%'],
-                    ['191-200', '80-88%'],
-                    ['201-210', '88-93%'],
-                    ['211-220', '93-96%'],
-                    ['221-230', '96-98%'],
-                    ['231-240', '98-99%'],
-                    ['≥241', '>99%']
-                ]
-            })}
+                        headers: ['HScore', 'Probability of hemophagocytic syndrome'],
+                        rows: [
+                            ['≤90', '<1%'],
+                            ['91-100', '~1%'],
+                            ['101-110', '1-3%'],
+                            ['111-120', '3-5%'],
+                            ['121-130', '5-9%'],
+                            ['131-140', '9-16%'],
+                            ['141-150', '16-25%'],
+                            ['151-160', '25-40%'],
+                            ['161-170', '40-54%'],
+                            ['171-180', '54-70%'],
+                            ['181-190', '70-80%'],
+                            ['191-200', '80-88%'],
+                            ['201-210', '88-93%'],
+                            ['211-220', '93-96%'],
+                            ['221-230', '96-98%'],
+                            ['231-240', '98-99%'],
+                            ['≥241', '>99%']
+                        ]
+                    })}
                     <p class="table-note text-sm text-muted mt-10">
                         Note: the best cutoff value for the HScore was 169, corresponding to a sensitivity of 93%, specificity of 86%, and accurate classification of 90% of patients.
                     </p>
                 `
-        })}
+            })}
         `;
 
         return html + factsSection;

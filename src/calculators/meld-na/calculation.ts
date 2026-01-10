@@ -48,9 +48,7 @@ export const meldNaCalculation = (values: Record<string, any>): FormulaResultIte
 
     if (meldScore > 11) {
         meldNaScore =
-            meldScore +
-            1.32 * (137 - adjustedSodium) -
-            0.033 * meldScore * (137 - adjustedSodium);
+            meldScore + 1.32 * (137 - adjustedSodium) - 0.033 * meldScore * (137 - adjustedSodium);
     }
 
     // Final score capping
@@ -91,14 +89,16 @@ export const meldNaCalculation = (values: Record<string, any>): FormulaResultIte
         cappedForDialysis
     };
 
-    return [{
-        label: 'MELD-Na Score',
-        value: meldNaScore,
-        unit: 'points',
-        interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
-        alertClass: alertClass,
-        alertPayload: {
-            breakdown
+    return [
+        {
+            label: 'MELD-Na Score',
+            value: meldNaScore,
+            unit: 'points',
+            interpretation: `${riskCategory} (90-Day Mortality: ${mortalityRate})`,
+            alertClass: alertClass,
+            alertPayload: {
+                breakdown
+            }
         }
-    }];
+    ];
 };

@@ -3,10 +3,20 @@ export function ttkgCalculation(values) {
     const sK = values['ttkg-serum-k'];
     const uO = values['ttkg-urine-osmo'];
     const sO = values['ttkg-serum-osmo'];
-    if (uK === undefined || uK === null || uK === '' ||
-        sK === undefined || sK === null || sK === '' ||
-        uO === undefined || uO === null || uO === '' ||
-        sO === undefined || sO === null || sO === '') {
+    if (
+        uK === undefined ||
+        uK === null ||
+        uK === '' ||
+        sK === undefined ||
+        sK === null ||
+        sK === '' ||
+        uO === undefined ||
+        uO === null ||
+        uO === '' ||
+        sO === undefined ||
+        sO === null ||
+        sO === ''
+    ) {
         return [];
     }
     const urineK = Number(uK);
@@ -14,10 +24,7 @@ export function ttkgCalculation(values) {
     const urineOsmo = Number(uO);
     const serumOsmo = Number(sO);
     // Check for valid inputs
-    if (isNaN(urineK) ||
-        isNaN(serumK) ||
-        isNaN(urineOsmo) ||
-        isNaN(serumOsmo)) {
+    if (isNaN(urineK) || isNaN(serumK) || isNaN(urineOsmo) || isNaN(serumOsmo)) {
         return [];
     }
     // Safety checks
@@ -47,31 +54,30 @@ export function ttkgCalculation(values) {
     if (serumK < 3.5) {
         // Hypokalemia
         if (ttkg < 3) {
-            interpretation = 'Suggests non-renal potassium loss (e.g., GI loss, transcellular shift).';
+            interpretation =
+                'Suggests non-renal potassium loss (e.g., GI loss, transcellular shift).';
             alertClass = 'success';
-        }
-        else {
+        } else {
             interpretation = 'Suggests renal potassium wasting.';
             alertClass = 'warning';
         }
-    }
-    else if (serumK > 5.2) {
+    } else if (serumK > 5.2) {
         // Hyperkalemia
         if (ttkg > 10) {
-            interpretation = 'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
+            interpretation =
+                'Suggests hyperkalemia is driven by high potassium intake (dietary or iatrogenic).';
             alertClass = 'success';
-        }
-        else if (ttkg < 7) {
-            interpretation = 'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
+        } else if (ttkg < 7) {
+            interpretation =
+                'Suggests an issue with aldosterone (e.g., hypoaldosteronism or aldosterone resistance).';
             alertClass = 'warning';
-        }
-        else {
+        } else {
             interpretation = 'Intermediate value.';
             alertClass = 'info';
         }
-    }
-    else {
-        interpretation = 'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
+    } else {
+        interpretation =
+            'Normal potassium levels. TTKG should be interpreted in context of potassium disorders.';
         alertClass = 'info';
     }
     return [

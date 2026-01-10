@@ -1,4 +1,4 @@
-export const calculate6MWD = (values) => {
+export const calculate6MWD = values => {
     const age = Number(values['mwd6-age']);
     const heightCm = Number(values['mwd6-height']);
     const weightKg = Number(values['mwd6-weight']);
@@ -11,8 +11,7 @@ export const calculate6MWD = (values) => {
     let expectedDistance = 0;
     if (gender === 'male') {
         expectedDistance = 7.57 * heightCm - 5.02 * age - 1.76 * weightKg - 309;
-    }
-    else {
+    } else {
         // female
         expectedDistance = 2.11 * heightCm - 2.29 * weightKg - 5.78 * age + 667;
     }

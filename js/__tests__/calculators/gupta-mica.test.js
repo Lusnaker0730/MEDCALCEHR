@@ -20,7 +20,7 @@ describe('Gupta MICA Calculator', () => {
     // Creatinine 1.0 (Normal -> 0)
     // x = -5.25 + 0.8 + 0 + (-6.17) + 0 + 0 = -10.62
     // Risk = 1 / (1 + e^10.62) = small
-    // Test says default ASA is -6.17 if empty? calculation.ts: 
+    // Test says default ASA is -6.17 if empty? calculation.ts:
     // const asaClass = parseFloat((values['mica-asa'] as string) || '-6.17');
     test('Low Risk Case', () => {
         const result = calculateGuptaMica({

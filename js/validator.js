@@ -15,20 +15,24 @@ export function validateCalculatorInput(input, schema) {
         const rule = schema[key];
         let status = 'valid';
         // Required field validation
-        if (rule.required &&
+        if (
+            rule.required &&
             (value === null ||
                 value === undefined ||
                 value === '' ||
-                (typeof value === 'number' && Number.isNaN(value)))) {
+                (typeof value === 'number' && Number.isNaN(value)))
+        ) {
             errors.push(rule.message || `${key} is required`);
             fieldStatus[key] = 'error';
             return;
         }
         // Skip further validation if value is empty and not required
-        if (value === null ||
+        if (
+            value === null ||
             value === undefined ||
             value === '' ||
-            (typeof value === 'number' && Number.isNaN(value))) {
+            (typeof value === 'number' && Number.isNaN(value))
+        ) {
             fieldStatus[key] = 'valid';
             return;
         }
@@ -568,8 +572,7 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
             if (onError) {
                 onError(result.errors);
             }
-        }
-        else {
+        } else {
             inputElement.classList.remove('invalid');
             inputElement.removeAttribute('aria-invalid');
             // 移除错误消息

@@ -23,7 +23,8 @@ function calculatePCE(patient: any): number {
 
     if (patient.isMale) {
         if (patient.race === 'white') {
-            individualSum = 12.344 * lnAge +
+            individualSum =
+                12.344 * lnAge +
                 11.853 * lnTC -
                 2.664 * lnAge * lnTC -
                 7.99 * lnHDL +
@@ -36,7 +37,8 @@ function calculatePCE(patient: any): number {
             baselineSurvival = 0.9144;
         } else {
             // African American Male
-            individualSum = 2.469 * lnAge +
+            individualSum =
+                2.469 * lnAge +
                 0.302 * lnTC -
                 0.307 * lnHDL +
                 (patient.onHtnTx ? 1.916 : 1.809) * lnSBP +
@@ -48,7 +50,8 @@ function calculatePCE(patient: any): number {
     } else {
         // Female
         if (patient.race === 'white') {
-            individualSum = -29.799 * lnAge +
+            individualSum =
+                -29.799 * lnAge +
                 4.884 * lnAge * lnAge +
                 13.54 * lnTC -
                 3.114 * lnAge * lnTC -
@@ -62,7 +65,8 @@ function calculatePCE(patient: any): number {
             baselineSurvival = 0.9665;
         } else {
             // African American Female
-            individualSum = 17.114 * lnAge +
+            individualSum =
+                17.114 * lnAge +
                 0.94 * lnTC -
                 18.92 * lnHDL +
                 4.475 * lnAge * lnHDL +
@@ -82,8 +86,8 @@ function calculatePCE(patient: any): number {
 const therapyImpactHTML = `
 <div id="therapy-impact-section" class="therapy-section ui-hidden" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
     ${uiBuilder.createSection({
-    title: '🎯 Therapy Impact Analysis',
-    content: `
+        title: '🎯 Therapy Impact Analysis',
+        content: `
             <div class="alert alert-info">Baseline Risk: <span id="therapy-baseline-risk">--</span>%</div>
             <h5>Select Therapy Options:</h5>
             
@@ -91,14 +95,17 @@ const therapyImpactHTML = `
                 ${uiBuilder.createCheckbox({ id: 'statin-therapy', label: 'Statin Therapy', checked: true })}
                 <div class="therapy-details" id="statin-details">
                     ${uiBuilder.createSelect({
-        id: 'statin-intensity',
-        label: 'Intensity',
-        options: [
-            { value: 'moderate', label: 'Moderate-Intensity Statin (30-50% LDL reduction)' },
-            { value: 'high', label: 'High-Intensity Statin (≥50% LDL reduction)' },
-            { value: 'low', label: 'Low-Intensity Statin (<30% LDL reduction)' }
-        ]
-    })}
+                        id: 'statin-intensity',
+                        label: 'Intensity',
+                        options: [
+                            {
+                                value: 'moderate',
+                                label: 'Moderate-Intensity Statin (30-50% LDL reduction)'
+                            },
+                            { value: 'high', label: 'High-Intensity Statin (≥50% LDL reduction)' },
+                            { value: 'low', label: 'Low-Intensity Statin (<30% LDL reduction)' }
+                        ]
+                    })}
                 </div>
             </div>
             
@@ -114,21 +121,27 @@ const therapyImpactHTML = `
                 ${uiBuilder.createCheckbox({ id: 'additional-therapy', label: 'Additional Therapies' })}
                 <div class="therapy-details ui-hidden" id="additional-details">
                     ${uiBuilder.createSelect({
-        id: 'additional-options',
-        label: 'Option',
-        options: [
-            { value: 'ezetimibe', label: 'Ezetimibe (additional 15-20% LDL reduction)' },
-            { value: 'pcsk9', label: 'PCSK9 Inhibitor (additional 50-60% LDL reduction)' },
-            { value: 'aspirin', label: 'Low-dose Aspirin (if bleeding risk low)' }
-        ]
-    })}
+                        id: 'additional-options',
+                        label: 'Option',
+                        options: [
+                            {
+                                value: 'ezetimibe',
+                                label: 'Ezetimibe (additional 15-20% LDL reduction)'
+                            },
+                            {
+                                value: 'pcsk9',
+                                label: 'PCSK9 Inhibitor (additional 50-60% LDL reduction)'
+                            },
+                            { value: 'aspirin', label: 'Low-dose Aspirin (if bleeding risk low)' }
+                        ]
+                    })}
                 </div>
             </div>
             
             <button id="calculate-therapy-impact" class="ui-btn ui-btn-primary ui-btn-block mt-15">📊 Calculate Therapy Impact</button>
             <div id="therapy-results" class="therapy-results ui-hidden"></div>
         `
-})}
+    })}
 </div>
 `;
 
@@ -140,17 +153,20 @@ export const ascvdCalculation = (values: Record<string, any>) => {
 
     // 1. Check Known ASCVD
     if (values['known-ascvd']) {
-        return [{
-            label: '10-Year ASCVD Risk',
-            value: 'High Risk',
-            interpretation: 'Known Clinical ASCVD (History of MI, stroke, PAD)',
-            alertClass: 'danger' as AlertSeverity
-        }, {
-            label: 'Recommendation',
-            value: 'Secondary Prevention',
-            interpretation: 'High-intensity statin therapy is indicated.',
-            alertClass: 'warning' as AlertSeverity
-        }];
+        return [
+            {
+                label: '10-Year ASCVD Risk',
+                value: 'High Risk',
+                interpretation: 'Known Clinical ASCVD (History of MI, stroke, PAD)',
+                alertClass: 'danger' as AlertSeverity
+            },
+            {
+                label: 'Recommendation',
+                value: 'Secondary Prevention',
+                interpretation: 'High-intensity statin therapy is indicated.',
+                alertClass: 'warning' as AlertSeverity
+            }
+        ];
     }
 
     // 2. Validate Core Inputs Manually (since we set required: false)
@@ -158,7 +174,10 @@ export const ascvdCalculation = (values: Record<string, any>) => {
     const missing = requiredFields.filter(f => values[f] === undefined || values[f] === null);
 
     if (missing.length > 0) {
-        throw new ValidationError('Please complete all fields (Age, TC, HDL, SBP).', 'MISSING_DATA');
+        throw new ValidationError(
+            'Please complete all fields (Age, TC, HDL, SBP).',
+            'MISSING_DATA'
+        );
     }
 
     const age = values['ascvd-age'];
@@ -196,7 +215,8 @@ export const ascvdCalculation = (values: Record<string, any>) => {
         interpretation = 'Low Risk (<5%). Emphasize lifestyle modifications.';
         alertClass = 'success';
     } else if (risk < 7.5) {
-        interpretation = 'Borderline Risk (5-7.4%). Discuss risk. Consider moderate-intensity statin.';
+        interpretation =
+            'Borderline Risk (5-7.4%). Discuss risk. Consider moderate-intensity statin.';
         alertClass = 'warning';
     } else if (risk < 20) {
         interpretation = 'Intermediate Risk (7.5-19.9%). Initiate moderate-intensity statin.';
@@ -207,22 +227,26 @@ export const ascvdCalculation = (values: Record<string, any>) => {
     }
 
     if (patient.race === 'other') {
-        interpretation += '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
+        interpretation +=
+            '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
     }
 
-    return [{
-        label: '10-Year ASCVD Risk',
-        value: risk.toFixed(1),
-        unit: '%',
-        interpretation: interpretation,
-        alertClass: alertClass
-    }];
+    return [
+        {
+            label: '10-Year ASCVD Risk',
+            value: risk.toFixed(1),
+            unit: '%',
+            interpretation: interpretation,
+            alertClass: alertClass
+        }
+    ];
 };
 
 export const ascvd = createUnifiedFormulaCalculator({
     id: 'ascvd',
     title: 'ASCVD Risk Calculator with Therapy Impact',
-    description: 'Determines 10-year risk of hard ASCVD and calculates the impact of various therapies on risk reduction.',
+    description:
+        'Determines 10-year risk of hard ASCVD and calculates the impact of various therapies on risk reduction.',
     infoAlert: 'Valid for ages 40-79 years. Uses 2013 ACC/AHA Pooled Cohort Equations.',
     autoPopulateAge: 'ascvd-age',
 
@@ -286,7 +310,8 @@ export const ascvd = createUnifiedFormulaCalculator({
             type: 'number',
             unit: 'mmHg',
             loincCode: LOINC_CODES.SYSTOLIC_BP,
-            min: 50, max: 300,
+            min: 50,
+            max: 300,
             validationType: 'systolicBP',
             required: false
         },
@@ -295,19 +320,28 @@ export const ascvd = createUnifiedFormulaCalculator({
             id: 'ascvd-htn',
             label: 'On Hypertension Treatment?',
             type: 'radio',
-            options: [{ value: 'no', label: 'No', checked: true }, { value: 'yes', label: 'Yes' }]
+            options: [
+                { value: 'no', label: 'No', checked: true },
+                { value: 'yes', label: 'Yes' }
+            ]
         },
         {
             id: 'ascvd-dm',
             label: 'Diabetes?',
             type: 'radio',
-            options: [{ value: 'no', label: 'No', checked: true }, { value: 'yes', label: 'Yes' }]
+            options: [
+                { value: 'no', label: 'No', checked: true },
+                { value: 'yes', label: 'Yes' }
+            ]
         },
         {
             id: 'ascvd-smoker',
             label: 'Current Smoker?',
             type: 'radio',
-            options: [{ value: 'no', label: 'No', checked: true }, { value: 'yes', label: 'Yes' }]
+            options: [
+                { value: 'no', label: 'No', checked: true },
+                { value: 'yes', label: 'Yes' }
+            ]
         }
     ],
 
@@ -346,7 +380,8 @@ export const ascvd = createUnifiedFormulaCalculator({
             const observer = new MutationObserver(() => {
                 if (resultBox.classList.contains('show') && currentBaselineRisk > 0) {
                     if (therapySection) therapySection.classList.remove('ui-hidden');
-                    if (baselineDisplay) baselineDisplay.textContent = currentBaselineRisk.toFixed(1);
+                    if (baselineDisplay)
+                        baselineDisplay.textContent = currentBaselineRisk.toFixed(1);
                 } else {
                     if (therapySection) therapySection.classList.add('ui-hidden');
                 }
@@ -375,22 +410,28 @@ export const ascvd = createUnifiedFormulaCalculator({
                 // Statin
                 const statinInput = container.querySelector('#statin-therapy') as HTMLInputElement;
                 if (statinInput?.checked) {
-                    const intensity = (container.querySelector('#statin-intensity') as HTMLSelectElement).value;
+                    const intensity = (
+                        container.querySelector('#statin-intensity') as HTMLSelectElement
+                    ).value;
                     let ldlRed = 0.25; // low
                     if (intensity === 'high') ldlRed = 0.5;
                     if (intensity === 'moderate') ldlRed = 0.4;
 
                     const estimatedTrig = 150;
-                    const currentLDL = modPatient.tc - modPatient.hdl - (estimatedTrig / 5);
+                    const currentLDL = modPatient.tc - modPatient.hdl - estimatedTrig / 5;
                     const treatedLDL = currentLDL * (1 - ldlRed);
-                    modPatient.tc = treatedLDL + modPatient.hdl + (estimatedTrig / 5);
+                    modPatient.tc = treatedLDL + modPatient.hdl + estimatedTrig / 5;
                     interventions.push(intensity + '-intensity statin');
                 }
 
                 // Lifestyle
-                const lifestyleInput = container.querySelector('#lifestyle-mods') as HTMLInputElement;
+                const lifestyleInput = container.querySelector(
+                    '#lifestyle-mods'
+                ) as HTMLInputElement;
                 if (lifestyleInput?.checked) {
-                    const stopSmoke = container.querySelector('#smoking-cessation') as HTMLInputElement;
+                    const stopSmoke = container.querySelector(
+                        '#smoking-cessation'
+                    ) as HTMLInputElement;
                     if (stopSmoke?.checked && modPatient.isSmoker) {
                         modPatient.isSmoker = false;
                         interventions.push('Smoking cessation');
@@ -406,13 +447,15 @@ export const ascvd = createUnifiedFormulaCalculator({
                 // Additional
                 const addInput = container.querySelector('#additional-therapy') as HTMLInputElement;
                 if (addInput?.checked) {
-                    const opt = (container.querySelector('#additional-options') as HTMLSelectElement).value;
+                    const opt = (
+                        container.querySelector('#additional-options') as HTMLSelectElement
+                    ).value;
                     if (opt === 'ezetimibe' || opt === 'pcsk9') {
                         const red = opt === 'ezetimibe' ? 0.175 : 0.55;
                         const estimatedTrig = 150;
-                        const currentLDL = modPatient.tc - modPatient.hdl - (estimatedTrig / 5);
+                        const currentLDL = modPatient.tc - modPatient.hdl - estimatedTrig / 5;
                         const treatedLDL = currentLDL * (1 - red);
-                        modPatient.tc = treatedLDL + modPatient.hdl + (estimatedTrig / 5);
+                        modPatient.tc = treatedLDL + modPatient.hdl + estimatedTrig / 5;
                         interventions.push(opt === 'pcsk9' ? 'PCSK9 Inhibitor' : 'Ezetimibe');
                     }
                 }

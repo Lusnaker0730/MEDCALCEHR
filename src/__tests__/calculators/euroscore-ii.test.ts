@@ -1,20 +1,23 @@
 /**
  * EuroSCORE II Calculator - Verification Tests
- * 
+ *
  * Tests for cardiac surgery mortality prediction.
  * Reference: Nashef SA, et al. Eur J Cardiothorac Surg. 2012
  */
 
-import { calculateEuroScoreII, COEFFICIENTS, INTERCEPT } from '../../calculators/euroscore-ii/calculation';
+import {
+    calculateEuroScoreII,
+    COEFFICIENTS,
+    INTERCEPT
+} from '../../calculators/euroscore-ii/calculation';
 
 describe('EuroSCORE II Calculator', () => {
-
     // Mock functions
-    const createMockGetter = (values: Record<string, number | null>) =>
-        (key: string) => values[key] ?? null;
+    const createMockGetter = (values: Record<string, number | null>) => (key: string) =>
+        values[key] ?? null;
 
-    const createMockRadioGetter = (values: Record<string, string>) =>
-        (key: string) => values[key] || '';
+    const createMockRadioGetter = (values: Record<string, string>) => (key: string) =>
+        values[key] || '';
 
     // ===========================================
     // TC-001: Coefficient Validation

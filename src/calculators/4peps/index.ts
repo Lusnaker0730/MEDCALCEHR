@@ -6,9 +6,7 @@
 
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import {
-    createUnifiedFormulaCalculator
-} from '../shared/unified-formula-calculator.js';
+import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateFourPeps } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
@@ -269,12 +267,16 @@ const config: FormulaCalculatorConfig = {
     ],
 
     formulas: [
-        { label: 'Reference', formula: 'Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. JAMA Cardiology.' }
+        {
+            label: 'Reference',
+            formula:
+                'Roy, P. M., et al. (2021). Derivation and Validation of a 4-Level Clinical Pretest Probability Score for Suspected Pulmonary Embolism to Safely Decrease Imaging Testing. JAMA Cardiology.'
+        }
     ],
 
     calculate: calculateFourPeps,
 
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         // Find recommendation payload if exists
         const recommendationItem = results.find(r => r.label === 'Recommendation');
         const alertHtml = recommendationItem?.alertPayload
@@ -283,13 +285,15 @@ const config: FormulaCalculatorConfig = {
 
         const resultItems = results
             .filter(r => r.label !== 'Recommendation')
-            .map(r => uiBuilder.createResultItem({
-                label: r.label,
-                value: r.value.toString(),
-                unit: r.unit,
-                interpretation: r.interpretation,
-                alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
-            }))
+            .map(r =>
+                uiBuilder.createResultItem({
+                    label: r.label,
+                    value: r.value.toString(),
+                    unit: r.unit,
+                    interpretation: r.interpretation,
+                    alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
+                })
+            )
             .join('');
 
         return resultItems + alertHtml;
@@ -315,7 +319,7 @@ const config: FormulaCalculatorConfig = {
         };
 
         try {
-            // Age handles by autoPopulateAge via helper, but logic was mixed here. 
+            // Age handles by autoPopulateAge via helper, but logic was mixed here.
             // We can use standard fhirDataService calls.
             const age = fhirDataService.getPatientAge();
             if (age !== null) {

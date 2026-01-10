@@ -11,11 +11,11 @@ describe('FavoritesManager', () => {
         // Mock localStorage
         Object.defineProperty(window, 'localStorage', {
             value: {
-                getItem: jest.fn((key) => localStorageMock[key] || null),
+                getItem: jest.fn(key => localStorageMock[key] || null),
                 setItem: jest.fn((key, value) => {
                     localStorageMock[key] = value;
                 }),
-                removeItem: jest.fn((key) => {
+                removeItem: jest.fn(key => {
                     delete localStorageMock[key];
                 }),
                 clear: jest.fn(() => {

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * PRECISE-HBR Score Calculator - Verification Tests
  *
@@ -29,12 +29,9 @@ describe('PRECISE-HBR Score Calculator', () => {
             score += (wbcClamped - 3) * 0.8;
         }
         // Categorical
-        if (priorBleeding)
-            score += 7;
-        if (oralAnticoagulation)
-            score += 5;
-        if (arcHbrRisk)
-            score += 3;
+        if (priorBleeding) score += 7;
+        if (oralAnticoagulation) score += 5;
+        if (arcHbrRisk) score += 3;
         return Math.round(score);
     };
     // ===========================================

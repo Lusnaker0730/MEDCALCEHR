@@ -1,11 +1,10 @@
 /**
  * PRECISE-HBR Score Calculator - Verification Tests
- * 
+ *
  * Tests for bleeding risk prediction in stent patients.
  */
 
 describe('PRECISE-HBR Score Calculator', () => {
-
     // Helper function to simulate the scoring logic
     const calculateScore = (
         age: number,

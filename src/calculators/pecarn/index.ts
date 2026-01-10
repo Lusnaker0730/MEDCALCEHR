@@ -64,56 +64,68 @@ export const pecarn: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Patient Age',
-            icon: '👶',
-            content: uiBuilder.createRadioGroup({
-                name: 'pecarn-age',
-                options: [
-                    { value: 'under2', label: '< 2 years', checked: true },
-                    { value: 'over2', label: '≥ 2 years' }
-                ]
-            })
-        })}
+                title: 'Patient Age',
+                icon: '👶',
+                content: uiBuilder.createRadioGroup({
+                    name: 'pecarn-age',
+                    options: [
+                        { value: 'under2', label: '< 2 years', checked: true },
+                        { value: 'over2', label: '≥ 2 years' }
+                    ]
+                })
+            })}
 
             <div id="pecarn-group-under2">
                 ${uiBuilder.createSection({
-            title: 'Criteria for Children < 2 Years',
-            icon: '📋',
-            content: uiBuilder.createCheckboxGroup({
-                name: 'pecarn-criteria-under2',
-                options: criteriaUnder2
-            })
-        })}
+                    title: 'Criteria for Children < 2 Years',
+                    icon: '📋',
+                    content: uiBuilder.createCheckboxGroup({
+                        name: 'pecarn-criteria-under2',
+                        options: criteriaUnder2
+                    })
+                })}
             </div>
 
             <div id="pecarn-group-over2" class="ui-hidden">
                 ${uiBuilder.createSection({
-            title: 'Criteria for Children ≥ 2 Years',
-            icon: '📋',
-            content: uiBuilder.createCheckboxGroup({
-                name: 'pecarn-criteria-over2',
-                options: criteriaOver2
-            })
-        })}
+                    title: 'Criteria for Children ≥ 2 Years',
+                    icon: '📋',
+                    content: uiBuilder.createCheckboxGroup({
+                        name: 'pecarn-criteria-over2',
+                        options: criteriaOver2
+                    })
+                })}
             </div>
 
             <div id="pecarn-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'pecarn-result', title: 'PECARN Assessment' })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>📊 Risk Interpretation</h4>
                     ${uiBuilder.createTable({
-                headers: ['Recommendation', 'Risk of ciTBI', 'Clinical Action'],
-                rows: [
-                    ['<span class="ui-alert-danger">CT Recommended</span>', '13-16%', 'Obtain immediate CT imaging'],
-                    ['<span class="ui-alert-warning">Observation vs. CT</span>', '~4.4%', 'Shared decision-making based on clinical factors'],
-                    ['<span class="ui-alert-success">CT Not Recommended</span>', '<0.05%', 'Observation without imaging']
-                ]
-            })}
+                        headers: ['Recommendation', 'Risk of ciTBI', 'Clinical Action'],
+                        rows: [
+                            [
+                                '<span class="ui-alert-danger">CT Recommended</span>',
+                                '13-16%',
+                                'Obtain immediate CT imaging'
+                            ],
+                            [
+                                '<span class="ui-alert-warning">Observation vs. CT</span>',
+                                '~4.4%',
+                                'Shared decision-making based on clinical factors'
+                            ],
+                            [
+                                '<span class="ui-alert-success">CT Not Recommended</span>',
+                                '<0.05%',
+                                'Observation without imaging'
+                            ]
+                        ]
+                    })}
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client, patient, container) {

@@ -136,22 +136,22 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'DASI Score',
-            value: score.toFixed(2),
-            unit: '/ 58.2 points'
-        })}
+                label: 'DASI Score',
+                value: score.toFixed(2),
+                unit: '/ 58.2 points'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Estimated VO₂ peak',
-            value: vo2peak.toFixed(1),
-            unit: 'mL/kg/min'
-        })}
+                label: 'Estimated VO₂ peak',
+                value: vo2peak.toFixed(1),
+                unit: 'mL/kg/min'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Estimated Peak METs',
-            value: mets.toFixed(1),
-            unit: '',
-            interpretation: interpretation,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'Estimated Peak METs',
+                value: mets.toFixed(1),
+                unit: '',
+                interpretation: interpretation,
+                alertClass: `ui-alert-${alertClass}`
+            })}
         `;
     }
 };

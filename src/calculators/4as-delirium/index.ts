@@ -5,10 +5,7 @@
  * Diagnoses delirium in older patients.
  */
 
-import {
-    createScoringCalculator,
-    ScoringCalculatorConfig
-} from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 
 const config: ScoringCalculatorConfig = {
     id: '4as-delirium',

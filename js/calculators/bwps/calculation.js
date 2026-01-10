@@ -1,4 +1,4 @@
-export const calculateBwps = (values) => {
+export const calculateBwps = values => {
     let score = 0;
     // All inputs are Selects returning numeric strings or '0'.
     Object.values(values).forEach(val => {
@@ -12,12 +12,10 @@ export const calculateBwps = (values) => {
     if (score >= 45) {
         interpretation = 'Highly suggestive of thyroid storm';
         alertType = 'danger';
-    }
-    else if (score >= 25) {
+    } else if (score >= 25) {
         interpretation = 'Suggests impending storm';
         alertType = 'warning';
-    }
-    else {
+    } else {
         interpretation = 'Unlikely to represent thyroid storm';
         alertType = 'success';
     }

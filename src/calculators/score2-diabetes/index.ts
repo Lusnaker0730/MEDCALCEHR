@@ -143,16 +143,17 @@ const config: FormulaCalculatorConfig = {
 
     calculate: calculateScore2Diabetes,
 
-    customResultRenderer: (results) => {
-
+    customResultRenderer: results => {
         return results
-            .map(r => uiBuilder.createResultItem({
-                label: r.label,
-                value: r.value.toString(),
-                unit: r.unit,
-                interpretation: r.interpretation,
-                alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
-            }))
+            .map(r =>
+                uiBuilder.createResultItem({
+                    label: r.label,
+                    value: r.value.toString(),
+                    unit: r.unit,
+                    interpretation: r.interpretation,
+                    alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
+                })
+            )
             .join('');
     },
 

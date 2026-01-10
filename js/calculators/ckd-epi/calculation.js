@@ -13,7 +13,7 @@
  * Inker LA, et al. New Creatinine- and Cystatin C-Based Equations to Estimate GFR
  * without Race. N Engl J Med. 2021;385(19):1737-1749.
  */
-export const calculateCkdEpi = (values) => {
+export const calculateCkdEpi = values => {
     const age = Number(values['ckd-epi-age']);
     const creatinine = Number(values['ckd-epi-creatinine']);
     const gender = values['ckd-epi-gender'];
@@ -27,7 +27,8 @@ export const calculateCkdEpi = (values) => {
     const kappa = gender === 'female' ? 0.7 : 0.9;
     const alpha = gender === 'female' ? -0.241 : -0.302;
     const genderFactor = gender === 'female' ? 1.012 : 1;
-    const gfr = 142 *
+    const gfr =
+        142 *
         Math.pow(Math.min(creatinine / kappa, 1), alpha) *
         Math.pow(Math.max(creatinine / kappa, 1), -1.2) *
         Math.pow(0.9938, age) *
@@ -40,28 +41,23 @@ export const calculateCkdEpi = (values) => {
         stage = 'Stage 1 (Normal or high)';
         alertClass = 'success';
         interpretation = 'Normal kidney function.';
-    }
-    else if (gfr >= 60) {
+    } else if (gfr >= 60) {
         stage = 'Stage 2 (Mild)';
         alertClass = 'success';
         interpretation = 'Mildly decreased kidney function.';
-    }
-    else if (gfr >= 45) {
+    } else if (gfr >= 45) {
         stage = 'Stage 3a (Mild to moderate)';
         alertClass = 'warning';
         interpretation = 'Mild to moderate reduction in kidney function.';
-    }
-    else if (gfr >= 30) {
+    } else if (gfr >= 30) {
         stage = 'Stage 3b (Moderate to severe)';
         alertClass = 'warning';
         interpretation = 'Moderate to severe reduction. Consider nephrology referral.';
-    }
-    else if (gfr >= 15) {
+    } else if (gfr >= 15) {
         stage = 'Stage 4 (Severe)';
         alertClass = 'danger';
         interpretation = 'Severe reduction. Nephrology referral required.';
-    }
-    else {
+    } else {
         stage = 'Stage 5 (Kidney failure)';
         alertClass = 'danger';
         interpretation = 'Kidney failure. Consider dialysis or transplantation.';

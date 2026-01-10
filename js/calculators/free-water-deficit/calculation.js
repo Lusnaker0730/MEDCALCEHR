@@ -1,9 +1,8 @@
-export const calculateFreeWaterDeficit = (values) => {
+export const calculateFreeWaterDeficit = values => {
     const weight = Number(values['fwd-weight']);
     const sodium = Number(values['fwd-sodium']);
     const genderType = values['fwd-gender'];
-    if (!weight || !sodium || !genderType)
-        return null;
+    if (!weight || !sodium || !genderType) return null;
     // TBW Factor based on gender/age
     let tbwFactor = 0.6;
     switch (genderType) {
@@ -33,11 +32,11 @@ export const calculateFreeWaterDeficit = (values) => {
         status = 'Not Indicated';
         alertClass = 'warning';
         alertMsg = 'Calculation intended for hypernatremia (Na > 140).';
-    }
-    else {
+    } else {
         status = 'Hypernatremia';
         alertClass = 'danger';
-        alertMsg = 'Correction should be slow (e.g., over 48-72 hours) to avoid cerebral edema. Max rate ~0.5 mEq/L/hr.';
+        alertMsg =
+            'Correction should be slow (e.g., over 48-72 hours) to avoid cerebral edema. Max rate ~0.5 mEq/L/hr.';
     }
     return [
         {

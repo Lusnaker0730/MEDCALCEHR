@@ -8,13 +8,15 @@ export const homaIrConfig: FormulaCalculatorConfig = {
     id: 'homa-ir',
     title: 'HOMA-IR (Homeostatic Model Assessment for Insulin Resistance)',
     description: 'Approximates insulin resistance.',
-    infoAlert: `<strong>Interpretation:</strong>` + uiBuilder.createList({
-        items: [
-            '<strong>< 1.9:</strong> Optimal insulin sensitivity',
-            '<strong>1.9 - 2.9:</strong> Early insulin resistance is likely',
-            '<strong>> 2.9:</strong> High likelihood of insulin resistance'
-        ]
-    }),
+    infoAlert:
+        `<strong>Interpretation:</strong>` +
+        uiBuilder.createList({
+            items: [
+                '<strong>< 1.9:</strong> Optimal insulin sensitivity',
+                '<strong>1.9 - 2.9:</strong> Early insulin resistance is likely',
+                '<strong>> 2.9:</strong> High likelihood of insulin resistance'
+            ]
+        }),
     sections: [
         {
             title: 'Parameters',
@@ -56,7 +58,8 @@ export const homaIrConfig: FormulaCalculatorConfig = {
     formulas: [
         {
             label: 'HOMA-IR',
-            formula: '<span class="formula-fraction"><span class="numerator">Fasting Glucose (mg/dL) × Fasting Insulin (µU/mL)</span><span class="denominator">405</span></span>'
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Fasting Glucose (mg/dL) × Fasting Insulin (µU/mL)</span><span class="denominator">405</span></span>'
         }
     ],
     calculate: calculateHOMAIR

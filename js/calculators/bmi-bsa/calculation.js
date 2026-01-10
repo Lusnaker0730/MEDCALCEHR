@@ -1,8 +1,14 @@
 export function bmiBsaCalculation(values) {
     const weightInput = values['bmi-bsa-weight'];
     const heightInput = values['bmi-bsa-height'];
-    if (weightInput === undefined || weightInput === null || weightInput === '' ||
-        heightInput === undefined || heightInput === null || heightInput === '') {
+    if (
+        weightInput === undefined ||
+        weightInput === null ||
+        weightInput === '' ||
+        heightInput === undefined ||
+        heightInput === null ||
+        heightInput === ''
+    ) {
         return [];
     }
     const weightKg = Number(weightInput);
@@ -22,24 +28,19 @@ export function bmiBsaCalculation(values) {
     if (bmi < 18.5) {
         interpretation = 'Underweight';
         alertClass = 'warning';
-    }
-    else if (bmi < 25) {
+    } else if (bmi < 25) {
         interpretation = 'Normal weight';
         alertClass = 'success';
-    }
-    else if (bmi < 30) {
+    } else if (bmi < 30) {
         interpretation = 'Overweight';
         alertClass = 'warning';
-    }
-    else if (bmi < 35) {
+    } else if (bmi < 35) {
         interpretation = 'Obese (Class I)';
         alertClass = 'danger';
-    }
-    else if (bmi < 40) {
+    } else if (bmi < 40) {
         interpretation = 'Obese (Class II)';
         alertClass = 'danger';
-    }
-    else {
+    } else {
         interpretation = 'Obese (Class III)';
         alertClass = 'danger';
     }

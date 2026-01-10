@@ -3,12 +3,10 @@ export function qtcCalculation(values) {
     const hrInput = values['hr'];
     const gender = values['gender'] || 'male'; // default male if not specified
     const formulaType = values['formula'] || 'bazett';
-    if (qtInput === undefined || hrInput === undefined)
-        return [];
+    if (qtInput === undefined || hrInput === undefined) return [];
     const qt = Number(qtInput);
     const hr = Number(hrInput);
-    if (isNaN(qt) || isNaN(hr) || hr === 0)
-        return [];
+    if (isNaN(qt) || isNaN(hr) || hr === 0) return [];
     // Calculate RR in seconds
     const rr = 60 / hr;
     let qtc = 0;
@@ -46,8 +44,7 @@ export function qtcCalculation(values) {
         interpretation = 'Prolonged (High Risk)';
         alertClass = 'danger';
         description = 'Significantly increased risk of Torsades de Pointes.';
-    }
-    else if (qtc > limit) {
+    } else if (qtc > limit) {
         interpretation = 'Prolonged';
         alertClass = 'warning';
         description = `Above normal limit for ${gender} (> ${limit} ms).`;

@@ -123,21 +123,21 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: risk,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: risk,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             
             ${uiBuilder.createResultItem({
-            label: 'Two-Tier Model',
-            value: twoTierModel
-        })}
+                label: 'Two-Tier Model',
+                value: twoTierModel
+            })}
             ${uiBuilder.createAlert({
-            type: alertClass,
-            message: interpretation
-        })}
+                type: alertClass,
+                message: interpretation
+            })}
         `;
     },
 

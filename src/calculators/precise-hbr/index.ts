@@ -67,7 +67,9 @@ const calculateScore = (
         const egfrPoints = (100 - egfrClamped) * 0.05;
         if (egfrPoints > 0) {
             score += egfrPoints;
-            breakdownParts.push(`eGFR ${egfr} (Clamped: ${egfrClamped}) -> +${egfrPoints.toFixed(2)}`);
+            breakdownParts.push(
+                `eGFR ${egfr} (Clamped: ${egfrClamped}) -> +${egfrPoints.toFixed(2)}`
+            );
         }
     }
 
@@ -112,7 +114,8 @@ export const preciseHbr = createUnifiedFormulaCalculator({
     id: 'precise-hbr',
     title: 'PRECISE-HBR Score',
     description: 'Predicts bleeding risk in patients undergoing stent implantation.',
-    infoAlert: 'Calculates bleeding risk using the PRECISE-HBR criteria. Score is rounded to the nearest integer.',
+    infoAlert:
+        'Calculates bleeding risk using the PRECISE-HBR criteria. Score is rounded to the nearest integer.',
 
     autoPopulateAge: 'precise-hbr-age',
 
@@ -191,7 +194,8 @@ export const preciseHbr = createUnifiedFormulaCalculator({
                 {
                     name: 'arc_hbr_plt',
                     label: 'Platelet count < 100 × 10⁹/L',
-                    description: '<strong>ARC-HBR Risk Factors</strong> (Presence of ANY below adds +3 points)',
+                    description:
+                        '<strong>ARC-HBR Risk Factors</strong> (Presence of ANY below adds +3 points)',
                     options: [
                         { value: '1', label: 'Yes' },
                         { value: '0', label: 'No', checked: true }
@@ -266,13 +270,22 @@ export const preciseHbr = createUnifiedFormulaCalculator({
         const hbrSurgery = getRadioValue('arc_hbr_surgery') === '1';
         const hbrNsaids = getRadioValue('arc_hbr_nsaids') === '1';
 
-        const arcHbrRisk = hbrPlt || hbrDiathesis || hbrCirrhosis || hbrMalignancy || hbrSurgery || hbrNsaids;
+        const arcHbrRisk =
+            hbrPlt || hbrDiathesis || hbrCirrhosis || hbrMalignancy || hbrSurgery || hbrNsaids;
 
         if (age === null || hb === null || wbc === null || egfr === null) {
             return null;
         }
 
-        const result = calculateScore(age, hb, egfr, wbc, priorBleeding, oralAnticoagulation, arcHbrRisk);
+        const result = calculateScore(
+            age,
+            hb,
+            egfr,
+            wbc,
+            priorBleeding,
+            oralAnticoagulation,
+            arcHbrRisk
+        );
 
         // Interpretation
         const s = result.score;
@@ -341,19 +354,19 @@ export const preciseHbr = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-        title: 'Risk Stratification',
-        icon: '📊',
-        content: uiBuilder.createTable({
-            headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
-            rows: [
-                ['≤ 22', 'Non-HBR', '0.5% ~ 3.5%'],
-                ['23 - 26', 'HBR', '3.5% ~ 5.5%'],
-                ['27 - 30', 'Very HBR', '5.5% ~ 8.0%'],
-                ['31 - 35', 'Extreme', '8.0% ~ 12.0%'],
-                ['> 35', 'Capped', '~15%']
-            ]
-        })
-    })}
+            title: 'Risk Stratification',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
+                rows: [
+                    ['≤ 22', 'Non-HBR', '0.5% ~ 3.5%'],
+                    ['23 - 26', 'HBR', '3.5% ~ 5.5%'],
+                    ['27 - 30', 'Very HBR', '5.5% ~ 8.0%'],
+                    ['31 - 35', 'Extreme', '8.0% ~ 12.0%'],
+                    ['> 35', 'Capped', '~15%']
+                ]
+            })
+        })}
     `,
 
     customInitialize: async (client, patient, container) => {
@@ -364,7 +377,9 @@ export const preciseHbr = createUnifiedFormulaCalculator({
 
         const setRadioResult = (name: string, isTrue: boolean) => {
             if (isTrue) {
-                const radio = container.querySelector(`input[name="${name}"][value="1"]`) as HTMLInputElement;
+                const radio = container.querySelector(
+                    `input[name="${name}"][value="1"]`
+                ) as HTMLInputElement;
                 if (radio) {
                     radio.checked = true;
                     radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -374,7 +389,9 @@ export const preciseHbr = createUnifiedFormulaCalculator({
 
         try {
             // 1. Prior Bleeding
-            const hasPriorBleeding = await fhirDataService.hasCondition([SNOMED_CODES.PREVIOUS_BLEEDING]);
+            const hasPriorBleeding = await fhirDataService.hasCondition([
+                SNOMED_CODES.PREVIOUS_BLEEDING
+            ]);
             setRadioResult('prior_bleeding', hasPriorBleeding);
 
             // 2. Oral Anticoagulation (OAC)
@@ -445,7 +462,6 @@ export const preciseHbr = createUnifiedFormulaCalculator({
             ];
             const onAntiInflammatory = await fhirDataService.isOnMedication(antiInflammatoryCodes);
             setRadioResult('arc_hbr_nsaids', onAntiInflammatory);
-
         } catch (error) {
             console.warn('Error in PRECISE-HBR auto-population:', error);
         }

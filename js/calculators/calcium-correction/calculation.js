@@ -1,8 +1,14 @@
 export function calciumCorrectionCalculation(values) {
     const calciumInput = values['ca-total'];
     const albuminInput = values['ca-albumin'];
-    if (calciumInput === undefined || calciumInput === null || calciumInput === '' ||
-        albuminInput === undefined || albuminInput === null || albuminInput === '') {
+    if (
+        calciumInput === undefined ||
+        calciumInput === null ||
+        calciumInput === '' ||
+        albuminInput === undefined ||
+        albuminInput === null ||
+        albuminInput === ''
+    ) {
         return [];
     }
     const calcium = Number(calciumInput);
@@ -22,8 +28,7 @@ export function calciumCorrectionCalculation(values) {
         interpretation = 'Hypocalcemia';
         alertClass = 'warning';
         alertMsg = 'Corrected calcium is below normal range (< 8.5 mg/dL).';
-    }
-    else if (correctedCalcium > 10.5) {
+    } else if (correctedCalcium > 10.5) {
         interpretation = 'Hypercalcemia';
         alertClass = 'danger';
         alertMsg = 'Corrected calcium is above normal range (> 10.5 mg/dL).';

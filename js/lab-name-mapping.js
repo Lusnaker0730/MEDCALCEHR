@@ -91,9 +91,15 @@ export const LAB_NAME_MAPPING = {
     FIO2: { primary: 'FiO2', aliases: [] },
     // Cardiac Measurements
     QT_INTERVAL: { primary: 'QT Interval', aliases: ['QT'] },
-    LVEF: { primary: 'LVEF', aliases: ['Ejection Fraction', 'EF', 'Left Ventricular Ejection Fraction'] },
+    LVEF: {
+        primary: 'LVEF',
+        aliases: ['Ejection Fraction', 'EF', 'Left Ventricular Ejection Fraction']
+    },
     LVEF_2D: { primary: 'LVEF (2D Echo)', aliases: ['EF 2D'] },
-    PA_SYSTOLIC_PRESSURE: { primary: 'PA Systolic Pressure', aliases: ['PASP', 'Pulmonary Artery Pressure'] },
+    PA_SYSTOLIC_PRESSURE: {
+        primary: 'PA Systolic Pressure',
+        aliases: ['PASP', 'Pulmonary Artery Pressure']
+    },
     PA_MEAN_PRESSURE: { primary: 'PA Mean Pressure', aliases: ['PAMP', 'Mean PA Pressure'] },
     // Laboratory - Other
     HBA1C: { primary: 'HbA1c', aliases: ['A1c', 'Glycated Hemoglobin'] },
@@ -131,8 +137,7 @@ export function getTextNameByLoinc(loincCode) {
         const codes = value.split(',').map(c => c.trim());
         return codes.includes(loincCode);
     });
-    if (!entry)
-        return null;
+    if (!entry) return null;
     const key = entry[0];
     const mapping = LAB_NAME_MAPPING[key];
     return mapping ? mapping.primary : null;
@@ -143,15 +148,12 @@ export function getTextNameByLoinc(loincCode) {
  * @returns The corresponding LOINC code if found, otherwise null
  */
 export function getLoincByTextName(textName) {
-    if (!textName)
-        return null;
+    if (!textName) return null;
     const search = textName.toLowerCase().trim();
     // Iterate through mappings to find a match
     const match = Object.entries(LAB_NAME_MAPPING).find(([, def]) => {
-        if (def.primary.toLowerCase() === search)
-            return true;
-        if (def.aliases && def.aliases.some(alias => alias.toLowerCase() === search))
-            return true;
+        if (def.primary.toLowerCase() === search) return true;
+        if (def.aliases && def.aliases.some(alias => alias.toLowerCase() === search)) return true;
         return false;
     });
     if (match) {

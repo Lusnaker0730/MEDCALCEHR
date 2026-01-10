@@ -128,7 +128,9 @@ describe('tPA Dosing for Acute Stroke Calculator', () => {
                 'tpa-stroke-onset': 2
             });
             const total = parseFloat(result.find(r => r.label === 'Total Dose')?.value);
-            const infusion = parseFloat(result.find(r => r.label === 'Step 2: Continuous Infusion')?.value);
+            const infusion = parseFloat(
+                result.find(r => r.label === 'Step 2: Continuous Infusion')?.value
+            );
             expect(infusion).toBeCloseTo(total * 0.9, 1);
         });
     });
@@ -168,7 +170,7 @@ describe('tPA Dosing for Acute Stroke Calculator', () => {
             { w: 90, o: 4, total: 81.0, bolus: 8.1, infusion: 72.9, eligible: true },
             { w: 100, o: 4.5, total: 90.0, bolus: 9.0, infusion: 81.0, eligible: true },
             { w: 110, o: 2, total: 90.0, bolus: 9.0, infusion: 81.0, eligible: true },
-            { w: 70, o: 5, total: 63.0, bolus: 6.3, infusion: 56.7, eligible: false },
+            { w: 70, o: 5, total: 63.0, bolus: 6.3, infusion: 56.7, eligible: false }
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.w}kg, ${data.o}h`, () => {
@@ -178,10 +180,14 @@ describe('tPA Dosing for Acute Stroke Calculator', () => {
                 });
                 expect(result).not.toBeNull();
                 const eligibility = result.find(r => r.label === 'Eligibility Status');
-                expect(eligibility?.eligibilityStatus).toBe(data.eligible ? 'eligible' : 'ineligible');
+                expect(eligibility?.eligibilityStatus).toBe(
+                    data.eligible ? 'eligible' : 'ineligible'
+                );
                 const total = parseFloat(result.find(r => r.label === 'Total Dose')?.value);
                 const bolus = parseFloat(result.find(r => r.label === 'Step 1: IV Bolus')?.value);
-                const infusion = parseFloat(result.find(r => r.label === 'Step 2: Continuous Infusion')?.value);
+                const infusion = parseFloat(
+                    result.find(r => r.label === 'Step 2: Continuous Infusion')?.value
+                );
                 expect(total).toBeCloseTo(data.total, 1);
                 expect(bolus).toBeCloseTo(data.bolus, 1);
                 expect(infusion).toBeCloseTo(data.infusion, 1);

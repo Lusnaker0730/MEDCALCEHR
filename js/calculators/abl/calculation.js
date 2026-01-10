@@ -1,4 +1,4 @@
-export const calculateABL = (values) => {
+export const calculateABL = values => {
     const weightKg = Number(values['abl-weight']);
     const hgbInitial = Number(values['abl-hgb-initial']);
     const hgbFinal = Number(values['abl-hgb-final']);

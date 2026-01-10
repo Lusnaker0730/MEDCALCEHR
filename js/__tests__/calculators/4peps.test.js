@@ -125,13 +125,13 @@ describe('4PEPS Calculator', () => {
         // Since we default missing radios to 0 in our logic (for safety/simplicity in some apps),
         // strict null checks might vary. But age is required.
         test('Should typically treat missing optional radios as 0 if implementation decides so, OR if logic enforces required inputs', () => {
-            // In our implementation: 
+            // In our implementation:
             // if (val !== null && val !== undefined && val !== '')
             // So missing keys are effectively 0.
             // Age is handled separately.
             // If age is missing (null), functionality depends on logic.
             // Current logic: if (age !== null) { ... }
-            // If age is missing, it adds nothing to score. 
+            // If age is missing, it adds nothing to score.
             // This might actually be a bug or feature depending on requirements.
             // Let's assume for now 0 is default if missing, testing that code doesn't crash.
             const result = calculateFourPeps({});

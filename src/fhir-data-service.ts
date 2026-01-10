@@ -9,7 +9,13 @@ import {
     getMedicationRequests,
     calculateAge
 } from './utils.js';
-import { LOINC_CODES, SNOMED_CODES, getLoincName, getMeasurementType, isValidLoincCode } from './fhir-codes.js';
+import {
+    LOINC_CODES,
+    SNOMED_CODES,
+    getLoincName,
+    getMeasurementType,
+    isValidLoincCode
+} from './fhir-codes.js';
 import { getTextNameByLoinc } from './lab-name-mapping.js';
 // @ts-ignore - no type declarations
 import { fhirCache } from './cache-manager.js';
@@ -264,7 +270,10 @@ export class FHIRDataService {
 
             return this.processObservation(observation, code, options);
         } catch (error) {
-            console.error(`Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`, error);
+            console.error(
+                `Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`,
+                error
+            );
             return result;
         }
     }
@@ -446,10 +455,7 @@ export class FHIRDataService {
 
                 // Extract systolic BP
                 const sbpComp = bpPanel.component.find((c: any) =>
-                    c.code?.coding?.some(
-                        (coding: any) =>
-                            coding.code === LOINC_CODES.SYSTOLIC_BP
-                    )
+                    c.code?.coding?.some((coding: any) => coding.code === LOINC_CODES.SYSTOLIC_BP)
                 );
                 if (sbpComp?.valueQuantity?.value !== undefined) {
                     result.systolic = sbpComp.valueQuantity.value;
@@ -457,10 +463,7 @@ export class FHIRDataService {
 
                 // Extract diastolic BP
                 const dbpComp = bpPanel.component.find((c: any) =>
-                    c.code?.coding?.some(
-                        (coding: any) =>
-                            coding.code === LOINC_CODES.DIASTOLIC_BP
-                    )
+                    c.code?.coding?.some((coding: any) => coding.code === LOINC_CODES.DIASTOLIC_BP)
                 );
                 if (dbpComp?.valueQuantity?.value !== undefined) {
                     result.diastolic = dbpComp.valueQuantity.value;
@@ -580,9 +583,7 @@ export class FHIRDataService {
             // Special handling for Blood Pressure
             // FHIR often stores BP as a panel (85354-9), so querying for individual components might fail
             const bpFields = fields.filter(
-                f =>
-                    f.code === LOINC_CODES.SYSTOLIC_BP ||
-                    f.code === LOINC_CODES.DIASTOLIC_BP
+                f => f.code === LOINC_CODES.SYSTOLIC_BP || f.code === LOINC_CODES.DIASTOLIC_BP
             );
 
             const processedBPCodes: string[] = [];

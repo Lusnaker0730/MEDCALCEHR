@@ -1,8 +1,8 @@
 /**
  * 4PEPS Calculator - SaMD Verification Tests
- * 
+ *
  * Formula: 4-Level Pulmonary Embolism Clinical Probability Score
- * 
+ *
  * Reference: Roy, P. M., et al. (2021). JAMA Cardiology.
  */
 
@@ -144,14 +144,14 @@ describe('4PEPS Calculator', () => {
         // strict null checks might vary. But age is required.
 
         test('Should typically treat missing optional radios as 0 if implementation decides so, OR if logic enforces required inputs', () => {
-            // In our implementation: 
+            // In our implementation:
             // if (val !== null && val !== undefined && val !== '')
             // So missing keys are effectively 0.
 
             // Age is handled separately.
             // If age is missing (null), functionality depends on logic.
             // Current logic: if (age !== null) { ... }
-            // If age is missing, it adds nothing to score. 
+            // If age is missing, it adds nothing to score.
             // This might actually be a bug or feature depending on requirements.
             // Let's assume for now 0 is default if missing, testing that code doesn't crash.
 

@@ -150,21 +150,23 @@ const config: FormulaCalculatorConfig = {
 
     calculate: calculateIsthDic,
 
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         let alertHtml = '';
-        const items = results.map(r => {
-            if (r.label === 'Interpretation' && r.alertPayload) {
-                alertHtml = uiBuilder.createAlert(r.alertPayload);
-                return '';
-            }
-            return uiBuilder.createResultItem({
-                label: r.label,
-                value: r.value.toString(),
-                unit: r.unit,
-                interpretation: r.interpretation,
-                alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
-            });
-        }).join('');
+        const items = results
+            .map(r => {
+                if (r.label === 'Interpretation' && r.alertPayload) {
+                    alertHtml = uiBuilder.createAlert(r.alertPayload);
+                    return '';
+                }
+                return uiBuilder.createResultItem({
+                    label: r.label,
+                    value: r.value.toString(),
+                    unit: r.unit,
+                    interpretation: r.interpretation,
+                    alertClass: r.alertClass ? `ui-alert-${r.alertClass}` : ''
+                });
+            })
+            .join('');
         return items + alertHtml;
     },
 
@@ -250,10 +252,13 @@ const config: FormulaCalculatorConfig = {
 
         try {
             // Platelets (LOINC 26515-7)
-            const plateletResult = await fhirDataService.getObservation(LOINC_CODES.PLATELET_COUNT, {
-                trackStaleness: true,
-                stalenessLabel: 'Platelets'
-            });
+            const plateletResult = await fhirDataService.getObservation(
+                LOINC_CODES.PLATELET_COUNT,
+                {
+                    trackStaleness: true,
+                    stalenessLabel: 'Platelets'
+                }
+            );
             if (plateletResult.value !== null && plateletInput) {
                 plateletInput.value = plateletResult.value.toFixed(0);
                 plateletInput.dispatchEvent(new Event('input'));

@@ -9,10 +9,12 @@ export function sirsCalculation(values) {
     const bandsInput = values['bands'];
     const infectionInput = values['infection'];
     const hypotensionInput = values['hypotension'];
-    if (tempInput === undefined ||
+    if (
+        tempInput === undefined ||
         hrInput === undefined ||
         (rrInput === undefined && paco2Input === undefined) ||
-        (wbcInput === undefined && bandsInput === undefined)) {
+        (wbcInput === undefined && bandsInput === undefined)
+    ) {
         return [];
     }
     const temp = Number(tempInput);
@@ -21,16 +23,11 @@ export function sirsCalculation(values) {
     const paco2 = paco2Input ? Number(paco2Input) : null;
     const wbc = wbcInput ? Number(wbcInput) : null;
     const bands = bandsInput ? Number(bandsInput) : null;
-    if (isNaN(temp) || isNaN(hr))
-        return [];
-    if (rr !== null && isNaN(rr))
-        return [];
-    if (paco2 !== null && isNaN(paco2))
-        return [];
-    if (wbc !== null && isNaN(wbc))
-        return [];
-    if (bands !== null && isNaN(bands))
-        return [];
+    if (isNaN(temp) || isNaN(hr)) return [];
+    if (rr !== null && isNaN(rr)) return [];
+    if (paco2 !== null && isNaN(paco2)) return [];
+    if (wbc !== null && isNaN(wbc)) return [];
+    if (bands !== null && isNaN(bands)) return [];
     let criteriaMet = 0;
     const metDetails = [];
     // 1. Temperature > 38°C or < 36°C
@@ -69,15 +66,13 @@ export function sirsCalculation(values) {
                 description = 'Sepsis with persistent hypotension.';
                 alertClass = 'danger';
                 recommendations = 'Urgent ICU admission; Vasopressor support; Aggressive fluids.';
-            }
-            else {
+            } else {
                 diagnosis = 'Sepsis';
                 description = 'SIRS with confirmed/suspected infection.';
                 alertClass = 'danger';
                 recommendations = 'Immediate antibiotics; Source control; Fluid resuscitation.';
             }
-        }
-        else {
+        } else {
             diagnosis = 'SIRS';
             description = 'Systemic Inflammatory Response Syndrome.';
             alertClass = 'warning';

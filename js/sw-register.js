@@ -29,12 +29,14 @@ export async function registerServiceWorker() {
             });
         });
         // Check for updates periodically (every hour)
-        setInterval(() => {
-            registration.update();
-        }, 60 * 60 * 1000);
+        setInterval(
+            () => {
+                registration.update();
+            },
+            60 * 60 * 1000
+        );
         return registration;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Service Worker registration failed:', error);
         return null;
     }
@@ -94,8 +96,7 @@ export async function unregisterServiceWorker() {
         }
         console.log('Service Worker unregistered');
         return true;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Failed to unregister Service Worker:', error);
         return false;
     }
@@ -124,11 +125,11 @@ export async function sendMessageToSW(message) {
     }
     return new Promise((resolve, reject) => {
         const messageChannel = new MessageChannel();
-        messageChannel.port1.onmessage = (event) => {
+        messageChannel.port1.onmessage = event => {
             resolve(event.data);
         };
         // Use addEventListener for error handling on MessagePort
-        messageChannel.port1.addEventListener('messageerror', (event) => {
+        messageChannel.port1.addEventListener('messageerror', event => {
             reject(new Error('Message error: ' + event.data));
         });
         controller.postMessage(message, [messageChannel.port2]);
@@ -146,8 +147,7 @@ export async function clearServiceWorkerCaches() {
         const result = await sendMessageToSW({ type: 'CLEAR_CACHE' });
         console.log('Service Worker caches cleared');
         return result;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Failed to clear Service Worker caches:', error);
         return null;
     }
@@ -157,10 +157,9 @@ export async function clearServiceWorkerCaches() {
  */
 export async function getCacheStats() {
     try {
-        const result = (await sendMessageToSW({ type: 'GET_CACHE_STATS' }));
+        const result = await sendMessageToSW({ type: 'GET_CACHE_STATS' });
         return result.stats;
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Failed to get cache stats:', error);
         return null;
     }
@@ -173,8 +172,7 @@ export function initializeServiceWorker() {
         document.addEventListener('DOMContentLoaded', () => {
             registerServiceWorker();
         });
-    }
-    else {
+    } else {
         registerServiceWorker();
     }
 }

@@ -1,8 +1,8 @@
 /**
  * Trade-off Analysis Calculator
- * 
+ *
  * Based on: Urban P, Giustino G, et al.
- * "Trade-Off in Thrombotic Risk Between Bleeding and Stent Thrombosis 
+ * "Trade-Off in Thrombotic Risk Between Bleeding and Stent Thrombosis
  *  or Myocardial Infarction After PCI in High Bleeding Risk Patients"
  * JAMA Cardiology, 2021
  */
@@ -27,16 +27,27 @@ let currentChart: any = null;
  */
 function generateHTML(): string {
     // Risk factor checkboxes grouped by affected risk type
-    const bleedingOnlyFactors = RISK_FACTORS.filter(f => f.bleedingHR !== null && f.ischemicHR === null && !f.group);
-    const ischemicOnlyFactors = RISK_FACTORS.filter(f => f.ischemicHR !== null && f.bleedingHR === null && !f.group);
-    const bothFactors = RISK_FACTORS.filter(f => f.bleedingHR !== null && f.ischemicHR !== null && !f.group);
+    const bleedingOnlyFactors = RISK_FACTORS.filter(
+        f => f.bleedingHR !== null && f.ischemicHR === null && !f.group
+    );
+    const ischemicOnlyFactors = RISK_FACTORS.filter(
+        f => f.ischemicHR !== null && f.bleedingHR === null && !f.group
+    );
+    const bothFactors = RISK_FACTORS.filter(
+        f => f.bleedingHR !== null && f.ischemicHR !== null && !f.group
+    );
 
     // Grouped factors (mutually exclusive)
     const hbFactors = RISK_FACTORS.filter(f => f.group === 'hemoglobin');
     const egfrFactors = RISK_FACTORS.filter(f => f.group === 'egfr');
 
     // Convert factor to uiBuilder format
-    const toRiskFactorItem = (factor: typeof RISK_FACTORS[0], type: 'checkbox' | 'radio' = 'checkbox', groupName?: string, isDefault = false) =>
+    const toRiskFactorItem = (
+        factor: (typeof RISK_FACTORS)[0],
+        type: 'checkbox' | 'radio' = 'checkbox',
+        groupName?: string,
+        isDefault = false
+    ) =>
         uiBuilder.createRiskFactorItem({
             id: `factor-${factor.id}`,
             label: factor.label,
@@ -59,9 +70,10 @@ function generateHTML(): string {
         </div>
         
         ${uiBuilder.createAlert({
-        type: 'info',
-        message: 'Select the applicable risk factors below. The chart will update in real-time to show patient position relative to trade-off lines.'
-    })}
+            type: 'info',
+            message:
+                'Select the applicable risk factors below. The chart will update in real-time to show patient position relative to trade-off lines.'
+        })}
         
         <div class="trade-off-container">
             <div class="chart-section">
@@ -114,20 +126,20 @@ function generateHTML(): string {
         </div>
         
         ${uiBuilder.createSection({
-        title: 'Reference',
-        icon: '📚',
-        content: `
+            title: 'Reference',
+            icon: '📚',
+            content: `
                 <p><strong>Source:</strong> Urban P, Giustino G, et al. "Trade-Off in Thrombotic Risk Between Bleeding and Stent Thrombosis or Myocardial Infarction After PCI in High Bleeding Risk Patients." <em>JAMA Cardiology</em>, 2021.</p>
                 <p><strong>Mortality Hazard Ratios:</strong></p>
                 ${uiBuilder.createList({
-            items: [
-                'MI/ST → HR for death: 6.1 (95% CI: 4.8-7.7)',
-                'BARC 3-5 bleeding → HR for death: 3.7 (95% CI: 2.9-4.8)'
-            ]
-        })}
+                    items: [
+                        'MI/ST → HR for death: 6.1 (95% CI: 4.8-7.7)',
+                        'BARC 3-5 bleeding → HR for death: 3.7 (95% CI: 2.9-4.8)'
+                    ]
+                })}
                 <p><strong>Mortality-weighted slope:</strong> ${TRADE_OFF_SLOPES.MORTALITY_WEIGHTED.toFixed(2)}</p>
             `
-    })}
+        })}
     `;
 }
 
@@ -162,8 +174,8 @@ function updateCalculation(): void {
     const ischemicBarText = document.getElementById('ischemic-bar-text');
 
     // Scale bars: 80% risk = 100% height
-    const bleedingHeight = Math.min(bleedingRisk / 80 * 100, 100);
-    const ischemicHeight = Math.min(ischemicRisk / 80 * 100, 100);
+    const bleedingHeight = Math.min((bleedingRisk / 80) * 100, 100);
+    const ischemicHeight = Math.min((ischemicRisk / 80) * 100, 100);
 
     if (bleedingBar) {
         bleedingBar.style.height = `${bleedingHeight}%`;
@@ -189,9 +201,13 @@ function updateCalculation(): void {
     if (resultContainer) {
         resultContainer.innerHTML = `
             <div class="result-zone ${zoneResult.zone}">
-                <strong>${zoneResult.zone === 'ischemic_dominant' ? '💔 Ischemic Dominant' :
-                zoneResult.zone === 'bleeding_dominant' ? '🩸 Bleeding Dominant' :
-                    '⚖️ Equivalent Risk'}</strong>
+                <strong>${
+                    zoneResult.zone === 'ischemic_dominant'
+                        ? '💔 Ischemic Dominant'
+                        : zoneResult.zone === 'bleeding_dominant'
+                          ? '🩸 Bleeding Dominant'
+                          : '⚖️ Equivalent Risk'
+                }</strong>
                 <p>${zoneResult.recommendation}</p>
             </div>
         `;
@@ -201,11 +217,7 @@ function updateCalculation(): void {
 /**
  * Initialize the calculator
  */
-function initialize(
-    _client: unknown,
-    _patient: unknown,
-    _container: HTMLElement
-): void {
+function initialize(_client: unknown, _patient: unknown, _container: HTMLElement): void {
     // Initialize data service with current context
     fhirDataService.initialize(_client, _patient, _container);
 
@@ -220,7 +232,7 @@ function initialize(
         currentChart = createTradeOffChart({
             containerId: 'trade-off-chart-container',
             bleedingRisk: 5.7, // baseline
-            ischemicRisk: 5.3  // baseline
+            ischemicRisk: 5.3 // baseline
         });
         updateCalculation();
 
@@ -257,7 +269,7 @@ async function autoPopulate(): Promise<void> {
             SNOMED_CODES.SMOKING
         ];
         // Check for conditions
-        const conditions = await fhirDataService.getConditions(snomedCodesToCheck) || [];
+        const conditions = (await fhirDataService.getConditions(snomedCodesToCheck)) || [];
 
         for (const condition of conditions) {
             const code = condition.code?.coding?.[0]?.code;
@@ -314,7 +326,6 @@ async function autoPopulate(): Promise<void> {
 
         // Recalculate with auto-populated values
         updateCalculation();
-
     } catch (error) {
         console.warn('Trade-off auto-populate failed:', error);
     }

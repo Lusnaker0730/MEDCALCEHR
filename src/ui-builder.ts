@@ -426,7 +426,6 @@ export class UIBuilder {
         `;
     }
 
-
     /**
      * Create a result box container with Copy Report button
      * @param {Object} options - { id, title, content }
@@ -452,8 +451,10 @@ export class UIBuilder {
         const container = document.getElementById(containerId);
         if (!container) return '';
 
-        const title = document.getElementById(DOM_IDS.PAGE_TITLE)?.textContent || 'Calculator Report';
-        const patientInfo = document.getElementById(DOM_IDS.PATIENT_INFO)?.innerText || 'Patient: Unknown';
+        const title =
+            document.getElementById(DOM_IDS.PAGE_TITLE)?.textContent || 'Calculator Report';
+        const patientInfo =
+            document.getElementById(DOM_IDS.PATIENT_INFO)?.innerText || 'Patient: Unknown';
         const date = new Date().toLocaleString();
 
         let report = `*** ${title} ***\n`;
@@ -483,7 +484,10 @@ export class UIBuilder {
             if (input.type === 'radio' || input.type === 'checkbox') {
                 if (input.checked) {
                     // Find option label
-                    const optionLabel = input.closest('.ui-radio-option, .ui-checkbox-option')?.querySelector('label')?.textContent?.trim();
+                    const optionLabel = input
+                        .closest('.ui-radio-option, .ui-checkbox-option')
+                        ?.querySelector('label')
+                        ?.textContent?.trim();
 
                     // Find group label (exclude option labels)
                     let groupLabel = '';
@@ -503,9 +507,16 @@ export class UIBuilder {
                     if (!groupLabel) {
                         const section = input.closest('.ui-section');
                         if (section) {
-                            groupLabel = section.querySelector('.ui-section-title')?.textContent?.replace(/[\p{Emoji}\u200d]+/gu, '').trim() || ''; // Remove emojis
+                            groupLabel =
+                                section
+                                    .querySelector('.ui-section-title')
+                                    ?.textContent?.replace(/[\p{Emoji}\u200d]+/gu, '')
+                                    .trim() || ''; // Remove emojis
                             if (!groupLabel) {
-                                groupLabel = section.querySelector('.ui-section-subtitle')?.textContent?.trim() || '';
+                                groupLabel =
+                                    section
+                                        .querySelector('.ui-section-subtitle')
+                                        ?.textContent?.trim() || '';
                             }
                         }
                     }
@@ -533,8 +544,10 @@ export class UIBuilder {
         // Results
         // Try to get structured result items
         const resultItems = container.querySelectorAll('.ui-result-score, .ui-result-item');
-        resultItems.forEach((item) => {
-            const label = item.querySelector('.ui-section-subtitle, .ui-result-label')?.textContent?.trim();
+        resultItems.forEach(item => {
+            const label = item
+                .querySelector('.ui-section-subtitle, .ui-result-label')
+                ?.textContent?.trim();
             const value = item.querySelector('.ui-result-value')?.textContent?.trim();
             const unit = item.querySelector('.ui-result-unit')?.textContent?.trim();
 
@@ -549,7 +562,7 @@ export class UIBuilder {
 
         // Interpretations
         const interpretations = container.querySelectorAll('.ui-result-interpretation');
-        interpretations.forEach((item) => {
+        interpretations.forEach(item => {
             report += `Interpretation: ${item.textContent?.trim()} \n`;
         });
 
@@ -732,16 +745,19 @@ export class UIBuilder {
         copyBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const report = this.generateReport();
-                navigator.clipboard.writeText(report).then(() => {
-                    const originalText = btn.textContent;
-                    if (btn instanceof HTMLElement) btn.textContent = '✅ Copied!';
-                    setTimeout(() => {
-                        if (btn instanceof HTMLElement) btn.textContent = originalText;
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy report:', err);
-                    alert('Failed to copy report to clipboard');
-                });
+                navigator.clipboard
+                    .writeText(report)
+                    .then(() => {
+                        const originalText = btn.textContent;
+                        if (btn instanceof HTMLElement) btn.textContent = '✅ Copied!';
+                        setTimeout(() => {
+                            if (btn instanceof HTMLElement) btn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy report:', err);
+                        alert('Failed to copy report to clipboard');
+                    });
             });
         });
     }
@@ -849,11 +865,7 @@ export class UIBuilder {
      * Create a list (ul/ol)
      * @param {Object} options - Configuration object
      */
-    createList({
-        items = [],
-        type = 'ul',
-        className = ''
-    }: UIListOptions): string {
+    createList({ items = [], type = 'ul', className = '' }: UIListOptions): string {
         const itemsHTML = items.map(item => `<li>${item}</li>`).join('');
         return `<${type} class="ui-list ${className}">${itemsHTML}</${type}>`;
     }
@@ -871,9 +883,7 @@ export class UIBuilder {
         citations: string[];
         icon?: string;
     }): string {
-        const citationsHTML = citations
-            .map(citation => `<p>${citation}</p>`)
-            .join('');
+        const citationsHTML = citations.map(citation => `<p>${citation}</p>`).join('');
 
         return `
             <div class="info-section mt-20 text-sm text-muted">
@@ -911,12 +921,14 @@ export class UIBuilder {
         const nameAttr = name ? `name="${name}"` : '';
         const dataAttr = dataFactorId ? `data-factor-id="${dataFactorId}"` : '';
 
-        const bleedingBadge = bleedingHR && bleedingHR !== 1.0
-            ? `<span class="hr-badge hr-badge-bleeding">Bleeding HR: ${bleedingHR}</span>`
-            : '';
-        const ischemicBadge = ischemicHR && ischemicHR !== 1.0
-            ? `<span class="hr-badge hr-badge-ischemic">Thrombotic HR: ${ischemicHR}</span>`
-            : '';
+        const bleedingBadge =
+            bleedingHR && bleedingHR !== 1.0
+                ? `<span class="hr-badge hr-badge-bleeding">Bleeding HR: ${bleedingHR}</span>`
+                : '';
+        const ischemicBadge =
+            ischemicHR && ischemicHR !== 1.0
+                ? `<span class="hr-badge hr-badge-ischemic">Thrombotic HR: ${ischemicHR}</span>`
+                : '';
 
         return `
             <div class="risk-factor-item">
@@ -962,7 +974,6 @@ export class UIBuilder {
             ${itemsHTML}
         `;
     }
-
 }
 
 // Create and export a singleton instance

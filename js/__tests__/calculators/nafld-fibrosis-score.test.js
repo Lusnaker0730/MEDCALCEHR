@@ -20,13 +20,13 @@ describe('NAFLD Fibrosis Score Calculator', () => {
     // Indicated result: < -1.455 -> Low Risk (F0-F2)
     test('Standard Low Risk Case', () => {
         const result = calculateNafldFibrosisScore({
-            'age': '40',
-            'bmi': '25',
-            'diabetes': '0',
-            'ast': '20',
-            'alt': '30',
-            'platelet': '250',
-            'albumin': '4.0'
+            age: '40',
+            bmi: '25',
+            diabetes: '0',
+            ast: '20',
+            alt: '30',
+            platelet: '250',
+            albumin: '4.0'
         });
         expect(result).not.toBeNull();
         expect(result).toHaveLength(2); // result + alert
@@ -45,13 +45,13 @@ describe('NAFLD Fibrosis Score Calculator', () => {
     // Indicated result: > 0.675 -> High Risk (F3-F4)
     test('Standard High Risk Case', () => {
         const result = calculateNafldFibrosisScore({
-            'age': '60',
-            'bmi': '35',
-            'diabetes': '1',
-            'ast': '50',
-            'alt': '40',
-            'platelet': '100',
-            'albumin': '3.0'
+            age: '60',
+            bmi: '35',
+            diabetes: '1',
+            ast: '50',
+            alt: '40',
+            platelet: '100',
+            albumin: '3.0'
         });
         expect(result).not.toBeNull();
         const score = parseFloat(result[0].value);
@@ -64,13 +64,13 @@ describe('NAFLD Fibrosis Score Calculator', () => {
     // ===========================================
     test('Should handle zero ALT (Division by zero)', () => {
         const result = calculateNafldFibrosisScore({
-            'age': '40',
-            'bmi': '25',
-            'diabetes': '0',
-            'ast': '20',
-            'alt': '0', // Invalid
-            'platelet': '250',
-            'albumin': '4.0'
+            age: '40',
+            bmi: '25',
+            diabetes: '0',
+            ast: '20',
+            alt: '0', // Invalid
+            platelet: '250',
+            albumin: '4.0'
         });
         expect(result).toHaveLength(0);
     });

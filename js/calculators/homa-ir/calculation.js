@@ -1,8 +1,7 @@
-export const calculateHOMAIR = (values) => {
+export const calculateHOMAIR = values => {
     const glucose = Number(values['homa-glucose']);
     const insulin = Number(values['homa-insulin']);
-    if (!glucose || !insulin)
-        return null;
+    if (!glucose || !insulin) return null;
     // HOMA-IR = (Fasting Glucose * Fasting Insulin) / 405
     const homaIr = (glucose * insulin) / 405;
     let interpretation = '';
@@ -10,12 +9,10 @@ export const calculateHOMAIR = (values) => {
     if (homaIr > 2.9) {
         interpretation = 'High likelihood of insulin resistance';
         alertClass = 'danger';
-    }
-    else if (homaIr > 1.9) {
+    } else if (homaIr > 1.9) {
         interpretation = 'Early insulin resistance likely';
         alertClass = 'warning';
-    }
-    else {
+    } else {
         interpretation = 'Optimal insulin sensitivity';
         alertClass = 'success';
     }

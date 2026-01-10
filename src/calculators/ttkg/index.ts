@@ -11,18 +11,12 @@ export const ttkg = createUnifiedFormulaCalculator({
         <h4>Clinical Interpretation</h4>
         <strong>Hypokalemia (K < 3.5):</strong>
         ${uiBuilder.createList({
-        items: [
-            'TTKG < 3: Non-renal loss (GI, etc.)',
-            'TTKG > 3: Renal loss'
-        ]
-    })}
+            items: ['TTKG < 3: Non-renal loss (GI, etc.)', 'TTKG > 3: Renal loss']
+        })}
         <strong>Hyperkalemia (K > 5.2):</strong>
         ${uiBuilder.createList({
-        items: [
-            'TTKG > 10: Normal renal response',
-            'TTKG < 7: Hypoaldosteronism or resistance'
-        ]
-    })}
+            items: ['TTKG > 10: Normal renal response', 'TTKG < 7: Hypoaldosteronism or resistance']
+        })}
     `,
     sections: [
         {
@@ -83,12 +77,13 @@ export const ttkg = createUnifiedFormulaCalculator({
     formulas: [
         {
             label: 'TTKG',
-            formula: '<span class="formula-fraction"><span class="numerator">Urine K × Serum Osmolality</span><span class="denominator">Serum K × Urine Osmolality</span></span>',
+            formula:
+                '<span class="formula-fraction"><span class="numerator">Urine K × Serum Osmolality</span><span class="denominator">Serum K × Urine Osmolality</span></span>',
             notes: 'Valid only when Urine Osmolality > Serum Osmolality.'
         }
     ],
     calculate: ttkgCalculation,
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         const res = results[0];
         if (!res) return '';
 
@@ -96,12 +91,12 @@ export const ttkg = createUnifiedFormulaCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: res.label,
-            value: res.value,
-            unit: res.unit,
-            interpretation: res.interpretation,
-            alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
-        })}
+                label: res.label,
+                value: res.value,
+                unit: res.unit,
+                interpretation: res.interpretation,
+                alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
+            })}
         `;
     }
 });

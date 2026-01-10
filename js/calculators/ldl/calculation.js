@@ -1,10 +1,9 @@
 import { UnitConverter } from '../../unit-converter.js';
-export const calculateLDL = (values) => {
+export const calculateLDL = values => {
     const tcVal = Number(values['ldl-tc']);
     const hdlVal = Number(values['ldl-hdl']);
     const trigVal = Number(values['ldl-trig']);
-    if (!tcVal || !hdlVal || !trigVal)
-        return null;
+    if (!tcVal || !hdlVal || !trigVal) return null;
     // Friedewald equation is invalid when Triglycerides >= 400 mg/dL
     const isInvalid = trigVal >= 400;
     let ldlVal = 0;
@@ -18,20 +17,16 @@ export const calculateLDL = (values) => {
     if (ldlVal < 100) {
         riskCategory = 'Optimal';
         alertClass = 'success';
-    }
-    else if (ldlVal < 130) {
+    } else if (ldlVal < 130) {
         riskCategory = 'Near Optimal/Above Optimal';
         alertClass = 'success';
-    }
-    else if (ldlVal < 160) {
+    } else if (ldlVal < 160) {
         riskCategory = 'Borderline High';
         alertClass = 'warning';
-    }
-    else if (ldlVal < 190) {
+    } else if (ldlVal < 190) {
         riskCategory = 'High';
         alertClass = 'danger';
-    }
-    else {
+    } else {
         riskCategory = 'Very High';
         alertClass = 'danger';
     }

@@ -9,38 +9,38 @@ import { LOINC_CODES, SNOMED_CODES } from './fhir-codes.js';
  * Common vital signs field configurations
  */
 export const VITAL_SIGNS_FIELDS = {
-    temperature: (inputId) => ({
+    temperature: inputId => ({
         code: LOINC_CODES.TEMPERATURE,
         inputId,
         label: 'Temperature',
         targetUnit: 'C',
         decimals: 1
     }),
-    heartRate: (inputId) => ({
+    heartRate: inputId => ({
         code: LOINC_CODES.HEART_RATE,
         inputId,
         label: 'Heart Rate',
         decimals: 0
     }),
-    respiratoryRate: (inputId) => ({
+    respiratoryRate: inputId => ({
         code: LOINC_CODES.RESPIRATORY_RATE,
         inputId,
         label: 'Respiratory Rate',
         decimals: 0
     }),
-    systolicBP: (inputId) => ({
+    systolicBP: inputId => ({
         code: `${LOINC_CODES.SYSTOLIC_BP},${LOINC_CODES.BP_PANEL}`,
         inputId,
         label: 'Systolic BP',
         decimals: 0
     }),
-    diastolicBP: (inputId) => ({
+    diastolicBP: inputId => ({
         code: `${LOINC_CODES.DIASTOLIC_BP},${LOINC_CODES.BP_PANEL}`,
         inputId,
         label: 'Diastolic BP',
         decimals: 0
     }),
-    oxygenSaturation: (inputId) => ({
+    oxygenSaturation: inputId => ({
         code: LOINC_CODES.OXYGEN_SAT,
         inputId,
         label: 'Oxygen Saturation',
@@ -51,136 +51,136 @@ export const VITAL_SIGNS_FIELDS = {
  * Common laboratory field configurations
  */
 export const LAB_FIELDS = {
-    sodium: (inputId) => ({
+    sodium: inputId => ({
         code: LOINC_CODES.SODIUM,
         inputId,
         label: 'Sodium',
         targetUnit: 'mmol/L',
         decimals: 0
     }),
-    potassium: (inputId) => ({
+    potassium: inputId => ({
         code: LOINC_CODES.POTASSIUM,
         inputId,
         label: 'Potassium',
         targetUnit: 'mmol/L',
         decimals: 1
     }),
-    creatinine: (inputId) => ({
+    creatinine: inputId => ({
         code: LOINC_CODES.CREATININE,
         inputId,
         label: 'Creatinine',
         targetUnit: 'mg/dL',
         decimals: 2
     }),
-    bun: (inputId) => ({
+    bun: inputId => ({
         code: LOINC_CODES.BUN,
         inputId,
         label: 'BUN',
         targetUnit: 'mg/dL',
         decimals: 1
     }),
-    glucose: (inputId) => ({
+    glucose: inputId => ({
         code: LOINC_CODES.GLUCOSE,
         inputId,
         label: 'Glucose',
         targetUnit: 'mg/dL',
         decimals: 0
     }),
-    hemoglobin: (inputId) => ({
+    hemoglobin: inputId => ({
         code: LOINC_CODES.HEMOGLOBIN,
         inputId,
         label: 'Hemoglobin',
         decimals: 1
     }),
-    hematocrit: (inputId) => ({
+    hematocrit: inputId => ({
         code: LOINC_CODES.HEMATOCRIT,
         inputId,
         label: 'Hematocrit',
         decimals: 1
     }),
-    wbc: (inputId) => ({
+    wbc: inputId => ({
         code: '6764-2', // WBC count
         inputId,
         label: 'WBC Count',
         decimals: 1
     }),
-    platelets: (inputId) => ({
+    platelets: inputId => ({
         code: LOINC_CODES.PLATELETS,
         inputId,
         label: 'Platelets',
         decimals: 0
     }),
-    totalCholesterol: (inputId) => ({
+    totalCholesterol: inputId => ({
         code: LOINC_CODES.CHOLESTEROL_TOTAL,
         inputId,
         label: 'Total Cholesterol',
         targetUnit: 'mg/dL',
         decimals: 0
     }),
-    hdl: (inputId) => ({
+    hdl: inputId => ({
         code: LOINC_CODES.HDL,
         inputId,
         label: 'HDL Cholesterol',
         targetUnit: 'mg/dL',
         decimals: 0
     }),
-    ldl: (inputId) => ({
+    ldl: inputId => ({
         code: LOINC_CODES.LDL,
         inputId,
         label: 'LDL Cholesterol',
         targetUnit: 'mg/dL',
         decimals: 0
     }),
-    triglycerides: (inputId) => ({
+    triglycerides: inputId => ({
         code: LOINC_CODES.TRIGLYCERIDES,
         inputId,
         label: 'Triglycerides',
         targetUnit: 'mg/dL',
         decimals: 0
     }),
-    albumin: (inputId) => ({
+    albumin: inputId => ({
         code: LOINC_CODES.ALBUMIN,
         inputId,
         label: 'Albumin',
         decimals: 1
     }),
-    bilirubinTotal: (inputId) => ({
+    bilirubinTotal: inputId => ({
         code: LOINC_CODES.BILIRUBIN_TOTAL,
         inputId,
         label: 'Total Bilirubin',
         decimals: 1
     }),
-    ast: (inputId) => ({
+    ast: inputId => ({
         code: LOINC_CODES.AST,
         inputId,
         label: 'AST',
         decimals: 0
     }),
-    alt: (inputId) => ({
+    alt: inputId => ({
         code: LOINC_CODES.ALT,
         inputId,
         label: 'ALT',
         decimals: 0
     }),
-    inr: (inputId) => ({
+    inr: inputId => ({
         code: LOINC_CODES.INR,
         inputId,
         label: 'INR',
         decimals: 2
     }),
-    troponin: (inputId) => ({
+    troponin: inputId => ({
         code: LOINC_CODES.TROPONIN_I,
         inputId,
         label: 'Troponin',
         decimals: 3
     }),
-    bnp: (inputId) => ({
+    bnp: inputId => ({
         code: LOINC_CODES.BNP,
         inputId,
         label: 'BNP',
         decimals: 0
     }),
-    ntProBnp: (inputId) => ({
+    ntProBnp: inputId => ({
         code: LOINC_CODES.NT_PRO_BNP,
         inputId,
         label: 'NT-proBNP',
@@ -191,31 +191,31 @@ export const LAB_FIELDS = {
  * ABG/Blood Gas field configurations
  */
 export const ABG_FIELDS = {
-    ph: (inputId) => ({
+    ph: inputId => ({
         code: '11558-4', // Arterial pH
         inputId,
         label: 'Arterial pH',
         decimals: 2
     }),
-    pao2: (inputId) => ({
+    pao2: inputId => ({
         code: LOINC_CODES.PO2,
         inputId,
         label: 'PaO₂',
         decimals: 0
     }),
-    paco2: (inputId) => ({
+    paco2: inputId => ({
         code: LOINC_CODES.PCO2,
         inputId,
         label: 'PaCO₂',
         decimals: 0
     }),
-    hco3: (inputId) => ({
+    hco3: inputId => ({
         code: '1963-8', // Bicarbonate
         inputId,
         label: 'HCO₃',
         decimals: 1
     }),
-    lactate: (inputId) => ({
+    lactate: inputId => ({
         code: LOINC_CODES.LACTATE,
         inputId,
         label: 'Lactate',

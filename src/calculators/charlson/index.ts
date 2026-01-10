@@ -249,7 +249,7 @@ const config: FormulaCalculatorConfig = {
 
     calculate: calculateCharlson,
 
-    customResultRenderer: (results) => {
+    customResultRenderer: results => {
         let html = '';
         results.forEach(item => {
             html += uiBuilder.createResultItem({
@@ -275,7 +275,9 @@ const config: FormulaCalculatorConfig = {
         const stalenessTracker = fhirDataService.getStalenessTracker();
 
         const setValue = (id: string, value: string) => {
-            const radio = container.querySelector(`input[name="${id}"][value="${value}"]`) as HTMLInputElement;
+            const radio = container.querySelector(
+                `input[name="${id}"][value="${value}"]`
+            ) as HTMLInputElement;
             if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -314,7 +316,10 @@ const config: FormulaCalculatorConfig = {
                     } else {
                         // Check mild
                         fhirDataService
-                            .hasCondition([SNOMED_CODES.HEPATITIS, SNOMED_CODES.ALCOHOLIC_LIVER_DISEASE])
+                            .hasCondition([
+                                SNOMED_CODES.HEPATITIS,
+                                SNOMED_CODES.ALCOHOLIC_LIVER_DISEASE
+                            ])
                             .then(hasMild => {
                                 if (hasMild) {
                                     setValue('liver', '1');
@@ -333,7 +338,11 @@ const config: FormulaCalculatorConfig = {
             // Let's stick to a simple check for now or basic logic.
 
             fhirDataService
-                .hasCondition([SNOMED_CODES.DIABETES_MELLITUS, SNOMED_CODES.DIABETES_TYPE_1, SNOMED_CODES.DIABETES_TYPE_2])
+                .hasCondition([
+                    SNOMED_CODES.DIABETES_MELLITUS,
+                    SNOMED_CODES.DIABETES_TYPE_1,
+                    SNOMED_CODES.DIABETES_TYPE_2
+                ])
                 .then(hasDiabetes => {
                     if (hasDiabetes) {
                         // Default to 1 (Uncomplicated) if we assume EOD check is too complex or missing specific codes?

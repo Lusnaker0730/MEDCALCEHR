@@ -1,13 +1,12 @@
 /**
  * ISTH DIC Calculator - SaMD Verification Tests
- * 
+ *
  * Formula: Sum of points from 4 categories.
  */
 
 import { calculateIsthDic } from '../../calculators/isth-dic/calculation';
 
 describe('ISTH DIC Calculator', () => {
-
     // ===========================================
     // TC-001: Standard Calculation Tests
     // ===========================================

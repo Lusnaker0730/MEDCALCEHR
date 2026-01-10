@@ -153,19 +153,19 @@ export const apgarScore = createScoringCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total APGAR Score',
-            value: score.toString(),
-            unit: '/ 10 points',
-            interpretation: riskLevel.label,
-            alertClass: `ui-alert-${riskLevel.severity}`
-        })}
+                label: 'Total APGAR Score',
+                value: score.toString(),
+                unit: '/ 10 points',
+                interpretation: riskLevel.label,
+                alertClass: `ui-alert-${riskLevel.severity}`
+            })}
             <div class="result-item mt-10 component-breakdown">
                 ${breakdownHTML}
             </div>
             ${uiBuilder.createAlert({
-            type: riskLevel.severity,
-            message: `<strong>Recommendation:</strong> ${interpretation}`
-        })}
+                type: riskLevel.severity,
+                message: `<strong>Recommendation:</strong> ${interpretation}`
+            })}
         `;
     }
 });

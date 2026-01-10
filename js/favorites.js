@@ -17,19 +17,25 @@ export class FavoritesManager {
      */
     setPractitionerId(id) {
         this.practitionerId = id;
-        // Notify listeners of a 'clear' event effectively to force refresh, 
-        // though distinct event 'practitionerChange' might be better, 
+        // Notify listeners of a 'clear' event effectively to force refresh,
+        // though distinct event 'practitionerChange' might be better,
         // reusing 'import' or 'clear' triggers UI update.
         this.notifyListeners('import', null);
     }
     get storageKey() {
-        return this.practitionerId ? `${this.baseStorageKey}-${this.practitionerId}` : this.baseStorageKey;
+        return this.practitionerId
+            ? `${this.baseStorageKey}-${this.practitionerId}`
+            : this.baseStorageKey;
     }
     get recentKey() {
-        return this.practitionerId ? `${this.baseRecentKey}-${this.practitionerId}` : this.baseRecentKey;
+        return this.practitionerId
+            ? `${this.baseRecentKey}-${this.practitionerId}`
+            : this.baseRecentKey;
     }
     get usageKey() {
-        return this.practitionerId ? `${this.baseUsageKey}-${this.practitionerId}` : this.baseUsageKey;
+        return this.practitionerId
+            ? `${this.baseUsageKey}-${this.practitionerId}`
+            : this.baseUsageKey;
     }
     // ========== Favorites Functionality ==========
     /**
@@ -43,8 +49,7 @@ export class FavoritesManager {
         if (index > -1) {
             // Already favorited, remove it
             favorites.splice(index, 1);
-        }
-        else {
+        } else {
             // Not favorited, add it
             favorites.push(calculatorId);
         }
@@ -90,8 +95,7 @@ export class FavoritesManager {
         try {
             const stored = localStorage.getItem(this.storageKey);
             return stored ? JSON.parse(stored) : [];
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to load favorites:', error);
             return [];
         }
@@ -103,8 +107,7 @@ export class FavoritesManager {
     saveFavorites(favorites) {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(favorites));
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to save favorites:', error);
         }
     }
@@ -141,8 +144,7 @@ export class FavoritesManager {
             const stored = localStorage.getItem(this.recentKey);
             const recent = stored ? JSON.parse(stored) : [];
             return limit ? recent.slice(0, limit) : recent;
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to load recent:', error);
             return [];
         }
@@ -154,8 +156,7 @@ export class FavoritesManager {
     saveRecent(recent) {
         try {
             localStorage.setItem(this.recentKey, JSON.stringify(recent));
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to save recent:', error);
         }
     }
@@ -184,8 +185,7 @@ export class FavoritesManager {
         try {
             const stored = localStorage.getItem(this.usageKey);
             return stored ? JSON.parse(stored) : {};
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to load usage:', error);
             return {};
         }
@@ -197,8 +197,7 @@ export class FavoritesManager {
     saveUsage(usage) {
         try {
             localStorage.setItem(this.usageKey, JSON.stringify(usage));
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to save usage:', error);
         }
     }
@@ -247,15 +246,16 @@ export class FavoritesManager {
         this.listeners.forEach(callback => {
             try {
                 callback(type, calculatorId);
-            }
-            catch (error) {
+            } catch (error) {
                 console.error('Listener error:', error);
             }
         });
         // Trigger global event
-        window.dispatchEvent(new CustomEvent('favoriteschange', {
-            detail: { type, calculatorId }
-        }));
+        window.dispatchEvent(
+            new CustomEvent('favoriteschange', {
+                detail: { type, calculatorId }
+            })
+        );
     }
     // ========== Data Management ==========
     /**
@@ -286,16 +286,12 @@ export class FavoritesManager {
      */
     importData(data) {
         try {
-            if (data.favorites)
-                this.saveFavorites(data.favorites);
-            if (data.recent)
-                this.saveRecent(data.recent);
-            if (data.usage)
-                this.saveUsage(data.usage);
+            if (data.favorites) this.saveFavorites(data.favorites);
+            if (data.recent) this.saveRecent(data.recent);
+            if (data.usage) this.saveUsage(data.usage);
             this.notifyListeners('import', null);
             return true;
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Failed to import data:', error);
             return false;
         }

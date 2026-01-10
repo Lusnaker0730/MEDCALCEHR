@@ -11,7 +11,7 @@
  * Reference:
  * NINDS rt-PA Stroke Study Group. N Engl J Med. 1995;333(24):1581-1587.
  */
-export const calculateTpaDosing = (values) => {
+export const calculateTpaDosing = values => {
     const weight = Number(values['tpa-weight']);
     if (!weight || isNaN(weight) || weight <= 0) {
         return null;

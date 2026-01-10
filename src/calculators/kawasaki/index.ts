@@ -148,17 +148,17 @@ export const kawasaki = createScoringCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Fever Present',
-            value: hasFever ? 'Yes' : 'No'
-        })}
+                label: 'Fever Present',
+                value: hasFever ? 'Yes' : 'No'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Principal Features Present',
-            value: `${featureCount} / 5`
-        })}
+                label: 'Principal Features Present',
+                value: `${featureCount} / 5`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: interpretation
-        })}
+                type: alertType,
+                message: interpretation
+            })}
         `;
     }
 });

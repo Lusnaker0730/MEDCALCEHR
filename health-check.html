@@ -220,7 +220,9 @@
                             const response = await fetch('css/main.css', { method: 'HEAD' });
                             return {
                                 success: response.ok,
-                                detail: response.ok ? 'CSS stylesheet accessible' : 'CSS stylesheet inaccessible'
+                                detail: response.ok
+                                    ? 'CSS stylesheet accessible'
+                                    : 'CSS stylesheet inaccessible'
                             };
                         } catch {
                             return { success: false, detail: 'CSS stylesheet failed to load' };
@@ -281,14 +283,19 @@
                         try {
                             const response = await fetch('js/calculators/index.js');
                             if (!response.ok) {
-                                return { success: false, detail: 'Calculator index file inaccessible' };
+                                return {
+                                    success: false,
+                                    detail: 'Calculator index file inaccessible'
+                                };
                             }
                             const text = await response.text();
                             const hasExport =
                                 text.includes('export') && text.includes('calculatorModules');
                             return {
                                 success: hasExport,
-                                detail: hasExport ? 'Calculator modules loaded normally' : 'Calculator module format error'
+                                detail: hasExport
+                                    ? 'Calculator modules loaded normally'
+                                    : 'Calculator module format error'
                             };
                         } catch {
                             return { success: false, detail: 'Calculator modules failed to load' };

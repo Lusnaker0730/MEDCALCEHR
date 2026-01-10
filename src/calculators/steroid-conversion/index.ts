@@ -33,26 +33,26 @@ export const steroidConversion = createConversionCalculator({
 
     additionalInfo: `
         ${uiBuilder.createAlert({
-        type: 'info',
-        message: `
+            type: 'info',
+            message: `
                 <h4>Relative Potency Information</h4>
                 ${uiBuilder.createList({
-            items: [
-                '<strong>Highest Potency:</strong> Dexamethasone (0.75 mg)',
-                '<strong>Medium Potency:</strong> Methylprednisolone (4 mg), Triamcinolone (4 mg)',
-                '<strong>Standard Potency:</strong> Prednisolone (5 mg), Prednisone (5 mg)',
-                '<strong>Lower Potency:</strong> Hydrocortisone (20 mg), Cortisone (25 mg)'
-            ]
-        })}
+                    items: [
+                        '<strong>Highest Potency:</strong> Dexamethasone (0.75 mg)',
+                        '<strong>Medium Potency:</strong> Methylprednisolone (4 mg), Triamcinolone (4 mg)',
+                        '<strong>Standard Potency:</strong> Prednisolone (5 mg), Prednisone (5 mg)',
+                        '<strong>Lower Potency:</strong> Hydrocortisone (20 mg), Cortisone (25 mg)'
+                    ]
+                })}
                 <h4>Clinical Pearls</h4>
                 ${uiBuilder.createList({
-            items: [
-                '<strong>Hydrocortisone</strong> has significant mineralocorticoid activity - good for adrenal insufficiency',
-                '<strong>Prednisone</strong> requires hepatic conversion to prednisolone (active form)',
-                '<strong>Dexamethasone</strong> longest half-life (36-54 hrs) - useful once daily dosing'
-            ]
-        })}
+                    items: [
+                        '<strong>Hydrocortisone</strong> has significant mineralocorticoid activity - good for adrenal insufficiency',
+                        '<strong>Prednisone</strong> requires hepatic conversion to prednisolone (active form)',
+                        '<strong>Dexamethasone</strong> longest half-life (36-54 hrs) - useful once daily dosing'
+                    ]
+                })}
             `
-    })}
+        })}
     `
 });

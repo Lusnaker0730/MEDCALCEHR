@@ -12,7 +12,7 @@
  * Reference:
  * ARDSNet protocol for lung-protective ventilation
  */
-export const calculateETT = (values) => {
+export const calculateETT = values => {
     const heightCm = Number(values['ett-height']);
     const gender = values['ett-gender'];
     if (!heightCm || isNaN(heightCm)) {
@@ -26,8 +26,7 @@ export const calculateETT = (values) => {
     let ibw;
     if (gender === 'male') {
         ibw = 50 + 2.3 * heightInOver5Ft;
-    }
-    else {
+    } else {
         ibw = 45.5 + 2.3 * heightInOver5Ft;
     }
     // Tidal Volume Calculation (6-8 mL/kg of IBW)

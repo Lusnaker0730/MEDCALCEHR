@@ -17,7 +17,7 @@ describe('FHIRDataService', () => {
         const container = document.getElementById('test-container');
         fhirDataService.initialize(mockClient, { id: 'test-patient-id' }, container);
         mockRequest.mockClear();
-        jest.spyOn(console, 'error').mockImplementation(() => { });
+        jest.spyOn(console, 'error').mockImplementation(() => {});
     });
     afterEach(() => {
         jest.restoreAllMocks();
@@ -40,7 +40,9 @@ describe('FHIRDataService', () => {
         const result = await fhirDataService.getObservation(LOINC_CODES.WEIGHT);
         expect(result.value).toBe(70);
         expect(result.unit).toBe('kg');
-        expect(mockRequest).toHaveBeenCalledWith(expect.stringContaining(`code=${LOINC_CODES.WEIGHT}`));
+        expect(mockRequest).toHaveBeenCalledWith(
+            expect.stringContaining(`code=${LOINC_CODES.WEIGHT}`)
+        );
     });
     test('getObservation should handle no data found', async () => {
         mockRequest.mockResolvedValueOnce({

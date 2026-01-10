@@ -1,15 +1,20 @@
 /**
  * EuroSCORE II Calculation
- * 
+ *
  * Predicts operative mortality for cardiac surgery.
- * 
+ *
  * Formula: Predicted mortality = e^y / (1 + e^y)
  * Where y = -5.324537 + Σβᵢxᵢ
- * 
+ *
  * Reference: Nashef SA, et al. EuroSCORE II. Eur J Cardiothorac Surg. 2012;41(4):734-744.
  */
 
-import type { ComplexCalculationResult, GetValueFn, GetStdValueFn, GetRadioValueFn } from '../../types/calculator-formula.js';
+import type {
+    ComplexCalculationResult,
+    GetValueFn,
+    GetStdValueFn,
+    GetRadioValueFn
+} from '../../types/calculator-formula.js';
 
 // ==========================================
 // Coefficients (β values)
@@ -17,13 +22,13 @@ import type { ComplexCalculationResult, GetValueFn, GetStdValueFn, GetRadioValue
 
 const COEFFICIENTS = {
     // Patient factors
-    age: 0.0285181,              // Per year if >60
+    age: 0.0285181, // Per year if >60
     female: 0.2196434,
-    renalModerate: 0.303553,     // CrCl 51-85
-    renalSevere: 0.8592256,      // CrCl ≤50
+    renalModerate: 0.303553, // CrCl 51-85
+    renalSevere: 0.8592256, // CrCl ≤50
     dialysis: 0.6421508,
-    diabetes: 0.3542749,         // Insulin-dependent
-    pulmonary: 0.1886564,        // Chronic pulmonary dysfunction
+    diabetes: 0.3542749, // Insulin-dependent
+    pulmonary: 0.1886564, // Chronic pulmonary dysfunction
     neurologicalMobility: 0.2407181,
     criticalPreop: 1.086517,
 
@@ -35,12 +40,12 @@ const COEFFICIENTS = {
     arteriopathy: 0.5360268,
     previousCardiacSurgery: 1.118599,
     activeEndocarditis: 0.6194522,
-    lvefModerate: 0.3150652,     // 31-50%
-    lvefPoor: 0.8084096,         // 21-30%
-    lvefVeryPoor: 0.9346919,     // ≤20%
-    recentMI: 0.1528943,         // ≤90 days
+    lvefModerate: 0.3150652, // 31-50%
+    lvefPoor: 0.8084096, // 21-30%
+    lvefVeryPoor: 0.9346919, // ≤20%
+    recentMI: 0.1528943, // ≤90 days
     paPressureModerate: 0.1788899, // 31-54 mmHg
-    paPressureHigh: 0.3491475,    // ≥55 mmHg
+    paPressureHigh: 0.3491475, // ≥55 mmHg
 
     // Procedural factors
     urgencyUrgent: 0.3174673,
@@ -63,7 +68,6 @@ export function calculateEuroScoreII(
     getStdValue: GetStdValueFn,
     getRadioValue: GetRadioValueFn
 ): ComplexCalculationResult | null {
-
     // Get all values
     const age = getValue('es2-age');
     const sex = getRadioValue('es2-sex');

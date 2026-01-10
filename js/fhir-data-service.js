@@ -1,7 +1,13 @@
 // src/fhir-data-service.ts
 // Unified FHIR Data Management Layer
 // Consolidates data fetching, caching, staleness tracking, and UI feedback
-import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests, calculateAge } from './utils.js';
+import {
+    getMostRecentObservation,
+    getObservationValue,
+    getPatientConditions,
+    getMedicationRequests,
+    calculateAge
+} from './utils.js';
 import { LOINC_CODES, getLoincName, getMeasurementType, isValidLoincCode } from './fhir-codes.js';
 import { getTextNameByLoinc } from './lab-name-mapping.js';
 // @ts-ignore - no type declarations
@@ -101,12 +107,13 @@ export class FHIRDataService {
                 const textName = getTextNameByLoinc(code) || code;
                 // Perform text-based search (using code:text modifier or fallback to code for some servers)
                 // We use direct client request here to bypass getMostRecentObservation's hardcoded query
-                const response = await this.client.patient.request(`Observation?code:text=${encodeURIComponent(textName)}&_sort=-date&_count=1`);
+                const response = await this.client.patient.request(
+                    `Observation?code:text=${encodeURIComponent(textName)}&_sort=-date&_count=1`
+                );
                 if (response.entry && response.entry.length > 0) {
                     observation = response.entry[0].resource;
                 }
-            }
-            else {
+            } else {
                 // Standard LOINC query
                 observation = await getMostRecentObservation(this.client, code);
             }
@@ -115,9 +122,11 @@ export class FHIRDataService {
                 await fhirCache.cacheObservation(this.patientId, code, observation);
             }
             return this.processObservation(observation, code, options);
-        }
-        catch (error) {
-            console.error(`Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`, error);
+        } catch (error) {
+            console.error(
+                `Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`,
+                error
+            );
             return result;
         }
     }
@@ -144,8 +153,7 @@ export class FHIRDataService {
         if (value !== null) {
             result.value = value;
             result.originalValue = value;
-        }
-        else if (observation.valueQuantity) {
+        } else if (observation.valueQuantity) {
             result.value = observation.valueQuantity.value;
             result.originalValue = result.value;
         }
@@ -171,7 +179,12 @@ export class FHIRDataService {
         if (options.targetUnit && result.value !== null && result.unit) {
             // Use provided unitType or determine measurement type from LOINC code
             const measurementType = options.unitType || getMeasurementType(code);
-            const converted = UnitConverter.convert(result.value, result.unit, options.targetUnit, measurementType);
+            const converted = UnitConverter.convert(
+                result.value,
+                result.unit,
+                options.targetUnit,
+                measurementType
+            );
             if (converted !== null) {
                 result.value = converted;
                 result.unit = options.targetUnit;
@@ -184,7 +197,7 @@ export class FHIRDataService {
      */
     async getObservations(codes, options = {}) {
         const results = new Map();
-        const promises = codes.map(async (code) => {
+        const promises = codes.map(async code => {
             const result = await this.getObservation(code, options);
             results.set(code, result);
         });
@@ -201,13 +214,14 @@ export class FHIRDataService {
         }
         try {
             const sortDirection = options.sortOrder === 'desc' ? '-date' : 'date';
-            const response = await this.client.patient.request(`Observation?code=${code}&_sort=${sortDirection}`);
+            const response = await this.client.patient.request(
+                `Observation?code=${code}&_sort=${sortDirection}`
+            );
             if (response.entry && Array.isArray(response.entry)) {
-                return response.entry.map((entry) => entry.resource);
+                return response.entry.map(entry => entry.resource);
             }
             return [];
-        }
-        catch (error) {
+        } catch (error) {
             console.error(`Error fetching all observations for ${code}:`, error);
             return [];
         }
@@ -221,8 +235,7 @@ export class FHIRDataService {
         }
         try {
             return await getMostRecentObservation(this.client, code);
-        }
-        catch (error) {
+        } catch (error) {
             console.error(`Error fetching raw observation ${code}:`, error);
             return null;
         }
@@ -251,12 +264,16 @@ export class FHIRDataService {
             if (bpPanel && bpPanel.component) {
                 result.observation = bpPanel;
                 // Extract systolic BP
-                const sbpComp = bpPanel.component.find((c) => c.code?.coding?.some((coding) => coding.code === LOINC_CODES.SYSTOLIC_BP));
+                const sbpComp = bpPanel.component.find(c =>
+                    c.code?.coding?.some(coding => coding.code === LOINC_CODES.SYSTOLIC_BP)
+                );
                 if (sbpComp?.valueQuantity?.value !== undefined) {
                     result.systolic = sbpComp.valueQuantity.value;
                 }
                 // Extract diastolic BP
-                const dbpComp = bpPanel.component.find((c) => c.code?.coding?.some((coding) => coding.code === LOINC_CODES.DIASTOLIC_BP));
+                const dbpComp = bpPanel.component.find(c =>
+                    c.code?.coding?.some(coding => coding.code === LOINC_CODES.DIASTOLIC_BP)
+                );
                 if (dbpComp?.valueQuantity?.value !== undefined) {
                     result.diastolic = dbpComp.valueQuantity.value;
                 }
@@ -273,16 +290,25 @@ export class FHIRDataService {
                     }
                     // Track for both systolic and diastolic if container exists
                     if (result.systolic !== null) {
-                        this.stalenessTracker.trackObservation('#map-sbp', bpPanel, LOINC_CODES.SYSTOLIC_BP, 'Systolic BP');
+                        this.stalenessTracker.trackObservation(
+                            '#map-sbp',
+                            bpPanel,
+                            LOINC_CODES.SYSTOLIC_BP,
+                            'Systolic BP'
+                        );
                     }
                     if (result.diastolic !== null) {
-                        this.stalenessTracker.trackObservation('#map-dbp', bpPanel, LOINC_CODES.DIASTOLIC_BP, 'Diastolic BP');
+                        this.stalenessTracker.trackObservation(
+                            '#map-dbp',
+                            bpPanel,
+                            LOINC_CODES.DIASTOLIC_BP,
+                            'Diastolic BP'
+                        );
                     }
                 }
             }
             return result;
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error fetching blood pressure:', error);
             return result;
         }
@@ -313,7 +339,12 @@ export class FHIRDataService {
                 input.value = value.toFixed(decimals);
                 // Track staleness
                 if (!options.skipStaleness && this.stalenessTracker && result.observation) {
-                    this.stalenessTracker.trackObservation(inputId, result.observation, code, options.label || getLoincName(code) || code);
+                    this.stalenessTracker.trackObservation(
+                        inputId,
+                        result.observation,
+                        code,
+                        options.label || getLoincName(code) || code
+                    );
                 }
                 // Use UnitConverter.setInputValue for proper unit handling
                 if (options.targetUnit && result.originalValue !== null && result.originalUnit) {
@@ -337,8 +368,9 @@ export class FHIRDataService {
         try {
             // Special handling for Blood Pressure
             // FHIR often stores BP as a panel (85354-9), so querying for individual components might fail
-            const bpFields = fields.filter(f => f.code === LOINC_CODES.SYSTOLIC_BP ||
-                f.code === LOINC_CODES.DIASTOLIC_BP);
+            const bpFields = fields.filter(
+                f => f.code === LOINC_CODES.SYSTOLIC_BP || f.code === LOINC_CODES.DIASTOLIC_BP
+            );
             const processedBPCodes = [];
             if (bpFields.length > 0) {
                 try {
@@ -356,7 +388,12 @@ export class FHIRDataService {
                                     input.value = Number(value).toFixed(decimals);
                                     // Track Staleness
                                     if (this.stalenessTracker) {
-                                        this.stalenessTracker.trackObservation(field.inputId, bpResult.observation, field.code, field.label);
+                                        this.stalenessTracker.trackObservation(
+                                            field.inputId,
+                                            bpResult.observation,
+                                            field.code,
+                                            field.label
+                                        );
                                     }
                                     // Trigger update
                                     input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -377,14 +414,13 @@ export class FHIRDataService {
                             }
                         }
                     }
-                }
-                catch (e) {
+                } catch (e) {
                     console.error('Error auto-populating BP:', e);
                 }
             }
             // Process remaining fields (exclude successfully processed BP fields)
             const remainingFields = fields.filter(f => !processedBPCodes.includes(f.code));
-            const promises = remainingFields.map(async (field) => {
+            const promises = remainingFields.map(async field => {
                 const result = await this.autoPopulateInput(field.inputId, field.code, {
                     label: field.label,
                     targetUnit: field.targetUnit,
@@ -402,9 +438,9 @@ export class FHIRDataService {
                 const missing = fields
                     .filter(f => results.get(f.code)?.value === null)
                     .map(f => ({
-                    id: f.inputId.replace(/^#/, ''),
-                    label: f.label
-                }));
+                        id: f.inputId.replace(/^#/, ''),
+                        label: f.label
+                    }));
                 fhirFeedback.createDataSummary(this.container, {
                     loaded,
                     missing,
@@ -415,8 +451,7 @@ export class FHIRDataService {
                     fhirFeedback.setupDynamicTracking(this.container, missing);
                 }
             }
-        }
-        finally {
+        } finally {
             // Remove loading banner
             if (this.container) {
                 fhirFeedback.removeLoadingBanner(this.container);
@@ -444,8 +479,7 @@ export class FHIRDataService {
         }
         try {
             return await getPatientConditions(this.client, snomedCodes);
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error fetching conditions:', error);
             return [];
         }
@@ -466,8 +500,7 @@ export class FHIRDataService {
         }
         try {
             return await getMedicationRequests(this.client, rxnormCodes);
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error fetching medications:', error);
             return [];
         }

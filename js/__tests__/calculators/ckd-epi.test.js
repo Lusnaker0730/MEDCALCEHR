@@ -246,7 +246,7 @@ describe('CKD-EPI GFR Calculator', () => {
             { age: 60, cr: 1.0, g: 'male', minGfr: 80, maxGfr: 90 },
             { age: 60, cr: 1.0, g: 'female', minGfr: 60, maxGfr: 70 }, // Female with higher Scr
             { age: 70, cr: 1.5, g: 'male', minGfr: 42, maxGfr: 52 },
-            { age: 80, cr: 2.0, g: 'male', minGfr: 28, maxGfr: 35 },
+            { age: 80, cr: 2.0, g: 'male', minGfr: 28, maxGfr: 35 }
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.age}yo ${data.g}, Scr ${data.cr}`, () => {

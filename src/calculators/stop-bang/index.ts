@@ -94,9 +94,24 @@ const config: ScoringCalculatorConfig = {
         interpretationTitle: 'Risk Categories',
         tableHeaders: ['Score', 'OSA Probability', 'Risk Level'],
         interpretations: [
-            { score: '0-2', category: 'Low', interpretation: 'Low probability of moderate to severe OSA', severity: 'success' },
-            { score: '3-4', category: 'Intermediate', interpretation: 'Intermediate probability of moderate to severe OSA', severity: 'warning' },
-            { score: '5-8', category: 'High', interpretation: 'High probability of moderate to severe OSA', severity: 'danger' }
+            {
+                score: '0-2',
+                category: 'Low',
+                interpretation: 'Low probability of moderate to severe OSA',
+                severity: 'success'
+            },
+            {
+                score: '3-4',
+                category: 'Intermediate',
+                interpretation: 'Intermediate probability of moderate to severe OSA',
+                severity: 'warning'
+            },
+            {
+                score: '5-8',
+                category: 'High',
+                interpretation: 'High probability of moderate to severe OSA',
+                severity: 'danger'
+            }
         ]
     },
     references: [

@@ -209,7 +209,7 @@ describe('Ethanol Concentration Calculator', () => {
             { v: 44.36, abv: 40, w: 70, g: 'female', expected: 36 },
             { v: 355, abv: 5, w: 70, g: 'male', expected: 29 },
             { v: 710, abv: 5, w: 70, g: 'male', expected: 59 }, // 2 beers
-            { v: 150, abv: 12, w: 60, g: 'female', expected: 43 }, // wine
+            { v: 150, abv: 12, w: 60, g: 'female', expected: 43 } // wine
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.v}mL @ ${data.abv}% for ${data.w}kg ${data.g}`, () => {

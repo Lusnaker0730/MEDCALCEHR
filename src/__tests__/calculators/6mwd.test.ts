@@ -1,19 +1,19 @@
 /**
  * 6 Minute Walk Distance Calculator - SaMD Verification Tests
- * 
+ *
  * Formulas (Enright & Sherrill, 1998):
  *   Men:   6MWD = (7.57 × height_cm) - (5.02 × age) - (1.76 × weight_kg) - 309
  *   Women: 6MWD = (2.11 × height_cm) - (2.29 × weight_kg) - (5.78 × age) + 667
- *   
+ *
  *   Lower Limit of Normal (LLN) = Expected Distance - 153 meters
- *   
+ *
  *   % of Expected = (Actual Distance / Expected Distance) × 100
  *     - < 80%: Reduced (warning)
  *     - >= 80%: Normal (success)
- * 
- * Reference: 
- * Enright, P L, & Sherrill, D L. (1998). Reference equations for the six-minute walk 
- * in healthy adults. American Journal of Respiratory and Critical Care Medicine, 
+ *
+ * Reference:
+ * Enright, P L, & Sherrill, D L. (1998). Reference equations for the six-minute walk
+ * in healthy adults. American Journal of Respiratory and Critical Care Medicine,
  * 158(5 Pt 1), 1384-7.
  */
 
@@ -23,7 +23,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-001: Standard Calculation Tests
     // ===========================================
-    
+
     describe('Standard Calculations', () => {
         test('Should calculate correct 6MWD for Male', () => {
             // Male, 62 years, 175 cm, 88 kg
@@ -39,10 +39,10 @@ describe('6 Minute Walk Distance Calculator', () => {
 
             expect(result).not.toBeNull();
             expect(result).toHaveLength(2);
-            
+
             expect(result![0].label).toBe('Expected Distance');
             expect(parseFloat(result![0].value as string)).toBeCloseTo(550, 0);
-            
+
             expect(result![1].label).toBe('Lower Limit of Normal');
             expect(parseFloat(result![1].value as string)).toBeCloseTo(397, 0);
         });
@@ -77,10 +77,10 @@ describe('6 Minute Walk Distance Calculator', () => {
 
             expect(result).not.toBeNull();
             expect(result).toHaveLength(3);
-            
+
             expect(result![2].label).toBe('% of Expected');
             expect(parseFloat(result![2].value as string)).toBeCloseTo(82, 0);
-            expect(result![2].alertClass).toBe('success');  // >= 80%
+            expect(result![2].alertClass).toBe('success'); // >= 80%
             expect(result![2].interpretation).toBe('Normal');
         });
     });
@@ -88,7 +88,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-002: Age Effect Tests
     // ===========================================
-    
+
     describe('Age Effect', () => {
         test('Should show higher expected distance for younger patients', () => {
             // Same parameters, different ages
@@ -108,10 +108,10 @@ describe('6 Minute Walk Distance Calculator', () => {
 
             expect(result40).not.toBeNull();
             expect(result70).not.toBeNull();
-            
+
             const expected40 = parseFloat(result40![0].value as string);
             const expected70 = parseFloat(result70![0].value as string);
-            
+
             // Each year of age decreases distance by 5.02m (male)
             // 30 years difference = 150.6m difference
             expect(expected40).toBeGreaterThan(expected70);
@@ -122,7 +122,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-003: Severity Classification Tests
     // ===========================================
-    
+
     describe('Severity Classification', () => {
         test('Should identify "Reduced" when < 80% of expected', () => {
             // Male, expected ~600m, actual 400m (67%)
@@ -136,7 +136,7 @@ describe('6 Minute Walk Distance Calculator', () => {
 
             expect(result).not.toBeNull();
             expect(result).toHaveLength(3);
-            
+
             const percentage = parseFloat(result![2].value as string);
             expect(percentage).toBeLessThan(80);
             expect(result![2].alertClass).toBe('warning');
@@ -157,7 +157,7 @@ describe('6 Minute Walk Distance Calculator', () => {
 
             expect(result).not.toBeNull();
             expect(result).toHaveLength(3);
-            
+
             const percentage = parseFloat(result![2].value as string);
             expect(percentage).toBeGreaterThanOrEqual(80);
             expect(result![2].alertClass).toBe('success');
@@ -172,12 +172,12 @@ describe('6 Minute Walk Distance Calculator', () => {
                 'mwd6-height': 180,
                 'mwd6-weight': 75,
                 'mwd6-gender': 'male',
-                'mwd6-distance': 537  // ~80% of ~671
+                'mwd6-distance': 537 // ~80% of ~671
             });
 
             expect(result).not.toBeNull();
             expect(result).toHaveLength(3);
-            
+
             const percentage = parseFloat(result![2].value as string);
             expect(percentage).toBeCloseTo(80, 0);
         });
@@ -186,7 +186,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-004: Optional Distance Input Tests
     // ===========================================
-    
+
     describe('Optional Distance Input', () => {
         test('Should return only 2 results when actual distance not provided', () => {
             const result = calculate6MWD({
@@ -220,7 +220,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-005: Invalid Input Tests
     // ===========================================
-    
+
     describe('Invalid Inputs', () => {
         test('Should return null for zero age', () => {
             const result = calculate6MWD({
@@ -267,7 +267,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-006: Golden Dataset Verification
     // ===========================================
-    
+
     describe('Golden Dataset', () => {
         // Manually calculated using formulas:
         // Male: 7.57 * height - 5.02 * age - 1.76 * weight - 309
@@ -284,7 +284,7 @@ describe('6 Minute Walk Distance Calculator', () => {
             // 60yo female, 160cm, 70kg: 2.11*160 - 2.29*70 - 5.78*60 + 667 = 496.5
             { age: 60, h: 160, w: 70, g: 'female', expected: 497, lln: 344 },
             // 80yo male, 165cm, 70kg: 7.57*165 - 5.02*80 - 1.76*70 - 309 = 414.75
-            { age: 80, h: 165, w: 70, g: 'male', expected: 415, lln: 262 },
+            { age: 80, h: 165, w: 70, g: 'male', expected: 415, lln: 262 }
         ];
 
         goldenDataset.forEach((data, index) => {
@@ -306,7 +306,7 @@ describe('6 Minute Walk Distance Calculator', () => {
     // ===========================================
     // TC-007: Gender-Specific Formula Verification
     // ===========================================
-    
+
     describe('Gender-Specific Formulas', () => {
         test('Male formula should use coefficients 7.57, -5.02, -1.76, -309', () => {
             // Manual calculation: 7.57 * 170 - 5.02 * 50 - 1.76 * 70 - 309
@@ -339,4 +339,3 @@ describe('6 Minute Walk Distance Calculator', () => {
         });
     });
 });
-

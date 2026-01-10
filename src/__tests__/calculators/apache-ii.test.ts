@@ -1,14 +1,17 @@
 /**
  * APACHE II Calculator - Verification Tests
- * 
+ *
  * Tests for ICU mortality score.
  * Reference: Knaus et al., 1985
  */
 
-import { getPoints, calculateMortality, apacheIiCalculation } from '../../calculators/apache-ii/calculation';
+import {
+    getPoints,
+    calculateMortality,
+    apacheIiCalculation
+} from '../../calculators/apache-ii/calculation';
 
 describe('APACHE II Calculator', () => {
-
     // ===========================================
     // TC-001: Individual Scoring Functions
     // ===========================================
@@ -61,17 +64,17 @@ describe('APACHE II Calculator', () => {
 
     describe('pH Points', () => {
         test('Normal pH (7.33-7.49) = 0 points', () => {
-            expect(getPoints.ph(7.40)).toBe(0);
+            expect(getPoints.ph(7.4)).toBe(0);
             expect(getPoints.ph(7.45)).toBe(0);
         });
 
         test('Very high pH (≥7.7) = 4 points', () => {
-            expect(getPoints.ph(7.70)).toBe(4);
-            expect(getPoints.ph(7.80)).toBe(4);
+            expect(getPoints.ph(7.7)).toBe(4);
+            expect(getPoints.ph(7.8)).toBe(4);
         });
 
         test('Very low pH (<7.15) = 4 points', () => {
-            expect(getPoints.ph(7.10)).toBe(4);
+            expect(getPoints.ph(7.1)).toBe(4);
         });
     });
 
@@ -146,9 +149,12 @@ describe('APACHE II Calculator', () => {
     // ===========================================
 
     describe('Full APACHE II Calculation', () => {
-        const mockGetValue = (values: Record<string, number | null>) => (key: string) => values[key] ?? null;
-        const mockGetStdValue = (values: Record<string, number | null>) => (key: string) => values[key] ?? null;
-        const mockGetRadioValue = (values: Record<string, string>) => (key: string) => values[key] || '0';
+        const mockGetValue = (values: Record<string, number | null>) => (key: string) =>
+            values[key] ?? null;
+        const mockGetStdValue = (values: Record<string, number | null>) => (key: string) =>
+            values[key] ?? null;
+        const mockGetRadioValue = (values: Record<string, string>) => (key: string) =>
+            values[key] || '0';
 
         test('Should return null for missing required values', () => {
             const result = apacheIiCalculation(
@@ -165,7 +171,7 @@ describe('APACHE II Calculator', () => {
                 'apache-ii-map': 85,
                 'apache-ii-hr': 80,
                 'apache-ii-rr': 16,
-                'apache-ii-ph': 7.40,
+                'apache-ii-ph': 7.4,
                 'apache-ii-sodium': 140,
                 'apache-ii-potassium': 4.0,
                 'apache-ii-creatinine': 1.0,
@@ -178,7 +184,7 @@ describe('APACHE II Calculator', () => {
             const result = apacheIiCalculation(
                 mockGetValue(values),
                 mockGetStdValue(values),
-                mockGetRadioValue({ 'arf': '0', 'chronic': '0' })
+                mockGetRadioValue({ arf: '0', chronic: '0' })
             );
 
             expect(result).not.toBeNull();

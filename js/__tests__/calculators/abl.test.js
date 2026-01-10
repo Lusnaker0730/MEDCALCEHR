@@ -125,7 +125,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
             { factor: 65, label: 'Adult woman', expectedEBV: 3250 },
             { factor: 80, label: 'Infant', expectedEBV: 4000 },
             { factor: 85, label: 'Neonate', expectedEBV: 4250 },
-            { factor: 96, label: 'Premature neonate', expectedEBV: 4800 },
+            { factor: 96, label: 'Premature neonate', expectedEBV: 4800 }
         ];
         bloodVolumeFactors.forEach(({ factor, label, expectedEBV }) => {
             test(`Should use ${factor} mL/kg for ${label}`, () => {
@@ -138,7 +138,9 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 expect(result).not.toBeNull();
                 expect(result[1].value).toBe(expectedEBV.toString());
                 // Verify ABL calculation
-                const expectedABL = Math.round(expectedEBV * (testHgbInitial - testHgbFinal) / hgbAvg);
+                const expectedABL = Math.round(
+                    (expectedEBV * (testHgbInitial - testHgbFinal)) / hgbAvg
+                );
                 expect(result[0].value).toBe(expectedABL.toString());
             });
         });
@@ -286,7 +288,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
             { w: 60, hi: 12, hf: 8, f: 65, abl: 1560, ebv: 3900 },
             { w: 80, hi: 15, hf: 10, f: 75, abl: 2400, ebv: 6000 },
             { w: 5, hi: 15, hf: 10, f: 85, abl: 170, ebv: 425 },
-            { w: 2, hi: 14, hf: 12, f: 96, abl: 30, ebv: 192 },
+            { w: 2, hi: 14, hf: 12, f: 96, abl: 30, ebv: 192 }
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.w}kg, Hgb ${data.hi}->${data.hf}, factor ${data.f}`, () => {
@@ -311,7 +313,7 @@ describe('Allowable Blood Loss (ABL) Calculator', () => {
                 { hi: 14, hf: 10, expected: 12.0 },
                 { hi: 15, hf: 7, expected: 11.0 },
                 { hi: 12, hf: 8, expected: 10.0 },
-                { hi: 10.5, hf: 7.5, expected: 9.0 },
+                { hi: 10.5, hf: 7.5, expected: 9.0 }
             ];
             testCases.forEach(({ hi, hf, expected }) => {
                 const result = calculateABL({

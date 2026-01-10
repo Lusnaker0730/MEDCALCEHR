@@ -8,11 +8,11 @@ describe('Child-Pugh Score Calculator (SaMD Protocol Verification)', () => {
         // Enceph None (1) -> 1
         // Total = 5
         const result = childPughCalculation({
-            'bilirubin': 1.0,
-            'albumin': 4.0,
-            'inr': 1.0,
-            'ascites': '1',
-            'encephalopathy': '1'
+            bilirubin: 1.0,
+            albumin: 4.0,
+            inr: 1.0,
+            ascites: '1',
+            encephalopathy: '1'
         });
         expect(result).toHaveLength(1);
         expect(result[0].value).toBe(5);
@@ -24,11 +24,11 @@ describe('Child-Pugh Score Calculator (SaMD Protocol Verification)', () => {
         // Rest min -> 4 points
         // Total = 6 -> Class A
         const result = childPughCalculation({
-            'bilirubin': 2.0,
-            'albumin': 4.0,
-            'inr': 1.0,
-            'ascites': '1',
-            'encephalopathy': '1'
+            bilirubin: 2.0,
+            albumin: 4.0,
+            inr: 1.0,
+            ascites: '1',
+            encephalopathy: '1'
         });
         expect(result[0].value).toBe(6);
     });
@@ -40,11 +40,11 @@ describe('Child-Pugh Score Calculator (SaMD Protocol Verification)', () => {
         // Enc 1 (1)
         // Total = 1 + 2 + 1 + 1 + 1 = 6
         const result = childPughCalculation({
-            'bilirubin': 1.0,
-            'albumin': 2.8,
-            'inr': 1.0,
-            'ascites': '1',
-            'encephalopathy': '1'
+            bilirubin: 1.0,
+            albumin: 2.8,
+            inr: 1.0,
+            ascites: '1',
+            encephalopathy: '1'
         });
         expect(result[0].value).toBe(6);
     });
@@ -56,11 +56,11 @@ describe('Child-Pugh Score Calculator (SaMD Protocol Verification)', () => {
         // Enc G3-4 (3) -> 3
         // Total = 15
         const result = childPughCalculation({
-            'bilirubin': 4.0,
-            'albumin': 2.0,
-            'inr': 3.0,
-            'ascites': '3',
-            'encephalopathy': '3'
+            bilirubin: 4.0,
+            albumin: 2.0,
+            inr: 3.0,
+            ascites: '3',
+            encephalopathy: '3'
         });
         expect(result[0].value).toBe(15);
         expect(result[0].interpretation).toBe('Child Class C');
@@ -70,11 +70,11 @@ describe('Child-Pugh Score Calculator (SaMD Protocol Verification)', () => {
     });
     test('TC-005: Missing Inputs', () => {
         const result = childPughCalculation({
-            'bilirubin': 1.0,
+            bilirubin: 1.0,
             // Albumin missing
-            'inr': 1.0,
-            'ascites': '1',
-            'encephalopathy': '1'
+            inr: 1.0,
+            ascites: '1',
+            encephalopathy: '1'
         });
         expect(result).toHaveLength(0);
     });

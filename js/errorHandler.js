@@ -51,15 +51,16 @@ export function logError(error, context = {}) {
         stack: error.stack
     };
     // Log details in development environment
-    if (typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    if (
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ) {
         console.group('🚨 Error Logged');
         console.error('Error:', error);
         console.log('Context:', context);
         console.log('Full Log:', errorLog);
         console.groupEnd();
-    }
-    else {
+    } else {
         // Log brief info in production
         console.error(`[${errorLog.code}] ${errorLog.message}`);
     }
@@ -89,14 +90,16 @@ export function displayError(container, error, userMessage = null) {
             <div class="error-content">
                 ${message}
             </div>
-            ${typeof window !== 'undefined' && window.location.hostname === 'localhost'
-        ? `
+            ${
+                typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                    ? `
                 <details>
                     <summary>Technical Details</summary>
                     <pre>${error.stack || error.message}</pre>
                 </details>
             `
-        : ''}
+                    : ''
+            }
         </div>
     `;
 }
@@ -104,10 +107,8 @@ export function displayError(container, error, userMessage = null) {
  * Load error handler CSS
  */
 function loadErrorStyles() {
-    if (typeof document === 'undefined')
-        return;
-    if (document.getElementById('error-handler-styles'))
-        return;
+    if (typeof document === 'undefined') return;
+    if (document.getElementById('error-handler-styles')) return;
     const link = document.createElement('link');
     link.id = 'error-handler-styles';
     link.rel = 'stylesheet';
@@ -142,8 +143,7 @@ export function withErrorHandling(fn, context = {}) {
     return async function (...args) {
         try {
             return await fn.apply(this, args);
-        }
-        catch (error) {
+        } catch (error) {
             logError(error, context);
             throw error;
         }
@@ -159,8 +159,7 @@ export function withErrorHandling(fn, context = {}) {
 export function tryOrDefault(fn, defaultValue, context = {}) {
     try {
         return fn();
-    }
-    catch (error) {
+    } catch (error) {
         logError(error, { ...context, defaultValue });
         return defaultValue;
     }
@@ -169,8 +168,7 @@ export function tryOrDefault(fn, defaultValue, context = {}) {
  * Global error handler
  */
 export function setupGlobalErrorHandler() {
-    if (typeof window === 'undefined')
-        return;
+    if (typeof window === 'undefined') return;
     window.addEventListener('error', event => {
         logError(event.error, {
             type: 'uncaught_error',

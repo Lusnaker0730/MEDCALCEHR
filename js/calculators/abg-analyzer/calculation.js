@@ -11,7 +11,7 @@ export const calculateABG = (getValue, getStdValue, getRadioValue) => {
     // Note: The original code had radio buttons but didn't actually use the value in the calculation logic provided
     // It seemed to rely solely on the rules of thumb relative to reference ranges.
     // However, for completeness if we want to add compensation checks later:
-    // const chronicity = getRadioValue('chronicity'); 
+    // const chronicity = getRadioValue('chronicity');
     // 2. Validate core inputs
     if (ph === null || pco2 === null || hco3 === null) {
         return null;
@@ -25,35 +25,27 @@ export const calculateABG = (getValue, getStdValue, getRadioValue) => {
         alertClass = 'danger'; // Acidosis
         if (pco2 > 45) {
             primaryDisorder = 'Respiratory Acidosis';
-        }
-        else if (hco3 < 22) {
+        } else if (hco3 < 22) {
             primaryDisorder = 'Metabolic Acidosis';
-        }
-        else {
+        } else {
             primaryDisorder = 'Mixed Acidosis';
         }
-    }
-    else if (ph > 7.45) {
+    } else if (ph > 7.45) {
         alertClass = 'danger'; // Alkalosis
         if (pco2 < 35) {
             primaryDisorder = 'Respiratory Alkalosis';
-        }
-        else if (hco3 > 26) {
+        } else if (hco3 > 26) {
             primaryDisorder = 'Metabolic Alkalosis';
-        }
-        else {
+        } else {
             primaryDisorder = 'Mixed Alkalosis';
         }
-    }
-    else {
+    } else {
         alertClass = 'success'; // Normal pH
         if (pco2 > 45 && hco3 > 26) {
             primaryDisorder = 'Compensated Respiratory Acidosis/Metabolic Alkalosis';
-        }
-        else if (pco2 < 35 && hco3 < 22) {
+        } else if (pco2 < 35 && hco3 < 22) {
             primaryDisorder = 'Compensated Metabolic Acidosis/Respiratory Alkalosis';
-        }
-        else {
+        } else {
             primaryDisorder = 'Normal Acid-Base Status';
         }
     }
@@ -76,12 +68,10 @@ export const calculateABG = (getValue, getStdValue, getRadioValue) => {
             const deltaDelta = deltaGap + hco3;
             if (deltaDelta > 28) {
                 anionGapInfo += ' + Metabolic Alkalosis';
-            }
-            else if (deltaDelta < 22) {
+            } else if (deltaDelta < 22) {
                 anionGapInfo += ' + Non-Gap Acidosis';
             }
-        }
-        else {
+        } else {
             anionGapInfo = `Normal Anion Gap (${correctedAG.toFixed(1)})`;
         }
     }
@@ -93,14 +83,10 @@ export const calculateABG = (getValue, getStdValue, getRadioValue) => {
         if (denominator !== 0) {
             const ratio = deltaGap / denominator;
             let ratioInterp = '';
-            if (ratio < 0.4)
-                ratioInterp = 'Hyperchloremic normal anion gap acidosis';
-            else if (ratio < 0.8)
-                ratioInterp = 'Combined high AG and normal AG acidosis';
-            else if (ratio < 2.0)
-                ratioInterp = 'Pure high anion gap metabolic acidosis';
-            else
-                ratioInterp = 'High AG acidosis + Metabolic Alkalosis';
+            if (ratio < 0.4) ratioInterp = 'Hyperchloremic normal anion gap acidosis';
+            else if (ratio < 0.8) ratioInterp = 'Combined high AG and normal AG acidosis';
+            else if (ratio < 2.0) ratioInterp = 'Pure high anion gap metabolic acidosis';
+            else ratioInterp = 'High AG acidosis + Metabolic Alkalosis';
             deltaRatioInfo = `Delta Ratio: ${ratio.toFixed(2)} (${ratioInterp})`;
         }
     }

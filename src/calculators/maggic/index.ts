@@ -177,83 +177,83 @@ const config: FormulaCalculatorConfig = {
         <div class="space-y-4">
             <h3 class="font-bold text-lg">FACTS & FIGURES</h3>
             ${uiBuilder.createTable({
-        headers: ['Risk Factor', '', 'Points'],
-        rows: [
-            ['<strong>Male</strong>', '', '+1'],
-            ['<strong>Smoker</strong>', '', '+1'],
-            ['<strong>Diabetes</strong>', '', '+3'],
-            ['<strong>COPD</strong>', '', '+2'],
-            ['<strong>Heart failure first diagnosed ≥18 months ago</strong>', '', '+2'],
-            ['<strong>Not on beta blocker</strong>', '', '+3'],
-            ['<strong>Not on ACEi/ARB</strong>', '', '+1'],
-            ['<strong>Ejection fraction (%)</strong>', '≤20', '+7'],
-            ['', '20-25', '+6'],
-            ['', '25-30', '+5'],
-            ['', '30-35', '+3'],
-            ['', '35-40', '+2'],
-            ['', '≥40', '0'],
-            ['<strong>NYHA class</strong>', '1', '0'],
-            ['', '2', '+2'],
-            ['', '3', '+6'],
-            ['', '4', '+8'],
-            ['<strong>Creatinine*</strong>', '≤90', '0'],
-            ['', '90-110', '+1'],
-            ['', '110-130', '+2'],
-            ['', '130-150', '+3'],
-            ['', '150-170', '+4'],
-            ['', '170-210', '+5'],
-            ['', '210-250', '+6'],
-            ['', '>250', '+8'],
-            ['<strong>SBP</strong>', '<110', '+5'],
-            ['', '110-120', '+4'],
-            ['', '120-130', '+3'],
-            ['', '130-140', '+2'],
-            ['', '140-150', '+1'],
-            ['', '≥150', '0'],
-            ['<strong>BMI</strong>', '<15', '+6'],
-            ['', '15-20', '+5'],
-            ['', '20-25', '+3'],
-            ['', '25-30', '0'],
-            ['', '≥30', '0'],
-            ['<strong>Extra for systolic BP mmHg if EF <30</strong>', '<110', '+3'],
-            ['', '110-120', '+2'],
-            ['', '120-130', '+1'],
-            ['', '130-140', '+1'],
-            ['', '≥140', '0'],
-            ['<strong>Extra for systolic BP mmHg if EF 30-39</strong>', '<110', '+2'],
-            ['', '110-120', '+1'],
-            ['', '120-130', '+1'],
-            ['', '130-140', '0'],
-            ['', '≥140', '0'],
-            ['<strong>Extra for systolic BP mmHg if EF ≥40</strong>', '<110', '+2'],
-            ['', '110-120', '+1'],
-            ['', '120-130', '+1'],
-            ['', '130-140', '0'],
-            ['', '≥140', '0'],
-            ['<strong>Extra for age years if EF <30</strong>', '<55', '+0'],
-            ['', '55-60', '+3'],
-            ['', '60-65', '+5'],
-            ['', '65-70', '+7'],
-            ['', '70-75', '+9'],
-            ['', '75-80', '+10'],
-            ['', '≥80', '+13'],
-            ['<strong>Extra for age years if EF 30-39</strong>', '<55', '+0'],
-            ['', '55-60', '+2'],
-            ['', '60-65', '+4'],
-            ['', '65-70', '+6'],
-            ['', '70-75', '+8'],
-            ['', '75-80', '+10'],
-            ['', '≥80', '+13'],
-            ['<strong>Extra for age years if EF ≥40</strong>', '<55', '+0'],
-            ['', '55-60', '+3'],
-            ['', '60-65', '+5'],
-            ['', '65-70', '+7'],
-            ['', '70-75', '+9'],
-            ['', '75-80', '+12'],
-            ['', '≥80', '+15']
-        ],
-        stickyFirstColumn: true
-    })}
+                headers: ['Risk Factor', '', 'Points'],
+                rows: [
+                    ['<strong>Male</strong>', '', '+1'],
+                    ['<strong>Smoker</strong>', '', '+1'],
+                    ['<strong>Diabetes</strong>', '', '+3'],
+                    ['<strong>COPD</strong>', '', '+2'],
+                    ['<strong>Heart failure first diagnosed ≥18 months ago</strong>', '', '+2'],
+                    ['<strong>Not on beta blocker</strong>', '', '+3'],
+                    ['<strong>Not on ACEi/ARB</strong>', '', '+1'],
+                    ['<strong>Ejection fraction (%)</strong>', '≤20', '+7'],
+                    ['', '20-25', '+6'],
+                    ['', '25-30', '+5'],
+                    ['', '30-35', '+3'],
+                    ['', '35-40', '+2'],
+                    ['', '≥40', '0'],
+                    ['<strong>NYHA class</strong>', '1', '0'],
+                    ['', '2', '+2'],
+                    ['', '3', '+6'],
+                    ['', '4', '+8'],
+                    ['<strong>Creatinine*</strong>', '≤90', '0'],
+                    ['', '90-110', '+1'],
+                    ['', '110-130', '+2'],
+                    ['', '130-150', '+3'],
+                    ['', '150-170', '+4'],
+                    ['', '170-210', '+5'],
+                    ['', '210-250', '+6'],
+                    ['', '>250', '+8'],
+                    ['<strong>SBP</strong>', '<110', '+5'],
+                    ['', '110-120', '+4'],
+                    ['', '120-130', '+3'],
+                    ['', '130-140', '+2'],
+                    ['', '140-150', '+1'],
+                    ['', '≥150', '0'],
+                    ['<strong>BMI</strong>', '<15', '+6'],
+                    ['', '15-20', '+5'],
+                    ['', '20-25', '+3'],
+                    ['', '25-30', '0'],
+                    ['', '≥30', '0'],
+                    ['<strong>Extra for systolic BP mmHg if EF <30</strong>', '<110', '+3'],
+                    ['', '110-120', '+2'],
+                    ['', '120-130', '+1'],
+                    ['', '130-140', '+1'],
+                    ['', '≥140', '0'],
+                    ['<strong>Extra for systolic BP mmHg if EF 30-39</strong>', '<110', '+2'],
+                    ['', '110-120', '+1'],
+                    ['', '120-130', '+1'],
+                    ['', '130-140', '0'],
+                    ['', '≥140', '0'],
+                    ['<strong>Extra for systolic BP mmHg if EF ≥40</strong>', '<110', '+2'],
+                    ['', '110-120', '+1'],
+                    ['', '120-130', '+1'],
+                    ['', '130-140', '0'],
+                    ['', '≥140', '0'],
+                    ['<strong>Extra for age years if EF <30</strong>', '<55', '+0'],
+                    ['', '55-60', '+3'],
+                    ['', '60-65', '+5'],
+                    ['', '65-70', '+7'],
+                    ['', '70-75', '+9'],
+                    ['', '75-80', '+10'],
+                    ['', '≥80', '+13'],
+                    ['<strong>Extra for age years if EF 30-39</strong>', '<55', '+0'],
+                    ['', '55-60', '+2'],
+                    ['', '60-65', '+4'],
+                    ['', '65-70', '+6'],
+                    ['', '70-75', '+8'],
+                    ['', '75-80', '+10'],
+                    ['', '≥80', '+13'],
+                    ['<strong>Extra for age years if EF ≥40</strong>', '<55', '+0'],
+                    ['', '55-60', '+3'],
+                    ['', '60-65', '+5'],
+                    ['', '65-70', '+7'],
+                    ['', '70-75', '+9'],
+                    ['', '75-80', '+12'],
+                    ['', '≥80', '+15']
+                ],
+                stickyFirstColumn: true
+            })}
             <p class="table-note text-sm text-muted mt-10">
                 *Creatinine in µmol/L (to convert from mg/dL to µmol/L, multiply by 88.4)
             </p>
@@ -291,7 +291,9 @@ const config: FormulaCalculatorConfig = {
             }
 
             // BMI
-            const bmiResult = await fhirDataService.getObservation(LOINC_CODES.BMI, { trackStaleness: true });
+            const bmiResult = await fhirDataService.getObservation(LOINC_CODES.BMI, {
+                trackStaleness: true
+            });
             if (bmiResult.value !== null) {
                 const input = container.querySelector('#maggic-bmi') as HTMLInputElement;
                 if (input) {
@@ -326,7 +328,6 @@ const config: FormulaCalculatorConfig = {
 
             // Conditions: Diabetes & COPD
 
-
             // Diabetes
             const hasDiabetes = await fhirDataService.hasCondition([
                 SNOMED_CODES.DIABETES_MELLITUS,
@@ -343,27 +344,41 @@ const config: FormulaCalculatorConfig = {
             if (hasCopd) setRadio('maggic-copd', '2'); // Yes (+2)
 
             // Smoker
-            const isSmoker = await fhirDataService.hasCondition([SNOMED_CODES.SMOKING_STATUS, SNOMED_CODES.SMOKING]);
+            const isSmoker = await fhirDataService.hasCondition([
+                SNOMED_CODES.SMOKING_STATUS,
+                SNOMED_CODES.SMOKING
+            ]);
             // Or better check observation for smoking status if available, but condition is a good proxy for "Current Smoker" often
             if (isSmoker) setRadio('maggic-smoker', '1');
 
             // Medications
             // Beta Blockers
             const bbCodes = [
-                RXNORM_CODES.METOPROLOL, RXNORM_CODES.CARVEDILOL, RXNORM_CODES.BISOPROLOL,
-                RXNORM_CODES.ATENOLOL, RXNORM_CODES.PROPRANOLOL, RXNORM_CODES.LABETALOL
+                RXNORM_CODES.METOPROLOL,
+                RXNORM_CODES.CARVEDILOL,
+                RXNORM_CODES.BISOPROLOL,
+                RXNORM_CODES.ATENOLOL,
+                RXNORM_CODES.PROPRANOLOL,
+                RXNORM_CODES.LABETALOL
             ];
             const onBB = await fhirDataService.isOnMedication(bbCodes);
             if (onBB) setRadio('maggic-bb', '0'); // Yes (0 points) - Note: Logic is "No (+3)" so if Yes, select 0.
 
             // ACEi / ARB
             const aceArbCodes = [
-                RXNORM_CODES.LISINOPRIL, RXNORM_CODES.ENALAPRIL, RXNORM_CODES.RAMIPRIL, RXNORM_CODES.CAPTOPRIL, RXNORM_CODES.BENAZEPRIL,
-                RXNORM_CODES.LOSARTAN, RXNORM_CODES.VALSARTAN, RXNORM_CODES.CANDESARTAN, RXNORM_CODES.IRBESARTAN, RXNORM_CODES.OLMESARTAN
+                RXNORM_CODES.LISINOPRIL,
+                RXNORM_CODES.ENALAPRIL,
+                RXNORM_CODES.RAMIPRIL,
+                RXNORM_CODES.CAPTOPRIL,
+                RXNORM_CODES.BENAZEPRIL,
+                RXNORM_CODES.LOSARTAN,
+                RXNORM_CODES.VALSARTAN,
+                RXNORM_CODES.CANDESARTAN,
+                RXNORM_CODES.IRBESARTAN,
+                RXNORM_CODES.OLMESARTAN
             ];
             const onAceArb = await fhirDataService.isOnMedication(aceArbCodes);
             if (onAceArb) setRadio('maggic-acei', '0'); // Yes (0 points)
-
         } catch (e) {
             console.warn('Error fetching FHIR data for MAGGIC', e);
         }

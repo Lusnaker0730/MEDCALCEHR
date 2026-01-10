@@ -1,20 +1,23 @@
 /**
  * Pediatric Blood Pressure Calculator - Verification Tests
- * 
+ *
  * Tests based on AAP 2017 guidelines.
  * Reference: Flynn JT, et al. Pediatrics. 2017;140(3):e20171904.
  */
 
-import { calculatePediatricBP, BOYS_BP_TABLE, GIRLS_BP_TABLE } from '../../calculators/pediatric-bp/calculation';
+import {
+    calculatePediatricBP,
+    BOYS_BP_TABLE,
+    GIRLS_BP_TABLE
+} from '../../calculators/pediatric-bp/calculation';
 
 describe('Pediatric Blood Pressure Calculator', () => {
-
     // Mock functions
-    const createMockGetter = (values: Record<string, number | null>) =>
-        (key: string) => values[key] ?? null;
+    const createMockGetter = (values: Record<string, number | null>) => (key: string) =>
+        values[key] ?? null;
 
-    const createMockRadioGetter = (values: Record<string, string>) =>
-        (key: string) => values[key] || '';
+    const createMockRadioGetter = (values: Record<string, string>) => (key: string) =>
+        values[key] || '';
 
     // ===========================================
     // TC-001: BP Tables Validation

@@ -104,16 +104,16 @@ export const bacterialMeningitisScore = createScoringCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: `<strong>Interpretation:</strong> ${interpretation}`
-        })}
+                type: alertType,
+                message: `<strong>Interpretation:</strong> ${interpretation}`
+            })}
         `;
     },
     customInitialize: async (
@@ -138,7 +138,9 @@ export const bacterialMeningitisScore = createScoringCalculator({
         if (fhirDataService.isReady()) {
             try {
                 // CSF Gram Stain (LOINC: 664-3) - needs raw observation for CodeableConcept
-                const gramStainObs = await fhirDataService.getRawObservation(LOINC_CODES.CSF_GRAM_STAIN);
+                const gramStainObs = await fhirDataService.getRawObservation(
+                    LOINC_CODES.CSF_GRAM_STAIN
+                );
                 if (gramStainObs?.valueCodeableConcept?.coding) {
                     const isPositive = gramStainObs.valueCodeableConcept.coding.some(
                         (c: any) => c.code === SNOMED_CODES.POSITIVE_RESULT
@@ -158,19 +160,25 @@ export const bacterialMeningitisScore = createScoringCalculator({
                 }
 
                 // CSF Protein (LOINC: 3137-7)
-                const csfProteinResult = await fhirDataService.getObservation(LOINC_CODES.CSF_PROTEIN, {
-                    trackStaleness: true,
-                    stalenessLabel: 'CSF Protein'
-                });
+                const csfProteinResult = await fhirDataService.getObservation(
+                    LOINC_CODES.CSF_PROTEIN,
+                    {
+                        trackStaleness: true,
+                        stalenessLabel: 'CSF Protein'
+                    }
+                );
                 if (csfProteinResult.value !== null && csfProteinResult.value >= 80) {
                     setRadio('csf_protein', '1');
                 }
 
                 // Peripheral Blood ANC (LOINC: 751-8)
-                const bloodAncResult = await fhirDataService.getObservation(LOINC_CODES.NEUTROPHILS_ABSOLUTE, {
-                    trackStaleness: true,
-                    stalenessLabel: 'Blood ANC'
-                });
+                const bloodAncResult = await fhirDataService.getObservation(
+                    LOINC_CODES.NEUTROPHILS_ABSOLUTE,
+                    {
+                        trackStaleness: true,
+                        stalenessLabel: 'Blood ANC'
+                    }
+                );
                 if (bloodAncResult.value !== null && bloodAncResult.value >= 10000) {
                     setRadio('blood_anc', '1');
                 }

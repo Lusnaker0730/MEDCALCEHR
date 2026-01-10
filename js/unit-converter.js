@@ -21,16 +21,16 @@ export const UnitConverter = {
         // Temperature
         temperature: {
             C: {
-                F: (val) => (val * 9) / 5 + 32,
-                K: (val) => val + 273.15
+                F: val => (val * 9) / 5 + 32,
+                K: val => val + 273.15
             },
             F: {
-                C: (val) => ((val - 32) * 5) / 9,
-                K: (val) => ((val - 32) * 5) / 9 + 273.15
+                C: val => ((val - 32) * 5) / 9,
+                K: val => ((val - 32) * 5) / 9 + 273.15
             },
             K: {
-                C: (val) => val - 273.15,
-                F: (val) => ((val - 273.15) * 9) / 5 + 32
+                C: val => val - 273.15,
+                F: val => ((val - 273.15) * 9) / 5 + 32
             }
         },
         // Blood Pressure
@@ -173,16 +173,12 @@ export const UnitConverter = {
      * @returns {number|null} - The converted value or null if conversion not available
      */
     convert(value, fromUnit, toUnit, type) {
-        if (value === null || value === undefined || isNaN(value))
-            return null;
-        if (fromUnit === toUnit)
-            return value;
+        if (value === null || value === undefined || isNaN(value)) return null;
+        if (fromUnit === toUnit) return value;
         const typeConversions = this.conversions[type];
-        if (!typeConversions || !typeConversions[fromUnit])
-            return null;
+        if (!typeConversions || !typeConversions[fromUnit]) return null;
         const conversion = typeConversions[fromUnit][toUnit];
-        if (conversion === undefined)
-            return null;
+        if (conversion === undefined) return null;
         // Handle function-based conversions (like temperature)
         if (typeof conversion === 'function') {
             return conversion(value);
@@ -314,10 +310,10 @@ export const UnitConverter = {
         const finalConfig = { ...defaultConfig, ...config };
         // Find and enhance matching inputs
         Object.entries(finalConfig).forEach(([key, spec]) => {
-            const input = container.querySelector(`#${key}, input[name="${key}"], #${key}-input, .${key}-input`);
-            if (input &&
-                input.type !== 'checkbox' &&
-                input.type !== 'radio') {
+            const input = container.querySelector(
+                `#${key}, input[name="${key}"], #${key}-input, .${key}-input`
+            );
+            if (input && input.type !== 'checkbox' && input.type !== 'radio') {
                 this.enhanceInput(input, spec.type, spec.units, spec.default || spec.units[0]);
             }
         });
@@ -327,8 +323,7 @@ export const UnitConverter = {
      */
     getCurrentUnit(inputElement) {
         const wrapper = inputElement.closest('.unit-converter-wrapper');
-        if (!wrapper)
-            return null;
+        if (!wrapper) return null;
         const toggleBtn = wrapper.querySelector('.unit-toggle-btn');
         return toggleBtn?.dataset.currentUnit || null;
     },
@@ -339,8 +334,7 @@ export const UnitConverter = {
      * @param {string} unit - The unit of the value being set
      */
     setInputValue(inputElement, value, unit) {
-        if (!inputElement || value === null || value === undefined)
-            return;
+        if (!inputElement || value === null || value === undefined) return;
         // Clean up unit string (sometimes FHIR returns messy units or variations)
         // Basic normalization if needed, or rely on exact map.
         // For now, assume exact or close enough mapping in conversions.
@@ -355,20 +349,19 @@ export const UnitConverter = {
                 if (converted !== null) {
                     const decimals = this.getDecimalPlaces(type, currentUnit);
                     inputElement.value = converted.toFixed(decimals);
-                }
-                else {
+                } else {
                     // Conversion failed, fall back to raw value?
                     // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
                     // Just set raw value as fallback.
-                    console.warn(`Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`);
+                    console.warn(
+                        `Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`
+                    );
                     inputElement.value = value.toString();
                 }
-            }
-            else {
+            } else {
                 inputElement.value = value.toString();
             }
-        }
-        else {
+        } else {
             // Units match or no UI unit context
             // If we have a type, we might still want to respect decimal places?
             // Optional polish.
@@ -385,16 +378,13 @@ export const UnitConverter = {
      */
     getStandardValue(inputElement, standardUnit) {
         const value = parseFloat(inputElement.value);
-        if (isNaN(value))
-            return null;
+        if (isNaN(value)) return null;
         const currentUnit = this.getCurrentUnit(inputElement);
-        if (!currentUnit)
-            return value;
+        if (!currentUnit) return value;
         const wrapper = inputElement.closest('.unit-converter-wrapper');
         const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
         const type = toggleBtn?.dataset.type;
-        if (!type)
-            return value;
+        if (!type) return value;
         return this.convert(value, currentUnit, standardUnit, type) || value;
     }
 };

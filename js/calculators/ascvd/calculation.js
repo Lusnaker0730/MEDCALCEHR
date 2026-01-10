@@ -24,7 +24,8 @@ export function calculatePCE(patient) {
     if (patient.isMale) {
         if (patient.race === 'white' || patient.race === 'other') {
             // White Male coefficients
-            individualSum = 12.344 * lnAge +
+            individualSum =
+                12.344 * lnAge +
                 11.853 * lnTC -
                 2.664 * lnAge * lnTC -
                 7.99 * lnHDL +
@@ -35,10 +36,10 @@ export function calculatePCE(patient) {
                 0.658 * (patient.isDiabetic ? 1 : 0);
             meanValue = 61.18;
             baselineSurvival = 0.9144;
-        }
-        else {
+        } else {
             // African American Male coefficients
-            individualSum = 2.469 * lnAge +
+            individualSum =
+                2.469 * lnAge +
                 0.302 * lnTC -
                 0.307 * lnHDL +
                 (patient.onHtnTx ? 1.916 : 1.809) * lnSBP +
@@ -47,12 +48,12 @@ export function calculatePCE(patient) {
             meanValue = 19.54;
             baselineSurvival = 0.8954;
         }
-    }
-    else {
+    } else {
         // Female
         if (patient.race === 'white' || patient.race === 'other') {
             // White Female coefficients
-            individualSum = -29.799 * lnAge +
+            individualSum =
+                -29.799 * lnAge +
                 4.884 * lnAge * lnAge +
                 13.54 * lnTC -
                 3.114 * lnAge * lnTC -
@@ -64,10 +65,10 @@ export function calculatePCE(patient) {
                 0.661 * (patient.isDiabetic ? 1 : 0);
             meanValue = -29.18;
             baselineSurvival = 0.9665;
-        }
-        else {
+        } else {
             // African American Female coefficients
-            individualSum = 17.114 * lnAge +
+            individualSum =
+                17.114 * lnAge +
                 0.94 * lnTC -
                 18.92 * lnHDL +
                 4.475 * lnAge * lnHDL +
@@ -108,7 +109,7 @@ export function getCurrentPatientData() {
  * @param values - Input values from calculator form
  * @returns FormulaResultItem[] with risk assessment
  */
-export const ascvdCalculation = (values) => {
+export const ascvdCalculation = values => {
     // Reset state
     currentBaselineRisk = 0;
     currentPatientData = null;
@@ -134,7 +135,10 @@ export const ascvdCalculation = (values) => {
     const requiredFields = ['ascvd-age', 'ascvd-tc', 'ascvd-hdl', 'ascvd-sbp'];
     const missing = requiredFields.filter(f => values[f] === undefined || values[f] === null);
     if (missing.length > 0) {
-        throw new ValidationError('Please complete all fields (Age, TC, HDL, SBP).', 'MISSING_DATA');
+        throw new ValidationError(
+            'Please complete all fields (Age, TC, HDL, SBP).',
+            'MISSING_DATA'
+        );
     }
     const age = Number(values['ascvd-age']);
     const tc = Number(values['ascvd-tc']);
@@ -165,21 +169,20 @@ export const ascvdCalculation = (values) => {
     if (risk < 5) {
         interpretation = 'Low Risk (<5%). Emphasize lifestyle modifications.';
         alertClass = 'success';
-    }
-    else if (risk < 7.5) {
-        interpretation = 'Borderline Risk (5-7.4%). Discuss risk. Consider moderate-intensity statin.';
+    } else if (risk < 7.5) {
+        interpretation =
+            'Borderline Risk (5-7.4%). Discuss risk. Consider moderate-intensity statin.';
         alertClass = 'warning';
-    }
-    else if (risk < 20) {
+    } else if (risk < 20) {
         interpretation = 'Intermediate Risk (7.5-19.9%). Initiate moderate-intensity statin.';
         alertClass = 'warning';
-    }
-    else {
+    } else {
         interpretation = 'High Risk (??0%). Initiate high-intensity statin.';
         alertClass = 'danger';
     }
     if (patient.race === 'other') {
-        interpretation += '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
+        interpretation +=
+            '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
     }
     const results = [
         {

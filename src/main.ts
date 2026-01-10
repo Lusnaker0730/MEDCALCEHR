@@ -269,17 +269,26 @@ window.onload = () => {
                     const practitionerNameEl = document.getElementById('practitioner-name');
                     const practitionerInfoEl = document.getElementById('practitioner-info');
 
-                    if (user && (user.resourceType === 'Practitioner' || user.resourceType === 'PractitionerRole')) {
+                    if (
+                        user &&
+                        (user.resourceType === 'Practitioner' ||
+                            user.resourceType === 'PractitionerRole')
+                    ) {
                         let name = 'Unknown Practitioner';
 
                         if (user.resourceType === 'Practitioner') {
-                            name = user.name?.[0]?.text ||
+                            name =
+                                user.name?.[0]?.text ||
                                 `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
-                        } else if (user.resourceType === 'PractitionerRole' && user.practitioner?.display) {
+                        } else if (
+                            user.resourceType === 'PractitionerRole' &&
+                            user.practitioner?.display
+                        ) {
                             name = user.practitioner.display;
                         }
 
-                        if (practitionerNameEl) practitionerNameEl.textContent = name || 'Practitioner';
+                        if (practitionerNameEl)
+                            practitionerNameEl.textContent = name || 'Practitioner';
                         if (practitionerInfoEl) practitionerInfoEl.style.display = 'flex';
 
                         // Set Practitioner ID for favorites

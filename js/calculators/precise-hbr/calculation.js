@@ -15,16 +15,22 @@
  * @param arcHbrRisk - Any ARC-HBR risk factor present
  * @returns Score and breakdown
  */
-export function calculatePreciseHbrScore(age, hb, egfr, wbc, priorBleeding, oralAnticoagulation, arcHbrRisk) {
+export function calculatePreciseHbrScore(
+    age,
+    hb,
+    egfr,
+    wbc,
+    priorBleeding,
+    oralAnticoagulation,
+    arcHbrRisk
+) {
     let score = 2; // Base Score
     const breakdownParts = ['Base Score (2)'];
     // --- Age ---
     // Range 30-80. If > 30: + (Age - 30) * 0.25
     let ageClamped = age;
-    if (age < 30)
-        ageClamped = 30;
-    if (age > 80)
-        ageClamped = 80;
+    if (age < 30) ageClamped = 30;
+    if (age > 80) ageClamped = 80;
     if (age > 30) {
         const agePoints = (ageClamped - 30) * 0.26;
         if (agePoints > 0) {
@@ -35,10 +41,8 @@ export function calculatePreciseHbrScore(age, hb, egfr, wbc, priorBleeding, oral
     // --- Hb ---
     // Range 5.0 - 15.0 g/dL. If < 15: + (15 - Hb) * 2.5
     let hbClamped = hb;
-    if (hb < 5.0)
-        hbClamped = 5.0;
-    if (hb > 15.0)
-        hbClamped = 15.0;
+    if (hb < 5.0) hbClamped = 5.0;
+    if (hb > 15.0) hbClamped = 15.0;
     if (hb < 15.0) {
         const hbPoints = (15 - hbClamped) * 2.5;
         if (hbPoints > 0) {
@@ -49,22 +53,21 @@ export function calculatePreciseHbrScore(age, hb, egfr, wbc, priorBleeding, oral
     // --- eGFR ---
     // Range 5 - 100. If < 100: + (100 - eGFR) * 0.05
     let egfrClamped = egfr;
-    if (egfr < 5)
-        egfrClamped = 5;
-    if (egfr > 100)
-        egfrClamped = 100;
+    if (egfr < 5) egfrClamped = 5;
+    if (egfr > 100) egfrClamped = 100;
     if (egfr < 100) {
         const egfrPoints = (100 - egfrClamped) * 0.05;
         if (egfrPoints > 0) {
             score += egfrPoints;
-            breakdownParts.push(`eGFR ${egfr} (Clamped: ${egfrClamped}) -> +${egfrPoints.toFixed(2)}`);
+            breakdownParts.push(
+                `eGFR ${egfr} (Clamped: ${egfrClamped}) -> +${egfrPoints.toFixed(2)}`
+            );
         }
     }
     // --- WBC ---
     // Upper limit 15.0. If > 3: + (WBC - 3) * 0.8
     let wbcClamped = wbc;
-    if (wbc > 15.0)
-        wbcClamped = 15.0;
+    if (wbc > 15.0) wbcClamped = 15.0;
     if (wbcClamped > 3) {
         const wbcPoints = (wbcClamped - 3) * 0.8;
         score += wbcPoints;
@@ -87,8 +90,7 @@ export function calculatePreciseHbrScore(age, hb, egfr, wbc, priorBleeding, oral
     const finalScore = Math.round(score);
     if (Math.abs(finalScore - score) > 0.001) {
         breakdownParts.push(`Total Raw: ${score.toFixed(2)} -> Rounded: ${finalScore}`);
-    }
-    else {
+    } else {
         breakdownParts.push(`Total: ${finalScore}`);
     }
     return { score: finalScore, breakdown: breakdownParts.join('<br>') };
@@ -115,11 +117,20 @@ export function preciseHbrCalculation(getValue, getStdValue, getRadioValue) {
     const hbrMalignancy = getRadioValue('arc_hbr_malignancy') === '1';
     const hbrSurgery = getRadioValue('arc_hbr_surgery') === '1';
     const hbrNsaids = getRadioValue('arc_hbr_nsaids') === '1';
-    const arcHbrRisk = hbrPlt || hbrDiathesis || hbrCirrhosis || hbrMalignancy || hbrSurgery || hbrNsaids;
+    const arcHbrRisk =
+        hbrPlt || hbrDiathesis || hbrCirrhosis || hbrMalignancy || hbrSurgery || hbrNsaids;
     if (age === null || hb === null || wbc === null || egfr === null) {
         return null;
     }
-    const result = calculatePreciseHbrScore(age, hb, egfr, wbc, priorBleeding, oralAnticoagulation, arcHbrRisk);
+    const result = calculatePreciseHbrScore(
+        age,
+        hb,
+        egfr,
+        wbc,
+        priorBleeding,
+        oralAnticoagulation,
+        arcHbrRisk
+    );
     // Interpretation
     const s = result.score;
     let riskLevel = '';
@@ -129,25 +140,21 @@ export function preciseHbrCalculation(getValue, getStdValue, getRadioValue) {
         riskLevel = 'Non-HBR (Low Risk)';
         bleedingRisk = '0.5% ~ 3.5%';
         severity = 'success';
-    }
-    else if (s <= 26) {
+    } else if (s <= 26) {
         riskLevel = 'HBR (High Risk)';
         bleedingRisk = '3.5% ~ 5.5%';
         severity = 'warning';
-    }
-    else if (s <= 30) {
+    } else if (s <= 30) {
         riskLevel = 'Very HBR (Very High Risk)';
         bleedingRisk = '5.5% ~ 8.0%';
         severity = 'danger';
-    }
-    else {
+    } else {
         // > 30
         if (s <= 35) {
             riskLevel = 'Extreme Risk';
             bleedingRisk = '8.0% ~ 12.0%';
             severity = 'danger';
-        }
-        else {
+        } else {
             riskLevel = 'Extreme Risk (Capped)';
             bleedingRisk = 'Upper limit ~15%';
             severity = 'danger';

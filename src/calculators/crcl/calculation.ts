@@ -34,29 +34,34 @@ export const crclCalculation = (values: Record<string, any>): FormulaResultItem[
     } else if (crcl >= 30) {
         category = 'Moderate reduction';
         severityClass = 'warning';
-        alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
+        alertMsg =
+            'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
         alertType = 'warning';
     } else if (crcl >= 15) {
         category = 'Severe reduction';
         severityClass = 'danger';
-        alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
+        alertMsg =
+            'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
         alertType = 'danger';
     } else {
         category = 'Kidney failure';
         severityClass = 'danger';
-        alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
+        alertMsg =
+            'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
         alertType = 'danger';
     }
 
-    return [{
-        label: 'Creatinine Clearance',
-        value: crcl.toFixed(1),
-        unit: 'mL/min',
-        interpretation: category,
-        alertClass: severityClass,
-        alertPayload: {
-            type: alertType,
-            message: alertMsg
+    return [
+        {
+            label: 'Creatinine Clearance',
+            value: crcl.toFixed(1),
+            unit: 'mL/min',
+            interpretation: category,
+            alertClass: severityClass,
+            alertPayload: {
+                type: alertType,
+                message: alertMsg
+            }
         }
-    }];
+    ];
 };

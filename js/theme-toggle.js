@@ -25,8 +25,7 @@ const ThemeManager = {
         const savedTheme = localStorage.getItem(this.STORAGE_KEY);
         if (savedTheme) {
             this.setTheme(savedTheme);
-        }
-        else {
+        } else {
             // 如果沒有保存的偏好，檢查系統設定
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             this.setTheme(prefersDark ? this.DARK_THEME : this.LIGHT_THEME);
@@ -43,8 +42,7 @@ const ThemeManager = {
             html.setAttribute('data-theme', 'tech');
             body.classList.add('tech-theme');
             this.updateToggleIcon('☀️');
-        }
-        else {
+        } else {
             html.removeAttribute('data-theme');
             body.classList.remove('tech-theme');
             this.updateToggleIcon('🌙');
@@ -84,7 +82,7 @@ const ThemeManager = {
      */
     watchSystemTheme() {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        mediaQuery.addEventListener('change', (e) => {
+        mediaQuery.addEventListener('change', e => {
             // 只有在使用者沒有手動設定主題時才跟隨系統
             const savedTheme = localStorage.getItem(this.STORAGE_KEY);
             if (!savedTheme) {
@@ -104,8 +102,7 @@ const ThemeManager = {
 // 當 DOM 載入完成時初始化
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => ThemeManager.init());
-}
-else {
+} else {
     ThemeManager.init();
 }
 // 導出以供其他模組使用

@@ -10,14 +10,18 @@ export function calculateZScore(ageMonths, value, cdcDataArray) {
         return null;
     }
     // Find closest age point in CDC data
-    const closestPoint = cdcDataArray.reduce((prev, curr) => Math.abs(curr.Agemos - ageMonths) < Math.abs(prev.Agemos - ageMonths) ? curr : prev);
+    const closestPoint = cdcDataArray.reduce((prev, curr) =>
+        Math.abs(curr.Agemos - ageMonths) < Math.abs(prev.Agemos - ageMonths) ? curr : prev
+    );
     if (Math.abs(closestPoint.Agemos - ageMonths) > 1) {
         return null; // Too far from reference point
     }
     // Use LMS Method for precise calculation
-    if (closestPoint.L !== undefined &&
+    if (
+        closestPoint.L !== undefined &&
         closestPoint.M !== undefined &&
-        closestPoint.S !== undefined) {
+        closestPoint.S !== undefined
+    ) {
         const L = closestPoint.L;
         const M = closestPoint.M;
         const S = closestPoint.S;
@@ -26,8 +30,7 @@ export function calculateZScore(ageMonths, value, cdcDataArray) {
         }
         if (Math.abs(L) < 0.01) {
             return Math.log(value / M) / S;
-        }
-        else {
+        } else {
             return (Math.pow(value / M, L) - 1) / (L * S);
         }
     }
@@ -51,24 +54,15 @@ export function estimatePercentile(zscore) {
     if (zscore === null) {
         return '';
     }
-    if (zscore <= -2.33)
-        return '3';
-    if (zscore <= -1.645)
-        return '5';
-    if (zscore <= -1.28)
-        return '10';
-    if (zscore <= -0.674)
-        return '25';
-    if (zscore <= 0)
-        return '50';
-    if (zscore <= 0.674)
-        return '75';
-    if (zscore <= 1.28)
-        return '90';
-    if (zscore <= 1.645)
-        return '95';
-    if (zscore <= 2.33)
-        return '97';
+    if (zscore <= -2.33) return '3';
+    if (zscore <= -1.645) return '5';
+    if (zscore <= -1.28) return '10';
+    if (zscore <= -0.674) return '25';
+    if (zscore <= 0) return '50';
+    if (zscore <= 0.674) return '75';
+    if (zscore <= 1.28) return '90';
+    if (zscore <= 1.645) return '95';
+    if (zscore <= 2.33) return '97';
     return '>97';
 }
 /**
@@ -83,9 +77,11 @@ export function calculateBmiData(heightData, weightData) {
     }
     const bmiData = [];
     weightData.forEach(w => {
-        const closestHeight = heightData.reduce((prev, curr) => Math.abs(curr.ageMonths - w.ageMonths) < Math.abs(prev.ageMonths - w.ageMonths)
-            ? curr
-            : prev);
+        const closestHeight = heightData.reduce((prev, curr) =>
+            Math.abs(curr.ageMonths - w.ageMonths) < Math.abs(prev.ageMonths - w.ageMonths)
+                ? curr
+                : prev
+        );
         if (Math.abs(closestHeight.ageMonths - w.ageMonths) < 0.5) {
             const heightInMeters = closestHeight.value / 100;
             if (heightInMeters > 0) {

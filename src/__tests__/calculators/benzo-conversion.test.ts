@@ -1,13 +1,12 @@
 /**
  * Benzodiazepine Conversion Calculator - Verification Tests
- * 
+ *
  * Tests for benzodiazepine equivalent dose conversions.
  */
 
 import { benzoConversion } from '../../calculators/benzo-conversion/index';
 
 describe('Benzodiazepine Conversion Calculator', () => {
-
     // ===========================================
     // TC-001: Calculator Configuration
     // ===========================================

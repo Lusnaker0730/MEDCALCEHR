@@ -5,7 +5,7 @@ describe('Sodium Correction Calculator', () => {
         test('Standard Factor 1.6: Glucose 200', () => {
             const input = {
                 'measured-sodium': 135,
-                'glucose': 200,
+                glucose: 200,
                 'correction-factor': '1.6'
             };
             const result = calculateSodiumCorrection(input);
@@ -19,7 +19,7 @@ describe('Sodium Correction Calculator', () => {
         test('Standard Factor 1.6: Glucose 500', () => {
             const input = {
                 'measured-sodium': 130,
-                'glucose': 500,
+                glucose: 500,
                 'correction-factor': '1.6'
             };
             const result = calculateSodiumCorrection(input);
@@ -33,7 +33,7 @@ describe('Sodium Correction Calculator', () => {
         test('Katz Factor 2.4: Glucose 600', () => {
             const input = {
                 'measured-sodium': 125,
-                'glucose': 600,
+                glucose: 600,
                 'correction-factor': '2.4'
             };
             const result = calculateSodiumCorrection(input);
@@ -47,7 +47,7 @@ describe('Sodium Correction Calculator', () => {
         test('Hyponatremia Result', () => {
             const input = {
                 'measured-sodium': 120,
-                'glucose': 200,
+                glucose: 200,
                 'correction-factor': '1.6'
             };
             const result = calculateSodiumCorrection(input);
@@ -58,7 +58,7 @@ describe('Sodium Correction Calculator', () => {
         test('Hypernatremia Result', () => {
             const input = {
                 'measured-sodium': 145,
-                'glucose': 300,
+                glucose: 300,
                 'correction-factor': '1.6'
             };
             const result = calculateSodiumCorrection(input);

@@ -48,12 +48,12 @@ export async function loadCalculator(calculatorId) {
     try {
         // Dynamic import with webpack magic comment for code splitting
         const module = await import(
-        /* webpackChunkName: "calculator-[request]" */
-        /* webpackMode: "lazy" */
-        `./calculators/${calculatorId}/index.js`);
+            /* webpackChunkName: "calculator-[request]" */
+            /* webpackMode: "lazy" */
+            `./calculators/${calculatorId}/index.js`
+        );
         return module;
-    }
-    catch (error) {
+    } catch (error) {
         console.error(`Failed to load calculator: ${calculatorId}`, error);
         throw new Error(`Calculator "${calculatorId}" not found`);
     }
@@ -80,8 +80,7 @@ export function loadChartJS() {
         script.onload = () => {
             if (window.Chart) {
                 resolve(window.Chart);
-            }
-            else {
+            } else {
                 reject(new Error('Chart.js failed to load'));
             }
         };
@@ -171,8 +170,7 @@ export class ImageLazyLoader {
         if (this.observer) {
             if (element.tagName === 'IMG') {
                 this.observer.observe(element);
-            }
-            else {
+            } else {
                 const images = element.querySelectorAll('img[data-src]');
                 images.forEach(img => this.observer?.observe(img));
             }
@@ -218,8 +216,7 @@ export function preloadResources(resources) {
 export function onIdle(callback, options = { timeout: 2000 }) {
     if ('requestIdleCallback' in window) {
         requestIdleCallback(callback, options);
-    }
-    else {
+    } else {
         // Fallback to setTimeout
         setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 100);
     }
@@ -234,8 +231,7 @@ export function loadOnIdle(importFn) {
             try {
                 const module = await importFn();
                 resolve(module);
-            }
-            catch (error) {
+            } catch (error) {
                 reject(error);
             }
         });
@@ -252,8 +248,7 @@ export function initImageLazyLoading() {
 // Auto-initialize if DOM is already loaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initImageLazyLoading);
-}
-else {
+} else {
     initImageLazyLoading();
 }
 export default {

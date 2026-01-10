@@ -1,4 +1,4 @@
-export const crclCalculation = (values) => {
+export const crclCalculation = values => {
     const gender = values['gender'] || 'male';
     const age = values['age'];
     const weight = values['weight'];
@@ -7,8 +7,7 @@ export const crclCalculation = (values) => {
     if (age == null || weight == null || creatinine == null) {
         return [];
     }
-    if (creatinine === 0)
-        return [{ label: 'Error', value: 'Creatinine cannot be 0' }];
+    if (creatinine === 0) return [{ label: 'Error', value: 'Creatinine cannot be 0' }];
     let crcl = ((140 - age) * weight) / (72 * creatinine);
     if (gender === 'female') {
         crcl *= 0.85;
@@ -21,31 +20,31 @@ export const crclCalculation = (values) => {
         category = 'Normal kidney function';
         severityClass = 'success';
         alertMsg = 'Normal creatinine clearance.';
-    }
-    else if (crcl >= 60) {
+    } else if (crcl >= 60) {
         category = 'Mild reduction';
         severityClass = 'success';
         alertMsg = 'Mildly reduced creatinine clearance.';
-    }
-    else if (crcl >= 30) {
+    } else if (crcl >= 30) {
         category = 'Moderate reduction';
         severityClass = 'warning';
-        alertMsg = 'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
+        alertMsg =
+            'Moderate reduction in kidney function. Consider nephrology referral and dose adjustment for renally cleared medications.';
         alertType = 'warning';
-    }
-    else if (crcl >= 15) {
+    } else if (crcl >= 15) {
         category = 'Severe reduction';
         severityClass = 'danger';
-        alertMsg = 'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
+        alertMsg =
+            'Severe reduction in kidney function. Nephrology referral required. Careful medication dosing adjustments necessary.';
         alertType = 'danger';
-    }
-    else {
+    } else {
         category = 'Kidney failure';
         severityClass = 'danger';
-        alertMsg = 'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
+        alertMsg =
+            'Kidney failure. Consider dialysis or transplantation. Avoid renally cleared medications.';
         alertType = 'danger';
     }
-    return [{
+    return [
+        {
             label: 'Creatinine Clearance',
             value: crcl.toFixed(1),
             unit: 'mL/min',
@@ -55,5 +54,6 @@ export const crclCalculation = (values) => {
                 type: alertType,
                 message: alertMsg
             }
-        }];
+        }
+    ];
 };

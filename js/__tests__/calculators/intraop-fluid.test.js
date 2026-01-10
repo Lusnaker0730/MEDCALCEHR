@@ -240,7 +240,7 @@ describe('Intraoperative Fluid Calculator', () => {
             { w: 60, npo: 6, t: 6, maint: 100, deficit: 600, h1: 760 },
             { w: 80, npo: 12, t: 8, maint: 120, deficit: 1440, h1: 1480 },
             { w: 50, npo: 10, t: 4, maint: 90, deficit: 900, h1: 740 },
-            { w: 15, npo: 4, t: 4, maint: 50, deficit: 200, h1: 210 },
+            { w: 15, npo: 4, t: 4, maint: 50, deficit: 200, h1: 210 }
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.w}kg, ${data.npo}hr NPO, trauma ${data.t}`, () => {

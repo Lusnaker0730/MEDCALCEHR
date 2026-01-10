@@ -24,8 +24,8 @@ describe('GWTG-HF Calculator', () => {
             'gwtg-sodium': '130',
             'gwtg-age': '35',
             'gwtg-hr': '65',
-            'copd': '0',
-            'race': '0'
+            copd: '0',
+            race: '0'
         });
         expect(result).not.toBeNull();
         const scoreItem = result.find(r => r.label === 'GWTG-HF Score');
@@ -51,8 +51,8 @@ describe('GWTG-HF Calculator', () => {
             'gwtg-sodium': '145',
             'gwtg-age': '85',
             'gwtg-hr': '120',
-            'copd': '2',
-            'race': '0'
+            copd: '2',
+            race: '0'
         });
         expect(result).not.toBeNull();
         const scoreItem = result.find(r => r.label === 'GWTG-HF Score');

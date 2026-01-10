@@ -4,14 +4,16 @@ export function fib4Calculation(values) {
     const alt = Number(values['fib4-alt']);
     const plt = Number(values['fib4-plt']);
     // Check for valid inputs
-    if (isNaN(age) ||
+    if (
+        isNaN(age) ||
         isNaN(ast) ||
         isNaN(alt) ||
         isNaN(plt) ||
         plt === 0 ||
         alt < 0 ||
         age <= 0 ||
-        ast <= 0) {
+        ast <= 0
+    ) {
         return [];
     }
     // Formula: (Age * AST) / (Platelets * sqrt(ALT))
@@ -24,12 +26,10 @@ export function fib4Calculation(values) {
     if (score < 1.3) {
         interpretation = 'Low Risk (Low probability of advanced fibrosis F3-F4)';
         alertClass = 'success';
-    }
-    else if (score > 2.67) {
+    } else if (score > 2.67) {
         interpretation = 'High Risk (High probability of advanced fibrosis F3-F4)';
         alertClass = 'danger';
-    }
-    else {
+    } else {
         interpretation = 'Indeterminate Risk';
         alertClass = 'warning';
     }

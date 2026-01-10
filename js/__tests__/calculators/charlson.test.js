@@ -14,11 +14,23 @@ describe('Charlson Comorbidity Index Calculator', () => {
     // Survival = 100 * 0.983^(e^(0)) = 100 * 0.983^1 = 98.3 -> 98%
     test('Minimal Score Case', () => {
         const result = calculateCharlson({
-            'age': '0',
-            'mi': '0', 'chf': '0', 'pvd': '0', 'cva': '0', 'dementia': '0',
-            'cpd': '0', 'ctd': '0', 'pud': '0', 'liver': '0', 'diabetes': '0',
-            'hemiplegia': '0', 'ckd': '0', 'tumor': '0', 'leukemia': '0',
-            'lymphoma': '0', 'aids': '0'
+            age: '0',
+            mi: '0',
+            chf: '0',
+            pvd: '0',
+            cva: '0',
+            dementia: '0',
+            cpd: '0',
+            ctd: '0',
+            pud: '0',
+            liver: '0',
+            diabetes: '0',
+            hemiplegia: '0',
+            ckd: '0',
+            tumor: '0',
+            leukemia: '0',
+            lymphoma: '0',
+            aids: '0'
         });
         expect(result).not.toBeNull();
         const scoreItem = result.find(r => r.label === 'Charlson Comorbidity Index');
@@ -35,11 +47,23 @@ describe('Charlson Comorbidity Index Calculator', () => {
     // Survival = ... very low.
     test('High Score Case', () => {
         const result = calculateCharlson({
-            'age': '4',
-            'mi': '0', 'chf': '0', 'pvd': '0', 'cva': '0', 'dementia': '0',
-            'cpd': '0', 'ctd': '0', 'pud': '0', 'liver': '0', 'diabetes': '0',
-            'hemiplegia': '0', 'ckd': '0', 'tumor': '6', 'leukemia': '0',
-            'lymphoma': '0', 'aids': '6'
+            age: '4',
+            mi: '0',
+            chf: '0',
+            pvd: '0',
+            cva: '0',
+            dementia: '0',
+            cpd: '0',
+            ctd: '0',
+            pud: '0',
+            liver: '0',
+            diabetes: '0',
+            hemiplegia: '0',
+            ckd: '0',
+            tumor: '6',
+            leukemia: '0',
+            lymphoma: '0',
+            aids: '6'
         });
         expect(result).not.toBeNull();
         const scoreItem = result.find(r => r.label === 'Charlson Comorbidity Index');
@@ -57,11 +81,23 @@ describe('Charlson Comorbidity Index Calculator', () => {
         // e^3.6 = 36.598
         // 0.983^36.598 = 0.53 -> 53%
         const result = calculateCharlson({
-            'age': '2',
-            'mi': '1', 'chf': '0', 'pvd': '0', 'cva': '0', 'dementia': '0',
-            'cpd': '0', 'ctd': '0', 'pud': '0', 'liver': '0', 'diabetes': '1',
-            'hemiplegia': '0', 'ckd': '0', 'tumor': '0', 'leukemia': '0',
-            'lymphoma': '0', 'aids': '0'
+            age: '2',
+            mi: '1',
+            chf: '0',
+            pvd: '0',
+            cva: '0',
+            dementia: '0',
+            cpd: '0',
+            ctd: '0',
+            pud: '0',
+            liver: '0',
+            diabetes: '1',
+            hemiplegia: '0',
+            ckd: '0',
+            tumor: '0',
+            leukemia: '0',
+            lymphoma: '0',
+            aids: '0'
         });
         const scoreItem = result.find(r => r.label === 'Charlson Comorbidity Index');
         expect(scoreItem.value).toBe('4');

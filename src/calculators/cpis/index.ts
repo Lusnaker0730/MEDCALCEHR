@@ -101,20 +101,20 @@ export const cpis = createScoringCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'CPIS Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: interpretation,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'CPIS Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: interpretation,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: `<strong>Interpretation:</strong> ${detail}`
-        })}
+                type: alertType,
+                message: `<strong>Interpretation:</strong> ${detail}`
+            })}
             ${uiBuilder.createSection({
-            title: 'Management Considerations',
-            content: management
-        })}
+                title: 'Management Considerations',
+                content: management
+            })}
         `;
     },
     customInitialize: (

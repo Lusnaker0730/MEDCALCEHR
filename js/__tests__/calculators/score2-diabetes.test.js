@@ -65,7 +65,10 @@ describe('SCORE2-Diabetes Calculator', () => {
                 'score2d-smoking': '0'
             };
             const low = calculateScore2Diabetes({ ...baseInput, 'score2d-region': 'low' });
-            const veryHigh = calculateScore2Diabetes({ ...baseInput, 'score2d-region': 'very_high' });
+            const veryHigh = calculateScore2Diabetes({
+                ...baseInput,
+                'score2d-region': 'very_high'
+            });
             const vLow = parseFloat(low[0].value);
             const vHigh = parseFloat(veryHigh[0].value);
             expect(vHigh).toBeGreaterThan(vLow);

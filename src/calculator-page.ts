@@ -147,7 +147,11 @@ window.onload = () => {
                 });
         } catch (error) {
             console.error(`Failed to load calculator module: ${calculatorId}`, error);
-            displayError(card, error as Error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
+            displayError(
+                card,
+                error as Error,
+                'This calculator is temporarily unavailable. Please try again later or contact support.'
+            );
         }
     };
 

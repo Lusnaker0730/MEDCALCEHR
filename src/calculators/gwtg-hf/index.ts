@@ -194,7 +194,6 @@ const config: FormulaCalculatorConfig = {
                 if (hasCopd) {
                     setRadio('copd', '2');
                 }
-
             } catch (e) {
                 console.warn('Error fetching FHIR data for GWTG-HF', e);
             }

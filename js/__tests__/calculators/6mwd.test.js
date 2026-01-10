@@ -241,7 +241,7 @@ describe('6 Minute Walk Distance Calculator', () => {
             // 60yo female, 160cm, 70kg: 2.11*160 - 2.29*70 - 5.78*60 + 667 = 496.5
             { age: 60, h: 160, w: 70, g: 'female', expected: 497, lln: 344 },
             // 80yo male, 165cm, 70kg: 7.57*165 - 5.02*80 - 1.76*70 - 309 = 414.75
-            { age: 80, h: 165, w: 70, g: 'male', expected: 415, lln: 262 },
+            { age: 80, h: 165, w: 70, g: 'male', expected: 415, lln: 262 }
         ];
         goldenDataset.forEach((data, index) => {
             test(`Golden Dataset Case ${index + 1}: ${data.age}yo ${data.g}, ${data.h}cm, ${data.w}kg`, () => {
