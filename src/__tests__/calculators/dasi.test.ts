@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { dasiConfig } from '../../calculators/dasi/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('DASI Calculator', () => {
     test('Config Structure', () => {

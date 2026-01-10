@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { gad7Config } from '../../calculators/gad-7/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('GAD-7 Calculator', () => {
     test('Config Structure', () => {

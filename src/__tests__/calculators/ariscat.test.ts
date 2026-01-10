@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { ariscatConfig } from '../../calculators/ariscat/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('ARISCAT Calculator', () => {
     test('Config Structure', () => {

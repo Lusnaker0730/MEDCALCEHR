@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { helps2bConfig } from '../../calculators/2helps2b/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('2HELPS2B Calculator', () => {
     // ==========================================

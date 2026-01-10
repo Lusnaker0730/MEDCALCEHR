@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { mewsConfig } from '../../calculators/mews/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('MEWS Calculator', () => {
     // ==========================================

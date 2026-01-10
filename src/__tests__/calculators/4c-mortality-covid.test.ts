@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { fourCMortalityCovidConfig } from '../../calculators/4c-mortality-covid/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('4C Mortality COVID Calculator', () => {
     test('Config Structure', () => {

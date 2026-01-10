@@ -10,6 +10,14 @@ describe('Due Date Calculator Logic', () => {
     // Let's assume "Today" is 2023-10-01
     const FIXED_NOW = new Date(2023, 9, 1); // Month is 0-indexed: 9 -> Oct
 
+    // Helper function to format date as YYYY-MM-DD using local time (not UTC)
+    const formatLocalDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     test('LMP today (0 weeks GA)', () => {
         // LMP: 2023-10-01
         // We must pass a new clone of FIXED_NOW because the function mutates it (setHours)
@@ -35,7 +43,7 @@ describe('Due Date Calculator Logic', () => {
         // LMP = 2023-10-01 - 70 days
         const lmp = new Date(FIXED_NOW);
         lmp.setDate(lmp.getDate() - 70);
-        const lmpStr = lmp.toISOString().split('T')[0];
+        const lmpStr = formatLocalDate(lmp); // Use local date format to avoid timezone issues
 
         const result = calculatePregnancyDates(lmpStr, new Date(FIXED_NOW));
         expect(result?.gaWeeks).toBe(10);
@@ -46,7 +54,7 @@ describe('Due Date Calculator Logic', () => {
     test('LMP in future (Negative GA)', () => {
         const future = new Date(FIXED_NOW);
         future.setDate(future.getDate() + 10);
-        const lmpStr = future.toISOString().split('T')[0];
+        const lmpStr = formatLocalDate(future); // Use local date format to avoid timezone issues
 
         const result = calculatePregnancyDates(lmpStr, new Date(FIXED_NOW));
         expect(result?.diffDays).toBe(-10);

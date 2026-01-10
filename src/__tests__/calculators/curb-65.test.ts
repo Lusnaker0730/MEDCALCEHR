@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from '@jest/globals';
 import { curb65Config } from '../../calculators/curb-65/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 
 describe('CURB-65 Calculator', () => {
     // ==========================================
