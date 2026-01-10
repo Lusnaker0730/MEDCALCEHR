@@ -366,10 +366,10 @@ describe('PRECISE-HBR Score Calculator', () => {
 
         test('HBR (High Risk) for score 23-26', () => {
             const getValue = createGetValue({
-                'precise-hbr-age': 70,
-                'precise-hbr-hb': 11,
-                'precise-hbr-wbc': 10,
-                'precise-hbr-egfr': 50
+                'precise-hbr-age': 55,
+                'precise-hbr-hb': 13,
+                'precise-hbr-wbc': 7,
+                'precise-hbr-egfr': 70
             });
             const getRadioValue = createGetRadioValue({
                 'prior_bleeding': '1',
@@ -398,7 +398,8 @@ describe('PRECISE-HBR Score Calculator', () => {
 
             const result = preciseHbrCalculation(getValue, mockGetStdValue, getRadioValue);
             expect(result).not.toBeNull();
-            if (result!.score > 26 && result!.score <= 30) {
+            const score = result?.score;
+            if (score !== undefined && score > 26 && score <= 30) {
                 expect(result!.severity).toBe('danger');
                 expect(result!.interpretation).toBe('Very HBR (Very High Risk)');
             }
@@ -418,7 +419,8 @@ describe('PRECISE-HBR Score Calculator', () => {
 
             const result = preciseHbrCalculation(getValue, mockGetStdValue, getRadioValue);
             expect(result).not.toBeNull();
-            if (result!.score > 30 && result!.score <= 35) {
+            const score = result?.score;
+            if (score !== undefined && score > 30 && score <= 35) {
                 expect(result!.severity).toBe('danger');
                 expect(result!.interpretation).toBe('Extreme Risk');
                 expect(result!.additionalResults).toContainEqual(
@@ -472,7 +474,9 @@ describe('PRECISE-HBR Score Calculator', () => {
                 createGetRadioValue({ 'arc_hbr_cirrhosis': '1' })
             );
 
-            expect(withArc!.score - noArc!.score).toBe(3);
+            const withArcScore = withArc?.score;
+            const noArcScore = noArc?.score;
+            expect(withArcScore !== undefined && noArcScore !== undefined ? withArcScore - noArcScore : null).toBe(3);
         });
 
         test('Multiple ARC-HBR factors still add only 3 points', () => {
