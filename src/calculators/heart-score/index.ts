@@ -10,7 +10,7 @@ import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { SNOMED_CODES, LOINC_CODES } from '../../fhir-codes.js';
 
-const config: ScoringCalculatorConfig = {
+export const heartScoreConfig: ScoringCalculatorConfig = {
     id: 'heart-score',
     title: 'HEART Score for Major Cardiac Events',
     description:
@@ -127,22 +127,22 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total HEART Score',
-                value: score.toString(),
-                unit: '/ 10 points',
-                interpretation: riskCategory,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Total HEART Score',
+            value: score.toString(),
+            unit: '/ 10 points',
+            interpretation: riskCategory,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Risk of Major Adverse Cardiac Event (6-week)',
-                value: maceRate,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Risk of Major Adverse Cardiac Event (6-week)',
+            value: maceRate,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
             ${uiBuilder.createAlert({
-                type: alertClass,
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+            type: alertClass,
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     },
 
@@ -252,7 +252,7 @@ const config: ScoringCalculatorConfig = {
 };
 
 // 創建基礎計算器
-const baseCalculator = createScoringCalculator(config);
+const baseCalculator = createScoringCalculator(heartScoreConfig);
 
 // 導出帶有詳細 Formula 表格的計算器
 export const heartScore = {
@@ -264,41 +264,41 @@ export const heartScore = {
         // 添加詳細 Formula 表格
         const formulaTable = `
             ${uiBuilder.createSection({
-                title: 'Scoring Criteria',
-                icon: '📋',
-                content:
-                    uiBuilder.createTable({
-                        headers: ['', '0 points', '1 point', '2 points'],
-                        rows: [
-                            [
-                                '<strong>History<sup>1</sup></strong>',
-                                'Slightly suspicious',
-                                'Moderately suspicious',
-                                'Highly suspicious'
-                            ],
-                            [
-                                '<strong>EKG</strong>',
-                                'Normal',
-                                'Non-specific repolarization disturbance<sup>2</sup>',
-                                'Significant ST deviation<sup>3</sup>'
-                            ],
-                            ['<strong>Age (years)</strong>', '<45', '45–64', '≥65'],
-                            [
-                                '<strong>Risk factors<sup>4</sup></strong>',
-                                'No known risk factors',
-                                '1–2 risk factors',
-                                '≥3 risk factors or history of atherosclerotic disease'
-                            ],
-                            [
-                                '<strong>Initial troponin<sup>5</sup></strong>',
-                                '≤normal limit',
-                                '1–3× normal limit',
-                                '>3× normal limit'
-                            ]
+            title: 'Scoring Criteria',
+            icon: '📋',
+            content:
+                uiBuilder.createTable({
+                    headers: ['', '0 points', '1 point', '2 points'],
+                    rows: [
+                        [
+                            '<strong>History<sup>1</sup></strong>',
+                            'Slightly suspicious',
+                            'Moderately suspicious',
+                            'Highly suspicious'
                         ],
-                        stickyFirstColumn: true
-                    }) +
-                    `
+                        [
+                            '<strong>EKG</strong>',
+                            'Normal',
+                            'Non-specific repolarization disturbance<sup>2</sup>',
+                            'Significant ST deviation<sup>3</sup>'
+                        ],
+                        ['<strong>Age (years)</strong>', '<45', '45–64', '≥65'],
+                        [
+                            '<strong>Risk factors<sup>4</sup></strong>',
+                            'No known risk factors',
+                            '1–2 risk factors',
+                            '≥3 risk factors or history of atherosclerotic disease'
+                        ],
+                        [
+                            '<strong>Initial troponin<sup>5</sup></strong>',
+                            '≤normal limit',
+                            '1–3× normal limit',
+                            '>3× normal limit'
+                        ]
+                    ],
+                    stickyFirstColumn: true
+                }) +
+                `
                     <div class="table-note text-sm text-muted mt-10">
                         <p><sup>1</sup> History: Slightly suspicious = nonspecific symptoms; Moderately suspicious = traditional symptoms; Highly suspicious = typical chest pain.</p>
                         <p><sup>2</sup> Includes LBBB, pacemaker rhythm, LVH, repolarization changes.</p>
@@ -307,7 +307,7 @@ export const heartScore = {
                         <p><sup>5</sup> Use local assay normal limits.</p>
                     </div>
                 `
-            })}
+        })}
         `;
 
         return html + formulaTable;

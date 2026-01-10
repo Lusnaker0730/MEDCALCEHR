@@ -5,10 +5,10 @@
  * 已整合 FHIRDataService，使用 dataRequirements 聲明式配置自動填充
  */
 
-import { createScoringCalculator } from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { SNOMED_CODES } from '../../fhir-codes.js';
 
-export const wellsDVT = createScoringCalculator({
+export const wellsDVTConfig: ScoringCalculatorConfig = {
     inputType: 'yesno',
     id: 'wells-dvt',
     title: "Wells' Criteria for DVT",
@@ -158,4 +158,6 @@ export const wellsDVT = createScoringCalculator({
     references: [
         'Wells PS, Anderson DR, Bormanis J, et al. Value of assessment of pretest probability of deep-vein thrombosis in clinical management. <em>Lancet</em>. 1997;350(9094):1795-1798.'
     ]
-});
+};
+
+export const wellsDVT = createScoringCalculator(wellsDVTConfig);

@@ -1,8 +1,8 @@
-import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { createUnifiedFormulaCalculator, FormulaCalculatorConfig } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-export const hepScore = createUnifiedFormulaCalculator({
+export const hepScoreConfig: FormulaCalculatorConfig = {
     id: '4ts-hit',
     title: 'HIT Expert Probability (HEP) Score for Heparin-Induced Thrombocytopenia',
     description: 'Pre-test clinical scoring model for HIT based on broad expert opinion.',
@@ -293,4 +293,6 @@ export const hepScore = createUnifiedFormulaCalculator({
     references: [
         'Cuker A, et al. The HIT Expert Probability (HEP) Score. <em>J Thromb Haemost</em>. 2010.'
     ]
-});
+};
+
+export const hepScore = createUnifiedFormulaCalculator(hepScoreConfig);

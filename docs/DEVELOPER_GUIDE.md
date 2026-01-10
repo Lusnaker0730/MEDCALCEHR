@@ -302,6 +302,45 @@ Every calculator must be verified. Create `src/__tests__/calculators/my-calc.tes
 - **TC-005 (Invalid)**: Test zeros, negatives, or missing inputs (should return `null`).
 - **TC-006 (Golden Dataset)**: Test against known-good clinical examples.
 
+### Test Template for Scoring Calculator
+
+For calculators created with `createScoringCalculator`, logic is encapsulated. To test:
+
+1.  **Export Config**: In your calculator's `index.ts`, export the configuration object.
+    ```typescript
+    // src/calculators/my-score/index.ts
+    export const myScoreConfig: ScoringCalculatorConfig = { ... };
+    export const myScore = createScoringCalculator(myScoreConfig);
+    ```
+
+2.  **Use Test Utility**: Use `calculateScoringResult` helper.
+
+```typescript
+// src/__tests__/calculators/my-score.test.ts
+import { describe, expect, test } from '@jest/globals';
+import { myScoreConfig } from '../../calculators/my-score/index';
+import { calculateScoringResult } from '../utils/scoring-test-utils';
+
+describe('My Score Calculator', () => {
+    test('Config Validation', () => {
+        expect(myScoreConfig.id).toBe('my-score');
+    });
+
+    test('Score Calculation', () => {
+        // Mock input map: key is field ID, value is selected value
+        const inputs = {
+            'field-1': '1', // Selected 'Yes' (+1)
+            'field-2': '0'  // Selected 'No' (0)
+        };
+
+        const result = calculateScoringResult(myScoreConfig, inputs);
+        
+        expect(result.totalScore).toBe(1);
+        expect(result.riskLevel?.label).toBe('Low Risk');
+    });
+});
+```
+
 ### Test Template for Complex Calculator
 
 ```typescript

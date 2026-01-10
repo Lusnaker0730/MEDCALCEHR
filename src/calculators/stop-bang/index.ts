@@ -10,7 +10,7 @@ import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 
-const config: ScoringCalculatorConfig = {
+export const stopBangConfig: ScoringCalculatorConfig = {
     inputType: 'checkbox',
     id: 'stop-bang',
     title: 'STOP-BANG Score for Obstructive Sleep Apnea',
@@ -177,4 +177,4 @@ const config: ScoringCalculatorConfig = {
     }
 };
 
-export const stopBang = createScoringCalculator(config);
+export const stopBang = createScoringCalculator(stopBangConfig);

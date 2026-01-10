@@ -1,9 +1,9 @@
-import { createScoringCalculator } from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 
-export const bacterialMeningitisScore = createScoringCalculator({
+export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
     id: 'bacterial-meningitis-score',
     title: 'Bacterial Meningitis Score for Children',
     description: 'Rules out bacterial meningitis in children aged 29 days to 19 years.',
@@ -104,16 +104,16 @@ export const bacterialMeningitisScore = createScoringCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Interpretation:</strong> ${interpretation}`
-            })}
+            type: alertType,
+            message: `<strong>Interpretation:</strong> ${interpretation}`
+        })}
         `;
     },
     customInitialize: async (
@@ -195,4 +195,6 @@ export const bacterialMeningitisScore = createScoringCalculator({
 
         calculate();
     }
-});
+};
+
+export const bacterialMeningitisScore = createScoringCalculator(bacterialMeningitisScoreConfig);
