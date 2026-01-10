@@ -1,37 +1,14 @@
-﻿import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
-import { ValidationError } from '../../errorHandler.js';
+﻿import { ValidationError } from '../../errorHandler.js';
 import type { AlertSeverity } from '../../types/index.js';
 
-/**
- * Patient data interface for PCE calculation
- */
-export interface PCEPatient {
-    age: number;
-    tc: number; // Total Cholesterol (mg/dL)
-    hdl: number; // HDL Cholesterol (mg/dL)
-    sbp: number; // Systolic BP (mmHg)
-    isMale: boolean;
-    race: 'white' | 'aa' | 'other'; // aa = African American
-    onHtnTx: boolean;
-    isDiabetic: boolean;
-    isSmoker: boolean;
+export interface AscvdResult {
+    results: any[];
+    risk: number;
+    patient: any;
 }
 
-/**
- * Pooled Cohort Equations (PCE) Calculation
- *
- * Formula source: 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk
- *
- * Uses race- and sex-specific coefficients to estimate 10-year ASCVD risk:
- *   - White Male
- *   - African American Male
- *   - White Female
- *   - African American Female
- *
- * @param patient - PCEPatient object with required demographics and labs
- * @returns 10-year ASCVD risk as percentage (0-100)
- */
-export function calculatePCE(patient: PCEPatient): number {
+// Pure function for PCE Calculation
+export function calculatePCE(patient: any): number {
     const lnAge = Math.log(patient.age);
     const lnTC = Math.log(patient.tc);
     const lnHDL = Math.log(patient.hdl);
@@ -42,8 +19,7 @@ export function calculatePCE(patient: PCEPatient): number {
     let meanValue = 0;
 
     if (patient.isMale) {
-        if (patient.race === 'white' || patient.race === 'other') {
-            // White Male coefficients
+        if (patient.race === 'white') {
             individualSum =
                 12.344 * lnAge +
                 11.853 * lnTC -
@@ -57,7 +33,7 @@ export function calculatePCE(patient: PCEPatient): number {
             meanValue = 61.18;
             baselineSurvival = 0.9144;
         } else {
-            // African American Male coefficients
+            // African American Male
             individualSum =
                 2.469 * lnAge +
                 0.302 * lnTC -
@@ -70,8 +46,7 @@ export function calculatePCE(patient: PCEPatient): number {
         }
     } else {
         // Female
-        if (patient.race === 'white' || patient.race === 'other') {
-            // White Female coefficients
+        if (patient.race === 'white') {
             individualSum =
                 -29.799 * lnAge +
                 4.884 * lnAge * lnAge +
@@ -86,7 +61,7 @@ export function calculatePCE(patient: PCEPatient): number {
             meanValue = -29.18;
             baselineSurvival = 0.9665;
         } else {
-            // African American Female coefficients
+            // African American Female
             individualSum =
                 17.114 * lnAge +
                 0.94 * lnTC -
@@ -104,60 +79,30 @@ export function calculatePCE(patient: PCEPatient): number {
     return Math.max(0, Math.min(100, risk));
 }
 
-// Module-level state to share between calculate and therapy logic
-let currentBaselineRisk = 0;
-let currentPatientData: PCEPatient | null = null;
-
-/**
- * Get the current baseline risk (for therapy impact calculations)
- */
-export function getCurrentBaselineRisk(): number {
-    return currentBaselineRisk;
-}
-
-/**
- * Get the current patient data (for therapy impact calculations)
- */
-export function getCurrentPatientData(): PCEPatient | null {
-    return currentPatientData;
-}
-
-/**
- * ASCVD Risk Calculation Function
- *
- * Estimates 10-year ASCVD risk using Pooled Cohort Equations (PCE)
- * Valid for ages 40-79 years
- *
- * Reference: 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk
- *
- * @param values - Input values from calculator form
- * @returns FormulaResultItem[] with risk assessment
- */
-export const ascvdCalculation: SimpleCalculateFn = values => {
-    // Reset state
-    currentBaselineRisk = 0;
-    currentPatientData = null;
-
-    // 1. Check Known ASCVD (secondary prevention)
+export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult => {
+    // 1. Check Known ASCVD
     if (values['known-ascvd']) {
-        const results: FormulaResultItem[] = [
-            {
-                label: '10-Year ASCVD Risk',
-                value: 'High Risk',
-                interpretation: 'Known Clinical ASCVD (History of MI, stroke, PAD)',
-                alertClass: 'danger' as AlertSeverity
-            },
-            {
-                label: 'Recommendation',
-                value: 'Secondary Prevention',
-                interpretation: 'High-intensity statin therapy is indicated.',
-                alertClass: 'warning' as AlertSeverity
-            }
-        ];
-        return results;
+        return {
+            risk: 0,
+            patient: {},
+            results: [
+                {
+                    label: '10-Year ASCVD Risk',
+                    value: 'High Risk',
+                    interpretation: 'Known Clinical ASCVD (History of MI, stroke, PAD)',
+                    alertClass: 'danger' as AlertSeverity
+                },
+                {
+                    label: 'Recommendation',
+                    value: 'Secondary Prevention',
+                    interpretation: 'High-intensity statin therapy is indicated.',
+                    alertClass: 'warning' as AlertSeverity
+                }
+            ]
+        };
     }
 
-    // 2. Validate Core Inputs
+    // 2. Validate Core Inputs Manually (since we set required: false)
     const requiredFields = ['ascvd-age', 'ascvd-tc', 'ascvd-hdl', 'ascvd-sbp'];
     const missing = requiredFields.filter(f => values[f] === undefined || values[f] === null);
 
@@ -168,34 +113,32 @@ export const ascvdCalculation: SimpleCalculateFn = values => {
         );
     }
 
-    const age = Number(values['ascvd-age']);
-    const tc = Number(values['ascvd-tc']);
-    const hdl = Number(values['ascvd-hdl']);
-    const sbp = Number(values['ascvd-sbp']);
+    const age = values['ascvd-age'];
+    const tc = values['ascvd-tc'];
+    const hdl = values['ascvd-hdl'];
+    const sbp = values['ascvd-sbp'];
 
-    // Validate age range
+    // Validate standard ranges
     if (age < 40 || age > 79) {
         throw new ValidationError(`Valid for ages 40-79. Current age: ${age}.`, 'OUT_OF_RANGE');
     }
 
     // Prepare Patient Object
-    const patient: PCEPatient = {
+    const patient = {
         age,
         tc,
         hdl,
         sbp,
-        isMale: values['ascvd-gender'] !== 'female',
-        race: (values['ascvd-race'] as 'white' | 'aa' | 'other') || 'white',
+        isMale: values['ascvd-gender'] !== 'female', // default male
+        race: values['ascvd-race'] || 'white',
         onHtnTx: values['ascvd-htn'] === 'yes',
         isDiabetic: values['ascvd-dm'] === 'yes',
         isSmoker: values['ascvd-smoker'] === 'yes'
     };
 
     const risk = calculatePCE(patient);
-    currentBaselineRisk = risk;
-    currentPatientData = patient;
 
-    // Interpret risk
+    // Interpret
     let interpretation = '';
     let alertClass: AlertSeverity = 'info';
 
@@ -210,7 +153,7 @@ export const ascvdCalculation: SimpleCalculateFn = values => {
         interpretation = 'Intermediate Risk (7.5-19.9%). Initiate moderate-intensity statin.';
         alertClass = 'warning';
     } else {
-        interpretation = 'High Risk (??0%). Initiate high-intensity statin.';
+        interpretation = 'High Risk (≥20%). Initiate high-intensity statin.';
         alertClass = 'danger';
     }
 
@@ -219,15 +162,17 @@ export const ascvdCalculation: SimpleCalculateFn = values => {
             '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
     }
 
-    const results: FormulaResultItem[] = [
-        {
-            label: '10-Year ASCVD Risk',
-            value: risk.toFixed(1),
-            unit: '%',
-            interpretation: interpretation,
-            alertClass: alertClass
-        }
-    ];
-
-    return results;
+    return {
+        risk,
+        patient,
+        results: [
+            {
+                label: '10-Year ASCVD Risk',
+                value: risk.toFixed(1),
+                unit: '%',
+                interpretation: interpretation,
+                alertClass: alertClass
+            }
+        ]
+    };
 };

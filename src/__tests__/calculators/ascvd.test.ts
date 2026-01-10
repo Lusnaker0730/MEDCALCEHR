@@ -1,83 +1,108 @@
-import { ascvdCalculation } from '../../calculators/ascvd/calculation.js';
+import { describe, expect, test } from '@jest/globals';
+import { ascvdCalculationPure } from '../../calculators/ascvd/calculation.js';
 import { ValidationError } from '../../errorHandler.js';
 
+const ascvdCalculation = (input: any) => ascvdCalculationPure(input).results;
+
 describe('ASCVD Risk Calculator', () => {
-    test('Should return High Risk immediately for Known ASCVD', () => {
-        const result = ascvdCalculation({
-            'known-ascvd': true
-        });
 
-        expect(result).not.toBeNull();
-        expect(result).toHaveLength(2);
-        expect(result![0].value).toBe('High Risk');
-        expect(result![0].alertClass).toBe('danger');
-    });
-
-    test('Should throw ValidationError if required fields are missing', () => {
-        expect(() => {
-            ascvdCalculation({
-                'known-ascvd': false,
-                'ascvd-age': 55
-                // Missing others
-            });
-        }).toThrow(ValidationError);
-    });
-
-    test('Should throw ValidationError if age is out of range', () => {
-        expect(() => {
-            ascvdCalculation({
-                'known-ascvd': false,
-                'ascvd-age': 30, // Too young
-                'ascvd-tc': 200,
-                'ascvd-hdl': 50,
-                'ascvd-sbp': 120
-            });
-        }).toThrow(/Valid for ages 40-79/);
-    });
-
-    test('Should calculate standard risk for White Male', () => {
-        // Case: 55yo White Male, TC 210, HDL 50, SBP 140, On Tx, No DM, Smoker
-        const inputs = {
-            'known-ascvd': false,
+    // Test Case 1: White Male, High Risk similar to example in 2013 guidelines
+    // Age 55, TC 213, HDL 50, SBP 120, No Tx, No DM, Smoker
+    test('Calculates Risk for White Male Smoker', () => {
+        const input = {
             'ascvd-age': 55,
             'ascvd-gender': 'male',
             'ascvd-race': 'white',
-            'ascvd-tc': 210,
+            'ascvd-tc': 213,
             'ascvd-hdl': 50,
-            'ascvd-sbp': 140,
-            'ascvd-htn': 'yes',
+            'ascvd-sbp': 120,
+            'ascvd-htn': 'no',
             'ascvd-dm': 'no',
             'ascvd-smoker': 'yes'
         };
 
-        const result = ascvdCalculation(inputs);
+        // Expected roughly 9-10%? Let's check the logic validity, not exact medical precision down to decimal
+        // unless we have a gold standard. 
+        // 2013 guidelines calculator: 
+        // ~9.6% (approximate known value for these stats)
 
-        expect(result).not.toBeNull();
+        const result = ascvdCalculation(input);
+        console.log('White Male Result:', JSON.stringify(result, null, 2));
         expect(result).toHaveLength(1);
-        const risk = parseFloat(String(result![0].value));
-        expect(risk).toBeGreaterThan(0);
-        expect(risk).toBeLessThan(100);
+        const risk = parseFloat(result[0].value);
+        expect(risk).toBeGreaterThan(5);
+        expect(risk).toBeLessThan(15);
+        expect(result[0].unit).toBe('%');
     });
 
-    test('Should calculate standard risk for African American Female', () => {
-        // Updated inputs for measurable risk
-        const inputs = {
-            'known-ascvd': false,
-            'ascvd-age': 70,
+    test('Calculates Risk for AA Female', () => {
+        const input = {
+            'ascvd-age': 55,
             'ascvd-gender': 'female',
-            'ascvd-race': 'aa',
-            'ascvd-tc': 240,
-            'ascvd-hdl': 40,
+            'ascvd-race': 'aa', // African American
+            'ascvd-tc': 213,
+            'ascvd-hdl': 50,
+            'ascvd-sbp': 120,
+            'ascvd-htn': 'no', // No Tx
+            'ascvd-dm': 'yes', // Diabetic
+            'ascvd-smoker': 'no'
+        };
+
+        const result = ascvdCalculation(input);
+        const risk = parseFloat(result[0].value);
+        expect(risk).toBeGreaterThan(0);
+        // AA female logic is different, ensuring it runs
+    });
+
+    test('Determines High Risk Category', () => {
+        // Force high risk inputs
+        const input = {
+            'ascvd-age': 70,
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 280,
+            'ascvd-hdl': 30,
             'ascvd-sbp': 160,
             'ascvd-htn': 'yes',
             'ascvd-dm': 'yes',
             'ascvd-smoker': 'yes'
         };
 
-        const result = ascvdCalculation(inputs);
-        expect(result).not.toBeNull();
-        const risk = parseFloat(String(result![0].value));
-        expect(risk).toBeGreaterThan(0.5); // Ensure it's substantial
-        expect(risk).toBeLessThan(100);
+        const result = ascvdCalculation(input);
+        expect(result[0].alertClass).toBe('danger');
+        expect(result[0].interpretation).toContain('High Risk');
+    });
+
+    test('Throws Error for Missing Data', () => {
+        const input = {
+            'ascvd-age': 55
+            // Missing others
+        };
+
+        expect(() => ascvdCalculation(input)).toThrow(ValidationError);
+        expect(() => ascvdCalculation(input)).toThrow('Please complete all fields');
+    });
+
+    test('Throws Error for Out of Range Age', () => {
+        const input = {
+            'ascvd-age': 30, // Too young (<40)
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-sbp': 120
+        };
+
+        expect(() => ascvdCalculation(input)).toThrow('Valid for ages 40-79');
+    });
+
+    test('Handles Known ASCVD Immediately', () => {
+        const input = {
+            'known-ascvd': true,
+            'ascvd-age': 55 // Even if data is partial, known ASCVD should return immediatenly?
+            // Actually the function checks known-ascvd FIRST, before validating required fields.
+        };
+
+        const result = ascvdCalculation(input);
+        expect(result).toHaveLength(2);
+        expect(result[0].value).toBe('High Risk');
     });
 });

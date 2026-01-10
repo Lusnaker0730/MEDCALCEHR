@@ -5,89 +5,17 @@ import { UnitConverter } from '../../unit-converter.js';
 import { ValidationRules, validateCalculatorInput } from '../../validator.js';
 import { ValidationError } from '../../errorHandler.js';
 import type { AlertSeverity } from '../../types/index.js';
+import { ascvdCalculationPure, calculatePCE } from './calculation.js';
 
 // Module-level state to share between calculate and therapy logic
 let currentBaselineRisk = 0;
 let currentPatientData: any = {};
 
-// Pure function for PCE Calculation
-function calculatePCE(patient: any): number {
-    const lnAge = Math.log(patient.age);
-    const lnTC = Math.log(patient.tc);
-    const lnHDL = Math.log(patient.hdl);
-    const lnSBP = Math.log(patient.sbp);
-
-    let individualSum = 0;
-    let baselineSurvival = 0;
-    let meanValue = 0;
-
-    if (patient.isMale) {
-        if (patient.race === 'white') {
-            individualSum =
-                12.344 * lnAge +
-                11.853 * lnTC -
-                2.664 * lnAge * lnTC -
-                7.99 * lnHDL +
-                1.769 * lnAge * lnHDL +
-                (patient.onHtnTx ? 1.797 : 1.764) * lnSBP +
-                7.837 * (patient.isSmoker ? 1 : 0) -
-                1.795 * lnAge * (patient.isSmoker ? 1 : 0) +
-                0.658 * (patient.isDiabetic ? 1 : 0);
-            meanValue = 61.18;
-            baselineSurvival = 0.9144;
-        } else {
-            // African American Male
-            individualSum =
-                2.469 * lnAge +
-                0.302 * lnTC -
-                0.307 * lnHDL +
-                (patient.onHtnTx ? 1.916 : 1.809) * lnSBP +
-                0.549 * (patient.isSmoker ? 1 : 0) +
-                0.645 * (patient.isDiabetic ? 1 : 0);
-            meanValue = 19.54;
-            baselineSurvival = 0.8954;
-        }
-    } else {
-        // Female
-        if (patient.race === 'white') {
-            individualSum =
-                -29.799 * lnAge +
-                4.884 * lnAge * lnAge +
-                13.54 * lnTC -
-                3.114 * lnAge * lnTC -
-                13.578 * lnHDL +
-                3.149 * lnAge * lnHDL +
-                (patient.onHtnTx ? 2.019 * lnSBP : 1.957 * lnSBP) +
-                7.574 * (patient.isSmoker ? 1 : 0) -
-                1.665 * lnAge * (patient.isSmoker ? 1 : 0) +
-                0.661 * (patient.isDiabetic ? 1 : 0);
-            meanValue = -29.18;
-            baselineSurvival = 0.9665;
-        } else {
-            // African American Female
-            individualSum =
-                17.114 * lnAge +
-                0.94 * lnTC -
-                18.92 * lnHDL +
-                4.475 * lnAge * lnHDL +
-                (patient.onHtnTx ? 29.291 : 27.82) * lnSBP -
-                6.432 * lnAge * lnSBP +
-                0.691 * (patient.isSmoker ? 1 : 0) +
-                0.874 * (patient.isDiabetic ? 1 : 0);
-            meanValue = 86.61;
-            baselineSurvival = 0.9533;
-        }
-    }
-    const risk = (1 - Math.pow(baselineSurvival, Math.exp(individualSum - meanValue))) * 100;
-    return Math.max(0, Math.min(100, risk));
-}
-
-// Therapy Impact Details HTML
 const therapyImpactHTML = `
 <div id="therapy-impact-section" class="therapy-section ui-hidden" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
     ${uiBuilder.createSection({
-        title: '🎯 Therapy Impact Analysis',
-        content: `
+    title: '🎯 Therapy Impact Analysis',
+    content: `
             <div class="alert alert-info">Baseline Risk: <span id="therapy-baseline-risk">--</span>%</div>
             <h5>Select Therapy Options:</h5>
             
@@ -95,17 +23,17 @@ const therapyImpactHTML = `
                 ${uiBuilder.createCheckbox({ id: 'statin-therapy', label: 'Statin Therapy', checked: true })}
                 <div class="therapy-details" id="statin-details">
                     ${uiBuilder.createSelect({
-                        id: 'statin-intensity',
-                        label: 'Intensity',
-                        options: [
-                            {
-                                value: 'moderate',
-                                label: 'Moderate-Intensity Statin (30-50% LDL reduction)'
-                            },
-                            { value: 'high', label: 'High-Intensity Statin (≥50% LDL reduction)' },
-                            { value: 'low', label: 'Low-Intensity Statin (<30% LDL reduction)' }
-                        ]
-                    })}
+        id: 'statin-intensity',
+        label: 'Intensity',
+        options: [
+            {
+                value: 'moderate',
+                label: 'Moderate-Intensity Statin (30-50% LDL reduction)'
+            },
+            { value: 'high', label: 'High-Intensity Statin (≥50% LDL reduction)' },
+            { value: 'low', label: 'Low-Intensity Statin (<30% LDL reduction)' }
+        ]
+    })}
                 </div>
             </div>
             
@@ -121,125 +49,43 @@ const therapyImpactHTML = `
                 ${uiBuilder.createCheckbox({ id: 'additional-therapy', label: 'Additional Therapies' })}
                 <div class="therapy-details ui-hidden" id="additional-details">
                     ${uiBuilder.createSelect({
-                        id: 'additional-options',
-                        label: 'Option',
-                        options: [
-                            {
-                                value: 'ezetimibe',
-                                label: 'Ezetimibe (additional 15-20% LDL reduction)'
-                            },
-                            {
-                                value: 'pcsk9',
-                                label: 'PCSK9 Inhibitor (additional 50-60% LDL reduction)'
-                            },
-                            { value: 'aspirin', label: 'Low-dose Aspirin (if bleeding risk low)' }
-                        ]
-                    })}
+        id: 'additional-options',
+        label: 'Option',
+        options: [
+            {
+                value: 'ezetimibe',
+                label: 'Ezetimibe (additional 15-20% LDL reduction)'
+            },
+            {
+                value: 'pcsk9',
+                label: 'PCSK9 Inhibitor (additional 50-60% LDL reduction)'
+            },
+            { value: 'aspirin', label: 'Low-dose Aspirin (if bleeding risk low)' }
+        ]
+    })}
                 </div>
             </div>
             
             <button id="calculate-therapy-impact" class="ui-btn ui-btn-primary ui-btn-block mt-15">📊 Calculate Therapy Impact</button>
             <div id="therapy-results" class="therapy-results ui-hidden"></div>
         `
-    })}
+})}
 </div>
 `;
 
-// Exported for testing
+// Exported for testing (but now just a wrapper)
 export const ascvdCalculation = (values: Record<string, any>) => {
     // Reset state
     currentBaselineRisk = 0;
     currentPatientData = {};
 
-    // 1. Check Known ASCVD
-    if (values['known-ascvd']) {
-        return [
-            {
-                label: '10-Year ASCVD Risk',
-                value: 'High Risk',
-                interpretation: 'Known Clinical ASCVD (History of MI, stroke, PAD)',
-                alertClass: 'danger' as AlertSeverity
-            },
-            {
-                label: 'Recommendation',
-                value: 'Secondary Prevention',
-                interpretation: 'High-intensity statin therapy is indicated.',
-                alertClass: 'warning' as AlertSeverity
-            }
-        ];
-    }
+    const { results, risk, patient } = ascvdCalculationPure(values);
 
-    // 2. Validate Core Inputs Manually (since we set required: false)
-    const requiredFields = ['ascvd-age', 'ascvd-tc', 'ascvd-hdl', 'ascvd-sbp'];
-    const missing = requiredFields.filter(f => values[f] === undefined || values[f] === null);
-
-    if (missing.length > 0) {
-        throw new ValidationError(
-            'Please complete all fields (Age, TC, HDL, SBP).',
-            'MISSING_DATA'
-        );
-    }
-
-    const age = values['ascvd-age'];
-    const tc = values['ascvd-tc'];
-    const hdl = values['ascvd-hdl'];
-    const sbp = values['ascvd-sbp'];
-
-    // Validate standard ranges
-    if (age < 40 || age > 79) {
-        throw new ValidationError(`Valid for ages 40-79. Current age: ${age}.`, 'OUT_OF_RANGE');
-    }
-
-    // Prepare Patient Object
-    const patient = {
-        age,
-        tc,
-        hdl,
-        sbp,
-        isMale: values['ascvd-gender'] !== 'female', // default male
-        race: values['ascvd-race'] || 'white',
-        onHtnTx: values['ascvd-htn'] === 'yes',
-        isDiabetic: values['ascvd-dm'] === 'yes',
-        isSmoker: values['ascvd-smoker'] === 'yes'
-    };
-
-    const risk = calculatePCE(patient);
+    // Update module state
     currentBaselineRisk = risk;
     currentPatientData = patient;
 
-    // Interpret
-    let interpretation = '';
-    let alertClass: AlertSeverity = 'info';
-
-    if (risk < 5) {
-        interpretation = 'Low Risk (<5%). Emphasize lifestyle modifications.';
-        alertClass = 'success';
-    } else if (risk < 7.5) {
-        interpretation =
-            'Borderline Risk (5-7.4%). Discuss risk. Consider moderate-intensity statin.';
-        alertClass = 'warning';
-    } else if (risk < 20) {
-        interpretation = 'Intermediate Risk (7.5-19.9%). Initiate moderate-intensity statin.';
-        alertClass = 'warning';
-    } else {
-        interpretation = 'High Risk (≥20%). Initiate high-intensity statin.';
-        alertClass = 'danger';
-    }
-
-    if (patient.race === 'other') {
-        interpretation +=
-            '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
-    }
-
-    return [
-        {
-            label: '10-Year ASCVD Risk',
-            value: risk.toFixed(1),
-            unit: '%',
-            interpretation: interpretation,
-            alertClass: alertClass
-        }
-    ];
+    return results;
 };
 
 export const ascvd = createUnifiedFormulaCalculator({
