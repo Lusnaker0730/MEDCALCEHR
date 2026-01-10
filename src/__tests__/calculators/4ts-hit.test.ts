@@ -6,11 +6,12 @@
 import { describe, expect, test } from '@jest/globals';
 import { hepScoreConfig } from '../../calculators/4ts-hit/index.js';
 
-describe("4Ts HIT Calculator (HEP Score)", () => {
+describe('4Ts HIT Calculator (HEP Score)', () => {
     // Mock Helpers
     const mockGetValue = (id: string) => null;
     const mockGetStdValue = (id: string) => null;
-    const createMockRadioGetter = (values: Record<string, string>) => (name: string) => values[name] || null;
+    const createMockRadioGetter = (values: Record<string, string>) => (name: string) =>
+        values[name] || null;
     const mockGetCheckboxValue = (name: string) => false;
 
     test('Config Structure', () => {
@@ -22,8 +23,8 @@ describe("4Ts HIT Calculator (HEP Score)", () => {
     // Bleeding Yes (-1)
     test('Low Probability Case', () => {
         const inputs = {
-            'hit_onset_type': 'typical',
-            'bleeding': '-1'
+            hit_onset_type: 'typical',
+            bleeding: '-1'
         };
 
         const result = hepScoreConfig.complexCalculate!(
@@ -44,8 +45,8 @@ describe("4Ts HIT Calculator (HEP Score)", () => {
     // Typical Onset, Fall 30-50% (+1) -> Score 1
     test('Intermediate Probability Case', () => {
         const inputs = {
-            'hit_onset_type': 'typical',
-            'platelet_fall_magnitude': '1'
+            hit_onset_type: 'typical',
+            platelet_fall_magnitude: '1'
         };
 
         const result = hepScoreConfig.complexCalculate!(
@@ -70,12 +71,12 @@ describe("4Ts HIT Calculator (HEP Score)", () => {
     // Total = 14
     test('High Probability Case', () => {
         const inputs = {
-            'hit_onset_type': 'typical',
-            'platelet_fall_magnitude': '3',
-            'timing_typical': '3',
-            'thrombosis_typical': '3',
-            'skin_necrosis': '3',
-            'systemic_reaction': '2'
+            hit_onset_type: 'typical',
+            platelet_fall_magnitude: '3',
+            timing_typical: '3',
+            thrombosis_typical: '3',
+            skin_necrosis: '3',
+            systemic_reaction: '2'
         };
 
         const result = hepScoreConfig.complexCalculate!(
@@ -95,9 +96,9 @@ describe("4Ts HIT Calculator (HEP Score)", () => {
     // Rapid Thrombosis New (+3)
     test('Rapid Onset Logic', () => {
         const inputs = {
-            'hit_onset_type': 'rapid',
-            'timing_rapid': '2',
-            'thrombosis_rapid': '3'
+            hit_onset_type: 'rapid',
+            timing_rapid: '2',
+            thrombosis_rapid: '3'
         };
 
         const result = hepScoreConfig.complexCalculate!(

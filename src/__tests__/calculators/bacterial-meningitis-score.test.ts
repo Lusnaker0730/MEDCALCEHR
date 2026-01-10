@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { bacterialMeningitisScoreConfig } from '../../calculators/bacterial-meningitis-score/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("Bacterial Meningitis Score Calculator", () => {
+describe('Bacterial Meningitis Score Calculator', () => {
     test('Config Structure', () => {
         expect(bacterialMeningitisScoreConfig.id).toBe('bacterial-meningitis-score');
     });
@@ -22,7 +22,7 @@ describe("Bacterial Meningitis Score Calculator", () => {
     // CSF Gram Stain (+2)
     test('Not Low Risk Case (Gram Stain)', () => {
         const result = calculateScoringResult(bacterialMeningitisScoreConfig, {
-            'gram_stain': '2'
+            gram_stain: '2'
         });
         expect(result.totalScore).toBe(2);
         expect(result.riskLevel?.label).toBe('Not Low Risk');
@@ -31,7 +31,7 @@ describe("Bacterial Meningitis Score Calculator", () => {
     // Seizure (+1)
     test('Not Low Risk Case (Seizure)', () => {
         const result = calculateScoringResult(bacterialMeningitisScoreConfig, {
-            'seizure': '1'
+            seizure: '1'
         });
         expect(result.totalScore).toBe(1);
         expect(result.riskLevel?.label).toBe('Not Low Risk');
@@ -41,11 +41,11 @@ describe("Bacterial Meningitis Score Calculator", () => {
     // 2+1+1+1+1 = 6
     test('Max Score Case', () => {
         const result = calculateScoringResult(bacterialMeningitisScoreConfig, {
-            'gram_stain': '2',
-            'csf_anc': '1',
-            'csf_protein': '1',
-            'blood_anc': '1',
-            'seizure': '1'
+            gram_stain: '2',
+            csf_anc: '1',
+            csf_protein: '1',
+            blood_anc: '1',
+            seizure: '1'
         });
         expect(result.totalScore).toBe(6);
         expect(result.riskLevel?.label).toBe('Not Low Risk');

@@ -307,6 +307,7 @@ Every calculator must be verified. Create `src/__tests__/calculators/my-calc.tes
 For calculators created with `createScoringCalculator`, logic is encapsulated. To test:
 
 1.  **Export Config**: In your calculator's `index.ts`, export the configuration object.
+
     ```typescript
     // src/calculators/my-score/index.ts
     export const myScoreConfig: ScoringCalculatorConfig = { ... };
@@ -330,11 +331,11 @@ describe('My Score Calculator', () => {
         // Mock input map: key is field ID, value is selected value
         const inputs = {
             'field-1': '1', // Selected 'Yes' (+1)
-            'field-2': '0'  // Selected 'No' (0)
+            'field-2': '0' // Selected 'No' (0)
         };
 
         const result = calculateScoringResult(myScoreConfig, inputs);
-        
+
         expect(result.totalScore).toBe(1);
         expect(result.riskLevel?.label).toBe('Low Risk');
     });

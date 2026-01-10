@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { cpisConfig } from '../../calculators/cpis/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("CPIS Calculator", () => {
+describe('CPIS Calculator', () => {
     test('Config Structure', () => {
         expect(cpisConfig.id).toBe('cpis');
     });

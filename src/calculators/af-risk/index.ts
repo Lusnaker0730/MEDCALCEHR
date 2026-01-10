@@ -276,20 +276,20 @@ export const afRiskConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
-            value: cha2ds2vasc_score.toString(),
-            unit: '/ 9 points'
-        })}
+                label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
+                value: cha2ds2vasc_score.toString(),
+                unit: '/ 9 points'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'HAS-BLED Score (Bleeding Risk)',
-            value: hasbled_score.toString(),
-            unit: '/ 9 points'
-        })}
+                label: 'HAS-BLED Score (Bleeding Risk)',
+                value: hasbled_score.toString(),
+                unit: '/ 9 points'
+            })}
             
             ${uiBuilder.createAlert({
-            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
             ${bleedNote}
         `;
     },

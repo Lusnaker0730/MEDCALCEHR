@@ -5,7 +5,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { calculatePregnancyDates } from '../../calculators/due-date/index.js';
 
-describe("Due Date Calculator Logic", () => {
+describe('Due Date Calculator Logic', () => {
     // Mock current date to a fixed point for stable tests
     // Let's assume "Today" is 2023-10-01
     const FIXED_NOW = new Date(2023, 9, 1); // Month is 0-indexed: 9 -> Oct

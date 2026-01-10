@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { kawasakiConfig } from '../../calculators/kawasaki/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("Kawasaki Disease Calculator", () => {
+describe('Kawasaki Disease Calculator', () => {
     test('Config Structure', () => {
         expect(kawasakiConfig.id).toBe('kawasaki');
     });

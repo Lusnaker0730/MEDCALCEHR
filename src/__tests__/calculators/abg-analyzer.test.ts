@@ -15,7 +15,7 @@ describe('ABG Analyzer', () => {
     test('Detects Metabolic Acidosis (Simple)', () => {
         // pH 7.20 (Acidosis) // pCO2 40 (Normal) // HCO3 15 (Low)
         const inputs = {
-            ph: 7.20,
+            ph: 7.2,
             pco2: 40,
             hco3: 15,
             sodium: 140,
@@ -23,7 +23,8 @@ describe('ABG Analyzer', () => {
             albumin: 4.0 // Normal
         };
 
-        const { getValue, getStdValue, getRadioValue, getCheckboxValue } = createMockGetters(inputs);
+        const { getValue, getStdValue, getRadioValue, getCheckboxValue } =
+            createMockGetters(inputs);
         const result = calculateABG(getValue, getStdValue, getRadioValue, getCheckboxValue);
 
         expect(result).not.toBeNull();
@@ -34,12 +35,13 @@ describe('ABG Analyzer', () => {
     test('Detects Respiratory Alkalosis', () => {
         // pH 7.50 (Alk) // pCO2 25 (Low) // HCO3 24 (Normal)
         const inputs = {
-            ph: 7.50,
+            ph: 7.5,
             pco2: 25,
             hco3: 24
         };
 
-        const { getValue, getStdValue, getRadioValue, getCheckboxValue } = createMockGetters(inputs);
+        const { getValue, getStdValue, getRadioValue, getCheckboxValue } =
+            createMockGetters(inputs);
         const result = calculateABG(getValue, getStdValue, getRadioValue, getCheckboxValue);
 
         expect(result!.interpretation).toBe('Respiratory Alkalosis');
@@ -53,7 +55,7 @@ describe('ABG Analyzer', () => {
         // Delta Delta = 4 + 24 = 28 -> No metabolic alkalosis boundary (>28)
 
         const inputs = {
-            ph: 7.40,
+            ph: 7.4,
             pco2: 40,
             hco3: 24,
             sodium: 140,
@@ -61,7 +63,8 @@ describe('ABG Analyzer', () => {
             albumin: 4.0
         };
 
-        const { getValue, getStdValue, getRadioValue, getCheckboxValue } = createMockGetters(inputs);
+        const { getValue, getStdValue, getRadioValue, getCheckboxValue } =
+            createMockGetters(inputs);
         const result = calculateABG(getValue, getStdValue, getRadioValue, getCheckboxValue);
 
         // Result should contain AG info
@@ -80,7 +83,7 @@ describe('ABG Analyzer', () => {
         // Correction: 11 + 2.5 * (4 - 2) = 11 + 5 = 16 (High)
 
         const inputs = {
-            ph: 7.40,
+            ph: 7.4,
             pco2: 40,
             hco3: 24,
             sodium: 135,
@@ -88,7 +91,8 @@ describe('ABG Analyzer', () => {
             albumin: 2.0
         };
 
-        const { getValue, getStdValue, getRadioValue, getCheckboxValue } = createMockGetters(inputs);
+        const { getValue, getStdValue, getRadioValue, getCheckboxValue } =
+            createMockGetters(inputs);
         const result = calculateABG(getValue, getStdValue, getRadioValue, getCheckboxValue);
 
         expect(result!.score).toBe(16);
@@ -112,7 +116,8 @@ describe('ABG Analyzer', () => {
             albumin: 4.0
         };
 
-        const { getValue, getStdValue, getRadioValue, getCheckboxValue } = createMockGetters(inputs);
+        const { getValue, getStdValue, getRadioValue, getCheckboxValue } =
+            createMockGetters(inputs);
         const result = calculateABG(getValue, getStdValue, getRadioValue, getCheckboxValue);
 
         const deltaInfo = result!.additionalResults?.find(r => r.label === 'Delta Ratio Analysis');

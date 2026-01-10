@@ -86,10 +86,10 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('logError', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => { });
-            jest.spyOn(console, 'log').mockImplementation(() => { });
-            jest.spyOn(console, 'group').mockImplementation(() => { });
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => { });
+            jest.spyOn(console, 'error').mockImplementation(() => {});
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            jest.spyOn(console, 'group').mockImplementation(() => {});
+            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
         });
 
         afterEach(() => {
@@ -127,10 +127,10 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('withErrorHandling', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => { });
-            jest.spyOn(console, 'log').mockImplementation(() => { });
-            jest.spyOn(console, 'group').mockImplementation(() => { });
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => { });
+            jest.spyOn(console, 'error').mockImplementation(() => {});
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            jest.spyOn(console, 'group').mockImplementation(() => {});
+            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
         });
 
         afterEach(() => {
@@ -169,10 +169,10 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('tryOrDefault', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => { });
-            jest.spyOn(console, 'log').mockImplementation(() => { });
-            jest.spyOn(console, 'group').mockImplementation(() => { });
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => { });
+            jest.spyOn(console, 'error').mockImplementation(() => {});
+            jest.spyOn(console, 'log').mockImplementation(() => {});
+            jest.spyOn(console, 'group').mockImplementation(() => {});
+            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
         });
 
         afterEach(() => {

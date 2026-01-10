@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { helps2bConfig } from '../../calculators/2helps2b/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("2HELPS2B Calculator", () => {
+describe('2HELPS2B Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure
     // ==========================================
@@ -42,7 +42,7 @@ describe("2HELPS2B Calculator", () => {
     // BIRDs (+2)
     test('Moderate Risk Case', () => {
         const result = calculateScoringResult(helps2bConfig, {
-            'birds': 'true'
+            birds: 'true'
         });
         expect(result.totalScore).toBe(2);
         expect(result.riskLevel?.category).toBe('Moderate');
@@ -53,7 +53,7 @@ describe("2HELPS2B Calculator", () => {
     // BIRDs (+2) + Prior Seizure (+1) + Plus features (+1)
     test('High Risk Case', () => {
         const result = calculateScoringResult(helps2bConfig, {
-            'birds': 'true',
+            birds: 'true',
             'prior-seizure': 'true',
             'plus-features': 'true'
         });
@@ -71,7 +71,7 @@ describe("2HELPS2B Calculator", () => {
             'lpd-bipd-lrda': 'true',
             'plus-features': 'true',
             'prior-seizure': 'true',
-            'birds': 'true'
+            birds: 'true'
         };
         // 1+1+1+1+1+2 = 7
         const result = calculateScoringResult(helps2bConfig, inputs);

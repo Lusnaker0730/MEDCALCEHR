@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { heartScoreConfig } from '../../calculators/heart-score/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("HEART Score Calculator", () => {
+describe('HEART Score Calculator', () => {
     test('Config Structure', () => {
         expect(heartScoreConfig.id).toBe('heart-score');
     });

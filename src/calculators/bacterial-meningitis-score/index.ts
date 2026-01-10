@@ -104,16 +104,16 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: `<strong>Interpretation:</strong> ${interpretation}`
-        })}
+                type: alertType,
+                message: `<strong>Interpretation:</strong> ${interpretation}`
+            })}
         `;
     },
     customInitialize: async (

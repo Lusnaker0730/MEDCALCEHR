@@ -25,12 +25,12 @@ describe('SOFA Score Calculator', () => {
     // Score: 0
     test('Healthy Patient Score', () => {
         const result = calculateScoringResult(sofaConfig, {
-            'resp': '0',   // PaO2/FiO2 >= 400
-            'coag': '0',   // Platelets >= 150
-            'liver': '0',  // Bilirubin < 1.2
-            'cardio': '0', // No hypotension
-            'cns': '0',    // GCS 15
-            'renal': '0'   // Creatinine < 1.2
+            resp: '0', // PaO2/FiO2 >= 400
+            coag: '0', // Platelets >= 150
+            liver: '0', // Bilirubin < 1.2
+            cardio: '0', // No hypotension
+            cns: '0', // GCS 15
+            renal: '0' // Creatinine < 1.2
         });
 
         expect(result.totalScore).toBe(0);
@@ -48,12 +48,12 @@ describe('SOFA Score Calculator', () => {
     // Total: 24 (Max Score)
     test('Max Score Case', () => {
         const result = calculateScoringResult(sofaConfig, {
-            'resp': '4',
-            'coag': '4',
-            'liver': '4',
-            'cardio': '4',
-            'cns': '4',
-            'renal': '4'
+            resp: '4',
+            coag: '4',
+            liver: '4',
+            cardio: '4',
+            cns: '4',
+            renal: '4'
         });
 
         expect(result.totalScore).toBe(24);
@@ -71,12 +71,12 @@ describe('SOFA Score Calculator', () => {
     // Total: 6
     test('Moderate Dysfunction (All +1)', () => {
         const result = calculateScoringResult(sofaConfig, {
-            'resp': '1',
-            'coag': '1',
-            'liver': '1',
-            'cardio': '1',
-            'cns': '1',
-            'renal': '1'
+            resp: '1',
+            coag: '1',
+            liver: '1',
+            cardio: '1',
+            cns: '1',
+            renal: '1'
         });
 
         expect(result.totalScore).toBe(6);
@@ -93,12 +93,12 @@ describe('SOFA Score Calculator', () => {
     // Total: 18
     test('High Dysfunction (All +3)', () => {
         const result = calculateScoringResult(sofaConfig, {
-            'resp': '3',
-            'coag': '3',
-            'liver': '3',
-            'cardio': '3',
-            'cns': '3',
-            'renal': '3'
+            resp: '3',
+            coag: '3',
+            liver: '3',
+            cardio: '3',
+            cns: '3',
+            renal: '3'
         });
 
         expect(result.totalScore).toBe(18);
@@ -111,24 +111,24 @@ describe('SOFA Score Calculator', () => {
     test('Boundary Check: Moderate Risk (7-9)', () => {
         // Score 7
         const res7 = calculateScoringResult(sofaConfig, {
-            'resp': '4',
-            'coag': '3',
-            'liver': '0',
-            'cardio': '0',
-            'cns': '0',
-            'renal': '0'
+            resp: '4',
+            coag: '3',
+            liver: '0',
+            cardio: '0',
+            cns: '0',
+            renal: '0'
         }); // 7 points
         expect(res7.totalScore).toBe(7);
         expect(res7.riskLevel?.label).toBe('Moderate Risk');
 
         // Score 9
         const res9 = calculateScoringResult(sofaConfig, {
-            'resp': '4',
-            'coag': '4',
-            'liver': '1',
-            'cardio': '0',
-            'cns': '0',
-            'renal': '0'
+            resp: '4',
+            coag: '4',
+            liver: '1',
+            cardio: '0',
+            cns: '0',
+            renal: '0'
         }); // 9 points
         expect(res9.totalScore).toBe(9);
         expect(res9.riskLevel?.label).toBe('Moderate Risk');
@@ -137,12 +137,12 @@ describe('SOFA Score Calculator', () => {
     test('Boundary Check: High Risk (10-12)', () => {
         // Score 10
         const res10 = calculateScoringResult(sofaConfig, {
-            'resp': '4',
-            'coag': '4',
-            'liver': '2',
-            'cardio': '0',
-            'cns': '0',
-            'renal': '0'
+            resp: '4',
+            coag: '4',
+            liver: '2',
+            cardio: '0',
+            cns: '0',
+            renal: '0'
         });
         expect(res10.totalScore).toBe(10);
         expect(res10.riskLevel?.label).toBe('High Risk');

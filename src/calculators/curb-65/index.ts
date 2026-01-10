@@ -171,28 +171,28 @@ export const curb65Config: ScoringCalculatorConfig = {
             score <= 1
                 ? 'Low Risk'
                 : score === 2
-                    ? 'Moderate Risk'
-                    : score === 3
-                        ? 'High Risk'
-                        : 'Very High Risk';
+                  ? 'Moderate Risk'
+                  : score === 3
+                    ? 'High Risk'
+                    : 'Very High Risk';
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 5 points',
-            interpretation: riskLabel,
-            alertClass: alertClass
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 5 points',
+                interpretation: riskLabel,
+                alertClass: alertClass
+            })}
             
             ${uiBuilder.createResultItem({
-            label: '30-Day Mortality Risk',
-            value: mortality
-        })}
+                label: '30-Day Mortality Risk',
+                value: mortality
+            })}
             ${uiBuilder.createAlert({
-            type: rec.level as 'success' | 'warning' | 'danger',
-            message: `<strong>Recommendation:</strong> ${rec.text}`
-        })}
+                type: rec.level as 'success' | 'warning' | 'danger',
+                message: `<strong>Recommendation:</strong> ${rec.text}`
+            })}
         `;
     },
 

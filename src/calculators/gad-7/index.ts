@@ -140,21 +140,21 @@ export const gad7Config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 21 points',
-            interpretation: severity,
-            alertClass: alertClass
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 21 points',
+                interpretation: severity,
+                alertClass: alertClass
+            })}
             
             ${uiBuilder.createAlert({
-            type: alertClass.replace('ui-alert-', '') as
-                | 'success'
-                | 'info'
-                | 'warning'
-                | 'danger',
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass.replace('ui-alert-', '') as
+                    | 'success'
+                    | 'info'
+                    | 'warning'
+                    | 'danger',
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
         `;
     }
 };

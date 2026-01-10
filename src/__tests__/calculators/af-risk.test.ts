@@ -7,7 +7,7 @@ import { describe, expect, test } from '@jest/globals';
 import { afRiskConfig } from '../../calculators/af-risk/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("AF Risk Calculator", () => {
+describe('AF Risk Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure
     // ==========================================
@@ -26,15 +26,15 @@ describe("AF Risk Calculator", () => {
 
     test('CHA2DS2-VASc Logic Verification', () => {
         // Case: Congestive Heart Failure (+1)
-        const resCHF = calculateScoringResult(afRiskConfig, { 'chf': '1' });
+        const resCHF = calculateScoringResult(afRiskConfig, { chf: '1' });
         expect(resCHF.sectionScores['chf']).toBe(1);
 
         // Case: Age >= 75 (+2)
-        const resAge75 = calculateScoringResult(afRiskConfig, { 'age75': '2' });
+        const resAge75 = calculateScoringResult(afRiskConfig, { age75: '2' });
         expect(resAge75.sectionScores['age75']).toBe(2);
 
         // Case: Stroke (+2)
-        const resStroke = calculateScoringResult(afRiskConfig, { 'stroke': '2' });
+        const resStroke = calculateScoringResult(afRiskConfig, { stroke: '2' });
         expect(resStroke.sectionScores['stroke']).toBe(2);
     });
 
@@ -59,9 +59,9 @@ describe("AF Risk Calculator", () => {
         // Age 65-74 (+1), HTN (+1) => Score 2
         // OAC recommended
         const sectionScores1: Record<string, number> = {
-            'age65': 1,
-            'htn': 1,
-            'female': 0
+            age65: 1,
+            htn: 1,
+            female: 0
         };
         const output1 = renderer(2, sectionScores1);
         expect(output1).toContain('CHA₂DS₂-VASc Score (Stroke Risk)');
@@ -72,9 +72,9 @@ describe("AF Risk Calculator", () => {
         // Female (1), Age 65 (1), HTN (1) -> Score 3
         // Adjusted for OAC: 3 - 1 = 2 => Recommended
         const sectionScores2: Record<string, number> = {
-            'age65': 1,
-            'htn': 1,
-            'female': 1
+            age65: 1,
+            htn: 1,
+            female: 1
         };
         const output2 = renderer(3, sectionScores2);
         expect(output2).toContain('Oral anticoagulation is recommended');
@@ -83,7 +83,7 @@ describe("AF Risk Calculator", () => {
         // Female (+1) => Score 1
         // Adjusted: 0 => Omitted
         const sectionScores3: Record<string, number> = {
-            'female': 1
+            female: 1
         };
         const output3 = renderer(1, sectionScores3);
         expect(output3).toContain('Antithrombotic therapy may be omitted');

@@ -8,7 +8,10 @@ interface CalculatorModule {
     initialize: (client: any, patient: any, container: HTMLElement) => void;
 }
 
-export function calculatePregnancyDates(lmpDateString: string, now: Date = new Date()): { edd: Date; gaWeeks: number; gaDays: number; diffDays: number } | null {
+export function calculatePregnancyDates(
+    lmpDateString: string,
+    now: Date = new Date()
+): { edd: Date; gaWeeks: number; gaDays: number; diffDays: number } | null {
     if (!lmpDateString) return null;
 
     const [year, month, day] = lmpDateString.split('-').map(Number);
@@ -51,20 +54,20 @@ export const dueDate: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'First Day of Last Menstrual Period (LMP)',
-            content: uiBuilder.createInput({
-                id: 'lmp-date',
-                label: 'LMP Date',
-                type: 'date',
-                placeholder: 'YYYY-MM-DD'
-            })
-        })}
+                title: 'First Day of Last Menstrual Period (LMP)',
+                content: uiBuilder.createInput({
+                    id: 'lmp-date',
+                    label: 'LMP Date',
+                    type: 'date',
+                    placeholder: 'YYYY-MM-DD'
+                })
+            })}
 
             ${uiBuilder.createResultBox({ id: 'due-date-result', title: 'Pregnancy Dating' })}
             
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <strong>Important Notes:</strong>
                     <ul class="info-list">
                         <li>Calculation assumes a 28-day cycle.</li>
@@ -72,7 +75,7 @@ export const dueDate: CalculatorModule = {
                         <li>Ultrasound is more accurate for dating in the first trimester.</li>
                     </ul>
                 `
-        })}
+            })}
         `;
     },
 
@@ -130,22 +133,22 @@ export const dueDate: CalculatorModule = {
                 if (resultContent) {
                     resultContent.innerHTML = `
                         ${uiBuilder.createResultItem({
-                        label: 'Estimated Due Date (EDD)',
-                        value: eddStr,
-                        unit: '',
-                        alertClass: 'ui-alert-success'
-                    })}
+                            label: 'Estimated Due Date (EDD)',
+                            value: eddStr,
+                            unit: '',
+                            alertClass: 'ui-alert-success'
+                        })}
                         ${uiBuilder.createResultItem({
-                        label: 'Gestational Age',
-                        value: `${gaWeeks} weeks, ${gaDays} days`,
-                        unit: '',
-                        alertClass: `ui-alert-${alertType}`
-                    })}
+                            label: 'Gestational Age',
+                            value: `${gaWeeks} weeks, ${gaDays} days`,
+                            unit: '',
+                            alertClass: `ui-alert-${alertType}`
+                        })}
                         ${uiBuilder.createResultItem({
-                        label: 'Days Remaining',
-                        value: Math.max(0, 280 - diffDays).toString(),
-                        unit: 'days'
-                    })}
+                            label: 'Days Remaining',
+                            value: Math.max(0, 280 - diffDays).toString(),
+                            unit: 'days'
+                        })}
                         ${diffDays < 0 || diffDays > 294 ? uiBuilder.createAlert({ type: alertType, message: statusMessage }) : ''}
                     `;
                 }

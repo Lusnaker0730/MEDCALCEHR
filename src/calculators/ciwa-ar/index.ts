@@ -228,17 +228,17 @@ export const ciwaArConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'CIWA-Ar Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: severity,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'CIWA-Ar Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: severity,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             
             ${uiBuilder.createAlert({
-            type: alertClass,
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass,
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
         `;
     }
 };

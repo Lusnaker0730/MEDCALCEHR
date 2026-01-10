@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { fourCMortalityCovidConfig } from '../../calculators/4c-mortality-covid/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("4C Mortality COVID Calculator", () => {
+describe('4C Mortality COVID Calculator', () => {
     test('Config Structure', () => {
         expect(fourCMortalityCovidConfig.id).toBe('4c-mortality-covid');
     });
@@ -14,14 +14,14 @@ describe("4C Mortality COVID Calculator", () => {
     // Scenario 1: Low Risk (0-3)
     test('Low Risk Case', () => {
         const result = calculateScoringResult(fourCMortalityCovidConfig, {
-            '4c-age': '0',        // <50
-            '4c-sex': '0',        // Female
+            '4c-age': '0', // <50
+            '4c-sex': '0', // Female
             '4c-comorbidities': '0',
-            '4c-resp_rate': '0',  // <20
+            '4c-resp_rate': '0', // <20
             '4c-oxygen_sat': '0', // >=92%
-            '4c-gcs': '0',        // 15
-            '4c-urea': '0',       // <7
-            '4c-crp': '0'         // <50
+            '4c-gcs': '0', // 15
+            '4c-urea': '0', // <7
+            '4c-crp': '0' // <50
         });
         expect(result.totalScore).toBe(0);
         expect(result.riskLevel?.label).toBe('Low Risk');

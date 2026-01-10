@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { hasBledConfig } from '../../calculators/has-bled/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("HAS-BLED Calculator", () => {
+describe('HAS-BLED Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure
     // ==========================================

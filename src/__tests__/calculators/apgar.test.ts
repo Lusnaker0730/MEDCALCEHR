@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { apgarConfig } from '../../calculators/apgar/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("APGAR Calculator", () => {
+describe('APGAR Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure
     // ==========================================

@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { actionIcuConfig } from '../../calculators/action-icu/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("ACTION ICU Calculator", () => {
+describe('ACTION ICU Calculator', () => {
     test('Config Structure', () => {
         expect(actionIcuConfig.id).toBe('action-icu');
     });

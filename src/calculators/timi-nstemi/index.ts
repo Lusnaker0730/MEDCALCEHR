@@ -18,13 +18,13 @@ export const timiNstemiConfig: ScoringCalculatorConfig = {
     infoAlert: `
         <h4>📊 Risk Stratification (14-day events)</h4>
         ${uiBuilder.createTable({
-        headers: ['Score', 'Risk', 'Event Rate'],
-        rows: [
-            ['0-2', 'Low', '5-8%'],
-            ['3-4', 'Intermediate', '13-20%'],
-            ['5-7', 'High', '26-41%']
-        ]
-    })}
+            headers: ['Score', 'Risk', 'Event Rate'],
+            rows: [
+                ['0-2', 'Low', '5-8%'],
+                ['3-4', 'Intermediate', '13-20%'],
+                ['5-7', 'High', '26-41%']
+            ]
+        })}
     `,
     questions: [
         {
@@ -147,23 +147,23 @@ export const timiNstemiConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 7 points',
-            interpretation: risk,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 7 points',
+                interpretation: risk,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             ${uiBuilder.createResultItem({
-            label: '14-Day Event Rate',
-            value: eventRate,
-            unit: '',
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: '14-Day Event Rate',
+                value: eventRate,
+                unit: '',
+                alertClass: `ui-alert-${alertClass}`
+            })}
             
             ${uiBuilder.createAlert({
-            type: alertClass,
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass,
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
         `;
     },
 

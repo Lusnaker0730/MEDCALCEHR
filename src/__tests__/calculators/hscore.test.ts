@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { hscoreConfig } from '../../calculators/hscore/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("HScore Calculator", () => {
+describe('HScore Calculator', () => {
     test('Config Structure', () => {
         expect(hscoreConfig.id).toBe('hscore');
     });

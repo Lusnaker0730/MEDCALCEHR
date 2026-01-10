@@ -1,4 +1,7 @@
-import { createUnifiedFormulaCalculator, FormulaCalculatorConfig } from '../shared/unified-formula-calculator.js';
+import {
+    createUnifiedFormulaCalculator,
+    FormulaCalculatorConfig
+} from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 

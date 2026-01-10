@@ -137,7 +137,12 @@ describe('Data Staleness Module', () => {
                 effectiveDateTime: oldDate.toISOString()
             };
 
-            const result = tracker.trackObservation('#creatinine', observation, '2160-0', 'Creatinine');
+            const result = tracker.trackObservation(
+                '#creatinine',
+                observation,
+                '2160-0',
+                'Creatinine'
+            );
             expect(result).not.toBeNull();
             expect(result?.isStale).toBe(true);
             expect(tracker.getStaleCount()).toBe(1);
@@ -151,7 +156,12 @@ describe('Data Staleness Module', () => {
                 effectiveDateTime: recentDate.toISOString()
             };
 
-            const result = tracker.trackObservation('#hemoglobin', observation, '718-7', 'Hemoglobin');
+            const result = tracker.trackObservation(
+                '#hemoglobin',
+                observation,
+                '718-7',
+                'Hemoglobin'
+            );
             // trackObservation returns staleness info, but isStale should be false for recent observations
             // and it won't be added to the stale items list
             expect(tracker.getStaleCount()).toBe(0);

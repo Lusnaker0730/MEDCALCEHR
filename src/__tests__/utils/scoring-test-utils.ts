@@ -3,7 +3,12 @@
  * Helper functions to simulate score calculation for testing configuration-based calculators
  */
 
-import { ScoringCalculatorConfig, ScoringSection, ScoringOption, ScoringRiskLevel } from '../../types/index.js';
+import {
+    ScoringCalculatorConfig,
+    ScoringSection,
+    ScoringOption,
+    ScoringRiskLevel
+} from '../../types/index.js';
 
 export interface ScoringResult {
     totalScore: number;
@@ -42,7 +47,6 @@ export function calculateScoringResult(
                 }
             });
         });
-
     } else if (inputType === 'yesno' && config.questions && config.sectionTitle) {
         // YesNo mode with questions
         config.questions.forEach(q => {
@@ -55,12 +59,12 @@ export function calculateScoringResult(
                 }
             }
         });
-
     } else {
         // Radio mode (default) or YesNo without questions
-        const sections = (inputType === 'yesno' && config.questions)
-            ? convertYesNoToSections(config.questions)
-            : (config.sections || []);
+        const sections =
+            inputType === 'yesno' && config.questions
+                ? convertYesNoToSections(config.questions)
+                : config.sections || [];
 
         sections.forEach((section, sIdx) => {
             const sectionId = section.id || `section-${sIdx}`;
@@ -80,9 +84,7 @@ export function calculateScoringResult(
     // Sort risk levels by minScore to ensure correct range checking
     const sortedRisks = [...config.riskLevels].sort((a, b) => a.minScore - b.minScore);
 
-    let riskLevel = sortedRisks.find(
-        r => totalScore >= r.minScore && totalScore <= r.maxScore
-    );
+    let riskLevel = sortedRisks.find(r => totalScore >= r.minScore && totalScore <= r.maxScore);
 
     // Fallback: if not found, use the last one if score is higher than max
     if (!riskLevel && totalScore > sortedRisks[sortedRisks.length - 1].maxScore) {

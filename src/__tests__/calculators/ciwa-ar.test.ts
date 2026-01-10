@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { ciwaArConfig } from '../../calculators/ciwa-ar/index.js';
 import { calculateScoringResult } from '../utils/scoring-test-utils.js';
 
-describe("CIWA-Ar Calculator", () => {
+describe('CIWA-Ar Calculator', () => {
     test('Config Structure', () => {
         expect(ciwaArConfig.id).toBe('ciwa-ar');
         expect(ciwaArConfig.sections).toHaveLength(10);
@@ -22,8 +22,8 @@ describe("CIWA-Ar Calculator", () => {
     test('Minimal Withdrawal (8)', () => {
         // Nausea 4 + Tremor 4 = 8
         const result = calculateScoringResult(ciwaArConfig, {
-            'nausea': '4',
-            'tremor': '4'
+            nausea: '4',
+            tremor: '4'
         });
         expect(result.totalScore).toBe(8);
         expect(result.riskLevel?.label).toBe('Absent or minimal withdrawal');
@@ -33,8 +33,8 @@ describe("CIWA-Ar Calculator", () => {
     test('Moderate Withdrawal (9)', () => {
         // Nausea 5 + Tremor 4 = 9
         const result = calculateScoringResult(ciwaArConfig, {
-            'nausea': '5',
-            'tremor': '4'
+            nausea: '5',
+            tremor: '4'
         });
         expect(result.totalScore).toBe(9);
         expect(result.riskLevel?.label).toBe('Mild to moderate withdrawal');
@@ -43,9 +43,9 @@ describe("CIWA-Ar Calculator", () => {
     test('Moderate Withdrawal (19)', () => {
         // Nausea 7 + Tremor 7 + Sweats 5 = 19
         const result = calculateScoringResult(ciwaArConfig, {
-            'nausea': '7',
-            'tremor': '7',
-            'sweats': '5'
+            nausea: '7',
+            tremor: '7',
+            sweats: '5'
         });
         expect(result.totalScore).toBe(19);
         expect(result.riskLevel?.label).toBe('Mild to moderate withdrawal');
@@ -55,9 +55,9 @@ describe("CIWA-Ar Calculator", () => {
     test('Severe Withdrawal (20)', () => {
         // Nausea 7 + Tremor 7 + Sweats 6 = 20
         const result = calculateScoringResult(ciwaArConfig, {
-            'nausea': '7',
-            'tremor': '7',
-            'sweats': '6'
+            nausea: '7',
+            tremor: '7',
+            sweats: '6'
         });
         expect(result.totalScore).toBe(20);
         expect(result.riskLevel?.label).toBe('Severe withdrawal');
