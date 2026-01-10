@@ -7,7 +7,14 @@ export const crclCalculation = (values: Record<string, any>): FormulaResultItem[
     const creatinine = values['creatinine'];
 
     // Check for null/undefined specifically, allowing 0 to pass through for explicit error handling
-    if (age === null || weight === null || creatinine === null) {
+    if (
+        age === undefined ||
+        age === null ||
+        weight === undefined ||
+        weight === null ||
+        creatinine === undefined ||
+        creatinine === null
+    ) {
         return [];
     }
 
