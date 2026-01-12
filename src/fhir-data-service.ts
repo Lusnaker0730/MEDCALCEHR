@@ -48,6 +48,7 @@ export interface Patient {
     birthDate?: string;
     gender?: string;
     name?: Array<{
+        use?: 'official' | 'usual' | 'temp' | 'nickname' | 'anonymous' | 'old' | 'maiden';
         given?: string[];
         family?: string;
         text?: string;
@@ -797,6 +798,101 @@ export class FHIRDataService {
             return null;
         }
         return this.patient.gender.toLowerCase() === 'female' ? 'female' : 'male';
+    }
+
+    /**
+     * Get patient name with TWCORE IG support
+     * Prioritizes 'text' field for Chinese names (TWCORE format)
+     * Falls back to family + given for Western format
+     * @returns Patient name information or null
+     */
+    getPatientName(): {
+        display: string;
+        text?: string;
+        family?: string;
+        given?: string[];
+    } | null {
+        if (!this.patient?.name || this.patient.name.length === 0) {
+            return null;
+        }
+
+        // Find the official name first, or use the first name entry
+        const officialName = this.patient.name.find(n => n.use === 'official') || this.patient.name[0];
+
+        // TWCORE IG: Use 'text' field if available (Chinese full name)
+        if (officialName.text) {
+            return {
+                display: officialName.text,
+                text: officialName.text,
+                family: officialName.family,
+                given: officialName.given
+            };
+        }
+
+        // Western format fallback: family + given
+        const parts: string[] = [];
+        if (officialName.given && officialName.given.length > 0) {
+            parts.push(...officialName.given);
+        }
+        if (officialName.family) {
+            parts.push(officialName.family);
+        }
+
+        if (parts.length === 0) {
+            return null;
+        }
+
+        return {
+            display: parts.join(' '),
+            family: officialName.family,
+            given: officialName.given
+        };
+    }
+
+    /**
+     * Get patient display name as string
+     * Shorthand for getPatientName()?.display
+     * @returns Patient name string or null
+     */
+    getPatientDisplayName(): string | null {
+        return this.getPatientName()?.display || null;
+    }
+
+    /**
+     * Get patient birth date
+     * @returns Birth date as Date object, or null if not available
+     */
+    getPatientBirthDate(): Date | null {
+        if (!this.patient?.birthDate) {
+            return null;
+        }
+        return new Date(this.patient.birthDate);
+    }
+
+    /**
+     * Get patient birth date as ISO string (YYYY-MM-DD)
+     * @returns Birth date string or null
+     */
+    getPatientBirthDateString(): string | null {
+        return this.patient?.birthDate || null;
+    }
+
+    /**
+     * Get formatted patient demographics
+     * Combines name, age, gender, and birth date
+     */
+    getPatientDemographics(): {
+        name: string | null;
+        age: number | null;
+        gender: 'male' | 'female' | null;
+        birthDate: string | null;
+    } {
+        return {
+            name: this.getPatientDisplayName(),
+            age: this.getPatientAge(),
+            gender: this.getPatientGender(),
+            birthDate: this.getPatientBirthDateString()
+        };
     }
 }
 
