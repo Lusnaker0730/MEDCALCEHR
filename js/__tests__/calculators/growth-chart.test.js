@@ -3,7 +3,8 @@
  *
  * Tests for pediatric growth calculations.
  */
-import { calculateZScore, estimatePercentile, calculateBmiData, calculateVelocity, formatAge } from '../../calculators/growth-chart/calculation';
+import { describe, expect, test } from '@jest/globals';
+import { calculateZScore, estimatePercentile, calculateBmiData, calculateVelocity, formatAge } from '../../calculators/growth-chart/calculation.js';
 describe('Growth Chart Calculator', () => {
     // ===========================================
     // TC-001: Z-Score Calculation
@@ -49,6 +50,89 @@ describe('Growth Chart Calculator', () => {
             const result = calculateZScore(12, 75, cdcData);
             expect(result).toBeCloseTo(0, 1); // At P50, Z-score ≈ 0
         });
+        test('Should return null for value <= 0 with LMS method', () => {
+            const cdcData = [
+                {
+                    Agemos: 12,
+                    L: 1,
+                    M: 75,
+                    S: 0.04,
+                    P5: 70,
+                    P50: 75,
+                    P95: 80
+                }
+            ];
+            const result = calculateZScore(12, 0, cdcData);
+            expect(result).toBeNull();
+            const resultNegative = calculateZScore(12, -5, cdcData);
+            expect(resultNegative).toBeNull();
+        });
+        test('Should use log formula when L is close to 0', () => {
+            const cdcData = [
+                {
+                    Agemos: 12,
+                    L: 0.001, // Very close to 0
+                    M: 75,
+                    S: 0.04,
+                    P5: 70,
+                    P50: 75,
+                    P95: 80
+                }
+            ];
+            const result = calculateZScore(12, 75, cdcData);
+            // When L ≈ 0, Z = log(value/M) / S = log(75/75) / 0.04 = 0
+            expect(result).toBeCloseTo(0, 1);
+        });
+        test('Should calculate positive Z-score for above median value', () => {
+            const cdcData = [
+                {
+                    Agemos: 12,
+                    L: 1,
+                    M: 75,
+                    S: 0.04,
+                    P5: 70,
+                    P50: 75,
+                    P95: 80
+                }
+            ];
+            const result = calculateZScore(12, 80, cdcData);
+            expect(result).toBeGreaterThan(0);
+        });
+        test('Should calculate negative Z-score for below median value', () => {
+            const cdcData = [
+                {
+                    Agemos: 12,
+                    L: 1,
+                    M: 75,
+                    S: 0.04,
+                    P5: 70,
+                    P50: 75,
+                    P95: 80
+                }
+            ];
+            const result = calculateZScore(12, 70, cdcData);
+            expect(result).toBeLessThan(0);
+        });
+        test('Should return null when P50/P5/P95 are missing for fallback', () => {
+            const cdcData = [
+                {
+                    Agemos: 12
+                    // No L, M, S and no P values
+                }
+            ];
+            const result = calculateZScore(12, 75, cdcData);
+            expect(result).toBeNull();
+        });
+        test('Should find closest age point in CDC data', () => {
+            const cdcData = [
+                { Agemos: 10, L: 1, M: 73, S: 0.04 },
+                { Agemos: 12, L: 1, M: 75, S: 0.04 },
+                { Agemos: 14, L: 1, M: 77, S: 0.04 }
+            ];
+            // Age 12.5 should match to 12
+            const result = calculateZScore(12.5, 75, cdcData);
+            expect(result).toBeCloseTo(0, 1);
+        });
     });
     // ===========================================
     // TC-002: Percentile Estimation
@@ -71,6 +155,26 @@ describe('Growth Chart Calculator', () => {
         });
         test('Z-score 1.645 = 95th percentile', () => {
             expect(estimatePercentile(1.645)).toBe('95');
+        });
+        test('Z-score -1.28 = 10th percentile', () => {
+            expect(estimatePercentile(-1.28)).toBe('10');
+        });
+        test('Z-score -0.674 = 25th percentile', () => {
+            expect(estimatePercentile(-0.674)).toBe('25');
+        });
+        test('Z-score 0.674 = 75th percentile', () => {
+            expect(estimatePercentile(0.674)).toBe('75');
+        });
+        test('Z-score 1.28 = 90th percentile', () => {
+            expect(estimatePercentile(1.28)).toBe('90');
+        });
+        test('Z-score 2.33 = 97th percentile', () => {
+            expect(estimatePercentile(2.33)).toBe('97');
+        });
+        test('Z-score between boundaries returns correct percentile', () => {
+            expect(estimatePercentile(-2.0)).toBe('5'); // Between -2.33 and -1.645
+            expect(estimatePercentile(0.3)).toBe('75'); // Between 0 and 0.674
+            expect(estimatePercentile(2.0)).toBe('97'); // Between 1.645 and 2.33
         });
     });
     // ===========================================
@@ -99,6 +203,32 @@ describe('Growth Chart Calculator', () => {
             const bmiData = calculateBmiData(heightData, weightData);
             expect(bmiData.length).toBe(1);
         });
+        test('Should skip BMI when height and weight ages are too far apart', () => {
+            const heightData = [{ ageMonths: 12, value: 75 }];
+            const weightData = [{ ageMonths: 24, value: 12 }];
+            const bmiData = calculateBmiData(heightData, weightData);
+            expect(bmiData.length).toBe(0); // Age difference > 0.5 months
+        });
+        test('Should calculate multiple BMI points', () => {
+            const heightData = [
+                { ageMonths: 12, value: 75 },
+                { ageMonths: 24, value: 86 },
+                { ageMonths: 36, value: 95 }
+            ];
+            const weightData = [
+                { ageMonths: 12, value: 10 },
+                { ageMonths: 24, value: 12 },
+                { ageMonths: 36, value: 14 }
+            ];
+            const bmiData = calculateBmiData(heightData, weightData);
+            expect(bmiData.length).toBe(3);
+        });
+        test('Should handle zero height gracefully', () => {
+            const heightData = [{ ageMonths: 12, value: 0 }];
+            const weightData = [{ ageMonths: 12, value: 10 }];
+            const bmiData = calculateBmiData(heightData, weightData);
+            expect(bmiData.length).toBe(0); // Division by zero avoided
+        });
     });
     // ===========================================
     // TC-004: Velocity Calculation
@@ -117,6 +247,58 @@ describe('Growth Chart Calculator', () => {
             expect(result).toContain('Height Velocity');
             expect(result).toContain('+'); // Positive growth
             expect(result).toContain('months'); // Time period
+        });
+        test('Should calculate negative velocity (weight loss)', () => {
+            const measurements = [
+                { ageMonths: 12, value: 10 },
+                { ageMonths: 14, value: 9.5 }
+            ];
+            const result = calculateVelocity('Weight', measurements, 'kg/month');
+            expect(result).toContain('Weight Velocity');
+            expect(result).toContain('text-danger'); // Negative growth shown in danger color
+        });
+        test('Should use singular "month" for short time periods', () => {
+            const measurements = [
+                { ageMonths: 12, value: 75 },
+                { ageMonths: 13, value: 76 }
+            ];
+            const result = calculateVelocity('Height', measurements, 'cm/month');
+            expect(result).toContain('month');
+        });
+        test('Should return empty for zero time difference', () => {
+            const measurements = [
+                { ageMonths: 12, value: 75 },
+                { ageMonths: 12, value: 76 }
+            ];
+            const result = calculateVelocity('Height', measurements, 'cm/month');
+            expect(result).toBe('');
+        });
+        test('Should return empty for negative time difference', () => {
+            const measurements = [
+                { ageMonths: 14, value: 75 },
+                { ageMonths: 12, value: 76 }
+            ];
+            const result = calculateVelocity('Height', measurements, 'cm/month');
+            expect(result).toBe('');
+        });
+        test('Should apply multiplier correctly', () => {
+            const measurements = [
+                { ageMonths: 12, value: 10 },
+                { ageMonths: 14, value: 11 }
+            ];
+            // Using multiplier 1000 to convert kg to g
+            const result = calculateVelocity('Weight', measurements, 'g/month', 1000);
+            expect(result).toContain('500.0'); // (11-10)*1000 / 2 months = 500 g/month
+        });
+        test('Should only use last two measurements', () => {
+            const measurements = [
+                { ageMonths: 6, value: 68 },
+                { ageMonths: 12, value: 75 },
+                { ageMonths: 18, value: 81 }
+            ];
+            const result = calculateVelocity('Height', measurements, 'cm/month');
+            // Should calculate from 12-18 months, not 6-18
+            expect(result).toContain('6.0 months'); // 18-12 = 6 months
         });
     });
     // ===========================================

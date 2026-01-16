@@ -3,7 +3,7 @@
  */
 import { describe, expect, test } from '@jest/globals';
 import { bacterialMeningitisScoreConfig } from '../../calculators/bacterial-meningitis-score/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 describe('Bacterial Meningitis Score Calculator', () => {
     test('Config Structure', () => {
         expect(bacterialMeningitisScoreConfig.id).toBe('bacterial-meningitis-score');

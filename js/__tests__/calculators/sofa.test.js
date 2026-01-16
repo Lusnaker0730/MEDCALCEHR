@@ -3,7 +3,7 @@
  */
 import { describe, expect, test } from '@jest/globals';
 import { sofaConfig } from '../../calculators/sofa/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 describe('SOFA Score Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure

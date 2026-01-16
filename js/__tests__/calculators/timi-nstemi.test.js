@@ -3,7 +3,7 @@
  */
 import { describe, expect, test } from '@jest/globals';
 import { timiNstemiConfig } from '../../calculators/timi-nstemi/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 describe('TIMI NSTEMI Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure

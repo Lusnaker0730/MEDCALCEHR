@@ -8,10 +8,9 @@
         <!-- Security Headers -->
         <meta
             http-equiv="Content-Security-Policy"
-            content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com;"
+            content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; frame-ancestors 'none'; upgrade-insecure-requests;"
         />
         <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-        <!-- X-Frame-Options removed - can only be set via HTTP header, not meta tag -->
         <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
         <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
 
@@ -19,16 +18,11 @@
     </head>
 
     <body>
-        <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
-        <script>
-            FHIR.oauth2.authorize({
-                // Cerner Registered Application
-                client_id: 'e1b41914-e2b5-4475-90ba-29022b57f820',
-                // Do NOT hardcode iss - let the launcher provide it via URL parameter
-                // iss will be provided by the EHR launch context
-                scope: 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs offline_access',
-                redirect_uri: './index.html'
-            });
-        </script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.js"
+            integrity="sha384-dGS6R4ht5hVL6tx4pQCGGEFJV/rS1ywziGTuH/fJeDtWoS4YQJeAaF1qu2/0ZXkk"
+            crossorigin="anonymous"
+        ></script>
+        <script src="js/fhir-launch.js"></script>
     </body>
 </html>

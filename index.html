@@ -8,10 +8,9 @@
         <!-- Security Headers -->
         <meta
             http-equiv="Content-Security-Policy"
-            content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com;"
+            content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; frame-ancestors 'none'; upgrade-insecure-requests;"
         />
         <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-        <!-- X-Frame-Options removed - can only be set via HTTP header, not meta tag -->
         <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
         <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
 
@@ -28,14 +27,7 @@
         <link rel="stylesheet" href="css/main.css" />
         <!-- 深色科技主題（通過 data-theme 屬性啟用） -->
         <link rel="stylesheet" href="css/themes/tech-theme.css" />
-        <script>
-            // Redirect to launch.html if this page is loaded directly,
-            // the URL doesn't contain a "state" parameter,
-            // and there is no active FHIR session data in sessionStorage.
-            if (!/state=/.test(location.search) && !sessionStorage.getItem('SMART_KEY')) {
-                window.location.href = 'launch.html';
-            }
-        </script>
+        <script src="js/auth-redirect.js"></script>
     </head>
 
     <body>
@@ -52,7 +44,7 @@
                 <div class="calculators-header">
                     <div class="header-title-row">
                         <h2>Available Calculators</h2>
-                        <div id="practitioner-info" class="practitioner-info" style="display: none">
+                        <div id="practitioner-info" class="practitioner-info hidden">
                             <span class="practitioner-label">Practitioner:</span>
                             <span id="practitioner-name">Loading...</span>
                         </div>
@@ -112,7 +104,11 @@
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.js"
+            integrity="sha384-dGS6R4ht5hVL6tx4pQCGGEFJV/rS1ywziGTuH/fJeDtWoS4YQJeAaF1qu2/0ZXkk"
+            crossorigin="anonymous"
+        ></script>
         <script type="module" src="js/theme-toggle.js"></script>
         <script type="module" src="js/main.js"></script>
     </body>
