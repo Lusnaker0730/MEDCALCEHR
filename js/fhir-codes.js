@@ -225,6 +225,154 @@ export const SNOMED_CODES = {
     HISTORY_OF_VTE: '451574005'
 };
 /**
+ * ICD-10 Codes Registry
+ * International Classification of Diseases, 10th Revision
+ * Reference: https://www.who.int/standards/classifications/classification-of-diseases
+ */
+export const ICD10_CODES = {
+    // Cardiovascular Conditions
+    HYPERTENSION: 'I10',
+    CORONARY_ARTERY_DISEASE: 'I25.10',
+    MYOCARDIAL_INFARCTION: 'I21.9',
+    ACUTE_MI_STEMI: 'I21.3',
+    ACUTE_MI_NSTEMI: 'I21.4',
+    HEART_FAILURE: 'I50.9',
+    CONGESTIVE_HEART_FAILURE: 'I50.0',
+    ATRIAL_FIBRILLATION: 'I48.91',
+    STROKE: 'I63.9',
+    ISCHEMIC_STROKE: 'I63.9',
+    HEMORRHAGIC_STROKE: 'I61.9',
+    TIA: 'G45.9',
+    PERIPHERAL_ARTERY_DISEASE: 'I73.9',
+    CARDIOGENIC_SHOCK: 'R57.0',
+    ACUTE_CORONARY_SYNDROME: 'I24.9',
+    ENDOCARDITIS: 'I33.0',
+    PULMONARY_HYPERTENSION: 'I27.0',
+    DEEP_VEIN_THROMBOSIS: 'I82.40',
+    CARDIAC_ARREST: 'I46.9',
+    ISCHEMIC_HEART_DISEASE: 'I25.9',
+    // Respiratory Conditions
+    COPD: 'J44.9',
+    ASTHMA: 'J45.909',
+    PNEUMONIA: 'J18.9',
+    PULMONARY_EMBOLISM: 'I26.99',
+    RESPIRATORY_FAILURE: 'J96.90',
+    SLEEP_APNEA: 'G47.30',
+    // Metabolic/Endocrine
+    DIABETES_MELLITUS: 'E11.9',
+    DIABETES_TYPE_1: 'E10.9',
+    DIABETES_TYPE_2: 'E11.9',
+    DIABETES_WITH_CKD: 'E11.22',
+    HYPERLIPIDEMIA: 'E78.5',
+    OBESITY: 'E66.9',
+    HYPOTHYROIDISM: 'E03.9',
+    HYPERTHYROIDISM: 'E05.90',
+    // Renal Conditions
+    CHRONIC_KIDNEY_DISEASE: 'N18.9',
+    CKD_STAGE_1: 'N18.1',
+    CKD_STAGE_2: 'N18.2',
+    CKD_STAGE_3: 'N18.3',
+    CKD_STAGE_4: 'N18.4',
+    CKD_STAGE_5: 'N18.5',
+    ACUTE_KIDNEY_INJURY: 'N17.9',
+    END_STAGE_RENAL_DISEASE: 'N18.6',
+    DIALYSIS_DEPENDENT: 'Z99.2',
+    // Liver Conditions
+    CIRRHOSIS: 'K74.60',
+    LIVER_FAILURE: 'K72.90',
+    HEPATITIS: 'K75.9',
+    ALCOHOLIC_LIVER_DISEASE: 'K70.9',
+    // Hematological
+    ANEMIA: 'D64.9',
+    BLEEDING_DISORDER: 'D68.9',
+    THROMBOCYTOPENIA: 'D69.6',
+    // Neurological
+    DEMENTIA: 'F03.90',
+    EPILEPSY: 'G40.909',
+    PARKINSONS_DISEASE: 'G20',
+    MULTIPLE_SCLEROSIS: 'G35',
+    PARALYSIS: 'G83.9',
+    HEMIPLEGIA: 'G81.90',
+    SEIZURE: 'R56.9',
+    // Malignancies
+    MALIGNANCY: 'C80.1',
+    METASTATIC_CANCER: 'C79.9',
+    LEUKEMIA: 'C95.90',
+    LYMPHOMA: 'C85.90',
+    // Infections
+    SEPSIS: 'A41.9',
+    HIV: 'B20',
+    AIDS: 'B20',
+    TUBERCULOSIS: 'A16.9',
+    COVID_19: 'U07.1',
+    // Substance Use
+    SMOKING: 'F17.210',
+    TOBACCO_USE: 'Z72.0',
+    ALCOHOL_ABUSE: 'F10.10',
+    DRUG_ABUSE: 'F19.10',
+    // Other Conditions
+    CONNECTIVE_TISSUE_DISEASE: 'M35.9',
+    PEPTIC_ULCER_DISEASE: 'K27.9',
+    FRACTURE: 'T14.8',
+    HEMOPTYSIS: 'R04.2'
+};
+/**
+ * SNOMED to ICD-10 Mapping
+ * Maps SNOMED CT codes to their ICD-10 equivalents
+ */
+export const SNOMED_TO_ICD10_MAP = {
+    // Cardiovascular
+    '38341003': 'I10', // Hypertension
+    '53741008': 'I25.10', // CAD
+    '22298006': 'I21.9', // MI
+    '84114007': 'I50.9', // Heart failure
+    '42343007': 'I50.0', // CHF
+    '49436004': 'I48.91', // AFib
+    '230690007': 'I63.9', // Stroke
+    '266257000': 'G45.9', // TIA
+    '399957001': 'I73.9', // PAD
+    '27885002': 'R57.0', // Cardiogenic shock
+    '394659003': 'I24.9', // ACS
+    '128053003': 'I82.40', // DVT
+    '410429000': 'I46.9', // Cardiac arrest
+    '414545008': 'I25.9', // Ischemic heart disease
+    // Respiratory
+    '13645005': 'J44.9', // COPD
+    '195967001': 'J45.909', // Asthma
+    '233604007': 'J18.9', // Pneumonia
+    '59282003': 'I26.99', // PE
+    '409622000': 'J96.90', // Respiratory failure
+    // Metabolic
+    '73211009': 'E11.9', // DM
+    '46635009': 'E10.9', // Type 1 DM
+    '44054006': 'E11.9', // Type 2 DM
+    '55822004': 'E78.5', // Hyperlipidemia
+    '414915002': 'E66.9', // Obesity
+    // Renal
+    '709044004': 'N18.9', // CKD
+    '14669001': 'N17.9', // AKI
+    '46177005': 'N18.6', // ESRD
+    // Liver
+    '19943007': 'K74.60', // Cirrhosis
+    '59927004': 'K72.90', // Liver failure
+    // Hematological
+    '271737000': 'D64.9', // Anemia
+    '64779008': 'D68.9', // Bleeding disorder
+    '415116008': 'D69.6', // Thrombocytopenia
+    // Neurological
+    '52448006': 'F03.90', // Dementia
+    '84757009': 'G40.909', // Epilepsy
+    '49049000': 'G20', // Parkinson's
+    '50582007': 'G81.90', // Hemiplegia
+    // Malignancies
+    '363346000': 'C80.1', // Malignancy
+    '94225005': 'C79.9', // Metastatic cancer
+    // Infections
+    '91302008': 'A41.9', // Sepsis
+    '86406008': 'B20', // HIV
+    '840539006': 'U07.1' // COVID-19
+};
+/**
  * RxNorm Codes Registry
  * Standard codes for medications
  * Reference: https://www.nlm.nih.gov/research/umls/rxnorm/
@@ -337,6 +485,98 @@ export function isValidSnomedCode(code) {
     return /^\d{6,18}$/.test(code);
 }
 /**
+ * Get ICD-10 code by condition name
+ * @param {string} name - Common name of the condition
+ * @returns {string|null} - ICD-10 code or null if not found
+ */
+export function getIcd10Code(name) {
+    const upperName = name.toUpperCase().replace(/[- ]/g, '_');
+    return ICD10_CODES[upperName] || null;
+}
+/**
+ * Get descriptive name for an ICD-10 code
+ * @param {string} code - ICD-10 code
+ * @returns {string|null} - Descriptive name or null if not found
+ */
+export function getIcd10Name(code) {
+    const entry = Object.entries(ICD10_CODES).find(([, value]) => value === code);
+    return entry ? entry[0].replace(/_/g, ' ').toLowerCase() : null;
+}
+/**
+ * Validate if a code is a valid ICD-10 code format
+ * @param {string} code - Code to validate
+ * @returns {boolean} - True if valid ICD-10 format
+ */
+export function isValidIcd10Code(code) {
+    // ICD-10 codes: letter followed by 2-7 alphanumeric characters, optionally with a decimal
+    return /^[A-Z]\d{2}(\.\d{1,4})?$/.test(code);
+}
+/**
+ * Get both SNOMED and ICD-10 codes by condition name
+ * Unified lookup for diagnosis codes across both systems
+ * @param {string} name - Common name of the condition
+ * @returns {DiagnosisCodeResult} - Object containing both codes
+ */
+export function getDiagnosisCode(name) {
+    const upperName = name.toUpperCase().replace(/[- ]/g, '_');
+    return {
+        snomed: SNOMED_CODES[upperName] || null,
+        icd10: ICD10_CODES[upperName] || null,
+        name: upperName.replace(/_/g, ' ').toLowerCase()
+    };
+}
+/**
+ * Convert a SNOMED code to ICD-10
+ * @param {string} snomedCode - SNOMED CT code
+ * @returns {string|null} - ICD-10 code or null if no mapping exists
+ */
+export function convertSnomedToIcd10(snomedCode) {
+    return SNOMED_TO_ICD10_MAP[snomedCode] || null;
+}
+/**
+ * Match a diagnosis code (either SNOMED or ICD-10) and return normalized info
+ * Useful for accepting patient data that may use either coding system
+ * @param {string} code - Diagnosis code (SNOMED or ICD-10)
+ * @returns {DiagnosisCodeResult|null} - Matched diagnosis info or null
+ */
+export function matchDiagnosisCode(code) {
+    // Check if it's a SNOMED code
+    if (isValidSnomedCode(code)) {
+        const name = getSnomedName(code);
+        if (name) {
+            const upperName = name.toUpperCase().replace(/ /g, '_');
+            return {
+                snomed: code,
+                icd10: ICD10_CODES[upperName] || convertSnomedToIcd10(code),
+                name
+            };
+        }
+        // Check SNOMED_TO_ICD10_MAP for unmapped SNOMED codes
+        const icd10 = convertSnomedToIcd10(code);
+        if (icd10) {
+            const icd10Name = getIcd10Name(icd10);
+            return {
+                snomed: code,
+                icd10,
+                name: icd10Name || 'unknown'
+            };
+        }
+    }
+    // Check if it's an ICD-10 code
+    if (isValidIcd10Code(code)) {
+        const name = getIcd10Name(code);
+        if (name) {
+            const upperName = name.toUpperCase().replace(/ /g, '_');
+            return {
+                snomed: SNOMED_CODES[upperName] || null,
+                icd10: code,
+                name
+            };
+        }
+    }
+    return null;
+}
+/**
  * Get all vital signs LOINC codes
  * @returns {Object} - Object containing vital signs codes
  */
@@ -399,12 +639,20 @@ export function getLabCodesByCategory(category) {
 export default {
     LOINC: LOINC_CODES,
     SNOMED: SNOMED_CODES,
+    ICD10: ICD10_CODES,
+    SNOMED_TO_ICD10: SNOMED_TO_ICD10_MAP,
     getLoincCode,
     getSnomedCode,
+    getIcd10Code,
     getLoincName,
     getSnomedName,
+    getIcd10Name,
     isValidLoincCode,
     isValidSnomedCode,
+    isValidIcd10Code,
+    getDiagnosisCode,
+    convertSnomedToIcd10,
+    matchDiagnosisCode,
     getVitalSignsCodes,
     getLabCodesByCategory,
     getMeasurementType

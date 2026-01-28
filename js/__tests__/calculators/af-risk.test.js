@@ -4,7 +4,7 @@
  */
 import { describe, expect, test } from '@jest/globals';
 import { afRiskConfig } from '../../calculators/af-risk/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 describe('AF Risk Calculator', () => {
     // ==========================================
     // TC-001: Verification of Config Structure

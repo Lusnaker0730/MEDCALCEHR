@@ -3,7 +3,7 @@
  */
 import { describe, expect, test } from '@jest/globals';
 import { fourAsDeliriumConfig } from '../../calculators/4as-delirium/index.js';
-import { calculateScoringResult } from '../utils/scoring-test-utils.js';
+import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 describe('4AT Calculator', () => {
     test('Config Structure', () => {
         expect(fourAsDeliriumConfig.id).toBe('4as-delirium');
