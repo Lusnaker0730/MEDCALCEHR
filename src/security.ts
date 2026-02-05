@@ -1,33 +1,48 @@
 /**
  * Security utilities for preventing XSS attacks and sanitizing user input
  * Provides HTML escaping, sanitization, and safe DOM manipulation functions
+ *
+ * @security This module is critical for preventing XSS attacks.
+ *           Any changes should be reviewed carefully and tested with penetration tests.
  */
+
+// Dangerous tags that should always be removed (mXSS prevention)
+const DANGEROUS_TAGS = [
+    'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed',
+    'applet', 'math', 'svg', 'template', 'noscript', 'noembed', 'listing',
+    'xmp', 'plaintext', 'comment', 'base', 'link', 'meta', 'title'
+];
+
+// Dangerous attribute prefixes
+const DANGEROUS_ATTR_PREFIXES = ['on', 'xmlns', 'xlink'];
+
+// Dangerous URL schemes
+const DANGEROUS_URL_SCHEMES = ['javascript:', 'data:', 'vbscript:', 'file:'];
+
+/**
+ * Removes null bytes and other dangerous control characters
+ * @param str - String to sanitize
+ * @returns Sanitized string without null bytes
+ */
+function stripNullBytes(str: string): string {
+    // Remove null bytes and other control characters (except newlines and tabs)
+    return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+}
 
 /**
  * Escapes HTML special characters to prevent XSS attacks
+ * Uses character replacement for comprehensive escaping including quotes
  * @param {string} str - The string to escape
  * @returns {string} The escaped string safe for HTML insertion
+ * @security Escapes: & < > " ' / ` = to prevent XSS in various contexts
  */
 export function escapeHTML(str: string | null | undefined): string {
     if (str === null || str === undefined) {
         return '';
     }
 
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-/**
- * Alternative implementation using character replacement
- * More performant for large strings
- * @param {string} str - The string to escape
- * @returns {string} The escaped string
- */
-export function escapeHTMLFast(str: string | null | undefined): string {
-    if (str === null || str === undefined) {
-        return '';
-    }
+    // Strip null bytes first
+    const cleaned = stripNullBytes(String(str));
 
     const htmlEscapeMap: Record<string, string> = {
         '&': '&amp;',
@@ -35,48 +50,122 @@ export function escapeHTMLFast(str: string | null | undefined): string {
         '>': '&gt;',
         '"': '&quot;',
         "'": '&#x27;',
-        '/': '&#x2F;'
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
     };
 
-    return String(str).replace(/[&<>"'/]/g, char => htmlEscapeMap[char]);
+    return cleaned.replace(/[&<>"'/`=]/g, char => htmlEscapeMap[char]);
+}
+
+/**
+ * Alternative implementation using character replacement
+ * More performant for large strings (alias for escapeHTML)
+ * @param {string} str - The string to escape
+ * @returns {string} The escaped string
+ */
+export function escapeHTMLFast(str: string | null | undefined): string {
+    return escapeHTML(str);
+}
+
+/**
+ * Checks if a string contains dangerous URL schemes
+ * @param value - The attribute value to check
+ * @returns True if dangerous scheme found
+ */
+function hasDangerousScheme(value: string): boolean {
+    const normalized = value.toLowerCase().replace(/[\s\x00-\x1F]/g, '');
+    return DANGEROUS_URL_SCHEMES.some(scheme => normalized.includes(scheme));
+}
+
+/**
+ * Recursively removes dangerous elements from a parent element
+ * @param parent - The parent element to clean
+ */
+function removeDangerousElements(parent: Element): void {
+    // Remove dangerous tags
+    DANGEROUS_TAGS.forEach(tagName => {
+        const elements = parent.getElementsByTagName(tagName);
+        // Convert to array since we're modifying the live collection
+        Array.from(elements).forEach(el => el.remove());
+    });
 }
 
 /**
  * Sanitizes HTML by removing potentially dangerous elements and attributes
+ * Uses a defense-in-depth approach with multiple layers of protection
  * @param {string} html - The HTML string to sanitize
  * @returns {string} Sanitized HTML string
+ * @security Protects against: XSS, mXSS, script injection, event handlers,
+ *           javascript: URLs, CSS expression attacks, and more
  */
 export function sanitizeHTML(html: string): string {
     if (!html) {
         return '';
     }
 
-    // Create a temporary div to parse HTML
+    // Step 1: Strip null bytes and control characters
+    let cleaned = stripNullBytes(html);
+
+    // Step 2: Remove obfuscated script patterns (before DOM parsing)
+    // Handle patterns like <scr<script>ipt> or <scr ipt>
+    // First, remove any nested tags within script-like patterns
+    cleaned = cleaned.replace(/<scr[^>]*<[^>]*>[^>]*ipt/gi, '');
+    cleaned = cleaned.replace(/<scr\s+ipt/gi, '');
+    // Escape any remaining script-like patterns
+    cleaned = cleaned.replace(/<\s*script/gi, '&lt;script');
+    cleaned = cleaned.replace(/script\s*>/gi, 'script&gt;');
+
+    // Step 3: Create a temporary div to parse HTML
     const temp = document.createElement('div');
-    temp.innerHTML = html;
+    temp.innerHTML = cleaned;
 
-    // Remove script tags
-    const scripts = temp.querySelectorAll('script');
-    scripts.forEach(script => script.remove());
+    // Step 4: Remove dangerous elements (script, style, svg, math, etc.)
+    removeDangerousElements(temp);
 
-    // Remove event handler attributes
+    // Step 5: Process all remaining elements
     const allElements = temp.querySelectorAll('*');
     allElements.forEach(element => {
-        // Remove all on* attributes (onclick, onload, etc.)
+        // Remove all dangerous attributes
         Array.from(element.attributes).forEach(attr => {
-            if (attr.name.startsWith('on')) {
+            const attrName = attr.name.toLowerCase();
+            const attrValue = attr.value;
+
+            // Remove event handlers (on*)
+            if (DANGEROUS_ATTR_PREFIXES.some(prefix => attrName.startsWith(prefix))) {
+                element.removeAttribute(attr.name);
+                return;
+            }
+
+            // Check for javascript: in any attribute
+            if (hasDangerousScheme(attrValue)) {
+                element.removeAttribute(attr.name);
+                return;
+            }
+
+            // Special handling for style attribute - remove javascript: and expression()
+            if (attrName === 'style') {
+                const styleValue = attrValue.toLowerCase();
+                if (styleValue.includes('javascript:') ||
+                    styleValue.includes('expression(') ||
+                    styleValue.includes('url(') && hasDangerousScheme(styleValue)) {
+                    element.removeAttribute('style');
+                    return;
+                }
+            }
+
+            // Remove data: URLs from src and href (except for safe data URLs)
+            if ((attrName === 'src' || attrName === 'href' || attrName === 'action') &&
+                attrValue.toLowerCase().trim().startsWith('data:') &&
+                !attrValue.toLowerCase().startsWith('data:image/')) {
                 element.removeAttribute(attr.name);
             }
         });
-
-        // Remove javascript: URLs
-        ['href', 'src', 'action'].forEach(attr => {
-            const value = element.getAttribute(attr);
-            if (value && value.toLowerCase().trim().startsWith('javascript:')) {
-                element.removeAttribute(attr);
-            }
-        });
     });
+
+    // Step 6: Final pass - recursively remove any remaining dangerous tags
+    // (they might have been created by DOM parser normalization)
+    removeDangerousElements(temp);
 
     return temp.innerHTML;
 }
