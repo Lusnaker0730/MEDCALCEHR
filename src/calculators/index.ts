@@ -259,8 +259,14 @@ export async function loadCalculator(calculatorId: string): Promise<CalculatorMo
         const version = Date.now();
         const module = await import(`/js/calculators/${calculatorId}/index.js?v=${version}`);
 
-        // Return the calculator object (usually the first export)
-        return module.default || (Object.values(module)[0] as CalculatorModule);
+        // Return the calculator object (prefer default, then search for generateHTML, then fallback)
+        if (module.default) return module.default;
+
+        const calculator = Object.values(module).find((exportItem: any) =>
+            exportItem && typeof exportItem.generateHTML === 'function'
+        );
+
+        return (calculator as CalculatorModule) || (Object.values(module)[0] as CalculatorModule);
     } catch (error) {
         console.error(`Failed to load calculator: ${calculatorId}`, error);
         throw new Error(`Unable to load calculator module: ${calculatorId}`);

@@ -3,6 +3,8 @@ import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata, CalculatorModule } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
+import { auditEventService } from './audit-event-service.js';
+import { provenanceService } from './provenance-service.js';
 
 declare global {
     interface Window {
@@ -38,30 +40,10 @@ window.CACHE_VERSION = '1.0.5';
  */
 function showLoading(element: HTMLElement): void {
     element.innerHTML = `
-        <div class="loading-container" style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            min-height: 200px;
-        ">
-            <div class="loading-spinner" style="
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #3498db;
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                animation: spin 1s linear infinite;
-            "></div>
-            <p style="margin-top: 20px; color: #666; font-size: 0.95em;">Loading calculator...</p>
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Loading calculator...</p>
         </div>
-        <style>
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
     `;
 }
 
@@ -87,7 +69,10 @@ window.onload = () => {
     const calculatorInfo = getCalculatorMetadata(calculatorId);
 
     if (!calculatorInfo) {
-        container.innerHTML = `<h2>Calculator "${calculatorId}" not found.</h2>`;
+        // Use textContent to prevent XSS from URL parameter
+        const errorHeading = document.createElement('h2');
+        errorHeading.textContent = `Calculator "${calculatorId}" not found.`;
+        container.appendChild(errorHeading);
         return;
     }
 
@@ -135,6 +120,25 @@ window.onload = () => {
                 .ready()
                 .then((client: FHIRClient) => {
                     displayPatientInfo(client, patientInfoDiv).then((patient: Patient | null) => {
+                        // Log patient access to audit trail (IHE BALP)
+                        if (patient?.id) {
+                            const patientName = patient.name?.[0]?.text ||
+                                `${patient.name?.[0]?.given?.join(' ') || ''} ${patient.name?.[0]?.family || ''}`.trim();
+
+                            // Set audit and provenance context
+                            auditEventService.setPatientContext(patient.id, patientName);
+                            provenanceService.setPatientContext(patient.id, patientName);
+
+                            auditEventService.logPatientAccess(
+                                patient.id,
+                                patientName,
+                                'Calculator',
+                                calculatorId
+                            ).catch(err => {
+                                console.warn('[MedCalc] Failed to log patient access audit:', err);
+                            });
+                        }
+
                         initializeCalculator(client, patient);
                     });
                 })

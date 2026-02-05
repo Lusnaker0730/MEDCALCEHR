@@ -330,3 +330,125 @@ body[data-theme='tech'] .trade-off-legend {
     text-align: center;
     color: var(--text-muted, #6b7280);
 }
+
+/* Trade-off Chart Canvas */
+#trade-off-chart-canvas {
+    max-height: 500px;
+}
+
+/* Legend Color Boxes */
+.legend-color-teal {
+    background: rgba(13, 148, 136, 0.3);
+}
+
+.legend-color-gray {
+    background: rgba(107, 114, 128, 0.3);
+}
+
+.legend-color-orange {
+    background: rgba(249, 115, 22, 0.3);
+}
+
+/* Dynamic Bar Heights (CSP-compliant) */
+/* Generate height classes from 0% to 100% */
+.bar-height-0 { height: 0% !important; }
+.bar-height-1 { height: 1% !important; }
+.bar-height-2 { height: 2% !important; }
+.bar-height-3 { height: 3% !important; }
+.bar-height-4 { height: 4% !important; }
+.bar-height-5 { height: 5% !important; }
+.bar-height-6 { height: 6% !important; }
+.bar-height-7 { height: 7% !important; }
+.bar-height-8 { height: 8% !important; }
+.bar-height-9 { height: 9% !important; }
+.bar-height-10 { height: 10% !important; }
+.bar-height-11 { height: 11% !important; }
+.bar-height-12 { height: 12% !important; }
+.bar-height-13 { height: 13% !important; }
+.bar-height-14 { height: 14% !important; }
+.bar-height-15 { height: 15% !important; }
+.bar-height-16 { height: 16% !important; }
+.bar-height-17 { height: 17% !important; }
+.bar-height-18 { height: 18% !important; }
+.bar-height-19 { height: 19% !important; }
+.bar-height-20 { height: 20% !important; }
+.bar-height-21 { height: 21% !important; }
+.bar-height-22 { height: 22% !important; }
+.bar-height-23 { height: 23% !important; }
+.bar-height-24 { height: 24% !important; }
+.bar-height-25 { height: 25% !important; }
+.bar-height-26 { height: 26% !important; }
+.bar-height-27 { height: 27% !important; }
+.bar-height-28 { height: 28% !important; }
+.bar-height-29 { height: 29% !important; }
+.bar-height-30 { height: 30% !important; }
+.bar-height-31 { height: 31% !important; }
+.bar-height-32 { height: 32% !important; }
+.bar-height-33 { height: 33% !important; }
+.bar-height-34 { height: 34% !important; }
+.bar-height-35 { height: 35% !important; }
+.bar-height-36 { height: 36% !important; }
+.bar-height-37 { height: 37% !important; }
+.bar-height-38 { height: 38% !important; }
+.bar-height-39 { height: 39% !important; }
+.bar-height-40 { height: 40% !important; }
+.bar-height-41 { height: 41% !important; }
+.bar-height-42 { height: 42% !important; }
+.bar-height-43 { height: 43% !important; }
+.bar-height-44 { height: 44% !important; }
+.bar-height-45 { height: 45% !important; }
+.bar-height-46 { height: 46% !important; }
+.bar-height-47 { height: 47% !important; }
+.bar-height-48 { height: 48% !important; }
+.bar-height-49 { height: 49% !important; }
+.bar-height-50 { height: 50% !important; }
+.bar-height-51 { height: 51% !important; }
+.bar-height-52 { height: 52% !important; }
+.bar-height-53 { height: 53% !important; }
+.bar-height-54 { height: 54% !important; }
+.bar-height-55 { height: 55% !important; }
+.bar-height-56 { height: 56% !important; }
+.bar-height-57 { height: 57% !important; }
+.bar-height-58 { height: 58% !important; }
+.bar-height-59 { height: 59% !important; }
+.bar-height-60 { height: 60% !important; }
+.bar-height-61 { height: 61% !important; }
+.bar-height-62 { height: 62% !important; }
+.bar-height-63 { height: 63% !important; }
+.bar-height-64 { height: 64% !important; }
+.bar-height-65 { height: 65% !important; }
+.bar-height-66 { height: 66% !important; }
+.bar-height-67 { height: 67% !important; }
+.bar-height-68 { height: 68% !important; }
+.bar-height-69 { height: 69% !important; }
+.bar-height-70 { height: 70% !important; }
+.bar-height-71 { height: 71% !important; }
+.bar-height-72 { height: 72% !important; }
+.bar-height-73 { height: 73% !important; }
+.bar-height-74 { height: 74% !important; }
+.bar-height-75 { height: 75% !important; }
+.bar-height-76 { height: 76% !important; }
+.bar-height-77 { height: 77% !important; }
+.bar-height-78 { height: 78% !important; }
+.bar-height-79 { height: 79% !important; }
+.bar-height-80 { height: 80% !important; }
+.bar-height-81 { height: 81% !important; }
+.bar-height-82 { height: 82% !important; }
+.bar-height-83 { height: 83% !important; }
+.bar-height-84 { height: 84% !important; }
+.bar-height-85 { height: 85% !important; }
+.bar-height-86 { height: 86% !important; }
+.bar-height-87 { height: 87% !important; }
+.bar-height-88 { height: 88% !important; }
+.bar-height-89 { height: 89% !important; }
+.bar-height-90 { height: 90% !important; }
+.bar-height-91 { height: 91% !important; }
+.bar-height-92 { height: 92% !important; }
+.bar-height-93 { height: 93% !important; }
+.bar-height-94 { height: 94% !important; }
+.bar-height-95 { height: 95% !important; }
+.bar-height-96 { height: 96% !important; }
+.bar-height-97 { height: 97% !important; }
+.bar-height-98 { height: 98% !important; }
+.bar-height-99 { height: 99% !important; }
+.bar-height-100 { height: 100% !important; }

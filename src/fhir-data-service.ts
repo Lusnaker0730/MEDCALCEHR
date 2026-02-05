@@ -7,7 +7,8 @@ import {
     getObservationValue,
     getPatientConditions,
     getMedicationRequests,
-    calculateAge
+    calculateAge,
+    isRestrictedResource
 } from './utils.js';
 import {
     LOINC_CODES,
@@ -23,6 +24,8 @@ import { createStalenessTracker, DataStalenessTracker } from './data-staleness.j
 import { UnitConverter } from './unit-converter.js';
 // @ts-ignore - no type declarations
 import { fhirFeedback } from './fhir-feedback.js';
+import { auditEventService } from './audit-event-service.js';
+import { provenanceService, CalculationResult } from './provenance-service.js';
 
 // ============================================================================
 // Type Definitions
@@ -241,7 +244,7 @@ export class FHIRDataService {
                 }
             }
 
-            let observation = null;
+            let observation: any = null;
 
             // Determine if we should use text-based query
             const useTextQuery = options.useTextQuery || !isValidLoincCode(code);
@@ -257,7 +260,13 @@ export class FHIRDataService {
                 );
 
                 if (response.entry && response.entry.length > 0) {
-                    observation = response.entry[0].resource;
+                    const resource = response.entry[0].resource;
+                    if (isRestrictedResource(resource)) {
+                        console.warn(`[Security] Access to restricted Observation (${textName}) blocked.`);
+                        observation = null;
+                    } else {
+                        observation = resource;
+                    }
                 }
             } else {
                 // Standard LOINC query
@@ -267,6 +276,15 @@ export class FHIRDataService {
             // Cache the result (cache key remains the original code/LOINC for consistency)
             if (observation && this.patientId) {
                 await fhirCache.cacheObservation(this.patientId, code, observation);
+
+                // Log FHIR resource access to audit trail (IHE BALP)
+                auditEventService.logResourceRead(
+                    'Observation',
+                    observation.id || code,
+                    `code=${code}`
+                ).catch(err => {
+                    console.warn('[FHIRDataService] Failed to log resource read audit:', err);
+                });
             }
 
             return this.processObservation(observation, code, options);
@@ -893,6 +911,75 @@ export class FHIRDataService {
             gender: this.getPatientGender(),
             birthDate: this.getPatientBirthDateString()
         };
+    }
+
+    // ========================================================================
+    // Provenance Tracking
+    // ========================================================================
+
+    /**
+     * Record provenance for a medical calculation
+     * This creates a FHIR Provenance resource tracking who performed the calculation,
+     * what inputs were used (from FHIR resources), and what outputs were generated.
+     *
+     * @param calculatorId - Unique identifier for the calculator
+     * @param calculatorName - Display name of the calculator
+     * @param inputs - Input values used in the calculation
+     * @param outputs - Calculated result values
+     * @param sourceObservations - Optional array of FHIR Observation references used as inputs
+     */
+    async recordCalculationProvenance(
+        calculatorId: string,
+        calculatorName: string,
+        inputs: Record<string, any>,
+        outputs: Record<string, any>,
+        sourceObservations?: string[]
+    ): Promise<void> {
+        const result: CalculationResult = {
+            calculatorId,
+            calculatorName,
+            inputs,
+            outputs,
+            timestamp: new Date(),
+            patientId: this.patientId || undefined
+        };
+
+        try {
+            // Record calculation provenance
+            const provenance = await provenanceService.recordCalculation(result);
+
+            // If source observations are provided, also record derivation
+            if (sourceObservations && sourceObservations.length > 0) {
+                const targetRef = `#calculation-${calculatorId}-${result.timestamp.getTime()}`;
+                await provenanceService.recordDerivation(
+                    targetRef,
+                    `${calculatorName} Result`,
+                    sourceObservations.map(obs => ({
+                        reference: obs,
+                        display: 'Source observation'
+                    })),
+                    `Calculated using ${calculatorName}`
+                );
+            }
+
+            console.log(`[FHIRDataService] Recorded provenance for ${calculatorName}`);
+        } catch (err) {
+            console.warn('[FHIRDataService] Failed to record calculation provenance:', err);
+        }
+    }
+
+    /**
+     * Get provenance records for a specific calculation or resource
+     */
+    getProvenance(targetRef: string) {
+        return provenanceService.getProvenanceForTarget(targetRef);
+    }
+
+    /**
+     * Generate a data lineage report for a resource
+     */
+    generateLineageReport(targetRef: string) {
+        return provenanceService.generateLineageReport(targetRef);
     }
 }
 

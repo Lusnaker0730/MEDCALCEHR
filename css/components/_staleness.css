@@ -1,0 +1,30 @@
+/* Staleness Warning Component */
+
+.staleness-warning-container {
+    margin-bottom: 1rem;
+}
+
+.staleness-warning-text {
+    margin: 8px 0 8px 0;
+    font-size: 1.2rem;
+}
+
+.staleness-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.staleness-item {
+    margin-bottom: 4px;
+}
+
+.staleness-date {
+    color: #666;
+    margin-left: 5px;
+}
+
+.staleness-age {
+    color: #d9534f;
+    font-weight: bold;
+    margin-left: 5px;
+}

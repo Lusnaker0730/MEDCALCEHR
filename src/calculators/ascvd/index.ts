@@ -252,7 +252,7 @@ export const ascvd = createUnifiedFormulaCalculator({
     // Footer: Therapy Impact Section
     // ==========================================
     footerHTML: `
-        <div id="therapy-impact-section" class="therapy-section ui-hidden" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+        <div id="therapy-impact-section" class="therapy-section ui-hidden">
             ${uiBuilder.createSection({
                 title: '🎯 Therapy Impact Analysis',
                 content: `

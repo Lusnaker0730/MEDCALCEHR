@@ -174,10 +174,10 @@ export class DataStalenessTracker {
                 <span class="ui-alert-icon">⚠️</span>
                 <div class="ui-alert-content">
                     <strong>Stale Data Warning</strong>
-                    <p style="margin: 8px 0 8px 0; font-size: 1.2rem;">
+                    <p class="staleness-warning-text">
                         The following auto-populated values are older than 3 months. Please verify if updates are needed:
                     </p>
-                    <ul class="staleness-list" style="margin: 0; padding-left: 20px;">
+                    <ul class="staleness-list">
                         ${itemsHtml}
                     </ul>
                 </div>
@@ -261,16 +261,6 @@ export function isObservationStale(observation, thresholdMs = DEFAULT_STALENESS_
  */
 export function createStalenessTracker(options = {}) {
     return new DataStalenessTracker(options);
-}
-// Load external CSS for staleness warnings
-if (typeof document !== 'undefined') {
-    if (!document.getElementById('staleness-warning-styles')) {
-        const link = document.createElement('link');
-        link.id = 'staleness-warning-styles';
-        link.rel = 'stylesheet';
-        link.href = './css/data-staleness.css';
-        document.head.appendChild(link);
-    }
 }
 export default {
     DataStalenessTracker,

@@ -5,7 +5,10 @@
       "WebFetch(domain:cdn.jsdelivr.net)",
       "Bash(curl:*)",
       "Bash(openssl dgst:*)",
-      "Bash(openssl base64:*)"
+      "Bash(openssl base64:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:ts:*)",
+      "Bash(npm audit:*)"
     ]
   }
 }

@@ -368,8 +368,14 @@ export class UIBuilder {
     }
     /**
      * Helper to create alert HTML
+     * @param options - Alert configuration
+     * @param options.type - Alert type (info, warning, danger, success)
+     * @param options.message - Alert message (can contain HTML unless escapeMessage is true)
+     * @param options.icon - Custom icon (optional)
+     * @param options.escapeMessage - Set to true to escape HTML in message (prevents XSS)
+     * @security When message comes from user input or URL parameters, set escapeMessage: true
      */
-    createAlert({ type = 'info', message, icon }) {
+    createAlert({ type = 'info', message, icon, escapeMessage = false }) {
         const icons = {
             info: 'ℹ️',
             warning: '⚠️',
@@ -377,10 +383,11 @@ export class UIBuilder {
             success: '✅'
         };
         const alertIcon = icon || icons[type] || icons.info;
+        const safeMessage = escapeMessage ? this.escapeHtml(message) : message;
         return `
             <div class="ui-alert ui-alert-${type}">
                 <span class="ui-alert-icon">${alertIcon}</span>
-                <div class="ui-alert-content">${message}</div>
+                <div class="ui-alert-content">${safeMessage}</div>
             </div>
         `;
     }

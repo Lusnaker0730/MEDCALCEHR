@@ -2,6 +2,8 @@
 import { displayPatientInfo } from './utils.js';
 import { calculatorModules, categories } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
+import { auditEventService } from './audit-event-service.js';
+import { provenanceService } from './provenance-service.js';
 /**
  * Sort calculator list
  */
@@ -229,12 +231,20 @@ window.onload = () => {
                     }
                     if (practitionerNameEl)
                         practitionerNameEl.textContent = name || 'Practitioner';
-                    if (practitionerInfoEl)
+                    if (practitionerInfoEl) {
+                        practitionerInfoEl.classList.remove('hidden');
                         practitionerInfoEl.style.display = 'flex';
+                    }
                     // Set Practitioner ID for favorites
                     if (user.id) {
                         favoritesManager.setPractitionerId(user.id);
                         console.log(`[MedCalc] Practitioner set to: ${user.id}`);
+                        // Log login event to audit trail (IHE BALP)
+                        auditEventService.logLogin(user.id, name, true).catch(err => {
+                            console.warn('[MedCalc] Failed to log audit event:', err);
+                        });
+                        // Set provenance context for data lineage tracking
+                        provenanceService.setPractitioner(user.id, name);
                     }
                 }
             }

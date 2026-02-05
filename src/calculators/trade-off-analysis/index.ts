@@ -23,6 +23,31 @@ import { createTradeOffChart, updateChartPosition, renderZoneLegend } from './ch
 let currentChart: any = null;
 
 /**
+ * Update bar heights using CSS classes (CSP-compliant)
+ * Uses predefined .bar-height-0 through .bar-height-100 classes
+ */
+function updateBarHeights(bleedingHeight: number, ischemicHeight: number): void {
+    const bleedingBar = document.getElementById('bleeding-risk-bar');
+    const ischemicBar = document.getElementById('ischemic-risk-bar');
+
+    // Round to nearest integer for class name
+    const bleedingClass = `bar-height-${Math.round(Math.max(0, Math.min(100, bleedingHeight)))}`;
+    const ischemicClass = `bar-height-${Math.round(Math.max(0, Math.min(100, ischemicHeight)))}`;
+
+    if (bleedingBar) {
+        // Remove existing bar-height-* classes
+        bleedingBar.className = bleedingBar.className.replace(/bar-height-\d+/g, '').trim();
+        bleedingBar.classList.add(bleedingClass);
+    }
+
+    if (ischemicBar) {
+        // Remove existing bar-height-* classes
+        ischemicBar.className = ischemicBar.className.replace(/bar-height-\d+/g, '').trim();
+        ischemicBar.classList.add(ischemicClass);
+    }
+}
+
+/**
  * Generate the calculator HTML
  */
 function generateHTML(): string {
@@ -168,8 +193,6 @@ function updateCalculation(): void {
     if (ischemicEl) ischemicEl.textContent = `${ischemicRisk.toFixed(1)}%`;
 
     // Update vertical bar visualization
-    const bleedingBar = document.getElementById('bleeding-risk-bar');
-    const ischemicBar = document.getElementById('ischemic-risk-bar');
     const bleedingBarText = document.getElementById('bleeding-bar-text');
     const ischemicBarText = document.getElementById('ischemic-bar-text');
 
@@ -177,14 +200,11 @@ function updateCalculation(): void {
     const bleedingHeight = Math.min((bleedingRisk / 80) * 100, 100);
     const ischemicHeight = Math.min((ischemicRisk / 80) * 100, 100);
 
-    if (bleedingBar) {
-        bleedingBar.style.height = `${bleedingHeight}%`;
-    }
+    // Use dynamic stylesheet for CSP compliance
+    updateBarHeights(bleedingHeight, ischemicHeight);
+
     if (bleedingBarText) {
         bleedingBarText.textContent = `${bleedingRisk.toFixed(1)}%`;
-    }
-    if (ischemicBar) {
-        ischemicBar.style.height = `${ischemicHeight}%`;
     }
     if (ischemicBarText) {
         ischemicBarText.textContent = `${ischemicRisk.toFixed(1)}%`;

@@ -212,3 +212,23 @@
     border-radius: 4px;
     font-size: 0.9em;
 }
+
+/* Therapy Section */
+.therapy-section {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.therapy-group {
+    margin-bottom: 15px;
+}
+
+.therapy-details {
+    margin-left: 25px;
+    margin-top: 10px;
+}
+
+.therapy-results {
+    margin-top: 15px;
+}

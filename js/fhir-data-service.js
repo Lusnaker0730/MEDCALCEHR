@@ -1,7 +1,7 @@
 // src/fhir-data-service.ts
 // Unified FHIR Data Management Layer
 // Consolidates data fetching, caching, staleness tracking, and UI feedback
-import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests, calculateAge } from './utils.js';
+import { getMostRecentObservation, getObservationValue, getPatientConditions, getMedicationRequests, calculateAge, isRestrictedResource } from './utils.js';
 import { LOINC_CODES, getLoincName, getMeasurementType, isValidLoincCode } from './fhir-codes.js';
 import { getTextNameByLoinc } from './lab-name-mapping.js';
 // @ts-ignore - no type declarations
@@ -10,6 +10,8 @@ import { createStalenessTracker } from './data-staleness.js';
 import { UnitConverter } from './unit-converter.js';
 // @ts-ignore - no type declarations
 import { fhirFeedback } from './fhir-feedback.js';
+import { auditEventService } from './audit-event-service.js';
+import { provenanceService } from './provenance-service.js';
 // ============================================================================
 // FHIR Data Service Class
 // ============================================================================
@@ -103,7 +105,14 @@ export class FHIRDataService {
                 // We use direct client request here to bypass getMostRecentObservation's hardcoded query
                 const response = await this.client.patient.request(`Observation?code:text=${encodeURIComponent(textName)}&_sort=-date&_count=1`);
                 if (response.entry && response.entry.length > 0) {
-                    observation = response.entry[0].resource;
+                    const resource = response.entry[0].resource;
+                    if (isRestrictedResource(resource)) {
+                        console.warn(`[Security] Access to restricted Observation (${textName}) blocked.`);
+                        observation = null;
+                    }
+                    else {
+                        observation = resource;
+                    }
                 }
             }
             else {
@@ -113,6 +122,10 @@ export class FHIRDataService {
             // Cache the result (cache key remains the original code/LOINC for consistency)
             if (observation && this.patientId) {
                 await fhirCache.cacheObservation(this.patientId, code, observation);
+                // Log FHIR resource access to audit trail (IHE BALP)
+                auditEventService.logResourceRead('Observation', observation.id || code, `code=${code}`).catch(err => {
+                    console.warn('[FHIRDataService] Failed to log resource read audit:', err);
+                });
             }
             return this.processObservation(observation, code, options);
         }
@@ -592,6 +605,58 @@ export class FHIRDataService {
             gender: this.getPatientGender(),
             birthDate: this.getPatientBirthDateString()
         };
+    }
+    // ========================================================================
+    // Provenance Tracking
+    // ========================================================================
+    /**
+     * Record provenance for a medical calculation
+     * This creates a FHIR Provenance resource tracking who performed the calculation,
+     * what inputs were used (from FHIR resources), and what outputs were generated.
+     *
+     * @param calculatorId - Unique identifier for the calculator
+     * @param calculatorName - Display name of the calculator
+     * @param inputs - Input values used in the calculation
+     * @param outputs - Calculated result values
+     * @param sourceObservations - Optional array of FHIR Observation references used as inputs
+     */
+    async recordCalculationProvenance(calculatorId, calculatorName, inputs, outputs, sourceObservations) {
+        const result = {
+            calculatorId,
+            calculatorName,
+            inputs,
+            outputs,
+            timestamp: new Date(),
+            patientId: this.patientId || undefined
+        };
+        try {
+            // Record calculation provenance
+            const provenance = await provenanceService.recordCalculation(result);
+            // If source observations are provided, also record derivation
+            if (sourceObservations && sourceObservations.length > 0) {
+                const targetRef = `#calculation-${calculatorId}-${result.timestamp.getTime()}`;
+                await provenanceService.recordDerivation(targetRef, `${calculatorName} Result`, sourceObservations.map(obs => ({
+                    reference: obs,
+                    display: 'Source observation'
+                })), `Calculated using ${calculatorName}`);
+            }
+            console.log(`[FHIRDataService] Recorded provenance for ${calculatorName}`);
+        }
+        catch (err) {
+            console.warn('[FHIRDataService] Failed to record calculation provenance:', err);
+        }
+    }
+    /**
+     * Get provenance records for a specific calculation or resource
+     */
+    getProvenance(targetRef) {
+        return provenanceService.getProvenanceForTarget(targetRef);
+    }
+    /**
+     * Generate a data lineage report for a resource
+     */
+    generateLineageReport(targetRef) {
+        return provenanceService.generateLineageReport(targetRef);
     }
 }
 // ============================================================================

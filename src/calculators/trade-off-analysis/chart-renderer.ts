@@ -26,7 +26,7 @@ export function createTradeOffChart(config: TradeOffChartConfig): any {
 
     // Clear previous chart
     container.innerHTML =
-        '<canvas id="trade-off-chart-canvas" style="max-height: 500px;"></canvas>';
+        '<canvas id="trade-off-chart-canvas"></canvas>';
     const canvas = document.getElementById('trade-off-chart-canvas') as HTMLCanvasElement;
     if (!canvas) return null;
 
@@ -252,15 +252,15 @@ export function renderZoneLegend(): string {
     return `
         <div class="trade-off-legend">
             <div class="legend-item">
-                <span class="legend-color" style="background: rgba(13, 148, 136, 0.3);"></span>
+                <span class="legend-color legend-color-teal"></span>
                 <span><strong>Teal Area:</strong> Above equal trade-off line (y=x). Ischemic risk is higher than bleeding risk.</span>
             </div>
             <div class="legend-item">
-                <span class="legend-color" style="background: rgba(107, 114, 128, 0.3);"></span>
+                <span class="legend-color legend-color-gray"></span>
                 <span><strong>Gray Area:</strong> Between equal (1:1) and mortality-weighted lines. Considering that MI/ST has ${TRADE_OFF_SLOPES.MORTALITY_WEIGHTED.toFixed(1)}× higher associated mortality, risks can be considered equivalent.</span>
             </div>
             <div class="legend-item">
-                <span class="legend-color" style="background: rgba(249, 115, 22, 0.3);"></span>
+                <span class="legend-color legend-color-orange"></span>
                 <span><strong>Orange Area:</strong> Below mortality-weighted line (y=x/${TRADE_OFF_SLOPES.MORTALITY_WEIGHTED.toFixed(1)}). Bleeding risk dominates when considering associated mortality.</span>
             </div>
         </div>

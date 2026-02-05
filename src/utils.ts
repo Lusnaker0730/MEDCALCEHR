@@ -1,4 +1,21 @@
-import { escapeHTML } from './security.js';
+import {
+    escapeHTML,
+    isRestrictedResource,
+    secureSessionStore,
+    secureSessionRetrieve,
+    extractMinimalPatientData
+} from './security.js';
+
+/** Storage key for patient display data */
+const PATIENT_CACHE_KEY = 'patientDisplayData';
+
+/** Minimal patient data structure for display */
+interface MinimalPatientData {
+    id: string;
+    name: string;
+    birthDate: string;
+    gender: string;
+}
 
 /**
  * Gets the most recent FHIR Observation for a given LOINC code.
@@ -14,7 +31,12 @@ export function getMostRecentObservation(client: any, code: string): Promise<any
         .request(`Observation?code=${code}&_sort=-date&_count=1`)
         .then((response: any) => {
             if (response.entry && response.entry.length > 0) {
-                return response.entry[0].resource;
+                const resource = response.entry[0].resource;
+                if (isRestrictedResource(resource)) {
+                    console.warn(`[Security] Access to restricted Observation (${code}) blocked.`);
+                    return null;
+                }
+                return resource;
             }
             return null;
         })
@@ -68,54 +90,68 @@ export function calculateAge(birthDate: string): number {
 }
 
 /**
+ * Renders minimal patient data to the display element
+ * @param minimalData - Minimal patient data (name, birthDate, gender)
+ * @param patientInfoDiv - The div element to display patient info in
+ */
+function renderMinimalPatient(minimalData: MinimalPatientData, patientInfoDiv: HTMLElement): void {
+    const age = calculateAge(minimalData.birthDate);
+
+    // Use escapeHTML to prevent XSS attacks
+    const safeName = escapeHTML(minimalData.name);
+    const safeBirthDate = escapeHTML(minimalData.birthDate);
+    const safeGender = escapeHTML(minimalData.gender);
+
+    patientInfoDiv.innerHTML = `
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Birth Date:</strong> ${safeBirthDate} (Age: ${age})</p>
+        <p><strong>Gender:</strong> ${safeGender}</p>
+    `;
+}
+
+/**
  * Fetches patient data and displays it in a designated div.
  * @param {Object} client The FHIR client instance.
  * @param {HTMLElement} patientInfoDiv The div element to display patient info in.
  * @returns {Promise<Object>} A promise that resolves to the patient resource.
+ * @security Only minimal patient data is stored in sessionStorage (encrypted).
+ *           Full patient object is kept in memory only.
  */
 export function displayPatientInfo(client: any, patientInfoDiv: HTMLElement): Promise<any> {
-    const renderPatient = (patient: any) => {
-        const name = patient.name[0];
-        // Prioritize text field (Taiwanese format), if missing use given and family names
-        const formattedName =
-            name.text || `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
-        const age = calculateAge(patient.birthDate);
-
-        // Use escapeHTML to prevent XSS attacks from FHIR data
-        const safeName = escapeHTML(formattedName);
-        const safeBirthDate = escapeHTML(patient.birthDate);
-        const safeGender = escapeHTML(patient.gender);
-
-        patientInfoDiv.innerHTML = `
-            <p><strong>Name:</strong> ${safeName}</p>
-            <p><strong>Birth Date:</strong> ${safeBirthDate} (Age: ${age})</p>
-            <p><strong>Gender:</strong> ${safeGender}</p>
-        `;
-    };
-
-    // First, try to display data from session storage for a faster UI response.
-    const cachedPatient = sessionStorage.getItem('patientData');
-    if (cachedPatient) {
-        renderPatient(JSON.parse(cachedPatient));
+    // First, try to display data from secure session storage for a faster UI response.
+    const cachedMinimal = secureSessionRetrieve<MinimalPatientData>(PATIENT_CACHE_KEY);
+    if (cachedMinimal && cachedMinimal.name) {
+        renderMinimalPatient(cachedMinimal, patientInfoDiv);
     }
 
     if (!client?.patient?.id) {
-        if (!cachedPatient) {
+        if (!cachedMinimal) {
             patientInfoDiv.innerHTML =
                 '<p>No patient data available. Please launch from the EHR.</p>';
         }
-        return Promise.resolve(cachedPatient ? JSON.parse(cachedPatient) : null);
+        // Return a reconstructed minimal patient object for compatibility
+        return Promise.resolve(cachedMinimal ? {
+            id: cachedMinimal.id,
+            name: [{ text: cachedMinimal.name }],
+            birthDate: cachedMinimal.birthDate,
+            gender: cachedMinimal.gender
+        } : null);
     }
 
     return client.patient.read().then(
         (patient: any) => {
-            sessionStorage.setItem('patientData', JSON.stringify(patient));
-            renderPatient(patient);
+            // Extract and securely store only minimal data
+            const minimalData = extractMinimalPatientData(patient);
+            if (minimalData) {
+                secureSessionStore(PATIENT_CACHE_KEY, minimalData);
+                renderMinimalPatient(minimalData, patientInfoDiv);
+            }
+            // Return full patient object (kept in memory only, not persisted)
             return patient;
         },
         (error: any) => {
             console.error(error);
-            if (!cachedPatient) {
+            if (!cachedMinimal) {
                 patientInfoDiv.innerText = 'Error fetching patient data.';
             }
             throw error;
@@ -138,7 +174,15 @@ export function getPatientConditions(client: any, codes: string[]): Promise<any[
         .request(`Condition?clinical-status=active&code=${codeString}`)
         .then((response: any) => {
             if (response.entry) {
-                return response.entry.map((e: any) => e.resource);
+                return response.entry
+                    .map((e: any) => e.resource)
+                    .filter((r: any) => {
+                        if (isRestrictedResource(r)) {
+                            console.warn(`[Security] Access to restricted Condition (${r.id}) blocked.`);
+                            return false;
+                        }
+                        return true;
+                    });
             }
             return [];
         })
@@ -231,7 +275,17 @@ export async function getMedicationRequests(client: any, rxnormCodes: string[]):
             status: 'active'
         });
         const response = await client.request(`MedicationRequest?${query}`);
-        return response.entry ? response.entry.map((e: any) => e.resource) : [];
+        return response.entry
+            ? response.entry
+                .map((e: any) => e.resource)
+                .filter((r: any) => {
+                    if (isRestrictedResource(r)) {
+                        console.warn(`[Security] Access to restricted MedicationRequest (${r.id}) blocked.`);
+                        return false;
+                    }
+                    return true;
+                })
+            : [];
     } catch (error) {
         console.error('Error fetching medication requests:', error);
         return [];
@@ -281,3 +335,5 @@ export function initializeSegmentedControls(container: HTMLElement): void {
         updateSelectedState();
     });
 }
+
+export { isRestrictedResource } from './security.js';

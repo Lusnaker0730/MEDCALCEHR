@@ -290,6 +290,207 @@ export function createSafeEventHandler(handler: (event: Event) => any): (event: 
     };
 }
 
+/**
+ * Checks if a FHIR resource has restricted security labels.
+ * Returns true if the resource has 'R' (Restricted) or 'V' (Very Restricted) labels.
+ * @param {Object} resource - The FHIR resource to check
+ * @returns {boolean} True if access should be restricted
+ */
+export function isRestrictedResource(resource: any): boolean {
+    if (!resource || !resource.meta || !resource.meta.security) {
+        return false;
+    }
+
+    // HL7 v3 Confidentiality Codes
+    // R = Restricted
+    // V = Very Restricted
+    // N = Normal (allowed)
+    // L = Low (allowed)
+    // M = Moderate (allowed)
+    const restrictedCodes = ['R', 'V'];
+
+    return resource.meta.security.some((label: any) =>
+        label.code && restrictedCodes.includes(label.code)
+    );
+}
+
+// ============================================
+// Secure Storage Utilities
+// ============================================
+
+/**
+ * Simple obfuscation key derived from domain
+ * Note: This is NOT cryptographically secure, but provides a layer of protection
+ * against casual inspection and makes it clear the data is meant to be protected.
+ */
+function getObfuscationKey(): string {
+    // Use a combination of static key and domain to make it slightly harder to decode
+    const staticKey = 'MedCalcEHR_PHI_Protection_v1';
+    const domain = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    return staticKey + domain;
+}
+
+/**
+ * Simple XOR cipher for obfuscation
+ * @param data - Data to encode/decode
+ * @param key - Key for XOR operation
+ * @returns XOR'd string
+ */
+function xorCipher(data: string, key: string): string {
+    let result = '';
+    for (let i = 0; i < data.length; i++) {
+        result += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+}
+
+/**
+ * Encodes data for secure storage in localStorage/sessionStorage
+ * Uses XOR cipher with base64 encoding for obfuscation
+ * @param data - Object to encode
+ * @returns Encoded string safe for storage
+ * @security This is obfuscation, not encryption. For true security, use Web Crypto API.
+ */
+export function encodeForStorage(data: unknown): string {
+    try {
+        const json = JSON.stringify(data);
+        const key = getObfuscationKey();
+        const xored = xorCipher(json, key);
+        // Use base64 encoding (handle Unicode properly)
+        const encoded = btoa(encodeURIComponent(xored).replace(/%([0-9A-F]{2})/g,
+            (_, p1) => String.fromCharCode(parseInt(p1, 16))
+        ));
+        return 'enc:' + encoded; // Prefix to identify encoded data
+    } catch (error) {
+        console.error('[Security] Failed to encode data for storage:', error);
+        return '';
+    }
+}
+
+/**
+ * Decodes data from secure storage
+ * @param encoded - Encoded string from storage
+ * @returns Decoded object or null if decoding fails
+ */
+export function decodeFromStorage<T = unknown>(encoded: string): T | null {
+    try {
+        // Check for encoding prefix
+        if (!encoded || !encoded.startsWith('enc:')) {
+            // Try to parse as plain JSON (backwards compatibility)
+            return JSON.parse(encoded) as T;
+        }
+
+        const base64 = encoded.slice(4); // Remove 'enc:' prefix
+        const key = getObfuscationKey();
+        // Decode base64 (handle Unicode properly)
+        const xored = decodeURIComponent(
+            atob(base64).split('').map(c =>
+                '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+            ).join('')
+        );
+        const json = xorCipher(xored, key);
+        return JSON.parse(json) as T;
+    } catch (error) {
+        console.error('[Security] Failed to decode data from storage:', error);
+        return null;
+    }
+}
+
+/**
+ * Securely stores data in sessionStorage with obfuscation
+ * @param key - Storage key
+ * @param data - Data to store
+ */
+export function secureSessionStore(key: string, data: unknown): void {
+    try {
+        const encoded = encodeForStorage(data);
+        if (encoded) {
+            sessionStorage.setItem(key, encoded);
+        }
+    } catch (error) {
+        console.error('[Security] Failed to store data securely:', error);
+    }
+}
+
+/**
+ * Retrieves and decodes data from sessionStorage
+ * @param key - Storage key
+ * @returns Decoded data or null
+ */
+export function secureSessionRetrieve<T = unknown>(key: string): T | null {
+    try {
+        const stored = sessionStorage.getItem(key);
+        if (!stored) return null;
+        return decodeFromStorage<T>(stored);
+    } catch (error) {
+        console.error('[Security] Failed to retrieve data securely:', error);
+        return null;
+    }
+}
+
+/**
+ * Securely stores data in localStorage with obfuscation
+ * @param key - Storage key
+ * @param data - Data to store
+ */
+export function secureLocalStore(key: string, data: unknown): void {
+    try {
+        const encoded = encodeForStorage(data);
+        if (encoded) {
+            localStorage.setItem(key, encoded);
+        }
+    } catch (error) {
+        console.error('[Security] Failed to store data in localStorage:', error);
+    }
+}
+
+/**
+ * Retrieves and decodes data from localStorage
+ * @param key - Storage key
+ * @returns Decoded data or null
+ */
+export function secureLocalRetrieve<T = unknown>(key: string): T | null {
+    try {
+        const stored = localStorage.getItem(key);
+        if (!stored) return null;
+        return decodeFromStorage<T>(stored);
+    } catch (error) {
+        console.error('[Security] Failed to retrieve data from localStorage:', error);
+        return null;
+    }
+}
+
+/**
+ * Extracts only essential patient data for storage (minimizes PHI exposure)
+ * @param patient - Full FHIR patient resource
+ * @returns Minimal patient data object
+ */
+export function extractMinimalPatientData(patient: any): {
+    id: string;
+    name: string;
+    birthDate: string;
+    gender: string;
+} | null {
+    if (!patient) return null;
+
+    try {
+        const name = patient.name?.[0];
+        const formattedName = name?.text ||
+            `${name?.given?.join(' ') || ''} ${name?.family || ''}`.trim() ||
+            'Unknown';
+
+        return {
+            id: patient.id || '',
+            name: formattedName,
+            birthDate: patient.birthDate || '',
+            gender: patient.gender || ''
+        };
+    } catch (error) {
+        console.error('[Security] Failed to extract minimal patient data:', error);
+        return null;
+    }
+}
+
 export default {
     escapeHTML,
     escapeHTMLFast,
@@ -300,5 +501,14 @@ export default {
     validateInput,
     setSafeInnerHTML,
     setSafeTextContent,
-    createSafeEventHandler
+    createSafeEventHandler,
+    isRestrictedResource,
+    // Secure storage utilities
+    encodeForStorage,
+    decodeFromStorage,
+    secureSessionStore,
+    secureSessionRetrieve,
+    secureLocalStore,
+    secureLocalRetrieve,
+    extractMinimalPatientData
 };
