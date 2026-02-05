@@ -8,7 +8,9 @@
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import { apacheIiCalculation } from './calculation.js';
+import { apacheIiCalculation, getPoints } from './calculation.js';
+import { fhirDataService, ObservationResult } from '../../fhir-data-service.js';
+import { UnitConverter } from '../../unit-converter.js';
 
 export const apacheIi = createUnifiedFormulaCalculator({
     id: 'apache-ii',
@@ -49,7 +51,6 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Temperature',
                     step: 0.1,
                     placeholder: '36.1 - 37.8',
-                    loincCode: LOINC_CODES.TEMPERATURE,
                     validationType: 'temperature',
                     unitToggle: { type: 'temperature', units: ['C', 'F'], default: 'C' }
                 },
@@ -59,8 +60,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     placeholder: 'Systolic',
                     unit: 'mmHg',
                     required: false,
-                    validationType: 'systolicBP',
-                    loincCode: LOINC_CODES.SYSTOLIC_BP
+                    validationType: 'systolicBP'
                 },
                 {
                     id: 'apache-ii-dbp',
@@ -68,8 +68,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     placeholder: 'Diastolic',
                     unit: 'mmHg',
                     required: false,
-                    validationType: 'diastolicBP',
-                    loincCode: LOINC_CODES.DIASTOLIC_BP
+                    validationType: 'diastolicBP'
                 },
                 {
                     id: 'apache-ii-map',
@@ -84,16 +83,14 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Heart Rate',
                     unit: 'bpm',
                     placeholder: '60 - 100',
-                    validationType: 'heartRate',
-                    loincCode: LOINC_CODES.HEART_RATE
+                    validationType: 'heartRate'
                 },
                 {
                     id: 'apache-ii-rr',
                     label: 'Respiratory Rate',
                     unit: 'breaths/min',
                     placeholder: '12 - 20',
-                    validationType: 'respiratoryRate',
-                    loincCode: LOINC_CODES.RESPIRATORY_RATE
+                    validationType: 'respiratoryRate'
                 }
             ]
         },
@@ -105,14 +102,12 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Arterial pH',
                     step: 0.01,
                     placeholder: '7.38 - 7.44',
-                    validationType: 'pH',
-                    loincCode: LOINC_CODES.PH
+                    validationType: 'pH'
                 },
                 {
                     id: 'apache-ii-sodium',
                     label: 'Sodium',
                     placeholder: '136 - 145',
-                    loincCode: LOINC_CODES.SODIUM,
                     unitToggle: { type: 'sodium', units: ['mmol/L', 'mEq/L'], default: 'mmol/L' }
                 },
                 {
@@ -120,7 +115,6 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Potassium',
                     step: 0.1,
                     placeholder: '3.5 - 5.2',
-                    loincCode: LOINC_CODES.POTASSIUM,
                     unitToggle: { type: 'potassium', units: ['mmol/L', 'mEq/L'], default: 'mmol/L' }
                 },
                 {
@@ -128,7 +122,6 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Creatinine',
                     step: 0.1,
                     placeholder: '0.7 - 1.3',
-                    loincCode: LOINC_CODES.CREATININE,
                     unitToggle: { type: 'creatinine', units: ['mg/dL', 'µmol/L'], default: 'mg/dL' }
                 },
                 {
@@ -137,8 +130,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     unit: '%',
                     step: 0.1,
                     placeholder: '36 - 51',
-                    validationType: 'hematocrit',
-                    loincCode: LOINC_CODES.HEMATOCRIT
+                    validationType: 'hematocrit'
                 },
                 {
                     id: 'apache-ii-wbc',
@@ -146,8 +138,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     unit: 'x 10⁹/L',
                     step: 0.1,
                     placeholder: '3.7 - 10.7',
-                    validationType: 'wbc',
-                    loincCode: LOINC_CODES.WBC
+                    validationType: 'wbc'
                 },
                 {
                     name: 'arf',
@@ -168,8 +159,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'Glasgow Coma Scale',
                     unit: 'points',
                     placeholder: '3 - 15',
-                    validationType: 'gcs',
-                    loincCode: LOINC_CODES.GCS
+                    validationType: 'gcs'
                 }
             ]
         },
@@ -193,22 +183,19 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     label: 'FiO₂',
                     step: 0.01,
                     placeholder: 'e.g. 0.5',
-                    validationType: 'fiO2',
-                    loincCode: LOINC_CODES.FIO2
+                    validationType: 'fiO2'
                 },
                 {
                     id: 'apache-ii-pao2',
                     label: 'PaO₂',
                     unit: 'mmHg',
-                    validationType: 'paO2',
-                    loincCode: LOINC_CODES.PO2
+                    validationType: 'paO2'
                 },
                 {
                     id: 'apache-ii-paco2',
                     label: 'PaCO₂',
                     unit: 'mmHg',
-                    validationType: 'paCO2',
-                    loincCode: LOINC_CODES.PCO2
+                    validationType: 'paCO2'
                 }
             ]
         }
@@ -364,7 +351,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
         ],
         footnotes: [
             '*Acute renal failure was not defined in the original study. Use clinical judgment to determine if patient has acute kidney injury.',
-            'Score calculated from worst values in the first 24 hours of ICU admission.'
+            'Score calculated from worst values in the first 24-48 hours of admission.'
         ]
     },
 
@@ -373,7 +360,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
     // 使用導入的計算函數
     complexCalculate: apacheIiCalculation,
 
-    customInitialize: (client, patient, container) => {
+    customInitialize: async (client, patient, container) => {
         // 1. MAP Calculation Logic
         const sbpInput = container.querySelector('#apache-ii-sbp') as HTMLInputElement;
         const dbpInput = container.querySelector('#apache-ii-dbp') as HTMLInputElement;
@@ -424,32 +411,110 @@ export const apacheIi = createUnifiedFormulaCalculator({
 
         // Initial check
         updatePaco2Visibility();
+
+        // 3. Worst Value Auto-population (48h)
+        if (fhirDataService.isReady()) {
+            const worstValueFields = [
+                { id: 'apache-ii-temp', code: LOINC_CODES.TEMPERATURE, scoreFn: getPoints.temp, unit: 'C', type: 'temperature' },
+                { id: 'apache-ii-hr', code: LOINC_CODES.HEART_RATE, scoreFn: getPoints.hr },
+                { id: 'apache-ii-rr', code: LOINC_CODES.RESPIRATORY_RATE, scoreFn: getPoints.rr },
+                { id: 'apache-ii-ph', code: LOINC_CODES.PH, scoreFn: getPoints.ph },
+                { id: 'apache-ii-sodium', code: LOINC_CODES.SODIUM, scoreFn: getPoints.sodium, unit: 'mmol/L', type: 'sodium' },
+                { id: 'apache-ii-potassium', code: LOINC_CODES.POTASSIUM, scoreFn: getPoints.potassium, unit: 'mmol/L', type: 'potassium' },
+                { id: 'apache-ii-creatinine', code: LOINC_CODES.CREATININE, scoreFn: (v: number) => getPoints.creatinine(v, false), unit: 'mg/dL', type: 'creatinine' },
+                { id: 'apache-ii-hct', code: LOINC_CODES.HEMATOCRIT, scoreFn: getPoints.hct },
+                { id: 'apache-ii-wbc', code: LOINC_CODES.WBC, scoreFn: getPoints.wbc },
+                { id: 'apache-ii-gcs', code: LOINC_CODES.GCS, scoreFn: getPoints.gcs }
+            ];
+
+            const fetchAndPopulateWorst = async (field: any) => {
+                try {
+                    const input = container.querySelector(`#${field.id}`) as HTMLInputElement;
+                    if (!input) return;
+
+                    const history = await fhirDataService.getObservationsInWindow(field.code, 48);
+                    if (!history || history.length === 0) return;
+
+                    let worstResult: ObservationResult | null = null;
+                    let maxScore = -1;
+
+                    for (const res of history) {
+                        if (res.value !== null) {
+                            // Simple unit check - mostly trusting data service or assuming standard units for scoring check
+                            // For strict scoring, we'd convert. But for finding "worst", checking relative values in same unit is usually OK
+                            // UNLESS units vary in history.
+                            // Best effort: Use simple scoreFn.
+                            let val = res.value;
+
+                            // Handle major unit differences if possible, or assume standardized by source logic?
+                            // getObservationsInWindow uses processObservation which DOES NOT convert unless targetUnit is passed.
+                            // But we didn't pass targetUnit.
+                            // So we might get mixed units.
+
+                            // FIX: Convert for scoring if unit type is known
+                            if (field.unit && res.unit && field.type) {
+                                const converted = UnitConverter.convert(res.value, res.unit, field.unit, field.type);
+                                if (converted !== null) val = converted;
+                            }
+
+                            const score = field.scoreFn(val);
+                            if (score > maxScore) {
+                                maxScore = score;
+                                worstResult = res;
+                            }
+                        }
+                    }
+
+                    if (worstResult && worstResult.value !== null) {
+                        // Populate with the found worst value
+                        // Use UnitConverter to set value (handles unit conversion to input's current unit)
+                        UnitConverter.setInputValue(input, worstResult.originalValue || worstResult.value, worstResult.originalUnit || worstResult.unit || '');
+
+                        // Staleness tracking (手动)
+                        const tracker = fhirDataService.getStalenessTracker();
+                        if (tracker && worstResult.observation) {
+                            tracker.trackObservation(
+                                `#${field.id}`,
+                                worstResult.observation,
+                                field.code,
+                                input.getAttribute('aria-label') || 'Value'
+                            );
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Error auto-populating worst value for ${field.id}:`, e);
+                }
+            };
+
+            // Run in parallel
+            await Promise.all(worstValueFields.map(fetchAndPopulateWorst));
+        }
     },
 
     reference: `
         ${uiBuilder.createSection({
-            title: 'Approximated In-Hospital Mortality Rates',
-            icon: '📊',
-            content: uiBuilder.createTable({
-                headers: ['APACHE II Score', 'Nonoperative', 'Postoperative'],
-                rows: [
-                    ['0-4', '4%', '1%'],
-                    ['5-9', '8%', '3%'],
-                    ['10-14', '15%', '7%'],
-                    ['15-19', '25%', '12%'],
-                    ['20-24', '40%', '30%'],
-                    ['25-29', '55%', '35%'],
-                    ['30-34', '73%', '73%'],
-                    ['>34', '85%', '88%']
-                ]
-            })
-        })}
+        title: 'Approximated In-Hospital Mortality Rates',
+        icon: '📊',
+        content: uiBuilder.createTable({
+            headers: ['APACHE II Score', 'Nonoperative', 'Postoperative'],
+            rows: [
+                ['0-4', '4%', '1%'],
+                ['5-9', '8%', '3%'],
+                ['10-14', '15%', '7%'],
+                ['15-19', '25%', '12%'],
+                ['20-24', '40%', '30%'],
+                ['25-29', '55%', '35%'],
+                ['30-34', '73%', '73%'],
+                ['>34', '85%', '88%']
+            ]
+        })
+    })}
 
         ${uiBuilder.createSection({
-            title: 'Reference',
-            icon: '📚',
-            content:
-                '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
-        })}
+        title: 'Reference',
+        icon: '📚',
+        content:
+            '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
+    })}
     `
 });

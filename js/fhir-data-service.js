@@ -241,6 +241,95 @@ export class FHIRDataService {
         }
     }
     /**
+     * Get all observations within a specific time window
+     * @param code LOINC code
+     * @param hours Time window in hours
+     */
+    async getObservationsInWindow(code, hours) {
+        if (!this.client) {
+            return [];
+        }
+        try {
+            // Calculate start date
+            const startDate = new Date();
+            startDate.setHours(startDate.getHours() - hours);
+            const dateStr = startDate.toISOString().split('T')[0]; // Simple approximate date filter
+            // Fetch observations sorted by date (newest first)
+            // Note: We use ge (greater or equal) for date/time filtering ideally
+            // standard FHIR: date=ge2024-01-01
+            const response = await this.client.patient.request(`Observation?code=${code}&date=ge${dateStr}&_sort=-date`);
+            if (!response.entry || !Array.isArray(response.entry)) {
+                return [];
+            }
+            // Filter strictly by time window in JS to be precise
+            const startTime = startDate.getTime();
+            const results = [];
+            for (const entry of response.entry) {
+                const resource = entry.resource;
+                const dateRaw = resource.effectiveDateTime || resource.issued;
+                if (dateRaw) {
+                    const date = new Date(dateRaw);
+                    if (date.getTime() >= startTime) {
+                        const result = this.processObservation(resource, code, {
+                            trackStaleness: false // Don't track staleness for historical data lookup
+                        });
+                        results.push(result);
+                    }
+                }
+            }
+            return results;
+        }
+        catch (error) {
+            console.error(`Error fetching observation window for ${code}:`, error);
+            return [];
+        }
+    }
+    /**
+     * Get aggregated observation (min or max) within a time window
+     * @param code LOINC code
+     * @param type 'min' or 'max'
+     * @param hours Time window in hours
+     */
+    async getAggregatedObservation(code, type, hours) {
+        const results = await this.getObservationsInWindow(code, hours);
+        if (results.length === 0) {
+            return {
+                observation: null,
+                value: null,
+                unit: null,
+                originalValue: null,
+                originalUnit: null,
+                date: null,
+                isStale: false,
+                ageInDays: null,
+                code
+            };
+        }
+        let bestResult = results[0];
+        for (let i = 1; i < results.length; i++) {
+            const current = results[i];
+            // Skip invalid values
+            if (current.value === null)
+                continue;
+            // If best has no value, take current
+            if (bestResult.value === null) {
+                bestResult = current;
+                continue;
+            }
+            if (type === 'min') {
+                if (current.value < bestResult.value) {
+                    bestResult = current;
+                }
+            }
+            else {
+                if (current.value > bestResult.value) {
+                    bestResult = current;
+                }
+            }
+        }
+        return bestResult;
+    }
+    /**
      * Result of blood pressure fetch
      */
     /**
