@@ -408,22 +408,18 @@ export function isRestrictedResource(resource: any): boolean {
 // ============================================
 
 /**
+ * @deprecated Use AES-GCM encryption instead. Kept for backwards compatibility migration.
  * Simple obfuscation key derived from domain
- * Note: This is NOT cryptographically secure, but provides a layer of protection
- * against casual inspection and makes it clear the data is meant to be protected.
  */
 function getObfuscationKey(): string {
-    // Use a combination of static key and domain to make it slightly harder to decode
     const staticKey = 'MedCalcEHR_PHI_Protection_v1';
     const domain = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     return staticKey + domain;
 }
 
 /**
+ * @deprecated Use AES-GCM encryption instead. Kept for backwards compatibility migration.
  * Simple XOR cipher for obfuscation
- * @param data - Data to encode/decode
- * @param key - Key for XOR operation
- * @returns XOR'd string
  */
 function xorCipher(data: string, key: string): string {
     let result = '';
@@ -434,11 +430,8 @@ function xorCipher(data: string, key: string): string {
 }
 
 /**
- * Encodes data for secure storage in localStorage/sessionStorage
- * Uses XOR cipher with base64 encoding for obfuscation
- * @param data - Object to encode
- * @returns Encoded string safe for storage
- * @security This is obfuscation, not encryption. For true security, use Web Crypto API.
+ * @deprecated Use AES-GCM encryption via secureLocalStore/secureSessionStore instead.
+ * Encodes data using XOR obfuscation. Kept for backwards compatibility migration.
  */
 export function encodeForStorage(data: unknown): string {
     try {
@@ -457,9 +450,8 @@ export function encodeForStorage(data: unknown): string {
 }
 
 /**
- * Decodes data from secure storage
- * @param encoded - Encoded string from storage
- * @returns Decoded object or null if decoding fails
+ * @deprecated Use AES-GCM decryption via secureLocalRetrieve/secureSessionRetrieve instead.
+ * Decodes XOR-obfuscated data. Kept for backwards compatibility migration.
  */
 export function decodeFromStorage<T = unknown>(encoded: string): T | null {
     try {
@@ -485,32 +477,176 @@ export function decodeFromStorage<T = unknown>(encoded: string): T | null {
     }
 }
 
+// ========================================================================
+// AES-GCM Encryption (Web Crypto API)
+// ========================================================================
+
+/** Cached AES-GCM key to avoid re-deriving on every operation */
+let _cachedKey: CryptoKey | null = null;
+
 /**
- * Securely stores data in sessionStorage with obfuscation
+ * Derives an AES-256-GCM encryption key using PBKDF2
+ * @security Uses 100,000 iterations of PBKDF2 with SHA-256 for key derivation
+ */
+async function deriveEncryptionKey(): Promise<CryptoKey> {
+    if (_cachedKey) return _cachedKey;
+
+    const encoder = new TextEncoder();
+    const passphrase = 'MedCalcEHR_PHI_Protection_v2' +
+        (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
+
+    const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(passphrase),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+    );
+
+    _cachedKey = await crypto.subtle.deriveKey(
+        {
+            name: 'PBKDF2',
+            salt: encoder.encode('MedCalcEHR-salt-v2'),
+            iterations: 100000,
+            hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+    );
+
+    return _cachedKey;
+}
+
+/**
+ * Encrypts data using AES-256-GCM
+ * @param data - String data to encrypt
+ * @returns "aes:" prefixed base64 string containing IV + ciphertext
+ */
+async function encryptAESGCM(data: string): Promise<string> {
+    const key = await deriveEncryptionKey();
+    const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for AES-GCM
+    const encoder = new TextEncoder();
+
+    const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        encoder.encode(data)
+    );
+
+    // Combine IV + ciphertext
+    const combined = new Uint8Array(iv.length + encrypted.byteLength);
+    combined.set(iv, 0);
+    combined.set(new Uint8Array(encrypted), iv.length);
+
+    // Encode as base64
+    let binary = '';
+    for (let i = 0; i < combined.length; i++) {
+        binary += String.fromCharCode(combined[i]);
+    }
+    return 'aes:' + btoa(binary);
+}
+
+/**
+ * Decrypts AES-256-GCM encrypted data
+ * @param encoded - "aes:" prefixed base64 string
+ * @returns Decrypted string
+ */
+async function decryptAESGCM(encoded: string): Promise<string> {
+    const key = await deriveEncryptionKey();
+    const raw = atob(encoded.slice(4)); // Remove "aes:" prefix
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) {
+        bytes[i] = raw.charCodeAt(i);
+    }
+
+    const iv = bytes.slice(0, 12);
+    const ciphertext = bytes.slice(12);
+
+    const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        ciphertext
+    );
+
+    return new TextDecoder().decode(decrypted);
+}
+
+/**
+ * Decodes stored data with backwards compatibility
+ * Handles: "aes:" (AES-GCM), "enc:" (legacy XOR), plain JSON
+ * @param stored - Raw stored string
+ * @param storageKey - Key for re-encryption migration
+ * @param storage - Storage backend for migration re-write
+ * @returns Decoded data or null
+ */
+async function decodeStoredData<T>(
+    stored: string,
+    storageKey: string,
+    storage: Storage
+): Promise<T | null> {
+    if (stored.startsWith('aes:')) {
+        // AES-GCM encrypted (current format)
+        const json = await decryptAESGCM(stored);
+        return JSON.parse(json) as T;
+    }
+
+    // Legacy format — decode and migrate to AES-GCM
+    let data: T | null;
+    if (stored.startsWith('enc:')) {
+        // Legacy XOR obfuscation
+        data = decodeFromStorage<T>(stored);
+    } else {
+        // Plain JSON (oldest format)
+        data = JSON.parse(stored) as T;
+    }
+
+    // Migrate to AES-GCM on read
+    if (data !== null) {
+        try {
+            const json = JSON.stringify(data);
+            const encrypted = await encryptAESGCM(json);
+            storage.setItem(storageKey, encrypted);
+        } catch {
+            // Migration failed silently — data is still readable
+        }
+    }
+
+    return data;
+}
+
+// ========================================================================
+// Public Secure Storage API (AES-GCM)
+// ========================================================================
+
+/**
+ * Securely stores data in sessionStorage with AES-256-GCM encryption
  * @param key - Storage key
  * @param data - Data to store
+ * @security Uses Web Crypto API for proper encryption of PHI data
  */
-export function secureSessionStore(key: string, data: unknown): void {
+export async function secureSessionStore(key: string, data: unknown): Promise<void> {
     try {
-        const encoded = encodeForStorage(data);
-        if (encoded) {
-            sessionStorage.setItem(key, encoded);
-        }
+        const json = JSON.stringify(data);
+        const encrypted = await encryptAESGCM(json);
+        sessionStorage.setItem(key, encrypted);
     } catch (error) {
         console.error('[Security] Failed to store data securely:', error);
     }
 }
 
 /**
- * Retrieves and decodes data from sessionStorage
+ * Retrieves and decrypts data from sessionStorage
+ * Supports backwards compatibility with legacy XOR and plain JSON formats
  * @param key - Storage key
- * @returns Decoded data or null
+ * @returns Decrypted data or null
  */
-export function secureSessionRetrieve<T = unknown>(key: string): T | null {
+export async function secureSessionRetrieve<T = unknown>(key: string): Promise<T | null> {
     try {
         const stored = sessionStorage.getItem(key);
         if (!stored) return null;
-        return decodeFromStorage<T>(stored);
+        return await decodeStoredData<T>(stored, key, sessionStorage);
     } catch (error) {
         console.error('[Security] Failed to retrieve data securely:', error);
         return null;
@@ -518,31 +654,32 @@ export function secureSessionRetrieve<T = unknown>(key: string): T | null {
 }
 
 /**
- * Securely stores data in localStorage with obfuscation
+ * Securely stores data in localStorage with AES-256-GCM encryption
  * @param key - Storage key
  * @param data - Data to store
+ * @security Uses Web Crypto API for proper encryption of PHI data
  */
-export function secureLocalStore(key: string, data: unknown): void {
+export async function secureLocalStore(key: string, data: unknown): Promise<void> {
     try {
-        const encoded = encodeForStorage(data);
-        if (encoded) {
-            localStorage.setItem(key, encoded);
-        }
+        const json = JSON.stringify(data);
+        const encrypted = await encryptAESGCM(json);
+        localStorage.setItem(key, encrypted);
     } catch (error) {
         console.error('[Security] Failed to store data in localStorage:', error);
     }
 }
 
 /**
- * Retrieves and decodes data from localStorage
+ * Retrieves and decrypts data from localStorage
+ * Supports backwards compatibility with legacy XOR and plain JSON formats
  * @param key - Storage key
- * @returns Decoded data or null
+ * @returns Decrypted data or null
  */
-export function secureLocalRetrieve<T = unknown>(key: string): T | null {
+export async function secureLocalRetrieve<T = unknown>(key: string): Promise<T | null> {
     try {
         const stored = localStorage.getItem(key);
         if (!stored) return null;
-        return decodeFromStorage<T>(stored);
+        return await decodeStoredData<T>(stored, key, localStorage);
     } catch (error) {
         console.error('[Security] Failed to retrieve data from localStorage:', error);
         return null;

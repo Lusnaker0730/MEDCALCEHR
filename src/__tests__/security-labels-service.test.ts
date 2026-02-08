@@ -1,4 +1,5 @@
 // src/__tests__/security-labels-service.test.ts
+import { jest } from '@jest/globals';
 import {
     SecurityLabelsService,
     createSecurityLabelsService,
@@ -31,7 +32,7 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 // Mock audit service
 jest.mock('../audit-event-service', () => ({
     auditEventService: {
-        logSecurityAlert: jest.fn().mockResolvedValue(undefined)
+        logSecurityAlert: jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
     }
 }));
 

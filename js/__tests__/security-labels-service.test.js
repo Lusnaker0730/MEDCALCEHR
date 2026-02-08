@@ -1,4 +1,5 @@
 // src/__tests__/security-labels-service.test.ts
+import { jest } from '@jest/globals';
 import { createSecurityLabelsService } from '../security-labels-service';
 // Mock localStorage
 const localStorageMock = (() => {

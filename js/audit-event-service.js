@@ -611,7 +611,7 @@ export class AuditEventService {
         }
         // Store locally if offline or server send failed
         if (this.config.enableLocalStorage) {
-            this.storeLocally(event);
+            await this.storeLocally(event);
         }
         // Also keep in memory queue
         this.eventQueue.push(event);
@@ -638,18 +638,18 @@ export class AuditEventService {
     }
     /**
      * Store audit event locally
-     * @security Uses encrypted storage to protect audit data containing PHI references
+     * @security Uses AES-GCM encrypted storage to protect audit data containing PHI references
      */
-    storeLocally(event) {
+    async storeLocally(event) {
         try {
-            const stored = this.getPendingEvents();
+            const stored = await this.getPendingEvents();
             stored.push(event);
             // Prune if exceeds max
             while (stored.length > this.config.maxLocalEvents) {
                 stored.shift();
             }
             // Use secure storage for PHI-containing audit events
-            secureLocalStore(STORAGE_KEYS.PENDING_EVENTS, stored);
+            await secureLocalStore(STORAGE_KEYS.PENDING_EVENTS, stored);
             this.log(`Audit event stored locally (${stored.length} pending)`);
         }
         catch (error) {
@@ -659,18 +659,18 @@ export class AuditEventService {
     /**
      * Load pending events from local storage
      */
-    loadPendingEvents() {
-        const events = this.getPendingEvents();
+    async loadPendingEvents() {
+        const events = await this.getPendingEvents();
         this.eventQueue = events;
         this.log(`Loaded ${events.length} pending audit events from local storage`);
     }
     /**
      * Get pending events from local storage
-     * @security Decrypts securely stored audit events
+     * @security Decrypts AES-GCM encrypted audit events
      */
-    getPendingEvents() {
+    async getPendingEvents() {
         try {
-            const stored = secureLocalRetrieve(STORAGE_KEYS.PENDING_EVENTS);
+            const stored = await secureLocalRetrieve(STORAGE_KEYS.PENDING_EVENTS);
             return stored || [];
         }
         catch {
@@ -684,7 +684,7 @@ export class AuditEventService {
         if (!this.config.fhirServerUrl || !this.isOnline) {
             return;
         }
-        const pending = this.getPendingEvents();
+        const pending = await this.getPendingEvents();
         if (pending.length === 0) {
             return;
         }
@@ -699,7 +699,7 @@ export class AuditEventService {
             }
         }
         // Update secure local storage with only failed events
-        secureLocalStore(STORAGE_KEYS.PENDING_EVENTS, failed);
+        await secureLocalStore(STORAGE_KEYS.PENDING_EVENTS, failed);
         this.eventQueue = failed;
         this.log(`Flushed ${pending.length - failed.length} events, ${failed.length} failed`);
     }
@@ -712,8 +712,9 @@ export class AuditEventService {
     /**
      * Get pending event count
      */
-    getPendingEventCount() {
-        return this.getPendingEvents().length;
+    async getPendingEventCount() {
+        const events = await this.getPendingEvents();
+        return events.length;
     }
     /**
      * Clear all local audit events

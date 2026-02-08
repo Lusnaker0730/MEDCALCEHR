@@ -5,7 +5,7 @@ describe('Security Utilities', () => {
     describe('escapeHTML', () => {
         test('should escape special characters', () => {
             const input = '<script>alert("xss")</script>';
-            const expected = '&lt;script&gt;alert("xss")&lt;/script&gt;';
+            const expected = '&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;';
             expect(escapeHTML(input)).toBe(expected);
         });
 
@@ -62,7 +62,7 @@ describe('Security Utilities', () => {
     describe('sanitizeFHIRField', () => {
         test('should extract and sanitize string field', () => {
             const data = { name: '<script>John</script>' };
-            expect(sanitizeFHIRField(data, 'name')).toBe('&lt;script&gt;John&lt;/script&gt;');
+            expect(sanitizeFHIRField(data, 'name')).toBe('&lt;script&gt;John&lt;&#x2F;script&gt;');
         });
 
         test('should handle nested fields', () => {

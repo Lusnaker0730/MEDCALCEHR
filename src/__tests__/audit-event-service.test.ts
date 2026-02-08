@@ -304,7 +304,7 @@ describe('AuditEventService', () => {
             await auditService.logLogin('prac-123', 'Dr. Smith', true);
 
             // Use secure retrieval since data is now encrypted
-            const parsed = secureLocalRetrieve<FHIRAuditEvent[]>('medcalc_audit_pending');
+            const parsed = await secureLocalRetrieve<FHIRAuditEvent[]>('medcalc_audit_pending');
             expect(parsed).not.toBeNull();
             expect(parsed!.length).toBe(1);
         });
@@ -324,7 +324,7 @@ describe('AuditEventService', () => {
             }
 
             // Use secure retrieval since data is now encrypted
-            const parsed = secureLocalRetrieve<FHIRAuditEvent[]>('medcalc_audit_pending');
+            const parsed = await secureLocalRetrieve<FHIRAuditEvent[]>('medcalc_audit_pending');
             expect(parsed!.length).toBe(3); // Should be pruned to max
         });
 
@@ -332,14 +332,14 @@ describe('AuditEventService', () => {
             await auditService.logLogin('prac-1', 'Dr. One', true);
             await auditService.logLogin('prac-2', 'Dr. Two', true);
 
-            expect(auditService.getPendingEventCount()).toBe(2);
+            expect(await auditService.getPendingEventCount()).toBe(2);
         });
 
         it('should clear local events', async () => {
             await auditService.logLogin('prac-123', 'Dr. Smith', true);
             auditService.clearLocalEvents();
 
-            expect(auditService.getPendingEventCount()).toBe(0);
+            expect(await auditService.getPendingEventCount()).toBe(0);
             expect(auditService.getAuditEvents().length).toBe(0);
         });
     });

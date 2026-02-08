@@ -117,9 +117,9 @@ function renderMinimalPatient(minimalData: MinimalPatientData, patientInfoDiv: H
  * @security Only minimal patient data is stored in sessionStorage (encrypted).
  *           Full patient object is kept in memory only.
  */
-export function displayPatientInfo(client: any, patientInfoDiv: HTMLElement): Promise<any> {
+export async function displayPatientInfo(client: any, patientInfoDiv: HTMLElement): Promise<any> {
     // First, try to display data from secure session storage for a faster UI response.
-    const cachedMinimal = secureSessionRetrieve<MinimalPatientData>(PATIENT_CACHE_KEY);
+    const cachedMinimal = await secureSessionRetrieve<MinimalPatientData>(PATIENT_CACHE_KEY);
     if (cachedMinimal && cachedMinimal.name) {
         renderMinimalPatient(cachedMinimal, patientInfoDiv);
     }
@@ -130,20 +130,20 @@ export function displayPatientInfo(client: any, patientInfoDiv: HTMLElement): Pr
                 '<p>No patient data available. Please launch from the EHR.</p>';
         }
         // Return a reconstructed minimal patient object for compatibility
-        return Promise.resolve(cachedMinimal ? {
+        return cachedMinimal ? {
             id: cachedMinimal.id,
             name: [{ text: cachedMinimal.name }],
             birthDate: cachedMinimal.birthDate,
             gender: cachedMinimal.gender
-        } : null);
+        } : null;
     }
 
     return client.patient.read().then(
-        (patient: any) => {
+        async (patient: any) => {
             // Extract and securely store only minimal data
             const minimalData = extractMinimalPatientData(patient);
             if (minimalData) {
-                secureSessionStore(PATIENT_CACHE_KEY, minimalData);
+                await secureSessionStore(PATIENT_CACHE_KEY, minimalData);
                 renderMinimalPatient(minimalData, patientInfoDiv);
             }
             // Return full patient object (kept in memory only, not persisted)

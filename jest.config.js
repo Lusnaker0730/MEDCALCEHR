@@ -6,6 +6,9 @@ export default {
     // 測試環境使用 jsdom (瀏覽器模擬)
     testEnvironment: 'jsdom',
 
+    // Setup files - Web Crypto API polyfill for jsdom
+    setupFiles: ['./jest.setup.ts'],
+
     // 支援的副檔名
     moduleFileExtensions: ['ts', 'js', 'json', 'node'],
 
@@ -40,13 +43,13 @@ export default {
         '!src/types/**/*.ts' // 排除類型定義檔案
     ],
 
-    // 覆蓋率閾值 (逐步提高，當前為基準值)
+    // 覆蓋率閾值 (Phase 1: 8% → 40%+)
     coverageThreshold: {
         global: {
-            branches: 8,
-            functions: 12,
-            lines: 8,
-            statements: 8
+            branches: 40,
+            functions: 40,
+            lines: 42,
+            statements: 42
         }
     },
 
