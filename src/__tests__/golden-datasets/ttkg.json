@@ -1,0 +1,53 @@
+{
+  "calculatorId": "ttkg",
+  "calculatorName": "Transtubular Potassium Gradient (TTKG)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-TTKG-001",
+      "description": "Normal TTKG - normokalemia",
+      "source": "TTKG = (30 * 290) / (4.0 * 600) = 8700 / 2400 = 3.63",
+      "inputs": { "ttkg-urine-k": 30, "ttkg-serum-k": 4.0, "ttkg-urine-osmo": 600, "ttkg-serum-osmo": 290 },
+      "expected": [
+        { "label": "TTKG", "value": 3.63, "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-TTKG-002",
+      "description": "Hypokalemia with low TTKG (non-renal loss)",
+      "source": "TTKG = (10 * 285) / (3.0 * 800) = 2850 / 2400 = 1.19",
+      "inputs": { "ttkg-urine-k": 10, "ttkg-serum-k": 3.0, "ttkg-urine-osmo": 800, "ttkg-serum-osmo": 285 },
+      "expected": [
+        { "label": "TTKG", "value": 1.19, "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-TTKG-003",
+      "description": "Hypokalemia with high TTKG (renal wasting)",
+      "source": "TTKG = (50 * 290) / (2.8 * 700) = 14500 / 1960 = 7.40",
+      "inputs": { "ttkg-urine-k": 50, "ttkg-serum-k": 2.8, "ttkg-urine-osmo": 700, "ttkg-serum-osmo": 290 },
+      "expected": [
+        { "label": "TTKG", "value": 7.40, "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-TTKG-004",
+      "description": "Hyperkalemia with high TTKG (dietary intake)",
+      "source": "TTKG = (80 * 295) / (6.0 * 500) = 23600 / 3000 = 7.87",
+      "inputs": { "ttkg-urine-k": 80, "ttkg-serum-k": 6.0, "ttkg-urine-osmo": 500, "ttkg-serum-osmo": 295 },
+      "expected": [
+        { "label": "TTKG", "value": 7.87, "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-TTKG-005",
+      "description": "Invalid TTKG - urine osmo ≤ serum osmo",
+      "source": "TTKG = (40 * 280) / (5.0 * 260) = 11200 / 1300 = 8.62, but uOsm ≤ sOsm so validity warning",
+      "inputs": { "ttkg-urine-k": 40, "ttkg-serum-k": 5.0, "ttkg-urine-osmo": 260, "ttkg-serum-osmo": 280 },
+      "expected": [
+        { "label": "TTKG", "value": 8.62, "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

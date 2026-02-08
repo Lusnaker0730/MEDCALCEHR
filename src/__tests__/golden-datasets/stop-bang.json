@@ -1,0 +1,98 @@
+{
+  "calculatorId": "stop-bang",
+  "calculatorName": "STOP-BANG Score for Obstructive Sleep Apnea",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-STOPBANG-001",
+      "description": "Low risk - no criteria checked",
+      "source": "Chung F, et al. Anesthesiology. 2008;108(5):812-821. All false = 0.",
+      "inputs": {
+        "sb-snoring": false,
+        "sb-tired": false,
+        "sb-observed": false,
+        "sb-pressure": false,
+        "sb-bmi": false,
+        "sb-age": false,
+        "sb-neck": false,
+        "sb-gender": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-STOPBANG-002",
+      "description": "Low risk - two criteria: snoring and tired",
+      "source": "Chung F, et al. Anesthesiology. 2008. Snoring (1) + Tired (1) = 2.",
+      "inputs": {
+        "sb-snoring": true,
+        "sb-tired": true,
+        "sb-observed": false,
+        "sb-pressure": false,
+        "sb-bmi": false,
+        "sb-age": false,
+        "sb-neck": false,
+        "sb-gender": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-STOPBANG-003",
+      "description": "Intermediate risk - three criteria: snoring, hypertension, male",
+      "source": "Chung F, et al. Br J Anaesth. 2012;108(5):768-775. 3 criteria = Intermediate.",
+      "inputs": {
+        "sb-snoring": true,
+        "sb-tired": false,
+        "sb-observed": false,
+        "sb-pressure": true,
+        "sb-bmi": false,
+        "sb-age": false,
+        "sb-neck": false,
+        "sb-gender": true
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-STOPBANG-004",
+      "description": "High risk - five criteria met",
+      "source": "Chung F, et al. Br J Anaesth. 2012. Snoring + Tired + Observed + BMI>35 + Age>50 = 5.",
+      "inputs": {
+        "sb-snoring": true,
+        "sb-tired": true,
+        "sb-observed": true,
+        "sb-pressure": false,
+        "sb-bmi": true,
+        "sb-age": true,
+        "sb-neck": false,
+        "sb-gender": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-STOPBANG-005",
+      "description": "Maximum score - all eight criteria met",
+      "source": "Chung F, et al. Br J Anaesth. 2012. All 8 criteria = 8.",
+      "inputs": {
+        "sb-snoring": true,
+        "sb-tired": true,
+        "sb-observed": true,
+        "sb-pressure": true,
+        "sb-bmi": true,
+        "sb-age": true,
+        "sb-neck": true,
+        "sb-gender": true
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 }
+      ]
+    }
+  ]
+}

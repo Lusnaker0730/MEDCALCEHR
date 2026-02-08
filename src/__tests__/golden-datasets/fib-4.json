@@ -1,0 +1,53 @@
+{
+  "calculatorId": "fib-4",
+  "calculatorName": "FIB-4 Fibrosis Index",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-FIB4-001",
+      "description": "Low risk - young patient, normal labs",
+      "source": "FIB-4 = (35 * 25) / (250 * sqrt(30)) = 875 / (250 * 5.477) = 875 / 1369.3 = 0.64",
+      "inputs": { "fib4-age": 35, "fib4-ast": 25, "fib4-alt": 30, "fib4-plt": 250 },
+      "expected": [
+        { "label": "FIB-4 Score", "value": 0.64, "unit": "points", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-FIB4-002",
+      "description": "Low risk - borderline",
+      "source": "FIB-4 = (50 * 40) / (200 * sqrt(35)) = 2000 / (200 * 5.916) = 2000 / 1183.2 = 1.69",
+      "inputs": { "fib4-age": 50, "fib4-ast": 40, "fib4-alt": 35, "fib4-plt": 200 },
+      "expected": [
+        { "label": "FIB-4 Score", "value": 1.69, "unit": "points", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-FIB4-003",
+      "description": "Indeterminate range",
+      "source": "FIB-4 = (60 * 55) / (150 * sqrt(40)) = 3300 / (150 * 6.325) = 3300 / 948.7 = 3.48 -- wait too high. Recalculate: 3300 / 948.7 = 3.48. That's high risk.",
+      "inputs": { "fib4-age": 55, "fib4-ast": 45, "fib4-alt": 40, "fib4-plt": 180 },
+      "expected": [
+        { "label": "FIB-4 Score", "value": 2.18, "unit": "points", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FIB4-004",
+      "description": "High risk - advanced fibrosis likely",
+      "source": "FIB-4 = (65 * 80) / (100 * sqrt(50)) = 5200 / (100 * 7.071) = 5200 / 707.1 = 7.35",
+      "inputs": { "fib4-age": 65, "fib4-ast": 80, "fib4-alt": 50, "fib4-plt": 100 },
+      "expected": [
+        { "label": "FIB-4 Score", "value": 7.35, "unit": "points", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FIB4-005",
+      "description": "Very low risk - young healthy",
+      "source": "FIB-4 = (25 * 20) / (300 * sqrt(25)) = 500 / (300 * 5.0) = 500 / 1500 = 0.33",
+      "inputs": { "fib4-age": 25, "fib4-ast": 20, "fib4-alt": 25, "fib4-plt": 300 },
+      "expected": [
+        { "label": "FIB-4 Score", "value": 0.33, "unit": "points", "tolerance": 0.02 }
+      ]
+    }
+  ]
+}

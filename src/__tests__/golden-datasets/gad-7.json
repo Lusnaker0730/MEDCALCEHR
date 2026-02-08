@@ -1,0 +1,98 @@
+{
+  "calculatorId": "gad-7",
+  "calculatorName": "GAD-7 (General Anxiety Disorder-7)",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-GAD7-001",
+      "description": "No anxiety symptoms: all questions scored 0, total 0",
+      "source": "Spitzer RL, et al. Arch Intern Med. 2006;166(10):1092-1097.",
+      "inputs": {
+        "gad7-q0": "0",
+        "gad7-q1": "0",
+        "gad7-q2": "0",
+        "gad7-q3": "0",
+        "gad7-q4": "0",
+        "gad7-q5": "0",
+        "gad7-q6": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Minimal anxiety" }
+      ]
+    },
+    {
+      "id": "GD-GAD7-002",
+      "description": "Minimal anxiety: some items at 'several days', total 4",
+      "source": "Spitzer RL, et al. Arch Intern Med. 2006;166(10):1092-1097.",
+      "inputs": {
+        "gad7-q0": "1",
+        "gad7-q1": "1",
+        "gad7-q2": "1",
+        "gad7-q3": "1",
+        "gad7-q4": "0",
+        "gad7-q5": "0",
+        "gad7-q6": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Minimal anxiety" }
+      ]
+    },
+    {
+      "id": "GD-GAD7-003",
+      "description": "Mild anxiety: mixed scoring across questions, total 8",
+      "source": "Spitzer RL, et al. Arch Intern Med. 2006;166(10):1092-1097.",
+      "inputs": {
+        "gad7-q0": "2",
+        "gad7-q1": "2",
+        "gad7-q2": "1",
+        "gad7-q3": "1",
+        "gad7-q4": "1",
+        "gad7-q5": "1",
+        "gad7-q6": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Mild anxiety" }
+      ]
+    },
+    {
+      "id": "GD-GAD7-004",
+      "description": "Moderate anxiety: most items at 'more than half the days', total 13",
+      "source": "Spitzer RL, et al. Arch Intern Med. 2006;166(10):1092-1097.",
+      "inputs": {
+        "gad7-q0": "2",
+        "gad7-q1": "2",
+        "gad7-q2": "2",
+        "gad7-q3": "2",
+        "gad7-q4": "2",
+        "gad7-q5": "2",
+        "gad7-q6": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 13, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate anxiety" }
+      ]
+    },
+    {
+      "id": "GD-GAD7-005",
+      "description": "Severe anxiety: all items at 'nearly every day', maximum score 21",
+      "source": "Spitzer RL, et al. Arch Intern Med. 2006;166(10):1092-1097.",
+      "inputs": {
+        "gad7-q0": "3",
+        "gad7-q1": "3",
+        "gad7-q2": "3",
+        "gad7-q3": "3",
+        "gad7-q4": "3",
+        "gad7-q5": "3",
+        "gad7-q6": "3"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 21, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Severe anxiety" }
+      ]
+    }
+  ]
+}

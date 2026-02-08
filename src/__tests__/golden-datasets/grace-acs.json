@@ -1,0 +1,53 @@
+{
+  "calculatorId": "grace-acs",
+  "calculatorName": "GRACE ACS Risk Score",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-GRACE-001",
+      "description": "Low risk - young patient, stable vitals",
+      "source": "Age 45 (18pts) + HR 65 (0pts) + SBP 130 (24pts) + Cr 0.9 (7pts) + Killip I (0) + no arrest (0) + no ST (0) + no enzymes (0) = 49",
+      "inputs": { "grace-age": 45, "grace-hr": 65, "grace-sbp": 130, "grace-creatinine": 0.9, "grace-killip": "0", "grace-cardiac-arrest": "0", "grace-st-deviation": "0", "grace-cardiac-enzymes": "0" },
+      "expected": [
+        { "label": "Total GRACE Score", "value": "49", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-GRACE-002",
+      "description": "Low risk - middle-aged, normal labs",
+      "source": "Age 55 (36pts) + HR 75 (3pts) + SBP 140 (18pts) + Cr 1.0 (7pts) + Killip I (0) + no arrest (0) + no ST (0) + no enzymes (0) = 64",
+      "inputs": { "grace-age": 55, "grace-hr": 75, "grace-sbp": 140, "grace-creatinine": 1.0, "grace-killip": "0", "grace-cardiac-arrest": "0", "grace-st-deviation": "0", "grace-cardiac-enzymes": "0" },
+      "expected": [
+        { "label": "Total GRACE Score", "value": "64", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-GRACE-003",
+      "description": "Intermediate risk - elderly with multiple risk factors",
+      "source": "Age 72 (73pts) + HR 95 (7pts) + SBP 110 (34pts) + Cr 1.5 (10pts) + Killip II (20) + no arrest (0) + no ST (0) + enzymes (15) = 159 -- Wait: killip/arrest etc values are point values passed directly",
+      "inputs": { "grace-age": 72, "grace-hr": 95, "grace-sbp": 110, "grace-creatinine": 1.5, "grace-killip": "20", "grace-cardiac-arrest": "0", "grace-st-deviation": "0", "grace-cardiac-enzymes": "15" },
+      "expected": [
+        { "label": "Total GRACE Score", "value": "159", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-GRACE-004",
+      "description": "High risk - very elderly with cardiac arrest",
+      "source": "Age 85 (91pts) + HR 115 (13pts) + SBP 85 (43pts) + Cr 2.5 (21pts) + Killip III (39) + arrest (39) + ST (28) + enzymes (15) = 289",
+      "inputs": { "grace-age": 85, "grace-hr": 115, "grace-sbp": 85, "grace-creatinine": 2.5, "grace-killip": "39", "grace-cardiac-arrest": "39", "grace-st-deviation": "28", "grace-cardiac-enzymes": "15" },
+      "expected": [
+        { "label": "Total GRACE Score", "value": "289", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-GRACE-005",
+      "description": "Minimum score - young with low points",
+      "source": "Age 35 (0pts) + HR 60 (0pts) + SBP 200 (0pts) + Cr 0.3 (1pt) + all zeros = 1",
+      "inputs": { "grace-age": 35, "grace-hr": 60, "grace-sbp": 200, "grace-creatinine": 0.3, "grace-killip": "0", "grace-cardiac-arrest": "0", "grace-st-deviation": "0", "grace-cardiac-enzymes": "0" },
+      "expected": [
+        { "label": "Total GRACE Score", "value": "1", "unit": "points", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

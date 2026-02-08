@@ -1,0 +1,98 @@
+{
+  "calculatorId": "wells-pe",
+  "calculatorName": "Wells' Criteria for Pulmonary Embolism",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-WELLSPE-001",
+      "description": "No criteria met: low risk PE",
+      "source": "Wells PS, et al. Thromb Haemost. 2000;83(3):416-420.",
+      "inputs": {
+        "wells-dvt": "0",
+        "wells-alt": "0",
+        "wells-hr": "0",
+        "wells-immo": "0",
+        "wells-prev": "0",
+        "wells-hemo": "0",
+        "wells-mal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSPE-002",
+      "description": "HR >100 and immobilization/surgery: score 3.0",
+      "source": "Wells PS, et al. Thromb Haemost. 2000;83(3):416-420.",
+      "inputs": {
+        "wells-dvt": "0",
+        "wells-alt": "0",
+        "wells-hr": "1.5",
+        "wells-immo": "1.5",
+        "wells-prev": "0",
+        "wells-hemo": "0",
+        "wells-mal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low-Moderate Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSPE-003",
+      "description": "Clinical DVT signs and PE #1 diagnosis: score 6.0",
+      "source": "Wells PS, et al. Thromb Haemost. 2000;83(3):416-420.",
+      "inputs": {
+        "wells-dvt": "3",
+        "wells-alt": "3",
+        "wells-hr": "0",
+        "wells-immo": "0",
+        "wells-prev": "0",
+        "wells-hemo": "0",
+        "wells-mal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate-High Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSPE-004",
+      "description": "High risk: DVT signs, PE #1, tachycardia, prior DVT/PE: score 10.5",
+      "source": "Wells PS, et al. Thromb Haemost. 2000;83(3):416-420.",
+      "inputs": {
+        "wells-dvt": "3",
+        "wells-alt": "3",
+        "wells-hr": "1.5",
+        "wells-immo": "0",
+        "wells-prev": "1.5",
+        "wells-hemo": "1",
+        "wells-mal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 10, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSPE-005",
+      "description": "All criteria met: maximum score 12.5",
+      "source": "Wells PS, et al. Thromb Haemost. 2000;83(3):416-420.",
+      "inputs": {
+        "wells-dvt": "3",
+        "wells-alt": "3",
+        "wells-hr": "1.5",
+        "wells-immo": "1.5",
+        "wells-prev": "1.5",
+        "wells-hemo": "1",
+        "wells-mal": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12.5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "calculatorId": "pediatric-bp",
+  "calculatorName": "Pediatric Blood Pressure Classifier",
+  "version": "1.0",
+  "calculatorType": "complex",
+  "cases": [
+    {
+      "id": "GD-PEDSBP-001",
+      "description": "Normal BP - 6-year-old boy, SBP/DBP well below 90th",
+      "source": "Age 6, male. Table: SBP90=105, DBP90=66, SBP95=109, DBP95=70. SBP 95<105, DBP 60<66 → Normal (score=0).",
+      "inputs": { "peds-bp-age": 6, "peds-bp-sex": "male", "peds-bp-sbp": 95, "peds-bp-dbp": 60 },
+      "expected": [
+        { "label": "Score", "value": 0, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Normal BP" }
+      ]
+    },
+    {
+      "id": "GD-PEDSBP-002",
+      "description": "Elevated BP - 10-year-old girl, SBP at 90th percentile",
+      "source": "Age 10, female. Table: SBP90=109, DBP90=72, SBP95=113, DBP95=76. SBP 110>=109(90th) but <113(95th) → Elevated (score=1).",
+      "inputs": { "peds-bp-age": 10, "peds-bp-sex": "female", "peds-bp-sbp": 110, "peds-bp-dbp": 70 },
+      "expected": [
+        { "label": "Score", "value": 1, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Elevated BP" }
+      ]
+    },
+    {
+      "id": "GD-PEDSBP-003",
+      "description": "Stage 1 HTN - 8-year-old boy, SBP at 95th percentile",
+      "source": "Age 8, male. Table: SBP90=107, DBP90=69, SBP95=111, DBP95=73. SBP 112>=111(95th) but <111+12=123 → Stage 1 (score=2).",
+      "inputs": { "peds-bp-age": 8, "peds-bp-sex": "male", "peds-bp-sbp": 112, "peds-bp-dbp": 68 },
+      "expected": [
+        { "label": "Score", "value": 2, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Stage 1 Hypertension" }
+      ]
+    },
+    {
+      "id": "GD-PEDSBP-004",
+      "description": "Stage 2 HTN - 5-year-old girl, SBP well above 95th+12",
+      "source": "Age 5, female. Table: SBP90=104, DBP90=64, SBP95=108, DBP95=68. SBP 125>=108+12=120 → Stage 2 (score=3).",
+      "inputs": { "peds-bp-age": 5, "peds-bp-sex": "female", "peds-bp-sbp": 125, "peds-bp-dbp": 65 },
+      "expected": [
+        { "label": "Score", "value": 3, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Stage 2 Hypertension" }
+      ]
+    },
+    {
+      "id": "GD-PEDSBP-005",
+      "description": "Adolescent (15yo) - Stage 1 HTN by static thresholds",
+      "source": "Age 15 (>=13, static thresholds). SBP 132>=130 → Stage 1 (score=2). DBP 78<80 doesn't change.",
+      "inputs": { "peds-bp-age": 15, "peds-bp-sex": "male", "peds-bp-sbp": 132, "peds-bp-dbp": 78 },
+      "expected": [
+        { "label": "Score", "value": 2, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Stage 1 Hypertension" }
+      ]
+    }
+  ]
+}

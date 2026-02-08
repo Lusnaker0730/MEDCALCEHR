@@ -1,0 +1,53 @@
+{
+  "calculatorId": "fena",
+  "calculatorName": "Fractional Excretion of Sodium (FENa)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-FENA-001",
+      "description": "Prerenal AKI - FENa < 1%",
+      "source": "FENa = (UNa/SNa) / (UCr/SCr) * 100 = (10/140) / (200/1.0) * 100 = 0.0714/200 * 100 = 0.036%",
+      "inputs": { "fena-urine-na": 10, "fena-serum-na": 140, "fena-urine-creat": 200, "fena-serum-creat": 1.0 },
+      "expected": [
+        { "label": "Fractional Excretion of Sodium", "value": "0.04", "unit": "%", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-FENA-002",
+      "description": "Prerenal - typical dehydration",
+      "source": "FENa = (20/138) / (150/1.2) * 100 = 0.145/125 * 100 = 0.116 * 100 = 0.12%",
+      "inputs": { "fena-urine-na": 20, "fena-serum-na": 138, "fena-urine-creat": 150, "fena-serum-creat": 1.2 },
+      "expected": [
+        { "label": "Fractional Excretion of Sodium", "value": "0.12", "unit": "%", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-FENA-003",
+      "description": "Prerenal - FENa < 1%",
+      "source": "FENa = (UNa/SNa) / (UCr/SCr) * 100 = (50/140) / (100/2.0) * 100 = 0.3571/50 * 100 = 0.71%",
+      "inputs": { "fena-urine-na": 50, "fena-serum-na": 140, "fena-urine-creat": 100, "fena-serum-creat": 2.0 },
+      "expected": [
+        { "label": "Fractional Excretion of Sodium", "value": "0.71", "unit": "%", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-FENA-004",
+      "description": "Intrinsic renal (ATN) - FENa > 2%",
+      "source": "FENa = (80/135) / (50/2.5) * 100 = 0.593/20 * 100 = 2.96%",
+      "inputs": { "fena-urine-na": 80, "fena-serum-na": 135, "fena-urine-creat": 50, "fena-serum-creat": 2.5 },
+      "expected": [
+        { "label": "Fractional Excretion of Sodium", "value": "2.96", "unit": "%", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-FENA-005",
+      "description": "High FENa - established ATN",
+      "source": "FENa = (100/140) / (30/3.0) * 100 = 0.714/10 * 100 = 7.14%",
+      "inputs": { "fena-urine-na": 100, "fena-serum-na": 140, "fena-urine-creat": 30, "fena-serum-creat": 3.0 },
+      "expected": [
+        { "label": "Fractional Excretion of Sodium", "value": "7.14", "unit": "%", "tolerance": 0.05 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "calculatorId": "euroscore-ii",
+  "calculatorName": "EuroSCORE II Cardiac Surgery Mortality",
+  "version": "1.0",
+  "calculatorType": "complex",
+  "cases": [
+    {
+      "id": "GD-ES2-001",
+      "description": "Low risk - young male, elective isolated CABG, good LV",
+      "source": "y = -5.324537 (intercept only, age<=60, male, all normal). Mortality = e^(-5.3245)/(1+e^(-5.3245))*100 = 0.48%",
+      "inputs": {
+        "es2-age": 50,
+        "es2-sex": "male",
+        "es2-renal": "normal",
+        "es2-diabetes": "0",
+        "es2-pulmonary": "0",
+        "es2-neuro": "0",
+        "es2-critical": "0",
+        "es2-nyha": "1",
+        "es2-ccs4": "0",
+        "es2-arteriopathy": "0",
+        "es2-previous-surgery": "0",
+        "es2-endocarditis": "0",
+        "es2-lvef": ">50",
+        "es2-recent-mi": "0",
+        "es2-pa-pressure": "normal",
+        "es2-urgency": "elective",
+        "es2-procedure-weight": "cabg",
+        "es2-thoracic-aorta": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 0.48, "tolerance": 0.1 },
+        { "label": "Interpretation", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-ES2-002",
+      "description": "Moderate risk - 70yo female, IDDM, moderate renal, NYHA II",
+      "source": "y = -5.3245 + (70-60)*0.0285=0.2852 + 0.2196(F) + 0.3036(renalMod) + 0.3543(DM) + 0.1071(NYHA2) = -4.054. Mort=e^(-4.054)/(1+e^(-4.054))*100 = 1.71%",
+      "inputs": {
+        "es2-age": 70,
+        "es2-sex": "female",
+        "es2-renal": "moderate",
+        "es2-diabetes": "1",
+        "es2-pulmonary": "0",
+        "es2-neuro": "0",
+        "es2-critical": "0",
+        "es2-nyha": "2",
+        "es2-ccs4": "0",
+        "es2-arteriopathy": "0",
+        "es2-previous-surgery": "0",
+        "es2-endocarditis": "0",
+        "es2-lvef": ">50",
+        "es2-recent-mi": "0",
+        "es2-pa-pressure": "normal",
+        "es2-urgency": "elective",
+        "es2-procedure-weight": "cabg",
+        "es2-thoracic-aorta": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 1.71, "tolerance": 0.5 },
+        { "label": "Interpretation", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-ES2-003",
+      "description": "Moderate-high risk - 65yo male, LVEF moderate, urgent, 2 procedures, arteriopathy",
+      "source": "y = -5.3245 + (65-60)*0.0285=0.1426 + 0.5360(arteriop) + 0.3151(LVEFmod) + 0.3175(urgent) + 0.5521(2proc) = -3.461. Mort=3.04%",
+      "inputs": {
+        "es2-age": 65,
+        "es2-sex": "male",
+        "es2-renal": "normal",
+        "es2-diabetes": "0",
+        "es2-pulmonary": "0",
+        "es2-neuro": "0",
+        "es2-critical": "0",
+        "es2-nyha": "1",
+        "es2-ccs4": "0",
+        "es2-arteriopathy": "1",
+        "es2-previous-surgery": "0",
+        "es2-endocarditis": "0",
+        "es2-lvef": "moderate",
+        "es2-recent-mi": "0",
+        "es2-pa-pressure": "normal",
+        "es2-urgency": "urgent",
+        "es2-procedure-weight": "2-procedures",
+        "es2-thoracic-aorta": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 3.04, "tolerance": 1.0 },
+        { "label": "Interpretation", "value": "Moderate Risk" }
+      ]
+    },
+    {
+      "id": "GD-ES2-004",
+      "description": "High risk - critical preop, emergency, poor LVEF, renal severe",
+      "source": "y = -5.3245 + (72-60)*0.0285181=0.3422 + 0.8592(renalSev) + 1.0865(critical) + 0.8084(LVEFpoor) + 0.7039(emergency) + 0.0062(nonCABG) = -1.518. Mort=e^(-1.518)/(1+e^(-1.518))*100=17.97%",
+      "inputs": {
+        "es2-age": 72,
+        "es2-sex": "male",
+        "es2-renal": "severe",
+        "es2-diabetes": "0",
+        "es2-pulmonary": "0",
+        "es2-neuro": "0",
+        "es2-critical": "1",
+        "es2-nyha": "1",
+        "es2-ccs4": "0",
+        "es2-arteriopathy": "0",
+        "es2-previous-surgery": "0",
+        "es2-endocarditis": "0",
+        "es2-lvef": "poor",
+        "es2-recent-mi": "0",
+        "es2-pa-pressure": "normal",
+        "es2-urgency": "emergency",
+        "es2-procedure-weight": "non-cabg",
+        "es2-thoracic-aorta": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 17.97, "tolerance": 1.0 },
+        { "label": "Interpretation", "value": "Very High Risk" }
+      ]
+    },
+    {
+      "id": "GD-ES2-005",
+      "description": "Very high risk - salvage, previous surgery, endocarditis, very poor LVEF, thoracic aorta",
+      "source": "y = -5.3245 + (78-60)*0.0285=0.513 + 0.2196(F) + 0.6422(dialysis) + 0.5598(NYHA4) + 1.1186(prevSurg) + 0.6195(endocard) + 0.9347(LVEFvPoor) + 1.3629(salvage) + 0.9725(3+proc) + 0.6527(thoracic) = 2.27. Mort=90.7%",
+      "inputs": {
+        "es2-age": 78,
+        "es2-sex": "female",
+        "es2-renal": "dialysis",
+        "es2-diabetes": "0",
+        "es2-pulmonary": "0",
+        "es2-neuro": "0",
+        "es2-critical": "0",
+        "es2-nyha": "4",
+        "es2-ccs4": "0",
+        "es2-arteriopathy": "0",
+        "es2-previous-surgery": "1",
+        "es2-endocarditis": "1",
+        "es2-lvef": "very-poor",
+        "es2-recent-mi": "0",
+        "es2-pa-pressure": "normal",
+        "es2-urgency": "salvage",
+        "es2-procedure-weight": "3-or-more",
+        "es2-thoracic-aorta": "1"
+      },
+      "expected": [
+        { "label": "Score", "value": 90.7, "tolerancePercent": 10 },
+        { "label": "Interpretation", "value": "Very High Risk" }
+      ]
+    }
+  ]
+}

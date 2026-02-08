@@ -1,0 +1,113 @@
+{
+  "calculatorId": "wells-dvt",
+  "calculatorName": "Wells' Criteria for DVT",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-WELLSDVT-001",
+      "description": "No criteria met: low risk DVT",
+      "source": "Wells PS, et al. Lancet. 1997;350(9094):1795-1798.",
+      "inputs": {
+        "dvt-cancer": "0",
+        "dvt-paralysis": "0",
+        "dvt-bedridden": "0",
+        "dvt-tenderness": "0",
+        "dvt-swelling": "0",
+        "dvt-calf": "0",
+        "dvt-pitting": "0",
+        "dvt-collateral": "0",
+        "dvt-previous": "0",
+        "dvt-alternative": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSDVT-002",
+      "description": "Alternative diagnosis likely only: score -2 (low risk)",
+      "source": "Wells PS, et al. Lancet. 1997;350(9094):1795-1798.",
+      "inputs": {
+        "dvt-cancer": "0",
+        "dvt-paralysis": "0",
+        "dvt-bedridden": "0",
+        "dvt-tenderness": "0",
+        "dvt-swelling": "0",
+        "dvt-calf": "0",
+        "dvt-pitting": "0",
+        "dvt-collateral": "0",
+        "dvt-previous": "0",
+        "dvt-alternative": "-2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": -2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSDVT-003",
+      "description": "Moderate risk: calf swelling and pitting edema, score 2",
+      "source": "Wells PS, et al. Lancet. 1997;350(9094):1795-1798.",
+      "inputs": {
+        "dvt-cancer": "0",
+        "dvt-paralysis": "0",
+        "dvt-bedridden": "0",
+        "dvt-tenderness": "0",
+        "dvt-swelling": "0",
+        "dvt-calf": "1",
+        "dvt-pitting": "1",
+        "dvt-collateral": "0",
+        "dvt-previous": "0",
+        "dvt-alternative": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSDVT-004",
+      "description": "High risk: cancer, tenderness, entire leg swollen, previous DVT, score 4",
+      "source": "Wells PS, et al. Lancet. 1997;350(9094):1795-1798.",
+      "inputs": {
+        "dvt-cancer": "1",
+        "dvt-paralysis": "0",
+        "dvt-bedridden": "0",
+        "dvt-tenderness": "1",
+        "dvt-swelling": "1",
+        "dvt-calf": "0",
+        "dvt-pitting": "0",
+        "dvt-collateral": "0",
+        "dvt-previous": "1",
+        "dvt-alternative": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-WELLSDVT-005",
+      "description": "High risk with alternative diagnosis offset: cancer, paralysis, bedridden, tenderness, swelling, calf, previous DVT minus alternative, score 5",
+      "source": "Wells PS, et al. Lancet. 1997;350(9094):1795-1798.",
+      "inputs": {
+        "dvt-cancer": "1",
+        "dvt-paralysis": "1",
+        "dvt-bedridden": "1",
+        "dvt-tenderness": "1",
+        "dvt-swelling": "1",
+        "dvt-calf": "1",
+        "dvt-pitting": "0",
+        "dvt-collateral": "1",
+        "dvt-previous": "0",
+        "dvt-alternative": "-2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    }
+  ]
+}

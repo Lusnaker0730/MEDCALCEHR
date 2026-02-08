@@ -1,0 +1,83 @@
+{
+  "calculatorId": "padua-vte",
+  "calculatorName": "Padua VTE Risk Assessment",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-PADUA-001",
+      "description": "Low risk - no risk factors present",
+      "source": "All questions answered 0. Total = 0. Low Risk for VTE.",
+      "inputs": {
+        "padua-cancer": "0", "padua-prev-vte": "0", "padua-mobility": "0",
+        "padua-thromb": "0", "padua-trauma": "0", "padua-age": "0",
+        "padua-heart-resp": "0", "padua-mi-stroke": "0", "padua-infection": "0",
+        "padua-obesity": "0", "padua-hormonal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk for VTE" }
+      ]
+    },
+    {
+      "id": "GD-PADUA-002",
+      "description": "Low risk - minor factors only (score 3)",
+      "source": "Age >=70 (1pt) + Acute infection (1pt) + Obesity (1pt) = 3. Low Risk for VTE.",
+      "inputs": {
+        "padua-cancer": "0", "padua-prev-vte": "0", "padua-mobility": "0",
+        "padua-thromb": "0", "padua-trauma": "0", "padua-age": "1",
+        "padua-heart-resp": "0", "padua-mi-stroke": "0", "padua-infection": "1",
+        "padua-obesity": "1", "padua-hormonal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk for VTE" }
+      ]
+    },
+    {
+      "id": "GD-PADUA-003",
+      "description": "High risk - threshold score (score 4)",
+      "source": "Recent trauma/surgery (2pts) + Age >=70 (1pt) + Acute infection (1pt) = 4. High Risk for VTE.",
+      "inputs": {
+        "padua-cancer": "0", "padua-prev-vte": "0", "padua-mobility": "0",
+        "padua-thromb": "0", "padua-trauma": "2", "padua-age": "1",
+        "padua-heart-resp": "0", "padua-mi-stroke": "0", "padua-infection": "1",
+        "padua-obesity": "0", "padua-hormonal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk for VTE" }
+      ]
+    },
+    {
+      "id": "GD-PADUA-004",
+      "description": "High risk - cancer with reduced mobility (score 6)",
+      "source": "Active cancer (3pts) + Reduced mobility (3pts) = 6. High Risk for VTE.",
+      "inputs": {
+        "padua-cancer": "3", "padua-prev-vte": "0", "padua-mobility": "3",
+        "padua-thromb": "0", "padua-trauma": "0", "padua-age": "0",
+        "padua-heart-resp": "0", "padua-mi-stroke": "0", "padua-infection": "0",
+        "padua-obesity": "0", "padua-hormonal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk for VTE" }
+      ]
+    },
+    {
+      "id": "GD-PADUA-005",
+      "description": "High risk - multiple major and minor factors (score 14)",
+      "source": "Active cancer (3pts) + Previous VTE (3pts) + Reduced mobility (3pts) + Trauma (2pts) + Age >=70 (1pt) + Obesity (1pt) + Hormonal (1pt) = 14. High Risk for VTE.",
+      "inputs": {
+        "padua-cancer": "3", "padua-prev-vte": "3", "padua-mobility": "3",
+        "padua-thromb": "0", "padua-trauma": "2", "padua-age": "1",
+        "padua-heart-resp": "0", "padua-mi-stroke": "0", "padua-infection": "0",
+        "padua-obesity": "1", "padua-hormonal": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 14, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk for VTE" }
+      ]
+    }
+  ]
+}

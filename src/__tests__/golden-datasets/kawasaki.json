@@ -1,0 +1,93 @@
+{
+  "calculatorId": "kawasaki",
+  "calculatorName": "Kawasaki Disease Diagnostic Criteria",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-KAWAS-001",
+      "description": "Score 0 - no criteria met, no fever, no features",
+      "source": "McCrindle BW, et al. Circulation. 2017;135(17):e927-e999. All 0 = Criteria Not Met.",
+      "inputs": {
+        "kawasaki-fever": "0",
+        "kawasaki-extrem": "0",
+        "kawasaki-exanthem": "0",
+        "kawasaki-conjunctival": "0",
+        "kawasaki-oral": "0",
+        "kawasaki-lymph": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Criteria Not Met" }
+      ]
+    },
+    {
+      "id": "GD-KAWAS-002",
+      "description": "Score 3 - fever plus 2 features, consider incomplete Kawasaki",
+      "source": "McCrindle BW, et al. Circulation. 2017. Fever (+1) + Extremity changes (+1) + Conjunctival (+1) = 3.",
+      "inputs": {
+        "kawasaki-fever": "1",
+        "kawasaki-extrem": "1",
+        "kawasaki-exanthem": "0",
+        "kawasaki-conjunctival": "1",
+        "kawasaki-oral": "0",
+        "kawasaki-lymph": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Criteria Not Met" }
+      ]
+    },
+    {
+      "id": "GD-KAWAS-003",
+      "description": "Score 4 - fever plus 3 features, borderline, consider incomplete Kawasaki",
+      "source": "McCrindle BW, et al. Circulation. 2017. Fever (+1) + Extremity changes (+1) + Exanthem (+1) + Oral changes (+1) = 4.",
+      "inputs": {
+        "kawasaki-fever": "1",
+        "kawasaki-extrem": "1",
+        "kawasaki-exanthem": "1",
+        "kawasaki-conjunctival": "0",
+        "kawasaki-oral": "1",
+        "kawasaki-lymph": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Criteria Not Met" }
+      ]
+    },
+    {
+      "id": "GD-KAWAS-004",
+      "description": "Score 5 - classic Kawasaki Disease: fever plus 4 features",
+      "source": "McCrindle BW, et al. Circulation. 2017. Fever (+1) + Extremity (+1) + Exanthem (+1) + Conjunctival (+1) + Oral changes (+1) = 5.",
+      "inputs": {
+        "kawasaki-fever": "1",
+        "kawasaki-extrem": "1",
+        "kawasaki-exanthem": "1",
+        "kawasaki-conjunctival": "1",
+        "kawasaki-oral": "1",
+        "kawasaki-lymph": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Kawasaki Disease" }
+      ]
+    },
+    {
+      "id": "GD-KAWAS-005",
+      "description": "Maximum score 6 - all criteria met including all 5 principal features",
+      "source": "McCrindle BW, et al. Circulation. 2017. Fever (+1) + All 5 features (+5) = 6.",
+      "inputs": {
+        "kawasaki-fever": "1",
+        "kawasaki-extrem": "1",
+        "kawasaki-exanthem": "1",
+        "kawasaki-conjunctival": "1",
+        "kawasaki-oral": "1",
+        "kawasaki-lymph": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Kawasaki Disease" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "calculatorId": "ett",
+  "calculatorName": "ETT Depth & Tidal Volume Calculator",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-ETT-001",
+      "description": "Average male - 175 cm",
+      "source": "Depth = 175/10 + 5 = 22.5 cm; Height=68.9in; IBW = 50 + 2.3*(68.9-60) = 70.5 kg; TV = 423-564 mL",
+      "inputs": { "ett-height": 175, "ett-gender": "male" },
+      "expected": [
+        { "label": "Estimated ETT Depth (at lips)", "value": "22.5", "unit": "cm", "tolerance": 0.1 },
+        { "label": "Ideal Body Weight (IBW)", "value": "70.5", "unit": "kg", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-ETT-002",
+      "description": "Average female - 165 cm",
+      "source": "Depth = 165/10 + 5 = 21.5 cm; Height=64.96in; IBW = 45.5 + 2.3*(64.96-60) = 56.9 kg",
+      "inputs": { "ett-height": 165, "ett-gender": "female" },
+      "expected": [
+        { "label": "Estimated ETT Depth (at lips)", "value": "21.5", "unit": "cm", "tolerance": 0.1 },
+        { "label": "Ideal Body Weight (IBW)", "value": "56.9", "unit": "kg", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-ETT-003",
+      "description": "Tall male - 190 cm",
+      "source": "Depth = 190/10 + 5 = 24.0 cm; Height=74.8in; IBW = 50 + 2.3*(74.8-60) = 84.0 kg",
+      "inputs": { "ett-height": 190, "ett-gender": "male" },
+      "expected": [
+        { "label": "Estimated ETT Depth (at lips)", "value": "24.0", "unit": "cm", "tolerance": 0.1 },
+        { "label": "Ideal Body Weight (IBW)", "value": "84.0", "unit": "kg", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-ETT-004",
+      "description": "Short female - 150 cm",
+      "source": "Depth = 150/10 + 5 = 20.0 cm; Height=59.06in; IBW = 45.5 (height ≤ 60in)",
+      "inputs": { "ett-height": 150, "ett-gender": "female" },
+      "expected": [
+        { "label": "Estimated ETT Depth (at lips)", "value": "20.0", "unit": "cm", "tolerance": 0.1 },
+        { "label": "Ideal Body Weight (IBW)", "value": "45.5", "unit": "kg", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-ETT-005",
+      "description": "Medium male - 170 cm",
+      "source": "Depth = 170/10 + 5 = 22.0 cm; Height=66.93in; IBW = 50 + 2.3*(66.93-60) = 65.9 kg",
+      "inputs": { "ett-height": 170, "ett-gender": "male" },
+      "expected": [
+        { "label": "Estimated ETT Depth (at lips)", "value": "22.0", "unit": "cm", "tolerance": 0.1 },
+        { "label": "Ideal Body Weight (IBW)", "value": "65.9", "unit": "kg", "tolerance": 0.3 }
+      ]
+    }
+  ]
+}

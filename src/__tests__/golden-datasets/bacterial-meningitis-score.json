@@ -1,0 +1,88 @@
+{
+  "calculatorId": "bacterial-meningitis-score",
+  "calculatorName": "Bacterial Meningitis Score for Children",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-BMS-001",
+      "description": "Score 0 - very low risk for bacterial meningitis, all criteria negative",
+      "source": "Nigrovic LE, et al. N Engl J Med. 2007;357(8):775-784. All 0 = Very Low Risk.",
+      "inputs": {
+        "gram_stain": "0",
+        "csf_anc": "0",
+        "csf_protein": "0",
+        "blood_anc": "0",
+        "seizure": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Very Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-BMS-002",
+      "description": "Score 1 - not low risk, seizure present only",
+      "source": "Nigrovic LE, et al. N Engl J Med. 2007. Seizure (+1) = 1. Not Low Risk.",
+      "inputs": {
+        "gram_stain": "0",
+        "csf_anc": "0",
+        "csf_protein": "0",
+        "blood_anc": "0",
+        "seizure": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Not Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-BMS-003",
+      "description": "Score 2 - not low risk, positive Gram stain only",
+      "source": "Nigrovic LE, et al. N Engl J Med. 2007. Gram stain positive (+2) = 2.",
+      "inputs": {
+        "gram_stain": "2",
+        "csf_anc": "0",
+        "csf_protein": "0",
+        "blood_anc": "0",
+        "seizure": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Not Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-BMS-004",
+      "description": "Score 4 - not low risk, Gram stain positive + CSF ANC + seizure",
+      "source": "Nigrovic LE, et al. N Engl J Med. 2007. Gram stain (+2) + CSF ANC (+1) + Seizure (+1) = 4.",
+      "inputs": {
+        "gram_stain": "2",
+        "csf_anc": "1",
+        "csf_protein": "0",
+        "blood_anc": "0",
+        "seizure": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Not Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-BMS-005",
+      "description": "Maximum score 6 - all criteria positive",
+      "source": "Nigrovic LE, et al. N Engl J Med. 2007. Gram stain (+2) + CSF ANC (+1) + CSF protein (+1) + Blood ANC (+1) + Seizure (+1) = 6.",
+      "inputs": {
+        "gram_stain": "2",
+        "csf_anc": "1",
+        "csf_protein": "1",
+        "blood_anc": "1",
+        "seizure": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Not Low Risk" }
+      ]
+    }
+  ]
+}

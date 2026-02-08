@@ -1,0 +1,63 @@
+{
+  "calculatorId": "tpa-dosing",
+  "calculatorName": "tPA (Alteplase) Dosing",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-TPA-001",
+      "description": "Standard dosing - 70 kg patient",
+      "source": "Total = 70 * 0.9 = 63 mg; Bolus = 63 * 0.1 = 6.30 mg; Infusion = 63 * 0.9 = 56.70 mg",
+      "inputs": { "tpa-weight": 70 },
+      "expected": [
+        { "label": "Total Dose", "value": "63.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Bolus Dose (10%)", "value": "6.30", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Infusion Dose (90%)", "value": "56.70", "unit": "mg", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-TPA-002",
+      "description": "Maximum dosing - 120 kg patient (capped at 100 kg)",
+      "source": "Effective weight 100 kg; Total = 90 mg; Bolus = 9.00 mg; Infusion = 81.00 mg",
+      "inputs": { "tpa-weight": 120 },
+      "expected": [
+        { "label": "Total Dose", "value": "90.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Bolus Dose (10%)", "value": "9.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Infusion Dose (90%)", "value": "81.00", "unit": "mg", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-TPA-003",
+      "description": "Small patient - 50 kg",
+      "source": "Total = 50 * 0.9 = 45 mg; Bolus = 4.50 mg; Infusion = 40.50 mg",
+      "inputs": { "tpa-weight": 50 },
+      "expected": [
+        { "label": "Total Dose", "value": "45.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Bolus Dose (10%)", "value": "4.50", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Infusion Dose (90%)", "value": "40.50", "unit": "mg", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-TPA-004",
+      "description": "At threshold - exactly 100 kg",
+      "source": "Total = 100 * 0.9 = 90 mg (at max); Bolus = 9.00 mg; Infusion = 81.00 mg",
+      "inputs": { "tpa-weight": 100 },
+      "expected": [
+        { "label": "Total Dose", "value": "90.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Bolus Dose (10%)", "value": "9.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Infusion Dose (90%)", "value": "81.00", "unit": "mg", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-TPA-005",
+      "description": "Average adult - 80 kg",
+      "source": "Total = 80 * 0.9 = 72 mg; Bolus = 7.20 mg; Infusion = 64.80 mg",
+      "inputs": { "tpa-weight": 80 },
+      "expected": [
+        { "label": "Total Dose", "value": "72.00", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Bolus Dose (10%)", "value": "7.20", "unit": "mg", "tolerance": 0.01 },
+        { "label": "Infusion Dose (90%)", "value": "64.80", "unit": "mg", "tolerance": 0.01 }
+      ]
+    }
+  ]
+}

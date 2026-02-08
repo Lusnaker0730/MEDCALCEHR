@@ -1,0 +1,53 @@
+{
+  "calculatorId": "nafld-fibrosis-score",
+  "calculatorName": "NAFLD Fibrosis Score",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-NFS-001",
+      "description": "Low probability of fibrosis (F0-F2)",
+      "source": "NFS = -1.675 + 0.037*35 + 0.094*25 + 1.13*0 + 0.99*(25/30) - 0.013*250 - 0.66*4.2 = -1.675 + 1.295 + 2.35 + 0 + 0.825 - 3.25 - 2.772 = -3.227",
+      "inputs": { "age": 35, "bmi": 25, "diabetes": "0", "ast": 25, "alt": 30, "platelet": 250, "albumin": 4.2 },
+      "expected": [
+        { "label": "NAFLD Fibrosis Score", "value": "-3.227", "unit": "points", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-NFS-002",
+      "description": "Indeterminate range",
+      "source": "NFS = -1.675 + 0.037*55 + 0.094*32 + 1.13*1 + 0.99*(40/35) - 0.013*180 - 0.66*3.5 = -1.675 + 2.035 + 3.008 + 1.13 + 1.131 - 2.34 - 2.31 = 0.979",
+      "inputs": { "age": 55, "bmi": 32, "diabetes": "1", "ast": 40, "alt": 35, "platelet": 180, "albumin": 3.5 },
+      "expected": [
+        { "label": "NAFLD Fibrosis Score", "value": "0.979", "unit": "points", "tolerance": 0.15 }
+      ]
+    },
+    {
+      "id": "GD-NFS-003",
+      "description": "High probability of advanced fibrosis (F3-F4)",
+      "source": "NFS = -1.675 + 0.037*65 + 0.094*35 + 1.13*1 + 0.99*(60/40) - 0.013*120 - 0.66*3.0 = 3.095",
+      "inputs": { "age": 65, "bmi": 35, "diabetes": "1", "ast": 60, "alt": 40, "platelet": 120, "albumin": 3.0 },
+      "expected": [
+        { "label": "NAFLD Fibrosis Score", "value": "3.095", "unit": "points", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-NFS-004",
+      "description": "Low risk - non-diabetic young patient",
+      "source": "NFS = -1.675 + 0.037*30 + 0.094*28 + 1.13*0 + 0.99*(20/25) - 0.013*280 - 0.66*4.5 = -3.751",
+      "inputs": { "age": 30, "bmi": 28, "diabetes": "0", "ast": 20, "alt": 25, "platelet": 280, "albumin": 4.5 },
+      "expected": [
+        { "label": "NAFLD Fibrosis Score", "value": "-3.751", "unit": "points", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-NFS-005",
+      "description": "Borderline low cutoff",
+      "source": "NFS = -1.675 + 0.037*50 + 0.094*30 + 1.13*0 + 0.99*(35/40) - 0.013*200 - 0.66*3.8 = -1.247",
+      "inputs": { "age": 50, "bmi": 30, "diabetes": "0", "ast": 35, "alt": 40, "platelet": 200, "albumin": 3.8 },
+      "expected": [
+        { "label": "NAFLD Fibrosis Score", "value": "-1.247", "unit": "points", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

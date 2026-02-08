@@ -1,0 +1,53 @@
+{
+  "calculatorId": "4peps",
+  "calculatorName": "4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-4PEPS-001",
+      "description": "Very low CPP - young with no risk factors",
+      "source": "Age <50 (-2) + male (0) + no resp disease (0) + HR<80 (0) + no chest pain (0) + no estrogen (0) + no VTE (0) + no syncope (0) + no immobility (0) + O2sat normal (0) + no calf pain (0) + PE unlikely (0) = -2",
+      "inputs": { "fourpeps-age": 35, "4peps-sex": "0", "4peps-resp_disease": "0", "4peps-hr": "0", "4peps-chest_pain": "0", "4peps-estrogen": "0", "4peps-vte": "0", "4peps-syncope": "0", "4peps-immobility": "0", "4peps-o2_sat": "0", "4peps-calf_pain": "0", "4peps-pe_likely": "0" },
+      "expected": [
+        { "label": "4PEPS Score", "value": "-2", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-4PEPS-002",
+      "description": "Low CPP - some risk factors",
+      "source": "Age 50-64 (-1) + male (0) + HR 80-100 (1) + prior VTE (2) = 2",
+      "inputs": { "fourpeps-age": 55, "4peps-sex": "0", "4peps-resp_disease": "0", "4peps-hr": "1", "4peps-chest_pain": "0", "4peps-estrogen": "0", "4peps-vte": "2", "4peps-syncope": "0", "4peps-immobility": "0", "4peps-o2_sat": "0", "4peps-calf_pain": "0", "4peps-pe_likely": "0" },
+      "expected": [
+        { "label": "4PEPS Score", "value": "2", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-4PEPS-003",
+      "description": "Moderate CPP - multiple risk factors",
+      "source": "Age >64 (0) + female (0) + HR>100 (2) + chest pain (1) + prior VTE (2) + O2<95 (1) + calf pain (1) = 7",
+      "inputs": { "fourpeps-age": 70, "4peps-sex": "0", "4peps-resp_disease": "0", "4peps-hr": "2", "4peps-chest_pain": "1", "4peps-estrogen": "0", "4peps-vte": "2", "4peps-syncope": "0", "4peps-immobility": "0", "4peps-o2_sat": "1", "4peps-calf_pain": "1", "4peps-pe_likely": "0" },
+      "expected": [
+        { "label": "4PEPS Score", "value": "7", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-4PEPS-004",
+      "description": "High CPP - many risk factors with PE likely",
+      "source": "Age >64 (0) + HR>100 (2) + chest pain (1) + VTE (2) + syncope (1) + immobility (1) + O2<95 (1) + calf pain (1) + PE likely (5) = 14",
+      "inputs": { "fourpeps-age": 75, "4peps-sex": "0", "4peps-resp_disease": "0", "4peps-hr": "2", "4peps-chest_pain": "1", "4peps-estrogen": "0", "4peps-vte": "2", "4peps-syncope": "1", "4peps-immobility": "1", "4peps-o2_sat": "1", "4peps-calf_pain": "1", "4peps-pe_likely": "5" },
+      "expected": [
+        { "label": "4PEPS Score", "value": "14", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-4PEPS-005",
+      "description": "Age boundary - 50 to 64 range",
+      "source": "Age 50-64 (-1) + all others 0 = -1",
+      "inputs": { "fourpeps-age": 50, "4peps-sex": "0", "4peps-resp_disease": "0", "4peps-hr": "0", "4peps-chest_pain": "0", "4peps-estrogen": "0", "4peps-vte": "0", "4peps-syncope": "0", "4peps-immobility": "0", "4peps-o2_sat": "0", "4peps-calf_pain": "0", "4peps-pe_likely": "0" },
+      "expected": [
+        { "label": "4PEPS Score", "value": "-1", "unit": "points", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

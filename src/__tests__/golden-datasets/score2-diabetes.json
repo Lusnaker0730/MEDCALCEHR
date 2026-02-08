@@ -1,0 +1,53 @@
+{
+  "calculatorId": "score2-diabetes",
+  "calculatorName": "SCORE2-Diabetes CVD Risk",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-S2D-001",
+      "description": "Low risk - young male, optimal parameters, low-risk region",
+      "source": "SCORE2-Diabetes: 45yo male, low region, non-smoker, SBP 120, TC 180, HDL 55, HbA1c 6.0, eGFR 90. Formula: tchol_mmol=180/38.67, hdl_mmol=55/38.67, hba1c_mmol=6.0*10.93-23.5. Risk=2.8%",
+      "inputs": { "score2d-region": "low", "score2d-sex": "male", "score2d-age": 45, "score2d-smoking": "0", "score2d-sbp": 120, "score2d-tchol": 180, "score2d-hdl": 55, "score2d-hba1c": 6.0, "score2d-egfr": 90 },
+      "expected": [
+        { "label": "10-Year CVD Risk", "value": 2.8, "unit": "%", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-S2D-002",
+      "description": "Moderate risk - middle-aged female, moderate region",
+      "source": "SCORE2-Diabetes: 55yo female, moderate region, non-smoker, SBP 140, TC 220, HDL 45, HbA1c 7.5, eGFR 70. Risk=16.2%",
+      "inputs": { "score2d-region": "moderate", "score2d-sex": "female", "score2d-age": 55, "score2d-smoking": "0", "score2d-sbp": 140, "score2d-tchol": 220, "score2d-hdl": 45, "score2d-hba1c": 7.5, "score2d-egfr": 70 },
+      "expected": [
+        { "label": "10-Year CVD Risk", "value": 16.2, "unit": "%", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-S2D-003",
+      "description": "High risk - older male, smoker, high region",
+      "source": "SCORE2-Diabetes: 65yo male, high region, smoker, SBP 160, TC 250, HDL 35, HbA1c 9.0, eGFR 50. Risk=97.0%",
+      "inputs": { "score2d-region": "high", "score2d-sex": "male", "score2d-age": 65, "score2d-smoking": "1", "score2d-sbp": 160, "score2d-tchol": 250, "score2d-hdl": 35, "score2d-hba1c": 9.0, "score2d-egfr": 50 },
+      "expected": [
+        { "label": "10-Year CVD Risk", "value": 97.0, "unit": "%", "tolerance": 1.0 }
+      ]
+    },
+    {
+      "id": "GD-S2D-004",
+      "description": "Very high risk - very high region, multiple risk factors",
+      "source": "SCORE2-Diabetes: 68yo male, very_high region, smoker, SBP 170, TC 280, HDL 30, HbA1c 10.0, eGFR 40. Risk=100.0%",
+      "inputs": { "score2d-region": "very_high", "score2d-sex": "male", "score2d-age": 68, "score2d-smoking": "1", "score2d-sbp": 170, "score2d-tchol": 280, "score2d-hdl": 30, "score2d-hba1c": 10.0, "score2d-egfr": 40 },
+      "expected": [
+        { "label": "10-Year CVD Risk", "value": 100.0, "unit": "%", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-S2D-005",
+      "description": "Low risk female - low region, optimal values",
+      "source": "SCORE2-Diabetes: 42yo female, low region, non-smoker, SBP 110, TC 170, HDL 65, HbA1c 5.8, eGFR 100. Risk=0.8%",
+      "inputs": { "score2d-region": "low", "score2d-sex": "female", "score2d-age": 42, "score2d-smoking": "0", "score2d-sbp": 110, "score2d-tchol": 170, "score2d-hdl": 65, "score2d-hba1c": 5.8, "score2d-egfr": 100 },
+      "expected": [
+        { "label": "10-Year CVD Risk", "value": 0.8, "unit": "%", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

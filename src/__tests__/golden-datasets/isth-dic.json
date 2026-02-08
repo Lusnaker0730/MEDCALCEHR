@@ -1,0 +1,53 @@
+{
+  "calculatorId": "isth-dic",
+  "calculatorName": "ISTH DIC Score",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-ISTH-001",
+      "description": "Not overt DIC - normal coagulation",
+      "source": "All values 0: Total score = 0",
+      "inputs": { "isth-platelet": "0", "isth-fibrin_marker": "0", "isth-pt": "0", "isth-fibrinogen": "0" },
+      "expected": [
+        { "label": "Total Score", "value": "0", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-ISTH-002",
+      "description": "Not overt DIC - borderline",
+      "source": "Mild abnormalities: platelet 1 + fibrin 2 + PT 0 + fibrinogen 1 = 4",
+      "inputs": { "isth-platelet": "1", "isth-fibrin_marker": "2", "isth-pt": "0", "isth-fibrinogen": "1" },
+      "expected": [
+        { "label": "Total Score", "value": "4", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-ISTH-003",
+      "description": "Overt DIC - score 5 (threshold)",
+      "source": "Platelet 2 + fibrin 2 + PT 1 + fibrinogen 0 = 5",
+      "inputs": { "isth-platelet": "2", "isth-fibrin_marker": "2", "isth-pt": "1", "isth-fibrinogen": "0" },
+      "expected": [
+        { "label": "Total Score", "value": "5", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-ISTH-004",
+      "description": "Severe DIC - high score",
+      "source": "Platelet 2 + fibrin 3 + PT 2 + fibrinogen 1 = 8",
+      "inputs": { "isth-platelet": "2", "isth-fibrin_marker": "3", "isth-pt": "2", "isth-fibrinogen": "1" },
+      "expected": [
+        { "label": "Total Score", "value": "8", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-ISTH-005",
+      "description": "Mild abnormality - single elevated parameter",
+      "source": "Only platelet drop: 1 + 0 + 0 + 0 = 1",
+      "inputs": { "isth-platelet": "1", "isth-fibrin_marker": "0", "isth-pt": "0", "isth-fibrinogen": "0" },
+      "expected": [
+        { "label": "Total Score", "value": "1", "unit": "points", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

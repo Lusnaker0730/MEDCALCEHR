@@ -1,0 +1,53 @@
+{
+  "calculatorId": "mdrd-gfr",
+  "calculatorName": "MDRD GFR",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-MDRD-001",
+      "description": "Stage 1 - Young male, normal creatinine",
+      "source": "MDRD: 175 * 0.9^(-1.154) * 30^(-0.203) = 99.08, toFixed(0) = 99 (male, non-AA)",
+      "inputs": { "mdrd-age": 30, "mdrd-creatinine": 0.9, "mdrd-gender": "male", "mdrd-race": "other" },
+      "expected": [
+        { "label": "Estimated GFR", "value": "99", "unit": "mL/min/1.73m²", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-MDRD-002",
+      "description": "Stage 2 - Middle-aged female",
+      "source": "MDRD: 175 * 1.0^(-1.154) * 50^(-0.203) * 0.742 = 58.69, toFixed(0) = 59 (female, non-AA)",
+      "inputs": { "mdrd-age": 50, "mdrd-creatinine": 1.0, "mdrd-gender": "female", "mdrd-race": "other" },
+      "expected": [
+        { "label": "Estimated GFR", "value": "59", "unit": "mL/min/1.73m²", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-MDRD-003",
+      "description": "Stage 3a - Older male, elevated creatinine",
+      "source": "MDRD: 175 * 1.5^(-1.154) * 65^(-0.203) = 46.97, toFixed(0) = 47",
+      "inputs": { "mdrd-age": 65, "mdrd-creatinine": 1.5, "mdrd-gender": "male", "mdrd-race": "other" },
+      "expected": [
+        { "label": "Estimated GFR", "value": "47", "unit": "mL/min/1.73m²", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-MDRD-004",
+      "description": "Stage 4 - Male with high creatinine",
+      "source": "MDRD: 175 * 3.0^(-1.154) * 60^(-0.203) = 21.45, toFixed(0) = 21",
+      "inputs": { "mdrd-age": 60, "mdrd-creatinine": 3.0, "mdrd-gender": "male", "mdrd-race": "other" },
+      "expected": [
+        { "label": "Estimated GFR", "value": "21", "unit": "mL/min/1.73m²", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-MDRD-005",
+      "description": "African American adjustment",
+      "source": "MDRD: 175 * 1.0^(-1.154) * 45^(-0.203) * 1.212 = 97.94, toFixed(0) = 98 (AA male)",
+      "inputs": { "mdrd-age": 45, "mdrd-creatinine": 1.0, "mdrd-gender": "male", "mdrd-race": "aa" },
+      "expected": [
+        { "label": "Estimated GFR", "value": "98", "unit": "mL/min/1.73m²", "tolerance": 1 }
+      ]
+    }
+  ]
+}

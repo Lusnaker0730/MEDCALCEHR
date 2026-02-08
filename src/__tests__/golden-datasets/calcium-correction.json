@@ -1,0 +1,53 @@
+{
+  "calculatorId": "calcium-correction",
+  "calculatorName": "Corrected Calcium for Hypoalbuminemia",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-CACOR-001",
+      "description": "Normal albumin - no correction needed",
+      "source": "Corrected Ca = 9.5 + 0.8 * (4.0 - 4.0) = 9.5",
+      "inputs": { "ca-total": 9.5, "ca-albumin": 4.0 },
+      "expected": [
+        { "label": "Corrected Calcium", "value": 9.50, "unit": "mg/dL", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-CACOR-002",
+      "description": "Low albumin - reveals true hypercalcemia",
+      "source": "Corrected Ca = 9.0 + 0.8 * (4.0 - 2.0) = 9.0 + 1.6 = 10.6",
+      "inputs": { "ca-total": 9.0, "ca-albumin": 2.0 },
+      "expected": [
+        { "label": "Corrected Calcium", "value": 10.60, "unit": "mg/dL", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-CACOR-003",
+      "description": "Mildly low albumin - borderline correction",
+      "source": "Corrected Ca = 8.5 + 0.8 * (4.0 - 3.0) = 8.5 + 0.8 = 9.3",
+      "inputs": { "ca-total": 8.5, "ca-albumin": 3.0 },
+      "expected": [
+        { "label": "Corrected Calcium", "value": 9.30, "unit": "mg/dL", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-CACOR-004",
+      "description": "Very low albumin - significant correction (hypocalcemia remains)",
+      "source": "Corrected Ca = 7.0 + 0.8 * (4.0 - 1.5) = 7.0 + 2.0 = 9.0",
+      "inputs": { "ca-total": 7.0, "ca-albumin": 1.5 },
+      "expected": [
+        { "label": "Corrected Calcium", "value": 9.00, "unit": "mg/dL", "tolerance": 0.05 }
+      ]
+    },
+    {
+      "id": "GD-CACOR-005",
+      "description": "High albumin - downward correction",
+      "source": "Corrected Ca = 11.0 + 0.8 * (4.0 - 5.0) = 11.0 - 0.8 = 10.2",
+      "inputs": { "ca-total": 11.0, "ca-albumin": 5.0 },
+      "expected": [
+        { "label": "Corrected Calcium", "value": 10.20, "unit": "mg/dL", "tolerance": 0.05 }
+      ]
+    }
+  ]
+}

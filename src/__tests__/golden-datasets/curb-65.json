@@ -1,0 +1,88 @@
+{
+  "calculatorId": "curb-65",
+  "calculatorName": "CURB-65 Score for Pneumonia Severity",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-CURB65-001",
+      "description": "No criteria met: young patient, normal vitals, no confusion",
+      "source": "Lim WS, et al. Thorax. 2003;58(5):377-382.",
+      "inputs": {
+        "curb-confusion": "0",
+        "curb-bun": "0",
+        "curb-rr": "0",
+        "curb-bp": "0",
+        "curb-age": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-CURB65-002",
+      "description": "Single criterion: patient aged >=65 only",
+      "source": "Lim WS, et al. Thorax. 2003;58(5):377-382.",
+      "inputs": {
+        "curb-confusion": "0",
+        "curb-bun": "0",
+        "curb-rr": "0",
+        "curb-bp": "0",
+        "curb-age": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-CURB65-003",
+      "description": "Two criteria: confusion and elevated BUN",
+      "source": "Lim WS, et al. Thorax. 2003;58(5):377-382.",
+      "inputs": {
+        "curb-confusion": "1",
+        "curb-bun": "1",
+        "curb-rr": "0",
+        "curb-bp": "0",
+        "curb-age": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Risk" }
+      ]
+    },
+    {
+      "id": "GD-CURB65-004",
+      "description": "Three criteria: confusion, high RR, low BP",
+      "source": "Lim WS, et al. Thorax. 2003;58(5):377-382.",
+      "inputs": {
+        "curb-confusion": "1",
+        "curb-bun": "0",
+        "curb-rr": "1",
+        "curb-bp": "1",
+        "curb-age": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-CURB65-005",
+      "description": "All five criteria met: maximum score",
+      "source": "Lim WS, et al. Thorax. 2003;58(5):377-382.",
+      "inputs": {
+        "curb-confusion": "1",
+        "curb-bun": "1",
+        "curb-rr": "1",
+        "curb-bp": "1",
+        "curb-age": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Very High Risk" }
+      ]
+    }
+  ]
+}

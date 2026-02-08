@@ -1,0 +1,53 @@
+{
+  "calculatorId": "sirs",
+  "calculatorName": "SIRS Criteria",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-SIRS-001",
+      "description": "Normal - no SIRS criteria met",
+      "source": "Temp 37°C (normal), HR 75 (≤90), RR 14 (≤20), WBC 8 (4-12): 0 criteria met",
+      "inputs": { "temp": 37.0, "hr": 75, "rr": 14, "wbc": 8, "infection": "no", "hypotension": "no" },
+      "expected": [
+        { "label": "Diagnosis", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-SIRS-002",
+      "description": "SIRS - 2 criteria met without infection",
+      "source": "Temp 38.5°C (>38: +1), HR 95 (>90: +1): 2 criteria → SIRS",
+      "inputs": { "temp": 38.5, "hr": 95, "rr": 16, "wbc": 9, "infection": "no", "hypotension": "no" },
+      "expected": [
+        { "label": "Diagnosis", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-SIRS-003",
+      "description": "Sepsis - SIRS with infection",
+      "source": "Temp 39°C (>38: +1), HR 110 (>90: +1), RR 24 (>20: +1), WBC 15 (>12: +1): 4 criteria + infection → Sepsis",
+      "inputs": { "temp": 39.0, "hr": 110, "rr": 24, "wbc": 15, "infection": "yes", "hypotension": "no" },
+      "expected": [
+        { "label": "Diagnosis", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-SIRS-004",
+      "description": "Septic shock - sepsis with hypotension",
+      "source": "Temp 35.5°C (<36: +1), HR 120 (>90: +1), PaCO2 28 (<32: +1), WBC 2 (<4: +1): 4 criteria + infection + hypotension → Septic Shock",
+      "inputs": { "temp": 35.5, "hr": 120, "paco2": 28, "wbc": 2, "infection": "yes", "hypotension": "yes" },
+      "expected": [
+        { "label": "Diagnosis", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-SIRS-005",
+      "description": "Borderline - only 1 criterion (fever alone)",
+      "source": "Temp 38.2°C (>38: +1), HR 85 (≤90), RR 18 (≤20), WBC 10 (4-12): 1 criterion → Normal",
+      "inputs": { "temp": 38.2, "hr": 85, "rr": 18, "wbc": 10, "infection": "no", "hypotension": "no" },
+      "expected": [
+        { "label": "Diagnosis", "value": 0, "tolerance": 0 }
+      ]
+    }
+  ]
+}

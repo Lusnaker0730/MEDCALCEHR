@@ -1,0 +1,58 @@
+{
+  "calculatorId": "abl",
+  "calculatorName": "Maximum Allowable Blood Loss (ABL)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-ABL-001",
+      "description": "Adult male - moderate blood loss allowed",
+      "source": "EBV = 70 * 70 = 4900 mL; Avg Hgb = (14+10)/2 = 12; ABL = 4900 * (14-10) / 12 = 4900*4/12 = 1633 mL",
+      "inputs": { "abl-weight": 70, "abl-hgb-initial": 14, "abl-hgb-final": 10, "abl-age-category": 70 },
+      "expected": [
+        { "label": "Maximum Allowable Blood Loss", "value": "1633", "unit": "mL", "tolerance": 5 },
+        { "label": "Estimated Blood Volume (EBV)", "value": "4900", "unit": "mL", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-ABL-002",
+      "description": "Pediatric patient - lower blood volume",
+      "source": "EBV = 20 * 80 = 1600 mL; Avg Hgb = (12+8)/2 = 10; ABL = 1600 * (12-8) / 10 = 640 mL",
+      "inputs": { "abl-weight": 20, "abl-hgb-initial": 12, "abl-hgb-final": 8, "abl-age-category": 80 },
+      "expected": [
+        { "label": "Maximum Allowable Blood Loss", "value": "640", "unit": "mL", "tolerance": 5 },
+        { "label": "Estimated Blood Volume (EBV)", "value": "1600", "unit": "mL", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-ABL-003",
+      "description": "Elderly female - conservative target",
+      "source": "EBV = 55 * 65 = 3575 mL; Avg Hgb = (11+9)/2 = 10; ABL = 3575 * (11-9) / 10 = 715 mL",
+      "inputs": { "abl-weight": 55, "abl-hgb-initial": 11, "abl-hgb-final": 9, "abl-age-category": 65 },
+      "expected": [
+        { "label": "Maximum Allowable Blood Loss", "value": "715", "unit": "mL", "tolerance": 5 },
+        { "label": "Estimated Blood Volume (EBV)", "value": "3575", "unit": "mL", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-ABL-004",
+      "description": "Large adult - high blood volume",
+      "source": "EBV = 100 * 70 = 7000 mL; Avg Hgb = (15+7)/2 = 11; ABL = 7000 * 8 / 11 = 5091 mL",
+      "inputs": { "abl-weight": 100, "abl-hgb-initial": 15, "abl-hgb-final": 7, "abl-age-category": 70 },
+      "expected": [
+        { "label": "Maximum Allowable Blood Loss", "value": "5091", "unit": "mL", "tolerance": 5 },
+        { "label": "Estimated Blood Volume (EBV)", "value": "7000", "unit": "mL", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-ABL-005",
+      "description": "Minimal target drop",
+      "source": "EBV = 80 * 70 = 5600 mL; Avg Hgb = (13+12)/2 = 12.5; ABL = 5600 * 1 / 12.5 = 448 mL",
+      "inputs": { "abl-weight": 80, "abl-hgb-initial": 13, "abl-hgb-final": 12, "abl-age-category": 70 },
+      "expected": [
+        { "label": "Maximum Allowable Blood Loss", "value": "448", "unit": "mL", "tolerance": 5 },
+        { "label": "Estimated Blood Volume (EBV)", "value": "5600", "unit": "mL", "tolerance": 1 }
+      ]
+    }
+  ]
+}

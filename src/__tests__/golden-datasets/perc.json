@@ -1,0 +1,78 @@
+{
+  "calculatorId": "perc",
+  "calculatorName": "PERC Rule for Pulmonary Embolism",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-PERC-001",
+      "description": "PERC Negative - no criteria met",
+      "source": "No risk factors checked. Total = 0. PERC Negative.",
+      "inputs": {
+        "age50": false, "hr100": false, "o2sat": false, "hemoptysis": false,
+        "exogenous-estrogen": false, "prior-dvt-pe": false,
+        "unilateral-swelling": false, "trauma-surgery": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "PERC Negative" }
+      ]
+    },
+    {
+      "id": "GD-PERC-002",
+      "description": "PERC Positive - single criterion (age >= 50)",
+      "source": "Age >=50 checked (1pt). Total = 1. PERC Positive.",
+      "inputs": {
+        "age50": true, "hr100": false, "o2sat": false, "hemoptysis": false,
+        "exogenous-estrogen": false, "prior-dvt-pe": false,
+        "unilateral-swelling": false, "trauma-surgery": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 },
+        { "label": "Risk Level", "value": "PERC Positive" }
+      ]
+    },
+    {
+      "id": "GD-PERC-003",
+      "description": "PERC Positive - three criteria met",
+      "source": "HR>=100 (1pt) + O2sat<95% (1pt) + Prior DVT/PE (1pt) = 3. PERC Positive.",
+      "inputs": {
+        "age50": false, "hr100": true, "o2sat": true, "hemoptysis": false,
+        "exogenous-estrogen": false, "prior-dvt-pe": true,
+        "unilateral-swelling": false, "trauma-surgery": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "PERC Positive" }
+      ]
+    },
+    {
+      "id": "GD-PERC-004",
+      "description": "PERC Positive - five criteria met",
+      "source": "Age>=50 (1pt) + HR>=100 (1pt) + Hemoptysis (1pt) + Exogenous estrogen (1pt) + Unilateral swelling (1pt) = 5. PERC Positive.",
+      "inputs": {
+        "age50": true, "hr100": true, "o2sat": false, "hemoptysis": true,
+        "exogenous-estrogen": true, "prior-dvt-pe": false,
+        "unilateral-swelling": true, "trauma-surgery": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "PERC Positive" }
+      ]
+    },
+    {
+      "id": "GD-PERC-005",
+      "description": "PERC Positive - all criteria met (maximum score)",
+      "source": "All 8 criteria checked (1pt each) = 8. PERC Positive.",
+      "inputs": {
+        "age50": true, "hr100": true, "o2sat": true, "hemoptysis": true,
+        "exogenous-estrogen": true, "prior-dvt-pe": true,
+        "unilateral-swelling": true, "trauma-surgery": true
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "PERC Positive" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "calculatorId": "ranson",
+  "calculatorName": "Ranson Criteria for Pancreatitis Mortality",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-RANSON-001",
+      "description": "Low mortality - no criteria met (score 0)",
+      "source": "No admission or 48hr criteria checked. Total = 0. Low Mortality (0-3%).",
+      "inputs": {
+        "ranson-age": false, "ranson-wbc": false, "ranson-glucose": false,
+        "ranson-ast": false, "ranson-ldh": false, "ranson-calcium": false,
+        "ranson-hct": false, "ranson-paO2": false, "ranson-bun": false,
+        "ranson-base": false, "ranson-fluid": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Mortality (0-3%)" }
+      ]
+    },
+    {
+      "id": "GD-RANSON-002",
+      "description": "Low mortality - two admission criteria (score 2)",
+      "source": "Age >55 (1pt) + WBC >16k (1pt) = 2. Low Mortality (0-3%).",
+      "inputs": {
+        "ranson-age": true, "ranson-wbc": true, "ranson-glucose": false,
+        "ranson-ast": false, "ranson-ldh": false, "ranson-calcium": false,
+        "ranson-hct": false, "ranson-paO2": false, "ranson-bun": false,
+        "ranson-base": false, "ranson-fluid": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Mortality (0-3%)" }
+      ]
+    },
+    {
+      "id": "GD-RANSON-003",
+      "description": "Moderate mortality - mixed admission and 48hr criteria (score 4)",
+      "source": "Age >55 (1pt) + WBC >16k (1pt) + Glucose >200 (1pt) + Calcium drop (1pt) = 4. Moderate Mortality (15-20%).",
+      "inputs": {
+        "ranson-age": true, "ranson-wbc": true, "ranson-glucose": true,
+        "ranson-ast": false, "ranson-ldh": false, "ranson-calcium": true,
+        "ranson-hct": false, "ranson-paO2": false, "ranson-bun": false,
+        "ranson-base": false, "ranson-fluid": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Mortality (15-20%)" }
+      ]
+    },
+    {
+      "id": "GD-RANSON-004",
+      "description": "High mortality - score 6",
+      "source": "Age (1pt) + WBC (1pt) + Glucose (1pt) + AST (1pt) + Hct drop (1pt) + BUN rise (1pt) = 6. High Mortality (40%).",
+      "inputs": {
+        "ranson-age": true, "ranson-wbc": true, "ranson-glucose": true,
+        "ranson-ast": true, "ranson-ldh": false, "ranson-calcium": false,
+        "ranson-hct": true, "ranson-paO2": false, "ranson-bun": true,
+        "ranson-base": false, "ranson-fluid": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Mortality (40%)" }
+      ]
+    },
+    {
+      "id": "GD-RANSON-005",
+      "description": "Very high mortality - score 8",
+      "source": "Admission: Age (1) + WBC (1) + Glucose (1) + AST (1) + LDH (1). 48hr: Calcium (1) + Hct (1) + BUN (1) = 8. Very High Mortality (>50%).",
+      "inputs": {
+        "ranson-age": true, "ranson-wbc": true, "ranson-glucose": true,
+        "ranson-ast": true, "ranson-ldh": true, "ranson-calcium": true,
+        "ranson-hct": true, "ranson-paO2": false, "ranson-bun": true,
+        "ranson-base": false, "ranson-fluid": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Very High Mortality (>50%)" }
+      ]
+    }
+  ]
+}

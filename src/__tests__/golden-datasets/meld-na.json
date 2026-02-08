@@ -1,0 +1,53 @@
+{
+  "calculatorId": "meld-na",
+  "calculatorName": "MELD-Na Score",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-MELD-001",
+      "description": "Low risk - normal labs, no dialysis",
+      "source": "UNOS MELD-Na: MELD = 10*(0.957*ln(1.0) + 0.378*ln(1.0) + 1.12*ln(1.0) + 0.643) = 6.4; Na=140 capped to 137; MELD<=11 so MELD-Na = MELD = 6",
+      "inputs": { "bili": 1.0, "inr": 1.0, "creat": 1.0, "sodium": 140, "dialysis": "no" },
+      "expected": [
+        { "label": "MELD-Na Score", "value": 6, "unit": "points", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-MELD-002",
+      "description": "Low-moderate risk - elevated bilirubin and creatinine",
+      "source": "UNOS MELD-Na: MELD = 10*(0.957*ln(1.5) + 0.378*ln(2.0) + 1.12*ln(1.2) + 0.643) = 14.0; Na=135; MELD>11: MELD-Na = 14.0 + 1.32*(137-135) - 0.033*14.0*(137-135) = 14.0 + 2.64 - 0.924 = 15.7 ≈ 16",
+      "inputs": { "bili": 2.0, "inr": 1.2, "creat": 1.5, "sodium": 135, "dialysis": "no" },
+      "expected": [
+        { "label": "MELD-Na Score", "value": 16, "unit": "points", "tolerance": 2 }
+      ]
+    },
+    {
+      "id": "GD-MELD-003",
+      "description": "Moderate risk - significantly elevated labs",
+      "source": "UNOS MELD-Na: MELD = 10*(0.957*ln(2.0) + 0.378*ln(4.0) + 1.12*ln(1.5) + 0.643) = 19.8; Na=130; MELD>11: MELD-Na = 19.8 + 1.32*(137-130) - 0.033*19.8*(137-130) = 19.8 + 9.24 - 4.57 = 24.5 ≈ 25",
+      "inputs": { "bili": 4.0, "inr": 1.5, "creat": 2.0, "sodium": 130, "dialysis": "no" },
+      "expected": [
+        { "label": "MELD-Na Score", "value": 25, "unit": "points", "tolerance": 2 }
+      ]
+    },
+    {
+      "id": "GD-MELD-004",
+      "description": "High risk - severe liver failure with hyponatremia",
+      "source": "UNOS MELD-Na: creat>4 capped at 4.0; MELD = 10*(0.957*ln(4.0) + 0.378*ln(8.0) + 1.12*ln(2.5) + 0.643) = 37.8; Na=122 capped to 125; MELD>11: MELD-Na = 37.8 + 1.32*(137-125) - 0.033*37.8*(137-125) = 37.8 + 15.84 - 14.97 = 38.67 => capped at 40 boundary => round(38.67) = 39",
+      "inputs": { "bili": 8.0, "inr": 2.5, "creat": 5.0, "sodium": 122, "dialysis": "no" },
+      "expected": [
+        { "label": "MELD-Na Score", "value": 39, "unit": "points", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-MELD-005",
+      "description": "Dialysis patient - creatinine capped at 4.0",
+      "source": "UNOS MELD-Na: creat capped at 4.0 (dialysis); MELD = 10*(0.957*ln(4.0) + 0.378*ln(3.0) + 1.12*ln(1.8) + 0.643) = 25.7; Na=128; MELD>11: MELD-Na adjusted",
+      "inputs": { "bili": 3.0, "inr": 1.8, "creat": 6.0, "sodium": 128, "dialysis": "yes" },
+      "expected": [
+        { "label": "MELD-Na Score", "value": 33, "unit": "points", "tolerance": 3 }
+      ]
+    }
+  ]
+}

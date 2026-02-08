@@ -1,0 +1,53 @@
+{
+  "calculatorId": "feurea",
+  "calculatorName": "Fractional Excretion of Urea (FEUrea)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-FEUR-001",
+      "description": "Prerenal AKI - FEUrea ≤ 35%",
+      "source": "FEUrea = (SCr * UUrea) / (SUrea * UCr) * 100 = (1.5 * 200) / (60 * 50) * 100 = 300/3000 * 100 = 10.0%",
+      "inputs": { "feurea-serum-cr": 1.5, "feurea-urine-urea": 200, "feurea-serum-urea": 60, "feurea-urine-cr": 50 },
+      "expected": [
+        { "label": "Fractional Excretion of Urea", "value": "10.00", "unit": "%", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FEUR-002",
+      "description": "Prerenal - borderline low",
+      "source": "FEUrea = (2.0 * 300) / (50 * 60) * 100 = 600/3000 * 100 = 20.0%",
+      "inputs": { "feurea-serum-cr": 2.0, "feurea-urine-urea": 300, "feurea-serum-urea": 50, "feurea-urine-cr": 60 },
+      "expected": [
+        { "label": "Fractional Excretion of Urea", "value": "20.00", "unit": "%", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FEUR-003",
+      "description": "Indeterminate range - FEUrea 35-50%",
+      "source": "FEUrea = (1.0 * 500) / (30 * 40) * 100 = 500/1200 * 100 = 41.67%",
+      "inputs": { "feurea-serum-cr": 1.0, "feurea-urine-urea": 500, "feurea-serum-urea": 30, "feurea-urine-cr": 40 },
+      "expected": [
+        { "label": "Fractional Excretion of Urea", "value": "41.67", "unit": "%", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FEUR-004",
+      "description": "Intrinsic renal (ATN) - FEUrea > 50%",
+      "source": "FEUrea = (2.0 * 400) / (25 * 30) * 100 = 800/750 * 100 = 106.67%",
+      "inputs": { "feurea-serum-cr": 2.0, "feurea-urine-urea": 400, "feurea-serum-urea": 25, "feurea-urine-cr": 30 },
+      "expected": [
+        { "label": "Fractional Excretion of Urea", "value": "106.67", "unit": "%", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FEUR-005",
+      "description": "Borderline prerenal/indeterminate",
+      "source": "FEUrea = (1.2 * 350) / (40 * 30) * 100 = 420/1200 * 100 = 35.0%",
+      "inputs": { "feurea-serum-cr": 1.2, "feurea-urine-urea": 350, "feurea-serum-urea": 40, "feurea-urine-cr": 30 },
+      "expected": [
+        { "label": "Fractional Excretion of Urea", "value": "35.00", "unit": "%", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

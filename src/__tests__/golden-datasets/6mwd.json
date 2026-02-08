@@ -1,0 +1,55 @@
+{
+  "calculatorId": "6mwd",
+  "calculatorName": "6-Minute Walk Distance (Predicted)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-6MWD-001",
+      "description": "Healthy young male",
+      "source": "Enright 1998: Expected = 7.57*175 - 5.02*30 - 1.76*75 - 309 = 1324.75 - 150.6 - 132 - 309 = 733 m",
+      "inputs": { "mwd6-age": 30, "mwd6-height": 175, "mwd6-weight": 75, "mwd6-gender": "male" },
+      "expected": [
+        { "label": "Expected Distance", "value": "733", "unit": "meters", "tolerance": 5 }
+      ]
+    },
+    {
+      "id": "GD-6MWD-002",
+      "description": "Older female",
+      "source": "Enright 1998: Expected = 2.11*160 - 2.29*65 - 5.78*65 + 667 = 337.6 - 148.85 - 375.7 + 667 = 480 m",
+      "inputs": { "mwd6-age": 65, "mwd6-height": 160, "mwd6-weight": 65, "mwd6-gender": "female" },
+      "expected": [
+        { "label": "Expected Distance", "value": "480", "unit": "meters", "tolerance": 5 }
+      ]
+    },
+    {
+      "id": "GD-6MWD-003",
+      "description": "Middle-aged male with actual distance below expected",
+      "source": "Expected = 7.57*180 - 5.02*55 - 1.76*90 - 309 = 1362.6 - 276.1 - 158.4 - 309 = 619 m; Actual 400; % = 400/619 * 100 = 65%",
+      "inputs": { "mwd6-age": 55, "mwd6-height": 180, "mwd6-weight": 90, "mwd6-gender": "male", "mwd6-distance": 400 },
+      "expected": [
+        { "label": "Expected Distance", "value": "619", "unit": "meters", "tolerance": 5 },
+        { "label": "% of Expected", "value": "65", "unit": "%", "tolerance": 3 }
+      ]
+    },
+    {
+      "id": "GD-6MWD-004",
+      "description": "Young female",
+      "source": "Expected = 2.11*165 - 2.29*60 - 5.78*25 + 667 = 348.15 - 137.4 - 144.5 + 667 = 733 m",
+      "inputs": { "mwd6-age": 25, "mwd6-height": 165, "mwd6-weight": 60, "mwd6-gender": "female" },
+      "expected": [
+        { "label": "Expected Distance", "value": "733", "unit": "meters", "tolerance": 5 }
+      ]
+    },
+    {
+      "id": "GD-6MWD-005",
+      "description": "Lower limit of normal check",
+      "source": "Expected = 7.57*170 - 5.02*50 - 1.76*80 - 309 = 1286.9 - 251 - 140.8 - 309 = 586; LLN = 586-153 = 433 m",
+      "inputs": { "mwd6-age": 50, "mwd6-height": 170, "mwd6-weight": 80, "mwd6-gender": "male" },
+      "expected": [
+        { "label": "Expected Distance", "value": "586", "unit": "meters", "tolerance": 5 },
+        { "label": "Lower Limit of Normal", "value": "433", "unit": "meters", "tolerance": 5 }
+      ]
+    }
+  ]
+}

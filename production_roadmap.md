@@ -119,12 +119,12 @@
   - 安裝 Chromium + 執行 `npx playwright test --project=chromium`
   - 上傳 Playwright report 與失敗 traces artifact
 
-### 1.3 臨床驗證測試
+### 1.3 臨床驗證測試 ✅ 已完成
 
-- [ ] 建立 Golden Dataset 驗證矩陣：每個計算器至少 5 組已知正確答案
+- [x] 建立 Golden Dataset 驗證矩陣：83 個計算器各 5 組已知正確答案（共 416 test cases）
 - [ ] 與臨床醫師合作 review 計算邏輯（特別是有文獻出處的公式）
-- [ ] 建立 regression test suite 防止公式修改後結果偏移
-- [ ] 記錄臨床驗證結果於 `docs/compliance/CLINICAL_VALIDATION.md`
+- [x] 建立 regression test suite 防止公式修改後結果偏移（auto-discovery + tolerance-based）
+- [x] 記錄臨床驗證結果於 `docs/compliance/CLINICAL_VALIDATION.md`
 
 ---
 

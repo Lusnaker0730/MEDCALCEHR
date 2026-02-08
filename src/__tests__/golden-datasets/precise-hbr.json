@@ -1,0 +1,123 @@
+{
+  "calculatorId": "precise-hbr",
+  "calculatorName": "PRECISE-HBR Bleeding Risk Score",
+  "version": "1.0",
+  "calculatorType": "complex",
+  "cases": [
+    {
+      "id": "GD-PHBR-001",
+      "description": "Low risk - young, normal labs, no risk factors",
+      "source": "Base(2) + Age(40-30)*0.26=2.6 + Hb(15-14)*2.5=2.5 + eGFR(100-90)*0.05=0.5 + WBC(7-3)*0.8=3.2 = 10.8 → Round=11. Non-HBR.",
+      "inputs": {
+        "precise-hbr-age": 40,
+        "precise-hbr-hb": 14,
+        "precise-hbr-wbc": 7,
+        "precise-hbr-egfr": 90,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "0",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 11, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-002",
+      "description": "Borderline HBR - older with mild anemia and reduced eGFR",
+      "source": "Base(2) + Age(65-30)*0.26=9.1 + Hb(15-12)*2.5=7.5 + eGFR(100-45)*0.05=2.75 + WBC(9-3)*0.8=4.8 = 26.15 → Round=26. HBR (High Risk).",
+      "inputs": {
+        "precise-hbr-age": 65,
+        "precise-hbr-hb": 12,
+        "precise-hbr-wbc": 9,
+        "precise-hbr-egfr": 45,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "0",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 26, "tolerance": 1 },
+        { "label": "Interpretation", "value": "HBR (High Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-003",
+      "description": "High risk - prior bleeding adds +7",
+      "source": "Base(2) + Age(55-30)*0.26=6.5 + Hb(15-13)*2.5=5.0 + eGFR(100-60)*0.05=2.0 + WBC(8-3)*0.8=4.0 + PriorBleeding(+7) = 26.5 → Round=27. Very HBR.",
+      "inputs": {
+        "precise-hbr-age": 55,
+        "precise-hbr-hb": 13,
+        "precise-hbr-wbc": 8,
+        "precise-hbr-egfr": 60,
+        "prior_bleeding": "1",
+        "oral_anticoagulation": "0",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 27, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Very HBR (Very High Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-004",
+      "description": "Extreme risk - prior bleeding + OAC + ARC-HBR factor",
+      "source": "Base(2) + Age(70-30)*0.26=10.4 + Hb(15-10)*2.5=12.5 + eGFR(100-30)*0.05=3.5 + WBC(11-3)*0.8=6.4 + PriorBleeding(+7) + OAC(+5) + ARC-HBR(+3) = 50.3 → Round=50. Extreme Risk (Capped).",
+      "inputs": {
+        "precise-hbr-age": 70,
+        "precise-hbr-hb": 10,
+        "precise-hbr-wbc": 11,
+        "precise-hbr-egfr": 30,
+        "prior_bleeding": "1",
+        "oral_anticoagulation": "1",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "1",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 50, "tolerance": 2 },
+        { "label": "Interpretation", "value": "Extreme Risk" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-005",
+      "description": "OAC only - moderate addition",
+      "source": "Base(2) + Age(50-30)*0.26=5.2 + Hb(15-14.5)*2.5=1.25 + eGFR(100-80)*0.05=1.0 + WBC(6-3)*0.8=2.4 + OAC(+5) = 16.85 → Round=17. Non-HBR.",
+      "inputs": {
+        "precise-hbr-age": 50,
+        "precise-hbr-hb": 14.5,
+        "precise-hbr-wbc": 6,
+        "precise-hbr-egfr": 80,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "1",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 17, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+      ]
+    }
+  ]
+}

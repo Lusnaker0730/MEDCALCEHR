@@ -1,0 +1,53 @@
+{
+  "calculatorId": "ethanol-concentration",
+  "calculatorName": "Estimated Blood Ethanol Concentration",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-ETOH-001",
+      "description": "One beer (355 mL, 5% ABV) - male 80 kg",
+      "source": "Grams = 355 * 0.05 * 0.789 = 14.0 g; Conc = 14000 / (80 * 0.68 * 10) = 14000 / 544 = 25.7 mg/dL",
+      "inputs": { "eth-amount": 355, "eth-abv": 5, "eth-weight": 80, "eth-gender": "male" },
+      "expected": [
+        { "label": "Estimated Concentration", "value": "26", "unit": "mg/dL", "tolerance": 2 }
+      ]
+    },
+    {
+      "id": "GD-ETOH-002",
+      "description": "Two glasses wine (300 mL, 12% ABV) - female 60 kg",
+      "source": "Grams = 300 * 0.12 * 0.789 = 28.4 g; Conc = 28400 / (60 * 0.55 * 10) = 28400 / 330 = 86 mg/dL",
+      "inputs": { "eth-amount": 300, "eth-abv": 12, "eth-weight": 60, "eth-gender": "female" },
+      "expected": [
+        { "label": "Estimated Concentration", "value": "86", "unit": "mg/dL", "tolerance": 3 }
+      ]
+    },
+    {
+      "id": "GD-ETOH-003",
+      "description": "Heavy drinking - above legal limit",
+      "source": "Grams = 500 * 0.40 * 0.789 = 157.8 g; Conc = 157800 / (70 * 0.68 * 10) = 157800 / 476 = 332 mg/dL",
+      "inputs": { "eth-amount": 500, "eth-abv": 40, "eth-weight": 70, "eth-gender": "male" },
+      "expected": [
+        { "label": "Estimated Concentration", "value": "332", "unit": "mg/dL", "tolerance": 5 }
+      ]
+    },
+    {
+      "id": "GD-ETOH-004",
+      "description": "Potentially fatal level",
+      "source": "Grams = 750 * 0.40 * 0.789 = 236.7 g; Conc = 236700 / (65 * 0.55 * 10) = 236700 / 357.5 = 662 mg/dL",
+      "inputs": { "eth-amount": 750, "eth-abv": 40, "eth-weight": 65, "eth-gender": "female" },
+      "expected": [
+        { "label": "Estimated Concentration", "value": "662", "unit": "mg/dL", "tolerance": 10 }
+      ]
+    },
+    {
+      "id": "GD-ETOH-005",
+      "description": "Light beer - below legal limit",
+      "source": "Grams = 355 * 0.04 * 0.789 = 11.2 g; Conc = 11200 / (90 * 0.68 * 10) = 11200 / 612 = 18.3 mg/dL",
+      "inputs": { "eth-amount": 355, "eth-abv": 4, "eth-weight": 90, "eth-gender": "male" },
+      "expected": [
+        { "label": "Estimated Concentration", "value": "18", "unit": "mg/dL", "tolerance": 2 }
+      ]
+    }
+  ]
+}

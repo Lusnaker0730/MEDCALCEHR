@@ -1,0 +1,98 @@
+{
+  "calculatorId": "ariscat",
+  "calculatorName": "ARISCAT Score for Postoperative Pulmonary Complications",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-ARISCAT-001",
+      "description": "Lowest risk - young patient, normal SpO2, no risk factors, peripheral surgery <2hrs",
+      "source": "Canet J, et al. Anesthesiology. 2010;113(6):1338-1350. All defaults = 0.",
+      "inputs": {
+        "ariscat-age": "0",
+        "ariscat-spo2": "0",
+        "ariscat-resp": "0",
+        "ariscat-anemia": "0",
+        "ariscat-site": "0",
+        "ariscat-duration": "0",
+        "ariscat-emergency": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low risk" }
+      ]
+    },
+    {
+      "id": "GD-ARISCAT-002",
+      "description": "Low risk - age 51-80, otherwise no risk factors",
+      "source": "Canet J, et al. Anesthesiology. 2010. Age 51-80 (+3) = 3.",
+      "inputs": {
+        "ariscat-age": "3",
+        "ariscat-spo2": "0",
+        "ariscat-resp": "0",
+        "ariscat-anemia": "0",
+        "ariscat-site": "0",
+        "ariscat-duration": "0",
+        "ariscat-emergency": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low risk" }
+      ]
+    },
+    {
+      "id": "GD-ARISCAT-003",
+      "description": "Intermediate risk - age 51-80, SpO2 91-95%, upper abdominal surgery",
+      "source": "Canet J, et al. Anesthesiology. 2010. Age (+3) + SpO2 (+8) + Upper abd (+15) = 26.",
+      "inputs": {
+        "ariscat-age": "3",
+        "ariscat-spo2": "8",
+        "ariscat-resp": "0",
+        "ariscat-anemia": "0",
+        "ariscat-site": "15",
+        "ariscat-duration": "0",
+        "ariscat-emergency": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 26, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Intermediate risk" }
+      ]
+    },
+    {
+      "id": "GD-ARISCAT-004",
+      "description": "High risk - age >80, SpO2 <=90%, intrathoracic surgery, >3hrs, emergency",
+      "source": "Canet J, et al. Anesthesiology. 2010. Age (+16) + SpO2 (+24) + Intrathoracic (+24) + >3hrs (+23) + Emergency (+8) = 95.",
+      "inputs": {
+        "ariscat-age": "16",
+        "ariscat-spo2": "24",
+        "ariscat-resp": "0",
+        "ariscat-anemia": "0",
+        "ariscat-site": "24",
+        "ariscat-duration": "23",
+        "ariscat-emergency": "8"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 95, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High risk" }
+      ]
+    },
+    {
+      "id": "GD-ARISCAT-005",
+      "description": "Borderline high risk - age 51-80, respiratory infection, anemia, 2-3hr surgery, emergency",
+      "source": "Canet J, et al. Anesthesiology. 2010. Age (+3) + Resp infection (+17) + Anemia (+11) + 2-3hrs (+16) + Emergency (+8) = 55.",
+      "inputs": {
+        "ariscat-age": "3",
+        "ariscat-spo2": "0",
+        "ariscat-resp": "17",
+        "ariscat-anemia": "11",
+        "ariscat-site": "0",
+        "ariscat-duration": "16",
+        "ariscat-emergency": "8"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 55, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High risk" }
+      ]
+    }
+  ]
+}

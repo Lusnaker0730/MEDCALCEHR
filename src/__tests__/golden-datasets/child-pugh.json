@@ -1,0 +1,53 @@
+{
+  "calculatorId": "child-pugh",
+  "calculatorName": "Child-Pugh Classification",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-CPUGH-001",
+      "description": "Class A - well-compensated cirrhosis",
+      "source": "Bili <2 (1pt) + Alb >3.5 (1pt) + INR <1.7 (1pt) + no ascites (1pt) + no encephalopathy (1pt) = 5",
+      "inputs": { "bilirubin": 1.5, "albumin": 4.0, "inr": 1.2, "ascites": "1", "encephalopathy": "1" },
+      "expected": [
+        { "label": "Total Score", "value": 5, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CPUGH-002",
+      "description": "Class B - borderline (score 7)",
+      "source": "Bili 2-3 (2pt) + Alb 2.8-3.5 (2pt: 3.5 is not >3.5) + INR <1.7 (1pt) + no ascites (1pt) + no encephalopathy (1pt) = 7",
+      "inputs": { "bilirubin": 2.5, "albumin": 3.5, "inr": 1.5, "ascites": "1", "encephalopathy": "1" },
+      "expected": [
+        { "label": "Total Score", "value": 7, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CPUGH-003",
+      "description": "Class B - moderate hepatic impairment (score 9)",
+      "source": "Bili >3 (3pt) + Alb <2.8 (3pt) + INR <1.7 (1pt) + no ascites (1pt) + no encephalopathy (1pt) = 9",
+      "inputs": { "bilirubin": 4.0, "albumin": 2.5, "inr": 1.5, "ascites": "1", "encephalopathy": "1" },
+      "expected": [
+        { "label": "Total Score", "value": 9, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CPUGH-004",
+      "description": "Class C - severe decompensated cirrhosis",
+      "source": "Bili >3 (3pt) + Alb <2.8 (3pt) + INR >2.3 (3pt) + tense ascites (3pt) + grade 3 encephalopathy (3pt) = 15",
+      "inputs": { "bilirubin": 6.0, "albumin": 2.0, "inr": 2.5, "ascites": "3", "encephalopathy": "3" },
+      "expected": [
+        { "label": "Total Score", "value": 15, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CPUGH-005",
+      "description": "Class C - minimum for class C (score 10)",
+      "source": "Bili >3 (3pt) + Alb <2.8 (3pt) + INR 1.7-2.3 (2pt) + mild ascites (1pt) + grade 1 encephalopathy (1pt) = 10",
+      "inputs": { "bilirubin": 5.0, "albumin": 2.2, "inr": 2.0, "ascites": "1", "encephalopathy": "1" },
+      "expected": [
+        { "label": "Total Score", "value": 10, "unit": "points", "tolerance": 0 }
+      ]
+    }
+  ]
+}

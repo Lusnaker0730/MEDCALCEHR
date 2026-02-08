@@ -1,0 +1,60 @@
+{
+  "calculatorId": "tpa-dosing-stroke",
+  "calculatorName": "tPA Dosing for Acute Stroke",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-TPAS-001",
+      "description": "Eligible patient - within time window, 75 kg",
+      "source": "Total = 75 * 0.9 = 67.5 mg; Bolus = 6.8 mg; Infusion = 60.8 mg; Onset 2hr ≤ 4.5 → eligible",
+      "inputs": { "tpa-stroke-weight": 75, "tpa-stroke-onset": 2 },
+      "expected": [
+        { "label": "Eligibility Status", "value": "eligible", "tolerance": 0 },
+        { "label": "Total Dose", "value": "67.5", "unit": "mg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-TPAS-002",
+      "description": "Ineligible patient - beyond time window",
+      "source": "Onset 6hr > 4.5 → ineligible; Total = 80 * 0.9 = 72 mg",
+      "inputs": { "tpa-stroke-weight": 80, "tpa-stroke-onset": 6 },
+      "expected": [
+        { "label": "Eligibility Status", "value": "ineligible", "tolerance": 0 },
+        { "label": "Total Dose", "value": "72.0", "unit": "mg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-TPAS-003",
+      "description": "Heavy patient - capped at 90 mg",
+      "source": "Weight 130kg capped at 100; Total = 90 mg; Bolus = 9.0 mg; Infusion = 81.0 mg",
+      "inputs": { "tpa-stroke-weight": 130, "tpa-stroke-onset": 3 },
+      "expected": [
+        { "label": "Eligibility Status", "value": "eligible", "tolerance": 0 },
+        { "label": "Total Dose", "value": "90.0", "unit": "mg", "tolerance": 0.1 },
+        { "label": "Step 1: IV Bolus", "value": "9.0", "unit": "mg", "tolerance": 0.1 },
+        { "label": "Step 2: Continuous Infusion", "value": "81.0", "unit": "mg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-TPAS-004",
+      "description": "Borderline time window - exactly 4.5 hours",
+      "source": "Onset 4.5hr ≤ 4.5 → eligible; Total = 65 * 0.9 = 58.5 mg",
+      "inputs": { "tpa-stroke-weight": 65, "tpa-stroke-onset": 4.5 },
+      "expected": [
+        { "label": "Eligibility Status", "value": "eligible", "tolerance": 0 },
+        { "label": "Total Dose", "value": "58.5", "unit": "mg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-TPAS-005",
+      "description": "Small patient - 55 kg",
+      "source": "Total = 55 * 0.9 = 49.5 mg; Bolus = 5.0 mg; Infusion = 44.6 mg",
+      "inputs": { "tpa-stroke-weight": 55, "tpa-stroke-onset": 1.5 },
+      "expected": [
+        { "label": "Eligibility Status", "value": "eligible", "tolerance": 0 },
+        { "label": "Total Dose", "value": "49.5", "unit": "mg", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

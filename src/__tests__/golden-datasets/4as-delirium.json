@@ -1,0 +1,83 @@
+{
+  "calculatorId": "4as-delirium",
+  "calculatorName": "4 A's Test (4AT) for Delirium Screening",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-4AT-001",
+      "description": "Score 0 - delirium unlikely, fully alert, no cognitive errors",
+      "source": "Bellelli G, et al. Age and Ageing. 2014;43(4):496-502. All 0 = Delirium Unlikely.",
+      "inputs": {
+        "alertness": "0",
+        "amt4": "0",
+        "attention": "0",
+        "acute_change": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Delirium Unlikely" }
+      ]
+    },
+    {
+      "id": "GD-4AT-002",
+      "description": "Score 1 - possible cognitive impairment, 1 AMT4 mistake only",
+      "source": "Bellelli G, et al. Age and Ageing. 2014. AMT4 1 mistake (+1) = 1.",
+      "inputs": {
+        "alertness": "0",
+        "amt4": "1",
+        "attention": "0",
+        "acute_change": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Possible Cognitive Impairment" }
+      ]
+    },
+    {
+      "id": "GD-4AT-003",
+      "description": "Score 3 - possible cognitive impairment, AMT4 errors and attention deficit",
+      "source": "Bellelli G, et al. Age and Ageing. 2014. AMT4 1 mistake (+1) + Attention <7 months (+1) + Alertness mild sleepiness (0) = 2. Wait: AMT4 >=2 mistakes (+2) + Attention <7 months (+1) = 3.",
+      "inputs": {
+        "alertness": "0",
+        "amt4": "2",
+        "attention": "1",
+        "acute_change": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Possible Cognitive Impairment" }
+      ]
+    },
+    {
+      "id": "GD-4AT-004",
+      "description": "Score 4 - likely delirium, clearly abnormal alertness",
+      "source": "Bellelli G, et al. Age and Ageing. 2014. Clearly abnormal alertness (+4) = 4.",
+      "inputs": {
+        "alertness": "4",
+        "amt4": "0",
+        "attention": "0",
+        "acute_change": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Likely Delirium" }
+      ]
+    },
+    {
+      "id": "GD-4AT-005",
+      "description": "Maximum score 12 - all domains maximally impaired",
+      "source": "Bellelli G, et al. Age and Ageing. 2014. Alertness (+4) + AMT4 (+2) + Attention (+2) + Acute change (+4) = 12.",
+      "inputs": {
+        "alertness": "4",
+        "amt4": "2",
+        "attention": "2",
+        "acute_change": "4"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Likely Delirium" }
+      ]
+    }
+  ]
+}

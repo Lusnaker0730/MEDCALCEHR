@@ -1,0 +1,53 @@
+{
+  "calculatorId": "ldl",
+  "calculatorName": "LDL Cholesterol (Friedewald Equation)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-LDL-001",
+      "description": "Optimal LDL - good lipid profile",
+      "source": "Friedewald: LDL = TC - HDL - TG/5 = 180 - 60 - 100/5 = 180 - 60 - 20 = 100.0",
+      "inputs": { "ldl-tc": 180, "ldl-hdl": 60, "ldl-trig": 100 },
+      "expected": [
+        { "label": "Calculated LDL", "value": "100.0", "unit": "mg/dL", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-LDL-002",
+      "description": "Borderline high LDL",
+      "source": "Friedewald: LDL = 240 - 50 - 150/5 = 240 - 50 - 30 = 160.0",
+      "inputs": { "ldl-tc": 240, "ldl-hdl": 50, "ldl-trig": 150 },
+      "expected": [
+        { "label": "Calculated LDL", "value": "160.0", "unit": "mg/dL", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-LDL-003",
+      "description": "Very high LDL",
+      "source": "Friedewald: LDL = 300 - 40 - 200/5 = 300 - 40 - 40 = 220.0",
+      "inputs": { "ldl-tc": 300, "ldl-hdl": 40, "ldl-trig": 200 },
+      "expected": [
+        { "label": "Calculated LDL", "value": "220.0", "unit": "mg/dL", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-LDL-004",
+      "description": "Invalid - triglycerides >= 400",
+      "source": "Friedewald invalid when TG >= 400; returns 'Invalid'",
+      "inputs": { "ldl-tc": 250, "ldl-hdl": 45, "ldl-trig": 450 },
+      "expected": [
+        { "label": "Calculated LDL", "value": "Invalid", "unit": "mg/dL", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-LDL-005",
+      "description": "Near optimal LDL",
+      "source": "Friedewald: LDL = 200 - 55 - 120/5 = 200 - 55 - 24 = 121.0",
+      "inputs": { "ldl-tc": 200, "ldl-hdl": 55, "ldl-trig": 120 },
+      "expected": [
+        { "label": "Calculated LDL", "value": "121.0", "unit": "mg/dL", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

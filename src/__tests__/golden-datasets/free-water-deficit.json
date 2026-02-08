@@ -1,0 +1,58 @@
+{
+  "calculatorId": "free-water-deficit",
+  "calculatorName": "Free Water Deficit",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-FWD-001",
+      "description": "Mild hypernatremia - adult male",
+      "source": "TBW = 70 * 0.6 = 42 L; Deficit = 42 * (148/140 - 1) = 42 * 0.0571 = 2.4 L",
+      "inputs": { "fwd-weight": 70, "fwd-sodium": 148, "fwd-gender": "male" },
+      "expected": [
+        { "label": "Free Water Deficit", "value": "2.4", "unit": "Liters", "tolerance": 0.1 },
+        { "label": "Estimated TBW", "value": "42.0", "unit": "Liters", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FWD-002",
+      "description": "Moderate hypernatremia - adult female",
+      "source": "TBW = 60 * 0.5 = 30 L; Deficit = 30 * (155/140 - 1) = 30 * 0.1071 = 3.2 L",
+      "inputs": { "fwd-weight": 60, "fwd-sodium": 155, "fwd-gender": "female" },
+      "expected": [
+        { "label": "Free Water Deficit", "value": "3.2", "unit": "Liters", "tolerance": 0.1 },
+        { "label": "Estimated TBW", "value": "30.0", "unit": "Liters", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FWD-003",
+      "description": "Severe hypernatremia - elderly patient",
+      "source": "TBW = 65 * 0.5 = 32.5 L; Deficit = 32.5 * (165/140 - 1) = 32.5 * 0.1786 = 5.8 L",
+      "inputs": { "fwd-weight": 65, "fwd-sodium": 165, "fwd-gender": "elderly" },
+      "expected": [
+        { "label": "Free Water Deficit", "value": "5.8", "unit": "Liters", "tolerance": 0.1 },
+        { "label": "Estimated TBW", "value": "32.5", "unit": "Liters", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FWD-004",
+      "description": "Elderly female - lower TBW factor",
+      "source": "TBW = 55 * 0.45 = 24.75 L; Deficit = 24.75 * (160/140 - 1) = 24.75 * 0.1429 = 3.5 L",
+      "inputs": { "fwd-weight": 55, "fwd-sodium": 160, "fwd-gender": "elderly_female" },
+      "expected": [
+        { "label": "Free Water Deficit", "value": "3.5", "unit": "Liters", "tolerance": 0.1 },
+        { "label": "Estimated TBW", "value": "24.8", "unit": "Liters", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-FWD-005",
+      "description": "Normal sodium - no deficit indicated",
+      "source": "TBW = 80 * 0.6 = 48 L; Na=138 ≤ 140: deficit would be negative, returns 0.0",
+      "inputs": { "fwd-weight": 80, "fwd-sodium": 138, "fwd-gender": "male" },
+      "expected": [
+        { "label": "Free Water Deficit", "value": "0.0", "unit": "Liters", "tolerance": 0.1 },
+        { "label": "Estimated TBW", "value": "48.0", "unit": "Liters", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

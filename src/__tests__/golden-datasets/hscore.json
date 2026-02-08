@@ -1,0 +1,108 @@
+{
+  "calculatorId": "hscore",
+  "calculatorName": "HScore for Reactive Hemophagocytic Syndrome",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-HSCORE-001",
+      "description": "Score 0 - low probability, all parameters normal/negative",
+      "source": "Fardet L, et al. Arthritis Rheumatol. 2014;66(9):2613-2620. All 0 = Low Probability.",
+      "inputs": {
+        "hscore-immuno": "0",
+        "hscore-temp": "0",
+        "hscore-organo": "0",
+        "hscore-cytopenias": "0",
+        "hscore-ferritin": "0",
+        "hscore-trig": "0",
+        "hscore-fibrinogen": "0",
+        "hscore-ast": "0",
+        "hscore-bma": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Probability" }
+      ]
+    },
+    {
+      "id": "GD-HSCORE-002",
+      "description": "Score 90 - low probability, mild temperature elevation and immunosuppression",
+      "source": "Fardet L, et al. Arthritis Rheumatol. 2014. Immuno (+18) + Temp 101.1-102.9 (+33) + Ferritin 2000-6000 (+35) + AST<30 (0) = 86. Close to 90: Immuno (+18) + Temp (+33) + 2 lineages (+24) + AST>=30 (+19) = 94.",
+      "inputs": {
+        "hscore-immuno": "18",
+        "hscore-temp": "33",
+        "hscore-organo": "0",
+        "hscore-cytopenias": "24",
+        "hscore-ferritin": "0",
+        "hscore-trig": "0",
+        "hscore-fibrinogen": "0",
+        "hscore-ast": "19",
+        "hscore-bma": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 94, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Probability" }
+      ]
+    },
+    {
+      "id": "GD-HSCORE-003",
+      "description": "Score 168 - borderline low probability (just below cutoff of 169)",
+      "source": "Fardet L, et al. Arthritis Rheumatol. 2014. Immuno (+18) + Temp>102.9 (+49) + Hepatosplenomegaly (+38) + 2 lineages (+24) + Ferritin 2000-6000 (+35) + AST>=30 (+19) - some adjust. Immuno(18)+Temp(49)+Splenomeg(23)+2lineage(24)+Fib<=250(30)+AST(19)+Trig<132.7(0)+Ferritin<2000(0)+BMA no(0) = 163. Actually: 18+49+23+24+35+19 = 168.",
+      "inputs": {
+        "hscore-immuno": "18",
+        "hscore-temp": "49",
+        "hscore-organo": "23",
+        "hscore-cytopenias": "24",
+        "hscore-ferritin": "35",
+        "hscore-trig": "0",
+        "hscore-fibrinogen": "0",
+        "hscore-ast": "19",
+        "hscore-bma": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 168, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Probability" }
+      ]
+    },
+    {
+      "id": "GD-HSCORE-004",
+      "description": "Score 230 - high probability, most criteria strongly positive",
+      "source": "Fardet L, et al. Arthritis Rheumatol. 2014. Immuno (+18) + Temp>102.9 (+49) + Hepatosplenomegaly (+38) + 3 lineages (+34) + Ferritin>6000 (+50) + Trig 132.7-354 (+44) - fibrinogen<=250 (+30) - AST>=30 (+19) - no BMA (0) = actually adjust. 18+49+38+34+50+44+0+19-52? No, just sum: 18+49+38+34+50+44+0+19+0 = 252. Let me pick: Immuno(18)+Temp(49)+Both org(38)+3 lineages(34)+Ferritin 2000-6000(35)+Trig 132.7-354(44)+Fib<=250(30)+AST(0)+No BMA(0) = 248. Pick precise: 18+49+38+34+50+44+0+0+0 = 233. Actually: Immuno(18)+Temp(49)+Hepatosplenomegaly(38)+3lineages(34)+Ferritin>6000(50)+Trig132-354(44) = 233.",
+      "inputs": {
+        "hscore-immuno": "18",
+        "hscore-temp": "49",
+        "hscore-organo": "38",
+        "hscore-cytopenias": "34",
+        "hscore-ferritin": "50",
+        "hscore-trig": "44",
+        "hscore-fibrinogen": "0",
+        "hscore-ast": "0",
+        "hscore-bma": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 233, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Probability" }
+      ]
+    },
+    {
+      "id": "GD-HSCORE-005",
+      "description": "Maximum score 337 - all criteria at highest values",
+      "source": "Fardet L, et al. Arthritis Rheumatol. 2014. Immuno(18)+Temp(49)+Both org(38)+3 lineages(34)+Ferritin>6000(50)+Trig>354(64)+Fib<=250(30)+AST>=30(19)+BMA(35) = 337.",
+      "inputs": {
+        "hscore-immuno": "18",
+        "hscore-temp": "49",
+        "hscore-organo": "38",
+        "hscore-cytopenias": "34",
+        "hscore-ferritin": "50",
+        "hscore-trig": "64",
+        "hscore-fibrinogen": "30",
+        "hscore-ast": "19",
+        "hscore-bma": "35"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 337, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Probability" }
+      ]
+    }
+  ]
+}

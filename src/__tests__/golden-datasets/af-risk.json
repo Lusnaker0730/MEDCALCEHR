@@ -1,0 +1,148 @@
+{
+  "calculatorId": "af-risk",
+  "calculatorName": "AF Stroke/Bleed Risk (CHA2DS2-VASc & HAS-BLED)",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-AFRISK-001",
+      "description": "Score 0 - low combined risk, young male, no risk factors",
+      "source": "Lip GY, et al. Chest. 2010;137(2):263-272. All 0 = Low Combined Risk.",
+      "inputs": {
+        "chf": "0",
+        "htn": "0",
+        "age75": "0",
+        "dm": "0",
+        "stroke": "0",
+        "vasc": "0",
+        "age65": "0",
+        "female": "0",
+        "hasbled-htn": "0",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleed": "0",
+        "hasbled-inr": "0",
+        "hasbled-elderly": "0",
+        "hasbled-drugs": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Combined Risk" }
+      ]
+    },
+    {
+      "id": "GD-AFRISK-002",
+      "description": "Score 2 - low combined risk, hypertension and diabetes only (CHA2DS2-VASc)",
+      "source": "Lip GY, et al. Chest. 2010. HTN (+1) + DM (+1) = 2.",
+      "inputs": {
+        "chf": "0",
+        "htn": "1",
+        "age75": "0",
+        "dm": "1",
+        "stroke": "0",
+        "vasc": "0",
+        "age65": "0",
+        "female": "0",
+        "hasbled-htn": "0",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleed": "0",
+        "hasbled-inr": "0",
+        "hasbled-elderly": "0",
+        "hasbled-drugs": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Combined Risk" }
+      ]
+    },
+    {
+      "id": "GD-AFRISK-003",
+      "description": "Score 5 - moderate combined risk, CHA2DS2-VASc factors + HAS-BLED factors",
+      "source": "Lip GY, et al. Age>=75 (+2) + Stroke (+2) + HAS-BLED elderly (+1) = 5.",
+      "inputs": {
+        "chf": "0",
+        "htn": "0",
+        "age75": "2",
+        "dm": "0",
+        "stroke": "2",
+        "vasc": "0",
+        "age65": "0",
+        "female": "0",
+        "hasbled-htn": "0",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleed": "0",
+        "hasbled-inr": "0",
+        "hasbled-elderly": "1",
+        "hasbled-drugs": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Combined Risk" }
+      ]
+    },
+    {
+      "id": "GD-AFRISK-004",
+      "description": "Score 8 - high combined risk, multiple CHA2DS2-VASc and HAS-BLED factors",
+      "source": "Combined: CHF (+1) + HTN (+1) + Age>=75 (+2) + Stroke (+2) + HAS-BLED HTN (+1) + HAS-BLED stroke (+1) = 8.",
+      "inputs": {
+        "chf": "1",
+        "htn": "1",
+        "age75": "2",
+        "dm": "0",
+        "stroke": "2",
+        "vasc": "0",
+        "age65": "0",
+        "female": "0",
+        "hasbled-htn": "1",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "1",
+        "hasbled-bleed": "0",
+        "hasbled-inr": "0",
+        "hasbled-elderly": "0",
+        "hasbled-drugs": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Combined Risk" }
+      ]
+    },
+    {
+      "id": "GD-AFRISK-005",
+      "description": "Score 12 - high combined risk, female with extensive comorbidities and bleeding risk",
+      "source": "CHF (+1) + HTN (+1) + Age>=75 (+2) + DM (+1) + Female (+1) + HAS-BLED HTN (+1) + HAS-BLED renal (+1) + HAS-BLED bleed (+1) + HAS-BLED elderly (+1) + HAS-BLED drugs (+1) + HAS-BLED alcohol (+1) = 12.",
+      "inputs": {
+        "chf": "1",
+        "htn": "1",
+        "age75": "2",
+        "dm": "1",
+        "stroke": "0",
+        "vasc": "0",
+        "age65": "0",
+        "female": "1",
+        "hasbled-htn": "1",
+        "hasbled-renal": "1",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleed": "1",
+        "hasbled-inr": "0",
+        "hasbled-elderly": "1",
+        "hasbled-drugs": "1",
+        "hasbled-alcohol": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Combined Risk" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "calculatorId": "has-bled",
+  "calculatorName": "HAS-BLED Score for Major Bleeding Risk",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-HASBLED-001",
+      "description": "No risk factors: score 0, low risk",
+      "source": "Pisters R, et al. Chest. 2010;138(5):1093-1100.",
+      "inputs": {
+        "hasbled-hypertension": "0",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleeding": "0",
+        "hasbled-inr": "0",
+        "hasbled-age": "0",
+        "hasbled-meds": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low risk" }
+      ]
+    },
+    {
+      "id": "GD-HASBLED-002",
+      "description": "Single risk factor: elderly only, score 1",
+      "source": "Pisters R, et al. Chest. 2010;138(5):1093-1100.",
+      "inputs": {
+        "hasbled-hypertension": "0",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleeding": "0",
+        "hasbled-inr": "0",
+        "hasbled-age": "1",
+        "hasbled-meds": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low-moderate risk" }
+      ]
+    },
+    {
+      "id": "GD-HASBLED-003",
+      "description": "Moderate risk: hypertension and labile INR, score 2",
+      "source": "Pisters R, et al. Chest. 2010;138(5):1093-1100.",
+      "inputs": {
+        "hasbled-hypertension": "1",
+        "hasbled-renal": "0",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "0",
+        "hasbled-bleeding": "0",
+        "hasbled-inr": "1",
+        "hasbled-age": "0",
+        "hasbled-meds": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate risk" }
+      ]
+    },
+    {
+      "id": "GD-HASBLED-004",
+      "description": "High risk: hypertension, renal disease, stroke, elderly, score 4",
+      "source": "Pisters R, et al. Chest. 2010;138(5):1093-1100.",
+      "inputs": {
+        "hasbled-hypertension": "1",
+        "hasbled-renal": "1",
+        "hasbled-liver": "0",
+        "hasbled-stroke": "1",
+        "hasbled-bleeding": "0",
+        "hasbled-inr": "0",
+        "hasbled-age": "1",
+        "hasbled-meds": "0",
+        "hasbled-alcohol": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High risk" }
+      ]
+    },
+    {
+      "id": "GD-HASBLED-005",
+      "description": "Maximum score: all 9 risk factors present",
+      "source": "Pisters R, et al. Chest. 2010;138(5):1093-1100.",
+      "inputs": {
+        "hasbled-hypertension": "1",
+        "hasbled-renal": "1",
+        "hasbled-liver": "1",
+        "hasbled-stroke": "1",
+        "hasbled-bleeding": "1",
+        "hasbled-inr": "1",
+        "hasbled-age": "1",
+        "hasbled-meds": "1",
+        "hasbled-alcohol": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 9, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High risk" }
+      ]
+    }
+  ]
+}

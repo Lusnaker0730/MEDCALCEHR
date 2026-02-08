@@ -1,0 +1,53 @@
+{
+  "calculatorId": "map",
+  "calculatorName": "Mean Arterial Pressure (MAP)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-MAP-001",
+      "description": "Normal blood pressure",
+      "source": "MAP = (120 + 2*80) / 3 = 280/3 = 93.3",
+      "inputs": { "map-sbp": 120, "map-dbp": 80 },
+      "expected": [
+        { "label": "Mean Arterial Pressure", "value": "93.3", "unit": "mmHg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MAP-002",
+      "description": "Hypertensive - elevated MAP",
+      "source": "MAP = (180 + 2*110) / 3 = 400/3 = 133.3",
+      "inputs": { "map-sbp": 180, "map-dbp": 110 },
+      "expected": [
+        { "label": "Mean Arterial Pressure", "value": "133.3", "unit": "mmHg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MAP-003",
+      "description": "Hypotensive - below normal MAP",
+      "source": "MAP = (90 + 2*55) / 3 = 200/3 = 66.7",
+      "inputs": { "map-sbp": 90, "map-dbp": 55 },
+      "expected": [
+        { "label": "Mean Arterial Pressure", "value": "66.7", "unit": "mmHg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MAP-004",
+      "description": "Critically low - shock range",
+      "source": "MAP = (75 + 2*40) / 3 = 155/3 = 51.7",
+      "inputs": { "map-sbp": 75, "map-dbp": 40 },
+      "expected": [
+        { "label": "Mean Arterial Pressure", "value": "51.7", "unit": "mmHg", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MAP-005",
+      "description": "Normal - optimal MAP",
+      "source": "MAP = (110 + 2*70) / 3 = 250/3 = 83.3",
+      "inputs": { "map-sbp": 110, "map-dbp": 70 },
+      "expected": [
+        { "label": "Mean Arterial Pressure", "value": "83.3", "unit": "mmHg", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

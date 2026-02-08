@@ -1,0 +1,88 @@
+{
+  "calculatorId": "2helps2b",
+  "calculatorName": "2HELPS2B Score for Seizure Risk",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-2H2B-001",
+      "description": "Score 0 - very low seizure risk (<5%), no EEG findings",
+      "source": "Struck AF, et al. JAMA Neurology. 2017;74(12):1419-1424. All false = 0.",
+      "inputs": {
+        "freq-gt-2hz": false,
+        "sporadic-epileptiform": false,
+        "lpd-bipd-lrda": false,
+        "plus-features": false,
+        "prior-seizure": false,
+        "birds": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-2H2B-002",
+      "description": "Score 1 - low seizure risk (12%), single finding: sporadic epileptiform discharges",
+      "source": "Struck AF, et al. JAMA Neurology. 2017. Sporadic epileptiform (+1) = 1.",
+      "inputs": {
+        "freq-gt-2hz": false,
+        "sporadic-epileptiform": true,
+        "lpd-bipd-lrda": false,
+        "plus-features": false,
+        "prior-seizure": false,
+        "birds": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-2H2B-003",
+      "description": "Score 3 - moderate-high risk (50%), frequency >2Hz + LPD + prior seizure",
+      "source": "Struck AF, et al. JAMA Neurology. 2017. Freq>2Hz (+1) + LPD/BIPD/LRDA (+1) + Prior seizure (+1) = 3.",
+      "inputs": {
+        "freq-gt-2hz": true,
+        "sporadic-epileptiform": false,
+        "lpd-bipd-lrda": true,
+        "plus-features": false,
+        "prior-seizure": true,
+        "birds": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-2H2B-004",
+      "description": "Score 5 - very high risk (88%), multiple findings including BIRDs",
+      "source": "Struck AF, et al. JAMA Neurology. 2017. Freq>2Hz (+1) + LPD (+1) + Plus features (+1) + BIRDs (+2) = 5.",
+      "inputs": {
+        "freq-gt-2hz": true,
+        "sporadic-epileptiform": false,
+        "lpd-bipd-lrda": true,
+        "plus-features": true,
+        "prior-seizure": false,
+        "birds": true
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-2H2B-005",
+      "description": "Maximum score 7 - extremely high risk (>95%), all findings present",
+      "source": "Struck AF, et al. JAMA Neurology. 2017. All criteria: 1+1+1+1+1+2 = 7.",
+      "inputs": {
+        "freq-gt-2hz": true,
+        "sporadic-epileptiform": true,
+        "lpd-bipd-lrda": true,
+        "plus-features": true,
+        "prior-seizure": true,
+        "birds": true
+      },
+      "expected": [
+        { "label": "Total Score", "value": 7, "tolerance": 0 }
+      ]
+    }
+  ]
+}

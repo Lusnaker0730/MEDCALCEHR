@@ -1,0 +1,93 @@
+{
+  "calculatorId": "sofa",
+  "calculatorName": "SOFA Score for Sepsis Organ Failure",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-SOFA-001",
+      "description": "All systems normal, minimum score",
+      "source": "Vincent JL, et al. Intensive Care Med. 1996;22(7):707-710.",
+      "inputs": {
+        "resp": "0",
+        "coag": "0",
+        "liver": "0",
+        "cardio": "0",
+        "cns": "0",
+        "renal": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-SOFA-002",
+      "description": "Mild organ dysfunction: PaO2/FiO2 <400, platelets <150, bilirubin 1.2-1.9, MAP <70, GCS 13-14, creatinine 1.2-1.9",
+      "source": "Vincent JL, et al. Intensive Care Med. 1996;22(7):707-710.",
+      "inputs": {
+        "resp": "1",
+        "coag": "1",
+        "liver": "1",
+        "cardio": "1",
+        "cns": "1",
+        "renal": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-SOFA-003",
+      "description": "Moderate dysfunction: PaO2/FiO2 <300, platelets <100, bilirubin 2.0-5.9, dopamine <=5, GCS 10-12, creatinine 2.0-3.4",
+      "source": "Vincent JL, et al. Intensive Care Med. 1996;22(7):707-710.",
+      "inputs": {
+        "resp": "2",
+        "coag": "2",
+        "liver": "2",
+        "cardio": "2",
+        "cns": "2",
+        "renal": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-SOFA-004",
+      "description": "Severe multi-organ failure: PaO2/FiO2 <200 with vent, platelets <50, bilirubin 6-11.9, dopamine >5, GCS 6-9, creatinine 3.5-4.9",
+      "source": "Vincent JL, et al. Intensive Care Med. 1996;22(7):707-710.",
+      "inputs": {
+        "resp": "3",
+        "coag": "3",
+        "liver": "3",
+        "cardio": "3",
+        "cns": "3",
+        "renal": "3"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 18, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Very High Risk" }
+      ]
+    },
+    {
+      "id": "GD-SOFA-005",
+      "description": "Mixed severity: PaO2/FiO2 <100 on vent, normal platelets, bilirubin 2-5.9, no hypotension, GCS 13-14, creatinine >=5",
+      "source": "Vincent JL, et al. Intensive Care Med. 1996;22(7):707-710.",
+      "inputs": {
+        "resp": "4",
+        "coag": "0",
+        "liver": "2",
+        "cardio": "0",
+        "cns": "1",
+        "renal": "4"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 11, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    }
+  ]
+}

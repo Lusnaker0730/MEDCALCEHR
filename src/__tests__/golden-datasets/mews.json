@@ -1,0 +1,88 @@
+{
+  "calculatorId": "mews",
+  "calculatorName": "Modified Early Warning Score (MEWS)",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-MEWS-001",
+      "description": "All normal vitals: score 0, low risk",
+      "source": "Subbe CP, et al. QJM. 2001;94(10):521-526.",
+      "inputs": {
+        "mews-sbp": "0",
+        "mews-hr": "0",
+        "mews-rr": "0",
+        "mews-temp": "0",
+        "mews-avpu": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-MEWS-002",
+      "description": "Mildly abnormal: SBP 81-100, HR 101-110, score 2",
+      "source": "Subbe CP, et al. QJM. 2001;94(10):521-526.",
+      "inputs": {
+        "mews-sbp": "1",
+        "mews-hr": "1",
+        "mews-rr": "0",
+        "mews-temp": "0",
+        "mews-avpu": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Risk" }
+      ]
+    },
+    {
+      "id": "GD-MEWS-003",
+      "description": "Moderate-high risk: SBP 71-80, RR 21-29, abnormal temp, responds to voice, score 7",
+      "source": "Subbe CP, et al. QJM. 2001;94(10):521-526.",
+      "inputs": {
+        "mews-sbp": "2",
+        "mews-hr": "0",
+        "mews-rr": "2",
+        "mews-temp": "2",
+        "mews-avpu": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 7, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-MEWS-004",
+      "description": "Score exactly 4: SBP 81-100, HR 111-129, responds to voice, score 4",
+      "source": "Subbe CP, et al. QJM. 2001;94(10):521-526.",
+      "inputs": {
+        "mews-sbp": "1",
+        "mews-hr": "2",
+        "mews-rr": "0",
+        "mews-temp": "0",
+        "mews-avpu": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate-High Risk" }
+      ]
+    },
+    {
+      "id": "GD-MEWS-005",
+      "description": "Critical: SBP <=70, HR >=130, RR >=30, abnormal temp, unresponsive, score 14",
+      "source": "Subbe CP, et al. QJM. 2001;94(10):521-526.",
+      "inputs": {
+        "mews-sbp": "3",
+        "mews-hr": "3",
+        "mews-rr": "3",
+        "mews-temp": "2",
+        "mews-avpu": "3"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 14, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    }
+  ]
+}

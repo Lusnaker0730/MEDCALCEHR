@@ -1,0 +1,83 @@
+{
+  "calculatorId": "regiscar",
+  "calculatorName": "RegiSCAR Score for DRESS Syndrome",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-REGISCAR-001",
+      "description": "No case - all sections scored at minimum (negative values)",
+      "source": "Fever(-1) + Lymph nodes(-1) + Lymphocytes(-1) + Eosinophilia(-1) + Rash(-1) + Skin features(-1) + Biopsy(-1) + Organ(0) + Resolution(-1) + Alternative(0) = -8. No Case.",
+      "inputs": {
+        "regiscar-fever": "-1", "regiscar-lymph-nodes": "-1", "regiscar-lymphocytes": "-1",
+        "regiscar-eosinophilia": "-1", "regiscar-rash": "-1", "regiscar-skin-features": "-1",
+        "regiscar-biopsy": "-1", "regiscar-organ": "0", "regiscar-resolution": "-1",
+        "regiscar-alternative": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": -8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "No Case" }
+      ]
+    },
+    {
+      "id": "GD-REGISCAR-002",
+      "description": "No case - mostly neutral with some negative (score 0)",
+      "source": "Fever(0) + Lymph nodes(0) + Lymphocytes(0) + Eosinophilia(0) + Rash(0) + Skin features(0) + Biopsy(0) + Organ(0) + Resolution(0) + Alternative(0) = 0. No Case.",
+      "inputs": {
+        "regiscar-fever": "0", "regiscar-lymph-nodes": "0", "regiscar-lymphocytes": "0",
+        "regiscar-eosinophilia": "0", "regiscar-rash": "0", "regiscar-skin-features": "0",
+        "regiscar-biopsy": "0", "regiscar-organ": "0", "regiscar-resolution": "0",
+        "regiscar-alternative": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "No Case" }
+      ]
+    },
+    {
+      "id": "GD-REGISCAR-003",
+      "description": "Possible DRESS - score 2",
+      "source": "Fever(0) + Lymph nodes(1) + Lymphocytes(0) + Eosinophilia(1) + Rash(0) + Skin features(0) + Biopsy(0) + Organ(0) + Resolution(0) + Alternative(0) = 2. Possible DRESS.",
+      "inputs": {
+        "regiscar-fever": "0", "regiscar-lymph-nodes": "1", "regiscar-lymphocytes": "0",
+        "regiscar-eosinophilia": "1", "regiscar-rash": "0", "regiscar-skin-features": "0",
+        "regiscar-biopsy": "0", "regiscar-organ": "0", "regiscar-resolution": "0",
+        "regiscar-alternative": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Possible DRESS" }
+      ]
+    },
+    {
+      "id": "GD-REGISCAR-004",
+      "description": "Probable DRESS - score 5",
+      "source": "Fever(0) + Lymph nodes(1) + Lymphocytes(1) + Eosinophilia(1) + Rash(0) + Skin features(0) + Biopsy(0) + Organ(1) + Resolution(0) + Alternative(1) = 5. Probable DRESS.",
+      "inputs": {
+        "regiscar-fever": "0", "regiscar-lymph-nodes": "1", "regiscar-lymphocytes": "1",
+        "regiscar-eosinophilia": "1", "regiscar-rash": "0", "regiscar-skin-features": "0",
+        "regiscar-biopsy": "0", "regiscar-organ": "1", "regiscar-resolution": "0",
+        "regiscar-alternative": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Probable DRESS" }
+      ]
+    },
+    {
+      "id": "GD-REGISCAR-005",
+      "description": "Definite DRESS - high score with multiple positive findings (score 8)",
+      "source": "Fever(0) + Lymph nodes(1) + Lymphocytes(1) + Eosinophilia(2) + Rash(1) + Skin features(1) + Biopsy(0) + Organ(1) + Resolution(0) + Alternative(1) = 8. Definite DRESS.",
+      "inputs": {
+        "regiscar-fever": "0", "regiscar-lymph-nodes": "1", "regiscar-lymphocytes": "1",
+        "regiscar-eosinophilia": "2", "regiscar-rash": "1", "regiscar-skin-features": "1",
+        "regiscar-biopsy": "0", "regiscar-organ": "1", "regiscar-resolution": "0",
+        "regiscar-alternative": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Definite DRESS" }
+      ]
+    }
+  ]
+}

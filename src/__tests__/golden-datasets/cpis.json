@@ -1,0 +1,93 @@
+{
+  "calculatorId": "cpis",
+  "calculatorName": "Clinical Pulmonary Infection Score (CPIS) for VAP",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-CPIS-001",
+      "description": "Score 0 - low likelihood of VAP, all parameters normal",
+      "source": "Schurink CAM, et al. Intensive Care Med. 2004. All 0 = Low likelihood.",
+      "inputs": {
+        "cpis-temperature": "0",
+        "cpis-wbc": "0",
+        "cpis-secretions": "0",
+        "cpis-oxygenation": "0",
+        "cpis-chest_xray": "0",
+        "cpis-culture": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low likelihood of VAP" }
+      ]
+    },
+    {
+      "id": "GD-CPIS-002",
+      "description": "Score 3 - low likelihood, mild temperature elevation and moderate secretions",
+      "source": "Schurink CAM, et al. Temp 38.5-38.9 (+1) + Moderate secretions (+1) + Diffuse infiltrate (+1) = 3.",
+      "inputs": {
+        "cpis-temperature": "1",
+        "cpis-wbc": "0",
+        "cpis-secretions": "1",
+        "cpis-oxygenation": "0",
+        "cpis-chest_xray": "1",
+        "cpis-culture": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low likelihood of VAP" }
+      ]
+    },
+    {
+      "id": "GD-CPIS-003",
+      "description": "Score 5 - borderline low, multiple mild abnormalities",
+      "source": "Schurink CAM, et al. Temp (+1) + WBC abnormal (+1) + Moderate secretions (+1) + Diffuse infiltrate (+1) + Moderate culture (+1) = 5.",
+      "inputs": {
+        "cpis-temperature": "1",
+        "cpis-wbc": "1",
+        "cpis-secretions": "1",
+        "cpis-oxygenation": "0",
+        "cpis-chest_xray": "1",
+        "cpis-culture": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low likelihood of VAP" }
+      ]
+    },
+    {
+      "id": "GD-CPIS-004",
+      "description": "Score 8 - high likelihood of VAP, significant abnormalities",
+      "source": "Schurink CAM, et al. Temp >=39 (+2) + WBC abnormal (+1) + Purulent secretions (+2) + Localized infiltrate (+2) + Moderate culture (+1) = 8.",
+      "inputs": {
+        "cpis-temperature": "2",
+        "cpis-wbc": "1",
+        "cpis-secretions": "2",
+        "cpis-oxygenation": "0",
+        "cpis-chest_xray": "2",
+        "cpis-culture": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High likelihood of VAP" }
+      ]
+    },
+    {
+      "id": "GD-CPIS-005",
+      "description": "Maximum score 12 - all parameters maximally abnormal",
+      "source": "Schurink CAM, et al. All maxed: 2+2+2+2+2+2 = 12.",
+      "inputs": {
+        "cpis-temperature": "2",
+        "cpis-wbc": "2",
+        "cpis-secretions": "2",
+        "cpis-oxygenation": "2",
+        "cpis-chest_xray": "2",
+        "cpis-culture": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High likelihood of VAP" }
+      ]
+    }
+  ]
+}

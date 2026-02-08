@@ -1,0 +1,78 @@
+{
+  "calculatorId": "phq-9",
+  "calculatorName": "PHQ-9 Patient Health Questionnaire",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-PHQ9-001",
+      "description": "Minimal depression - all items scored 0",
+      "source": "All 9 questions scored 0 (not at all). Total = 0. Minimal Depression.",
+      "inputs": {
+        "phq9-q0": "0", "phq9-q1": "0", "phq9-q2": "0", "phq9-q3": "0",
+        "phq9-q4": "0", "phq9-q5": "0", "phq9-q6": "0", "phq9-q7": "0",
+        "phq9-q8": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Minimal Depression" }
+      ]
+    },
+    {
+      "id": "GD-PHQ9-002",
+      "description": "Mild depression - score 7",
+      "source": "Q1=1, Q2=1, Q3=1, Q4=1, Q5=1, Q6=1, Q7=1, Q8=0, Q9=0 = 7. Mild Depression.",
+      "inputs": {
+        "phq9-q0": "1", "phq9-q1": "1", "phq9-q2": "1", "phq9-q3": "1",
+        "phq9-q4": "1", "phq9-q5": "1", "phq9-q6": "1", "phq9-q7": "0",
+        "phq9-q8": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 7, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Mild Depression" }
+      ]
+    },
+    {
+      "id": "GD-PHQ9-003",
+      "description": "Moderate depression - score 12",
+      "source": "Q1=2, Q2=2, Q3=1, Q4=1, Q5=1, Q6=1, Q7=2, Q8=1, Q9=1 = 12. Moderate Depression.",
+      "inputs": {
+        "phq9-q0": "2", "phq9-q1": "2", "phq9-q2": "1", "phq9-q3": "1",
+        "phq9-q4": "1", "phq9-q5": "1", "phq9-q6": "2", "phq9-q7": "1",
+        "phq9-q8": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Depression" }
+      ]
+    },
+    {
+      "id": "GD-PHQ9-004",
+      "description": "Moderately severe depression - score 17",
+      "source": "Q1=2, Q2=2, Q3=2, Q4=2, Q5=2, Q6=2, Q7=2, Q8=2, Q9=1 = 17. Moderately Severe Depression.",
+      "inputs": {
+        "phq9-q0": "2", "phq9-q1": "2", "phq9-q2": "2", "phq9-q3": "2",
+        "phq9-q4": "2", "phq9-q5": "2", "phq9-q6": "2", "phq9-q7": "2",
+        "phq9-q8": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 17, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderately Severe Depression" }
+      ]
+    },
+    {
+      "id": "GD-PHQ9-005",
+      "description": "Severe depression - maximum score",
+      "source": "All 9 questions scored 3 (nearly every day). Total = 27. Severe Depression.",
+      "inputs": {
+        "phq9-q0": "3", "phq9-q1": "3", "phq9-q2": "3", "phq9-q3": "3",
+        "phq9-q4": "3", "phq9-q5": "3", "phq9-q6": "3", "phq9-q7": "3",
+        "phq9-q8": "3"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 27, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Severe Depression" }
+      ]
+    }
+  ]
+}

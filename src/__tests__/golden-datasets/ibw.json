@@ -1,0 +1,54 @@
+{
+  "calculatorId": "ibw",
+  "calculatorName": "Ideal Body Weight (Devine Formula)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-IBW-001",
+      "description": "Average height male (170 cm)",
+      "source": "Height 170cm = 66.93in; IBW = 50 + 2.3*(66.93-60) = 50 + 15.9 = 65.9 kg",
+      "inputs": { "ibw-height": 170, "ibw-gender": "male" },
+      "expected": [
+        { "label": "Ideal Body Weight (IBW)", "value": "65.9", "unit": "kg", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-IBW-002",
+      "description": "Average height female (165 cm)",
+      "source": "Height 165cm = 64.96in; IBW = 45.5 + 2.3*(64.96-60) = 45.5 + 11.4 = 56.9 kg",
+      "inputs": { "ibw-height": 165, "ibw-gender": "female" },
+      "expected": [
+        { "label": "Ideal Body Weight (IBW)", "value": "56.9", "unit": "kg", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-IBW-003",
+      "description": "Tall male (190 cm)",
+      "source": "Height 190cm = 74.8in; IBW = 50 + 2.3*(74.8-60) = 50 + 34.0 = 84.0 kg",
+      "inputs": { "ibw-height": 190, "ibw-gender": "male" },
+      "expected": [
+        { "label": "Ideal Body Weight (IBW)", "value": "84.0", "unit": "kg", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-IBW-004",
+      "description": "Short female (150 cm = ~59 inches, at/below 60in threshold)",
+      "source": "Height 150cm = 59.06in; height ≤ 60in → IBW = 45.5 kg (base)",
+      "inputs": { "ibw-height": 150, "ibw-gender": "female" },
+      "expected": [
+        { "label": "Ideal Body Weight (IBW)", "value": "45.5", "unit": "kg", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-IBW-005",
+      "description": "With actual weight - obese patient",
+      "source": "Height 175cm = 68.9in; IBW = 50 + 2.3*(68.9-60) = 50 + 20.5 = 70.5 kg; ABW = 70.5 + 0.4*(120-70.5) = 70.5 + 19.8 = 90.3 kg",
+      "inputs": { "ibw-height": 175, "ibw-gender": "male", "ibw-actual": 120 },
+      "expected": [
+        { "label": "Ideal Body Weight (IBW)", "value": "70.5", "unit": "kg", "tolerance": 0.3 },
+        { "label": "Adjusted Body Weight (ABW)", "value": "90.3", "unit": "kg", "tolerance": 0.3 }
+      ]
+    }
+  ]
+}

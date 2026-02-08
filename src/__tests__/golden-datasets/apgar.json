@@ -1,0 +1,88 @@
+{
+  "calculatorId": "apgar",
+  "calculatorName": "APGAR Score",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-APGAR-001",
+      "description": "Perfect score: all components at maximum (2 each), score 10",
+      "source": "Apgar V. Anesth Analg. 1953;32(4):260-267.",
+      "inputs": {
+        "apgar-appearance": "2",
+        "apgar-pulse": "2",
+        "apgar-grimace": "2",
+        "apgar-activity": "2",
+        "apgar-respiration": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 10, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Reassuring (Normal)" }
+      ]
+    },
+    {
+      "id": "GD-APGAR-002",
+      "description": "Normal with mild acrocyanosis: appearance 1, all others 2, score 9",
+      "source": "Apgar V. Anesth Analg. 1953;32(4):260-267.",
+      "inputs": {
+        "apgar-appearance": "1",
+        "apgar-pulse": "2",
+        "apgar-grimace": "2",
+        "apgar-activity": "2",
+        "apgar-respiration": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 9, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Reassuring (Normal)" }
+      ]
+    },
+    {
+      "id": "GD-APGAR-003",
+      "description": "Moderately abnormal: appearance 1, pulse 1, grimace 1, activity 1, respiration 1, score 5",
+      "source": "Apgar V. Anesth Analg. 1953;32(4):260-267.",
+      "inputs": {
+        "apgar-appearance": "1",
+        "apgar-pulse": "1",
+        "apgar-grimace": "1",
+        "apgar-activity": "1",
+        "apgar-respiration": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderately Abnormal" }
+      ]
+    },
+    {
+      "id": "GD-APGAR-004",
+      "description": "Critical: blue-gray, HR <100, grimace only, some flexion, weak cry, score 3",
+      "source": "Apgar V. Anesth Analg. 1953;32(4):260-267.",
+      "inputs": {
+        "apgar-appearance": "0",
+        "apgar-pulse": "1",
+        "apgar-grimace": "1",
+        "apgar-activity": "1",
+        "apgar-respiration": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low (Critical)" }
+      ]
+    },
+    {
+      "id": "GD-APGAR-005",
+      "description": "Minimum score: no pulse, no response, no breathing, score 0",
+      "source": "Apgar V. Anesth Analg. 1953;32(4):260-267.",
+      "inputs": {
+        "apgar-appearance": "0",
+        "apgar-pulse": "0",
+        "apgar-grimace": "0",
+        "apgar-activity": "0",
+        "apgar-respiration": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low (Critical)" }
+      ]
+    }
+  ]
+}

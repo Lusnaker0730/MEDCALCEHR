@@ -1,0 +1,118 @@
+{
+  "calculatorId": "dasi",
+  "calculatorName": "Duke Activity Status Index (DASI)",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-DASI-001",
+      "description": "Score 0 - no activities possible, poor functional capacity",
+      "source": "Hlatky MA, et al. Am J Cardiol. 1989;64(10):651-654. No activities checked = 0.",
+      "inputs": {
+        "dasi-care": false,
+        "dasi-walk-indoors": false,
+        "dasi-walk-flat": false,
+        "dasi-climb-stairs": false,
+        "dasi-run": false,
+        "dasi-light-housework": false,
+        "dasi-moderate-housework": false,
+        "dasi-heavy-housework": false,
+        "dasi-yardwork": false,
+        "dasi-sex": false,
+        "dasi-recreation-mild": false,
+        "dasi-recreation-strenuous": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-DASI-002",
+      "description": "Low score - basic self-care and indoor walking only, poor capacity",
+      "source": "Hlatky MA, et al. Am J Cardiol. 1989. Self-care (2.75) + Walk indoors (1.75) = 4.5.",
+      "inputs": {
+        "dasi-care": true,
+        "dasi-walk-indoors": true,
+        "dasi-walk-flat": false,
+        "dasi-climb-stairs": false,
+        "dasi-run": false,
+        "dasi-light-housework": false,
+        "dasi-moderate-housework": false,
+        "dasi-heavy-housework": false,
+        "dasi-yardwork": false,
+        "dasi-sex": false,
+        "dasi-recreation-mild": false,
+        "dasi-recreation-strenuous": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 4.5, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-DASI-003",
+      "description": "Moderate score - basic ADLs and light activity",
+      "source": "Hlatky MA, et al. Self-care (2.75) + Walk indoors (1.75) + Walk flat (2.75) + Climb stairs (5.5) + Light housework (2.7) = 15.45.",
+      "inputs": {
+        "dasi-care": true,
+        "dasi-walk-indoors": true,
+        "dasi-walk-flat": true,
+        "dasi-climb-stairs": true,
+        "dasi-run": false,
+        "dasi-light-housework": true,
+        "dasi-moderate-housework": false,
+        "dasi-heavy-housework": false,
+        "dasi-yardwork": false,
+        "dasi-sex": false,
+        "dasi-recreation-mild": false,
+        "dasi-recreation-strenuous": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 15.45, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-DASI-004",
+      "description": "Good score - most activities possible except strenuous",
+      "source": "Hlatky MA, et al. 2.75+1.75+2.75+5.5+2.7+3.5+8.0+4.5+5.25+6.0 = 42.7.",
+      "inputs": {
+        "dasi-care": true,
+        "dasi-walk-indoors": true,
+        "dasi-walk-flat": true,
+        "dasi-climb-stairs": true,
+        "dasi-run": false,
+        "dasi-light-housework": true,
+        "dasi-moderate-housework": true,
+        "dasi-heavy-housework": true,
+        "dasi-yardwork": true,
+        "dasi-sex": true,
+        "dasi-recreation-mild": true,
+        "dasi-recreation-strenuous": false
+      },
+      "expected": [
+        { "label": "Total Score", "value": 42.7, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-DASI-005",
+      "description": "Maximum score 58.2 - all activities possible, good functional capacity",
+      "source": "Hlatky MA, et al. All checked: 2.75+1.75+2.75+5.5+8.0+2.7+3.5+8.0+4.5+5.25+6.0+7.5 = 58.2.",
+      "inputs": {
+        "dasi-care": true,
+        "dasi-walk-indoors": true,
+        "dasi-walk-flat": true,
+        "dasi-climb-stairs": true,
+        "dasi-run": true,
+        "dasi-light-housework": true,
+        "dasi-moderate-housework": true,
+        "dasi-heavy-housework": true,
+        "dasi-yardwork": true,
+        "dasi-sex": true,
+        "dasi-recreation-mild": true,
+        "dasi-recreation-strenuous": true
+      },
+      "expected": [
+        { "label": "Total Score", "value": 58.2, "tolerance": 0.01 }
+      ]
+    }
+  ]
+}

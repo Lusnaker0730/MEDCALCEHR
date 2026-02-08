@@ -1,0 +1,113 @@
+{
+  "calculatorId": "ciwa-ar",
+  "calculatorName": "CIWA-Ar for Alcohol Withdrawal",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-CIWA-001",
+      "description": "Score 0 - no withdrawal symptoms, all categories at baseline",
+      "source": "Sullivan JT, et al. Br J Addict. 1989;84(11):1353-1357. All 0 = Absent/minimal.",
+      "inputs": {
+        "nausea": "0",
+        "tremor": "0",
+        "sweats": "0",
+        "anxiety": "0",
+        "agitation": "0",
+        "tactile": "0",
+        "auditory": "0",
+        "visual": "0",
+        "headache": "0",
+        "orientation": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Absent or minimal withdrawal" }
+      ]
+    },
+    {
+      "id": "GD-CIWA-002",
+      "description": "Score 8 - borderline absent/minimal withdrawal",
+      "source": "Sullivan JT, et al. Br J Addict. 1989. Nausea (2) + Tremor (2) + Sweats (2) + Anxiety (2) = 8.",
+      "inputs": {
+        "nausea": "2",
+        "tremor": "2",
+        "sweats": "2",
+        "anxiety": "2",
+        "agitation": "0",
+        "tactile": "0",
+        "auditory": "0",
+        "visual": "0",
+        "headache": "0",
+        "orientation": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Absent or minimal withdrawal" }
+      ]
+    },
+    {
+      "id": "GD-CIWA-003",
+      "description": "Score 15 - mild to moderate withdrawal, medication usually indicated",
+      "source": "Sullivan JT, et al. Br J Addict. 1989. Nausea (3) + Tremor (3) + Sweats (3) + Anxiety (3) + Agitation (3) = 15.",
+      "inputs": {
+        "nausea": "3",
+        "tremor": "3",
+        "sweats": "3",
+        "anxiety": "3",
+        "agitation": "3",
+        "tactile": "0",
+        "auditory": "0",
+        "visual": "0",
+        "headache": "0",
+        "orientation": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 15, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Mild to moderate withdrawal" }
+      ]
+    },
+    {
+      "id": "GD-CIWA-004",
+      "description": "Score 25 - severe withdrawal with hallucinations and disorientation",
+      "source": "Sullivan JT, et al. Br J Addict. 1989. Nausea (4) + Tremor (4) + Sweats (4) + Anxiety (4) + Tactile hallucinations (4) + Headache (3) + Orientation (2) = 25.",
+      "inputs": {
+        "nausea": "4",
+        "tremor": "4",
+        "sweats": "4",
+        "anxiety": "4",
+        "agitation": "0",
+        "tactile": "4",
+        "auditory": "0",
+        "visual": "0",
+        "headache": "3",
+        "orientation": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 25, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Severe withdrawal" }
+      ]
+    },
+    {
+      "id": "GD-CIWA-005",
+      "description": "Maximum severity - all domains at maximum, score 67",
+      "source": "Sullivan JT, et al. Br J Addict. 1989. All maxed: 7+7+7+7+7+7+7+7+7+4 = 67. (Orientation max is 4).",
+      "inputs": {
+        "nausea": "7",
+        "tremor": "7",
+        "sweats": "7",
+        "anxiety": "7",
+        "agitation": "7",
+        "tactile": "7",
+        "auditory": "7",
+        "visual": "7",
+        "headache": "7",
+        "orientation": "4"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 67, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Severe withdrawal" }
+      ]
+    }
+  ]
+}

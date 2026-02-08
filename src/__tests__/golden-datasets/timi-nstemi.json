@@ -1,0 +1,98 @@
+{
+  "calculatorId": "timi-nstemi",
+  "calculatorName": "TIMI Risk Score for UA/NSTEMI",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-TIMINST-001",
+      "description": "No risk factors: score 0, low risk",
+      "source": "Antman EM, et al. JAMA. 2000;284(7):835-842.",
+      "inputs": {
+        "timi-age": "0",
+        "timi-cad-risk": "0",
+        "timi-known-cad": "0",
+        "timi-asa": "0",
+        "timi-angina": "0",
+        "timi-ekg": "0",
+        "timi-marker": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-TIMINST-002",
+      "description": "Low risk: age >=65 and ASA use, score 2",
+      "source": "Antman EM, et al. JAMA. 2000;284(7):835-842.",
+      "inputs": {
+        "timi-age": "1",
+        "timi-cad-risk": "0",
+        "timi-known-cad": "0",
+        "timi-asa": "1",
+        "timi-angina": "0",
+        "timi-ekg": "0",
+        "timi-marker": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-TIMINST-003",
+      "description": "Intermediate risk: age, CAD risk factors, known CAD, score 3",
+      "source": "Antman EM, et al. JAMA. 2000;284(7):835-842.",
+      "inputs": {
+        "timi-age": "1",
+        "timi-cad-risk": "1",
+        "timi-known-cad": "1",
+        "timi-asa": "0",
+        "timi-angina": "0",
+        "timi-ekg": "0",
+        "timi-marker": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Intermediate Risk" }
+      ]
+    },
+    {
+      "id": "GD-TIMINST-004",
+      "description": "High risk: age, CAD risks, known CAD, ST changes, positive marker, score 5",
+      "source": "Antman EM, et al. JAMA. 2000;284(7):835-842.",
+      "inputs": {
+        "timi-age": "1",
+        "timi-cad-risk": "1",
+        "timi-known-cad": "1",
+        "timi-asa": "0",
+        "timi-angina": "0",
+        "timi-ekg": "1",
+        "timi-marker": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-TIMINST-005",
+      "description": "Maximum score: all 7 risk factors present",
+      "source": "Antman EM, et al. JAMA. 2000;284(7):835-842.",
+      "inputs": {
+        "timi-age": "1",
+        "timi-cad-risk": "1",
+        "timi-known-cad": "1",
+        "timi-asa": "1",
+        "timi-angina": "1",
+        "timi-ekg": "1",
+        "timi-marker": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 7, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    }
+  ]
+}

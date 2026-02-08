@@ -1,0 +1,138 @@
+{
+  "calculatorId": "apache-ii",
+  "calculatorName": "APACHE II ICU Mortality Score",
+  "version": "1.0",
+  "calculatorType": "complex",
+  "cases": [
+    {
+      "id": "GD-APACHE2-001",
+      "description": "Minimal score - all normal values, young patient",
+      "source": "APS: Temp37(0)+MAP85(0)+HR75(0)+RR15(0)+pH7.40(0)+Na140(0)+K4.0(0)+Cr1.0(0)+Hct42(0)+WBC8(0)+GCS15(0)=0. Age35(<45)=0. Chronic=0. Score=0. Mortality=2.9%",
+      "inputs": {
+        "apache-ii-temp": 37.0,
+        "apache-ii-map": 85,
+        "apache-ii-hr": 75,
+        "apache-ii-rr": 15,
+        "apache-ii-ph": 7.40,
+        "apache-ii-sodium": 140,
+        "apache-ii-potassium": 4.0,
+        "apache-ii-creatinine": 1.0,
+        "apache-ii-hct": 42,
+        "apache-ii-wbc": 8,
+        "apache-ii-gcs": 15,
+        "apache-ii-age": 35,
+        "arf": "0",
+        "chronic": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 0, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-APACHE2-002",
+      "description": "Moderate score - elderly with mild derangements",
+      "source": "APS: Temp38.5(1)+MAP70(0)+HR100(0)+RR22(0)+pH7.35(0)+Na135(0)+K5.0(0)+Cr1.2(0)+Hct38(0)+WBC12(0)+GCS14(1)=2. Age66(>=65)=5. Chronic=0. Score=7. Mortality=e^(-3.517+1.022)/(1+e^(-3.517+1.022))*100=e^(-2.495)/(1+e^(-2.495))*100=0.0827/1.0827*100=7.6%",
+      "inputs": {
+        "apache-ii-temp": 38.5,
+        "apache-ii-map": 70,
+        "apache-ii-hr": 100,
+        "apache-ii-rr": 22,
+        "apache-ii-ph": 7.35,
+        "apache-ii-sodium": 135,
+        "apache-ii-potassium": 5.0,
+        "apache-ii-creatinine": 1.2,
+        "apache-ii-hct": 38,
+        "apache-ii-wbc": 12,
+        "apache-ii-gcs": 14,
+        "apache-ii-age": 66,
+        "arf": "0",
+        "chronic": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 7, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Low Risk" },
+        { "label": "Predicted ICU Mortality", "value": "7.6", "tolerance": 2.0 }
+      ]
+    },
+    {
+      "id": "GD-APACHE2-003",
+      "description": "Moderate-high score - multiple physiologic derangements",
+      "source": "APS: Temp39.5(3)+MAP60(2)+HR120(2)+RR30(1)+pH7.28(2)+Na128(2)+K5.8(1)+Cr1.8(2, no ARF)+Hct32(2)+WBC18(0)+GCS13(2)=19. Age55(>=55)=3. Chronic=2. Score=24.",
+      "inputs": {
+        "apache-ii-temp": 39.5,
+        "apache-ii-map": 60,
+        "apache-ii-hr": 120,
+        "apache-ii-rr": 30,
+        "apache-ii-ph": 7.28,
+        "apache-ii-sodium": 128,
+        "apache-ii-potassium": 5.8,
+        "apache-ii-creatinine": 1.8,
+        "apache-ii-hct": 32,
+        "apache-ii-wbc": 18,
+        "apache-ii-gcs": 13,
+        "apache-ii-age": 55,
+        "arf": "0",
+        "chronic": "2"
+      },
+      "expected": [
+        { "label": "Score", "value": 24, "tolerance": 2 },
+        { "label": "Interpretation", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-APACHE2-004",
+      "description": "High score with ARF doubling creatinine points",
+      "source": "APS: Temp37(0)+MAP50(4)+HR140(3)+RR35(3)+pH7.20(3)+Na122(2)+K6.5(3)+Cr2.5(3*2=6, ARF)+Hct28(2)+WBC22(2)+GCS10(5)=33. Age76(>=75)=6. Chronic=5. Score=44.",
+      "inputs": {
+        "apache-ii-temp": 37.0,
+        "apache-ii-map": 50,
+        "apache-ii-hr": 140,
+        "apache-ii-rr": 35,
+        "apache-ii-ph": 7.20,
+        "apache-ii-sodium": 122,
+        "apache-ii-potassium": 6.5,
+        "apache-ii-creatinine": 2.5,
+        "apache-ii-hct": 28,
+        "apache-ii-wbc": 22,
+        "apache-ii-gcs": 10,
+        "apache-ii-age": 76,
+        "arf": "1",
+        "chronic": "5"
+      },
+      "expected": [
+        { "label": "Score", "value": 44, "tolerance": 3 },
+        { "label": "Interpretation", "value": "Very High Risk" }
+      ]
+    },
+    {
+      "id": "GD-APACHE2-005",
+      "description": "Oxygenation scoring with FiO2 method",
+      "source": "APS: Temp37(0)+MAP90(0)+HR85(0)+RR18(0)+pH7.38(0)+Na140(0)+K4.2(0)+Cr1.0(0)+Hct40(0)+WBC10(0)+GCS15(0)+Oxy(FiO2=0.6, PaO2=80, PaCO2=40: A-a=0.6*713-40/0.8-80=427.8-50-80=297.8→2pts)=2. Age50(>=45)=2. Chronic=0. Score=4.",
+      "inputs": {
+        "apache-ii-temp": 37.0,
+        "apache-ii-map": 90,
+        "apache-ii-hr": 85,
+        "apache-ii-rr": 18,
+        "apache-ii-ph": 7.38,
+        "apache-ii-sodium": 140,
+        "apache-ii-potassium": 4.2,
+        "apache-ii-creatinine": 1.0,
+        "apache-ii-hct": 40,
+        "apache-ii-wbc": 10,
+        "apache-ii-gcs": 15,
+        "apache-ii-age": 50,
+        "apache-ii-fio2": 0.6,
+        "apache-ii-pao2": 80,
+        "apache-ii-paco2": 40,
+        "arf": "0",
+        "chronic": "0",
+        "oxy_method": "fio2_pao2"
+      },
+      "expected": [
+        { "label": "Score", "value": 4, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Low Risk" }
+      ]
+    }
+  ]
+}

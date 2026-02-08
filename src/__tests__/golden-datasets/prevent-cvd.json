@@ -1,0 +1,113 @@
+{
+  "calculatorId": "prevent-cvd",
+  "calculatorName": "AHA PREVENT CVD 10-Year Risk",
+  "version": "1.0",
+  "calculatorType": "complex",
+  "cases": [
+    {
+      "id": "GD-PREVENT-001",
+      "description": "Low risk - 40yo male, no risk factors",
+      "source": "cage=(40-55)/10=-1.5, cnhdl=4.5-1.5-3.5=-0.5, chdl=(1.5-1.3)/0.3=0.667, csbp=(min(120,110)-110)/20=0, csbp2=(max(120,110)-130)/20=-0.5, cegfr=0, cegfr2=(90-90)/-15=0. Male coeffs, no DM/smoke/meds. Low risk.",
+      "inputs": {
+        "prevent-age": 40,
+        "prevent-sbp": 120,
+        "prevent-cholesterol": 4.5,
+        "prevent-hdl": 1.5,
+        "prevent-egfr": 90,
+        "prevent-gender": "male",
+        "prevent-smoker": false,
+        "prevent-diabetes": false,
+        "prevent-antihtn": false,
+        "prevent-statin": false
+      },
+      "expected": [
+        { "label": "Score", "value": 1.5, "tolerancePercent": 80 },
+        { "label": "Interpretation", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-PREVENT-002",
+      "description": "Borderline risk - 55yo female, mild hyperlipidemia",
+      "source": "cage=(55-55)/10=0, cnhdl=5.5-1.2-3.5=0.8, chdl=(1.2-1.3)/0.3=-0.333, csbp=0, csbp2=(130-130)/20=0, cegfr=0, cegfr2=(80-90)/-15=0.667. Female coeffs, no DM/smoke/meds.",
+      "inputs": {
+        "prevent-age": 55,
+        "prevent-sbp": 130,
+        "prevent-cholesterol": 5.5,
+        "prevent-hdl": 1.2,
+        "prevent-egfr": 80,
+        "prevent-gender": "female",
+        "prevent-smoker": false,
+        "prevent-diabetes": false,
+        "prevent-antihtn": false,
+        "prevent-statin": false
+      },
+      "expected": [
+        { "label": "Score", "value": 4.0, "tolerancePercent": 60 },
+        { "label": "Interpretation", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-PREVENT-003",
+      "description": "Intermediate risk - 60yo male smoker with hypertension",
+      "source": "cage=(60-55)/10=0.5, SBP 145→csbp=0, csbp2=(145-130)/20=0.75. Male coeffs + smoker + antihtn. Interactions apply.",
+      "inputs": {
+        "prevent-age": 60,
+        "prevent-sbp": 145,
+        "prevent-cholesterol": 5.5,
+        "prevent-hdl": 1.0,
+        "prevent-egfr": 70,
+        "prevent-gender": "male",
+        "prevent-smoker": true,
+        "prevent-diabetes": false,
+        "prevent-antihtn": true,
+        "prevent-statin": false
+      },
+      "expected": [
+        { "label": "Score", "value": 12.0, "tolerancePercent": 50 },
+        { "label": "Interpretation", "value": "Intermediate Risk" }
+      ]
+    },
+    {
+      "id": "GD-PREVENT-004",
+      "description": "High risk - 65yo male with diabetes and CKD",
+      "source": "cage=1.0, cnhdl=6.0-0.9-3.5=1.6, chdl=(0.9-1.3)/0.3=-1.333, csbp=0, csbp2=(150-130)/20=1.0, cegfr=(40-60)/-15=1.333, cegfr2=0. Male coeffs + DM + antihtn. Risk=36.3%",
+      "inputs": {
+        "prevent-age": 65,
+        "prevent-sbp": 150,
+        "prevent-cholesterol": 6.0,
+        "prevent-hdl": 0.9,
+        "prevent-egfr": 40,
+        "prevent-gender": "male",
+        "prevent-smoker": false,
+        "prevent-diabetes": true,
+        "prevent-antihtn": true,
+        "prevent-statin": false
+      },
+      "expected": [
+        { "label": "Score", "value": 36.3, "tolerancePercent": 10 },
+        { "label": "Interpretation", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-PREVENT-005",
+      "description": "Intermediate with statin therapy - 58yo female",
+      "source": "cage=0.3, cnhdl=5.8-1.1-3.5=1.2, chdl=(1.1-1.3)/0.3=-0.667, csbp=0, csbp2=(135-130)/20=0.25, cegfr=(60-60)/-15=0, cegfr2=(65-90)/-15=1.667. Female coeffs + statin + antihtn. Risk=7.5%",
+      "inputs": {
+        "prevent-age": 58,
+        "prevent-sbp": 135,
+        "prevent-cholesterol": 5.8,
+        "prevent-hdl": 1.1,
+        "prevent-egfr": 65,
+        "prevent-gender": "female",
+        "prevent-smoker": false,
+        "prevent-diabetes": false,
+        "prevent-antihtn": true,
+        "prevent-statin": true
+      },
+      "expected": [
+        { "label": "Score", "value": 7.5, "tolerancePercent": 15 },
+        { "label": "Interpretation", "value": "Intermediate Risk" }
+      ]
+    }
+  ]
+}

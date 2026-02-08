@@ -1,0 +1,53 @@
+{
+  "calculatorId": "phenytoin-correction",
+  "calculatorName": "Phenytoin (Dilantin) Correction",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-PHENY-001",
+      "description": "Normal albumin, no renal failure - no significant correction",
+      "source": "Corrected = 12 / ((0.9 * 4.4/4.4) + 0.1) = 12 / (0.9 + 0.1) = 12 / 1.0 = 12.0",
+      "inputs": { "pheny-total": 12, "pheny-albumin": 4.4, "pheny-renal": "no" },
+      "expected": [
+        { "label": "Corrected Phenytoin", "value": 12.0, "unit": "mcg/mL", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-PHENY-002",
+      "description": "Low albumin, no renal failure - level adjusted upward",
+      "source": "Corrected = 8 / ((0.9 * 2.0/4.4) + 0.1) = 8 / (0.409 + 0.1) = 8 / 0.509 = 15.7",
+      "inputs": { "pheny-total": 8, "pheny-albumin": 2.0, "pheny-renal": "no" },
+      "expected": [
+        { "label": "Corrected Phenytoin", "value": 15.7, "unit": "mcg/mL", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-PHENY-003",
+      "description": "Low albumin with renal failure (K=0.2)",
+      "source": "Corrected = 8 / ((0.8 * 2.0/4.4) + 0.2) = 8 / (0.3636 + 0.2) = 8 / 0.5636 = 14.2",
+      "inputs": { "pheny-total": 8, "pheny-albumin": 2.0, "pheny-renal": "yes" },
+      "expected": [
+        { "label": "Corrected Phenytoin", "value": 14.2, "unit": "mcg/mL", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-PHENY-004",
+      "description": "Subtherapeutic corrected level",
+      "source": "Corrected = 5 / ((0.9 * 3.0/4.4) + 0.1) = 5 / (0.6136 + 0.1) = 5 / 0.7136 = 7.0",
+      "inputs": { "pheny-total": 5, "pheny-albumin": 3.0, "pheny-renal": "no" },
+      "expected": [
+        { "label": "Corrected Phenytoin", "value": 7.0, "unit": "mcg/mL", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-PHENY-005",
+      "description": "Potentially toxic corrected level",
+      "source": "Corrected = 15 / ((0.9 * 2.5/4.4) + 0.1) = 15 / (0.5114 + 0.1) = 15 / 0.6114 = 24.5",
+      "inputs": { "pheny-total": 15, "pheny-albumin": 2.5, "pheny-renal": "no" },
+      "expected": [
+        { "label": "Corrected Phenytoin", "value": 24.5, "unit": "mcg/mL", "tolerance": 0.3 }
+      ]
+    }
+  ]
+}

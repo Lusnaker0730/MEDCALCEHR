@@ -1,0 +1,53 @@
+{
+  "calculatorId": "homa-ir",
+  "calculatorName": "HOMA-IR (Insulin Resistance)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-HOMA-001",
+      "description": "Optimal insulin sensitivity",
+      "source": "HOMA-IR = (90 * 5) / 405 = 450/405 = 1.11",
+      "inputs": { "homa-glucose": 90, "homa-insulin": 5 },
+      "expected": [
+        { "label": "HOMA-IR", "value": "1.11", "unit": "", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-HOMA-002",
+      "description": "Early insulin resistance",
+      "source": "HOMA-IR = (100 * 10) / 405 = 1000/405 = 2.47",
+      "inputs": { "homa-glucose": 100, "homa-insulin": 10 },
+      "expected": [
+        { "label": "HOMA-IR", "value": "2.47", "unit": "", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-HOMA-003",
+      "description": "Significant insulin resistance",
+      "source": "HOMA-IR = (120 * 15) / 405 = 1800/405 = 4.44",
+      "inputs": { "homa-glucose": 120, "homa-insulin": 15 },
+      "expected": [
+        { "label": "HOMA-IR", "value": "4.44", "unit": "", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-HOMA-004",
+      "description": "Severe insulin resistance - type 2 DM",
+      "source": "HOMA-IR = (180 * 25) / 405 = 4500/405 = 11.11",
+      "inputs": { "homa-glucose": 180, "homa-insulin": 25 },
+      "expected": [
+        { "label": "HOMA-IR", "value": "11.11", "unit": "", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-HOMA-005",
+      "description": "Borderline - near cutoff",
+      "source": "HOMA-IR = (95 * 12) / 405 = 1140/405 = 2.81",
+      "inputs": { "homa-glucose": 95, "homa-insulin": 12 },
+      "expected": [
+        { "label": "HOMA-IR", "value": "2.81", "unit": "", "tolerance": 0.01 }
+      ]
+    }
+  ]
+}

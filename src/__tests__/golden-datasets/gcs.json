@@ -1,0 +1,58 @@
+{
+  "calculatorId": "gcs",
+  "calculatorName": "Glasgow Coma Scale",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-GCS-001",
+      "description": "Fully alert and oriented - maximum score",
+      "source": "Eye 4 (spontaneous) + Verbal 5 (oriented) + Motor 6 (obeys commands) = 15",
+      "inputs": { "eye": "4", "verbal": "5", "motor": "6" },
+      "expected": [
+        { "label": "Total Score", "value": 15, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Mild Brain Injury" }
+      ]
+    },
+    {
+      "id": "GD-GCS-002",
+      "description": "Mild brain injury - lower boundary (score 13)",
+      "source": "Eye 3 (to voice) + Verbal 4 (confused) + Motor 6 (obeys commands) = 13",
+      "inputs": { "eye": "3", "verbal": "4", "motor": "6" },
+      "expected": [
+        { "label": "Total Score", "value": 13, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Mild Brain Injury" }
+      ]
+    },
+    {
+      "id": "GD-GCS-003",
+      "description": "Moderate brain injury - upper boundary (score 12)",
+      "source": "Eye 3 (to voice) + Verbal 4 (confused) + Motor 5 (localizes pain) = 12",
+      "inputs": { "eye": "3", "verbal": "4", "motor": "5" },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Brain Injury" }
+      ]
+    },
+    {
+      "id": "GD-GCS-004",
+      "description": "Moderate brain injury - lower boundary (score 9)",
+      "source": "Eye 2 (to pain) + Verbal 2 (incomprehensible) + Motor 5 (localizes pain) = 9",
+      "inputs": { "eye": "2", "verbal": "2", "motor": "5" },
+      "expected": [
+        { "label": "Total Score", "value": 9, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Brain Injury" }
+      ]
+    },
+    {
+      "id": "GD-GCS-005",
+      "description": "Severe brain injury - minimum score",
+      "source": "Eye 1 (none) + Verbal 1 (none) + Motor 1 (none) = 3",
+      "inputs": { "eye": "1", "verbal": "1", "motor": "1" },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Severe Brain Injury" }
+      ]
+    }
+  ]
+}

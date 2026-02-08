@@ -1,0 +1,78 @@
+{
+  "calculatorId": "crcl",
+  "calculatorName": "Creatinine Clearance (Cockcroft-Gault)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-CRCL-001",
+      "description": "Normal renal function - young male, CrCl > 90 mL/min",
+      "source": "Cockcroft-Gault: ((140-30) * 80) / (72 * 0.9) = 8800 / 64.8 = 135.8",
+      "inputs": {
+        "gender": "male",
+        "age": 30,
+        "weight": 80,
+        "creatinine": 0.9
+      },
+      "expected": [
+        { "label": "Creatinine Clearance", "value": "135.8", "unit": "mL/min", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-CRCL-002",
+      "description": "Mild reduction - middle-aged female, CrCl 60-89 mL/min",
+      "source": "Cockcroft-Gault: ((140-50) * 65) / (72 * 1.0) * 0.85 = 5850 / 72 * 0.85 = 69.1",
+      "inputs": {
+        "gender": "female",
+        "age": 50,
+        "weight": 65,
+        "creatinine": 1.0
+      },
+      "expected": [
+        { "label": "Creatinine Clearance", "value": "69.1", "unit": "mL/min", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-CRCL-003",
+      "description": "Moderate reduction - older male, CrCl 30-59 mL/min",
+      "source": "Cockcroft-Gault: ((140-70) * 75) / (72 * 1.8) = 5250 / 129.6 = 40.5",
+      "inputs": {
+        "gender": "male",
+        "age": 70,
+        "weight": 75,
+        "creatinine": 1.8
+      },
+      "expected": [
+        { "label": "Creatinine Clearance", "value": "40.5", "unit": "mL/min", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-CRCL-004",
+      "description": "Severe reduction - elderly female, CrCl 15-29 mL/min",
+      "source": "Cockcroft-Gault: ((140-80) * 55) / (72 * 2.5) * 0.85 = 3300 / 180 * 0.85 = 15.6",
+      "inputs": {
+        "gender": "female",
+        "age": 80,
+        "weight": 55,
+        "creatinine": 2.5
+      },
+      "expected": [
+        { "label": "Creatinine Clearance", "value": "15.6", "unit": "mL/min", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-CRCL-005",
+      "description": "Kidney failure - elderly male, CrCl < 15 mL/min",
+      "source": "Cockcroft-Gault: ((140-75) * 60) / (72 * 5.0) = 3900 / 360 = 10.8",
+      "inputs": {
+        "gender": "male",
+        "age": 75,
+        "weight": 60,
+        "creatinine": 5.0
+      },
+      "expected": [
+        { "label": "Creatinine Clearance", "value": "10.8", "unit": "mL/min", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "calculatorId": "4c-mortality-covid",
+  "calculatorName": "4C Mortality Score for COVID-19",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-4CMORT-001",
+      "description": "Low risk - young female, no comorbidities, normal vitals/labs",
+      "source": "Knight SR, et al. BMJ. 2020;370:m3339. All 0 = Low Risk.",
+      "inputs": {
+        "4c-age": "0",
+        "4c-sex": "0",
+        "4c-comorbidities": "0",
+        "4c-resp_rate": "0",
+        "4c-oxygen_sat": "0",
+        "4c-gcs": "0",
+        "4c-urea": "0",
+        "4c-crp": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-4CMORT-002",
+      "description": "Low risk - male aged 50-59, one comorbidity",
+      "source": "Knight SR, et al. BMJ. 2020. Age 50-59 (+2) + Male (+1) = 3.",
+      "inputs": {
+        "4c-age": "2",
+        "4c-sex": "1",
+        "4c-comorbidities": "0",
+        "4c-resp_rate": "0",
+        "4c-oxygen_sat": "0",
+        "4c-gcs": "0",
+        "4c-urea": "0",
+        "4c-crp": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-4CMORT-003",
+      "description": "Intermediate risk - age 60-69, male, 2+ comorbidities, CRP 50-99",
+      "source": "Knight SR, et al. BMJ. 2020. Age (+4) + Male (+1) + Comorbidities (+2) + CRP (+1) = 8.",
+      "inputs": {
+        "4c-age": "4",
+        "4c-sex": "1",
+        "4c-comorbidities": "2",
+        "4c-resp_rate": "0",
+        "4c-oxygen_sat": "0",
+        "4c-gcs": "0",
+        "4c-urea": "0",
+        "4c-crp": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 8, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Intermediate Risk" }
+      ]
+    },
+    {
+      "id": "GD-4CMORT-004",
+      "description": "High risk - age 70-79, male, multiple abnormalities",
+      "source": "Knight SR, et al. BMJ. 2020. Age (+6) + Male (+1) + Comorbidities (+2) + RR 20-29 (+1) + O2<92% (+2) = 12.",
+      "inputs": {
+        "4c-age": "6",
+        "4c-sex": "1",
+        "4c-comorbidities": "2",
+        "4c-resp_rate": "1",
+        "4c-oxygen_sat": "2",
+        "4c-gcs": "0",
+        "4c-urea": "0",
+        "4c-crp": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-4CMORT-005",
+      "description": "Very high risk - age >=80, male, all parameters abnormal",
+      "source": "Knight SR, et al. BMJ. 2020. Age (+7) + Male (+1) + Comorbidities (+2) + RR>=30 (+2) + O2<92% (+2) + GCS<15 (+2) + Urea>14 (+3) + CRP>=100 (+2) = 21.",
+      "inputs": {
+        "4c-age": "7",
+        "4c-sex": "1",
+        "4c-comorbidities": "2",
+        "4c-resp_rate": "2",
+        "4c-oxygen_sat": "2",
+        "4c-gcs": "2",
+        "4c-urea": "3",
+        "4c-crp": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 21, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Very High Risk" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "calculatorId": "caprini",
+  "calculatorName": "Caprini VTE Risk Score",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-CAPRINI-001",
+      "description": "Lowest risk - no risk factors",
+      "source": "All values 0 → score = 0",
+      "inputs": { "caprini-age41-60": "0", "caprini-minor-surgery": "0" },
+      "expected": [
+        { "label": "Total Score", "value": "0", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-CAPRINI-002",
+      "description": "Low risk - score 1-2",
+      "source": "Age 41-60 (1pt) + minor surgery (1pt) = 2",
+      "inputs": { "caprini-age41-60": "1", "caprini-minor-surgery": "1" },
+      "expected": [
+        { "label": "Total Score", "value": "2", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-CAPRINI-003",
+      "description": "Moderate risk - score 3-4",
+      "source": "Age 61-74 (2pts) + malignancy (2pts) = 4",
+      "inputs": { "caprini-age61-74": "2", "caprini-malignancy": "2" },
+      "expected": [
+        { "label": "Total Score", "value": "4", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-CAPRINI-004",
+      "description": "High risk - score 5+",
+      "source": "Age >75 (3pts) + major surgery (2pts) + history DVT (3pts) = 8",
+      "inputs": { "caprini-age75": "3", "caprini-major-surgery": "2", "caprini-hx-dvt": "3" },
+      "expected": [
+        { "label": "Total Score", "value": "8", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-CAPRINI-005",
+      "description": "Very high risk - multiple factors",
+      "source": "Multiple high-risk factors summing to 12",
+      "inputs": { "caprini-age75": "3", "caprini-major-surgery": "2", "caprini-hx-dvt": "3", "caprini-malignancy": "2", "caprini-bed-rest": "2" },
+      "expected": [
+        { "label": "Total Score", "value": "12", "unit": "points", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

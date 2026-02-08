@@ -1,0 +1,58 @@
+{
+  "calculatorId": "maintenance-fluids",
+  "calculatorName": "Maintenance IV Fluids (Holliday-Segar)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-MFLUIDS-001",
+      "description": "Infant 8 kg - first 10 kg rule",
+      "source": "Rate = 8 * 4 = 32 mL/hr; Daily = 32 * 24 = 768 mL/day",
+      "inputs": { "weight-fluids": 8 },
+      "expected": [
+        { "label": "IV Fluid Rate (Hourly)", "value": "32.0", "unit": "mL/hr", "tolerance": 0.1 },
+        { "label": "Total Daily Fluids", "value": "768.0", "unit": "mL/day", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MFLUIDS-002",
+      "description": "Child 15 kg - 4-2-1 rule (10-20kg range)",
+      "source": "Rate = 40 + (15-10)*2 = 40 + 10 = 50 mL/hr; Daily = 50 * 24 = 1200 mL/day",
+      "inputs": { "weight-fluids": 15 },
+      "expected": [
+        { "label": "IV Fluid Rate (Hourly)", "value": "50.0", "unit": "mL/hr", "tolerance": 0.1 },
+        { "label": "Total Daily Fluids", "value": "1200.0", "unit": "mL/day", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MFLUIDS-003",
+      "description": "Adult 70 kg - full 4-2-1 rule",
+      "source": "Rate = 40 + 20 + (70-20)*1 = 60 + 50 = 110 mL/hr; Daily = 110 * 24 = 2640 mL/day",
+      "inputs": { "weight-fluids": 70 },
+      "expected": [
+        { "label": "IV Fluid Rate (Hourly)", "value": "110.0", "unit": "mL/hr", "tolerance": 0.1 },
+        { "label": "Total Daily Fluids", "value": "2640.0", "unit": "mL/day", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MFLUIDS-004",
+      "description": "Exactly 10 kg boundary",
+      "source": "Rate = 10 * 4 = 40 mL/hr; Daily = 40 * 24 = 960 mL/day",
+      "inputs": { "weight-fluids": 10 },
+      "expected": [
+        { "label": "IV Fluid Rate (Hourly)", "value": "40.0", "unit": "mL/hr", "tolerance": 0.1 },
+        { "label": "Total Daily Fluids", "value": "960.0", "unit": "mL/day", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-MFLUIDS-005",
+      "description": "Exactly 20 kg boundary",
+      "source": "Rate = 40 + (20-10)*2 = 40 + 20 = 60 mL/hr; Daily = 60 * 24 = 1440 mL/day",
+      "inputs": { "weight-fluids": 20 },
+      "expected": [
+        { "label": "IV Fluid Rate (Hourly)", "value": "60.0", "unit": "mL/hr", "tolerance": 0.1 },
+        { "label": "Total Daily Fluids", "value": "1440.0", "unit": "mL/day", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "calculatorId": "abg-analyzer",
+  "calculatorName": "ABG Arterial Blood Gas Analyzer",
+  "version": "1.0",
+  "calculatorType": "complex",
+  "cases": [
+    {
+      "id": "GD-ABG-001",
+      "description": "Normal ABG - all values in normal range",
+      "source": "pH 7.40 (normal), PCO2 40 (normal), HCO3 24 (normal). Na 140, Cl 103, Alb 4.0. AG=140-(103+24)=13. CorrAG=13+2.5*(4-4)=13. AG<=12? No, 13>12→High AG(13.0). Delta=13-12=1. Delta-delta=1+24=25 (22-28→no mixed). Delta ratio=1/(24-24) → denominator=0, no ratio calc.",
+      "inputs": { "ph": 7.40, "pco2": 40, "hco3": 24, "sodium": 140, "chloride": 103, "albumin": 4.0 },
+      "expected": [
+        { "label": "Score", "value": 13, "tolerance": 0.5 },
+        { "label": "Interpretation", "value": "Normal Acid-Base Status" }
+      ]
+    },
+    {
+      "id": "GD-ABG-002",
+      "description": "Respiratory Acidosis - COPD exacerbation",
+      "source": "pH 7.30 (<7.35→acidosis), PCO2 55 (>45→respiratory). Na 140, Cl 102, Alb 4.0. AG=140-(102+28)=10. CorrAG=10. AG<=12→Normal AG.",
+      "inputs": { "ph": 7.30, "pco2": 55, "hco3": 28, "sodium": 140, "chloride": 102, "albumin": 4.0 },
+      "expected": [
+        { "label": "Score", "value": 10, "tolerance": 0.5 },
+        { "label": "Interpretation", "value": "Respiratory Acidosis" },
+        { "label": "Anion Gap Assessment", "value": "Normal Anion Gap (10.0)" }
+      ]
+    },
+    {
+      "id": "GD-ABG-003",
+      "description": "Metabolic Acidosis with high AG - DKA",
+      "source": "pH 7.20 (<7.35→acidosis), PCO2 28 (<=45), HCO3 10 (<22→metabolic). Na 138, Cl 100, Alb 4.0. AG=138-(100+10)=28. CorrAG=28. HighAG(28.0). Delta=28-12=16. Delta-delta=16+10=26 (22-28→no mixed). DeltaRatio=16/(24-10)=16/14=1.14→Pure high AG.",
+      "inputs": { "ph": 7.20, "pco2": 28, "hco3": 10, "sodium": 138, "chloride": 100, "albumin": 4.0 },
+      "expected": [
+        { "label": "Score", "value": 28, "tolerance": 0.5 },
+        { "label": "Interpretation", "value": "Metabolic Acidosis" }
+      ]
+    },
+    {
+      "id": "GD-ABG-004",
+      "description": "Respiratory Alkalosis - hyperventilation",
+      "source": "pH 7.50 (>7.45→alkalosis), PCO2 28 (<35→respiratory). Na 140, Cl 108, Alb 4.0. AG=140-(108+22)=10. CorrAG=10. NormalAG.",
+      "inputs": { "ph": 7.50, "pco2": 28, "hco3": 22, "sodium": 140, "chloride": 108, "albumin": 4.0 },
+      "expected": [
+        { "label": "Score", "value": 10, "tolerance": 0.5 },
+        { "label": "Interpretation", "value": "Respiratory Alkalosis" }
+      ]
+    },
+    {
+      "id": "GD-ABG-005",
+      "description": "Compensated state with hypoalbuminemia - corrected AG",
+      "source": "pH 7.38 (7.35-7.45→normal), PCO2 48 (>45), HCO3 27 (>26)→Compensated Resp Acidosis/Metabolic Alkalosis. Na 140, Cl 100, Alb 2.0. AG=140-(100+27)=13. CorrAG=13+2.5*(4-2)=18. HighAG(18.0). Delta=18-12=6. Delta-delta=6+27=33 (>28→+Metabolic Alkalosis).",
+      "inputs": { "ph": 7.38, "pco2": 48, "hco3": 27, "sodium": 140, "chloride": 100, "albumin": 2.0 },
+      "expected": [
+        { "label": "Score", "value": 18, "tolerance": 0.5 },
+        { "label": "Interpretation", "value": "Compensated Respiratory Acidosis/Metabolic Alkalosis" }
+      ]
+    }
+  ]
+}

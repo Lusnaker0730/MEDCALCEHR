@@ -1,0 +1,103 @@
+{
+  "calculatorId": "action-icu",
+  "calculatorName": "ACTION ICU Score for Intensive Care in NSTEMI",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-ACTICU-001",
+      "description": "Lowest possible score - young, normal labs/vitals, no HF, no ST depression, prior revasc",
+      "source": "Fanaroff AC, et al. JAHA. 2018;7(11). Age<70 (0) + Cr<1.1 (0) + HR<85 (0) + SBP>=145 (0) + Trop<12x (0) + No HF (0) + No ST dep (0) + Prior revasc (0) = 0.",
+      "inputs": {
+        "action-age": "0",
+        "action-creatinine": "0",
+        "action-hr": "0",
+        "action-sbp": "0",
+        "action-troponin": "0",
+        "action-hf": "0",
+        "action-st": "0",
+        "action-revasc": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-ACTICU-002",
+      "description": "Low risk - age >=70, no prior revasc, otherwise normal",
+      "source": "Fanaroff AC, et al. JAHA. 2018. Age>=70 (+1) + No prior revasc (+1) = 2.",
+      "inputs": {
+        "action-age": "1",
+        "action-creatinine": "0",
+        "action-hr": "0",
+        "action-sbp": "0",
+        "action-troponin": "0",
+        "action-hf": "0",
+        "action-st": "0",
+        "action-revasc": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk" }
+      ]
+    },
+    {
+      "id": "GD-ACTICU-003",
+      "description": "Moderate risk - age >=70, creatinine >=1.1, HR 85-100, SBP 125-145, no prior revasc",
+      "source": "Fanaroff AC, et al. JAHA. 2018. Age (+1) + Cr (+1) + HR (+1) + SBP (+1) + No revasc (+1) + ST dep (+1) = 6.",
+      "inputs": {
+        "action-age": "1",
+        "action-creatinine": "1",
+        "action-hr": "1",
+        "action-sbp": "1",
+        "action-troponin": "0",
+        "action-hf": "0",
+        "action-st": "1",
+        "action-revasc": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Risk" }
+      ]
+    },
+    {
+      "id": "GD-ACTICU-004",
+      "description": "High risk - heart failure present plus multiple risk factors",
+      "source": "Fanaroff AC, et al. JAHA. 2018. Age (+1) + HF (+5) + HR>=100 (+3) + SBP<125 (+3) = 12.",
+      "inputs": {
+        "action-age": "1",
+        "action-creatinine": "0",
+        "action-hr": "3",
+        "action-sbp": "3",
+        "action-troponin": "0",
+        "action-hf": "5",
+        "action-st": "0",
+        "action-revasc": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 12, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    },
+    {
+      "id": "GD-ACTICU-005",
+      "description": "Maximum score - all risk factors maximized",
+      "source": "Fanaroff AC, et al. JAHA. 2018. Age (+1) + Cr (+1) + HR>=100 (+3) + SBP<125 (+3) + Trop>=12x (+2) + HF (+5) + ST dep (+1) + No revasc (+1) = 17.",
+      "inputs": {
+        "action-age": "1",
+        "action-creatinine": "1",
+        "action-hr": "3",
+        "action-sbp": "3",
+        "action-troponin": "2",
+        "action-hf": "5",
+        "action-st": "1",
+        "action-revasc": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 17, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk" }
+      ]
+    }
+  ]
+}

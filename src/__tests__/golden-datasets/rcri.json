@@ -1,0 +1,73 @@
+{
+  "calculatorId": "rcri",
+  "calculatorName": "Revised Cardiac Risk Index (RCRI)",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-RCRI-001",
+      "description": "Class I - no risk factors (0.4% risk)",
+      "source": "All questions answered 0. Total = 0. Class I (0.4%).",
+      "inputs": {
+        "rcri-surgery": "0", "rcri-ihd": "0", "rcri-hf": "0",
+        "rcri-cvd": "0", "rcri-insulin": "0", "rcri-creatinine": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Class I (0.4%)" }
+      ]
+    },
+    {
+      "id": "GD-RCRI-002",
+      "description": "Class II - high-risk surgery only (0.9% risk)",
+      "source": "High-risk surgery (1pt). Total = 1. Class II (0.9%).",
+      "inputs": {
+        "rcri-surgery": "1", "rcri-ihd": "0", "rcri-hf": "0",
+        "rcri-cvd": "0", "rcri-insulin": "0", "rcri-creatinine": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 1, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Class II (0.9%)" }
+      ]
+    },
+    {
+      "id": "GD-RCRI-003",
+      "description": "Class III - ischemic heart disease and CHF (6.6% risk)",
+      "source": "IHD (1pt) + CHF (1pt) = 2. Class III (6.6%).",
+      "inputs": {
+        "rcri-surgery": "0", "rcri-ihd": "1", "rcri-hf": "1",
+        "rcri-cvd": "0", "rcri-insulin": "0", "rcri-creatinine": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 2, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Class III (6.6%)" }
+      ]
+    },
+    {
+      "id": "GD-RCRI-004",
+      "description": "Class IV - three risk factors (>=11% risk)",
+      "source": "High-risk surgery (1pt) + IHD (1pt) + Creatinine >2 (1pt) = 3. Class IV (>=11%).",
+      "inputs": {
+        "rcri-surgery": "1", "rcri-ihd": "1", "rcri-hf": "0",
+        "rcri-cvd": "0", "rcri-insulin": "0", "rcri-creatinine": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Class IV (\u226511%)" }
+      ]
+    },
+    {
+      "id": "GD-RCRI-005",
+      "description": "Class IV - all risk factors present (>=11% risk)",
+      "source": "All 6 risk factors present (1pt each) = 6. Class IV (>=11%).",
+      "inputs": {
+        "rcri-surgery": "1", "rcri-ihd": "1", "rcri-hf": "1",
+        "rcri-cvd": "1", "rcri-insulin": "1", "rcri-creatinine": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 6, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Class IV (\u226511%)" }
+      ]
+    }
+  ]
+}

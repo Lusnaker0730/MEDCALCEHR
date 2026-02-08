@@ -1,0 +1,88 @@
+{
+  "calculatorId": "heart-score",
+  "calculatorName": "HEART Score for Major Cardiac Events",
+  "version": "1.0",
+  "calculatorType": "scoring",
+  "cases": [
+    {
+      "id": "GD-HEART-001",
+      "description": "Minimum score: all categories at 0 points",
+      "source": "Six AJ, et al. Neth Heart J. 2008;16(6):191-196.",
+      "inputs": {
+        "heart-history": "0",
+        "heart-ecg": "0",
+        "heart-age": "0",
+        "heart-risk": "0",
+        "heart-troponin": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 0, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk (0-3)" }
+      ]
+    },
+    {
+      "id": "GD-HEART-002",
+      "description": "Low risk: moderately suspicious history, age 45-64, 1-2 risk factors, score 3",
+      "source": "Six AJ, et al. Neth Heart J. 2008;16(6):191-196.",
+      "inputs": {
+        "heart-history": "1",
+        "heart-ecg": "0",
+        "heart-age": "1",
+        "heart-risk": "1",
+        "heart-troponin": "0"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 3, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Low Risk (0-3)" }
+      ]
+    },
+    {
+      "id": "GD-HEART-003",
+      "description": "Moderate risk: highly suspicious history, normal ECG, age >=65, no risk factors, troponin 1-3x, score 5",
+      "source": "Six AJ, et al. Neth Heart J. 2008;16(6):191-196.",
+      "inputs": {
+        "heart-history": "2",
+        "heart-ecg": "0",
+        "heart-age": "2",
+        "heart-risk": "0",
+        "heart-troponin": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 5, "tolerance": 0 },
+        { "label": "Risk Level", "value": "Moderate Risk (4-6)" }
+      ]
+    },
+    {
+      "id": "GD-HEART-004",
+      "description": "High risk: highly suspicious, significant ST deviation, age >=65, >=3 risk factors, troponin 1-3x, score 9",
+      "source": "Six AJ, et al. Neth Heart J. 2008;16(6):191-196.",
+      "inputs": {
+        "heart-history": "2",
+        "heart-ecg": "2",
+        "heart-age": "2",
+        "heart-risk": "2",
+        "heart-troponin": "1"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 9, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk (7-10)" }
+      ]
+    },
+    {
+      "id": "GD-HEART-005",
+      "description": "Maximum score: all categories at 2 points",
+      "source": "Six AJ, et al. Neth Heart J. 2008;16(6):191-196.",
+      "inputs": {
+        "heart-history": "2",
+        "heart-ecg": "2",
+        "heart-age": "2",
+        "heart-risk": "2",
+        "heart-troponin": "2"
+      },
+      "expected": [
+        { "label": "Total Score", "value": 10, "tolerance": 0 },
+        { "label": "Risk Level", "value": "High Risk (7-10)" }
+      ]
+    }
+  ]
+}

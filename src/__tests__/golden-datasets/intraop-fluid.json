@@ -1,0 +1,61 @@
+{
+  "calculatorId": "intraop-fluid",
+  "calculatorName": "Intraoperative Fluid Calculator",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-IFD-001",
+      "description": "Standard case - 70 kg, 8hr NPO, minimal trauma",
+      "source": "Maint = 70+40 = 110 mL/hr; NPO deficit = 110*8 = 880; Trauma = 2*70 = 140; 1st hr = 440+110+140 = 690; 2nd hr = 220+110+140 = 470",
+      "inputs": { "ifd-weight": 70, "ifd-npo": 8, "ifd-trauma": 2 },
+      "expected": [
+        { "label": "Hourly Maintenance Fluid", "value": "110", "unit": "mL/hr", "tolerance": 1 },
+        { "label": "NPO Fluid Deficit", "value": "880", "unit": "mL", "tolerance": 1 },
+        { "label": "1st Hour Fluids", "value": "690", "unit": "mL/hr", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-IFD-002",
+      "description": "Major surgery - high trauma level",
+      "source": "Maint = 80+40 = 120 mL/hr; NPO = 120*10 = 1200; Trauma = 8*80 = 640; 1st hr = 600+120+640 = 1360",
+      "inputs": { "ifd-weight": 80, "ifd-npo": 10, "ifd-trauma": 8 },
+      "expected": [
+        { "label": "Hourly Maintenance Fluid", "value": "120", "unit": "mL/hr", "tolerance": 1 },
+        { "label": "NPO Fluid Deficit", "value": "1200", "unit": "mL", "tolerance": 1 },
+        { "label": "1st Hour Fluids", "value": "1360", "unit": "mL/hr", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-IFD-003",
+      "description": "Small adult - minimal trauma",
+      "source": "Maint = 50+40 = 90 mL/hr; NPO = 90*6 = 540; Trauma = 2*50 = 100; 1st hr = 270+90+100 = 460",
+      "inputs": { "ifd-weight": 50, "ifd-npo": 6, "ifd-trauma": 2 },
+      "expected": [
+        { "label": "Hourly Maintenance Fluid", "value": "90", "unit": "mL/hr", "tolerance": 1 },
+        { "label": "NPO Fluid Deficit", "value": "540", "unit": "mL", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-IFD-004",
+      "description": "Weight at boundary 15 kg (10-20 range)",
+      "source": "Maint = 40 + (15-10)*2 = 50 mL/hr; NPO = 50*4 = 200; Trauma = 4*15 = 60; 1st hr = 100+50+60 = 210",
+      "inputs": { "ifd-weight": 15, "ifd-npo": 4, "ifd-trauma": 4 },
+      "expected": [
+        { "label": "Hourly Maintenance Fluid", "value": "50", "unit": "mL/hr", "tolerance": 1 },
+        { "label": "NPO Fluid Deficit", "value": "200", "unit": "mL", "tolerance": 1 },
+        { "label": "1st Hour Fluids", "value": "210", "unit": "mL/hr", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-IFD-005",
+      "description": "4th hour and beyond (steady state)",
+      "source": "Maint = 60+40 = 100 mL/hr; Trauma = 4*60 = 240; 4th hr = 100+240 = 340 mL/hr",
+      "inputs": { "ifd-weight": 60, "ifd-npo": 8, "ifd-trauma": 4 },
+      "expected": [
+        { "label": "Hourly Maintenance Fluid", "value": "100", "unit": "mL/hr", "tolerance": 1 },
+        { "label": "4th Hour & Beyond", "value": "340", "unit": "mL/hr", "tolerance": 1 }
+      ]
+    }
+  ]
+}

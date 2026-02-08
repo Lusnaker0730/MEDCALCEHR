@@ -1,0 +1,53 @@
+{
+  "calculatorId": "qtc",
+  "calculatorName": "Corrected QT Interval (QTc)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-QTC-001",
+      "description": "Normal QTc - Bazett formula, male",
+      "source": "RR = 60/72 = 0.833s; QTc = 400 / sqrt(0.833) = 400 / 0.9129 = 438 ms",
+      "inputs": { "qt": 400, "hr": 72, "gender": "male", "formula": "bazett" },
+      "expected": [
+        { "label": "QTc (Bazett)", "value": 438, "unit": "ms", "tolerance": 2 }
+      ]
+    },
+    {
+      "id": "GD-QTC-002",
+      "description": "Prolonged QTc - Bazett, female",
+      "source": "RR = 60/60 = 1.0s; QTc = 480 / sqrt(1.0) = 480 ms",
+      "inputs": { "qt": 480, "hr": 60, "gender": "female", "formula": "bazett" },
+      "expected": [
+        { "label": "QTc (Bazett)", "value": 480, "unit": "ms", "tolerance": 1 }
+      ]
+    },
+    {
+      "id": "GD-QTC-003",
+      "description": "High risk prolongation - Bazett",
+      "source": "RR = 60/80 = 0.75s; QTc = 460 / sqrt(0.75) = 460 / 0.866 = 531 ms",
+      "inputs": { "qt": 460, "hr": 80, "gender": "male", "formula": "bazett" },
+      "expected": [
+        { "label": "QTc (Bazett)", "value": 531, "unit": "ms", "tolerance": 2 }
+      ]
+    },
+    {
+      "id": "GD-QTC-004",
+      "description": "Fridericia formula",
+      "source": "RR = 60/72 = 0.833s; QTc = 400 / cbrt(0.833) = 400 / 0.941 = 425 ms",
+      "inputs": { "qt": 400, "hr": 72, "gender": "male", "formula": "fridericia" },
+      "expected": [
+        { "label": "QTc (Fridericia)", "value": 425, "unit": "ms", "tolerance": 2 }
+      ]
+    },
+    {
+      "id": "GD-QTC-005",
+      "description": "Framingham formula",
+      "source": "RR = 60/75 = 0.8s; QTc = 380 + 154*(1-0.8) = 380 + 30.8 = 411 ms",
+      "inputs": { "qt": 380, "hr": 75, "gender": "male", "formula": "framingham" },
+      "expected": [
+        { "label": "QTc (Framingham)", "value": 411, "unit": "ms", "tolerance": 2 }
+      ]
+    }
+  ]
+}

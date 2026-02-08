@@ -34,7 +34,7 @@ export default {
     testMatch: ['**/src/**/__tests__/**/*.ts', '**/src/**/*.test.ts', '**/tests/**/*.test.ts'],
 
     // Ignore utility files in __tests__/utils (not actual test files)
-    testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/'],
+    testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/', '/__tests__/golden-dataset-runner\\.ts$'],
 
     // 覆蓋率設定
     collectCoverageFrom: [

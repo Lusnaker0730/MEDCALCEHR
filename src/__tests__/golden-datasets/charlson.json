@@ -1,0 +1,58 @@
+{
+  "calculatorId": "charlson",
+  "calculatorName": "Charlson Comorbidity Index",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-CCI-001",
+      "description": "No comorbidities - score 0",
+      "source": "Score 0: Survival = 100 * 0.983^(e^(0*0.9)) = 100 * 0.983^1 = 98%",
+      "inputs": { "cci-mi": "0", "cci-chf": "0", "cci-pvd": "0", "cci-cvd": "0", "cci-dementia": "0", "cci-copd": "0", "cci-ctd": "0", "cci-peptic": "0", "cci-liver-mild": "0", "cci-dm-uncomplicated": "0" },
+      "expected": [
+        { "label": "Charlson Comorbidity Index", "value": "0", "unit": "points", "tolerance": 0.5 },
+        { "label": "Estimated 10-year survival", "value": "98%", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CCI-002",
+      "description": "Single comorbidity - score 1",
+      "source": "Score 1 (e.g. MI): Survival = 100 * 0.983^(e^(0.9)) = 100 * 0.983^2.46 = 95.9 ≈ 96%",
+      "inputs": { "cci-mi": "1", "cci-chf": "0", "cci-pvd": "0" },
+      "expected": [
+        { "label": "Charlson Comorbidity Index", "value": "1", "unit": "points", "tolerance": 0.5 },
+        { "label": "Estimated 10-year survival", "value": "96%", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CCI-003",
+      "description": "Multiple comorbidities - score 3",
+      "source": "Score 3: Survival = 100 * 0.983^(e^(2.7)) = 100 * 0.983^14.88 = 78%",
+      "inputs": { "cci-mi": "1", "cci-chf": "1", "cci-pvd": "1" },
+      "expected": [
+        { "label": "Charlson Comorbidity Index", "value": "3", "unit": "points", "tolerance": 0.5 },
+        { "label": "Estimated 10-year survival", "value": "77%", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-CCI-004",
+      "description": "High burden - score 5",
+      "source": "Score 5: Survival = 100 * 0.983^(e^(4.5)) = 100 * 0.983^90.02 = 22%",
+      "inputs": { "cci-mi": "1", "cci-chf": "1", "cci-pvd": "1", "cci-dm-complicated": "2" },
+      "expected": [
+        { "label": "Charlson Comorbidity Index", "value": "5", "unit": "points", "tolerance": 0.5 },
+        { "label": "Estimated 10-year survival", "value": "21%", "tolerancePercent": 10 }
+      ]
+    },
+    {
+      "id": "GD-CCI-005",
+      "description": "Severe comorbidities - metastatic solid tumor (6 pts)",
+      "source": "Score 6: Survival = 100 * 0.983^(e^(5.4)) = 100 * 0.983^221.4 = 2%",
+      "inputs": { "cci-mets": "6" },
+      "expected": [
+        { "label": "Charlson Comorbidity Index", "value": "6", "unit": "points", "tolerance": 0.5 },
+        { "label": "Estimated 10-year survival", "value": "2%", "tolerancePercent": 50 }
+      ]
+    }
+  ]
+}

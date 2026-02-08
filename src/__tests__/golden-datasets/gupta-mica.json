@@ -1,0 +1,53 @@
+{
+  "calculatorId": "gupta-mica",
+  "calculatorName": "Gupta MICA Perioperative Cardiac Risk",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-MICA-001",
+      "description": "Low risk - young, healthy, minor procedure",
+      "source": "x = -5.25 + 40*0.02 + 0 + (-6.17) + 0 + (-0.74) = -5.25 + 0.8 - 6.17 - 0.74 = -11.36; Risk = 1/(1+e^11.36) * 100 ≈ 0.001%",
+      "inputs": { "mica-age": "40", "mica-creat": "0.9", "mica-status": "0", "mica-asa": "-6.17", "mica-procedure": "-0.74" },
+      "expected": [
+        { "label": "Cardiac Risk", "value": 0.00, "unit": "%", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-MICA-002",
+      "description": "Low risk - moderate scenario",
+      "source": "x = -5.25 + 60*0.02 + 0 + (-3.00) + 0 + 0 = -5.25 + 1.2 - 3.0 = -7.05; Risk ≈ 0.09%",
+      "inputs": { "mica-age": "60", "mica-creat": "1.0", "mica-status": "0", "mica-asa": "-3.00", "mica-procedure": "0" },
+      "expected": [
+        { "label": "Cardiac Risk", "value": 0.09, "unit": "%", "tolerancePercent": 50 }
+      ]
+    },
+    {
+      "id": "GD-MICA-003",
+      "description": "Intermediate risk - older with CKD",
+      "source": "x = -5.25 + 75*0.02 + 0.65 + (-1.74) + 0.61 + 0.74 = -3.49; Risk = 1/(1+e^3.49) * 100 ≈ 2.96%",
+      "inputs": { "mica-age": "75", "mica-creat": "2.0", "mica-status": "0.65", "mica-asa": "-1.74", "mica-procedure": "0.74" },
+      "expected": [
+        { "label": "Cardiac Risk", "value": 2.96, "unit": "%", "tolerancePercent": 10 }
+      ]
+    },
+    {
+      "id": "GD-MICA-004",
+      "description": "High risk - multiple risk factors",
+      "source": "x = -5.25 + 80*0.02 + 1.03 + 0 + 0.61 + 0.74 = -1.27; Risk = 1/(1+e^1.27) * 100 ≈ 21.93%",
+      "inputs": { "mica-age": "80", "mica-creat": "3.0", "mica-status": "1.03", "mica-asa": "0", "mica-procedure": "0.74" },
+      "expected": [
+        { "label": "Cardiac Risk", "value": 21.93, "unit": "%", "tolerancePercent": 10 }
+      ]
+    },
+    {
+      "id": "GD-MICA-005",
+      "description": "Young patient with ASA I",
+      "source": "x = -5.25 + 30*0.02 + 0 + (-6.17) + 0 + (-0.74) = -5.25 + 0.6 - 6.17 - 0.74 = -11.56; Risk ≈ 0.001%",
+      "inputs": { "mica-age": "30", "mica-creat": "0.8", "mica-status": "0", "mica-asa": "-6.17", "mica-procedure": "-0.74" },
+      "expected": [
+        { "label": "Cardiac Risk", "value": 0.00, "unit": "%", "tolerance": 0.01 }
+      ]
+    }
+  ]
+}

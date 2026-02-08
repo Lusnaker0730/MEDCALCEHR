@@ -1,0 +1,53 @@
+{
+  "calculatorId": "bwps",
+  "calculatorName": "Burch-Wartofsky Point Scale (Thyroid Storm)",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-BWPS-001",
+      "description": "Unlikely thyroid storm - score < 25",
+      "source": "Temp 0 + HR 0 + CNS 0 + GI 0 + CHF 0 + AF 0 + precipitant 0 = 0",
+      "inputs": { "bwps-temp": "0", "bwps-hr": "0", "bwps-cns": "0", "bwps-gi": "0", "bwps-chf": "0", "bwps-af": "0", "bwps-precipitant": "0" },
+      "expected": [
+        { "label": "Total Score", "value": "0", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-BWPS-002",
+      "description": "Impending storm - score 25-44",
+      "source": "Temp 10 + HR 5 + CNS 10 + GI 0 + CHF 0 + AF 0 + precipitant 10 = 35",
+      "inputs": { "bwps-temp": "10", "bwps-hr": "5", "bwps-cns": "10", "bwps-gi": "0", "bwps-chf": "0", "bwps-af": "0", "bwps-precipitant": "10" },
+      "expected": [
+        { "label": "Total Score", "value": "35", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-BWPS-003",
+      "description": "Thyroid storm - score ≥ 45",
+      "source": "Temp 15 + HR 10 + CNS 20 + GI 10 + CHF 5 + AF 0 + precipitant 10 = 70",
+      "inputs": { "bwps-temp": "15", "bwps-hr": "10", "bwps-cns": "20", "bwps-gi": "10", "bwps-chf": "5", "bwps-af": "0", "bwps-precipitant": "10" },
+      "expected": [
+        { "label": "Total Score", "value": "70", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-BWPS-004",
+      "description": "Borderline impending - score 25",
+      "source": "Temp 5 + HR 5 + CNS 0 + GI 0 + CHF 5 + AF 10 + precipitant 0 = 25",
+      "inputs": { "bwps-temp": "5", "bwps-hr": "5", "bwps-cns": "0", "bwps-gi": "0", "bwps-chf": "5", "bwps-af": "10", "bwps-precipitant": "0" },
+      "expected": [
+        { "label": "Total Score", "value": "25", "unit": "points", "tolerance": 0.5 }
+      ]
+    },
+    {
+      "id": "GD-BWPS-005",
+      "description": "Maximum possible score",
+      "source": "Temp 30 + HR 25 + CNS 30 + GI 20 + CHF 15 + AF 10 + precipitant 10 = 140",
+      "inputs": { "bwps-temp": "30", "bwps-hr": "25", "bwps-cns": "30", "bwps-gi": "20", "bwps-chf": "15", "bwps-af": "10", "bwps-precipitant": "10" },
+      "expected": [
+        { "label": "Total Score", "value": "140", "unit": "points", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

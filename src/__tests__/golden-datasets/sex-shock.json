@@ -1,0 +1,53 @@
+{
+  "calculatorId": "sex-shock",
+  "calculatorName": "SEXE-SHOCK Cardiogenic Shock Risk",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-SEXSHK-001",
+      "description": "Low risk - young male, good LVEF, stable",
+      "source": "Male coefficients, LVEF>50%(55→lvefLess50=-2.0153), creatinine 0.9mg/dL, CRP 5. Y=-7.9666+0.0696*log2(6)+0.604*log2(79.56)-2.0153. Risk=0.3%",
+      "inputs": { "sex-shock-sex": "0", "sex-shock-age": "0", "sex-shock-arrest": "0", "sex-shock-killip": "0", "sex-shock-hr": "0", "sex-shock-bp": "0", "sex-shock-timi": "0", "sex-shock-left-main": "0", "sex-shock-st": "0", "sex-shock-lvef": "55", "sex-shock-glycemia": "0", "sex-shock-creatinine": "0.9", "sex-shock-crp": "5" },
+      "expected": [
+        { "label": "In-Hospital Cardiogenic Shock Risk", "value": 0.3, "unit": "%", "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "GD-SEXSHK-002",
+      "description": "Moderate risk - older female with risk factors",
+      "source": "Female coeffs, age>70(+1), killip>1(+1), HR>100(+1), LVEF 35-50%(42.5→lvef35to50=-1.0953), creatinine 1.2, CRP 10. Risk=9.2%",
+      "inputs": { "sex-shock-sex": "1", "sex-shock-age": "1", "sex-shock-arrest": "0", "sex-shock-killip": "1", "sex-shock-hr": "1", "sex-shock-bp": "0", "sex-shock-timi": "0", "sex-shock-left-main": "0", "sex-shock-st": "0", "sex-shock-lvef": "42.5", "sex-shock-glycemia": "0", "sex-shock-creatinine": "1.2", "sex-shock-crp": "10" },
+      "expected": [
+        { "label": "In-Hospital Cardiogenic Shock Risk", "value": 9.2, "unit": "%", "tolerance": 1.0 }
+      ]
+    },
+    {
+      "id": "GD-SEXSHK-003",
+      "description": "High risk - multiple adverse features",
+      "source": "Male, all binary factors=1, LVEF<35%(30=baseline), creatinine 2.0, CRP 50. Risk=96.4%",
+      "inputs": { "sex-shock-sex": "0", "sex-shock-age": "1", "sex-shock-arrest": "1", "sex-shock-killip": "1", "sex-shock-hr": "1", "sex-shock-bp": "1", "sex-shock-timi": "1", "sex-shock-left-main": "1", "sex-shock-st": "1", "sex-shock-lvef": "30", "sex-shock-glycemia": "1", "sex-shock-creatinine": "2.0", "sex-shock-crp": "50" },
+      "expected": [
+        { "label": "In-Hospital Cardiogenic Shock Risk", "value": 96.4, "unit": "%", "tolerance": 2.0 }
+      ]
+    },
+    {
+      "id": "GD-SEXSHK-004",
+      "description": "Low risk - minimal markers",
+      "source": "Male, no adverse features, LVEF>50%(55), creatinine 0.7, CRP 2. Risk=0.2%",
+      "inputs": { "sex-shock-sex": "0", "sex-shock-age": "0", "sex-shock-arrest": "0", "sex-shock-killip": "0", "sex-shock-hr": "0", "sex-shock-bp": "0", "sex-shock-timi": "0", "sex-shock-left-main": "0", "sex-shock-st": "0", "sex-shock-lvef": "55", "sex-shock-glycemia": "0", "sex-shock-creatinine": "0.7", "sex-shock-crp": "2" },
+      "expected": [
+        { "label": "In-Hospital Cardiogenic Shock Risk", "value": 0.2, "unit": "%", "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "GD-SEXSHK-005",
+      "description": "Female with cardiac arrest",
+      "source": "Female coeffs, cardiac arrest(+1), LVEF>50%(55→lvefLess50=-1.9474), creatinine 1.0, CRP 8. Risk=2.8%",
+      "inputs": { "sex-shock-sex": "1", "sex-shock-age": "0", "sex-shock-arrest": "1", "sex-shock-killip": "0", "sex-shock-hr": "0", "sex-shock-bp": "0", "sex-shock-timi": "0", "sex-shock-left-main": "0", "sex-shock-st": "0", "sex-shock-lvef": "55", "sex-shock-glycemia": "0", "sex-shock-creatinine": "1.0", "sex-shock-crp": "8" },
+      "expected": [
+        { "label": "In-Hospital Cardiogenic Shock Risk", "value": 2.8, "unit": "%", "tolerance": 0.5 }
+      ]
+    }
+  ]
+}

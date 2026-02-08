@@ -1,0 +1,53 @@
+{
+  "calculatorId": "serum-anion-gap",
+  "calculatorName": "Serum Anion Gap",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-SAG-001",
+      "description": "Normal anion gap",
+      "source": "AG = Na - (Cl + HCO3) = 140 - (104 + 24) = 140 - 128 = 12",
+      "inputs": { "sag-na": 140, "sag-cl": 104, "sag-hco3": 24 },
+      "expected": [
+        { "label": "Serum Anion Gap", "value": 12.0, "unit": "mEq/L", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-SAG-002",
+      "description": "High anion gap - DKA",
+      "source": "AG = Na - (Cl + HCO3) = 138 - (100 + 12) = 138 - 112 = 26",
+      "inputs": { "sag-na": 138, "sag-cl": 100, "sag-hco3": 12 },
+      "expected": [
+        { "label": "Serum Anion Gap", "value": 26.0, "unit": "mEq/L", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-SAG-003",
+      "description": "Normal anion gap - lower range",
+      "source": "AG = Na - (Cl + HCO3) = 142 - (108 + 26) = 142 - 134 = 8",
+      "inputs": { "sag-na": 142, "sag-cl": 108, "sag-hco3": 26 },
+      "expected": [
+        { "label": "Serum Anion Gap", "value": 8.0, "unit": "mEq/L", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-SAG-004",
+      "description": "Low anion gap - possible hypoalbuminemia",
+      "source": "AG = Na - (Cl + HCO3) = 136 - (106 + 26) = 136 - 132 = 4",
+      "inputs": { "sag-na": 136, "sag-cl": 106, "sag-hco3": 26 },
+      "expected": [
+        { "label": "Serum Anion Gap", "value": 4.0, "unit": "mEq/L", "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "GD-SAG-005",
+      "description": "Mildly elevated - lactic acidosis",
+      "source": "AG = Na - (Cl + HCO3) = 140 - (102 + 20) = 140 - 122 = 18",
+      "inputs": { "sag-na": 140, "sag-cl": 102, "sag-hco3": 20 },
+      "expected": [
+        { "label": "Serum Anion Gap", "value": 18.0, "unit": "mEq/L", "tolerance": 0.1 }
+      ]
+    }
+  ]
+}

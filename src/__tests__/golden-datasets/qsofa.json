@@ -1,0 +1,53 @@
+{
+  "calculatorId": "qsofa",
+  "calculatorName": "qSOFA (Quick SOFA) Score",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-QSOFA-001",
+      "description": "Negative screen - no criteria met",
+      "source": "RR=16 (<22), SBP=120 (>100), GCS=15: Score = 0",
+      "inputs": { "rr": 16, "sbp": 120, "gcs": 15 },
+      "expected": [
+        { "label": "qSOFA Score", "value": 0, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-QSOFA-002",
+      "description": "Negative screen - one criterion met",
+      "source": "RR=24 (≥22: +1), SBP=110 (>100), GCS=15: Score = 1",
+      "inputs": { "rr": 24, "sbp": 110, "gcs": 15 },
+      "expected": [
+        { "label": "qSOFA Score", "value": 1, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-QSOFA-003",
+      "description": "Positive screen - two criteria met",
+      "source": "RR=26 (≥22: +1), SBP=95 (≤100: +1), GCS=15: Score = 2",
+      "inputs": { "rr": 26, "sbp": 95, "gcs": 15 },
+      "expected": [
+        { "label": "qSOFA Score", "value": 2, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-QSOFA-004",
+      "description": "Positive screen - all criteria met",
+      "source": "RR=30 (≥22: +1), SBP=85 (≤100: +1), GCS=12 (<15: +1): Score = 3",
+      "inputs": { "rr": 30, "sbp": 85, "gcs": 12 },
+      "expected": [
+        { "label": "qSOFA Score", "value": 3, "unit": "points", "tolerance": 0 }
+      ]
+    },
+    {
+      "id": "GD-QSOFA-005",
+      "description": "Using AMS toggle instead of GCS",
+      "source": "RR=22 (≥22: +1), SBP=100 (≤100: +1), AMS=yes: +1: Score = 3",
+      "inputs": { "rr": 22, "sbp": 100, "gcs": 15, "ams": "yes" },
+      "expected": [
+        { "label": "qSOFA Score", "value": 3, "unit": "points", "tolerance": 0 }
+      ]
+    }
+  ]
+}
