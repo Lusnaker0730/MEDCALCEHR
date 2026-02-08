@@ -43,13 +43,13 @@ export default {
         '!src/types/**/*.ts' // 排除類型定義檔案
     ],
 
-    // 覆蓋率閾值 (Phase 1: 8% → 40%+)
+    // 覆蓋率閾值 (Phase 1.5: 42% → 50%+)
     coverageThreshold: {
         global: {
-            branches: 40,
-            functions: 40,
-            lines: 42,
-            statements: 42
+            branches: 47,
+            functions: 50,
+            lines: 50,
+            statements: 50
         }
     },
 
