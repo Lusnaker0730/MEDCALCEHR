@@ -16,6 +16,10 @@
         "lint:fix": "eslint \"src/**/*.ts\" --fix",
         "format": "prettier --write \"src/**/*.ts\" \"*.html\"",
         "format:check": "prettier --check \"src/**/*.ts\" \"*.html\"",
+        "test:e2e": "npx playwright test",
+        "test:e2e:ui": "npx playwright test --ui",
+        "test:e2e:headed": "npx playwright test --headed",
+        "test:e2e:chromium": "npx playwright test --project=chromium",
         "validate": "npm run lint && npm run format:check && npm run test"
     },
     "repository": {
@@ -39,6 +43,7 @@
     },
     "devDependencies": {
         "@jest/globals": "^30.2.0",
+        "@playwright/test": "^1.58.2",
         "@testing-library/dom": "^9.3.4",
         "@types/jest": "^30.0.0",
         "@typescript-eslint/eslint-plugin": "^8.50.1",

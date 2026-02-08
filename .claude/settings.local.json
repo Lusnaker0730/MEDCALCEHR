@@ -8,7 +8,29 @@
       "Bash(openssl base64:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run build:ts:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx eslint:*)",
+      "Bash(findstr:*)",
+      "Bash(git stash:*)",
+      "Bash(if exist d:CGHCALCMEDCALCEHR.huskypre-commit type d:CGHCALCMEDCALCEHR.huskypre-commit)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nPhase 0: security hardening, session management, env config, input sanitization\n\n- Remove CSP ''unsafe-inline'' from calculator.html and nginx.conf\n- Add runtime env config \\(app-config.js\\) with Docker entrypoint generation\n- Refactor fhir-launch.js to read from MEDCALC_CONFIG instead of hardcoded credentials\n- Implement session inactivity timeout \\(15min\\) with warning overlay and logout\n- Wrap customResultRenderer output with sanitizeHTML\\(\\) in shared calculators\n- Add production roadmap document\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(node:*)",
+      "Bash(npx jest:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(git -C d:CGHCALCMEDCALCEHR status)",
+      "Bash(git commit:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(xargs:*)",
+      "Bash(dir /b \"d:\\\\CGHCALC\\\\MEDCALCEHR\")",
+      "Bash(npm install:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(git checkout:*)",
+      "Bash(if exist \"D:\\\\CGHCALC\\\\MEDCALCEHR\\\\nul\" del \"D:\\\\CGHCALC\\\\MEDCALCEHR\\\\nul\")"
     ]
   }
 }

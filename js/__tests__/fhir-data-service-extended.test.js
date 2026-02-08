@@ -67,64 +67,69 @@ const MOCK_LOINC_CODES = {
     CREATININE: '2160-0',
 };
 // ---------------------------------------------------------------------------
-// ESM Module Mocks -- registered once before any dynamic imports
+// Register mocks function -- called at module scope and after resetModules
 // ---------------------------------------------------------------------------
-jest.unstable_mockModule('../utils.js', () => ({
-    getMostRecentObservation: mockGetMostRecentObservation,
-    getObservationValue: mockGetObservationValue,
-    getPatientConditions: mockGetPatientConditions,
-    getMedicationRequests: mockGetMedicationRequests,
-    calculateAge: mockCalculateAge,
-    isRestrictedResource: mockIsRestrictedResource,
-}));
-jest.unstable_mockModule('../fhir-codes.js', () => ({
-    LOINC_CODES: MOCK_LOINC_CODES,
-    SNOMED_CODES: {},
-    getLoincName: mockGetLoincName,
-    getMeasurementType: mockGetMeasurementType,
-    isValidLoincCode: mockIsValidLoincCode,
-}));
-jest.unstable_mockModule('../lab-name-mapping.js', () => ({
-    getTextNameByLoinc: mockGetTextNameByLoinc,
-}));
-jest.unstable_mockModule('../cache-manager.js', () => ({
-    fhirCache: {
-        getCachedObservation: mockGetCachedObservation,
-        cacheObservation: mockCacheObservation,
-        clearPatientCache: mockClearPatientCache,
-    },
-}));
-jest.unstable_mockModule('../data-staleness.js', () => ({
-    createStalenessTracker: mockCreateStalenessTracker,
-    DataStalenessTracker: jest.fn(),
-}));
-jest.unstable_mockModule('../unit-converter.js', () => ({
-    UnitConverter: {
-        convert: mockUnitConvert,
-        setInputValue: mockSetInputValue,
-    },
-}));
-jest.unstable_mockModule('../fhir-feedback.js', () => ({
-    fhirFeedback: {
-        createLoadingBanner: mockCreateLoadingBanner,
-        removeLoadingBanner: mockRemoveLoadingBanner,
-        createDataSummary: mockCreateDataSummary,
-        setupDynamicTracking: mockSetupDynamicTracking,
-    },
-}));
-jest.unstable_mockModule('../audit-event-service.js', () => ({
-    auditEventService: {
-        logResourceRead: mockLogResourceRead,
-    },
-}));
-jest.unstable_mockModule('../provenance-service.js', () => ({
-    provenanceService: {
-        recordCalculation: mockRecordCalculation,
-        recordDerivation: mockRecordDerivation,
-        getProvenanceForTarget: mockGetProvenanceForTarget,
-        generateLineageReport: mockGenerateLineageReport,
-    },
-}));
+function registerMocks() {
+    jest.unstable_mockModule('../utils.js', () => ({
+        getMostRecentObservation: mockGetMostRecentObservation,
+        getObservationValue: mockGetObservationValue,
+        getPatientConditions: mockGetPatientConditions,
+        getMedicationRequests: mockGetMedicationRequests,
+        calculateAge: mockCalculateAge,
+        isRestrictedResource: mockIsRestrictedResource,
+    }));
+    jest.unstable_mockModule('../fhir-codes.js', () => ({
+        LOINC_CODES: MOCK_LOINC_CODES,
+        SNOMED_CODES: {},
+        getLoincName: mockGetLoincName,
+        getMeasurementType: mockGetMeasurementType,
+        isValidLoincCode: mockIsValidLoincCode,
+    }));
+    jest.unstable_mockModule('../lab-name-mapping.js', () => ({
+        getTextNameByLoinc: mockGetTextNameByLoinc,
+    }));
+    jest.unstable_mockModule('../cache-manager.js', () => ({
+        fhirCache: {
+            getCachedObservation: mockGetCachedObservation,
+            cacheObservation: mockCacheObservation,
+            clearPatientCache: mockClearPatientCache,
+        },
+    }));
+    jest.unstable_mockModule('../data-staleness.js', () => ({
+        createStalenessTracker: mockCreateStalenessTracker,
+        DataStalenessTracker: jest.fn(),
+    }));
+    jest.unstable_mockModule('../unit-converter.js', () => ({
+        UnitConverter: {
+            convert: mockUnitConvert,
+            setInputValue: mockSetInputValue,
+        },
+    }));
+    jest.unstable_mockModule('../fhir-feedback.js', () => ({
+        fhirFeedback: {
+            createLoadingBanner: mockCreateLoadingBanner,
+            removeLoadingBanner: mockRemoveLoadingBanner,
+            createDataSummary: mockCreateDataSummary,
+            setupDynamicTracking: mockSetupDynamicTracking,
+        },
+    }));
+    jest.unstable_mockModule('../audit-event-service.js', () => ({
+        auditEventService: {
+            logResourceRead: mockLogResourceRead,
+        },
+    }));
+    jest.unstable_mockModule('../provenance-service.js', () => ({
+        provenanceService: {
+            recordCalculation: mockRecordCalculation,
+            recordDerivation: mockRecordDerivation,
+            getProvenanceForTarget: mockGetProvenanceForTarget,
+            generateLineageReport: mockGenerateLineageReport,
+        },
+        CalculationResult: {},
+    }));
+}
+// Initial registration at module scope
+registerMocks();
 // ---------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------
@@ -169,68 +174,85 @@ function makeObservation(value, unit, code, dateStr) {
     };
 }
 // ---------------------------------------------------------------------------
+// Reset mocks helper
+// ---------------------------------------------------------------------------
+function resetAllMocks() {
+    mockGetMostRecentObservation.mockReset();
+    mockGetObservationValue.mockReset();
+    mockGetPatientConditions.mockReset();
+    mockGetMedicationRequests.mockReset();
+    mockCalculateAge.mockReset();
+    mockIsRestrictedResource.mockReset();
+    mockGetLoincName.mockReset();
+    mockGetMeasurementType.mockReset();
+    mockIsValidLoincCode.mockReset();
+    mockGetTextNameByLoinc.mockReset();
+    mockGetCachedObservation.mockReset();
+    mockCacheObservation.mockReset();
+    mockClearPatientCache.mockReset();
+    mockCheckStaleness.mockReset();
+    mockTrackObservation.mockReset();
+    mockSetContainer.mockReset();
+    mockCreateStalenessTracker.mockReset();
+    mockUnitConvert.mockReset();
+    mockSetInputValue.mockReset();
+    mockCreateLoadingBanner.mockReset();
+    mockRemoveLoadingBanner.mockReset();
+    mockCreateDataSummary.mockReset();
+    mockSetupDynamicTracking.mockReset();
+    mockLogResourceRead.mockReset();
+    mockRecordCalculation.mockReset();
+    mockRecordDerivation.mockReset();
+    mockGetProvenanceForTarget.mockReset();
+    mockGenerateLineageReport.mockReset();
+}
+function setDefaultMockBehaviors() {
+    mockCreateStalenessTracker.mockReturnValue(mockStalenessTracker);
+    mockGetCachedObservation.mockResolvedValue(null);
+    mockCacheObservation.mockResolvedValue(undefined);
+    mockIsValidLoincCode.mockReturnValue(true);
+    mockIsRestrictedResource.mockReturnValue(false);
+    mockGetObservationValue.mockReturnValue(null);
+    mockGetMostRecentObservation.mockResolvedValue(null);
+    mockGetLoincName.mockReturnValue(null);
+    mockGetMeasurementType.mockReturnValue('unknown');
+    mockGetTextNameByLoinc.mockReturnValue(null);
+    mockCheckStaleness.mockReturnValue(null);
+    mockUnitConvert.mockReturnValue(null);
+    mockCalculateAge.mockReturnValue(35);
+    mockGetPatientConditions.mockResolvedValue([]);
+    mockGetMedicationRequests.mockResolvedValue([]);
+    mockLogResourceRead.mockResolvedValue(undefined);
+    mockRecordCalculation.mockResolvedValue({});
+    mockRecordDerivation.mockResolvedValue({});
+    mockGetProvenanceForTarget.mockReturnValue([]);
+    mockGenerateLineageReport.mockReturnValue({
+        target: '',
+        records: [],
+        sources: [],
+        agents: [],
+        activities: [],
+    });
+}
+// ---------------------------------------------------------------------------
 // Test suites
 // ---------------------------------------------------------------------------
 describe('FHIRDataService -- extended coverage', () => {
     let FHIRDataService;
     let createFHIRDataService;
     beforeEach(async () => {
-        jest.restoreAllMocks();
-        // Clear all mock call histories
-        mockGetMostRecentObservation.mockReset();
-        mockGetObservationValue.mockReset();
-        mockGetPatientConditions.mockReset();
-        mockGetMedicationRequests.mockReset();
-        mockCalculateAge.mockReset();
-        mockIsRestrictedResource.mockReset();
-        mockGetLoincName.mockReset();
-        mockGetMeasurementType.mockReset();
-        mockIsValidLoincCode.mockReset();
-        mockGetTextNameByLoinc.mockReset();
-        mockGetCachedObservation.mockReset();
-        mockCacheObservation.mockReset();
-        mockClearPatientCache.mockReset();
-        mockCheckStaleness.mockReset();
-        mockTrackObservation.mockReset();
-        mockSetContainer.mockReset();
-        mockCreateStalenessTracker.mockReset();
-        mockUnitConvert.mockReset();
-        mockSetInputValue.mockReset();
-        mockCreateLoadingBanner.mockReset();
-        mockRemoveLoadingBanner.mockReset();
-        mockCreateDataSummary.mockReset();
-        mockSetupDynamicTracking.mockReset();
-        mockLogResourceRead.mockReset();
-        mockRecordCalculation.mockReset();
-        mockRecordDerivation.mockReset();
-        mockGetProvenanceForTarget.mockReset();
-        mockGenerateLineageReport.mockReset();
-        // Default mock behaviours
-        mockCreateStalenessTracker.mockReturnValue(mockStalenessTracker);
-        mockGetCachedObservation.mockResolvedValue(null);
-        mockCacheObservation.mockResolvedValue(undefined);
-        mockIsValidLoincCode.mockReturnValue(true);
-        mockIsRestrictedResource.mockReturnValue(false);
-        mockGetObservationValue.mockReturnValue(null);
-        mockGetMostRecentObservation.mockResolvedValue(null);
-        mockGetLoincName.mockReturnValue(null);
-        mockGetMeasurementType.mockReturnValue('unknown');
-        mockGetTextNameByLoinc.mockReturnValue(null);
-        mockCheckStaleness.mockReturnValue(null);
-        mockUnitConvert.mockReturnValue(null);
-        mockCalculateAge.mockReturnValue(35);
-        mockGetPatientConditions.mockResolvedValue([]);
-        mockGetMedicationRequests.mockResolvedValue([]);
-        mockLogResourceRead.mockResolvedValue(undefined);
-        mockRecordCalculation.mockResolvedValue({});
-        mockRecordDerivation.mockResolvedValue({});
-        mockGetProvenanceForTarget.mockReturnValue([]);
-        mockGenerateLineageReport.mockReturnValue({ target: '', records: [], sources: [], agents: [], activities: [] });
+        // 1. Reset module registry so dynamic import returns a fresh module
+        jest.resetModules();
+        // 2. Re-register all mocks (required after resetModules for ESM)
+        registerMocks();
+        // 3. Reset and configure mocks
+        resetAllMocks();
+        setDefaultMockBehaviors();
         // Suppress console noise during tests
         jest.spyOn(console, 'error').mockImplementation(() => { });
         jest.spyOn(console, 'warn').mockImplementation(() => { });
         jest.spyOn(console, 'log').mockImplementation(() => { });
-        // Dynamic import (cached after first call, but mocks are already registered)
+        // 4. Dynamic import (fresh module with mocks applied)
         const mod = await import('../fhir-data-service.js');
         FHIRDataService = mod.FHIRDataService;
         createFHIRDataService = mod.createFHIRDataService;
@@ -1232,6 +1254,7 @@ describe('FHIRDataService -- extended coverage', () => {
             const svc = new FHIRDataService();
             svc.initialize(createMockClient(), { id: 'p1' }, document.createElement('div'));
             await svc.prefetch(['29463-7', '8302-2', '2160-0']);
+            // prefetch calls getObservation which calls getMostRecentObservation for each code
             expect(mockGetMostRecentObservation).toHaveBeenCalledTimes(3);
         });
     });
@@ -1368,7 +1391,6 @@ describe('FHIRDataService -- extended coverage', () => {
         test('delegates to provenanceService.getProvenanceForTarget', () => {
             mockGetProvenanceForTarget.mockReturnValue([{ id: 'prov-1' }]);
             const svc = new FHIRDataService();
-            // Need to initialize so the service is set up (getProvenance is a direct delegation though)
             const result = svc.getProvenance('target-ref');
             expect(mockGetProvenanceForTarget).toHaveBeenCalledWith('target-ref');
             expect(result).toEqual([{ id: 'prov-1' }]);

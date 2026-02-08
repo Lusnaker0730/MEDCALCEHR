@@ -2,7 +2,7 @@
 
 > SMART on FHIR Medical Calculator — 產品化評估與路線圖
 >
-> 最後更新：2026-02-08（Phase 0 + Phase 1 已完成）
+> 最後更新：2026-02-08（Phase 0 + Phase 1 + Phase 1.2 已完成）
 
 ---
 
@@ -13,7 +13,7 @@
 | 架構設計 | ★★★★☆ | Factory Pattern、分層架構、模組化 CSS，架構品質優良 |
 | FHIR 整合 | ★★★★☆ | OAuth 2.0 啟動流程完整、92 個計算器支援 FHIR 自動填入 |
 | 安全性 | ★★★★★ | CSP 強化、Session 逾時、環境變數分離、AES-256-GCM 加密已完成 |
-| 測試 | ★★★★☆ | 105 個測試檔案、2780 測試、覆蓋率門檻 50%（實際 52.5%），無 E2E 測試 |
+| 測試 | ★★★★★ | 105 個單元測試檔案、2780 測試、覆蓋率 52.5%；Playwright E2E 6 套件 28 測試、CI 整合 |
 | 合規文件 | ★★★★☆ | IEC 62304 / ISO 14971 文件齊全，但缺少臨床驗證記錄 |
 | 無障礙 (a11y) | ★★☆☆☆ | 基本 HTML 語意結構，ARIA / 鍵盤導航嚴重不足 |
 | 效能與監控 | ★★☆☆☆ | Service Worker 離線快取成熟，但無 APM、無 bundle 優化 |
@@ -100,15 +100,24 @@
 - [x] FHIR auto-fill 安全測試（autoPopulateInput/autoPopulateFields 完整覆蓋）
 - [ ] 加入 mutation testing（Stryker）評估測試品質 → **延至 Phase 2+**
 
-### 1.2 端到端測試
+### 1.2 端到端測試 ✅
 
-- [ ] 導入 Playwright 或 Cypress 作為 E2E 測試框架
-- [ ] 撰寫核心使用流程測試：
-  - SMART Launch → OAuth → 進入首頁
-  - 選擇計算器 → FHIR 資料自動填入 → 計算 → 結果顯示
-  - 手動輸入 → 驗證攔截 → 修正 → 計算
-  - 離線模式 → Service Worker 快取回應
-- [ ] E2E 測試納入 CI pipeline，PR merge 前必須通過
+- [x] 導入 Playwright 作為 E2E 測試框架
+  - `playwright.config.ts`：Chromium/Firefox/WebKit 三瀏覽器、CI 自動啟動 http-server
+  - `e2e/helpers/auth-bypass.ts`：Mock FHIR client + fixture data，免真實 EHR 依賴
+  - `e2e/helpers/page-helpers.ts`：共用頁面操作函式
+  - `e2e/fixtures/`：Patient / Observations / Practitioner JSON fixtures
+- [x] 撰寫核心使用流程測試（6 套件 28 測試，26 通過 + 2 SW 計時 skip）：
+  - `01-smart-launch.spec.ts`：SMART Launch → OAuth redirect → 進入首頁（7 tests）
+  - `02-calculator-fhir.spec.ts`：選擇 BMI-BSA → FHIR 自動填入 weight/height → 計算結果顯示（4 tests）
+  - `03-manual-input.spec.ts`：手動輸入 → 驗證攔截（缺欄位不算） → 修正 → 計算（4 tests）
+  - `04-offline-mode.spec.ts`：Service Worker 註冊 + 離線快取回應（3 tests）
+  - `05-session-timeout.spec.ts`：登出流程 + Session 逾時警告 overlay + Continue 繼續（4 tests）
+  - `06-homepage.spec.ts`：搜尋/分類篩選/排序/收藏/連結驗證（6 tests）
+- [x] E2E 測試納入 CI pipeline（`.github/workflows/ci.yml` e2e-tests job）
+  - 依賴 build-and-test job 通過後執行
+  - 安裝 Chromium + 執行 `npx playwright test --project=chromium`
+  - 上傳 Playwright report 與失敗 traces artifact
 
 ### 1.3 臨床驗證測試
 
@@ -330,7 +339,7 @@ Phase 6 ─── 功能增強 ────────────────�
 | ~~硬寫 Client ID 於原始碼~~ | ~~憑證洩漏風險~~ | ✅ Phase 0 已抽離至環境變數 |
 | ~~本地儲存加密為 XOR 混淆~~ | ~~PHI 可被輕易還原~~ | ✅ Phase 1 已升級為 AES-256-GCM |
 | ~~測試覆蓋率僅 8%~~ | ~~公式修改可能引入錯誤~~ | ✅ Phase 1 提升至 52.5%（2780 測試） |
-| 無 E2E 測試 | 整合問題無法自動偵測 | Phase 1 建立 |
+| ~~無 E2E 測試~~ | ~~整合問題無法自動偵測~~ | ✅ Phase 1.2 已建立（Playwright 6 套件 28 測試） |
 | 無 APM / 錯誤追蹤 | 正式環境問題無法即時發現 | Phase 4 建立 |
 | 合規文件僅覆蓋 APACHE II | 其餘 91 個計算器缺追溯 | Phase 5 擴展 |
 
@@ -373,6 +382,32 @@ Phase 6 ─── 功能增強 ────────────────�
 
 ---
 
+## Phase 1.2 實作摘要
+
+| 項目 | 變更檔案 | 說明 |
+|------|----------|------|
+| Playwright 配置 | `playwright.config.ts` | Chromium/Firefox/WebKit、CI 單 worker + retry、自動啟動 http-server |
+| Auth 測試輔助 | `e2e/helpers/auth-bypass.ts` | Mock FHIR client（authenticated/unauthenticated/empty）、fixture 嵌入 |
+| Page 測試輔助 | `e2e/helpers/page-helpers.ts` | 等待列表/導航/填入/取結果/取統計 |
+| FHIR Fixtures | `e2e/fixtures/fhir-patient.json`, `fhir-observations.json`, `fhir-practitioner.json` | Patient Alice + 7 項 Observations + Practitioner |
+| SMART Launch 測試 | `e2e/tests/01-smart-launch.spec.ts` | 未授權重導、授權存取、病患/醫師資訊、計算器列表（7 tests） |
+| FHIR 自動填入測試 | `e2e/tests/02-calculator-fhir.spec.ts` | BMI-BSA weight/height 自動填入 + 計算結果（4 tests） |
+| 手動輸入測試 | `e2e/tests/03-manual-input.spec.ts` | 空 FHIR 手動輸入 + 部分輸入驗證 + 修正後計算（4 tests） |
+| 離線模式測試 | `e2e/tests/04-offline-mode.spec.ts` | SW 註冊 + 離線快取 index.html/calculator.html（3 tests） |
+| Session 管理測試 | `e2e/tests/05-session-timeout.spec.ts` | 登出重導 + session 清除 + 逾時 overlay + Continue（4 tests） |
+| 首頁功能測試 | `e2e/tests/06-homepage.spec.ts` | 搜尋/分類/排序/收藏/連結/清除搜尋（6 tests） |
+| CI Pipeline | `.github/workflows/ci.yml` | e2e-tests job：depends build-and-test、Chromium only、report artifact |
+| npm Scripts | `package.json` | `test:e2e`、`test:e2e:ui`、`test:e2e:headed`、`test:e2e:chromium` |
+| Gitignore | `.gitignore` | `/test-results/`、`/playwright-report/`、`/blob-report/`、`/playwright/.cache/` |
+
+**驗證結果：**
+- `npm run build:ts` ✅ 編譯成功
+- `npx playwright test --project=chromium` ✅ 6 suites / 28 tests（26 passed + 2 skipped SW timing）
+- `npm run test:coverage` ✅ 105 suites / 2780 unit tests 全通過（覆蓋率 52.48%）
+- CI Pipeline ✅ e2e-tests job 配置完成，PR merge 前必須通過
+
+---
+
 ## 結語
 
-MEDCALCEHR 在架構設計、文件品質與 FHIR 整合方面已有堅實基礎。**Phase 0 安全基礎已完成，Phase 1 測試與品質保證已完成**（AES-GCM 加密、測試覆蓋率 8%→52.5%、2780 測試、核心模組 99%+ 覆蓋率）。主要差距現集中在 **無障礙、運維可觀測性** 與 **法規合規的完整性**。建議接續 Phase 2（效能優化）或 Phase 3（無障礙）推進，Phase 6 視商業需求穿插進行。
+MEDCALCEHR 在架構設計、文件品質與 FHIR 整合方面已有堅實基礎。**Phase 0 安全基礎已完成，Phase 1 測試與品質保證已完成**（AES-GCM 加密、測試覆蓋率 8%→52.5%、2780 單元測試、核心模組 99%+ 覆蓋率），**Phase 1.2 E2E 測試已完成**（Playwright 6 套件 28 測試、Mock FHIR 完整流程、CI 整合）。主要差距現集中在 **無障礙、運維可觀測性** 與 **法規合規的完整性**。建議接續 Phase 2（效能優化）或 Phase 3（無障礙）推進，Phase 6 視商業需求穿插進行。

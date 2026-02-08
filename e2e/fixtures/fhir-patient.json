@@ -1,0 +1,14 @@
+{
+    "resourceType": "Patient",
+    "id": "test-patient-001",
+    "name": [
+        {
+            "use": "official",
+            "family": "TestPatient",
+            "given": ["Alice", "M"],
+            "text": "Alice M TestPatient"
+        }
+    ],
+    "gender": "female",
+    "birthDate": "1970-06-15"
+}
