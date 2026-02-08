@@ -52,6 +52,9 @@ Thumbs.db
 .env
 .env.local
 
+# Runtime config (generated per environment, see js/app-config.example.js)
+js/app-config.js
+
 # Temporary files
 *.tmp
 *.bak

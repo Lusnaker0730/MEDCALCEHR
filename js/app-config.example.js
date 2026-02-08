@@ -1,0 +1,28 @@
+/**
+ * MEDCALCEHR Runtime Configuration — Example
+ *
+ * Copy this file to js/app-config.js and fill in your environment-specific values.
+ * For Docker deployments, the entrypoint script generates this file automatically
+ * from environment variables (see docker-entrypoint.sh).
+ *
+ * DO NOT commit js/app-config.js with real credentials to version control.
+ */
+window.MEDCALC_CONFIG = {
+    fhir: {
+        // SMART on FHIR OAuth2 client ID registered with your EHR vendor
+        clientId: 'YOUR_CLIENT_ID_HERE',
+
+        // OAuth2 scopes — adjust based on your EHR's supported scopes
+        scope: 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs offline_access',
+
+        // Redirect URI after OAuth2 authorization completes
+        redirectUri: './index.html'
+    },
+    session: {
+        // Minutes of inactivity before auto-logout (0 to disable)
+        timeoutMinutes: 15,
+
+        // Minutes before timeout to show warning overlay
+        warningMinutes: 2
+    }
+};

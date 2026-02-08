@@ -12,6 +12,7 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
+import { sanitizeHTML } from '../../security.js';
 
 // ==========================================
 // 類型定義
@@ -190,7 +191,7 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
 
                     if (config.customResultRenderer) {
                         if (resultContent) {
-                            resultContent.innerHTML = config.customResultRenderer(total, items);
+                            resultContent.innerHTML = sanitizeHTML(config.customResultRenderer(total, items));
                         }
                     } else {
                         // 預設結果渲染

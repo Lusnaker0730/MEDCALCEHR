@@ -20,6 +20,7 @@
  */
 
 import { uiBuilder } from '../../ui-builder.js';
+import { sanitizeHTML } from '../../security.js';
 import {
     fhirDataService,
     FieldDataRequirement,
@@ -533,9 +534,11 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                     const resultContent = resultBox.querySelector('.ui-result-content');
                     if (resultContent) {
                         if (config.customResultRenderer) {
-                            resultContent.innerHTML = config.customResultRenderer(
-                                totalScore,
-                                sectionScores
+                            resultContent.innerHTML = sanitizeHTML(
+                                config.customResultRenderer(
+                                    totalScore,
+                                    sectionScores
+                                )
                             );
                         } else {
                             // 根據配置格式選擇顯示方式

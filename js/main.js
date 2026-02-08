@@ -4,6 +4,7 @@ import { calculatorModules, categories } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
+import { sessionManager } from './session-manager.js';
 /**
  * Sort calculator list
  */
@@ -298,6 +299,14 @@ window.onload = () => {
             updateDisplay();
         }
     });
+    // ========== Session Management ==========
+    sessionManager.start();
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            sessionManager.logout();
+        });
+    }
     // ========== Initial Render ==========
     updateDisplay();
     updateFilterButtons();

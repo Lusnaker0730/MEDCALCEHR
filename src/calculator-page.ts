@@ -5,6 +5,7 @@ import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
+import { sessionManager } from './session-manager.js';
 
 declare global {
     interface Window {
@@ -158,6 +159,16 @@ window.onload = () => {
             );
         }
     };
+
+    // ========== Session Management ==========
+    sessionManager.start();
+
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            sessionManager.logout();
+        });
+    }
 
     loadCalculatorModule();
 };

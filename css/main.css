@@ -37,6 +37,7 @@
 @import 'components/_theme-toggle.css';
 @import 'components/_loading.css';
 @import 'components/_staleness.css';
+@import 'components/_session-timeout.css';
 
 /* ===================
    3. 佈局樣式

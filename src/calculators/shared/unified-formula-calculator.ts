@@ -17,6 +17,7 @@ import { uiBuilder } from '../../ui-builder.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { fhirDataService, FieldDataRequirement } from '../../fhir-data-service.js';
 import { ValidationError, displayError } from '../../errorHandler.js';
+import { sanitizeHTML } from '../../security.js';
 import {
     ValidationRules,
     validateCalculatorInput,
@@ -803,7 +804,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                     if (results && results.length > 0 && resultContent) {
                         if (config.customResultRenderer) {
-                            resultContent.innerHTML = config.customResultRenderer(results);
+                            resultContent.innerHTML = sanitizeHTML(config.customResultRenderer(results));
                         } else {
                             resultContent.innerHTML = results
                                 .map(r =>

@@ -30,9 +30,12 @@
         <div class="sticky-header">
             <div class="header-top">
                 <h1>CGMH EHRCALC on FHIR</h1>
-                <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
-                    <span class="theme-icon">🌙</span>
-                </button>
+                <div>
+                    <button id="logout-btn" class="logout-btn" title="Logout">Logout</button>
+                    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                </div>
             </div>
             <div id="patient-info">Loading patient data...</div>
             <hr />
@@ -95,6 +98,7 @@
         </div>
     </div>
 
+    <script src="js/app-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.js"
         integrity="sha384-dGS6R4ht5hVL6tx4pQCGGEFJV/rS1ywziGTuH/fJeDtWoS4YQJeAaF1qu2/0ZXkk"
         crossorigin="anonymous"></script>

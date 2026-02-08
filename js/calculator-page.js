@@ -5,6 +5,7 @@ import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
+import { sessionManager } from './session-manager.js';
 // Cache version - increment this when you update calculators to force reload
 window.CACHE_VERSION = '1.0.5';
 /**
@@ -103,5 +104,13 @@ window.onload = () => {
             displayError(card, error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
         }
     };
+    // ========== Session Management ==========
+    sessionManager.start();
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            sessionManager.logout();
+        });
+    }
     loadCalculatorModule();
 };
