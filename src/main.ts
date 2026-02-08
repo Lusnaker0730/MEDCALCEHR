@@ -1,4 +1,5 @@
 // src/main.ts
+import FHIR from 'fhirclient';
 import { displayPatientInfo } from './utils.js';
 import {
     calculatorModules,
@@ -10,8 +11,15 @@ import { favoritesManager } from './favorites.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { initSentry } from './sentry.js';
+import { logger } from './logger.js';
+import { initWebVitals } from './web-vitals.js';
 
-// Use existing FHIR types from global scope (declared in calculator-page.ts or fhir-data-service.ts)
+// Initialize Sentry early
+initSentry();
+
+// Initialize Web Vitals
+initWebVitals();
 
 type SortType = 'a-z' | 'z-a' | 'recently-added' | 'most-used';
 type FilterType = 'all' | 'favorites' | 'recent';
@@ -185,7 +193,7 @@ window.onload = () => {
     const filterBtns = document.querySelectorAll('.filter-btn');
 
     if (!patientInfoEl || !calculatorListEl || !searchBarEl || !sortSelectEl) {
-        console.error('Required DOM elements not found');
+        logger.error('Required DOM elements not found');
         return;
     }
 
@@ -262,68 +270,66 @@ window.onload = () => {
     // ========== Initialize FHIR ==========
     displayPatientInfo(null, patientInfoDiv);
 
-    if (typeof window.FHIR !== 'undefined') {
-        window.FHIR.oauth2
-            .ready()
-            .then(async (client: any) => {
-                displayPatientInfo(client, patientInfoDiv!);
+    FHIR.oauth2
+        .ready()
+        .then(async (client: any) => {
+            displayPatientInfo(client, patientInfoDiv!);
 
-                // Fetch User/Practitioner Info
-                try {
-                    // Try to read the user (Practitioner) from the client
-                    const user = await client.user.read();
-                    const practitionerNameEl = document.getElementById('practitioner-name');
-                    const practitionerInfoEl = document.getElementById('practitioner-info');
+            // Fetch User/Practitioner Info
+            try {
+                // Try to read the user (Practitioner) from the client
+                const user = await client.user.read();
+                const practitionerNameEl = document.getElementById('practitioner-name');
+                const practitionerInfoEl = document.getElementById('practitioner-info');
 
-                    if (
-                        user &&
-                        (user.resourceType === 'Practitioner' ||
-                            user.resourceType === 'PractitionerRole')
+                if (
+                    user &&
+                    (user.resourceType === 'Practitioner' ||
+                        user.resourceType === 'PractitionerRole')
+                ) {
+                    let name = 'Unknown Practitioner';
+
+                    if (user.resourceType === 'Practitioner') {
+                        name =
+                            user.name?.[0]?.text ||
+                            `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
+                    } else if (
+                        user.resourceType === 'PractitionerRole' &&
+                        user.practitioner?.display
                     ) {
-                        let name = 'Unknown Practitioner';
-
-                        if (user.resourceType === 'Practitioner') {
-                            name =
-                                user.name?.[0]?.text ||
-                                `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
-                        } else if (
-                            user.resourceType === 'PractitionerRole' &&
-                            user.practitioner?.display
-                        ) {
-                            name = user.practitioner.display;
-                        }
-
-                        if (practitionerNameEl)
-                            practitionerNameEl.textContent = name || 'Practitioner';
-                        if (practitionerInfoEl) {
-                            practitionerInfoEl.classList.remove('hidden');
-                            practitionerInfoEl.style.display = 'flex';
-                        }
-
-                        // Set Practitioner ID for favorites
-                        if (user.id) {
-                            favoritesManager.setPractitionerId(user.id);
-                            console.log(`[MedCalc] Practitioner set to: ${user.id}`);
-
-                            // Log login event to audit trail (IHE BALP)
-                            auditEventService.logLogin(user.id, name, true).catch(err => {
-                                console.warn('[MedCalc] Failed to log audit event:', err);
-                            });
-
-                            // Set provenance context for data lineage tracking
-                            provenanceService.setPractitioner(user.id, name);
-                        }
+                        name = user.practitioner.display;
                     }
-                } catch (error) {
-                    console.warn('[MedCalc] Failed to fetch user info:', error);
+
+                    if (practitionerNameEl)
+                        practitionerNameEl.textContent = name || 'Practitioner';
+                    if (practitionerInfoEl) {
+                        practitionerInfoEl.classList.remove('hidden');
+                        practitionerInfoEl.style.display = 'flex';
+                    }
+
+                    // Set Practitioner ID for favorites
+                    if (user.id) {
+                        favoritesManager.setPractitionerId(user.id);
+                        logger.info('Practitioner set', { practitionerId: user.id });
+
+                        // Log login event to audit trail (IHE BALP)
+                        auditEventService.logLogin(user.id, name, true).catch(err => {
+                            logger.warn('Failed to log audit event', { error: String(err) });
+                        });
+
+                        // Set provenance context for data lineage tracking
+                        provenanceService.setPractitioner(user.id, name);
+                    }
                 }
-            })
-            .catch(() => {
-                console.log(
-                    'FHIR client not ready, patient info will be loaded from cache if available.'
-                );
-            });
-    }
+            } catch (error) {
+                logger.warn('Failed to fetch user info', { error: String(error) });
+            }
+        })
+        .catch(() => {
+            logger.info(
+                'FHIR client not ready, patient info will be loaded from cache if available.'
+            );
+        });
 
     // ========== Initialize Category Selector ==========
     if (categorySelect) {

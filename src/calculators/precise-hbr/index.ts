@@ -12,6 +12,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 // ==========================================
 // PRECISE-HBR 評分函數
@@ -463,7 +464,7 @@ export const preciseHbr = createUnifiedFormulaCalculator({
             const onAntiInflammatory = await fhirDataService.isOnMedication(antiInflammatoryCodes);
             setRadioResult('arc_hbr_nsaids', onAntiInflammatory);
         } catch (error) {
-            console.warn('Error in PRECISE-HBR auto-population:', error);
+            logger.warn('Error in PRECISE-HBR auto-population', { error: String(error) });
         }
     }
 });

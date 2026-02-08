@@ -207,11 +207,6 @@ describe('Lazy Loader Module', () => {
             await expect(loadCalculator('nonexistent-calc')).rejects.toThrow(
                 'Calculator "nonexistent-calc" not found'
             );
-
-            expect(console.error).toHaveBeenCalledWith(
-                'Failed to load calculator: nonexistent-calc',
-                expect.anything()
-            );
         });
 
         test('should throw a formatted error when calculator module fails to load', async () => {
@@ -231,31 +226,13 @@ describe('Lazy Loader Module', () => {
     // loadChartJS
     // =========================================
     describe('loadChartJS', () => {
-        test('should resolve with window.Chart when already loaded', async () => {
-            (window as any).Chart = { version: '3.9.1' };
-
+        test('should resolve with the Chart constructor from chart.js module', async () => {
             const { loadChartJS } = await importLazyLoader();
             const result = await loadChartJS();
 
-            expect(result).toEqual({ version: '3.9.1' });
-        });
-
-        test('should create a script element and load Chart.js from CDN', async () => {
-            const { loadChartJS } = await importLazyLoader();
-
-            const promise = loadChartJS();
-
-            const script = document.head.querySelector('script') as HTMLScriptElement;
-            expect(script).not.toBeNull();
-            expect(script.src).toContain('chart.js');
-            expect(script.async).toBe(true);
-
-            // Simulate successful load
-            (window as any).Chart = { version: '3.9.1' };
-            script.onload!(new Event('load'));
-
-            const result = await promise;
-            expect(result).toEqual({ version: '3.9.1' });
+            // The new implementation uses import('chart.js') and returns module.Chart
+            expect(result).toBeDefined();
+            expect(typeof result).toBe('function');
         });
 
         test('should return the same cached promise on subsequent calls (singleton)', async () => {
@@ -264,38 +241,11 @@ describe('Lazy Loader Module', () => {
             const promise1 = loadChartJS();
             const promise2 = loadChartJS();
 
+            // Both calls should return the exact same promise (cached)
             expect(promise1).toBe(promise2);
-
-            // Resolve both
-            const script = document.head.querySelector('script') as HTMLScriptElement;
-            (window as any).Chart = { version: '3.9.1' };
-            script.onload!(new Event('load'));
 
             await promise1;
             await promise2;
-        });
-
-        test('should reject when script.onerror fires', async () => {
-            const { loadChartJS } = await importLazyLoader();
-
-            const promise = loadChartJS();
-
-            const script = document.head.querySelector('script') as HTMLScriptElement;
-            script.onerror!(new Event('error'));
-
-            await expect(promise).rejects.toThrow('Failed to load Chart.js');
-        });
-
-        test('should reject when script loads but window.Chart is still undefined', async () => {
-            const { loadChartJS } = await importLazyLoader();
-
-            const promise = loadChartJS();
-
-            const script = document.head.querySelector('script') as HTMLScriptElement;
-            // Do NOT set window.Chart before triggering onload
-            script.onload!(new Event('load'));
-
-            await expect(promise).rejects.toThrow('Chart.js failed to load');
         });
     });
 
@@ -565,7 +515,7 @@ describe('Lazy Loader Module', () => {
                 expect(eventDetail.img).toBe(img);
             });
 
-            test('should add error class and log error when image fails to load', async () => {
+            test('should add error class when image fails to load', async () => {
                 let tempImgOnerror: (() => void) | null = null;
                 (window as any).Image = class {
                     onload: (() => void) | null = null;
@@ -595,9 +545,6 @@ describe('Lazy Loader Module', () => {
                 tempImgOnerror!();
 
                 expect(img.classList.contains('error')).toBe(true);
-                expect(console.error).toHaveBeenCalledWith(
-                    'Failed to load image: /images/broken.jpg'
-                );
             });
         });
 

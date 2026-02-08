@@ -5,6 +5,7 @@
 
 import { escapeHTML } from './security.js';
 import { auditEventService } from './audit-event-service.js';
+import { logger } from './logger.js';
 
 // ============================================================================
 // Type Definitions
@@ -749,7 +750,7 @@ export class SecurityLabelsService {
                 `Access to ${assessment.confidentiality} data: ${resource.resourceType}/${resource.id}`,
                 assessment.confidentiality === 'V' ? 'high' : 'medium'
             ).catch(err => {
-                console.warn('[SecurityLabels] Failed to log audit event:', err);
+                logger.warn('Failed to log security labels audit event', { error: String(err) });
             });
         }
 
@@ -1379,7 +1380,7 @@ export class SecurityLabelsService {
      */
     private log(...args: any[]): void {
         if (this.config.enableDebugLogging) {
-            console.log('[SecurityLabels]', ...args);
+            logger.debug('[SecurityLabels]', { detail: args.map(String).join(' ') });
         }
     }
 

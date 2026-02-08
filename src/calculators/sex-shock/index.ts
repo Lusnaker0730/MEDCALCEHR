@@ -10,6 +10,7 @@ import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateSexShock } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
+import { logger } from '../../logger.js';
 
 // Define the coefficient table HTML separately for cleaner config
 const coefficientsTableHTML = uiBuilder.createSection({
@@ -322,7 +323,7 @@ const config: FormulaCalculatorConfig = {
 
             calculate();
         } catch (e) {
-            console.warn('FHIR data fetch failed:', e);
+            logger.warn('FHIR data fetch failed', { error: String(e) });
         }
     }
 };

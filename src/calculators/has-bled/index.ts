@@ -10,6 +10,7 @@ import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 export const hasBledConfig: ScoringCalculatorConfig = {
     inputType: 'yesno',
@@ -259,7 +260,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
                 setRadioValue('hasbled-meds', '1');
             }
         } catch (error) {
-            console.warn('Error auto-populating HAS-BLED:', error);
+            logger.warn('Error auto-populating HAS-BLED', { error: String(error) });
         }
     }
 };

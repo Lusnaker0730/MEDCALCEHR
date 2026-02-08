@@ -2,6 +2,7 @@ import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 export const regiscar = createScoringCalculator({
     id: 'regiscar',
@@ -188,7 +189,7 @@ export const regiscar = createScoringCalculator({
                         setRadioValue('regiscar-fever', '0');
                     }
                 })
-                .catch(e => console.warn(e));
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
 
             // Eosinophils
             fhirDataService
@@ -206,7 +207,7 @@ export const regiscar = createScoringCalculator({
                         calculate();
                     }
                 })
-                .catch(e => console.warn(e));
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
         }
 
         calculate();

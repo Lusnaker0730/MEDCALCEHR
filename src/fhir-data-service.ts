@@ -26,6 +26,7 @@ import { UnitConverter } from './unit-converter.js';
 import { fhirFeedback } from './fhir-feedback.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService, CalculationResult } from './provenance-service.js';
+import { logger } from './logger.js';
 
 // ============================================================================
 // Type Definitions
@@ -262,7 +263,7 @@ export class FHIRDataService {
                 if (response.entry && response.entry.length > 0) {
                     const resource = response.entry[0].resource;
                     if (isRestrictedResource(resource)) {
-                        console.warn(`[Security] Access to restricted Observation (${textName}) blocked.`);
+                        logger.warn('Access to restricted Observation blocked', { detail: textName });
                         observation = null;
                     } else {
                         observation = resource;
@@ -283,16 +284,17 @@ export class FHIRDataService {
                     observation.id || code,
                     `code=${code}`
                 ).catch(err => {
-                    console.warn('[FHIRDataService] Failed to log resource read audit:', err);
+                    logger.warn('Failed to log resource read audit', { error: String(err) });
                 });
             }
 
             return this.processObservation(observation, code, options);
         } catch (error) {
-            console.error(
-                `Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`,
-                error
-            );
+            logger.error('Error fetching observation', {
+                code,
+                textQuery: String(options.useTextQuery),
+                error: String(error)
+            });
             return result;
         }
     }
@@ -413,7 +415,7 @@ export class FHIRDataService {
 
             return [];
         } catch (error) {
-            console.error(`Error fetching all observations for ${code}:`, error);
+            logger.error('Error fetching all observations', { code, error: String(error) });
             return [];
         }
     }
@@ -429,7 +431,7 @@ export class FHIRDataService {
         try {
             return await getMostRecentObservation(this.client, code);
         } catch (error) {
-            console.error(`Error fetching raw observation ${code}:`, error);
+            logger.error('Error fetching raw observation', { code, error: String(error) });
             return null;
         }
     }
@@ -485,7 +487,7 @@ export class FHIRDataService {
 
             return results;
         } catch (error) {
-            console.error(`Error fetching observation window for ${code}:`, error);
+            logger.error('Error fetching observation window', { code, error: String(error) });
             return [];
         }
     }
@@ -634,7 +636,7 @@ export class FHIRDataService {
 
             return result;
         } catch (error) {
-            console.error('Error fetching blood pressure:', error);
+            logger.error('Error fetching blood pressure', { error: String(error) });
             return result;
         }
     }
@@ -769,7 +771,7 @@ export class FHIRDataService {
                         }
                     }
                 } catch (e) {
-                    console.error('Error auto-populating BP:', e);
+                    logger.error('Error auto-populating BP', { error: String(e) });
                 }
             }
 
@@ -846,7 +848,7 @@ export class FHIRDataService {
         try {
             return await getPatientConditions(this.client, snomedCodes);
         } catch (error) {
-            console.error('Error fetching conditions:', error);
+            logger.error('Error fetching conditions', { error: String(error) });
             return [];
         }
     }
@@ -870,7 +872,7 @@ export class FHIRDataService {
         try {
             return await getMedicationRequests(this.client, rxnormCodes);
         } catch (error) {
-            console.error('Error fetching medications:', error);
+            logger.error('Error fetching medications', { error: String(error) });
             return [];
         }
     }
@@ -1073,9 +1075,9 @@ export class FHIRDataService {
                 );
             }
 
-            console.log(`[FHIRDataService] Recorded provenance for ${calculatorName}`);
+            logger.info('Recorded provenance', { calculatorId: calculatorName });
         } catch (err) {
-            console.warn('[FHIRDataService] Failed to record calculation provenance:', err);
+            logger.warn('Failed to record calculation provenance', { error: String(err) });
         }
     }
 

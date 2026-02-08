@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 const config: ScoringCalculatorConfig = {
     inputType: 'checkbox',
@@ -183,7 +184,7 @@ const config: ScoringCalculatorConfig = {
                 setCheckbox('prior-dvt-pe', true);
             }
         } catch (error) {
-            console.warn('Error auto-populating PERC:', error);
+            logger.warn('Error auto-populating PERC', { error: String(error) });
         }
     }
 };

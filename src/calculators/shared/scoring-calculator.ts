@@ -27,6 +27,7 @@ import {
     FHIRClient,
     Patient
 } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 // ==========================================
 // 從集中類型定義導入並重新導出
@@ -375,7 +376,9 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
 
             // 生成提示框
             const infoAlertHTML = config.infoAlert
-                ? uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
+                ? (config.infoAlert.includes('ui-alert')
+                    ? config.infoAlert
+                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert }))
                 : '';
 
             // 生成解釋說明
@@ -677,7 +680,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                         }
                                     }
                                 } catch (e) {
-                                    console.warn(`Error fetching observation for ${sectionId}:`, e);
+                                    logger.warn('Error fetching observation for section', { detail: sectionId, error: String(e) });
                                 }
                             }
 
@@ -705,7 +708,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                         }
                                     }
                                 } catch (e) {
-                                    console.warn(`Error fetching observation for ${sectionId}:`, e);
+                                    logger.warn('Error fetching observation criteria for section', { detail: sectionId, error: String(e) });
                                 }
                             }
                         }
@@ -747,7 +750,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                             await fhirDataService.autoPopulateFields(dataReqs.observations);
                         }
                     } catch (error) {
-                        console.error('Error during FHIR auto-population:', error);
+                        logger.error('Error during FHIR auto-population', { error: String(error) });
                     }
                 }
 

@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 // HScore 機率計算公式
 const getProbability = (score: number): string => {
@@ -300,7 +301,7 @@ export const hscoreConfig: ScoringCalculatorConfig = {
 
             calculate();
         } catch (e) {
-            console.warn('FHIR data fetch failed:', e);
+            logger.warn('FHIR data fetch failed', { error: String(e) });
         }
     }
 };

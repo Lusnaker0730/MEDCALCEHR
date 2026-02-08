@@ -10,6 +10,7 @@ import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 const config: ScoringCalculatorConfig = {
     inputType: 'yesno',
@@ -221,7 +222,7 @@ const config: ScoringCalculatorConfig = {
                 setRadioValue('rcri-insulin', '1');
             }
         } catch (error) {
-            console.warn('Error auto-populating RCRI:', error);
+            logger.warn('Error auto-populating RCRI', { error: String(error) });
         }
     }
 };

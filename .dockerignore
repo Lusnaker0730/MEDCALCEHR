@@ -6,7 +6,6 @@
 # Node modules (if any)
 node_modules
 npm-debug.log
-package-lock.json
 
 # Docker files
 Dockerfile
@@ -31,8 +30,17 @@ QUICK_START_UNIT_CONVERSION_CN.md
 
 # Tests
 tests/
+e2e/
+src/__tests__/
 jest.config.js
+jest.setup.ts
+playwright.config.ts
 *.test.js
+*.test.ts
+
+# Build output
+dist/
+coverage/
 
 # IDE
 .vscode

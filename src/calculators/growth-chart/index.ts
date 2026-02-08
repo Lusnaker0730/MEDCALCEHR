@@ -12,9 +12,10 @@ import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import type { CalculatorModule } from '../../types/index.js';
+import { logger } from '../../logger.js';
+import { Chart, LineController, LineElement, PointElement, LinearScale, Legend, Tooltip, Filler } from 'chart.js';
 
-// Declare Chart.js type assuming it's available globally
-declare const Chart: any;
+Chart.register(LineController, LineElement, PointElement, LinearScale, Legend, Tooltip, Filler);
 
 export const growthChart: CalculatorModule = {
     id: 'growth-chart',
@@ -228,7 +229,7 @@ export const growthChart: CalculatorModule = {
                     head: processObservations(headObs)
                 };
             } catch (error) {
-                console.error('Error fetching growth data:', error);
+                logger.error('Error fetching growth data', { error: String(error) });
                 const errorBox = document.createElement('div');
                 errorBox.className = 'error-box';
                 errorBox.textContent = 'An error occurred while fetching growth data.';
@@ -491,9 +492,10 @@ export const growthChart: CalculatorModule = {
                                 drawTicks: true
                             },
                             ticks: {
-                                callback: function (value: number) {
-                                    const years = Math.floor(value / 12);
-                                    const months = Math.round(value % 12);
+                                callback: function (value: string | number) {
+                                    const v = Number(value);
+                                    const years = Math.floor(v / 12);
+                                    const months = Math.round(v % 12);
                                     return years > 0
                                         ? `${years}y${months > 0 ? ` ${months}m` : ''}`
                                         : `${months}m`;

@@ -17,6 +17,8 @@ services:
             - FHIR_REDIRECT_URI=${FHIR_REDIRECT_URI:-./index.html}
             - SESSION_TIMEOUT_MINUTES=${SESSION_TIMEOUT_MINUTES:-15}
             - SESSION_WARNING_MINUTES=${SESSION_WARNING_MINUTES:-2}
+            - SENTRY_DSN=${SENTRY_DSN:-}
+            - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT:-production}
         healthcheck:
             test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/']
             interval: 30s

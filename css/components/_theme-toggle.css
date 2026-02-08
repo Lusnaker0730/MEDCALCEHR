@@ -52,6 +52,14 @@
     box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
 }
 
+/* Header 按鈕群組 */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
 /* Header 調整以容納按鈕 */
 .header-top {
     display: flex;

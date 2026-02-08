@@ -111,7 +111,9 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
                 : '';
 
             const infoHTML = config.infoAlert
-                ? uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
+                ? (config.infoAlert.includes('ui-alert')
+                    ? config.infoAlert
+                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert }))
                 : '';
 
             return `

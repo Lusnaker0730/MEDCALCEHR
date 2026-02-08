@@ -1,3 +1,6 @@
+import { logger } from './logger.js';
+import { captureException } from './sentry.js';
+
 // Custom Calculator Error Class
 
 export class CalculatorError extends Error {
@@ -59,23 +62,14 @@ export function logError(error: any, context: any = {}): any {
         stack: error.stack
     };
 
-    // Log details in development environment
-    if (
-        typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ) {
-        console.group('🚨 Error Logged');
-        console.error('Error:', error);
-        console.log('Context:', context);
-        console.log('Full Log:', errorLog);
-        console.groupEnd();
-    } else {
-        // Log brief info in production
-        console.error(`[${errorLog.code}] ${errorLog.message}`);
-    }
-
-    // Optional: Send to logging service (e.g. Sentry, LogRocket, etc.)
-    // sendToLoggingService(errorLog);
+    // Structured logging + Sentry
+    logger.error(`[${errorLog.code}] ${errorLog.message}`, {
+        errorName: errorLog.name,
+        code: errorLog.code,
+        ...context,
+        stack: error.stack,
+    });
+    captureException(error);
 
     return errorLog;
 }
@@ -92,7 +86,7 @@ export function displayError(
     userMessage: string | null = null
 ): void {
     if (!container) {
-        console.error('displayError: container element is null');
+        logger.error('displayError: container element is null');
         return;
     }
 

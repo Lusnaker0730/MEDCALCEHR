@@ -2,6 +2,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 export const ariscatConfig: ScoringCalculatorConfig = {
     id: 'ariscat',
@@ -240,7 +241,7 @@ export const ariscatConfig: ScoringCalculatorConfig = {
                         setRadioValue('ariscat-spo2', value);
                     }
                 })
-                .catch(console.error);
+                .catch((e: unknown) => logger.error('FHIR data fetch failed', { error: String(e) }));
 
             // Hemoglobin
             fhirDataService
@@ -257,7 +258,7 @@ export const ariscatConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(console.error);
+                .catch((e: unknown) => logger.error('FHIR data fetch failed', { error: String(e) }));
         }
 
         calculate();

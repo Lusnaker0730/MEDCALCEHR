@@ -8,6 +8,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 import { calculateGraceAcs } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
@@ -223,7 +224,7 @@ const config: FormulaCalculatorConfig = {
                     setRadio('grace-cardiac-arrest', '39');
                 }
             } catch (e) {
-                console.warn('Error fetching FHIR data for GRACE ACS', e);
+                logger.warn('Error fetching FHIR data for GRACE ACS', { error: String(e) });
             }
         }
 

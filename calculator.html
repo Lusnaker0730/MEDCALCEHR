@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; upgrade-insecure-requests;" />
+        content="default-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io https://*.ingest.sentry.io; upgrade-insecure-requests;" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
@@ -16,40 +16,40 @@
     <meta name="description" content="Medical calculator with FHIR EHR integration" />
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚕️</text></svg>" />
-    <!-- 新的模組化 CSS 結構 -->
+    <link rel="preconnect" href="https://o0.ingest.sentry.io" />
     <link rel="stylesheet" href="css/main.css" />
-    <!-- 深色科技主題（通過 data-theme 屬性啟用） -->
     <link rel="stylesheet" href="css/themes/tech-theme.css" />
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container">
-        <div class="header-top">
-            <a href="index.html" class="back-link">&larr; Back to Calculator List</a>
-            <h1 id="page-title">CGMH EHRCALC on FHIR</h1>
-            <div>
-                <button id="logout-btn" class="logout-btn" title="Logout">Logout</button>
-                <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
-                    <span class="theme-icon">🌙</span>
-                </button>
+        <header role="banner">
+            <div class="header-top">
+                <nav aria-label="Breadcrumb">
+                    <a href="index.html" class="back-link">&larr; Back to Calculator List</a>
+                </nav>
+                <h1 id="page-title">CGMH EHRCALC on FHIR</h1>
+                <div class="header-actions">
+                    <button id="logout-btn" class="logout-btn" title="Logout">Logout</button>
+                    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                </div>
             </div>
-        </div>
-        <div id="patient-info">Loading patient data...</div>
-        <hr />
-        <div id="calculator-container">
-            <!-- The specific calculator will be rendered here -->
-        </div>
+            <div id="patient-info">Loading patient data...</div>
+            <hr />
+        </header>
+        <main id="main-content">
+            <div id="calculator-container">
+                <!-- The specific calculator will be rendered here -->
+            </div>
+        </main>
     </div>
 
     <script src="js/app-config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.js"
-        integrity="sha384-dGS6R4ht5hVL6tx4pQCGGEFJV/rS1ywziGTuH/fJeDtWoS4YQJeAaF1qu2/0ZXkk"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"
-        integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
-        crossorigin="anonymous"></script>
-    <script type="module" src="js/theme-toggle.js"></script>
-    <script type="module" src="js/calculator-page.js"></script>
+    <script type="module" src="src/theme-toggle.ts"></script>
+    <script type="module" src="src/calculator-page.ts"></script>
 </body>
 
 </html>

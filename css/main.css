@@ -38,6 +38,7 @@
 @import 'components/_loading.css';
 @import 'components/_staleness.css';
 @import 'components/_session-timeout.css';
+@import 'components/_skip-link.css';
 
 /* ===================
    3. 佈局樣式

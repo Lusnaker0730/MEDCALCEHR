@@ -1,4 +1,5 @@
 // src/calculator-page.ts
+import FHIR from 'fhirclient';
 import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata, CalculatorModule } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
@@ -6,17 +7,17 @@ import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { initSentry } from './sentry.js';
+import { logger } from './logger.js';
+import { initWebVitals } from './web-vitals.js';
 
-declare global {
-    interface Window {
-        CACHE_VERSION: string;
-        FHIR: {
-            oauth2: {
-                ready(): Promise<FHIRClient>;
-            };
-        };
-    }
-}
+// Initialize Sentry early
+initSentry();
+
+// Initialize Web Vitals
+initWebVitals();
+
+// Window.CACHE_VERSION type declared in src/types/global.d.ts
 
 interface FHIRClient {
     patient: {
@@ -25,7 +26,7 @@ interface FHIRClient {
 }
 
 interface Patient {
-    id: string;
+    id?: string;
     name?: Array<{
         given?: string[];
         family?: string;
@@ -57,7 +58,7 @@ window.onload = () => {
     const pageTitle = document.getElementById('page-title');
 
     if (!patientInfoDiv || !container || !pageTitle) {
-        console.error('Required DOM elements not found');
+        logger.error('Required DOM elements not found');
         return;
     }
 
@@ -110,14 +111,14 @@ window.onload = () => {
                     try {
                         calculator.initialize(client, patient, card);
                     } catch (initError) {
-                        console.error('Error during calculator initialization:', initError);
+                        logger.error('Error during calculator initialization', { error: String(initError), calculatorId });
                         card.innerHTML =
                             '<div class="error-box">An error occurred while initializing this calculator.</div>';
                     }
                 }
             };
 
-            window.FHIR.oauth2
+            FHIR.oauth2
                 .ready()
                 .then((client: FHIRClient) => {
                     displayPatientInfo(client, patientInfoDiv).then((patient: Patient | null) => {
@@ -136,7 +137,7 @@ window.onload = () => {
                                 'Calculator',
                                 calculatorId
                             ).catch(err => {
-                                console.warn('[MedCalc] Failed to log patient access audit:', err);
+                                logger.warn('Failed to log patient access audit', { error: String(err) });
                             });
                         }
 
@@ -144,14 +145,14 @@ window.onload = () => {
                     });
                 })
                 .catch((error: Error) => {
-                    console.error(error);
+                    logger.error('FHIR client error', { error: error.message });
                     patientInfoDiv.innerText =
                         'No patient data available. Please launch from the EHR.';
                     // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
                     initializeCalculator(null, null);
                 });
         } catch (error) {
-            console.error(`Failed to load calculator module: ${calculatorId}`, error);
+            logger.error('Failed to load calculator module', { calculatorId, error: String(error) });
             displayError(
                 card,
                 error as Error,

@@ -3,6 +3,7 @@ import { LOINC_CODES } from '../../fhir-codes.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 export const cpisConfig: ScoringCalculatorConfig = {
     id: 'cpis',
@@ -156,7 +157,7 @@ export const cpisConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(e => console.warn(e));
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
 
             // WBC
             fhirDataService
@@ -175,7 +176,7 @@ export const cpisConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(e => console.warn(e));
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
         }
 
         calculate();

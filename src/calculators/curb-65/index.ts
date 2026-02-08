@@ -8,6 +8,7 @@
 import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
 
@@ -255,7 +256,7 @@ export const curb65Config: ScoringCalculatorConfig = {
                 }
             }
         } catch (error) {
-            console.warn('Error auto-populating CURB-65:', error);
+            logger.warn('Error auto-populating CURB-65', { error: String(error) });
         }
     }
 };

@@ -8,6 +8,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 import { calculateCharlson } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
@@ -325,10 +326,10 @@ const config: FormulaCalculatorConfig = {
                                     setValue('liver', '1');
                                 }
                             })
-                            .catch(e => console.warn('Error fetching mild liver conditions:', e));
+                            .catch((e: unknown) => logger.warn('Error fetching mild liver conditions', { error: String(e) }));
                     }
                 })
-                .catch(e => console.warn('Error fetching severe liver conditions:', e));
+                .catch((e: unknown) => logger.warn('Error fetching severe liver conditions', { error: String(e) }));
 
             // Diabetes
             // Note: SNOMED doesn't always cleanly distinguish "Uncomplicated" vs "EOD" by single parent codes easily without detailed traversing
@@ -352,7 +353,7 @@ const config: FormulaCalculatorConfig = {
                         setValue('diabetes', '1');
                     }
                 })
-                .catch(e => console.warn('Error fetching diabetes:', e));
+                .catch((e: unknown) => logger.warn('Error fetching diabetes', { error: String(e) }));
 
             // Solid tumor
             fhirDataService
@@ -368,10 +369,10 @@ const config: FormulaCalculatorConfig = {
                                     setValue('tumor', '2');
                                 }
                             })
-                            .catch(e => console.warn('Error fetching tumor:', e));
+                            .catch((e: unknown) => logger.warn('Error fetching tumor', { error: String(e) }));
                     }
                 })
-                .catch(e => console.warn('Error fetching metastatic tumor:', e));
+                .catch((e: unknown) => logger.warn('Error fetching metastatic tumor', { error: String(e) }));
 
             // CKD via Creatinine > 3 mg/dL - Supplementing the snomedCode check
             fhirDataService
@@ -394,7 +395,7 @@ const config: FormulaCalculatorConfig = {
                         }
                     }
                 })
-                .catch(e => console.warn('Error fetching creatinine:', e));
+                .catch((e: unknown) => logger.warn('Error fetching creatinine', { error: String(e) }));
         }
 
         setTimeout(calculate, 200);

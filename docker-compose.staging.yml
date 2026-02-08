@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+    medcalcehr:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                BUILD_VERSION: staging-${BUILD_VERSION:-latest}
+                BUILD_TIME: ${BUILD_TIME:-unknown}
+        image: medcalcehr:staging
+        container_name: medcalcehr-staging
+        ports:
+            - '8081:80'
+        restart: unless-stopped
+        env_file:
+            - .env.staging
+        environment:
+            - TZ=Asia/Taipei
+            - SENTRY_ENVIRONMENT=staging
+        healthcheck:
+            test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+        networks:
+            - medcalc-staging-network
+
+networks:
+    medcalc-staging-network:
+        driver: bridge

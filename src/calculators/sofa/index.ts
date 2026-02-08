@@ -10,6 +10,7 @@ import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 export const sofaConfig: ScoringCalculatorConfig = {
     id: 'sofa',
@@ -233,7 +234,7 @@ export const sofaConfig: ScoringCalculatorConfig = {
                 plateletsEl.textContent = 'Not available';
             }
         } catch (e) {
-            console.warn('Error fetching platelets:', e);
+            logger.warn('Error fetching platelets', { error: String(e) });
             const el = container.querySelector('#current-platelets');
             if (el) {
                 el.textContent = 'Not available';
@@ -288,7 +289,7 @@ export const sofaConfig: ScoringCalculatorConfig = {
                 creatinineEl.textContent = 'Not available';
             }
         } catch (e) {
-            console.warn('Error fetching creatinine:', e);
+            logger.warn('Error fetching creatinine', { error: String(e) });
             const el = container.querySelector('#current-creatinine');
             if (el) {
                 el.textContent = 'Not available';
@@ -343,7 +344,7 @@ export const sofaConfig: ScoringCalculatorConfig = {
                 bilirubinEl.textContent = 'Not available';
             }
         } catch (e) {
-            console.warn('Error fetching bilirubin:', e);
+            logger.warn('Error fetching bilirubin', { error: String(e) });
             const el = container.querySelector('#current-bilirubin');
             if (el) {
                 el.textContent = 'Not available';

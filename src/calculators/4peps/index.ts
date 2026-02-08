@@ -8,6 +8,7 @@ import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 import { calculateFourPeps } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
@@ -372,7 +373,7 @@ const config: FormulaCalculatorConfig = {
                 }
             }
         } catch (error) {
-            console.error('Error auto-populating 4PEPS:', error);
+            logger.error('Error auto-populating 4PEPS', { error: String(error) });
         } finally {
             calculate();
         }

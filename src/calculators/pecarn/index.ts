@@ -1,6 +1,7 @@
 import { calculateAge } from '../../utils.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { ValidationError, displayError, logError } from '../../errorHandler.js';
+import { logger } from '../../logger.js';
 
 interface CalculatorModule {
     id: string;
@@ -238,7 +239,7 @@ export const pecarn: CalculatorModule = {
                 if (errorContainer) {
                     displayError(errorContainer as HTMLElement, error as Error);
                 } else {
-                    console.error(error);
+                    logger.error('PECARN calculation error', { error: String(error) });
                 }
                 logError(error as Error, { calculator: 'pecarn', action: 'calculate' });
             }

@@ -8,21 +8,7 @@
 
 import { auditEventService } from './audit-event-service.js';
 
-declare global {
-    interface Window {
-        MEDCALC_CONFIG?: {
-            fhir?: {
-                clientId?: string;
-                scope?: string;
-                redirectUri?: string;
-            };
-            session?: {
-                timeoutMinutes?: number;
-                warningMinutes?: number;
-            };
-        };
-    }
-}
+// Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 
 interface SessionManagerConfig {
     /** Minutes of inactivity before auto-logout. 0 to disable. */

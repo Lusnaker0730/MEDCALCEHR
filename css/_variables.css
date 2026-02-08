@@ -168,3 +168,21 @@
     --container-max-width: 1400px;
     --container-padding: 40px;
 }
+
+/* ===================
+   High Contrast Override
+   =================== */
+
+@media (prefers-contrast: more) {
+    :root {
+        --color-border: #000;
+        --color-border-light: #333;
+        --color-border-focus: #000;
+        --color-text-primary: #000;
+        --color-text-secondary: #333;
+        --color-success: #006400;
+        --color-warning: #8B4513;
+        --color-danger: #8B0000;
+        --color-info: #00008B;
+    }
+}

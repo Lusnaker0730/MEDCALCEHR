@@ -5,6 +5,7 @@ import {
     secureSessionRetrieve,
     extractMinimalPatientData
 } from './security.js';
+import { logger } from './logger.js';
 
 /** Storage key for patient display data */
 const PATIENT_CACHE_KEY = 'patientDisplayData';
@@ -33,7 +34,7 @@ export function getMostRecentObservation(client: any, code: string): Promise<any
             if (response.entry && response.entry.length > 0) {
                 const resource = response.entry[0].resource;
                 if (isRestrictedResource(resource)) {
-                    console.warn(`[Security] Access to restricted Observation (${code}) blocked.`);
+                    logger.warn('Access to restricted Observation blocked', { detail: code });
                     return null;
                 }
                 return resource;
@@ -41,7 +42,7 @@ export function getMostRecentObservation(client: any, code: string): Promise<any
             return null;
         })
         .catch((error: any) => {
-            console.error('Error fetching observation:', error);
+            logger.error('Error fetching observation', { error: String(error) });
             return null;
         });
 }
@@ -150,7 +151,7 @@ export async function displayPatientInfo(client: any, patientInfoDiv: HTMLElemen
             return patient;
         },
         (error: any) => {
-            console.error(error);
+            logger.error('Error reading patient data', { error: String(error) });
             if (!cachedMinimal) {
                 patientInfoDiv.innerText = 'Error fetching patient data.';
             }
@@ -178,7 +179,7 @@ export function getPatientConditions(client: any, codes: string[]): Promise<any[
                     .map((e: any) => e.resource)
                     .filter((r: any) => {
                         if (isRestrictedResource(r)) {
-                            console.warn(`[Security] Access to restricted Condition (${r.id}) blocked.`);
+                            logger.warn('Access to restricted Condition blocked', { detail: r.id });
                             return false;
                         }
                         return true;
@@ -187,7 +188,7 @@ export function getPatientConditions(client: any, codes: string[]): Promise<any[
             return [];
         })
         .catch((error: any) => {
-            console.error('Error fetching patient conditions:', error);
+            logger.error('Error fetching patient conditions', { error: String(error) });
             return [];
         });
 }
@@ -205,7 +206,7 @@ export function getPatient(client: any): Promise<any> {
         .read()
         .then((patient: any) => patient || null)
         .catch((error: any) => {
-            console.error('Error fetching patient:', error);
+            logger.error('Error fetching patient', { error: String(error) });
             return null;
         });
 }
@@ -229,7 +230,7 @@ export function getObservation(client: any, code: string): Promise<any> {
             return null;
         })
         .catch((error: any) => {
-            console.error('Error fetching observation:', error);
+            logger.error('Error fetching observation', { error: String(error) });
             return null;
         });
 }
@@ -280,14 +281,14 @@ export async function getMedicationRequests(client: any, rxnormCodes: string[]):
                 .map((e: any) => e.resource)
                 .filter((r: any) => {
                     if (isRestrictedResource(r)) {
-                        console.warn(`[Security] Access to restricted MedicationRequest (${r.id}) blocked.`);
+                        logger.warn('Access to restricted MedicationRequest blocked', { detail: r.id });
                         return false;
                     }
                     return true;
                 })
             : [];
     } catch (error) {
-        console.error('Error fetching medication requests:', error);
+        logger.error('Error fetching medication requests', { error: String(error) });
         return [];
     }
 }

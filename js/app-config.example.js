@@ -24,5 +24,17 @@ window.MEDCALC_CONFIG = {
 
         // Minutes before timeout to show warning overlay
         warningMinutes: 2
+    },
+
+    // Sentry error tracking (optional — omit or leave dsn empty to disable)
+    sentry: {
+        // Sentry DSN from your project settings
+        dsn: '',
+
+        // Environment tag for filtering in Sentry dashboard
+        environment: 'development',
+
+        // Error sample rate (0.0 to 1.0)
+        sampleRate: 1.0
     }
 };

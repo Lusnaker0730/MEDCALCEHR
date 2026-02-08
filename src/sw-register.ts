@@ -4,6 +4,8 @@
  * Registers and manages the Service Worker lifecycle
  */
 
+import { logger } from './logger.js';
+
 interface MessagePayload {
     type: string;
     [key: string]: unknown;
@@ -20,7 +22,7 @@ interface CacheStatsResponse {
  */
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
     if (!('serviceWorker' in navigator)) {
-        console.log('Service Worker not supported');
+        logger.info('Service Worker not supported');
         return null;
     }
 
@@ -30,12 +32,12 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
             scope: '/'
         });
 
-        console.log('Service Worker registered successfully:', registration.scope);
+        logger.info('Service Worker registered successfully', { detail: registration.scope });
 
         // Handle updates
         registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
-            console.log('Service Worker update found');
+            logger.info('Service Worker update found');
 
             newWorker?.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
@@ -55,7 +57,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 
         return registration;
     } catch (error) {
-        console.error('Service Worker registration failed:', error);
+        logger.error('Service Worker registration failed', { error: String(error) });
         return null;
     }
 }
@@ -121,10 +123,10 @@ export async function unregisterServiceWorker(): Promise<boolean> {
         for (const registration of registrations) {
             await registration.unregister();
         }
-        console.log('Service Worker unregistered');
+        logger.info('Service Worker unregistered');
         return true;
     } catch (error) {
-        console.error('Failed to unregister Service Worker:', error);
+        logger.error('Failed to unregister Service Worker', { error: String(error) });
         return false;
     }
 }
@@ -156,7 +158,7 @@ export function getServiceWorkerStatus(): ServiceWorkerStatus {
 export async function sendMessageToSW(message: MessagePayload): Promise<unknown> {
     const controller = navigator.serviceWorker.controller;
     if (!controller) {
-        console.warn('No active service worker');
+        logger.warn('No active service worker');
         return null;
     }
 
@@ -187,10 +189,10 @@ export async function sendMessageToSW(message: MessagePayload): Promise<unknown>
 export async function clearServiceWorkerCaches(): Promise<unknown> {
     try {
         const result = await sendMessageToSW({ type: 'CLEAR_CACHE' });
-        console.log('Service Worker caches cleared');
+        logger.info('Service Worker caches cleared');
         return result;
     } catch (error) {
-        console.error('Failed to clear Service Worker caches:', error);
+        logger.error('Failed to clear Service Worker caches', { error: String(error) });
         return null;
     }
 }
@@ -203,7 +205,7 @@ export async function getCacheStats(): Promise<CacheStatsResponse['stats'] | nul
         const result = (await sendMessageToSW({ type: 'GET_CACHE_STATS' })) as CacheStatsResponse;
         return result.stats;
     } catch (error) {
-        console.error('Failed to get cache stats:', error);
+        logger.error('Failed to get cache stats', { error: String(error) });
         return null;
     }
 }

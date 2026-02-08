@@ -2,6 +2,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
+import { logger } from '../../logger.js';
 
 export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
     id: 'bacterial-meningitis-score',
@@ -189,7 +190,7 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
                     setRadio('seizure', '1');
                 }
             } catch (e) {
-                console.warn('Error auto-populating bacterial meningitis score:', e);
+                logger.warn('Error auto-populating bacterial meningitis score', { error: String(e) });
             }
         }
 

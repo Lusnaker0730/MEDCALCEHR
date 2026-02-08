@@ -30,7 +30,13 @@
       "Bash(npx playwright install:*)",
       "Bash(npx playwright test:*)",
       "Bash(git checkout:*)",
-      "Bash(if exist \"D:\\\\CGHCALC\\\\MEDCALCEHR\\\\nul\" del \"D:\\\\CGHCALC\\\\MEDCALCEHR\\\\nul\")"
+      "Bash(if exist \"D:\\\\CGHCALC\\\\MEDCALCEHR\\\\nul\" del \"D:\\\\CGHCALC\\\\MEDCALCEHR\\\\nul\")",
+      "Bash(cd:*)",
+      "Bash(npx vite build)",
+      "Bash(npx ts-jest:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)",
+      "Bash(git -C \"D:\\\\CGHCALC\\\\MEDCALCEHR\" log --oneline -20)"
     ]
   }
 }

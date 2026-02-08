@@ -8,6 +8,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 import { calculateGuptaMica } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
@@ -237,7 +238,7 @@ const config: FormulaCalculatorConfig = {
                     setValue('mica-creat', result.value.toFixed(2));
                 }
             } catch (e) {
-                console.warn('Error fetching creatinine for Gupta MICA', e);
+                logger.warn('Error fetching creatinine for Gupta MICA', { error: String(e) });
             }
         }
 

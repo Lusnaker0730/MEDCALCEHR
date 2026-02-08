@@ -3,6 +3,8 @@
 // Reference: https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition-Provenance-twcore.html
 // Reference: https://build.fhir.org/provenance.html
 
+import { logger } from './logger.js';
+
 // ============================================================================
 // Type Definitions
 // ============================================================================
@@ -1135,7 +1137,7 @@ export class ProvenanceService {
             localStorage.setItem(STORAGE_KEYS.PENDING_RECORDS, JSON.stringify(stored));
             this.log(`Provenance stored locally (${stored.length} pending)`);
         } catch (error) {
-            console.error('Failed to store provenance locally:', error);
+            logger.error('Failed to store provenance locally', { error: String(error) });
         }
     }
 
@@ -1265,7 +1267,7 @@ export class ProvenanceService {
      */
     private log(...args: any[]): void {
         if (this.config.enableDebugLogging) {
-            console.log('[Provenance]', ...args);
+            logger.debug('[Provenance]', { detail: args.map(String).join(' ') });
         }
     }
 

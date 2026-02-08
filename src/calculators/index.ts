@@ -255,9 +255,8 @@ export const calculatorModules: CalculatorMetadata[] = [
  */
 export async function loadCalculator(calculatorId: string): Promise<CalculatorModule> {
     try {
-        // Use timestamp for cache busting during development
-        const version = Date.now();
-        const module = await import(`/js/calculators/${calculatorId}/index.js?v=${version}`);
+        // Vite handles dynamic imports natively with code splitting
+        const module = await import(`./${calculatorId}/index.ts`);
 
         // Return the calculator object (prefer default, then search for generateHTML, then fallback)
         if (module.default) return module.default;
@@ -268,7 +267,6 @@ export async function loadCalculator(calculatorId: string): Promise<CalculatorMo
 
         return (calculator as CalculatorModule) || (Object.values(module)[0] as CalculatorModule);
     } catch (error) {
-        console.error(`Failed to load calculator: ${calculatorId}`, error);
         throw new Error(`Unable to load calculator module: ${calculatorId}`);
     }
 }

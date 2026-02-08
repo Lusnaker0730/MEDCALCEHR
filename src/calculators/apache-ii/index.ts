@@ -8,6 +8,7 @@
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 import { apacheIiCalculation, getPoints } from './calculation.js';
 import { fhirDataService, ObservationResult } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
@@ -482,7 +483,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
                         }
                     }
                 } catch (e) {
-                    console.warn(`Error auto-populating worst value for ${field.id}:`, e);
+                    logger.warn('Error auto-populating worst value', { detail: field.id, error: String(e) });
                 }
             };
 

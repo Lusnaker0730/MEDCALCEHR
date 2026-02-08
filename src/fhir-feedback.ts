@@ -1,6 +1,8 @@
 // FHIR Data Loading Feedback System
 // Provides visual feedback for FHIR data loading status
 
+import { logger } from './logger.js';
+
 // ============================================================================
 // Type Definitions
 // ============================================================================
@@ -377,7 +379,7 @@ export class FHIRFeedback {
                         });
                     }
                 } catch (error: any) {
-                    console.error(`Error loading ${field.label}:`, error);
+                    logger.error('Error loading FHIR field', { detail: field.label, error: String(error) });
                     this.showError(input, field.label, error);
                     results.failed.push(field.label);
                 }

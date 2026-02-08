@@ -62,10 +62,11 @@ select,
 
 input:focus,
 textarea:focus,
-select:focus,
-.ui-input:focus,
-.ui-select:focus {
-    outline: none;
+select:focus-visible,
+.ui-input:focus-visible,
+.ui-select:focus-visible {
+    outline: 3px solid var(--color-accent, #06b6d4);
+    outline-offset: 2px;
     border-color: var(--color-border-focus);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }

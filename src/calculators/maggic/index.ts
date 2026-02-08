@@ -10,6 +10,7 @@ import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateMaggic } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
+import { logger } from '../../logger.js';
 
 const config: FormulaCalculatorConfig = {
     id: 'maggic',
@@ -380,7 +381,7 @@ const config: FormulaCalculatorConfig = {
             const onAceArb = await fhirDataService.isOnMedication(aceArbCodes);
             if (onAceArb) setRadio('maggic-acei', '0'); // Yes (0 points)
         } catch (e) {
-            console.warn('Error fetching FHIR data for MAGGIC', e);
+            logger.warn('Error fetching FHIR data for MAGGIC', { error: String(e) });
         }
 
         calculate();

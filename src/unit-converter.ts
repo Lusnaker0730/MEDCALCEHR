@@ -1,5 +1,7 @@
 // Universal Unit Conversion System for MedCalcEHR
 
+import { logger } from './logger.js';
+
 /**
  * Unit conversion definitions and functions
  */
@@ -405,9 +407,9 @@ export const UnitConverter = {
                     // Conversion failed, fall back to raw value?
                     // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
                     // Just set raw value as fallback.
-                    console.warn(
-                        `Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`
-                    );
+                    logger.warn('Unit conversion failed', {
+                        detail: `from ${unit} to ${currentUnit} for type ${type}`
+                    });
                     inputElement.value = value.toString();
                 }
             } else {

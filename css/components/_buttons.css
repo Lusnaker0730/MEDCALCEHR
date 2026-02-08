@@ -52,6 +52,15 @@ button[type='button']:active,
     transform: translateY(0);
 }
 
+.btn:focus-visible,
+.ui-btn:focus-visible,
+button[type='submit']:focus-visible,
+button[type='button']:focus-visible,
+.ui-button:focus-visible {
+    outline: 3px solid var(--color-accent, #06b6d4);
+    outline-offset: 2px;
+}
+
 .btn:disabled,
 button:disabled,
 .ui-button:disabled {

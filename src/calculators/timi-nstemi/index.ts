@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
+import { logger } from '../../logger.js';
 
 export const timiNstemiConfig: ScoringCalculatorConfig = {
     inputType: 'yesno',
@@ -236,7 +237,7 @@ export const timiNstemiConfig: ScoringCalculatorConfig = {
                 setYes('timi-asa');
             }
         } catch (error) {
-            console.warn('Error auto-populating TIMI-NSTEMI:', error);
+            logger.warn('Error auto-populating TIMI-NSTEMI', { error: String(error) });
         }
     }
 };

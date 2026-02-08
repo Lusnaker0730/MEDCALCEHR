@@ -9,6 +9,7 @@ import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateGwtgHf } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
+import { logger } from '../../logger.js';
 
 const config: FormulaCalculatorConfig = {
     id: 'gwtg-hf',
@@ -195,7 +196,7 @@ const config: FormulaCalculatorConfig = {
                     setRadio('copd', '2');
                 }
             } catch (e) {
-                console.warn('Error fetching FHIR data for GWTG-HF', e);
+                logger.warn('Error fetching FHIR data for GWTG-HF', { error: String(e) });
             }
         }
 

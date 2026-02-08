@@ -10,6 +10,32 @@ FHIR_SCOPE="${FHIR_SCOPE:-openid fhirUser launch profile user/Patient.rs user/Ob
 FHIR_REDIRECT_URI="${FHIR_REDIRECT_URI:-./index.html}"
 SESSION_TIMEOUT_MINUTES="${SESSION_TIMEOUT_MINUTES:-15}"
 SESSION_WARNING_MINUTES="${SESSION_WARNING_MINUTES:-2}"
+SENTRY_DSN="${SENTRY_DSN:-}"
+SENTRY_ENVIRONMENT="${SENTRY_ENVIRONMENT:-production}"
+
+# Generate health.json with build info
+HEALTH_FILE="/usr/share/nginx/html/health.json"
+BUILD_VERSION="${BUILD_VERSION:-unknown}"
+BUILD_TIME="${BUILD_TIME:-unknown}"
+cat > "$HEALTH_FILE" <<EOF
+{
+    "status": "ok",
+    "version": "${BUILD_VERSION}",
+    "buildTime": "${BUILD_TIME}",
+    "environment": "${SENTRY_ENVIRONMENT}"
+}
+EOF
+
+# Build sentry config block
+SENTRY_CONFIG=""
+if [ -n "$SENTRY_DSN" ]; then
+    SENTRY_CONFIG="
+    sentry: {
+        dsn: '${SENTRY_DSN}',
+        environment: '${SENTRY_ENVIRONMENT}',
+        sampleRate: 1.0
+    },"
+fi
 
 cat > "$CONFIG_FILE" <<EOF
 window.MEDCALC_CONFIG = {
@@ -21,11 +47,11 @@ window.MEDCALC_CONFIG = {
     session: {
         timeoutMinutes: ${SESSION_TIMEOUT_MINUTES},
         warningMinutes: ${SESSION_WARNING_MINUTES}
-    }
+    },${SENTRY_CONFIG}
 };
 EOF
 
-echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID})"
+echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID}, sentry=${SENTRY_DSN:+enabled})"
 
 # Start nginx
 exec nginx -g 'daemon off;'

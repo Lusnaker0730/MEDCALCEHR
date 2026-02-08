@@ -15,7 +15,7 @@ export default {
     // 處理模組路徑別名 (如果有) 和 .js 副檔名導入
     moduleNameMapper: {
         // 處理 TypeScript 中的 .js 導入 (ESM 規範)
-        '^(\\.{1,2}/.*)\\.js$': '$1'
+        '^(\\.{1,2}/.*)\\.js$': '$1',
     },
 
     // 轉換設定

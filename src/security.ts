@@ -6,6 +6,8 @@
  *           Any changes should be reviewed carefully and tested with penetration tests.
  */
 
+import { logger } from './logger.js';
+
 // Dangerous tags that should always be removed (mXSS prevention)
 const DANGEROUS_TAGS = [
     'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed',
@@ -196,7 +198,7 @@ export function createSafeElement(
     Object.keys(attributes).forEach(key => {
         // Skip event handlers
         if (key.startsWith('on')) {
-            console.warn(`Skipping event handler attribute: ${key}`);
+            logger.warn('Skipping event handler attribute', { detail: key });
             return;
         }
 
@@ -205,7 +207,7 @@ export function createSafeElement(
             if (isValidURL(attributes[key])) {
                 element.setAttribute(key, attributes[key]);
             } else {
-                console.warn(`Invalid URL blocked: ${attributes[key]}`);
+                logger.warn('Invalid URL blocked', { detail: attributes[key] });
             }
         } else {
             element.setAttribute(key, attributes[key]);
@@ -335,7 +337,7 @@ export function validateInput(
  */
 export function setSafeInnerHTML(element: HTMLElement | null, html: string): void {
     if (!element) {
-        console.error('setSafeInnerHTML: element is null or undefined');
+        logger.error('setSafeInnerHTML: element is null or undefined');
         return;
     }
 
@@ -349,7 +351,7 @@ export function setSafeInnerHTML(element: HTMLElement | null, html: string): voi
  */
 export function setSafeTextContent(element: HTMLElement | null, text: string): void {
     if (!element) {
-        console.error('setSafeTextContent: element is null or undefined');
+        logger.error('setSafeTextContent: element is null or undefined');
         return;
     }
 
@@ -373,7 +375,7 @@ export function createSafeEventHandler(handler: (event: Event) => any): (event: 
         try {
             return handler.call(this, event);
         } catch (error) {
-            console.error('Error in event handler:', error);
+            logger.error('Error in event handler', { error: String(error) });
             return false;
         }
     };
@@ -444,7 +446,7 @@ export function encodeForStorage(data: unknown): string {
         ));
         return 'enc:' + encoded; // Prefix to identify encoded data
     } catch (error) {
-        console.error('[Security] Failed to encode data for storage:', error);
+        logger.error('Failed to encode data for storage', { error: String(error) });
         return '';
     }
 }
@@ -472,7 +474,7 @@ export function decodeFromStorage<T = unknown>(encoded: string): T | null {
         const json = xorCipher(xored, key);
         return JSON.parse(json) as T;
     } catch (error) {
-        console.error('[Security] Failed to decode data from storage:', error);
+        logger.error('Failed to decode data from storage', { error: String(error) });
         return null;
     }
 }
@@ -632,7 +634,7 @@ export async function secureSessionStore(key: string, data: unknown): Promise<vo
         const encrypted = await encryptAESGCM(json);
         sessionStorage.setItem(key, encrypted);
     } catch (error) {
-        console.error('[Security] Failed to store data securely:', error);
+        logger.error('Failed to store data securely', { error: String(error) });
     }
 }
 
@@ -648,7 +650,7 @@ export async function secureSessionRetrieve<T = unknown>(key: string): Promise<T
         if (!stored) return null;
         return await decodeStoredData<T>(stored, key, sessionStorage);
     } catch (error) {
-        console.error('[Security] Failed to retrieve data securely:', error);
+        logger.error('Failed to retrieve data securely', { error: String(error) });
         return null;
     }
 }
@@ -665,7 +667,7 @@ export async function secureLocalStore(key: string, data: unknown): Promise<void
         const encrypted = await encryptAESGCM(json);
         localStorage.setItem(key, encrypted);
     } catch (error) {
-        console.error('[Security] Failed to store data in localStorage:', error);
+        logger.error('Failed to store data in localStorage', { error: String(error) });
     }
 }
 
@@ -681,7 +683,7 @@ export async function secureLocalRetrieve<T = unknown>(key: string): Promise<T |
         if (!stored) return null;
         return await decodeStoredData<T>(stored, key, localStorage);
     } catch (error) {
-        console.error('[Security] Failed to retrieve data from localStorage:', error);
+        logger.error('Failed to retrieve data from localStorage', { error: String(error) });
         return null;
     }
 }
@@ -712,7 +714,7 @@ export function extractMinimalPatientData(patient: any): {
             gender: patient.gender || ''
         };
     } catch (error) {
-        console.error('[Security] Failed to extract minimal patient data:', error);
+        logger.error('Failed to extract minimal patient data', { error: String(error) });
         return null;
     }
 }

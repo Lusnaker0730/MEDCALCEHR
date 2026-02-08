@@ -1,5 +1,7 @@
 // src/favorites.ts - Favorites and Recent Usage Management System
 
+import { logger } from './logger.js';
+
 type ChangeType = 'favorites' | 'recent' | 'clear' | 'import';
 type ListenerCallback = (type: ChangeType, calculatorId: string | null) => void;
 
@@ -134,7 +136,7 @@ export class FavoritesManager {
             const stored = localStorage.getItem(this.storageKey);
             return stored ? JSON.parse(stored) : [];
         } catch (error) {
-            console.error('Failed to load favorites:', error);
+            logger.error('Failed to load favorites', { error: String(error) });
             return [];
         }
     }
@@ -147,7 +149,7 @@ export class FavoritesManager {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(favorites));
         } catch (error) {
-            console.error('Failed to save favorites:', error);
+            logger.error('Failed to save favorites', { error: String(error) });
         }
     }
 
@@ -192,7 +194,7 @@ export class FavoritesManager {
             const recent: string[] = stored ? JSON.parse(stored) : [];
             return limit ? recent.slice(0, limit) : recent;
         } catch (error) {
-            console.error('Failed to load recent:', error);
+            logger.error('Failed to load recent', { error: String(error) });
             return [];
         }
     }
@@ -205,7 +207,7 @@ export class FavoritesManager {
         try {
             localStorage.setItem(this.recentKey, JSON.stringify(recent));
         } catch (error) {
-            console.error('Failed to save recent:', error);
+            logger.error('Failed to save recent', { error: String(error) });
         }
     }
 
@@ -238,7 +240,7 @@ export class FavoritesManager {
             const stored = localStorage.getItem(this.usageKey);
             return stored ? JSON.parse(stored) : {};
         } catch (error) {
-            console.error('Failed to load usage:', error);
+            logger.error('Failed to load usage', { error: String(error) });
             return {};
         }
     }
@@ -251,7 +253,7 @@ export class FavoritesManager {
         try {
             localStorage.setItem(this.usageKey, JSON.stringify(usage));
         } catch (error) {
-            console.error('Failed to save usage:', error);
+            logger.error('Failed to save usage', { error: String(error) });
         }
     }
 
@@ -306,7 +308,7 @@ export class FavoritesManager {
             try {
                 callback(type, calculatorId);
             } catch (error) {
-                console.error('Listener error:', error);
+                logger.error('Listener error', { error: String(error) });
             }
         });
 
@@ -356,7 +358,7 @@ export class FavoritesManager {
             this.notifyListeners('import', null);
             return true;
         } catch (error) {
-            console.error('Failed to import data:', error);
+            logger.error('Failed to import data', { error: String(error) });
             return false;
         }
     }

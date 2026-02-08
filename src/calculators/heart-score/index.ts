@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { SNOMED_CODES, LOINC_CODES } from '../../fhir-codes.js';
+import { logger } from '../../logger.js';
 
 export const heartScoreConfig: ScoringCalculatorConfig = {
     id: 'heart-score',
@@ -246,7 +247,7 @@ export const heartScoreConfig: ScoringCalculatorConfig = {
                 setRadioValue('heart-risk', '0');
             }
         } catch (error) {
-            console.warn('HEART Score FHIR auto-population failed:', error);
+            logger.warn('HEART Score FHIR auto-population failed', { error: String(error) });
         }
     }
 };

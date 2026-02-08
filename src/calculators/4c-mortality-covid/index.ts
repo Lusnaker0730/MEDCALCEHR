@@ -2,6 +2,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
     id: '4c-mortality-covid',
@@ -266,7 +267,7 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(console.warn);
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
 
             // Oxygen Saturation
             fhirDataService
@@ -283,7 +284,7 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(console.warn);
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
 
             // GCS
             fhirDataService
@@ -297,7 +298,7 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(console.warn);
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
 
             // BUN
             fhirDataService
@@ -318,7 +319,7 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(console.warn);
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
 
             // CRP
             fhirDataService
@@ -334,7 +335,7 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch(console.warn);
+                .catch((e: unknown) => logger.warn('FHIR data fetch failed', { error: String(e) }));
         }
 
         calculate();

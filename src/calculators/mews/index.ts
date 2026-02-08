@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 export const mewsConfig: ScoringCalculatorConfig = {
     id: 'mews',
@@ -325,7 +326,7 @@ export const mewsConfig: ScoringCalculatorConfig = {
                 }
             }
         } catch (error) {
-            console.warn('Error auto-populating MEWS:', error);
+            logger.warn('Error auto-populating MEWS', { error: String(error) });
         }
     }
 };

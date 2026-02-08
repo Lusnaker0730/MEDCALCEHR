@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 export const stopBangConfig: ScoringCalculatorConfig = {
     inputType: 'checkbox',
@@ -172,7 +173,7 @@ export const stopBangConfig: ScoringCalculatorConfig = {
                 setCheckbox('sb-pressure', true);
             }
         } catch (error) {
-            console.warn('Error auto-populating STOP-BANG:', error);
+            logger.warn('Error auto-populating STOP-BANG', { error: String(error) });
         }
     }
 };

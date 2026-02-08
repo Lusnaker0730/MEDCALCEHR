@@ -8,6 +8,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateBwps } from './calculation.js';
+import { logger } from '../../logger.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
 const config: FormulaCalculatorConfig = {
@@ -180,7 +181,7 @@ const config: FormulaCalculatorConfig = {
 
             calculate();
         } catch (e) {
-            console.warn('FHIR data fetch failed:', e);
+            logger.warn('FHIR data fetch failed', { error: String(e) });
         }
     }
 };

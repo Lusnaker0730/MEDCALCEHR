@@ -8,7 +8,7 @@
         <!-- Security Headers -->
         <meta
             http-equiv="Content-Security-Policy"
-            content="default-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com; frame-ancestors 'none'; upgrade-insecure-requests;"
+            content="default-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io https://*.ingest.sentry.io; frame-ancestors 'none'; upgrade-insecure-requests;"
         />
         <meta http-equiv="X-Content-Type-Options" content="nosniff" />
         <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
@@ -18,12 +18,7 @@
     </head>
 
     <body>
-        <script
-            src="https://cdn.jsdelivr.net/npm/fhirclient@2.6.3/build/fhir-client.js"
-            integrity="sha384-dGS6R4ht5hVL6tx4pQCGGEFJV/rS1ywziGTuH/fJeDtWoS4YQJeAaF1qu2/0ZXkk"
-            crossorigin="anonymous"
-        ></script>
         <script src="js/app-config.js"></script>
-        <script src="js/fhir-launch.js"></script>
+        <script type="module" src="src/fhir-launch.ts"></script>
     </body>
 </html>

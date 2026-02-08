@@ -2,8 +2,19 @@
  * @jest-environment jsdom
  */
 
+jest.mock('../logger', () => ({
+    logger: {
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        fatal: jest.fn(),
+    }
+}));
+
 import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { uiBuilder, UIBuilder } from '../ui-builder.js';
+import { logger } from '../logger.js';
 
 describe('UI Builder Extended Tests', () => {
     let container: HTMLElement;
@@ -821,7 +832,7 @@ describe('UI Builder Extended Tests', () => {
                 });
 
                 const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
-                const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+                (logger.error as jest.Mock).mockClear();
 
                 container.innerHTML = uiBuilder.createResultBox({ id: 'fail-test' });
                 uiBuilder.initializeComponents(container);
@@ -831,14 +842,13 @@ describe('UI Builder Extended Tests', () => {
 
                 await new Promise(resolve => setTimeout(resolve, 50));
 
-                expect(consoleErrorMock).toHaveBeenCalledWith(
-                    'Failed to copy report:',
-                    expect.any(Error)
+                expect(logger.error).toHaveBeenCalledWith(
+                    'Failed to copy report',
+                    expect.objectContaining({ error: expect.any(String) })
                 );
                 expect(alertMock).toHaveBeenCalledWith('Failed to copy report to clipboard');
 
                 alertMock.mockRestore();
-                consoleErrorMock.mockRestore();
             });
         });
 
@@ -989,7 +999,7 @@ describe('UI Builder Extended Tests', () => {
 
         describe('Unit toggle initialization', () => {
             test('handles invalid JSON in data-unit-toggle gracefully', () => {
-                const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+                (logger.warn as jest.Mock).mockClear();
 
                 container.innerHTML = `
                     <div class="ui-input-wrapper" data-unit-toggle="not valid json">
@@ -1001,12 +1011,10 @@ describe('UI Builder Extended Tests', () => {
                     uiBuilder.initializeComponents(container);
                 }).not.toThrow();
 
-                expect(warnSpy).toHaveBeenCalledWith(
-                    'Failed to parse unit toggle config:',
-                    expect.any(Error)
+                expect(logger.warn).toHaveBeenCalledWith(
+                    'Failed to parse unit toggle config',
+                    expect.objectContaining({ error: expect.any(String) })
                 );
-
-                warnSpy.mockRestore();
             });
         });
     });

@@ -8,6 +8,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 import { calculateGenevaScore } from './calculation.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
@@ -212,7 +213,7 @@ const config: FormulaCalculatorConfig = {
                 // Check for manual conditions not covered by logic or requiring complex logic (e.g. combined palpation/edema not easily auto-populated)
                 // Conditions check is now largely handled by snomedCode in config for DVT/PE, Fracture, Malignancy, Hemoptysis
             } catch (e) {
-                console.warn('Error fetching FHIR data for Geneva', e);
+                logger.warn('Error fetching FHIR data for Geneva', { error: String(e) });
             }
         }
 

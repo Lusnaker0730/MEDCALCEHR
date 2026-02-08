@@ -18,6 +18,7 @@ import { UnitConverter } from '../../unit-converter.js';
 import { fhirDataService, FieldDataRequirement } from '../../fhir-data-service.js';
 import { ValidationError, displayError } from '../../errorHandler.js';
 import { sanitizeHTML } from '../../security.js';
+import { logger } from '../../logger.js';
 import {
     ValidationRules,
     validateCalculatorInput,
@@ -455,7 +456,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
             // 提示訊息
             const infoAlertHTML = config.infoAlert
-                ? uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
+                ? (config.infoAlert.includes('ui-alert')
+                    ? config.infoAlert
+                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert }))
                 : '';
 
             // 參考文獻區塊
@@ -899,7 +902,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                     showResultBox();
                 } catch (e) {
-                    console.error(`Error calculating ${config.id}:`, e);
+                    logger.error('Error calculating', { calculatorId: config.id, error: String(e) });
                     hideResultBox();
                 }
             };
@@ -1007,7 +1010,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                                 }
                             }
                         } catch (e) {
-                            console.warn(`Error auto-populating ${autoConfig.fieldId}:`, e);
+                            logger.warn('Error auto-populating field', { detail: autoConfig.fieldId, error: String(e) });
                         }
                     }
                 }

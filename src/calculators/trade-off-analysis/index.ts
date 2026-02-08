@@ -10,6 +10,7 @@
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
+import { logger } from '../../logger.js';
 import type { CalculatorModule } from '../../types/index.js';
 import {
     RISK_FACTORS,
@@ -347,7 +348,7 @@ async function autoPopulate(): Promise<void> {
         // Recalculate with auto-populated values
         updateCalculation();
     } catch (error) {
-        console.warn('Trade-off auto-populate failed:', error);
+        logger.warn('Trade-off auto-populate failed', { error: String(error) });
     }
 }
 

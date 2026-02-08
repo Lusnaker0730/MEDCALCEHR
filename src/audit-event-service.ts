@@ -3,6 +3,7 @@
 // Reference: https://profiles.ihe.net/ITI/BALP/index.html
 
 import { secureLocalStore, secureLocalRetrieve } from './security.js';
+import { logger } from './logger.js';
 
 // ============================================================================
 // Type Definitions
@@ -995,7 +996,7 @@ export class AuditEventService {
             await secureLocalStore(STORAGE_KEYS.PENDING_EVENTS, stored);
             this.log(`Audit event stored locally (${stored.length} pending)`);
         } catch (error) {
-            console.error('Failed to store audit event locally:', error);
+            logger.error('Failed to store audit event locally', { error: String(error) });
         }
     }
 
@@ -1111,7 +1112,7 @@ export class AuditEventService {
      */
     private log(...args: any[]): void {
         if (this.config.enableDebugLogging) {
-            console.log('[AuditEvent]', ...args);
+            logger.debug('[AuditEvent]', { detail: args.map(String).join(' ') });
         }
     }
 

@@ -12,6 +12,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { preventCvdCalculation } from './calculation.js';
+import { logger } from '../../logger.js';
 
 export const preventCVD = createUnifiedFormulaCalculator({
     id: 'prevent-cvd',
@@ -176,7 +177,7 @@ export const preventCVD = createUnifiedFormulaCalculator({
                 }
             }
         } catch (error) {
-            console.warn('Error fetching blood pressure for PREVENT:', error);
+            logger.warn('Error fetching blood pressure for PREVENT', { error: String(error) });
         }
     }
 });

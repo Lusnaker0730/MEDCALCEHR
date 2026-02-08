@@ -2,6 +2,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 const riskMap = [
     3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0, 81.7,
@@ -242,7 +243,7 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
 
                     calculate();
                 })
-                .catch(e => console.error('Error fetching observations for ACTION ICU', e));
+                .catch((e: unknown) => logger.error('Error fetching observations for ACTION ICU', { error: String(e) }));
         }
 
         calculate();

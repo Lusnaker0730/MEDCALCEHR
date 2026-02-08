@@ -9,6 +9,7 @@ import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scor
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { uiBuilder } from '../../ui-builder.js';
+import { logger } from '../../logger.js';
 
 export const wellsPEConfig: ScoringCalculatorConfig = {
     inputType: 'yesno',
@@ -190,7 +191,7 @@ export const wellsPEConfig: ScoringCalculatorConfig = {
                 setRadioValue('wells-mal', '1');
             }
         } catch (error) {
-            console.warn('Error auto-populating Wells PE:', error);
+            logger.warn('Error auto-populating Wells PE', { error: String(error) });
         }
     }
 };

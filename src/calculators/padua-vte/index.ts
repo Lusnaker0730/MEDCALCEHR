@@ -8,6 +8,7 @@
 import { createScoringCalculator } from '../shared/scoring-calculator.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 export const paduaVTE = createScoringCalculator({
     inputType: 'yesno',
@@ -127,7 +128,7 @@ export const paduaVTE = createScoringCalculator({
                 }
             }
         } catch (error) {
-            console.warn('Error auto-populating Padua VTE:', error);
+            logger.warn('Error auto-populating Padua VTE', { error: String(error) });
         }
     }
 });

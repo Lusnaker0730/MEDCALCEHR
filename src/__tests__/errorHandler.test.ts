@@ -7,6 +7,22 @@
  * Tests for error handling utilities
  */
 
+jest.mock('../logger', () => ({
+    logger: {
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        fatal: jest.fn(),
+    }
+}));
+
+jest.mock('../sentry', () => ({
+    captureException: jest.fn(),
+    captureMessage: jest.fn(),
+    initSentry: jest.fn(),
+}));
+
 import { describe, expect, test, beforeEach, afterEach, jest } from '@jest/globals';
 import {
     CalculatorError,
@@ -18,6 +34,8 @@ import {
     withErrorHandling,
     tryOrDefault
 } from '../errorHandler.js';
+import { logger } from '../logger.js';
+import { captureException } from '../sentry.js';
 
 describe('Error Handler Module', () => {
     // =========================================
@@ -88,14 +106,8 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('logError', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            jest.spyOn(console, 'group').mockImplementation(() => {});
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
-        });
-
-        afterEach(() => {
-            jest.restoreAllMocks();
+            (logger.error as jest.Mock).mockClear();
+            (captureException as jest.Mock).mockClear();
         });
 
         test('should return error log object', () => {
@@ -122,6 +134,14 @@ describe('Error Handler Module', () => {
 
             expect(result.code).toBe('UNKNOWN_ERROR');
         });
+
+        test('should call logger.error and captureException', () => {
+            const error = new CalculatorError('Something broke', 'CALC_ERROR');
+            logError(error, { calculator: 'test' });
+
+            expect(logger.error).toHaveBeenCalled();
+            expect(captureException).toHaveBeenCalledWith(error);
+        });
     });
 
     // =========================================
@@ -129,14 +149,8 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('withErrorHandling', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            jest.spyOn(console, 'group').mockImplementation(() => {});
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
-        });
-
-        afterEach(() => {
-            jest.restoreAllMocks();
+            (logger.error as jest.Mock).mockClear();
+            (captureException as jest.Mock).mockClear();
         });
 
         test('should return result on success', async () => {
@@ -154,7 +168,7 @@ describe('Error Handler Module', () => {
             const wrapped = withErrorHandling(failFn, { action: 'test' });
 
             await expect(wrapped()).rejects.toThrow('Failure');
-            expect(console.error).toHaveBeenCalled();
+            expect(logger.error).toHaveBeenCalled();
         });
 
         test('should preserve function arguments', async () => {
@@ -171,14 +185,8 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('tryOrDefault', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            jest.spyOn(console, 'group').mockImplementation(() => {});
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
-        });
-
-        afterEach(() => {
-            jest.restoreAllMocks();
+            (logger.error as jest.Mock).mockClear();
+            (captureException as jest.Mock).mockClear();
         });
 
         test('should return function result on success', () => {
@@ -205,52 +213,37 @@ describe('Error Handler Module', () => {
             tryOrDefault(() => {
                 throw new Error('Test');
             }, null);
-            expect(console.error).toHaveBeenCalled();
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 
     // =========================================
     // logError - Production Branch (line 74)
     // =========================================
-    describe('logError production branch', () => {
-        let originalHostname: PropertyDescriptor | undefined;
-
+    describe('logError structured logging', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            jest.spyOn(console, 'group').mockImplementation(() => {});
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
+            (logger.error as jest.Mock).mockClear();
+            (captureException as jest.Mock).mockClear();
         });
 
-        afterEach(() => {
-            jest.restoreAllMocks();
-        });
-
-        test('should log brief error in production (non-localhost)', () => {
-            // jsdom defaults to "localhost", so we need to override
-            Object.defineProperty(window, 'location', {
-                value: { hostname: 'production.example.com', href: 'https://production.example.com/app' },
-                writable: true,
-                configurable: true
-            });
-
+        test('should call logger.error with code and message', () => {
             const error = new CalculatorError('Something broke', 'CALC_ERROR');
             const result = logError(error, {});
 
-            // In production, should only call console.error with the brief format
-            expect(console.error).toHaveBeenCalledWith('[CALC_ERROR] Something broke');
-            // Should NOT call console.group in production
-            expect(console.group).not.toHaveBeenCalled();
+            expect(logger.error).toHaveBeenCalledWith(
+                '[CALC_ERROR] Something broke',
+                expect.objectContaining({ errorName: 'CalculatorError', code: 'CALC_ERROR' })
+            );
 
             expect(result).toHaveProperty('code', 'CALC_ERROR');
             expect(result).toHaveProperty('message', 'Something broke');
+        });
 
-            // Restore localhost for other tests
-            Object.defineProperty(window, 'location', {
-                value: { hostname: 'localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true
-            });
+        test('should call captureException for Sentry reporting', () => {
+            const error = new CalculatorError('Something broke', 'CALC_ERROR');
+            logError(error, {});
+
+            expect(captureException).toHaveBeenCalledWith(error);
         });
     });
 
@@ -263,10 +256,7 @@ describe('Error Handler Module', () => {
         beforeEach(() => {
             container = document.createElement('div');
             document.body.appendChild(container);
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            jest.spyOn(console, 'group').mockImplementation(() => {});
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
+            (logger.error as jest.Mock).mockClear();
         });
 
         afterEach(() => {
@@ -274,7 +264,6 @@ describe('Error Handler Module', () => {
             // Remove any injected style links
             const styleLink = document.getElementById('error-handler-styles');
             if (styleLink) styleLink.remove();
-            jest.restoreAllMocks();
         });
 
         test('should render error message in container', () => {
@@ -292,7 +281,7 @@ describe('Error Handler Module', () => {
             const error = new Error('Test');
             // Should not throw; should log an error
             displayError(null as unknown as HTMLElement, error);
-            expect(console.error).toHaveBeenCalledWith('displayError: container element is null');
+            expect(logger.error).toHaveBeenCalledWith('displayError: container element is null');
         });
 
         test('should use getUserFriendlyMessage for FHIRDataError', () => {
@@ -418,14 +407,8 @@ describe('Error Handler Module', () => {
     // =========================================
     describe('setupGlobalErrorHandler', () => {
         beforeEach(() => {
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(console, 'log').mockImplementation(() => {});
-            jest.spyOn(console, 'group').mockImplementation(() => {});
-            jest.spyOn(console, 'groupEnd').mockImplementation(() => {});
-        });
-
-        afterEach(() => {
-            jest.restoreAllMocks();
+            (logger.error as jest.Mock).mockClear();
+            (captureException as jest.Mock).mockClear();
         });
 
         test('should register error event listener (line 205)', () => {
@@ -471,8 +454,8 @@ describe('Error Handler Module', () => {
                 colno: 10
             });
 
-            // logError calls console.error (or console.group), so check it was invoked
-            expect(console.error).toHaveBeenCalled();
+            // logError calls logger.error and captureException
+            expect(logger.error).toHaveBeenCalled();
         });
 
         test('unhandledrejection handler should call logError with context', () => {
@@ -495,7 +478,7 @@ describe('Error Handler Module', () => {
                 promise: Promise.resolve()
             });
 
-            expect(console.error).toHaveBeenCalled();
+            expect(logger.error).toHaveBeenCalled();
         });
     });
 });

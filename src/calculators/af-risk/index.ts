@@ -8,6 +8,7 @@
 import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
+import { logger } from '../../logger.js';
 
 export const afRiskConfig: ScoringCalculatorConfig = {
     id: 'af-risk',
@@ -338,7 +339,7 @@ export const afRiskConfig: ScoringCalculatorConfig = {
 
             calculate();
         } catch (e) {
-            console.warn('FHIR data fetch failed:', e);
+            logger.warn('FHIR data fetch failed', { error: String(e) });
         }
     }
 };

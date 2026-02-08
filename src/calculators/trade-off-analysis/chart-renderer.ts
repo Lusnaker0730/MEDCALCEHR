@@ -4,9 +4,10 @@
  * Based on: Urban P, Giustino G, et al. JAMA Cardiology, 2021
  */
 
+import { Chart, ScatterController, LineController, LineElement, PointElement, LogarithmicScale, Legend, Tooltip } from 'chart.js';
 import { TRADE_OFF_SLOPES } from './risk-factors.js';
 
-declare const Chart: any;
+Chart.register(ScatterController, LineController, LineElement, PointElement, LogarithmicScale, Legend, Tooltip);
 
 export interface TradeOffChartConfig {
     containerId: string;
@@ -228,7 +229,7 @@ export function createTradeOffChart(config: TradeOffChartConfig): any {
         }
     };
 
-    return new Chart(canvas, chartConfig);
+    return new Chart(canvas, chartConfig as any);
 }
 
 /**
