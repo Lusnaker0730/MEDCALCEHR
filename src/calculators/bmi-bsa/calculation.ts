@@ -37,23 +37,18 @@ export function bmiBsaCalculation(
     let interpretation = '';
     let alertClass: AlertSeverity = 'info';
 
+    // Taiwan HPA BMI classification (衛生福利部國民健康署)
     if (bmi < 18.5) {
-        interpretation = 'Underweight';
+        interpretation = '過輕 (Underweight)';
         alertClass = 'warning';
-    } else if (bmi < 25) {
-        interpretation = 'Normal weight';
+    } else if (bmi < 24) {
+        interpretation = '健康體重 (Normal weight)';
         alertClass = 'success';
-    } else if (bmi < 30) {
-        interpretation = 'Overweight';
+    } else if (bmi < 27) {
+        interpretation = '過重 (Overweight)';
         alertClass = 'warning';
-    } else if (bmi < 35) {
-        interpretation = 'Obese (Class I)';
-        alertClass = 'danger';
-    } else if (bmi < 40) {
-        interpretation = 'Obese (Class II)';
-        alertClass = 'danger';
     } else {
-        interpretation = 'Obese (Class III)';
+        interpretation = '肥胖 (Obese)';
         alertClass = 'danger';
     }
 

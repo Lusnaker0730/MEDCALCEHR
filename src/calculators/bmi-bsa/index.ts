@@ -9,12 +9,12 @@ export const bmiBsa = createUnifiedFormulaCalculator({
     description:
         'Calculates Body Mass Index (BMI) and Body Surface Area (BSA) for clinical assessment and medication dosing.',
     infoAlert: `
-        <h4>BMI Categories:</h4>
+        <h4>BMI 分類（台灣衛福部標準）：</h4>
         <ul class="info-list">
-            <li><strong>Underweight:</strong> < 18.5</li>
-            <li><strong>Normal:</strong> 18.5 - 24.9</li>
-            <li><strong>Overweight:</strong> 25 - 29.9</li>
-            <li><strong>Obese:</strong> ≥ 30</li>
+            <li><strong>過輕 (Underweight)：</strong>BMI &lt; 18.5</li>
+            <li><strong>健康體重 (Normal)：</strong>18.5 ≤ BMI &lt; 24</li>
+            <li><strong>過重 (Overweight)：</strong>24 ≤ BMI &lt; 27</li>
+            <li><strong>肥胖 (Obese)：</strong>BMI ≥ 27</li>
         </ul>
     `,
     sections: [

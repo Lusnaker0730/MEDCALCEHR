@@ -17,7 +17,7 @@ describe('Body Surface Area (BSA) & BMI Calculator (SaMD Protocol Verification)'
         // BMI Check
         expect(result[0].label).toBe('Body Mass Index (BMI)');
         expect(result[0].value).toBe(22.9);
-        expect(result[0].interpretation).toBe('Normal weight');
+        expect(result[0].interpretation).toBe('健康體重 (Normal weight)');
         expect(result[0].alertClass).toBe('success');
         // BSA Check
         expect(result[1].label).toBe('Body Surface Area (BSA)');
@@ -50,7 +50,7 @@ describe('Body Surface Area (BSA) & BMI Calculator (SaMD Protocol Verification)'
             'bmi-bsa-height': 160
         });
         expect(result[0].value).toBe(17.6);
-        expect(result[0].interpretation).toBe('Underweight');
+        expect(result[0].interpretation).toBe('過輕 (Underweight)');
         expect(result[0].alertClass).toBe('warning');
     });
     test('TC-005: Clinical Scenario - Extreme Obesity (Class III)', () => {
@@ -61,7 +61,7 @@ describe('Body Surface Area (BSA) & BMI Calculator (SaMD Protocol Verification)'
             'bmi-bsa-height': 170
         });
         expect(result[0].value).toBe(48.4);
-        expect(result[0].interpretation).toBe('Obese (Class III)');
+        expect(result[0].interpretation).toBe('肥胖 (Obese)');
         expect(result[0].alertClass).toBe('danger');
     });
     test('TC-006: Null/Missing Input', () => {

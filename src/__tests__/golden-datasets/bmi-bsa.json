@@ -1,0 +1,73 @@
+{
+  "calculatorId": "bmi-bsa",
+  "calculatorName": "BMI & Body Surface Area",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "GD-BMI-001",
+      "description": "過重 Overweight adult (Taiwan: BMI 24-27)",
+      "source": "Manual calculation: BMI = 70/(1.70)^2 = 24.2; BSA (Du Bois) = 0.007184 * 70^0.425 * 170^0.725 = 1.81",
+      "inputs": {
+        "bmi-bsa-weight": 70,
+        "bmi-bsa-height": 170
+      },
+      "expected": [
+        { "label": "Body Mass Index (BMI)", "value": 24.2, "unit": "kg/m²", "tolerance": 0.1 },
+        { "label": "Body Surface Area (BSA)", "value": 1.81, "unit": "m²", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-BMI-002",
+      "description": "過輕 Underweight adult (BMI < 18.5)",
+      "source": "Manual calculation: BMI = 50/(1.75)^2 = 16.3; BSA (Du Bois) = 0.007184 * 50^0.425 * 175^0.725 = 1.60",
+      "inputs": {
+        "bmi-bsa-weight": 50,
+        "bmi-bsa-height": 175
+      },
+      "expected": [
+        { "label": "Body Mass Index (BMI)", "value": 16.3, "unit": "kg/m²", "tolerance": 0.1 },
+        { "label": "Body Surface Area (BSA)", "value": 1.60, "unit": "m²", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-BMI-003",
+      "description": "肥胖 Obese adult (Taiwan: BMI >= 27)",
+      "source": "Manual calculation: BMI = 85/(1.75)^2 = 27.8; BSA (Du Bois) = 0.007184 * 85^0.425 * 175^0.725 = 2.01",
+      "inputs": {
+        "bmi-bsa-weight": 85,
+        "bmi-bsa-height": 175
+      },
+      "expected": [
+        { "label": "Body Mass Index (BMI)", "value": 27.8, "unit": "kg/m²", "tolerance": 0.1 },
+        { "label": "Body Surface Area (BSA)", "value": 2.01, "unit": "m²", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-BMI-004",
+      "description": "肥胖 Obese adult (Taiwan: BMI >= 27)",
+      "source": "Manual calculation: BMI = 95/(1.70)^2 = 32.9; BSA (Du Bois) = 0.007184 * 95^0.425 * 170^0.725 = 2.06",
+      "inputs": {
+        "bmi-bsa-weight": 95,
+        "bmi-bsa-height": 170
+      },
+      "expected": [
+        { "label": "Body Mass Index (BMI)", "value": 32.9, "unit": "kg/m²", "tolerance": 0.1 },
+        { "label": "Body Surface Area (BSA)", "value": 2.06, "unit": "m²", "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "GD-BMI-005",
+      "description": "肥胖 Obese adult (Taiwan: BMI >= 27, severe)",
+      "source": "Manual calculation: BMI = 140/(1.65)^2 = 51.4; BSA (Du Bois) = 0.007184 * 140^0.425 * 165^0.725 = 2.38",
+      "inputs": {
+        "bmi-bsa-weight": 140,
+        "bmi-bsa-height": 165
+      },
+      "expected": [
+        { "label": "Body Mass Index (BMI)", "value": 51.4, "unit": "kg/m²", "tolerance": 0.1 },
+        { "label": "Body Surface Area (BSA)", "value": 2.38, "unit": "m²", "tolerance": 0.01 }
+      ]
+    }
+  ]
+}
