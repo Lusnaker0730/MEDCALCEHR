@@ -193,10 +193,11 @@ window.onload = () => {
         });
     }
 
-    // Print functionality
+    // Print functionality — compact 1-2 page A4 output
     const printBtn = document.getElementById('print-btn');
     if (printBtn) {
         printBtn.addEventListener('click', () => {
+            // Print header
             let printHeader = document.querySelector('.print-header') as HTMLElement;
             if (!printHeader) {
                 printHeader = document.createElement('div');
@@ -216,6 +217,16 @@ window.onload = () => {
             const dateEl = document.createElement('div');
             dateEl.textContent = new Date().toLocaleString();
             printHeader.appendChild(dateEl);
+
+            // Print footer
+            let printFooter = document.querySelector('.print-footer') as HTMLElement;
+            if (!printFooter) {
+                printFooter = document.createElement('div');
+                printFooter.className = 'print-footer';
+                document.body.appendChild(printFooter);
+            }
+            printFooter.textContent = 'CGMH EHRCALC on FHIR — For clinical reference only';
+
             window.print();
         });
     }
