@@ -26,6 +26,11 @@ declare global {
                 tracesSampleRate?: number;
                 [key: string]: string | number | undefined;
             };
+            ehr?: {
+                vendor?: 'epic' | 'cerner' | 'meditech' | 'generic';
+                fhirBaseUrl?: string;
+                vendorConfig?: Record<string, unknown>;
+            };
         };
         CACHE_VERSION: string;
     }

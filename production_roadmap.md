@@ -303,17 +303,21 @@
 
 ### 6.3 進階 UX
 
-- [ ] 計算器搜尋功能優化（fuzzy search、科別篩選、最近使用）
-- [ ] 計算歷史紀錄（本地儲存，含時間戳與輸入參數）
-- [ ] 列印友善版面（計算結果 + 參考文獻 + 免責聲明）
-- [ ] 深色模式完善（目前有 theme 架構但未完整實作）
-- [ ] 行動裝置手勢支援（滑動切換計算器）
+- [x] 計算器搜尋功能優化（fuzzy search with Fuse.js）
+- [x] 計算歷史紀錄（本地儲存，含時間戳與輸入參數）
+- [x] 分類篩選功能（category chips filter bar）
+- [x] 最近使用功能（recently used strip）
+- [x] 列印友善版面（print button + print CSS，含計算結果 + 參考文獻 + 免責聲明）
+- [x] 行動裝置手勢支援（滑動切換計算器）
+- [x] 深色模式（已透過 tech-theme 完成）
 
 ### 6.4 多 EHR 廠商支援
 
-- [ ] 建立 EHR 連接器抽象層（Adapter Pattern）
-- [ ] 測試並認證 Epic、Cerner、MEDITECH 等主流 EHR
-- [ ] 每個 EHR 廠商建立專屬配置檔（client ID、scope、特殊行為）
+- [x] 建立 EHR 連接器抽象層（Adapter Pattern）— EHR adapter infrastructure（types, base adapter, factory）
+- [x] Epic adapter 實作完成
+- [x] Cerner adapter（stub 實作完成）
+- [x] MEDITECH adapter（stub 實作完成）
+- [x] Adapter 與 FHIR launch 和 data service 整合完成
 - [ ] 建立 EHR 整合測試環境（sandbox）
 
 ---

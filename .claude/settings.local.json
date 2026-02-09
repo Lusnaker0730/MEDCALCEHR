@@ -40,7 +40,8 @@
       "Bash(done)",
       "Bash(python3:*)",
       "Bash(for calc in \"centor\" \"due-date\" \"growth-chart\" \"has-bled\" \"heart-score\" \"hscore\" \"pecarn\" \"sofa\" \"trade-off-analysis\")",
-      "Bash(do echo \"=== $calc ===\" grep \"^export\" \"D:/CGHCALC/MEDCALCEHR/src/calculators/$calc/index.ts\")"
+      "Bash(do echo \"=== $calc ===\" grep \"^export\" \"D:/CGHCALC/MEDCALCEHR/src/calculators/$calc/index.ts\")",
+      "Bash(npx vite build:*)"
     ]
   }
 }

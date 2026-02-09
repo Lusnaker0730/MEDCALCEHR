@@ -1,0 +1,39 @@
+/* Swipe Navigation Indicators - only on touch devices */
+@media (pointer: coarse) {
+    .swipe-indicator {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--color-text-muted, #a0aec0);
+        font-size: 1.5rem;
+        border-radius: var(--radius-md, 8px);
+        opacity: 0.4;
+        z-index: var(--z-sticky, 200);
+        pointer-events: none;
+    }
+
+    .swipe-indicator-left {
+        left: 2px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .swipe-indicator-right {
+        right: 2px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}
+
+/* Hide on non-touch devices */
+@media (pointer: fine) {
+    .swipe-indicator {
+        display: none;
+    }
+}

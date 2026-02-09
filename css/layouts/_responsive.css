@@ -198,41 +198,7 @@
     }
 }
 
-/* ===================
-   Print Styles
-   =================== */
-
-@media print {
-    body {
-        background: white;
-        padding: 0;
-    }
-
-    .container {
-        box-shadow: none;
-        border: none;
-        max-height: none;
-    }
-
-    .sticky-header {
-        position: static;
-    }
-
-    .back-link,
-    .filter-buttons,
-    .controls-row,
-    .favorite-btn,
-    .calculate-btn,
-    #calculate-btn {
-        display: none;
-    }
-
-    .calculator-header {
-        background: var(--color-primary);
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-}
+/* Print styles moved to layouts/_print.css */
 
 /* ===================
    Reduced Motion

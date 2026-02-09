@@ -2,6 +2,8 @@
 import FHIR from 'fhirclient';
 import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata, CalculatorModule } from './calculators/index.js';
+import { calculationHistory } from './calculation-history.js';
+import { initSwipeNavigation } from './swipe-navigation.js';
 import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
@@ -102,6 +104,26 @@ window.onload = () => {
 
             card.innerHTML = calculator.generateHTML();
 
+            // Auto-log calculation results to history via MutationObserver
+            const resultContents = card.querySelectorAll('.ui-result-content');
+            let historyDebounce: ReturnType<typeof setTimeout> | null = null;
+            resultContents.forEach(resultEl => {
+                const observer = new MutationObserver(() => {
+                    if (historyDebounce) clearTimeout(historyDebounce);
+                    historyDebounce = setTimeout(() => {
+                        const summary = resultEl.textContent?.trim().slice(0, 200) || '';
+                        if (summary) {
+                            calculationHistory.addEntry({
+                                calculatorId: calculatorId,
+                                calculatorTitle: calculatorInfo.title,
+                                resultSummary: summary
+                            });
+                        }
+                    }, 300);
+                });
+                observer.observe(resultEl, { childList: true, subtree: true, characterData: true });
+            });
+
             // 初始化計算器的輔助函數
             const initializeCalculator = (
                 client: FHIRClient | null,
@@ -170,6 +192,36 @@ window.onload = () => {
             sessionManager.logout();
         });
     }
+
+    // Print functionality
+    const printBtn = document.getElementById('print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            let printHeader = document.querySelector('.print-header') as HTMLElement;
+            if (!printHeader) {
+                printHeader = document.createElement('div');
+                printHeader.className = 'print-header';
+                container.insertBefore(printHeader, container.firstChild);
+            }
+            const patientText = patientInfoDiv.textContent || 'Patient: N/A';
+            printHeader.innerHTML = '';
+            const titleEl = document.createElement('div');
+            const strong = document.createElement('strong');
+            strong.textContent = calculatorInfo.title;
+            titleEl.appendChild(strong);
+            printHeader.appendChild(titleEl);
+            const patientEl = document.createElement('div');
+            patientEl.textContent = patientText;
+            printHeader.appendChild(patientEl);
+            const dateEl = document.createElement('div');
+            dateEl.textContent = new Date().toLocaleString();
+            printHeader.appendChild(dateEl);
+            window.print();
+        });
+    }
+
+    // Initialize swipe navigation between calculators
+    initSwipeNavigation(calculatorId);
 
     loadCalculatorModule();
 };

@@ -61,6 +61,9 @@
                             <button class="filter-btn" data-filter="recent">
                                 <span>🕒 Recent</span>
                             </button>
+                            <button class="filter-btn" data-filter="history">
+                                <span>📋 History</span>
+                            </button>
                         </div>
                     </nav>
 
@@ -89,6 +92,9 @@
                         </div>
                     </div>
 
+                    <!-- Category Chips (desktop only) -->
+                    <div id="category-chips" class="category-chips" aria-label="Filter by category"></div>
+
                     <!-- Statistics -->
                     <div id="calculator-stats" class="calculator-stats" aria-live="polite">
                         Showing 92 / 92 results
@@ -98,6 +104,8 @@
         </header>
         <main id="main-content">
             <div class="content-area">
+                <!-- Recently Used Strip -->
+                <div id="recent-strip" class="recent-strip" aria-label="Recently used calculators"></div>
                 <div id="calculator-list" class="calculator-list">
                     <!-- Calculator links will be dynamically inserted here -->
                 </div>

@@ -27,6 +27,7 @@ import { fhirFeedback } from './fhir-feedback.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService, CalculationResult } from './provenance-service.js';
 import { logger } from './logger.js';
+import { getActiveAdapter } from './ehr-adapters/index.js';
 
 // ============================================================================
 // Type Definitions
@@ -270,8 +271,10 @@ export class FHIRDataService {
                     }
                 }
             } else {
-                // Standard LOINC query
-                observation = await getMostRecentObservation(this.client, code);
+                // Standard LOINC query — apply EHR adapter code transformation if available
+                const adapter = getActiveAdapter();
+                const transformedCode = adapter ? adapter.transformCode(code) : code;
+                observation = await getMostRecentObservation(this.client, transformedCode);
             }
 
             // Cache the result (cache key remains the original code/LOINC for consistency)

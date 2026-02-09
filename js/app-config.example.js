@@ -26,6 +26,18 @@ window.MEDCALC_CONFIG = {
         warningMinutes: 2
     },
 
+    // EHR vendor adapter (optional — omit for generic FHIR R4 behavior)
+    ehr: {
+        // Vendor: 'epic', 'cerner', 'meditech', or 'generic' (default)
+        vendor: 'generic',
+
+        // FHIR base URL (optional, auto-detected from SMART launch if omitted)
+        // fhirBaseUrl: 'https://fhir.example.com/R4',
+
+        // Vendor-specific overrides (optional)
+        // vendorConfig: {}
+    },
+
     // Sentry error tracking (optional — omit or leave dsn empty to disable)
     sentry: {
         // Sentry DSN from your project settings

@@ -39,6 +39,10 @@
 @import 'components/_staleness.css';
 @import 'components/_session-timeout.css';
 @import 'components/_skip-link.css';
+@import 'components/_category-filter.css';
+@import 'components/_recent-strip.css';
+@import 'components/_history.css';
+@import 'components/_swipe-indicators.css';
 
 /* ===================
    3. 佈局樣式
@@ -47,6 +51,7 @@
 @import 'layouts/_container.css';
 @import 'layouts/_calculator.css';
 @import 'layouts/_responsive.css';
+@import 'layouts/_print.css';
 
 /* ===================
    4. 頁面專屬樣式

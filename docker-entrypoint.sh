@@ -12,6 +12,8 @@ SESSION_TIMEOUT_MINUTES="${SESSION_TIMEOUT_MINUTES:-15}"
 SESSION_WARNING_MINUTES="${SESSION_WARNING_MINUTES:-2}"
 SENTRY_DSN="${SENTRY_DSN:-}"
 SENTRY_ENVIRONMENT="${SENTRY_ENVIRONMENT:-production}"
+EHR_VENDOR="${EHR_VENDOR:-generic}"
+EHR_FHIR_BASE_URL="${EHR_FHIR_BASE_URL:-}"
 
 # Generate health.json with build info
 HEALTH_FILE="/usr/share/nginx/html/health.json"
@@ -37,6 +39,15 @@ if [ -n "$SENTRY_DSN" ]; then
     },"
 fi
 
+EHR_CONFIG=""
+if [ "$EHR_VENDOR" != "generic" ] || [ -n "$EHR_FHIR_BASE_URL" ]; then
+    EHR_CONFIG="
+    ehr: {
+        vendor: '${EHR_VENDOR}',
+        fhirBaseUrl: '${EHR_FHIR_BASE_URL}'
+    },"
+fi
+
 cat > "$CONFIG_FILE" <<EOF
 window.MEDCALC_CONFIG = {
     fhir: {
@@ -47,7 +58,7 @@ window.MEDCALC_CONFIG = {
     session: {
         timeoutMinutes: ${SESSION_TIMEOUT_MINUTES},
         warningMinutes: ${SESSION_WARNING_MINUTES}
-    },${SENTRY_CONFIG}
+    },${SENTRY_CONFIG}${EHR_CONFIG}
 };
 EOF
 

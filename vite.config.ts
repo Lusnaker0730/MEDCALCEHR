@@ -32,6 +32,9 @@ export default defineConfig(({ mode }) => ({
                     if (id.includes('node_modules/web-vitals')) {
                         return 'vendor-web-vitals';
                     }
+                    if (id.includes('node_modules/fuse.js')) {
+                        return 'vendor-fuse';
+                    }
                     if (id.includes('src/ui-builder') || id.includes('src/validator') || id.includes('src/utils')) {
                         return 'ui';
                     }

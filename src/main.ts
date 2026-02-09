@@ -14,6 +14,8 @@ import { sessionManager } from './session-manager.js';
 import { initSentry } from './sentry.js';
 import { logger } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
+import { FuzzySearch } from './fuzzy-search.js';
+import { calculationHistory } from './calculation-history.js';
 
 // Initialize Sentry early
 initSentry();
@@ -22,7 +24,9 @@ initSentry();
 initWebVitals();
 
 type SortType = 'a-z' | 'z-a' | 'recently-added' | 'most-used';
-type FilterType = 'all' | 'favorites' | 'recent';
+type FilterType = 'all' | 'favorites' | 'recent' | 'history';
+
+const fuzzySearch = new FuzzySearch(calculatorModules);
 
 /**
  * Sort calculator list
@@ -79,6 +83,18 @@ function filterCalculators(
                 .filter((calc): calc is CalculatorMetadata => calc !== undefined);
             return filtered; // Keep order for recent
         }
+        case 'history': {
+            const entries = calculationHistory.getEntries(20);
+            const seen = new Set<string>();
+            filtered = entries
+                .map(entry => calculators.find(calc => calc.id === entry.calculatorId))
+                .filter((calc): calc is CalculatorMetadata => {
+                    if (!calc || seen.has(calc.id)) return false;
+                    seen.add(calc.id);
+                    return true;
+                });
+            return filtered;
+        }
         case 'all':
         default:
             // No special filter
@@ -90,14 +106,20 @@ function filterCalculators(
         filtered = filtered.filter(calc => calc.category === category);
     }
 
-    // Filter by search term
+    // Filter by search term (fuzzy search for 2+ chars, substring for 1 char)
     if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        filtered = filtered.filter(
-            calc =>
-                calc.title.toLowerCase().includes(term) ||
-                (calc.description && calc.description.toLowerCase().includes(term))
-        );
+        if (searchTerm.trim().length >= 2) {
+            const fuzzyResults = fuzzySearch.search(searchTerm);
+            const filteredIds = new Set(filtered.map(c => c.id));
+            filtered = fuzzyResults.filter(c => filteredIds.has(c.id));
+        } else {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(
+                calc =>
+                    calc.title.toLowerCase().includes(term) ||
+                    (calc.description && calc.description.toLowerCase().includes(term))
+            );
+        }
     }
 
     return filtered;
@@ -181,6 +203,120 @@ function updateStats(total: number, showing: number): void {
 }
 
 /**
+ * Render category chips (desktop horizontal bar)
+ */
+function renderCategoryChips(
+    container: HTMLElement,
+    currentCategory: string,
+    onCategoryChange: (category: string) => void
+): void {
+    container.innerHTML = '';
+
+    const allChip = document.createElement('button');
+    allChip.className = `category-chip${currentCategory === 'all' ? ' active' : ''}`;
+    allChip.textContent = 'All';
+    allChip.addEventListener('click', () => onCategoryChange('all'));
+    container.appendChild(allChip);
+
+    (Object.keys(categories) as CategoryKey[]).forEach(key => {
+        const count = calculatorModules.filter(c => c.category === key).length;
+        const chip = document.createElement('button');
+        chip.className = `category-chip${currentCategory === key ? ' active' : ''}`;
+
+        const label = document.createTextNode(categories[key] + ' ');
+        chip.appendChild(label);
+
+        const badge = document.createElement('span');
+        badge.className = 'chip-count';
+        badge.textContent = String(count);
+        chip.appendChild(badge);
+
+        chip.addEventListener('click', () => onCategoryChange(key));
+        container.appendChild(chip);
+    });
+}
+
+/**
+ * Render recently used calculator strip
+ */
+function renderRecentStrip(container: HTMLElement): void {
+    const recent = favoritesManager.getRecent().slice(0, 5);
+    if (recent.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = '';
+    container.innerHTML = '';
+
+    const title = document.createElement('div');
+    title.className = 'recent-strip-title';
+    title.textContent = 'Recently Used';
+    container.appendChild(title);
+
+    const list = document.createElement('div');
+    list.className = 'recent-strip-list';
+
+    recent.forEach(id => {
+        const calc = calculatorModules.find(c => c.id === id);
+        if (!calc) return;
+        const item = document.createElement('a');
+        item.href = `calculator.html?name=${calc.id}`;
+        item.className = 'recent-strip-item';
+        item.textContent = calc.title;
+        list.appendChild(item);
+    });
+
+    container.appendChild(list);
+}
+
+/**
+ * Render calculation history list
+ */
+function renderHistoryList(container: HTMLElement): void {
+    const entries = calculationHistory.getEntries(50);
+    container.innerHTML = '';
+
+    if (entries.length === 0) {
+        container.innerHTML = '<p class="no-results">No calculation history yet.</p>';
+        return;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'history-list';
+
+    entries.forEach(entry => {
+        const item = document.createElement('a');
+        item.href = `calculator.html?name=${entry.calculatorId}`;
+        item.className = 'history-entry';
+
+        const header = document.createElement('div');
+        header.className = 'history-entry-header';
+
+        const titleEl = document.createElement('span');
+        titleEl.className = 'history-entry-title';
+        titleEl.textContent = entry.calculatorTitle;
+        header.appendChild(titleEl);
+
+        const time = document.createElement('span');
+        time.className = 'history-entry-time';
+        time.textContent = new Date(entry.timestamp).toLocaleString();
+        header.appendChild(time);
+
+        item.appendChild(header);
+
+        const summary = document.createElement('div');
+        summary.className = 'history-entry-summary';
+        summary.textContent = entry.resultSummary;
+        item.appendChild(summary);
+
+        list.appendChild(item);
+    });
+
+    container.appendChild(list);
+}
+
+/**
  * Main program
  */
 window.onload = () => {
@@ -214,6 +350,33 @@ window.onload = () => {
      */
     function updateDisplay(): void {
         const searchTerm = searchBar.value;
+
+        // Show/hide recent strip (only when filter='all' and no search)
+        const recentStripEl = document.getElementById('recent-strip');
+        if (recentStripEl) {
+            if (currentFilterType === 'all' && !searchTerm) {
+                renderRecentStrip(recentStripEl);
+            } else {
+                recentStripEl.style.display = 'none';
+            }
+        }
+
+        // Render category chips (sync with dropdown)
+        const categoryChipsEl = document.getElementById('category-chips');
+        if (categoryChipsEl) {
+            renderCategoryChips(categoryChipsEl, currentCategory, (cat) => {
+                currentCategory = cat;
+                if (categorySelect) categorySelect.value = cat;
+                updateDisplay();
+            });
+        }
+
+        // History mode: render history entries directly
+        if (currentFilterType === 'history') {
+            renderHistoryList(calculatorListDiv);
+            updateStats(calculatorModules.length, calculationHistory.getEntryCount());
+            return;
+        }
 
         // Filter and sort
         const filtered = filterCalculators(
@@ -256,6 +419,15 @@ window.onload = () => {
                 }
             } else if (filterType === 'recent') {
                 const count = favoritesManager.getRecent().length;
+                btn.querySelector('.filter-count')?.remove();
+                if (count > 0) {
+                    const countBadge = document.createElement('span');
+                    countBadge.className = 'filter-count';
+                    countBadge.textContent = count.toString();
+                    btn.appendChild(countBadge);
+                }
+            } else if (filterType === 'history') {
+                const count = calculationHistory.getEntryCount();
                 btn.querySelector('.filter-count')?.remove();
                 if (count > 0) {
                     const countBadge = document.createElement('span');
@@ -310,6 +482,7 @@ window.onload = () => {
                     // Set Practitioner ID for favorites
                     if (user.id) {
                         favoritesManager.setPractitionerId(user.id);
+                        calculationHistory.setPractitionerId(user.id);
                         logger.info('Practitioner set', { practitionerId: user.id });
 
                         // Log login event to audit trail (IHE BALP)
@@ -375,7 +548,7 @@ window.onload = () => {
     favoritesManager.addListener(() => {
         updateFilterButtons();
         // If currently showing favorites/recent, update list
-        if (currentFilterType === 'favorites' || currentFilterType === 'recent') {
+        if (currentFilterType === 'favorites' || currentFilterType === 'recent' || currentFilterType === 'history') {
             updateDisplay();
         }
     });
