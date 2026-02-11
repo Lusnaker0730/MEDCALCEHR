@@ -18,6 +18,13 @@ export const gcs = createScoringCalculator({
             id: 'eye',
             title: 'Eye Opening Response',
             icon: '👁️',
+            loincCode: '9267-6', // GCS Eye
+            valueMapping: [
+                { condition: (v: number) => v === 4, radioValue: '4' },
+                { condition: (v: number) => v === 3, radioValue: '3' },
+                { condition: (v: number) => v === 2, radioValue: '2' },
+                { condition: (v: number) => v === 1, radioValue: '1' }
+            ],
             options: [
                 {
                     value: '4',
@@ -33,6 +40,14 @@ export const gcs = createScoringCalculator({
             id: 'verbal',
             title: 'Verbal Response',
             icon: '💬',
+            loincCode: '9270-0', // GCS Verbal
+            valueMapping: [
+                { condition: (v: number) => v === 5, radioValue: '5' },
+                { condition: (v: number) => v === 4, radioValue: '4' },
+                { condition: (v: number) => v === 3, radioValue: '3' },
+                { condition: (v: number) => v === 2, radioValue: '2' },
+                { condition: (v: number) => v === 1, radioValue: '1' }
+            ],
             options: [
                 { value: '5', label: 'Oriented (5)', checked: true },
                 { value: '4', label: 'Confused speech, but able to answer questions (4)' },
@@ -45,6 +60,15 @@ export const gcs = createScoringCalculator({
             id: 'motor',
             title: 'Motor Response',
             icon: '💪',
+            loincCode: '9268-4', // GCS Motor
+            valueMapping: [
+                { condition: (v: number) => v === 6, radioValue: '6' },
+                { condition: (v: number) => v === 5, radioValue: '5' },
+                { condition: (v: number) => v === 4, radioValue: '4' },
+                { condition: (v: number) => v === 3, radioValue: '3' },
+                { condition: (v: number) => v === 2, radioValue: '2' },
+                { condition: (v: number) => v === 1, radioValue: '1' }
+            ],
             options: [
                 { value: '6', label: 'Obeys commands for movement (6)', checked: true },
                 { value: '5', label: 'Purposeful movement to painful stimulus (5)' },
@@ -102,22 +126,22 @@ export const gcs = createScoringCalculator({
     // 自定義結果渲染器，顯示各組件分數
     customResultRenderer: (score, sectionScores) => `
         ${uiBuilder.createResultItem({
-            label: 'Total GCS Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation:
-                score >= 13
-                    ? 'Mild Brain Injury'
-                    : score >= 9
-                      ? 'Moderate Brain Injury'
-                      : 'Severe Brain Injury (Coma)',
-            alertClass:
-                score >= 13
-                    ? 'ui-alert-success'
-                    : score >= 9
-                      ? 'ui-alert-warning'
-                      : 'ui-alert-danger'
-        })}
+        label: 'Total GCS Score',
+        value: score.toString(),
+        unit: 'points',
+        interpretation:
+            score >= 13
+                ? 'Mild Brain Injury'
+                : score >= 9
+                    ? 'Moderate Brain Injury'
+                    : 'Severe Brain Injury (Coma)',
+        alertClass:
+            score >= 13
+                ? 'ui-alert-success'
+                : score >= 9
+                    ? 'ui-alert-warning'
+                    : 'ui-alert-danger'
+    })}
         <div class="mt-15 text-center font-semibold text-muted">
             Component Breakdown: E${sectionScores['eye'] || 0} V${sectionScores['verbal'] || 0} M${sectionScores['motor'] || 0}
         </div>

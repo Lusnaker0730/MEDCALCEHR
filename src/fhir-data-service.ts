@@ -370,6 +370,26 @@ export class FHIRDataService {
             result.originalValue = result.value;
         }
 
+        // Special handling for GCS: Aggregation from components if total score is missing
+        if (code === LOINC_CODES.GCS && result.value === null && observation.component) {
+            const getComponentValue = (compCode: string) => {
+                const comp = observation.component.find((c: any) =>
+                    c.code?.coding?.some((coding: any) => coding.code === compCode)
+                );
+                return comp?.valueQuantity?.value;
+            };
+
+            const eye = getComponentValue(LOINC_CODES.GCS_EYE);
+            const verbal = getComponentValue(LOINC_CODES.GCS_VERBAL);
+            const motor = getComponentValue(LOINC_CODES.GCS_MOTOR);
+
+            if (eye !== undefined && verbal !== undefined && motor !== undefined) {
+                result.value = eye + verbal + motor;
+                result.originalValue = result.value;
+                result.unit = '{score}';
+            }
+        }
+
         // Extract unit
         if (observation.valueQuantity?.unit) {
             result.unit = observation.valueQuantity.unit;
@@ -1135,7 +1155,7 @@ export class FHIRDataService {
         if (this.patient?.extension) {
             const ageExt = this.patient.extension.find(
                 ext => ext.url === 'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/person-age' ||
-                       ext.url === 'http://hl7.org/fhir/StructureDefinition/patient-age'
+                    ext.url === 'http://hl7.org/fhir/StructureDefinition/patient-age'
             );
             if (ageExt?.valueAge?.value !== undefined) {
                 return ageExt.valueAge.value;

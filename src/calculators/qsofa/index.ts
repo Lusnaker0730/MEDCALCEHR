@@ -49,7 +49,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                     },
                     standardUnit: 'mmHg',
                     validationType: 'systolicBP',
-                    loincCode: LOINC_CODES.SYSTOLIC_BLOOD_PRESSURE,
+                    loincCode: LOINC_CODES.SYSTOLIC_BP,
                     required: true
                 }
             ]
@@ -105,16 +105,15 @@ export const qsofaScore = createUnifiedFormulaCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: res.label,
-                value: res.value.toString(),
-                unit: res.unit,
-                interpretation: res.interpretation,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: res.label,
+            value: res.value.toString(),
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
-            ${
-                metCriteria.length > 0
-                    ? `
+            ${metCriteria.length > 0
+                ? `
             <div class="text-sm mt-5 mb-10 text-muted">
                 <strong>Criteria Met:</strong>
                 <ul class="list-disc pl-20">
@@ -122,7 +121,7 @@ export const qsofaScore = createUnifiedFormulaCalculator({
                 </ul>
             </div>
             `
-                    : ''
+                : ''
             }
 
             ${uiBuilder.createAlert({

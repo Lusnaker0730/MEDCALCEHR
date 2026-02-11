@@ -471,5 +471,118 @@ export const sofa = {
         });
 
         return html + formulaSection + factsSection + referenceSection;
+    },
+
+    customInitialize: async (client, patient, container, calculate) => {
+        const setRadioValue = (name: string, value: string): void => {
+            const radio = container.querySelector(
+                `input[name="${name}"][value="${value}"]`
+            ) as HTMLInputElement;
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+
+        // Initialize FHIRDataService
+        fhirDataService.initialize(client, patient, container);
+
+        if (!client) return;
+
+        try {
+            // Fetch and set Platelets
+            const platelets = await fhirDataService.getObservation(LOINC_CODES.PLATELETS, {
+                trackStaleness: true,
+                stalenessLabel: 'Platelets',
+                targetUnit: '10*3/uL'
+            });
+
+            const pltDisplay = container.querySelector('#current-platelets');
+            if (pltDisplay) {
+                if (platelets.value !== null) {
+                    pltDisplay.textContent = `${platelets.value.toFixed(0)} ×10³/μL`;
+                    // Set radio based on value
+                    if (platelets.value >= 150) setRadioValue('coag', '0');
+                    else if (platelets.value < 20) setRadioValue('coag', '4');
+                    else if (platelets.value < 50) setRadioValue('coag', '3');
+                    else if (platelets.value < 100) setRadioValue('coag', '2');
+                    else setRadioValue('coag', '1');
+                } else {
+                    pltDisplay.textContent = 'Not found';
+                }
+            }
+
+            // Fetch and set Bilirubin
+            const bilirubin = await fhirDataService.getObservation(LOINC_CODES.BILIRUBIN_TOTAL, {
+                trackStaleness: true,
+                stalenessLabel: 'Bilirubin',
+                targetUnit: 'mg/dL'
+            });
+
+            const biliDisplay = container.querySelector('#current-bilirubin');
+            if (biliDisplay) {
+                if (bilirubin.value !== null) {
+                    biliDisplay.textContent = `${bilirubin.value.toFixed(1)} mg/dL`;
+                    if (bilirubin.value < 1.2) setRadioValue('liver', '0');
+                    else if (bilirubin.value >= 12.0) setRadioValue('liver', '4');
+                    else if (bilirubin.value >= 6.0) setRadioValue('liver', '3');
+                    else if (bilirubin.value >= 2.0) setRadioValue('liver', '2');
+                    else setRadioValue('liver', '1');
+                } else {
+                    biliDisplay.textContent = 'Not found';
+                }
+            }
+
+            // Fetch and set Creatinine
+            const creatinine = await fhirDataService.getObservation(LOINC_CODES.CREATININE, {
+                trackStaleness: true,
+                stalenessLabel: 'Creatinine',
+                targetUnit: 'mg/dL'
+            });
+
+            const creatDisplay = container.querySelector('#current-creatinine');
+            if (creatDisplay) {
+                if (creatinine.value !== null) {
+                    creatDisplay.textContent = `${creatinine.value.toFixed(2)} mg/dL`;
+                    if (creatinine.value < 1.2) setRadioValue('renal', '0');
+                    else if (creatinine.value >= 5.0) setRadioValue('renal', '4');
+                    else if (creatinine.value >= 3.5) setRadioValue('renal', '3');
+                    else if (creatinine.value >= 2.0) setRadioValue('renal', '2');
+                    else setRadioValue('renal', '1');
+                } else {
+                    creatDisplay.textContent = 'Not found';
+                }
+            }
+
+            // Fetch and set GCS
+            // Note: fhirDataService now handles GCS aggregation from components if total is missing
+            const gcs = await fhirDataService.getObservation(LOINC_CODES.GCS, {
+                trackStaleness: true,
+                stalenessLabel: 'GCS'
+            });
+
+            if (gcs.value !== null) {
+                const score = gcs.value;
+                if (score === 15) setRadioValue('cns', '0');
+                else if (score >= 13) setRadioValue('cns', '1');
+                else if (score >= 10) setRadioValue('cns', '2');
+                else if (score >= 6) setRadioValue('cns', '3');
+                else setRadioValue('cns', '4');
+
+                if (fhirDataService.getStalenessTracker() && gcs.observation) {
+                    fhirDataService.getStalenessTracker()?.trackObservation(
+                        'input[name="cns"]',
+                        gcs.observation,
+                        LOINC_CODES.GCS,
+                        'Glasgow Coma Scale'
+                    );
+                }
+            }
+
+        } catch (e) {
+            logger.error('Error auto-populating SOFA score', { error: String(e) });
+        }
+
+        calculate();
     }
 };

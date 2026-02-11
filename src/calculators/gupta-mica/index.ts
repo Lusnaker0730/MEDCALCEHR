@@ -165,44 +165,44 @@ const config: FormulaCalculatorConfig = {
         <div class="ui-section mt-20">
             <div class="ui-section-title">Variable Coefficients</div>
             ${uiBuilder.createTable({
-                headers: ['Variable', 'Options', 'Value'],
-                rows: [
-                    ['<strong>Age per year of increase</strong>', '', 'Age × 0.02'],
-                    ['<strong>Functional status</strong>', 'Independent', '0'],
-                    ['', 'Partially dependent', '0.65'],
-                    ['', 'Totally dependent', '1.03'],
-                    ['<strong>ASA Class</strong>', '1: normal healthy patient', '−5.17'],
-                    ['', '2: mild systemic disease', '−3.29'],
-                    ['', '3: severe systemic disease', '−1.92'],
-                    ['', '4: severe systemic disease that is a constant threat to life*', '−0.95'],
-                    ['', '5: moribund, not expected to survive without surgery', '0'],
-                    ['<strong>Creatinine</strong>', 'Normal (<1.5 mg/dL, 133 µmol/L)', '0'],
-                    ['', 'Elevated (≥1.5 mg/dL, 133 µmol/L)', '0.61'],
-                    ['', 'Unknown', '−0.10'],
-                    ['<strong>Type of procedure</strong>', 'Anorectal', '−0.16'],
-                    ['', 'Aortic', '1.60'],
-                    ['', 'Bariatric', '−0.25'],
-                    ['', 'Brain', '1.40'],
-                    ['', 'Breast', '−1.61'],
-                    ['', 'Cardiac', '1.01'],
-                    ['', 'ENT (except thyroid/parathyroid)', '0.71'],
-                    ['', 'Foregut or hepatopancreatobiliary', '1.39'],
-                    ['', 'Gallbladder, appendix, adrenals, or spleen', '0.59'],
-                    ['', 'Hernia (ventral, inguinal, femoral)', '0'],
-                    ['', 'Intestinal', '1.14'],
-                    ['', 'Neck (thyroid/parathyroid)', '0.18'],
-                    ['', 'Obstetric/gynecologic', '0.76'],
-                    ['', 'Orthopedic and non-vascular extremity', '0.80'],
-                    ['', 'Other abdominal', '1.13'],
-                    ['', 'Peripheral vascular**', '0.86'],
-                    ['', 'Skin', '0.54'],
-                    ['', 'Spine', '0.21'],
-                    ['', 'Non-esophageal thoracic', '0.40'],
-                    ['', 'Vein', '−1.09'],
-                    ['', 'Urology', '−0.26']
-                ],
-                stickyFirstColumn: true
-            })}
+        headers: ['Variable', 'Options', 'Value'],
+        rows: [
+            ['<strong>Age per year of increase</strong>', '', 'Age × 0.02'],
+            ['<strong>Functional status</strong>', 'Independent', '0'],
+            ['', 'Partially dependent', '0.65'],
+            ['', 'Totally dependent', '1.03'],
+            ['<strong>ASA Class</strong>', '1: normal healthy patient', '−5.17'],
+            ['', '2: mild systemic disease', '−3.29'],
+            ['', '3: severe systemic disease', '−1.92'],
+            ['', '4: severe systemic disease that is a constant threat to life*', '−0.95'],
+            ['', '5: moribund, not expected to survive without surgery', '0'],
+            ['<strong>Creatinine</strong>', 'Normal (<1.5 mg/dL, 133 µmol/L)', '0'],
+            ['', 'Elevated (≥1.5 mg/dL, 133 µmol/L)', '0.61'],
+            ['', 'Unknown', '−0.10'],
+            ['<strong>Type of procedure</strong>', 'Anorectal', '−0.16'],
+            ['', 'Aortic', '1.60'],
+            ['', 'Bariatric', '−0.25'],
+            ['', 'Brain', '1.40'],
+            ['', 'Breast', '−1.61'],
+            ['', 'Cardiac', '1.01'],
+            ['', 'ENT (except thyroid/parathyroid)', '0.71'],
+            ['', 'Foregut or hepatopancreatobiliary', '1.39'],
+            ['', 'Gallbladder, appendix, adrenals, or spleen', '0.59'],
+            ['', 'Hernia (ventral, inguinal, femoral)', '0'],
+            ['', 'Intestinal', '1.14'],
+            ['', 'Neck (thyroid/parathyroid)', '0.18'],
+            ['', 'Obstetric/gynecologic', '0.76'],
+            ['', 'Orthopedic and non-vascular extremity', '0.80'],
+            ['', 'Other abdominal', '1.13'],
+            ['', 'Peripheral vascular**', '0.86'],
+            ['', 'Skin', '0.54'],
+            ['', 'Spine', '0.21'],
+            ['', 'Non-esophageal thoracic', '0.40'],
+            ['', 'Vein', '−1.09'],
+            ['', 'Urology', '−0.26']
+        ],
+        stickyFirstColumn: true
+    })}
             <p class="table-note text-sm text-muted mt-10">
                 *I.e., patient could die acutely without intervention.<br>
                 **Non-aortic, non-vein vascular surgeries.
@@ -240,6 +240,39 @@ const config: FormulaCalculatorConfig = {
             } catch (e) {
                 logger.warn('Error fetching creatinine for Gupta MICA', { error: String(e) });
             }
+
+            try {
+                // Fetch ASA Physical Status
+                // Note: ASA is often stored as a Code value or number. 
+                // We'll try to extract a number from the observation.
+                const asaResult = await fhirDataService.getObservation(LOINC_CODES.ASA_PHYSICAL_STATUS, {
+                    trackStaleness: true,
+                    stalenessLabel: 'ASA Class'
+                });
+
+                if (asaResult.value !== null) {
+                    // Start cleaning the value to get the integer class (1-5)
+                    // If it comes as "3", "ASA 3", "Class 3", parsInt usually handles "3" but "ASA 3" might return NaN if not careful
+                    // But getObservation extracts numbers. If it failed to extract, value is null.
+
+                    // Map ASA Class (1-5) to Gupta MICA values
+                    const asaClass = Math.round(asaResult.value);
+                    const mapping: Record<number, string> = {
+                        1: '-6.17', // Class 1
+                        2: '-3.29', // Class 2
+                        3: '1.80',  // Class 3
+                        4: '4.29',  // Class 4
+                        5: '0'      // Class 5
+                    };
+
+                    if (mapping[asaClass]) {
+                        setValue('mica-asa', mapping[asaClass]);
+                    }
+                }
+            } catch (e) {
+                logger.warn('Error fetching ASA for Gupta MICA', { error: String(e) });
+            }
+
         }
 
         calculate();
