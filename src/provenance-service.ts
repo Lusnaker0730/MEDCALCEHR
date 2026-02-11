@@ -327,6 +327,7 @@ const CODE_SYSTEMS = {
     PROVENANCE_ENTITY_ROLE: 'http://hl7.org/fhir/provenance-entity-role',
     SIGNATURE_TYPE: 'urn:iso-astm:E1762-95:2013',
     TW_CORE: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-activity-type',
+    TW_PROVENANCE_PARTICIPANT: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-participant-type-tw',
     ACT_REASON: 'http://terminology.hl7.org/CodeSystem/v3-ActReason',
     DATA_SOURCE: 'https://medcalc-ehr.example.com/CodeSystem/data-source-type'
 };
@@ -663,13 +664,22 @@ export class ProvenanceService {
         }
 
         // Add agents
+        // TW Core Provenance requires agent.type (min=1) with dual-coding
         for (const agent of params.agents) {
             const agentTypeCode = AGENT_TYPE_CODES[agent.type];
             const agentRoleCode = AGENT_ROLE_CODES[agent.role];
 
+            // Dual-coding: HL7 standard + TW Core participant type
+            const typeCoding: Array<{ system: string; code: string; display?: string }> = [agentTypeCode];
+            typeCoding.push({
+                system: CODE_SYSTEMS.TW_PROVENANCE_PARTICIPANT,
+                code: agentTypeCode.code,
+                display: agentTypeCode.display,
+            });
+
             const fhirAgent: FHIRProvenance['agent'][0] = {
                 type: {
-                    coding: [agentTypeCode]
+                    coding: typeCoding
                 },
                 role: [
                     {
@@ -690,9 +700,17 @@ export class ProvenanceService {
         }
 
         // Always add the application as an agent (assembler)
+        // Ensure type is present (TW Core min=1)
         provenance.agent.push({
             type: {
-                coding: [AGENT_TYPE_CODES.device]
+                coding: [
+                    AGENT_TYPE_CODES.device,
+                    {
+                        system: CODE_SYSTEMS.TW_PROVENANCE_PARTICIPANT,
+                        code: AGENT_TYPE_CODES.device.code,
+                        display: AGENT_TYPE_CODES.device.display,
+                    }
+                ]
             },
             role: [
                 {

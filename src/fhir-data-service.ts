@@ -28,6 +28,12 @@ import { auditEventService } from './audit-event-service.js';
 import { provenanceService, CalculationResult } from './provenance-service.js';
 import { logger } from './logger.js';
 import { getActiveAdapter } from './ehr-adapters/index.js';
+import {
+    TW_CORE_PROFILES,
+    TW_IDENTIFIER_SYSTEMS,
+    TW_IDENTIFIER_TYPE_CODES,
+    getTWCoreObservationProfile,
+} from './twcore/index.js';
 
 // ============================================================================
 // Type Definitions
@@ -57,6 +63,32 @@ export interface Patient {
         given?: string[];
         family?: string;
         text?: string;
+    }>;
+    meta?: {
+        profile?: string[];
+        lastUpdated?: string;
+        versionId?: string;
+    };
+    identifier?: Array<{
+        use?: string;
+        type?: {
+            coding?: Array<{
+                system?: string;
+                code?: string;
+                display?: string;
+            }>;
+        };
+        system?: string;
+        value?: string;
+        period?: { start?: string; end?: string };
+        assigner?: { display?: string };
+    }>;
+    extension?: Array<{
+        url: string;
+        valueAge?: { value: number; unit: string; system?: string; code?: string };
+        valueString?: string;
+        valueCodeableConcept?: { coding?: Array<{ system?: string; code?: string; display?: string }> };
+        [key: string]: any;
     }>;
 }
 
@@ -101,6 +133,8 @@ export interface ObservationResult {
     ageInDays: number | null;
     /** LOINC code */
     code: string;
+    /** TW Core Observation profile URL (if detected) */
+    twcoreProfile?: string;
 }
 
 /**
@@ -354,6 +388,21 @@ export class FHIRDataService {
             if (stalenessInfo) {
                 result.isStale = stalenessInfo.isStale;
                 result.ageInDays = stalenessInfo.ageInDays;
+            }
+        }
+
+        // TW Core Observation profile detection
+        // Priority: server-side meta.profile > local LOINC-to-profile lookup
+        const serverProfiles: string[] = observation.meta?.profile || [];
+        const twcoreServerProfile = serverProfiles.find((p: string) =>
+            p.startsWith('https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-')
+        );
+        if (twcoreServerProfile) {
+            result.twcoreProfile = twcoreServerProfile;
+        } else {
+            const localProfile = getTWCoreObservationProfile(code);
+            if (localProfile) {
+                result.twcoreProfile = localProfile;
             }
         }
 
@@ -1027,6 +1076,84 @@ export class FHIRDataService {
             gender: this.getPatientGender(),
             birthDate: this.getPatientBirthDateString()
         };
+    }
+
+    // ========================================================================
+    // TW Core Patient Methods
+    // ========================================================================
+
+    /**
+     * Extract patient identifiers classified by TW Core identifier systems.
+     * Returns National ID, Passport, Resident Certificate, and Medical Record Number.
+     */
+    getPatientIdentifiers(): Array<{
+        type: string;
+        system: string;
+        value: string;
+        label: string;
+    }> {
+        if (!this.patient?.identifier) {
+            return [];
+        }
+
+        const result: Array<{ type: string; system: string; value: string; label: string }> = [];
+
+        for (const id of this.patient.identifier) {
+            if (!id.system || !id.value) continue;
+
+            switch (id.system) {
+                case TW_IDENTIFIER_SYSTEMS.NATIONAL_ID:
+                    result.push({ type: 'NATIONAL_ID', system: id.system, value: id.value, label: '國民身分證' });
+                    break;
+                case TW_IDENTIFIER_SYSTEMS.PASSPORT:
+                    result.push({ type: 'PASSPORT', system: id.system, value: id.value, label: '護照' });
+                    break;
+                case TW_IDENTIFIER_SYSTEMS.RESIDENT_CERTIFICATE:
+                    result.push({ type: 'RESIDENT_CERTIFICATE', system: id.system, value: id.value, label: '居留證' });
+                    break;
+                case TW_IDENTIFIER_SYSTEMS.MEDICAL_RECORD:
+                    result.push({ type: 'MEDICAL_RECORD', system: id.system, value: id.value, label: '病歷號' });
+                    break;
+                default:
+                    // Check type.coding for MR code (common hospital pattern)
+                    if (id.type?.coding?.some(c => c.code === TW_IDENTIFIER_TYPE_CODES.MEDICAL_RECORD.code)) {
+                        result.push({ type: 'MEDICAL_RECORD', system: id.system, value: id.value, label: '病歷號' });
+                    }
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Get patient age with TW Core person-age extension support.
+     * Prefers the FHIR person-age extension value, falls back to calculateAge from birthDate.
+     */
+    getPatientAgeTWCore(): number | null {
+        // 1. Check for person-age extension
+        if (this.patient?.extension) {
+            const ageExt = this.patient.extension.find(
+                ext => ext.url === 'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/person-age' ||
+                       ext.url === 'http://hl7.org/fhir/StructureDefinition/patient-age'
+            );
+            if (ageExt?.valueAge?.value !== undefined) {
+                return ageExt.valueAge.value;
+            }
+        }
+
+        // 2. Fallback to calculateAge
+        return this.getPatientAge();
+    }
+
+    /**
+     * Check if the patient resource has a TW Core Patient profile in meta.profile.
+     */
+    isTWCorePatient(): boolean {
+        if (!this.patient?.meta?.profile) {
+            return false;
+        }
+        return this.patient.meta.profile.includes(TW_CORE_PROFILES.Patient);
     }
 
     // ========================================================================

@@ -38,6 +38,9 @@ export default defineConfig(({ mode }) => ({
                     if (id.includes('src/ui-builder') || id.includes('src/validator') || id.includes('src/utils')) {
                         return 'ui';
                     }
+                    if (id.includes('src/twcore')) {
+                        return 'core';
+                    }
                     if (id.includes('src/errorHandler') || id.includes('src/logger') || id.includes('src/sentry')) {
                         return 'core';
                     }
