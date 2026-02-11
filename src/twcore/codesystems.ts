@@ -9,9 +9,18 @@ const TW_CORE_VS_BASE = 'https://twcore.mohw.gov.tw/ig/twcore/ValueSet';
  * TW-specific CodeSystem URLs
  */
 export const TW_CODE_SYSTEMS = {
-    // Diagnosis codes
-    ICD_10_CM_TW_2023: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-cm-2023-tw',
-    ICD_10_PCS_TW_2023: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-pcs-2023-tw',
+    // Diagnosis codes — ICD-10-CM (Clinical Modification)
+    ICD_10_CM_TW_2023: `${TW_CORE_CS_BASE}/icd-10-cm-2023-tw`,
+    ICD_10_CM_TW_2021: `${TW_CORE_CS_BASE}/icd-10-cm-2021-tw`,
+    ICD_10_CM_TW_2014: `${TW_CORE_CS_BASE}/icd-10-cm-2014-tw`,
+
+    // Diagnosis codes — ICD-10-PCS (Procedure Coding System)
+    ICD_10_PCS_TW_2023: `${TW_CORE_CS_BASE}/icd-10-pcs-2023-tw`,
+    ICD_10_PCS_TW_2021: `${TW_CORE_CS_BASE}/icd-10-pcs-2021-tw`,
+    ICD_10_PCS_TW_2014: `${TW_CORE_CS_BASE}/icd-10-pcs-2014-tw`,
+
+    // Diagnosis codes — ICD-9-CM (legacy)
+    ICD_9_CM_TW_2001: `${TW_CORE_CS_BASE}/icd-9-cm-2001-tw`,
 
     // Medication codes
     MEDICATION_NHI: `${TW_CORE_CS_BASE}/medication-nhi-tw`,
@@ -45,9 +54,22 @@ export const TW_VALUE_SETS = {
     MEDICATION_FREQUENCY_NHI: `${TW_CORE_VS_BASE}/medication-frequency-nhi-tw`,
     MEDICATION_PATH: `${TW_CORE_VS_BASE}/medication-path-tw`,
 
-    // Diagnosis
+    // Diagnosis — ICD-10-CM
     ICD_10_CM_TW_2023: `${TW_CORE_VS_BASE}/icd-10-cm-2023-tw`,
+    ICD_10_CM_TW_2021: `${TW_CORE_VS_BASE}/icd-10-cm-2021-tw`,
+    ICD_10_CM_TW_2014: `${TW_CORE_VS_BASE}/icd-10-cm-2014-tw`,
+
+    // Diagnosis — ICD-10-PCS
     ICD_10_PCS_TW_2023: `${TW_CORE_VS_BASE}/icd-10-pcs-2023-tw`,
+    ICD_10_PCS_TW_2021: `${TW_CORE_VS_BASE}/icd-10-pcs-2021-tw`,
+    ICD_10_PCS_TW_2014: `${TW_CORE_VS_BASE}/icd-10-pcs-2014-tw`,
+
+    // Diagnosis — ICD-9-CM (legacy)
+    ICD_9_CM_TW_2001: `${TW_CORE_VS_BASE}/icd-9-cm-2001-tw`,
+
+    // Smoking Status
+    SMOKING_STATUS_COMPREHENSIVE: `${TW_CORE_VS_BASE}/smoking-status-comprehensive-code`,
+    SMOKING_STATUS_TYPE: `${TW_CORE_VS_BASE}/smoking-status-type-code`,
 
     // Healthcare provider
     HEALTHCARE_PROVIDER: `${TW_CORE_VS_BASE}/health-professional-tw`,

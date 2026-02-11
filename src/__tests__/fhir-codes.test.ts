@@ -10,6 +10,7 @@ import {
     ICD10_CODES,
     SNOMED_TO_ICD10_MAP,
     RXNORM_CODES,
+    FHIR_CODE_SYSTEMS,
     getLoincCode,
     getSnomedCode,
     getIcd10Code,
@@ -25,6 +26,7 @@ import {
     getVitalSignsCodes,
     getMeasurementType
 } from '../fhir-codes.js';
+import { getTWCoreObservationProfile } from '../twcore/observation-profiles.js';
 
 describe('FHIR Codes Module', () => {
     // =========================================
@@ -354,6 +356,244 @@ describe('FHIR Codes Module', () => {
         test('should contain metabolic mappings', () => {
             expect(SNOMED_TO_ICD10_MAP['44054006']).toBe('E11.9'); // Type 2 DM
             expect(SNOMED_TO_ICD10_MAP['55822004']).toBe('E78.5'); // Hyperlipidemia
+        });
+    });
+
+    // =========================================
+    // FHIR_CODE_SYSTEMS Tests
+    // =========================================
+    describe('FHIR_CODE_SYSTEMS', () => {
+        test('should contain standard FHIR code system URLs', () => {
+            expect(FHIR_CODE_SYSTEMS.LOINC).toBe('http://loinc.org');
+            expect(FHIR_CODE_SYSTEMS.SNOMED_CT).toBe('http://snomed.info/sct');
+            expect(FHIR_CODE_SYSTEMS.ICD10).toBe('http://hl7.org/fhir/sid/icd-10');
+            expect(FHIR_CODE_SYSTEMS.ICD10_CM).toBe('http://hl7.org/fhir/sid/icd-10-cm');
+            expect(FHIR_CODE_SYSTEMS.RXNORM).toBe('http://www.nlm.nih.gov/research/umls/rxnorm');
+            expect(FHIR_CODE_SYSTEMS.OBSERVATION_CATEGORY).toBe('http://terminology.hl7.org/CodeSystem/observation-category');
+            expect(FHIR_CODE_SYSTEMS.CONDITION_CLINICAL).toBe('http://terminology.hl7.org/CodeSystem/condition-clinical');
+            expect(FHIR_CODE_SYSTEMS.V2_IDENTIFIER_TYPE).toBe('http://terminology.hl7.org/CodeSystem/v2-0203');
+        });
+
+        test('should contain Taiwan ICD-10 code system URLs', () => {
+            expect(FHIR_CODE_SYSTEMS.ICD10_CM_TW).toBe('https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-cm-2023-tw');
+            expect(FHIR_CODE_SYSTEMS.ICD10_PCS_TW).toBe('https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-pcs-2023-tw');
+        });
+
+        test('all URLs should be valid HTTP(S) URIs', () => {
+            Object.values(FHIR_CODE_SYSTEMS).forEach(url => {
+                expect(url).toMatch(/^https?:\/\//);
+            });
+        });
+    });
+
+    // =========================================
+    // TW Core Vital Signs LOINC Codes Tests
+    // =========================================
+    describe('TW Core Vital Signs LOINC Codes', () => {
+        test('should contain vital signs panel code', () => {
+            expect(LOINC_CODES.VITAL_SIGNS_PANEL).toBe('85353-1');
+        });
+
+        test('should contain mean BP code', () => {
+            expect(LOINC_CODES.MEAN_BP).toBe('8478-0');
+        });
+
+        test('should contain O2 flow rate code', () => {
+            expect(LOINC_CODES.O2_FLOW_RATE).toBe('3151-8');
+        });
+
+        test('should contain body height variants', () => {
+            expect(LOINC_CODES.BODY_HEIGHT_LYING).toBe('8306-3');
+            expect(LOINC_CODES.BODY_HEIGHT_STANDING).toBe('8308-9');
+        });
+
+        test('should contain body weight measured', () => {
+            expect(LOINC_CODES.BODY_WEIGHT_MEASURED).toBe('3141-9');
+        });
+
+        test('should contain head circumference tape', () => {
+            expect(LOINC_CODES.HEAD_CIRCUMFERENCE_TAPE).toBe('8287-5');
+        });
+    });
+
+    // =========================================
+    // Average BP + ECG Codes Tests
+    // =========================================
+    describe('Average BP and ECG Codes', () => {
+        test('should contain average blood pressure codes', () => {
+            expect(LOINC_CODES.AVG_BP_PANEL).toBe('96607-7');
+            expect(LOINC_CODES.AVG_BP_SYSTOLIC).toBe('96608-5');
+            expect(LOINC_CODES.AVG_BP_DIASTOLIC).toBe('96609-3');
+        });
+
+        test('should contain ECG code', () => {
+            expect(LOINC_CODES.ECG).toBe('11524-6');
+        });
+    });
+
+    // =========================================
+    // Comma-Separated Codes + Alternate Entries Tests
+    // =========================================
+    describe('Comma-Separated Codes and Alternate Entries', () => {
+        test('comma-separated values should remain unchanged', () => {
+            expect(LOINC_CODES.BP_PANEL).toBe('85354-9,55284-4');
+            expect(LOINC_CODES.TEMPERATURE).toBe('8310-5,8331-1');
+            expect(LOINC_CODES.URINE_SODIUM).toBe('2828-2,2955-3');
+        });
+
+        test('should have individual alternate entries', () => {
+            expect(LOINC_CODES.BP_PANEL_ALT).toBe('55284-4');
+            expect(LOINC_CODES.TEMPERATURE_ORAL).toBe('8331-1');
+            expect(LOINC_CODES.URINE_SODIUM_RANDOM).toBe('2955-3');
+        });
+    });
+
+    // =========================================
+    // Pediatric Codes Tests
+    // =========================================
+    describe('Pediatric LOINC Codes', () => {
+        test('should contain pediatric BMI for age', () => {
+            expect(LOINC_CODES.PEDIATRIC_BMI_FOR_AGE).toBe('59576-9');
+        });
+
+        test('should contain pediatric weight for height', () => {
+            expect(LOINC_CODES.PEDIATRIC_WEIGHT_FOR_HEIGHT).toBe('77606-2');
+        });
+
+        test('should contain pediatric head circumference', () => {
+            expect(LOINC_CODES.PEDIATRIC_HEAD_CIRCUMFERENCE).toBe('8289-1');
+        });
+    });
+
+    // =========================================
+    // Smoking Status Complete Code Set Tests
+    // =========================================
+    describe('Smoking Status Complete Code Set', () => {
+        test('should contain tobacco history LOINC code', () => {
+            expect(LOINC_CODES.TOBACCO_HISTORY).toBe('11367-0');
+        });
+
+        test('should contain cigarette pack-years SNOMED codes', () => {
+            expect(SNOMED_CODES.CIGARETTE_PACK_YEARS).toBe('401201003');
+            expect(SNOMED_CODES.CALCULATED_PACK_YEARS).toBe('782516008');
+        });
+
+        test('should contain smoking status result value codes (TW Core comprehensive)', () => {
+            expect(SNOMED_CODES.NEVER_SMOKER).toBe('266919005');
+            expect(SNOMED_CODES.FORMER_SMOKER).toBe('8517006');
+            expect(SNOMED_CODES.CURRENT_EVERY_DAY_SMOKER).toBe('449868002');
+            expect(SNOMED_CODES.CURRENT_SOME_DAY_SMOKER).toBe('428041000124106');
+            expect(SNOMED_CODES.CURRENT_HEAVY_SMOKER).toBe('428071000124103');
+            expect(SNOMED_CODES.CURRENT_LIGHT_SMOKER).toBe('428061000124105');
+            expect(SNOMED_CODES.SMOKING_STATUS_UNKNOWN).toBe('266927001');
+        });
+
+        test('should contain e-cigarette and exposure codes', () => {
+            expect(SNOMED_CODES.E_CIGARETTE_USER).toBe('722499006');
+            expect(SNOMED_CODES.SECONDHAND_SMOKE_EXPOSURE).toBe('699009004');
+            expect(SNOMED_CODES.SECONDHAND_SMOKE_EVENT).toBe('16090371000119103');
+            expect(SNOMED_CODES.OCCUPATIONAL_SMOKE_EXPOSURE).toBe('16090771000119104');
+            expect(SNOMED_CODES.SMOKER_IN_FAMILY).toBe('275105001');
+        });
+    });
+
+    // =========================================
+    // Expanded getVitalSignsCodes Tests
+    // =========================================
+    describe('getVitalSignsCodes (expanded)', () => {
+        test('should include new vital signs properties', () => {
+            const vitalCodes = getVitalSignsCodes();
+            expect(vitalCodes).toHaveProperty('vitalSignsPanel', '85353-1');
+            expect(vitalCodes).toHaveProperty('meanBP', '8478-0');
+            expect(vitalCodes).toHaveProperty('oxygenSaturationArterial', '2708-6');
+            expect(vitalCodes).toHaveProperty('height', '8302-2');
+            expect(vitalCodes).toHaveProperty('weight', '29463-7');
+            expect(vitalCodes).toHaveProperty('bmi', '39156-5');
+            expect(vitalCodes).toHaveProperty('headCircumference', '9843-4');
+        });
+    });
+
+    // =========================================
+    // Expanded getMeasurementType Tests
+    // =========================================
+    describe('getMeasurementType (expanded)', () => {
+        test('should return pressure for BP-related codes', () => {
+            expect(getMeasurementType('8478-0')).toBe('pressure');
+            expect(getMeasurementType('96607-7')).toBe('pressure');
+            expect(getMeasurementType('96608-5')).toBe('pressure');
+            expect(getMeasurementType('96609-3')).toBe('pressure');
+        });
+
+        test('should return height for height variant codes', () => {
+            expect(getMeasurementType('8306-3')).toBe('height');
+            expect(getMeasurementType('8308-9')).toBe('height');
+        });
+
+        test('should return weight for measured weight code', () => {
+            expect(getMeasurementType('3141-9')).toBe('weight');
+        });
+
+        test('should return circumference for head circumference tape code', () => {
+            expect(getMeasurementType('8287-5')).toBe('circumference');
+        });
+    });
+
+    // =========================================
+    // TW Core Cross-Reference Validation
+    // =========================================
+    describe('TW Core Cross-Reference', () => {
+        // All LOINC codes used in twcore/observation-profiles.ts LOINC_TO_TW_PROFILE_MAP
+        const twCoreLoincCodes = [
+            // Blood Pressure
+            '85354-9', '55284-4', '8480-6', '8462-4', '8478-0',
+            // BMI
+            '39156-5',
+            // Body Height
+            '8302-2', '8306-3', '8308-9',
+            // Body Weight
+            '29463-7', '3141-9',
+            // Body Temperature
+            '8310-5', '8331-1',
+            // Head Circumference
+            '9843-4', '8287-5',
+            // Heart Rate
+            '8867-4',
+            // Oxygen Saturation / Pulse Oximetry
+            '59408-5', '2708-6',
+            // Respiratory Rate
+            '9279-1',
+            // Vital Signs panel
+            '85353-1',
+            // Pediatric
+            '59576-9', '77606-2', '8289-1',
+            // Smoking Status
+            '72166-2', '11367-0',
+            // Average Blood Pressure
+            '96607-7', '96608-5', '96609-3',
+        ];
+
+        test('every LOINC code in TW Core profile map should exist in LOINC_CODES values', () => {
+            // Collect all individual LOINC code values (including comma-separated)
+            const allLoincValues = new Set<string>();
+            Object.values(LOINC_CODES).forEach(value => {
+                value.split(',').forEach(code => allLoincValues.add(code.trim()));
+            });
+
+            const missing: string[] = [];
+            twCoreLoincCodes.forEach(code => {
+                if (!allLoincValues.has(code)) {
+                    missing.push(code);
+                }
+            });
+
+            expect(missing).toEqual([]);
+        });
+
+        test('every TW Core LOINC code should resolve to a profile via getTWCoreObservationProfile', () => {
+            twCoreLoincCodes.forEach(code => {
+                const profile = getTWCoreObservationProfile(code);
+                expect(profile).not.toBeNull();
+            });
         });
     });
 });

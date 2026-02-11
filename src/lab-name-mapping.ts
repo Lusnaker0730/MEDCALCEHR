@@ -25,12 +25,30 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     TEMPERATURE: { primary: 'Temperature', aliases: ['Temp', 'Body Temp'] },
     OXYGEN_SATURATION: { primary: 'SpO2', aliases: ['O2 Sat', 'Pulse Ox'] },
     OXYGEN_SATURATION_ARTERIAL: { primary: 'SaO2', aliases: ['Arterial O2 Sat'] },
+    VITAL_SIGNS_PANEL: { primary: 'Vital Signs Panel', aliases: ['Vitals Panel'] },
+    MEAN_BP: { primary: 'Mean Blood Pressure', aliases: ['Mean BP', 'MAP'] },
+    BP_PANEL_ALT: { primary: 'Blood Pressure (Systolic+Diastolic)', aliases: ['BP Alt'] },
+    TEMPERATURE_ORAL: { primary: 'Oral Temperature', aliases: ['Oral Temp'] },
+    O2_FLOW_RATE: { primary: 'O2 Flow Rate', aliases: ['Oxygen Flow Rate'] },
+    AVG_BP_PANEL: { primary: 'Average Blood Pressure Panel', aliases: ['Avg BP Panel'] },
+    AVG_BP_SYSTOLIC: { primary: 'Average Systolic BP', aliases: ['Avg SBP'] },
+    AVG_BP_DIASTOLIC: { primary: 'Average Diastolic BP', aliases: ['Avg DBP'] },
+    ECG: { primary: 'ECG', aliases: ['Electrocardiogram', 'EKG'] },
 
     // Body Measurements
     HEIGHT: { primary: 'Height', aliases: ['Body Height', 'Stature'] },
+    BODY_HEIGHT_LYING: { primary: 'Body Height (Lying)', aliases: ['Recumbent Length'] },
+    BODY_HEIGHT_STANDING: { primary: 'Body Height (Standing)', aliases: ['Standing Height'] },
     WEIGHT: { primary: 'Weight', aliases: ['Body Weight'] },
+    BODY_WEIGHT_MEASURED: { primary: 'Body Weight (Measured)', aliases: ['Measured Weight'] },
     BMI: { primary: 'BMI', aliases: ['Body Mass Index'] },
     HEAD_CIRCUMFERENCE: { primary: 'Head Circumference', aliases: ['HC'] },
+    HEAD_CIRCUMFERENCE_TAPE: { primary: 'Head Circumference (Tape)', aliases: ['HC Tape'] },
+
+    // Pediatric Measurements
+    PEDIATRIC_BMI_FOR_AGE: { primary: 'Pediatric BMI for Age', aliases: ['BMI Percentile'] },
+    PEDIATRIC_WEIGHT_FOR_HEIGHT: { primary: 'Pediatric Weight for Height', aliases: ['Wt/Ht Percentile'] },
+    PEDIATRIC_HEAD_CIRCUMFERENCE: { primary: 'Pediatric Head Circumference', aliases: ['HC Percentile'] },
 
     // Laboratory - Hematology
     HEMOGLOBIN: { primary: 'Hemoglobin', aliases: ['Hgb', 'Hb'] },
@@ -78,6 +96,7 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     SERUM_OSMOLALITY: { primary: 'Serum Osmolality', aliases: [] },
     URINE_OSMOLALITY: { primary: 'Urine Osmolality', aliases: [] },
     URINE_SODIUM: { primary: 'Urine Sodium', aliases: ['U-Na'] },
+    URINE_SODIUM_RANDOM: { primary: 'Urine Sodium (Random)', aliases: ['U-Na Random'] },
     URINE_CREATININE: { primary: 'Urine Creatinine', aliases: ['U-Cr'] },
 
     // Laboratory - Inflammatory Markers
@@ -152,6 +171,7 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     APGAR_1MIN: { primary: 'Apgar 1 min', aliases: [] },
     APGAR_5MIN: { primary: 'Apgar 5 min', aliases: [] },
     SMOKING_STATUS: { primary: 'Smoking Status', aliases: [] },
+    TOBACCO_HISTORY: { primary: 'Tobacco Use History', aliases: ['Tobacco History'] },
 
     // Other Observations
     UREA: { primary: 'Urea', aliases: [] },

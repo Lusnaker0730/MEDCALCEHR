@@ -6,6 +6,7 @@ import {
     extractMinimalPatientData
 } from './security.js';
 import { logger } from './logger.js';
+import { FHIR_CODE_SYSTEMS } from './fhir-codes.js';
 
 /** Storage key for patient display data */
 const PATIENT_CACHE_KEY = 'patientDisplayData';
@@ -271,7 +272,7 @@ export async function getMedicationRequests(client: any, rxnormCodes: string[]):
     }
     try {
         const query = new URLSearchParams({
-            code: `http://www.nlm.nih.gov/research/umls/rxnorm|${rxnormCodes.join(',')}`,
+            code: `${FHIR_CODE_SYSTEMS.RXNORM}|${rxnormCodes.join(',')}`,
             patient: client.patient.id,
             status: 'active'
         });

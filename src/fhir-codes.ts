@@ -1,26 +1,73 @@
 // Centralized management of LOINC and SNOMED CT codes
 
 /**
+ * Standard FHIR Code System URLs
+ * Canonical URIs used in Coding.system fields
+ */
+export const FHIR_CODE_SYSTEMS = {
+    /** LOINC — Logical Observation Identifiers Names and Codes */
+    LOINC: 'http://loinc.org',
+    /** SNOMED CT — Systematized Nomenclature of Medicine */
+    SNOMED_CT: 'http://snomed.info/sct',
+    /** ICD-10 (WHO) */
+    ICD10: 'http://hl7.org/fhir/sid/icd-10',
+    /** ICD-10-CM (US Clinical Modification) */
+    ICD10_CM: 'http://hl7.org/fhir/sid/icd-10-cm',
+    /** ICD-10-CM Taiwan NHI 2023 version (TW Core primary) */
+    ICD10_CM_TW: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-cm-2023-tw',
+    /** ICD-10-PCS Taiwan NHI 2023 version */
+    ICD10_PCS_TW: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-pcs-2023-tw',
+    /** RxNorm — medication codes */
+    RXNORM: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+    /** HL7 Observation Category */
+    OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
+    /** HL7 Condition Clinical Status */
+    CONDITION_CLINICAL: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+    /** HL7 v2 Identifier Type */
+    V2_IDENTIFIER_TYPE: 'http://terminology.hl7.org/CodeSystem/v2-0203',
+} as const;
+
+/**
  * LOINC Codes Registry
  * Standard codes for laboratory and clinical observations
  * Reference: https://loinc.org/
  */
 export const LOINC_CODES: Record<string, string> = {
     // Vital Signs
+    VITAL_SIGNS_PANEL: '85353-1', // Vital signs, weight, height, head circumference, oxygen saturation, and BMI panel
     SYSTOLIC_BP: '8480-6', // Systolic blood pressure
     DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
+    /** Blood pressure panel — comma = FHIR OR search (85354-9 panel | 55284-4 systolic+diastolic) */
     BP_PANEL: '85354-9,55284-4', // Blood pressure panel
+    BP_PANEL_ALT: '55284-4', // Blood pressure systolic and diastolic
+    MEAN_BP: '8478-0', // Mean blood pressure
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
+    /** Body temperature — comma = FHIR OR search (8310-5 core | 8331-1 oral) */
     TEMPERATURE: '8310-5,8331-1', // Body temperature (and Oral)
+    TEMPERATURE_ORAL: '8331-1', // Oral temperature
     OXYGEN_SATURATION: '59408-5', // Oxygen saturation (Pulse Ox)
     OXYGEN_SATURATION_ARTERIAL: '2708-6', // Oxygen saturation (Arterial)
+    O2_FLOW_RATE: '3151-8', // Inhaled oxygen flow rate
+    AVG_BP_PANEL: '96607-7', // Average blood pressure panel
+    AVG_BP_SYSTOLIC: '96608-5', // Average systolic blood pressure
+    AVG_BP_DIASTOLIC: '96609-3', // Average diastolic blood pressure
+    ECG: '11524-6', // ECG study
 
     // Body Measurements
     HEIGHT: '8302-2', // Body height
+    BODY_HEIGHT_LYING: '8306-3', // Body height lying (recumbent)
+    BODY_HEIGHT_STANDING: '8308-9', // Body height standing
     WEIGHT: '29463-7', // Body weight
+    BODY_WEIGHT_MEASURED: '3141-9', // Body weight measured
     BMI: '39156-5', // Body mass index
-    HEAD_CIRCUMFERENCE: '8287-5', // Head circumference
+    HEAD_CIRCUMFERENCE: '9843-4', // Head circumference
+    HEAD_CIRCUMFERENCE_TAPE: '8287-5', // Head circumference by tape measure
+
+    // Pediatric Measurements
+    PEDIATRIC_BMI_FOR_AGE: '59576-9', // Pediatric BMI for age percentile
+    PEDIATRIC_WEIGHT_FOR_HEIGHT: '77606-2', // Pediatric weight for height percentile
+    PEDIATRIC_HEAD_CIRCUMFERENCE: '8289-1', // Pediatric head circumference percentile
 
     // Laboratory - Hematology
     HEMOGLOBIN: '718-7', // Hemoglobin
@@ -72,7 +119,9 @@ export const LOINC_CODES: Record<string, string> = {
     URINE_POTASSIUM: '2829-0', // Urine potassium
     SERUM_OSMOLALITY: '2695-6', // Serum osmolality
     URINE_OSMOLALITY: '2697-2', // Urine osmolality
+    /** Urine sodium — comma = FHIR OR search (2828-2 24h | 2955-3 random) */
     URINE_SODIUM: '2828-2,2955-3', // Urine sodium
+    URINE_SODIUM_RANDOM: '2955-3', // Urine sodium random
     URINE_CREATININE: '2161-8', // Urine creatinine
     URINE_UREA_NITROGEN: '3095-7', // Urine Urea Nitrogen
 
@@ -111,7 +160,7 @@ export const LOINC_CODES: Record<string, string> = {
     QT_INTERVAL: '8633-1', // QT interval (raw)
     LVEF: '10230-1', // Left ventricular ejection fraction
     LVEF_2D: '18043-0', // LVEF by 2D Echo
-    PA_SYSTOLIC_PRESSURE: '8480-6', // Pulmonary artery systolic pressure
+    PA_SYSTOLIC_PRESSURE: '27164-3', // Pulmonary artery systolic pressure
     PA_MEAN_PRESSURE: '8414-5', // Pulmonary artery mean pressure
 
     // Laboratory - Other
@@ -138,12 +187,18 @@ export const LOINC_CODES: Record<string, string> = {
     APGAR_1MIN: '9272-6', // Apgar score 1 minute
     APGAR_5MIN: '9274-2', // Apgar score 5 minute
     SMOKING_STATUS: '72166-2', // Smoking status
+    TOBACCO_HISTORY: '11367-0', // Tobacco use and exposure
 
     // Other Observations
     UREA: '3094-0', // Urea
     BLOOD_TYPE: '882-1', // Blood type
     RH_FACTOR: '10331-7', // Rh factor
-    ASA_PHYSICAL_STATUS: '11368-0' // ASA Physical Status Class
+    ASA_PHYSICAL_STATUS: '11368-0', // ASA Physical Status Class
+
+    // GCS Components
+    GCS_EYE: '9267-6', // Glasgow coma score eye opening
+    GCS_VERBAL: '9270-0', // Glasgow coma score verbal
+    GCS_MOTOR: '9268-4', // Glasgow coma score motor
 };
 
 /**
@@ -224,8 +279,26 @@ export const SNOMED_CODES: Record<string, string> = {
     TUBERCULOSIS: '56717001',
     COVID_19: '840539006',
 
-    // Substance Use
-    SMOKING: '77176002',
+    // Substance Use — Smoking Status Result Values (TW Core smoking-status-comprehensive-code)
+    SMOKING: '77176002', // Smoker (current status unknown)
+    NEVER_SMOKER: '266919005', // Never smoked tobacco
+    FORMER_SMOKER: '8517006', // Ex-smoker
+    CURRENT_EVERY_DAY_SMOKER: '449868002', // Current every day smoker
+    CURRENT_SOME_DAY_SMOKER: '428041000124106', // Current some day smoker
+    CURRENT_HEAVY_SMOKER: '428071000124103', // Current heavy tobacco smoker
+    CURRENT_LIGHT_SMOKER: '428061000124105', // Current light tobacco smoker
+    SMOKING_STATUS_UNKNOWN: '266927001', // Unknown if ever smoked
+    E_CIGARETTE_USER: '722499006', // Electronic cigarette user
+    SECONDHAND_SMOKE_EXPOSURE: '699009004', // History of exposure to second hand smoke
+    SECONDHAND_SMOKE_EVENT: '16090371000119103', // Exposure to second hand tobacco smoke
+    OCCUPATIONAL_SMOKE_EXPOSURE: '16090771000119104', // Occupational exposure to environmental tobacco smoke
+    SMOKER_IN_FAMILY: '275105001', // Smoker in the family
+
+    // Substance Use — Observable Entities
+    CIGARETTE_PACK_YEARS: '401201003', // Number of cigarettes smoked in lifetime (pack-years)
+    CALCULATED_PACK_YEARS: '782516008', // Calculated cigarette pack-years
+
+    // Substance Use — Other
     ALCOHOL_ABUSE: '7200002',
     DRUG_ABUSE: '66214007',
 
@@ -663,12 +736,19 @@ export function matchDiagnosisCode(code: string): DiagnosisCodeResult | null {
  */
 export function getVitalSignsCodes(): Record<string, string> {
     return {
+        vitalSignsPanel: LOINC_CODES.VITAL_SIGNS_PANEL,
         systolicBP: LOINC_CODES.SYSTOLIC_BP,
         diastolicBP: LOINC_CODES.DIASTOLIC_BP,
+        meanBP: LOINC_CODES.MEAN_BP,
         heartRate: LOINC_CODES.HEART_RATE,
         respiratoryRate: LOINC_CODES.RESPIRATORY_RATE,
         temperature: LOINC_CODES.TEMPERATURE,
-        oxygenSaturation: LOINC_CODES.OXYGEN_SATURATION
+        oxygenSaturation: LOINC_CODES.OXYGEN_SATURATION,
+        oxygenSaturationArterial: LOINC_CODES.OXYGEN_SATURATION_ARTERIAL,
+        height: LOINC_CODES.HEIGHT,
+        weight: LOINC_CODES.WEIGHT,
+        bmi: LOINC_CODES.BMI,
+        headCircumference: LOINC_CODES.HEAD_CIRCUMFERENCE
     };
 }
 
@@ -721,6 +801,7 @@ export function getLabCodesByCategory(category: string): Record<string, string> 
 
 // Export default object with all codes
 export default {
+    FHIR_CODE_SYSTEMS,
     LOINC: LOINC_CODES,
     SNOMED: SNOMED_CODES,
     ICD10: ICD10_CODES,
@@ -757,6 +838,12 @@ export function getMeasurementType(code: string): string {
         // Vital Signs
         [LOINC_CODES.TEMPERATURE]: 'temperature', // Body temperature 8310-5
         '8331-1': 'temperature', // Oral temperature
+
+        // Blood Pressure
+        [LOINC_CODES.MEAN_BP]: 'pressure', // Mean blood pressure
+        [LOINC_CODES.AVG_BP_PANEL]: 'pressure', // Average BP panel
+        [LOINC_CODES.AVG_BP_SYSTOLIC]: 'pressure', // Average systolic
+        [LOINC_CODES.AVG_BP_DIASTOLIC]: 'pressure', // Average diastolic
 
         // Cholesterol/Lipids
         [LOINC_CODES.CHOLESTEROL_TOTAL]: 'cholesterol',
@@ -797,7 +884,13 @@ export function getMeasurementType(code: string): string {
 
         // Weight/Height
         [LOINC_CODES.WEIGHT]: 'weight',
-        [LOINC_CODES.HEIGHT]: 'height'
+        [LOINC_CODES.BODY_WEIGHT_MEASURED]: 'weight', // Body weight measured
+        [LOINC_CODES.HEIGHT]: 'height',
+        [LOINC_CODES.BODY_HEIGHT_LYING]: 'height', // Body height lying
+        [LOINC_CODES.BODY_HEIGHT_STANDING]: 'height', // Body height standing
+
+        // Circumference
+        [LOINC_CODES.HEAD_CIRCUMFERENCE_TAPE]: 'circumference' // Head circumference by tape
     };
 
     return codeMap[primaryCode] || 'concentration';

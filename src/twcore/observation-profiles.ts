@@ -87,6 +87,12 @@ const LOINC_TO_TW_PROFILE_MAP: Record<string, string> = {
 
     // Smoking Status
     '72166-2': TW_OBSERVATION_PROFILES.smokingStatus,
+    '11367-0': TW_OBSERVATION_PROFILES.smokingStatus,  // Tobacco use and exposure
+
+    // Average Blood Pressure
+    '96607-7': TW_OBSERVATION_PROFILES.averageBloodPressure, // Average BP panel
+    '96608-5': TW_OBSERVATION_PROFILES.averageBloodPressure, // Average systolic
+    '96609-3': TW_OBSERVATION_PROFILES.averageBloodPressure, // Average diastolic
 };
 
 /**
@@ -116,6 +122,8 @@ const VITAL_SIGN_LOINC_CODES = new Set([
     '85353-1',
     // Pediatric
     '59576-9', '77606-2', '8289-1',
+    // Average Blood Pressure
+    '96607-7', '96608-5', '96609-3',
 ]);
 
 /**

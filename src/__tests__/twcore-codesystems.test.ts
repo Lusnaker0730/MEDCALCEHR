@@ -44,6 +44,22 @@ describe('TW Core CodeSystems', () => {
         test('should include category code system', () => {
             expect(TW_CODE_SYSTEMS.CATEGORY_CODE_TW).toContain('category-code-tw');
         });
+
+        test('should include all ICD-10-CM Taiwan versions', () => {
+            expect(TW_CODE_SYSTEMS.ICD_10_CM_TW_2023).toContain('icd-10-cm-2023-tw');
+            expect(TW_CODE_SYSTEMS.ICD_10_CM_TW_2021).toContain('icd-10-cm-2021-tw');
+            expect(TW_CODE_SYSTEMS.ICD_10_CM_TW_2014).toContain('icd-10-cm-2014-tw');
+        });
+
+        test('should include all ICD-10-PCS Taiwan versions', () => {
+            expect(TW_CODE_SYSTEMS.ICD_10_PCS_TW_2023).toContain('icd-10-pcs-2023-tw');
+            expect(TW_CODE_SYSTEMS.ICD_10_PCS_TW_2021).toContain('icd-10-pcs-2021-tw');
+            expect(TW_CODE_SYSTEMS.ICD_10_PCS_TW_2014).toContain('icd-10-pcs-2014-tw');
+        });
+
+        test('should include ICD-9-CM Taiwan legacy version', () => {
+            expect(TW_CODE_SYSTEMS.ICD_9_CM_TW_2001).toContain('icd-9-cm-2001-tw');
+        });
     });
 
     describe('TW_VALUE_SETS URL format', () => {
@@ -59,6 +75,27 @@ describe('TW Core CodeSystems', () => {
 
         test('should include laboratory code value set', () => {
             expect(TW_VALUE_SETS.LABORATORY_CODE).toContain('laboratory-code-tw');
+        });
+
+        test('should include all ICD-10-CM Taiwan ValueSet versions', () => {
+            expect(TW_VALUE_SETS.ICD_10_CM_TW_2023).toContain('icd-10-cm-2023-tw');
+            expect(TW_VALUE_SETS.ICD_10_CM_TW_2021).toContain('icd-10-cm-2021-tw');
+            expect(TW_VALUE_SETS.ICD_10_CM_TW_2014).toContain('icd-10-cm-2014-tw');
+        });
+
+        test('should include all ICD-10-PCS Taiwan ValueSet versions', () => {
+            expect(TW_VALUE_SETS.ICD_10_PCS_TW_2023).toContain('icd-10-pcs-2023-tw');
+            expect(TW_VALUE_SETS.ICD_10_PCS_TW_2021).toContain('icd-10-pcs-2021-tw');
+            expect(TW_VALUE_SETS.ICD_10_PCS_TW_2014).toContain('icd-10-pcs-2014-tw');
+        });
+
+        test('should include ICD-9-CM Taiwan legacy ValueSet', () => {
+            expect(TW_VALUE_SETS.ICD_9_CM_TW_2001).toContain('icd-9-cm-2001-tw');
+        });
+
+        test('should include smoking status ValueSets', () => {
+            expect(TW_VALUE_SETS.SMOKING_STATUS_COMPREHENSIVE).toContain('smoking-status-comprehensive-code');
+            expect(TW_VALUE_SETS.SMOKING_STATUS_TYPE).toContain('smoking-status-type-code');
         });
     });
 

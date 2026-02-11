@@ -6,6 +6,7 @@ import {
     AuthorizationParams,
     ObservationQuery
 } from './types.js';
+import { FHIR_CODE_SYSTEMS } from '../fhir-codes.js';
 
 export class EpicEHRAdapter extends BaseEHRAdapter {
     readonly vendor: EHRVendor = 'epic';
@@ -25,7 +26,7 @@ export class EpicEHRAdapter extends BaseEHRAdapter {
     buildObservationQuery(query: ObservationQuery): string {
         const code = query.code.includes('|')
             ? query.code
-            : `http://loinc.org|${query.code}`;
+            : `${FHIR_CODE_SYSTEMS.LOINC}|${query.code}`;
         let url = `Observation?code=${code}`;
         url += `&_sort=${query.sort || '-date'}`;
         url += `&_count=${query.count || 1}`;
@@ -49,6 +50,6 @@ export class EpicEHRAdapter extends BaseEHRAdapter {
 
     transformCode(loincCode: string): string {
         if (loincCode.includes('|')) return loincCode;
-        return `http://loinc.org|${loincCode}`;
+        return `${FHIR_CODE_SYSTEMS.LOINC}|${loincCode}`;
     }
 }

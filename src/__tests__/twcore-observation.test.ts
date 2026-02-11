@@ -143,6 +143,19 @@ describe('TW Core Observation', () => {
             expect(result.observation).toBeNull();
             expect(result.twcoreProfile).toBeUndefined();
         });
+
+        test('should detect average blood pressure profile for avg BP panel code', () => {
+            const obs = {
+                status: 'final',
+                code: { coding: [{ system: 'http://loinc.org', code: '96607-7' }] },
+                component: [
+                    { code: { coding: [{ system: 'http://loinc.org', code: '96608-5' }] }, valueQuantity: { value: 120, unit: 'mmHg' } },
+                    { code: { coding: [{ system: 'http://loinc.org', code: '96609-3' }] }, valueQuantity: { value: 80, unit: 'mmHg' } },
+                ],
+            };
+            const result = callProcessObservation(obs, '96607-7');
+            expect(result.twcoreProfile).toBe(TW_OBSERVATION_PROFILES.averageBloodPressure);
+        });
     });
 
     describe('checkObservationConformance()', () => {
