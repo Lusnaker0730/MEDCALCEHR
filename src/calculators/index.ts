@@ -210,11 +210,6 @@ export const calculatorModules: CalculatorMetadata[] = [
     },
     { id: 'rcri', title: 'Revised Cardiac Risk Index (RCRI)', category: 'cardiovascular' },
     { id: 'regiscar', title: 'RegiSCAR Score for DRESS', category: 'general' },
-    {
-        id: 'score2-diabetes',
-        title: 'SCORE2-Diabetes for 10-Year CVD Risk',
-        category: 'cardiovascular'
-    },
     { id: 'serum-anion-gap', title: 'Serum Anion Gap', category: 'metabolic' },
     { id: 'serum-osmolality', title: 'Serum Osmolality', category: 'metabolic' },
     {

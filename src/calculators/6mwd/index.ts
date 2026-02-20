@@ -90,9 +90,12 @@ export const sixMwdConfig: FormulaCalculatorConfig = {
             ]
         },
         {
-            title: 'Lower Limit of Normal',
-            formulas: ['LLN = Expected Distance - 153 m'],
-            notes: 'When using either equation, subtract 153 m for the LLN'
+            title: 'Lower Limit of Normal (LLN)',
+            formulas: [
+                'Male: LLN = Expected Distance - 153 m',
+                'Female: LLN = Expected Distance - 139 m'
+            ],
+            notes: 'Subtract 153 m for men and 139 m for women'
         },
         {
             label: 'Abbreviations',

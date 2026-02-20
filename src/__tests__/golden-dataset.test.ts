@@ -69,7 +69,6 @@ import { calculateIntraopFluid } from '../calculators/intraop-fluid/calculation.
 import { calculateIsthDic } from '../calculators/isth-dic/calculation.js';
 import { calculateMaggic } from '../calculators/maggic/calculation.js';
 import { calculateMaintenanceFluids } from '../calculators/maintenance-fluids/calculation.js';
-import { calculateScore2Diabetes } from '../calculators/score2-diabetes/calculation.js';
 import { calculateSexShock } from '../calculators/sex-shock/calculation.js';
 
 // ==========================================
@@ -362,7 +361,6 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
     'isth-dic': calculateIsthDic,
     'maggic': calculateMaggic,
     'maintenance-fluids': calculateMaintenanceFluids,
-    'score2-diabetes': calculateScore2Diabetes,
     'sex-shock': calculateSexShock,
 };
 
@@ -436,7 +434,7 @@ describe('Golden Dataset Clinical Validation', () => {
                 runSimpleGoldenTests(dataset, fn);
             } else {
                 describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
-                    test.skip(`Calculator "${calculatorId}" not mapped in simpleCalculatorMap`, () => {});
+                    test.skip(`Calculator "${calculatorId}" not mapped in simpleCalculatorMap`, () => { });
                 });
             }
         } else if (calculatorType === 'scoring') {
@@ -445,7 +443,7 @@ describe('Golden Dataset Clinical Validation', () => {
                 runScoringGoldenTests(dataset, config, calculateScoringResult);
             } else {
                 describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
-                    test.skip(`Calculator "${calculatorId}" not mapped in scoringConfigMap`, () => {});
+                    test.skip(`Calculator "${calculatorId}" not mapped in scoringConfigMap`, () => { });
                 });
             }
         } else if (calculatorType === 'complex') {
@@ -454,7 +452,7 @@ describe('Golden Dataset Clinical Validation', () => {
                 runComplexGoldenTests(dataset, fn);
             } else {
                 describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
-                    test.skip(`Calculator "${calculatorId}" not mapped in complexCalculatorMap`, () => {});
+                    test.skip(`Calculator "${calculatorId}" not mapped in complexCalculatorMap`, () => { });
                 });
             }
         }
