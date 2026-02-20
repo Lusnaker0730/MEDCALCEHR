@@ -1,5 +1,15 @@
-jest.mock('../logger.js', () => ({ logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } }));
-jest.mock('../sentry.js', () => ({ initSentry: jest.fn() }));
+import { jest } from '@jest/globals';
+
+const mockLoggerInfo = jest.fn<any>();
+const mockLoggerWarn = jest.fn<any>();
+const mockLoggerError = jest.fn<any>();
+const mockLoggerDebug = jest.fn<any>();
+const mockInitSentry = jest.fn<any>();
+const mockLoadCalculator = jest.fn<any>();
+const mockGetCalculatorMetadata = jest.fn<any>();
+
+jest.mock('../logger.js', () => ({ logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug } }));
+jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 jest.mock('../calculators/index.js', () => ({
     calculatorModules: [
         { id: 'calc-a', title: 'Calc A' },
@@ -7,8 +17,8 @@ jest.mock('../calculators/index.js', () => ({
         { id: 'calc-c', title: 'Calc C' },
     ],
     categories: {},
-    loadCalculator: jest.fn(),
-    getCalculatorMetadata: jest.fn(),
+    loadCalculator: mockLoadCalculator,
+    getCalculatorMetadata: mockGetCalculatorMetadata,
 }));
 
 import { initSwipeNavigation } from '../swipe-navigation.js';

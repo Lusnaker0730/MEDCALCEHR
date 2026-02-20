@@ -3,71 +3,108 @@
  * Tests for processObservation TW Core profile detection
  */
 
-import { describe, expect, test, beforeEach } from '@jest/globals';
-import { FHIRDataService } from '../fhir-data-service.js';
-import { TW_OBSERVATION_PROFILES } from '../twcore/observation-profiles.js';
-import { checkObservationConformance } from '../twcore/validation.js';
+import { describe, expect, test, beforeEach, jest } from '@jest/globals';
+
+// Pre-declared mock functions
+const mockLoggerInfo = jest.fn<any>();
+const mockLoggerWarn = jest.fn<any>();
+const mockLoggerError = jest.fn<any>();
+const mockLoggerDebug = jest.fn<any>();
+const mockInitSentry = jest.fn<any>();
+const mockGetCachedObservation = jest.fn<any>();
+const mockCacheObservation = jest.fn<any>();
+const mockClearPatientCache = jest.fn<any>();
+const mockSetContainer = jest.fn<any>();
+const mockCheckStaleness = jest.fn<any>().mockReturnValue(null);
+const mockTrackObservation = jest.fn<any>();
+const mockDataStalenessTracker = jest.fn<any>();
+const mockLogResourceRead = jest.fn<any>().mockResolvedValue(undefined);
+const mockRecordCalculation = jest.fn<any>().mockResolvedValue({});
+const mockRecordDerivation = jest.fn<any>().mockResolvedValue({});
+const mockGetProvenanceForTarget = jest.fn<any>().mockReturnValue([]);
+const mockGenerateLineageReport = jest.fn<any>().mockReturnValue({});
+const mockCreateLoadingBanner = jest.fn<any>();
+const mockRemoveLoadingBanner = jest.fn<any>();
+const mockCreateDataSummary = jest.fn<any>();
+const mockSetupDynamicTracking = jest.fn<any>();
+const mockGetMostRecentObservation = jest.fn<any>();
+const mockGetObservationValue = jest.fn<any>().mockReturnValue(null);
+const mockGetPatientConditions = jest.fn<any>().mockResolvedValue([]);
+const mockGetMedicationRequests = jest.fn<any>().mockResolvedValue([]);
+const mockCalculateAge = jest.fn<any>().mockReturnValue(30);
+const mockIsRestrictedResource = jest.fn<any>().mockReturnValue(false);
+const mockGetLoincName = jest.fn<any>();
+const mockGetMeasurementType = jest.fn<any>().mockReturnValue('concentration');
+const mockIsValidLoincCode = jest.fn<any>().mockReturnValue(true);
+const mockGetTextNameByLoinc = jest.fn<any>().mockReturnValue(null);
+const mockUnitConvert = jest.fn<any>().mockReturnValue(null);
+const mockSetInputValue = jest.fn<any>();
+const mockGetActiveAdapter = jest.fn<any>().mockReturnValue(null);
 
 // Mock dependencies
 jest.mock('../logger.js', () => ({
-    logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
+    logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug },
 }));
-jest.mock('../sentry.js', () => ({ initSentry: jest.fn() }));
+jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 jest.mock('../cache-manager.js', () => ({
-    fhirCache: { getCachedObservation: jest.fn(), cacheObservation: jest.fn(), clearPatientCache: jest.fn() },
+    fhirCache: { getCachedObservation: mockGetCachedObservation, cacheObservation: mockCacheObservation, clearPatientCache: mockClearPatientCache },
 }));
 jest.mock('../data-staleness.js', () => ({
     createStalenessTracker: () => ({
-        setContainer: jest.fn(),
-        checkStaleness: jest.fn(() => null),
-        trackObservation: jest.fn(),
+        setContainer: mockSetContainer,
+        checkStaleness: mockCheckStaleness,
+        trackObservation: mockTrackObservation,
     }),
-    DataStalenessTracker: jest.fn(),
+    DataStalenessTracker: mockDataStalenessTracker,
 }));
 jest.mock('../audit-event-service.js', () => ({
-    auditEventService: { logResourceRead: jest.fn(() => Promise.resolve()) },
+    auditEventService: { logResourceRead: mockLogResourceRead },
 }));
 jest.mock('../provenance-service.js', () => ({
     provenanceService: {
-        recordCalculation: jest.fn(() => Promise.resolve({})),
-        recordDerivation: jest.fn(() => Promise.resolve({})),
-        getProvenanceForTarget: jest.fn(() => []),
-        generateLineageReport: jest.fn(() => ({})),
+        recordCalculation: mockRecordCalculation,
+        recordDerivation: mockRecordDerivation,
+        getProvenanceForTarget: mockGetProvenanceForTarget,
+        generateLineageReport: mockGenerateLineageReport,
     },
     CalculationResult: {},
 }));
 jest.mock('../fhir-feedback.js', () => ({
     fhirFeedback: {
-        createLoadingBanner: jest.fn(),
-        removeLoadingBanner: jest.fn(),
-        createDataSummary: jest.fn(),
-        setupDynamicTracking: jest.fn(),
+        createLoadingBanner: mockCreateLoadingBanner,
+        removeLoadingBanner: mockRemoveLoadingBanner,
+        createDataSummary: mockCreateDataSummary,
+        setupDynamicTracking: mockSetupDynamicTracking,
     },
 }));
 jest.mock('../utils.js', () => ({
-    getMostRecentObservation: jest.fn(),
-    getObservationValue: jest.fn(() => null),
-    getPatientConditions: jest.fn(() => []),
-    getMedicationRequests: jest.fn(() => []),
-    calculateAge: jest.fn(() => 30),
-    isRestrictedResource: jest.fn(() => false),
+    getMostRecentObservation: mockGetMostRecentObservation,
+    getObservationValue: mockGetObservationValue,
+    getPatientConditions: mockGetPatientConditions,
+    getMedicationRequests: mockGetMedicationRequests,
+    calculateAge: mockCalculateAge,
+    isRestrictedResource: mockIsRestrictedResource,
 }));
 jest.mock('../fhir-codes.js', () => ({
     LOINC_CODES: { BP_PANEL: '85354-9,55284-4', SYSTOLIC_BP: '8480-6', DIASTOLIC_BP: '8462-4' },
     SNOMED_CODES: {},
-    getLoincName: jest.fn(),
-    getMeasurementType: jest.fn(() => 'concentration'),
-    isValidLoincCode: jest.fn(() => true),
+    getLoincName: mockGetLoincName,
+    getMeasurementType: mockGetMeasurementType,
+    isValidLoincCode: mockIsValidLoincCode,
 }));
 jest.mock('../lab-name-mapping.js', () => ({
-    getTextNameByLoinc: jest.fn(() => null),
+    getTextNameByLoinc: mockGetTextNameByLoinc,
 }));
 jest.mock('../unit-converter.js', () => ({
-    UnitConverter: { convert: jest.fn(() => null), setInputValue: jest.fn() },
+    UnitConverter: { convert: mockUnitConvert, setInputValue: mockSetInputValue },
 }));
 jest.mock('../ehr-adapters/index.js', () => ({
-    getActiveAdapter: jest.fn(() => null),
+    getActiveAdapter: mockGetActiveAdapter,
 }));
+
+import { FHIRDataService } from '../fhir-data-service.js';
+import { TW_OBSERVATION_PROFILES } from '../twcore/observation-profiles.js';
+import { checkObservationConformance } from '../twcore/validation.js';
 
 // Load fixtures
 import bmiExample from './fixtures/twcore/observation-bmi-example.json';

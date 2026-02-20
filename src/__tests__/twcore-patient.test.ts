@@ -3,17 +3,24 @@
  * Tests for patient identifier extraction, age extension, and conformance
  */
 
-import { describe, expect, test, beforeEach } from '@jest/globals';
+import { describe, expect, test, beforeEach, jest } from '@jest/globals';
+
+const mockLoggerInfo = jest.fn<any>();
+const mockLoggerWarn = jest.fn<any>();
+const mockLoggerError = jest.fn<any>();
+const mockLoggerDebug = jest.fn<any>();
+const mockInitSentry = jest.fn<any>();
+
+// Mock dependencies
+jest.mock('../logger.js', () => ({
+    logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug },
+}));
+jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
+
 import { FHIRDataService } from '../fhir-data-service.js';
 import { TW_CORE_PROFILES } from '../twcore/profiles.js';
 import { TW_IDENTIFIER_SYSTEMS } from '../twcore/identifier-systems.js';
 import { checkPatientConformance } from '../twcore/validation.js';
-
-// Mock dependencies
-jest.mock('../logger.js', () => ({
-    logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
-}));
-jest.mock('../sentry.js', () => ({ initSentry: jest.fn() }));
 
 // Load fixture
 import patientExample from './fixtures/twcore/patient-example.json';

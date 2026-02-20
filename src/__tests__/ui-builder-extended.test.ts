@@ -2,17 +2,23 @@
  * @jest-environment jsdom
  */
 
+import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
+
+const mockLoggerDebug = jest.fn<any>();
+const mockLoggerInfo = jest.fn<any>();
+const mockLoggerWarn = jest.fn<any>();
+const mockLoggerError = jest.fn<any>();
+const mockLoggerFatal = jest.fn<any>();
+
 jest.mock('../logger', () => ({
     logger: {
-        debug: jest.fn(),
-        info: jest.fn(),
-        warn: jest.fn(),
-        error: jest.fn(),
-        fatal: jest.fn(),
+        debug: mockLoggerDebug,
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        fatal: mockLoggerFatal,
     }
 }));
-
-import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { uiBuilder, UIBuilder } from '../ui-builder.js';
 import { logger } from '../logger.js';
 

@@ -38,12 +38,13 @@ export const LOINC_CODES: Record<string, string> = {
     SYSTOLIC_BP: '8480-6', // Systolic blood pressure
     DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
     /** Blood pressure panel — comma = FHIR OR search (85354-9 panel | 55284-4 systolic+diastolic) */
-    BP_PANEL: '85354-9', // Blood pressure panel
+    BP_PANEL: '85354-9,55284-4', // Blood pressure panel
+    BP_PANEL_ALT: '55284-4', // Blood pressure panel (alternative)
     MEAN_BP: '8478-0', // Mean blood pressure
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
     /** Body temperature — comma = FHIR OR search (8310-5 core | 8331-1 oral) */
-    TEMPERATURE: '8310-5', // Body temperature (and Oral)
+    TEMPERATURE: '8310-5,8331-1', // Body temperature (and Oral)
     TEMPERATURE_ORAL: '8331-1', // Oral temperature
     OXYGEN_SATURATION: '59408-5', // Oxygen saturation (Pulse Ox)
     OXYGEN_SATURATION_ARTERIAL: '2708-6', // Oxygen saturation (Arterial)
@@ -61,6 +62,7 @@ export const LOINC_CODES: Record<string, string> = {
     BODY_WEIGHT_MEASURED: '3141-9', // Body weight measured
     BMI: '39156-5', // Body mass index
     HEAD_CIRCUMFERENCE: '9843-4', // Head circumference
+    HEAD_CIRCUMFERENCE_TAPE: '8287-5', // Head circumference by tape measure
 
     // Pediatric Measurements
     PEDIATRIC_BMI_FOR_AGE: '59576-9', // Pediatric BMI for age percentile

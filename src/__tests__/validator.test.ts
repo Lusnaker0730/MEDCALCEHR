@@ -1337,7 +1337,7 @@ describe('fieldStatus correctness - test.each across zones', () => {
         [135,   'warning', 'between warnMax and max'],
         [150,   'warning', 'exactly at max, above warnMax'],
         [151,   'error',   'above max'],
-    ] as const)('age=%s => fieldStatus="%s" (%s)', (value, expectedStatus, _desc) => {
+    ] as [number, string, string][])('age=%s => fieldStatus="%s" (%s)', (value, expectedStatus, _desc) => {
         const res = validateSingleField('age', value, rule);
         expect(res.fieldStatus.age).toBe(expectedStatus);
     });

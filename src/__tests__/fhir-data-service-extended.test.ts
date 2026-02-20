@@ -128,9 +128,11 @@ jest.mock('../cache-manager', () => ({
     },
 }));
 
+const mockDataStalenessTrackerCtor = jest.fn<any>();
+
 jest.mock('../data-staleness', () => ({
     createStalenessTracker: mockCreateStalenessTracker,
-    DataStalenessTracker: jest.fn(),
+    DataStalenessTracker: mockDataStalenessTrackerCtor,
 }));
 
 jest.mock('../unit-converter', () => ({

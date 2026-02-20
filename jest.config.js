@@ -1,7 +1,7 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
-    // 使用 ts-jest 預設設定處理 TypeScript
-    preset: 'ts-jest/presets/default-esm',
+    // 使用 ts-jest 預設設定處理 TypeScript (CJS mode for proper jest.mock() support)
+    preset: 'ts-jest',
 
     // 測試環境使用 jsdom (瀏覽器模擬)
     testEnvironment: 'jsdom',
@@ -24,7 +24,6 @@ export default {
         '^.+\\.tsx?$': [
             'ts-jest',
             {
-                useESM: true,
                 tsconfig: 'tsconfig.json'
             }
         ]

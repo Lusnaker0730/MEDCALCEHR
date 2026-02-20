@@ -1,5 +1,13 @@
-jest.mock('../logger.js', () => ({ logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() } }));
-jest.mock('../sentry.js', () => ({ initSentry: jest.fn() }));
+import { jest } from '@jest/globals';
+
+const mockLoggerInfo = jest.fn<any>();
+const mockLoggerWarn = jest.fn<any>();
+const mockLoggerError = jest.fn<any>();
+const mockLoggerDebug = jest.fn<any>();
+const mockInitSentry = jest.fn<any>();
+
+jest.mock('../logger.js', () => ({ logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug } }));
+jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 
 import { FuzzySearch } from '../fuzzy-search.js';
 import { CalculatorMetadata } from '../calculators/index.js';
