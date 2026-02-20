@@ -47,7 +47,9 @@ const config: FormulaCalculatorConfig = {
                     label: 'BMI',
                     unit: 'kg/m²',
                     step: 0.1,
-                    placeholder: 'Norm: 20-25'
+                    placeholder: 'Norm: 20-25',
+                    min: 10,
+                    max: 80
                 },
                 {
                     type: 'radio',

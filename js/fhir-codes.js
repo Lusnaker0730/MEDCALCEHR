@@ -376,6 +376,14 @@ export const SNOMED_TO_ICD10_MAP = {
  * RxNorm Codes Registry
  * Standard codes for medications
  * Reference: https://www.nlm.nih.gov/research/umls/rxnorm/
+ *
+ * NOTE: These are Ingredient-level (TTY=IN) codes, used for searching
+ * patient medication records (MedicationStatement/MedicationRequest).
+ * TW Core IG ValueSet "medication-rxnorm-tw" requires SCD/SBD/GPCK/BPCK
+ * level codes for Medication resource binding. IN codes are intentionally
+ * used here because the medical calculator only needs to determine WHETHER
+ * a patient is taking a given medication class, not the specific formulation.
+ * FHIR servers support hierarchical RxNorm queries (IN matches its child SCDs).
  */
 export const RXNORM_CODES = {
     // Antiplatelets

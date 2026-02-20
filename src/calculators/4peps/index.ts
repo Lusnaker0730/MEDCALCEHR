@@ -4,7 +4,7 @@
  * Migrated to createUnifiedFormulaCalculator
  */
 
-import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES, ICD10_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
 import { fhirDataService } from '../../fhir-data-service.js';
@@ -107,7 +107,8 @@ const config: FormulaCalculatorConfig = {
                     label: 'Age',
                     unit: 'years',
                     placeholder: 'e.g., 70',
-                    helpText: '-2 (<50), -1 (50-64), 0 (>64)'
+                    helpText: '-2 (<50), -1 (50-64), 0 (>64)',
+                    validationType: 'age'
                 }
             ]
         },
@@ -333,16 +334,18 @@ const config: FormulaCalculatorConfig = {
             }
 
             if (client) {
-                // COPD (SNOMED: 13645005) and ICD-10 J44.9
-                const chronicRespCodes = [SNOMED_CODES.COPD, 'J44.9'];
-
-                // History of VTE (SNOMED: 451574005) and ICD-10 I82.90
-                const vteCodes = [SNOMED_CODES.HISTORY_OF_VTE, 'I82.90'];
-
                 // Fetch conditions and observations
-                const [hasCOPD, hasVTE, hrResult, o2Result] = await Promise.all([
-                    fhirDataService.hasCondition(chronicRespCodes).catch(() => false),
-                    fhirDataService.hasCondition(vteCodes).catch(() => false),
+                const [hasCOPDResults, hasVTEResults, hrResult, o2Result] = await Promise.all([
+                    // COPD: Check SNOMED or ICD-10 J44 prefix
+                    Promise.all([
+                        fhirDataService.hasCondition([SNOMED_CODES.COPD]),
+                        fhirDataService.hasConditionByPrefix([ICD10_CODES.COPD_PREFIX])
+                    ]).catch(() => [false, false]),
+                    // VTE: Check SNOMED or ICD-10 I82 prefix
+                    Promise.all([
+                        fhirDataService.hasCondition([SNOMED_CODES.HISTORY_OF_VTE]),
+                        fhirDataService.hasConditionByPrefix([ICD10_CODES.VTE_PREFIX])
+                    ]).catch(() => [false, false]),
                     fhirDataService
                         .getObservation(LOINC_CODES.HEART_RATE, {
                             trackStaleness: true,
@@ -356,6 +359,9 @@ const config: FormulaCalculatorConfig = {
                         })
                         .catch(() => ({ value: null }))
                 ]);
+
+                const hasCOPD = hasCOPDResults.some(r => r === true);
+                const hasVTE = hasVTEResults.some(r => r === true);
 
                 if (hasCOPD) {
                     setRadio('4peps-resp_disease', '-1');

@@ -25,7 +25,7 @@ describe('4C Mortality COVID Calculator', () => {
         });
         expect(result.totalScore).toBe(0);
         expect(result.riskLevel?.label).toBe('Low Risk');
-        expect(result.riskLevel?.description).toContain('1.2%');
+        expect(result.riskLevel?.description).toContain('1.2-1.7%');
     });
 
     // Scenario 2: Intermediate Risk (4-8)

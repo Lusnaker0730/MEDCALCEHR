@@ -52,7 +52,8 @@ export const UnitConverter = {
         },
         // Concentration (generic)
         concentration: {
-            'mg/dL': { 'mmol/L': null },
+            'mg/dL': { 'mmol/L': null, 'mg/L': 10 },
+            'mg/L': { 'mg/dL': 0.1 },
             'g/L': { 'mg/dL': 100, 'g/dL': 0.1 },
             'g/dL': { 'mg/dL': 1000, 'g/L': 10 }
         },

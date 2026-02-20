@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant-TW">
 
 <head>
     <meta charset="UTF-8" />
@@ -22,23 +22,26 @@
 </head>
 
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link" data-i18n="app.skipToContent">Skip to main content</a>
     <div class="container">
         <header role="banner">
             <div class="header-top">
                 <nav aria-label="Breadcrumb">
-                    <a href="index.html" class="back-link">&larr; Back to Calculator List</a>
+                    <a href="index.html" class="back-link" data-i18n="app.backToList">&larr; Back to Calculator List</a>
                 </nav>
-                <h1 id="page-title">CGMH EHRCALC on FHIR</h1>
+                <h1 id="page-title" data-i18n="app.title">CGMH EHRCALC on FHIR</h1>
                 <div class="header-actions">
-                    <button id="print-btn" class="print-btn" title="Print">🖨️ Print</button>
-                    <button id="logout-btn" class="logout-btn" title="Logout">Logout</button>
-                    <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+                    <button id="language-toggle" class="lang-toggle-btn" title="Switch Language">
+                        <span class="lang-label">EN</span>
+                    </button>
+                    <button id="print-btn" class="print-btn" title="Print" data-i18n="app.print">🖨️ Print</button>
+                    <button id="logout-btn" class="logout-btn" title="Logout" data-i18n="app.logout">Logout</button>
+                    <button id="theme-toggle" class="theme-toggle-btn" data-i18n-title="app.toggleTheme" title="Toggle Theme">
                         <span class="theme-icon">🌙</span>
                     </button>
                 </div>
             </div>
-            <div id="patient-info">Loading patient data...</div>
+            <div id="patient-info" data-i18n="app.loadingPatient">Loading patient data...</div>
             <hr />
         </header>
         <main id="main-content">
@@ -50,6 +53,7 @@
 
     <script src="js/app-config.js"></script>
     <script type="module" src="src/theme-toggle.ts"></script>
+    <script type="module" src="src/language-toggle.ts"></script>
     <script type="module" src="src/calculator-page.ts"></script>
 </body>
 

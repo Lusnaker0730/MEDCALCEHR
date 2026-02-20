@@ -1,0 +1,105 @@
+/* =============================================
+   High Contrast Theme
+   Automatically activated when the user's OS is
+   set to high contrast mode.
+   ============================================= */
+
+@media (prefers-contrast: high) {
+    :root {
+        /* Stronger borders */
+        --color-border: #000;
+        --shadow-sm: none;
+        --shadow-md: none;
+        --shadow-lg: none;
+
+        /* Higher contrast text */
+        --color-text-primary: #000;
+        --color-text-secondary: #333;
+
+        /* Stronger link/button colors */
+        --color-primary: #0000cc;
+        --color-primary-dark: #000099;
+
+        /* Validation colors with higher contrast */
+        --color-danger: #cc0000;
+        --color-warning: #cc6600;
+        --color-success: #006600;
+    }
+
+    /* Ensure borders are visible */
+    .list-item,
+    .card,
+    .ui-section,
+    .info-section,
+    .result-box,
+    .formula-box,
+    .calculator-header {
+        border: 2px solid #000;
+    }
+
+    /* Stronger focus indicators */
+    :focus-visible {
+        outline: 4px solid #000;
+        outline-offset: 2px;
+    }
+
+    /* Ensure button contrast */
+    .filter-btn,
+    .category-chip {
+        border: 2px solid #000;
+    }
+
+    .filter-btn.active,
+    .category-chip.active {
+        background: #000;
+        color: #fff;
+    }
+
+    /* Input borders */
+    input,
+    select,
+    textarea {
+        border: 2px solid #000;
+    }
+
+    /* Validation indicator borders */
+    .validation-red {
+        border-color: #cc0000;
+        outline: 2px solid #cc0000;
+    }
+
+    .validation-yellow {
+        border-color: #cc6600;
+        outline: 2px solid #cc6600;
+    }
+
+    /* Ensure category badges are readable */
+    .category-badge {
+        border: 1px solid #000;
+    }
+
+    /* Dark theme high contrast adjustments */
+    [data-theme='tech'] {
+        --color-border: #fff;
+        --color-text-primary: #fff;
+        --color-text-secondary: #ddd;
+        --color-primary: #66aaff;
+    }
+
+    [data-theme='tech'] .list-item,
+    [data-theme='tech'] .card,
+    [data-theme='tech'] .ui-section,
+    [data-theme='tech'] .result-box {
+        border: 2px solid #fff;
+    }
+
+    [data-theme='tech'] :focus-visible {
+        outline: 4px solid #fff;
+    }
+
+    [data-theme='tech'] input,
+    [data-theme='tech'] select,
+    [data-theme='tech'] textarea {
+        border: 2px solid #fff;
+    }
+}

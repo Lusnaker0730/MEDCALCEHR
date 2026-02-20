@@ -67,7 +67,9 @@ export const sixMwdConfig: FormulaCalculatorConfig = {
                     unit: 'm',
                     placeholder: 'e.g., 400',
                     helpText: 'Enter actual distance to see % of expected',
-                    required: false
+                    required: false,
+                    min: 0,
+                    max: 2000
                 }
             ]
         }

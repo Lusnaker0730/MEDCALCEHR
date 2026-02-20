@@ -23,8 +23,8 @@ describe('2HELPS2B Calculator', () => {
     test('Very Low Risk Case', () => {
         const result = calculateScoringResult(helps2bConfig, {});
         expect(result.totalScore).toBe(0);
-        expect(result.riskLevel?.category).toBe('Very Low');
-        expect(result.riskLevel?.risk).toBe('< 5%');
+        expect(result.riskLevel?.category).toBe('0 hours');
+        expect(result.riskLevel?.risk).toBe('5%');
     });
 
     // Scenario 2: Low Risk (1)
@@ -34,7 +34,7 @@ describe('2HELPS2B Calculator', () => {
             'freq-gt-2hz': 'true'
         });
         expect(result.totalScore).toBe(1);
-        expect(result.riskLevel?.category).toBe('Low');
+        expect(result.riskLevel?.category).toBe('12 hours');
         expect(result.riskLevel?.risk).toBe('12%');
     });
 
@@ -45,7 +45,7 @@ describe('2HELPS2B Calculator', () => {
             birds: 'true'
         });
         expect(result.totalScore).toBe(2);
-        expect(result.riskLevel?.category).toBe('Moderate');
+        expect(result.riskLevel?.category).toBe('24 hours');
         expect(result.riskLevel?.risk).toBe('27%');
     });
 
@@ -58,7 +58,7 @@ describe('2HELPS2B Calculator', () => {
             'plus-features': 'true'
         });
         expect(result.totalScore).toBe(4);
-        expect(result.riskLevel?.category).toBe('High');
+        expect(result.riskLevel?.category).toBe('24 hours');
         expect(result.riskLevel?.risk).toBe('73%');
     });
 
@@ -71,11 +71,11 @@ describe('2HELPS2B Calculator', () => {
             'lpd-bipd-lrda': 'true',
             'plus-features': 'true',
             'prior-seizure': 'true',
-            birds: 'true'
+            'birds': 'true'
         };
         // 1+1+1+1+1+2 = 7
         const result = calculateScoringResult(helps2bConfig, inputs);
         expect(result.totalScore).toBe(7);
-        expect(result.riskLevel?.category).toBe('Extremely High'); // >= 6
+        expect(result.riskLevel?.category).toBe('24 hours'); // >= 2
     });
 });

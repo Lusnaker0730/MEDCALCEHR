@@ -98,28 +98,28 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
             maxScore: 3,
             label: 'Low Risk',
             severity: 'success',
-            description: 'Mortality 1.2%'
+            description: 'Mortality 1.2-1.7%'
         },
         {
             minScore: 4,
             maxScore: 8,
             label: 'Intermediate Risk',
             severity: 'warning',
-            description: 'Mortality 9.9%'
+            description: 'Mortality 9.1-9.9%'
         },
         {
             minScore: 9,
             maxScore: 14,
             label: 'High Risk',
             severity: 'danger',
-            description: 'Mortality 31.4%'
+            description: 'Mortality 31.4-34.9%'
         },
         {
             minScore: 15,
             maxScore: 21,
             label: 'Very High Risk',
             severity: 'danger',
-            description: 'Mortality 61.5%'
+            description: 'Mortality 61.5-66.2%'
         }
     ],
     customResultRenderer: (score: number) => {
@@ -129,36 +129,36 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
 
         if (score <= 3) {
             riskGroup = 'Low Risk';
-            mortality = '1.2%';
+            mortality = '1.2-1.7%';
             alertClass = 'ui-alert-success';
         } else if (score <= 8) {
             riskGroup = 'Intermediate Risk';
-            mortality = '9.9%';
+            mortality = '9.1-9.9%';
             alertClass = 'ui-alert-warning';
         } else if (score <= 14) {
             riskGroup = 'High Risk';
-            mortality = '31.4%';
+            mortality = '31.4-34.9%';
             alertClass = 'ui-alert-danger';
         } else {
             riskGroup = 'Very High Risk';
-            mortality = '61.5%';
+            mortality = '61.5-66.2%';
             alertClass = 'ui-alert-danger';
         }
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total 4C Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskGroup,
-                alertClass: alertClass
-            })}
+            label: 'Total 4C Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskGroup,
+            alertClass: alertClass
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated In-Hospital Mortality',
-                value: mortality,
-                unit: '',
-                alertClass: alertClass
-            })}
+            label: 'Estimated In-Hospital Mortality',
+            value: mortality,
+            unit: '',
+            alertClass: alertClass
+        })}
         `;
     },
     formulaSection: {
@@ -201,10 +201,15 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
         interpretationTitle: 'Interpretation',
         tableHeaders: ['Score', 'Risk Group', 'Mortality Rate'],
         interpretations: [
-            { score: '0-3', category: 'Low', interpretation: '1.2%', severity: 'success' },
-            { score: '4-8', category: 'Intermediate', interpretation: '9.9%', severity: 'warning' },
-            { score: '9-14', category: 'High', interpretation: '31.4%', severity: 'danger' },
-            { score: '≥15', category: 'Very High', interpretation: '61.5%', severity: 'danger' }
+            { score: '0-3', category: 'Low', interpretation: '1.2-1.7%', severity: 'success' },
+            {
+                score: '4-8',
+                category: 'Intermediate',
+                interpretation: '9.1-9.9%',
+                severity: 'warning'
+            },
+            { score: '9-14', category: 'High', interpretation: '31.4-34.9%', severity: 'danger' },
+            { score: '≥15', category: 'Very High', interpretation: '61.5-66.2%', severity: 'danger' }
         ]
     },
     customInitialize: (
@@ -323,7 +328,11 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
 
             // CRP
             fhirDataService
-                .getObservation(LOINC_CODES.CRP, { trackStaleness: true, stalenessLabel: 'CRP' })
+                .getObservation(LOINC_CODES.CRP, {
+                    trackStaleness: true,
+                    stalenessLabel: 'CRP',
+                    targetUnit: 'mg/L'
+                })
                 .then(result => {
                     if (result.value !== null) {
                         if (result.value < 50) {

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant-TW">
 
 <head>
     <meta charset="UTF-8" />
@@ -25,27 +25,30 @@
 </head>
 
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link" data-i18n="app.skipToContent">Skip to main content</a>
     <div class="container">
         <header role="banner">
             <div class="sticky-header">
                 <div class="header-top">
-                    <h1>CGMH EHRCALC on FHIR</h1>
+                    <h1 data-i18n="app.title">CGMH EHRCALC on FHIR</h1>
                     <div class="header-actions">
-                        <button id="logout-btn" class="logout-btn" title="Logout">Logout</button>
-                        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+                        <button id="language-toggle" class="lang-toggle-btn" title="Switch Language">
+                            <span class="lang-label">EN</span>
+                        </button>
+                        <button id="logout-btn" class="logout-btn" data-i18n="app.logout" title="Logout">Logout</button>
+                        <button id="theme-toggle" class="theme-toggle-btn" data-i18n-title="app.toggleTheme" title="Toggle Theme">
                             <span class="theme-icon">🌙</span>
                         </button>
                     </div>
                 </div>
-                <div id="patient-info">Loading patient data...</div>
+                <div id="patient-info" data-i18n="app.loadingPatient">Loading patient data...</div>
                 <hr />
                 <div class="calculators-header">
                     <div class="header-title-row">
-                        <h2>Available Calculators</h2>
+                        <h2 data-i18n="app.subtitle">Available Calculators</h2>
                         <div id="practitioner-info" class="practitioner-info hidden">
-                            <span class="practitioner-label">Practitioner:</span>
-                            <span id="practitioner-name">Loading...</span>
+                            <span class="practitioner-label" data-i18n="practitioner.label">Practitioner:</span>
+                            <span id="practitioner-name" data-i18n="practitioner.loading">Loading...</span>
                         </div>
                     </div>
 
@@ -53,16 +56,16 @@
                     <nav aria-label="Calculator filters">
                         <div class="filter-buttons">
                             <button class="filter-btn active" data-filter="all">
-                                <span>All</span>
+                                <span data-i18n="filter.all">All</span>
                             </button>
                             <button class="filter-btn" data-filter="favorites">
-                                <span>⭐ Favorites</span>
+                                <span>⭐ <span data-i18n="filter.favorites">Favorites</span></span>
                             </button>
                             <button class="filter-btn" data-filter="recent">
-                                <span>🕒 Recent</span>
+                                <span>🕒 <span data-i18n="filter.recent">Recent</span></span>
                             </button>
                             <button class="filter-btn" data-filter="history">
-                                <span>📋 History</span>
+                                <span>📋 <span data-i18n="filter.history">History</span></span>
                             </button>
                         </div>
                     </nav>
@@ -71,23 +74,25 @@
                     <div class="controls-row">
                         <div class="search-container">
                             <input type="search" id="search-bar" placeholder="Search for a calculator..."
+                                data-i18n-placeholder="search.placeholder"
+                                data-i18n-aria="search.ariaLabel"
                                 aria-label="Search calculators" />
                         </div>
 
                         <div class="category-container">
-                            <label for="category-select">Category:</label>
+                            <label for="category-select" data-i18n="category.label">Category:</label>
                             <select id="category-select">
                                 <!-- Options will be dynamically added -->
                             </select>
                         </div>
 
                         <div class="sort-container">
-                            <label for="sort-select">Sort:</label>
+                            <label for="sort-select" data-i18n="sort.label">Sort:</label>
                             <select id="sort-select">
-                                <option value="a-z">A → Z</option>
-                                <option value="z-a">Z → A</option>
-                                <option value="recently-added">Date Added</option>
-                                <option value="most-used">Most Used</option>
+                                <option value="a-z" data-i18n="sort.az">A → Z</option>
+                                <option value="z-a" data-i18n="sort.za">Z → A</option>
+                                <option value="recently-added" data-i18n="sort.dateAdded">Date Added</option>
+                                <option value="most-used" data-i18n="sort.mostUsed">Most Used</option>
                             </select>
                         </div>
                     </div>
@@ -115,6 +120,7 @@
 
     <script src="js/app-config.js"></script>
     <script type="module" src="src/theme-toggle.ts"></script>
+    <script type="module" src="src/language-toggle.ts"></script>
     <script type="module" src="src/main.ts"></script>
 </body>
 

@@ -16,12 +16,16 @@ import { logger } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
 import { FuzzySearch } from './fuzzy-search.js';
 import { calculationHistory } from './calculation-history.js';
+import { initI18n, t, hydrateI18n, onLocaleChange } from './i18n/index.js';
 
 // Initialize Sentry early
 initSentry();
 
 // Initialize Web Vitals
 initWebVitals();
+
+// Initialize i18n
+initI18n();
 
 type SortType = 'a-z' | 'z-a' | 'recently-added' | 'most-used';
 type FilterType = 'all' | 'favorites' | 'recent' | 'history';
@@ -132,7 +136,7 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
     container.innerHTML = '';
 
     if (calculators.length === 0) {
-        container.innerHTML = `<p class="no-results">No calculators found matching your criteria.</p>`;
+        container.innerHTML = `<p class="no-results">${t('noResults')}</p>`;
         return;
     }
 
@@ -154,7 +158,7 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
         if (calc.category) {
             const categoryBadge = document.createElement('span');
             categoryBadge.className = 'category-badge';
-            categoryBadge.textContent = categories[calc.category as CategoryKey] || calc.category;
+            categoryBadge.textContent = t(`category.${calc.category}`) || categories[calc.category as CategoryKey] || calc.category;
             categoryBadge.setAttribute('data-category', calc.category);
             contentDiv.appendChild(categoryBadge);
         }
@@ -175,8 +179,8 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
         favoriteBtn.setAttribute('data-calculator-id', calc.id);
         favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
         favoriteBtn.title = favoritesManager.isFavorite(calc.id)
-            ? 'Remove from Favorites'
-            : 'Add to Favorites';
+            ? t('favorites.remove')
+            : t('favorites.add');
 
         // Prevent clicking favorite button from triggering link
         favoriteBtn.addEventListener('click', (e: Event) => {
@@ -184,7 +188,7 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
             e.stopPropagation();
             const isFavorite = favoritesManager.toggleFavorite(calc.id);
             favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
-            favoriteBtn.title = isFavorite ? 'Remove from Favorites' : 'Add to Favorites';
+            favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
         });
 
         link.appendChild(favoriteBtn);
@@ -198,7 +202,7 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
 function updateStats(total: number, showing: number): void {
     const statsEl = document.getElementById('calculator-stats');
     if (statsEl) {
-        statsEl.textContent = `Showing ${showing} / ${total} results`;
+        statsEl.textContent = t('stats.showing', { showing, total });
     }
 }
 
@@ -214,7 +218,7 @@ function renderCategoryChips(
 
     const allChip = document.createElement('button');
     allChip.className = `category-chip${currentCategory === 'all' ? ' active' : ''}`;
-    allChip.textContent = 'All';
+    allChip.textContent = t('filter.all');
     allChip.addEventListener('click', () => onCategoryChange('all'));
     container.appendChild(allChip);
 
@@ -223,7 +227,7 @@ function renderCategoryChips(
         const chip = document.createElement('button');
         chip.className = `category-chip${currentCategory === key ? ' active' : ''}`;
 
-        const label = document.createTextNode(categories[key] + ' ');
+        const label = document.createTextNode(t(`category.${key}`) + ' ');
         chip.appendChild(label);
 
         const badge = document.createElement('span');
@@ -251,7 +255,7 @@ function renderRecentStrip(container: HTMLElement): void {
 
     const title = document.createElement('div');
     title.className = 'recent-strip-title';
-    title.textContent = 'Recently Used';
+    title.textContent = t('recentStrip.title');
     container.appendChild(title);
 
     const list = document.createElement('div');
@@ -278,7 +282,7 @@ function renderHistoryList(container: HTMLElement): void {
     container.innerHTML = '';
 
     if (entries.length === 0) {
-        container.innerHTML = '<p class="no-results">No calculation history yet.</p>';
+        container.innerHTML = `<p class="no-results">${t('historyList.empty')}</p>`;
         return;
     }
 
@@ -509,14 +513,14 @@ window.onload = () => {
         // Add All option
         const allOption = document.createElement('option');
         allOption.value = 'all';
-        allOption.textContent = 'All Categories';
+        allOption.textContent = t('category.all');
         categorySelect.appendChild(allOption);
 
         // Add category options
         (Object.keys(categories) as CategoryKey[]).forEach(categoryKey => {
             const option = document.createElement('option');
             option.value = categoryKey;
-            option.textContent = categories[categoryKey];
+            option.textContent = t(`category.${categoryKey}`);
             categorySelect.appendChild(option);
         });
 
@@ -563,7 +567,30 @@ window.onload = () => {
         });
     }
 
+    // ========== i18n: Re-render on locale change ==========
+    onLocaleChange(() => {
+        hydrateI18n();
+        // Re-populate category selector with translated labels
+        if (categorySelect) {
+            categorySelect.innerHTML = '';
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all';
+            allOpt.textContent = t('category.all');
+            categorySelect.appendChild(allOpt);
+            (Object.keys(categories) as CategoryKey[]).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = t(`category.${key}`);
+                categorySelect.appendChild(opt);
+            });
+            categorySelect.value = currentCategory;
+        }
+        updateDisplay();
+        updateFilterButtons();
+    });
+
     // ========== Initial Render ==========
+    hydrateI18n();
     updateDisplay();
     updateFilterButtons();
 };

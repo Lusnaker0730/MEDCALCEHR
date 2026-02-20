@@ -149,7 +149,53 @@ export const preciseHbr = createUnifiedFormulaCalculator({
 });
 ```
 
-### 5. 總結 (Conclusion)
+### 5. Security Architecture (安全架構)
+
+#### 5.1. Authentication & Authorization (認證與授權)
+
+- **SMART on FHIR OAuth2**: The application uses the SMART launch framework for authentication. The EHR initiates a launch via `launch.html`, which redirects through the OAuth2 authorization server.
+- **Session Management**: `sessionStorage` stores the SMART client key (SMART_KEY). The `auth-redirect.js` script checks for a valid session on each page load and redirects to `launch.html` if missing.
+- **Session Timeout**: Configurable timeout (default 30 minutes) with warning dialog at 25 minutes. Managed by `session-manager.ts`.
+- **Logout**: Clears sessionStorage, invalidates the FHIR client token.
+
+#### 5.2. Input Sanitization (輸入消毒)
+
+- **HTML Escaping**: `UIBuilder` escapes all user-supplied strings before DOM insertion (`&`, `<`, `>`, `"`, `'`).
+- **URL Parameter Validation**: Calculator IDs are validated against the known registry before dynamic import.
+- **Three-Zone Validation**: `validator.ts` provides red zone (hard reject), yellow zone (warning), and green zone (accept) for all numeric inputs.
+
+#### 5.3. Content Security Policy (CSP)
+
+Defined in both `<meta>` tags (HTML) and `nginx.conf` server headers:
+
+```
+default-src 'self' [FHIR/Sentry origins];
+script-src 'self';          // No inline scripts, no eval()
+style-src 'self';           // No inline styles
+img-src 'self' data: https:;
+connect-src 'self' [FHIR/Sentry origins];
+frame-ancestors 'none';     // Prevent clickjacking
+```
+
+#### 5.4. Data Protection (資料保護)
+
+- **No PHI at Rest**: The application does not store patient data in localStorage, cookies, or service worker cache. All patient data is ephemeral (in-memory only).
+- **PHI Stripping in Logs**: `logger.ts` uses regex patterns to strip MRN, names, dates, and other identifiers from structured log messages before output.
+- **Sentry PHI Filter**: `sentry.ts` `beforeSend` hook scrubs breadcrumbs and event data of potential PHI before transmission.
+- **AES-GCM Encryption**: Sensitive session data uses Web Crypto API AES-GCM encryption.
+
+#### 5.5. Transport Security (傳輸安全)
+
+- **Architecture**: Client → ALB (TLS termination) → Nginx (HTTP:80)
+- **HSTS**: `Strict-Transport-Security` header enforced (max-age 1 year with includeSubDomains)
+- **HTTP→HTTPS Redirect**: Nginx checks `X-Forwarded-Proto` header and redirects HTTP requests to HTTPS
+- **Proxy Trust**: Nginx configured to trust internal network ranges for `X-Forwarded-For` header
+
+See `docs/tls-architecture.md` for detailed TLS deployment architecture.
+
+---
+
+### 6. 總結 (Conclusion)
 
 本架構成功將**「醫療專業知識」**與**「軟體工程實作」**解耦。
 對於醫療人員或內容維護者，他們只需專注於驗證公式與邏輯的正確性；對於軟體工程師，則只需維護核心工廠與基礎服務的穩定性。這種架構不僅大幅提升了新功能的開發效率（從數天縮短至數小時），更確保了整個平台在擴展過程中的穩定性與一致性。

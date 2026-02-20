@@ -162,9 +162,40 @@ export async function displayPatientInfo(client: any, patientInfoDiv: HTMLElemen
 }
 
 /**
+ * Gets all active conditions for the patient.
+ * @param {Object} client The FHIR client instance.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
+ */
+export function getAllActiveConditions(client: any): Promise<any[]> {
+    if (!client || !client.patient) {
+        return Promise.resolve([]);
+    }
+    return client.patient
+        .request(`Condition?clinical-status=active&_count=50`)
+        .then((response: any) => {
+            if (response.entry) {
+                return response.entry
+                    .map((e: any) => e.resource)
+                    .filter((r: any) => {
+                        if (isRestrictedResource(r)) {
+                            logger.warn('Access to restricted Condition blocked', { detail: r.id });
+                            return false;
+                        }
+                        return true;
+                    });
+            }
+            return [];
+        })
+        .catch((error: any) => {
+            logger.error('Error fetching all active conditions', { error: String(error) });
+            return [];
+        });
+}
+
+/**
  * Gets patient's conditions for a given set of SNOMED codes.
  * @param {Object} client The FHIR client instance.
- * @param {Array<string>} codes Array of SNOMED codes for the conditions.
+ * @param {Array<string>} codes Array of codes for the conditions.
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
  */
 export function getPatientConditions(client: any, codes: string[]): Promise<any[]> {

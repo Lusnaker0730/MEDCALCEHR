@@ -43,6 +43,7 @@
 @import 'components/_recent-strip.css';
 @import 'components/_history.css';
 @import 'components/_swipe-indicators.css';
+@import 'components/_language-toggle.css';
 
 /* ===================
    3. 佈局樣式
@@ -73,3 +74,6 @@
 
 /* 預設使用淺色主題，深色主題需要添加 data-theme="tech" 到 html 或 body */
 /* @import 'themes/tech-theme.css'; */
+
+/* 高對比模式 (OS-level prefers-contrast) */
+@import 'themes/high-contrast.css';

@@ -934,6 +934,30 @@ export class FHIRDataService {
     }
 
     /**
+     * Check if patient has any condition matching the given ICD-10 prefixes
+     */
+    async hasConditionByPrefix(prefixes: string[]): Promise<boolean> {
+        if (!this.client) {
+            return false;
+        }
+
+        try {
+            const { getAllActiveConditions } = await import('./utils.js');
+            const conditions = await getAllActiveConditions(this.client);
+
+            return conditions.some((condition: any) => {
+                const codings = condition.code?.coding || [];
+                return codings.some((coding: any) => {
+                    return prefixes.some(prefix => coding.code?.startsWith(prefix));
+                });
+            });
+        } catch (error) {
+            logger.error('Error checking conditions by prefix', { error: String(error) });
+            return false;
+        }
+    }
+
+    /**
      * Get patient medications by RxNorm codes
      */
     async getMedications(rxnormCodes: string[]): Promise<any[]> {

@@ -75,7 +75,9 @@ const config: FormulaCalculatorConfig = {
                     id: 'isth-pt-input',
                     label: 'Prothrombin Time (PT)',
                     unit: 'seconds',
-                    placeholder: 'Normal ~12s'
+                    placeholder: 'Normal ~12s',
+                    min: 5,
+                    max: 120
                 },
                 {
                     type: 'radio',

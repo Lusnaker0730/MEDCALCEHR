@@ -31,6 +31,8 @@ declare global {
                 fhirBaseUrl?: string;
                 vendorConfig?: Record<string, unknown>;
             };
+            /** Feature flag: enable write-back of calculation results to EHR */
+            enableWriteBack?: boolean;
         };
         CACHE_VERSION: string;
     }

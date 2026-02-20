@@ -349,11 +349,14 @@ export const ICD10_CODES: Record<string, string> = {
     ENDOCARDITIS: 'I33.0',
     PULMONARY_HYPERTENSION: 'I27.0',
     DEEP_VEIN_THROMBOSIS: 'I82.40',
+    VTE_PREFIX: 'I82',
+    HISTORY_OF_VTE: 'I82.90',
     CARDIAC_ARREST: 'I46.9',
     ISCHEMIC_HEART_DISEASE: 'I25.9',
 
     // Respiratory Conditions
     COPD: 'J44.9',
+    COPD_PREFIX: 'J44',
     ASTHMA: 'J45.909',
     PNEUMONIA: 'J18.9',
     PULMONARY_EMBOLISM: 'I26.99',

@@ -45,17 +45,17 @@ export const helps2bConfig: ScoringCalculatorConfig = {
 
     // 風險等級對應表
     riskLevels: [
-        { minScore: 0, maxScore: 0, risk: '< 5%', category: 'Very Low', severity: 'success' },
-        { minScore: 1, maxScore: 1, risk: '12%', category: 'Low', severity: 'success' },
-        { minScore: 2, maxScore: 2, risk: '27%', category: 'Moderate', severity: 'warning' },
-        { minScore: 3, maxScore: 3, risk: '50%', category: 'Moderate-High', severity: 'warning' },
-        { minScore: 4, maxScore: 4, risk: '73%', category: 'High', severity: 'danger' },
-        { minScore: 5, maxScore: 5, risk: '88%', category: 'Very High', severity: 'danger' },
+        { minScore: 0, maxScore: 0, risk: '5%', category: '0 hours', severity: 'success' },
+        { minScore: 1, maxScore: 1, risk: '12%', category: '12 hours', severity: 'success' },
+        { minScore: 2, maxScore: 2, risk: '27%', category: '24 hours', severity: 'warning' },
+        { minScore: 3, maxScore: 3, risk: '50%', category: '24 hours', severity: 'warning' },
+        { minScore: 4, maxScore: 4, risk: '73%', category: '24 hours', severity: 'danger' },
+        { minScore: 5, maxScore: 5, risk: '88%', category: '24 hours', severity: 'danger' },
         {
             minScore: 6,
             maxScore: 999,
             risk: '> 95%',
-            category: 'Extremely High',
+            category: '24 hours',
             severity: 'danger'
         }
     ],
@@ -77,15 +77,15 @@ export const helps2bConfig: ScoringCalculatorConfig = {
             { criteria: 'BIRDs (Brief Ictal Rhythmic Discharges)', points: '+2' }
         ],
         interpretationTitle: 'Seizure Probability by Score',
-        tableHeaders: ['Score', 'Seizure Risk', 'Risk Category'],
+        tableHeaders: ['Score', 'Seizure Risk', 'Recommended extra cEEG'],
         interpretations: [
-            { score: '0', category: '< 5%', interpretation: 'Very Low', severity: 'success' },
-            { score: '1', category: '12%', interpretation: 'Low', severity: 'success' },
-            { score: '2', category: '27%', interpretation: 'Moderate', severity: 'warning' },
-            { score: '3', category: '50%', interpretation: 'Moderate-High', severity: 'warning' },
-            { score: '4', category: '73%', interpretation: 'High', severity: 'danger' },
-            { score: '5', category: '88%', interpretation: 'Very High', severity: 'danger' },
-            { score: '≥6', category: '> 95%', interpretation: 'Extremely High', severity: 'danger' }
+            { score: '0', category: '5%', interpretation: '0 hours', severity: 'success' },
+            { score: '1', category: '12%', interpretation: '12 hours', severity: 'success' },
+            { score: '2', category: '27%', interpretation: '24 hours', severity: 'warning' },
+            { score: '3', category: '50%', interpretation: '24 hours', severity: 'warning' },
+            { score: '4', category: '73%', interpretation: '24 hours', severity: 'danger' },
+            { score: '5', category: '88%', interpretation: '24 hours', severity: 'danger' },
+            { score: '≥6', category: '> 95%', interpretation: '24 hours', severity: 'danger' }
         ]
     },
 
