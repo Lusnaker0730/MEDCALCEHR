@@ -9,7 +9,7 @@
  *
  * Calculator Patterns:
  * - "simple": Direct formula calculators (SimpleCalculateFn)
- * - "scoring": Config-based scoring calculators (createScoringCalculator)
+ * - "scoring": Config-based sconst baseCalculator = createScoringCalculator(centorConfig);
  * - "complex": Multi-parameter calculators (ComplexCalculateFn)
  */
 
@@ -34,7 +34,6 @@ import { childPughCalculation } from '../calculators/child-pugh/calculation.js';
 import { calculateCharlson } from '../calculators/charlson/calculation.js';
 import { qsofaCalculation } from '../calculators/qsofa/calculation.js';
 import { ascvdCalculationPure } from '../calculators/ascvd/calculation.js';
-import { calculateCaprini } from '../calculators/caprini/calculation.js';
 import { calculateGraceAcs } from '../calculators/grace-acs/calculation.js';
 import { calculateGenevaScore } from '../calculators/geneva-score/calculation.js';
 import { sirsCalculation } from '../calculators/sirs/calculation.js';
@@ -78,7 +77,6 @@ import { apacheIiCalculation } from '../calculators/apache-ii/calculation.js';
 import { calculateEuroScoreII } from '../calculators/euroscore-ii/calculation.js';
 import { calculateABG } from '../calculators/abg-analyzer/calculation.js';
 import { calculatePediatricBP } from '../calculators/pediatric-bp/calculation.js';
-import { preventCvdCalculation } from '../calculators/prevent-cvd/calculation.js';
 import { preciseHbrCalculation } from '../calculators/precise-hbr/calculation.js';
 
 // ==========================================
@@ -107,6 +105,7 @@ import { ciwaArConfig } from '../calculators/ciwa-ar/index.js';
 import { cpisConfig } from '../calculators/cpis/index.js';
 import { dasiConfig } from '../calculators/dasi/index.js';
 import { hscoreConfig } from '../calculators/hscore/index.js';
+import { centorConfig } from '../calculators/centor/index.js';
 import { kawasakiConfig } from '../calculators/kawasaki/index.js';
 
 // ==========================================
@@ -216,26 +215,6 @@ const phq9Config: any = {
     ]
 };
 
-const centorConfig: any = {
-    inputType: 'yesno',
-    id: 'centor',
-    sectionTitle: 'Criteria',
-    questions: [
-        { id: 'centor-exudates', label: 'Tonsillar exudates', points: 1 },
-        { id: 'centor-nodes', label: 'Tender anterior cervical lymphadenopathy', points: 1 },
-        { id: 'centor-fever', label: 'Fever', points: 1 },
-        { id: 'centor-cough', label: 'Absence of cough', points: 1 },
-        { id: 'centor-age', label: 'Age 3-14', points: 1 }
-    ],
-    riskLevels: [
-        { minScore: 0, maxScore: 0, label: 'Very Low Risk', severity: 'success' },
-        { minScore: 1, maxScore: 1, label: 'Low Risk', severity: 'success' },
-        { minScore: 2, maxScore: 2, label: 'Moderate Risk', severity: 'warning' },
-        { minScore: 3, maxScore: 3, label: 'Moderate-High Risk', severity: 'warning' },
-        { minScore: 4, maxScore: 5, label: 'High Risk', severity: 'danger' }
-    ]
-};
-
 const rcriConfig: any = {
     inputType: 'yesno',
     id: 'rcri',
@@ -326,7 +305,6 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
         const result = ascvdCalculationPure(values);
         return result?.results ?? null;
     },
-    'caprini': calculateCaprini,
     'grace-acs': calculateGraceAcs,
     'geneva-score': calculateGenevaScore,
     'sirs': sirsCalculation,
@@ -369,7 +347,6 @@ const complexCalculatorMap: Record<string, (...args: any[]) => any> = {
     'euroscore-ii': calculateEuroScoreII,
     'abg-analyzer': calculateABG,
     'pediatric-bp': calculatePediatricBP,
-    'prevent-cvd': preventCvdCalculation,
     'precise-hbr': preciseHbrCalculation,
 };
 

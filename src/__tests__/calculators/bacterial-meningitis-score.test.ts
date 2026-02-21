@@ -19,12 +19,12 @@ describe('Bacterial Meningitis Score Calculator', () => {
     });
 
     // Scenario 2: Not Low Risk (>0)
-    // CSF Gram Stain (+2)
+    // CSF Gram Stain (+1)
     test('Not Low Risk Case (Gram Stain)', () => {
         const result = calculateScoringResult(bacterialMeningitisScoreConfig, {
-            gram_stain: '2'
+            gram_stain: '1'
         });
-        expect(result.totalScore).toBe(2);
+        expect(result.totalScore).toBe(1);
         expect(result.riskLevel?.label).toBe('Not Low Risk');
     });
 
@@ -38,16 +38,16 @@ describe('Bacterial Meningitis Score Calculator', () => {
     });
 
     // Max Score
-    // 2+1+1+1+1 = 6
+    // 1+1+1+1+1 = 5
     test('Max Score Case', () => {
         const result = calculateScoringResult(bacterialMeningitisScoreConfig, {
-            gram_stain: '2',
+            gram_stain: '1',
             csf_anc: '1',
             csf_protein: '1',
             blood_anc: '1',
             seizure: '1'
         });
-        expect(result.totalScore).toBe(6);
+        expect(result.totalScore).toBe(5);
         expect(result.riskLevel?.label).toBe('Not Low Risk');
     });
 
@@ -59,7 +59,7 @@ describe('Bacterial Meningitis Score Calculator', () => {
         expect(output0).toContain('Very Low Risk');
         expect(output0).toContain('Very low risk for bacterial meningitis');
 
-        const output6 = renderer(6, {});
-        expect(output6).toContain('Not Low Risk');
+        const output5 = renderer(5, {});
+        expect(output5).toContain('Not Low Risk');
     });
 });

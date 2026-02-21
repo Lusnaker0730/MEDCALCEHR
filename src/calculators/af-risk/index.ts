@@ -94,7 +94,7 @@ export const afRiskConfig: ScoringCalculatorConfig = {
         },
         {
             id: 'hasbled-renal',
-            title: 'Abnormal renal function',
+            title: 'Abnormal renal function (Dialysis, transplant, Cr>2.26 mg/dl)',
             options: [
                 { value: '0', label: 'No', checked: true },
                 { value: '1', label: 'Yes (+1)' }
@@ -102,7 +102,7 @@ export const afRiskConfig: ScoringCalculatorConfig = {
         },
         {
             id: 'hasbled-liver',
-            title: 'Abnormal liver function',
+            title: 'Abnormal liver function (Cirrhosis, bilirubin>2xULN, AST/ALT/AP>3xULN)',
             options: [
                 { value: '0', label: 'No', checked: true },
                 { value: '1', label: 'Yes (+1)' }
@@ -126,7 +126,7 @@ export const afRiskConfig: ScoringCalculatorConfig = {
         },
         {
             id: 'hasbled-inr',
-            title: 'Labile INRs',
+            title: 'Labile INRs (Unstable/high INRs, time in therapeutic range < 60%)',
             options: [
                 { value: '0', label: 'No', checked: true },
                 { value: '1', label: 'Yes (+1)' }
@@ -150,7 +150,7 @@ export const afRiskConfig: ScoringCalculatorConfig = {
         },
         {
             id: 'hasbled-alcohol',
-            title: 'Alcohol abuse',
+            title: 'Alcohol abuse (>= 8 drinks/week)',
             options: [
                 { value: '0', label: 'No', checked: true },
                 { value: '1', label: 'Yes (+1)' }
@@ -277,20 +277,20 @@ export const afRiskConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
-                value: cha2ds2vasc_score.toString(),
-                unit: '/ 9 points'
-            })}
+            label: 'CHA₂DS₂-VASc Score (Stroke Risk)',
+            value: cha2ds2vasc_score.toString(),
+            unit: '/ 9 points'
+        })}
             ${uiBuilder.createResultItem({
-                label: 'HAS-BLED Score (Bleeding Risk)',
-                value: hasbled_score.toString(),
-                unit: '/ 9 points'
-            })}
+            label: 'HAS-BLED Score (Bleeding Risk)',
+            value: hasbled_score.toString(),
+            unit: '/ 9 points'
+        })}
             
             ${uiBuilder.createAlert({
-                type: alertClass as 'success' | 'warning' | 'danger' | 'info',
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
             ${bleedNote}
         `;
     },

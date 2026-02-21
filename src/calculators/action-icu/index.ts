@@ -5,8 +5,7 @@ import { fhirDataService } from '../../fhir-data-service.js';
 import { logger } from '../../logger.js';
 
 const riskMap = [
-    3.4, 4.8, 6.7, 9.2, 12.5, 16.7, 21.7, 27.5, 33.9, 40.8, 48.0, 55.4, 62.7, 69.6, 76.0, 81.7,
-    86.6, 90.6
+    3.4, 3.4, 4.9, 5.5, 6.9, 9.3, 12, 14.6, 17.4, 20.8, 23.3, 27.7, 31, 31.5, 39.3
 ];
 
 export const actionIcuConfig: ScoringCalculatorConfig = {
@@ -38,7 +37,7 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
             title: 'Heart rate, bpm',
             options: [
                 { value: '0', label: '<85 (0)', checked: true },
-                { value: '1', label: '85-100 (+1)' },
+                { value: '1', label: '85-99 (+1)' },
                 { value: '3', label: '≥100 (+3)' }
             ]
         },
@@ -82,6 +81,14 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
                 { value: '0', label: 'Yes (0)' },
                 { value: '1', label: 'No (+1)', checked: true }
             ]
+        },
+        {
+            id: 'action-cld',
+            title: 'Chronic lung disease',
+            options: [
+                { value: '0', label: 'No (0)', checked: true },
+                { value: '2', label: 'Yes (+2)' }
+            ]
         }
     ],
     riskLevels: [
@@ -96,34 +103,34 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
         <div class="ui-section formula-section">
             <div class="ui-section-title">📐 Scoring Formula</div>
             ${uiBuilder.createTable({
-                headers: ['Variable', '0 points', '1 point', '2 points', '3 points', '5 points'],
-                rows: [
-                    ['Age, years', '<70', '≥70', '—', '—', '—'],
-                    ['Serum creatinine, mg/dL', '<1.1', '≥1.1', '—', '—', '—'],
-                    ['Heart rate, bpm', '<85', '85-100', '—', '≥100', '—'],
-                    ['Systolic BP, mmHg', '≥145', '125-145', '—', '<125', '—'],
-                    ['Troponin ratio (×ULN)', '<12', '—', '≥12', '—', '—'],
-                    ['Heart failure signs/symptoms', 'No', '—', '—', '—', 'Yes'],
-                    ['ST depression on EKG', 'No', 'Yes', '—', '—', '—'],
-                    ['Prior revascularization', 'Yes', 'No', '—', '—', '—']
-                ],
-                className: 'text-center-cells' // Assuming we need to center cells, or rely on default styling. uiBuilder tables usually left align first col, others auto.
-                // The original had specific text-center classes. uiBuilder might not support per-cell classes easily in standard mode without 'className' applied to table or 'createTable' enhancements.
-                // But let's stick to standard uiBuilder table.
-            })}
+        headers: ['Variable', '0 points', '1 point', '2 points', '3 points', '5 points'],
+        rows: [
+            ['Age, years', '<70', '≥70', '—', '—', '—'],
+            ['Serum creatinine, mg/dL', '<1.1', '≥1.1', '—', '—', '—'],
+            ['Heart rate, bpm', '<85', '85-99', '—', '≥100', '—'],
+            ['Systolic BP, mmHg', '≥145', '125-145', '—', '<125', '—'],
+            ['Troponin ratio (×ULN)', '<12', '—', '≥12', '—', '—'],
+            ['Heart failure signs/symptoms', 'No', '—', '—', '—', 'Yes'],
+            ['ST depression on EKG', 'No', 'Yes', '—', '—', '—'],
+            ['Prior revascularization', 'Yes', 'No', '—', '—', '—'],
+            ['Chronic lung disease', 'No', '—', 'Yes', '—', '—']
+        ],
+        className: 'text-center-cells' // Assuming we need to center cells, or rely on default styling. uiBuilder tables usually left align first col, others auto.
+        // The original had specific text-center classes. uiBuilder might not support per-cell classes easily in standard mode without 'className' applied to table or 'createTable' enhancements.
+        // But let's stick to standard uiBuilder table.
+    })}
             
             <div class="ui-section-title mt-20">📊 Risk of Complications Requiring ICU Care</div>
             ${uiBuilder.createTable({
-                headers: ['Score', 'Risk %', 'Score', 'Risk %', 'Score', 'Risk %'],
-                rows: [
-                    ['0', '3.4%', '6', '16.7%', '12', '55.4%'],
-                    ['1', '4.8%', '7', '21.7%', '13', '62.7%'],
-                    ['2', '6.7%', '8', '27.5%', '14', '69.6%'],
-                    ['3', '9.2%', '9', '33.9%', '15', '76.0%'],
-                    ['4', '12.5%', '10', '40.8%', '16', '81.7%'],
-                    ['5', '16.7%', '11', '48.0%', '>14', '≥39.3%']
-                ]
-            })}
+        headers: ['Score', 'Risk %', 'Score', 'Risk %', 'Score', 'Risk %'],
+        rows: [
+            ['≤1', '3.4%', '6', '12%', '11', '27.7%'],
+            ['2', '4.9%', '7', '14.6%', '12', '31%'],
+            ['3', '5.5%', '8', '17.4%', '13', '31.5%'],
+            ['4', '6.9%', '9', '20.8%', '14', '39.3%'],
+            ['5', '9.3%', '10', '23.3%', '>14', '>39.3%']
+        ]
+    })}
             
             <p class="footnote-item mt-15">
                 *Cardiac arrest, shock, high-grade atrioventricular block, respiratory failure, stroke, or death during index admission.
@@ -145,23 +152,23 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: riskLevel,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: riskLevel,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'ICU Risk',
-                value: riskPercent.toFixed(1),
-                unit: '%',
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'ICU Risk',
+            value: riskPercent.toFixed(1),
+            unit: '%',
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message:
-                    '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
-            })}
+            type: alertType,
+            message:
+                '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
+        })}
         `;
     },
     customInitialize: (
@@ -228,8 +235,8 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
                     if (hrResult.value !== null) {
                         setRadioWithValue('action-hr', hrResult.value, [
                             v => v < 85,
-                            v => v >= 85 && v <= 100,
-                            v => v > 100
+                            v => v >= 85 && v < 100,
+                            v => v >= 100
                         ]);
                     }
 

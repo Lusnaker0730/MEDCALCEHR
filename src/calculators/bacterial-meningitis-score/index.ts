@@ -19,7 +19,7 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
             subtitle: 'Cerebrospinal fluid microscopy',
             options: [
                 { value: '0', label: 'No (0)', checked: true },
-                { value: '2', label: 'Yes (+2)' }
+                { value: '1', label: 'Yes (+1)' }
             ]
         },
         {
@@ -61,7 +61,7 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
     ],
     riskLevels: [
         { minScore: 0, maxScore: 0, label: 'Very Low Risk', severity: 'success' },
-        { minScore: 1, maxScore: 6, label: 'Not Low Risk', severity: 'danger' }
+        { minScore: 1, maxScore: 5, label: 'Not Low Risk', severity: 'danger' }
     ],
     formulaSection: {
         show: true,
@@ -71,7 +71,7 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
             // CSF Gram stain
             { criteria: 'CSF Gram stain', isHeader: true },
             { criteria: 'Negative', points: '0' },
-            { criteria: 'Positive', points: '2' },
+            { criteria: 'Positive', points: '1' },
             // CSF ANC
             { criteria: 'CSF absolute neutrophil count (ANC)', isHeader: true },
             { criteria: '<1,000 cells/μL', points: '0' },
@@ -105,16 +105,16 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: isLowRisk ? 'Very Low Risk' : 'Not Low Risk',
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Interpretation:</strong> ${interpretation}`
-            })}
+            type: alertType,
+            message: `<strong>Interpretation:</strong> ${interpretation}`
+        })}
         `;
     },
     customInitialize: async (
@@ -147,7 +147,7 @@ export const bacterialMeningitisScoreConfig: ScoringCalculatorConfig = {
                         (c: any) => c.code === SNOMED_CODES.POSITIVE_RESULT
                     );
                     if (isPositive) {
-                        setRadio('gram_stain', '2');
+                        setRadio('gram_stain', '1');
                     }
                 }
 

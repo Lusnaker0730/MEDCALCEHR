@@ -106,7 +106,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             label: 'Low risk',
             severity: 'success',
             recommendation:
-                'Anticoagulation can be considered. Relatively low risk for major bleeding.'
+                'Anticoagulation should be considered. Relatively low risk for major bleeding.'
         },
         {
             minScore: 1,
@@ -114,7 +114,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             label: 'Low-moderate risk',
             severity: 'success',
             recommendation:
-                'Anticoagulation can be considered. Relatively low risk for major bleeding.'
+                'Anticoagulation should be considered.'
         },
         {
             minScore: 2,
@@ -122,7 +122,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             label: 'Moderate risk',
             severity: 'warning',
             recommendation:
-                'Anticoagulation can be considered. Relatively low risk for major bleeding.'
+                'Anticoagulation can be considered.'
         },
         {
             minScore: 3,
@@ -130,7 +130,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             label: 'High risk',
             severity: 'danger',
             recommendation:
-                'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.'
+                'Alternatives to anticoagulation should be considered. Address modifiable bleeding risk factors.'
         }
     ],
 
@@ -139,50 +139,53 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             0: {
                 risk: 'Low risk',
                 level: 'success',
-                bleeds: '0.9% (1.13 bleeds/100 patient-years)'
+                bleeds: '0.9% risk (1.13 bleeds/100 patient-years)'
             },
             1: {
                 risk: 'Low-moderate risk',
                 level: 'success',
-                bleeds: '1.02 bleeds/100 patient-years'
+                bleeds: '3.4% risk (1.02 bleeds/100 patient-years)'
             },
-            2: { risk: 'Moderate risk', level: 'warning', bleeds: '1.88 bleeds/100 patient-years' },
+            2: { risk: 'Moderate risk', level: 'warning', bleeds: '4.1% risk (1.88 bleeds/100 patient-years)' },
             3: {
-                risk: 'Moderate-high risk',
-                level: 'warning',
-                bleeds: '3.74 bleeds/100 patient-years'
+                risk: 'High risk',
+                level: 'danger',
+                bleeds: '5.8% risk (3.72 bleeds/100 patient-years)'
             },
-            4: { risk: 'High risk', level: 'danger', bleeds: '8.70 bleeds/100 patient-years' }
+            4: { risk: 'High risk', level: 'danger', bleeds: '8.9% risk (8.70 bleeds/100 patient-years)' },
+            5: { risk: 'High risk', level: 'danger', bleeds: '9.1% risk (12.50 bleeds/100 patient-years)' }
         };
 
-        const data = riskData[Math.min(score, 4)] || {
+        const data = riskData[Math.min(score, 5)] || {
             risk: 'Very high risk',
             level: 'danger',
-            bleeds: '12.50 bleeds/100 patient-years'
+            bleeds: '>10% estimated (too rare to determine precisely)'
         };
         const alertClass = `ui-alert-${data.level}`;
         const recommendation =
             score >= 3
-                ? 'Consider alternatives to anticoagulation or more frequent monitoring. High bleeding risk.'
-                : 'Anticoagulation can be considered. Relatively low risk for major bleeding.';
+                ? 'Alternatives to anticoagulation should be considered. Address modifiable bleeding risk factors.'
+                : score === 2
+                    ? 'Anticoagulation can be considered.'
+                    : 'Anticoagulation should be considered. Relatively low risk for major bleeding.';
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 9 points',
-                interpretation: data.risk,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 9 points',
+            interpretation: data.risk,
+            alertClass: alertClass
+        })}
             
             ${uiBuilder.createResultItem({
-                label: 'Annual Bleeding Risk',
-                value: data.bleeds
-            })}
+            label: 'Annual Bleeding Risk',
+            value: data.bleeds
+        })}
             ${uiBuilder.createAlert({
-                type: data.level as 'success' | 'warning' | 'danger',
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+            type: data.level as 'success' | 'warning' | 'danger',
+            message: `<strong>Recommendation:</strong> ${recommendation}`
+        })}
         `;
     },
 
@@ -278,40 +281,40 @@ export const hasBled = {
         // 添加 Facts & Figures 區塊
         const factsSection = `
             ${uiBuilder.createSection({
-                title: 'FACTS & FIGURES',
-                icon: '📊',
-                content: uiBuilder.createTable({
-                    headers: [
-                        'HAS-BLED Score',
-                        'Risk group',
-                        'Risk of major bleeding**',
-                        'Bleeds per 100 patient-years***',
-                        'Recommendation'
+            title: 'FACTS & FIGURES',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: [
+                    'HAS-BLED Score',
+                    'Risk group',
+                    'Risk of major bleeding**',
+                    'Bleeds per 100 patient-years***',
+                    'Recommendation'
+                ],
+                rows: [
+                    ['0', 'Low', '0.9%', '1.13', 'Anticoagulation should be considered'],
+                    ['1', 'Low-moderate', '3.4%', '1.02', 'Anticoagulation should be considered'],
+                    ['2', 'Moderate', '4.1%', '1.88', 'Anticoagulation can be considered'],
+                    ['3', 'High', '5.8%', '3.72', 'Alternatives to anticoagulation should be considered'],
+                    [
+                        '4',
+                        'High',
+                        '8.9%',
+                        '8.70',
+                        'Alternatives to anticoagulation should be considered'
                     ],
-                    rows: [
-                        ['0', 'Low', '0.9%', '1.13', 'Anticoagulation should be considered'],
-                        ['1', 'Low', '3.4%', '1.02', 'Anticoagulation should be considered'],
-                        ['2', 'Moderate', '4.1%', '1.88', 'Anticoagulation can be considered'],
-                        ['3', 'Moderate', '5.8%', '3.72', 'Anticoagulation can be considered'],
-                        [
-                            '4',
-                            'High',
-                            '8.9%',
-                            '8.70',
-                            'Alternatives to anticoagulation should be considered'
-                        ],
-                        [
-                            '5',
-                            'High',
-                            '9.1%',
-                            '12.50',
-                            'Alternatives to anticoagulation should be considered'
-                        ],
-                        ['>5*', 'Very high', '-', '-', '-']
+                    [
+                        '5',
+                        'High',
+                        '9.1%',
+                        '12.50',
+                        'Alternatives to anticoagulation should be considered'
                     ],
-                    stickyFirstColumn: true
-                })
-            })}
+                    ['>5*', 'Very high', '-', '-', '-']
+                ],
+                stickyFirstColumn: true
+            })
+        })}
         `;
 
         return html + factsSection;

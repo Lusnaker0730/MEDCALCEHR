@@ -476,12 +476,40 @@
     margin-bottom: 15px;
 }
 
+.therapy-group+.therapy-group {
+    margin-top: 10px;
+}
+
+.therapy-group__label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+}
+
 .therapy-details {
     margin-left: 25px;
 }
 
 .therapy-results {
     margin-top: 20px;
+}
+
+/* Therapy risk summary row */
+.therapy-risk-row {
+    margin-bottom: 12px;
+}
+
+/* Source citation note */
+.source-note {
+    margin-top: 8px;
+    font-size: 0.9em;
+}
+
+/* CAC interpretation list */
+.cac-interpretation {
+    margin-top: 10px;
+    font-size: 0.9em;
+    line-height: 1.7;
 }
 
 /* ===================================

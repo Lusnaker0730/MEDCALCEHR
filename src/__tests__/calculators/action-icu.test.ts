@@ -52,6 +52,14 @@ describe('ACTION ICU Calculator', () => {
         expect(result.riskLevel?.label).toBe('High Risk');
     });
 
+    // Scenario 4: Chronic Lung Disease (+2)
+    test('Chronic Lung Disease scoring', () => {
+        const result = calculateScoringResult(actionIcuConfig, {
+            'action-cld': '2'
+        });
+        expect(result.totalScore).toBe(2);
+    });
+
     // Custom Renderer Logic for ICU Risk
     test('Custom Renderer Output', () => {
         const renderer = actionIcuConfig.customResultRenderer!;
@@ -61,11 +69,13 @@ describe('ACTION ICU Calculator', () => {
         expect(output0).toContain('3.4');
         expect(output0).toContain('%');
 
-        // Score 17 -> Max risk (>= 90.6 or similar)
-        // riskMap has 18 entries (0-17)
-        // index 17 -> 90.6
-        const output17 = renderer(17, {});
-        expect(output17).toContain('90.6');
-        expect(output17).toContain('%');
+        // Score 14 -> Max risk 39.3%
+        const output14 = renderer(14, {});
+        expect(output14).toContain('39.3');
+        expect(output14).toContain('%');
+
+        // Score > 14 -> Still uses last element (39.3%)
+        const output15 = renderer(15, {});
+        expect(output15).toContain('39.3');
     });
 });

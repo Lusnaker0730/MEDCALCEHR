@@ -9,12 +9,22 @@
       "description": "Very low risk - no criteria met",
       "source": "All questions answered 0. Total = 0. Very Low Risk.",
       "inputs": {
-        "centor-exudates": "0", "centor-nodes": "0", "centor-fever": "0",
-        "centor-cough": "0", "centor-age": "0"
+        "centor-exudates": "0",
+        "centor-nodes": "0",
+        "centor-fever": "0",
+        "centor-cough": "0",
+        "centor-age": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 0, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Very Low Risk" }
+        {
+          "label": "Total Score",
+          "value": 0,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk Level",
+          "value": "1-2.5% probability"
+        }
       ]
     },
     {
@@ -22,12 +32,22 @@
       "description": "Low risk - single criterion (fever only)",
       "source": "Fever (1pt). Total = 1. Low Risk.",
       "inputs": {
-        "centor-exudates": "0", "centor-nodes": "0", "centor-fever": "1",
-        "centor-cough": "0", "centor-age": "0"
+        "centor-exudates": "0",
+        "centor-nodes": "0",
+        "centor-fever": "1",
+        "centor-cough": "0",
+        "centor-age": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 1, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Low Risk" }
+        {
+          "label": "Total Score",
+          "value": 1,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk Level",
+          "value": "5-10% probability"
+        }
       ]
     },
     {
@@ -35,12 +55,22 @@
       "description": "Moderate risk - exudates and lymphadenopathy",
       "source": "Exudates (1pt) + Tender anterior cervical lymphadenopathy (1pt) = 2. Moderate Risk.",
       "inputs": {
-        "centor-exudates": "1", "centor-nodes": "1", "centor-fever": "0",
-        "centor-cough": "0", "centor-age": "0"
+        "centor-exudates": "1",
+        "centor-nodes": "1",
+        "centor-fever": "0",
+        "centor-cough": "0",
+        "centor-age": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 2, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Moderate Risk" }
+        {
+          "label": "Total Score",
+          "value": 2,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk Level",
+          "value": "11-17% probability"
+        }
       ]
     },
     {
@@ -48,12 +78,22 @@
       "description": "Moderate-high risk - classic triad (score 3)",
       "source": "Exudates (1pt) + Tender nodes (1pt) + Fever (1pt) = 3. Moderate-High Risk.",
       "inputs": {
-        "centor-exudates": "1", "centor-nodes": "1", "centor-fever": "1",
-        "centor-cough": "0", "centor-age": "0"
+        "centor-exudates": "1",
+        "centor-nodes": "1",
+        "centor-fever": "1",
+        "centor-cough": "0",
+        "centor-age": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 3, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Moderate-High Risk" }
+        {
+          "label": "Total Score",
+          "value": 3,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk Level",
+          "value": "28-35% probability"
+        }
       ]
     },
     {
@@ -61,12 +101,22 @@
       "description": "High risk - all criteria met (score 5)",
       "source": "Exudates (1pt) + Nodes (1pt) + Fever (1pt) + Absence of cough (1pt) + Age 3-14 (1pt) = 5. High Risk.",
       "inputs": {
-        "centor-exudates": "1", "centor-nodes": "1", "centor-fever": "1",
-        "centor-cough": "1", "centor-age": "1"
+        "centor-exudates": "1",
+        "centor-nodes": "1",
+        "centor-fever": "1",
+        "centor-cough": "1",
+        "centor-age": "1"
       },
       "expected": [
-        { "label": "Total Score", "value": 5, "tolerance": 0 },
-        { "label": "Risk Level", "value": "High Risk" }
+        {
+          "label": "Total Score",
+          "value": 5,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk Level",
+          "value": "51-53% probability"
+        }
       ]
     }
   ]

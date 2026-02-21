@@ -1,5 +1,12 @@
 import { describe, expect, test } from '@jest/globals';
-import { ascvdCalculationPure, PCE_COEFFICIENTS } from '../../calculators/ascvd/calculation.js';
+import {
+    ascvdCalculationPure,
+    PCE_COEFFICIENTS,
+    calculateTherapyImpact,
+    getLifetimeRisk,
+    getAspirinRecommendation,
+    getCACGuidance
+} from '../../calculators/ascvd/calculation.js';
 import { ValidationError } from '../../errorHandler.js';
 
 const ascvdCalculation = (input: any) => ascvdCalculationPure(input).results;
@@ -38,7 +45,7 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-sbp': 120,
             'ascvd-htn': 'no',
             'ascvd-dm': 'no',
-            'ascvd-smoker': 'yes'
+            'ascvd-smoker': 'current'
         };
 
         const result = ascvdCalculation(input);
@@ -60,7 +67,7 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-sbp': 120,
             'ascvd-htn': 'no',
             'ascvd-dm': 'yes',
-            'ascvd-smoker': 'no'
+            'ascvd-smoker': 'never'
         };
 
         // Use ascvdCalculationPure to get full result with unrounded risk value
@@ -82,7 +89,7 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-sbp': 160,
             'ascvd-htn': 'yes',
             'ascvd-dm': 'yes',
-            'ascvd-smoker': 'yes'
+            'ascvd-smoker': 'current'
         };
 
         const result = ascvdCalculation(input);
@@ -141,7 +148,7 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-sbp': 130,
             'ascvd-htn': 'no',
             'ascvd-dm': 'no',
-            'ascvd-smoker': 'no'
+            'ascvd-smoker': 'never'
         };
 
         test('White Male calculation', () => {
@@ -224,16 +231,30 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-sbp': 120,
             'ascvd-htn': 'no',
             'ascvd-dm': 'no',
-            'ascvd-smoker': 'no'
+            'ascvd-smoker': 'never'
         };
 
-        test('Smoking increases risk', () => {
+        test('Smoking increases risk (current smoker > never)', () => {
             const nonSmoker = ascvdCalculationPure(baseInputs);
             const smoker = ascvdCalculationPure({
                 ...baseInputs,
-                'ascvd-smoker': 'yes'
+                'ascvd-smoker': 'current'
             });
             expect(smoker.risk).toBeGreaterThan(nonSmoker.risk);
+        });
+
+        test('Former smoker treated same as never for PCE', () => {
+            const neverSmoker = ascvdCalculationPure({ ...baseInputs, 'ascvd-smoker': 'never' });
+            const formerSmoker = ascvdCalculationPure({ ...baseInputs, 'ascvd-smoker': 'former' });
+            expect(formerSmoker.risk).toBeCloseTo(neverSmoker.risk, 5);
+            expect(formerSmoker.patient.isSmoker).toBe(false);
+            expect(formerSmoker.patient.smokerStatus).toBe('former');
+        });
+
+        test('Current smoker has higher risk than former smoker', () => {
+            const currentSmoker = ascvdCalculationPure({ ...baseInputs, 'ascvd-smoker': 'current' });
+            const formerSmoker = ascvdCalculationPure({ ...baseInputs, 'ascvd-smoker': 'former' });
+            expect(currentSmoker.risk).toBeGreaterThan(formerSmoker.risk);
         });
 
         test('Diabetes increases risk', () => {
@@ -312,7 +333,7 @@ describe('ASCVD Risk Calculator', () => {
                 'ascvd-sbp': 110,
                 'ascvd-htn': 'no',
                 'ascvd-dm': 'no',
-                'ascvd-smoker': 'no'
+                'ascvd-smoker': 'never'
             };
             const result = ascvdCalculationPure(input);
             expect(result.risk).toBeLessThan(5);
@@ -330,7 +351,7 @@ describe('ASCVD Risk Calculator', () => {
                 'ascvd-sbp': 130,
                 'ascvd-htn': 'no',
                 'ascvd-dm': 'no',
-                'ascvd-smoker': 'no'
+                'ascvd-smoker': 'never'
             };
             const result = ascvdCalculationPure(input);
             // This may or may not be borderline, just verify the category logic works
@@ -347,7 +368,7 @@ describe('ASCVD Risk Calculator', () => {
                 'ascvd-sbp': 140,
                 'ascvd-htn': 'yes',
                 'ascvd-dm': 'no',
-                'ascvd-smoker': 'no'
+                'ascvd-smoker': 'never'
             };
             const result = ascvdCalculationPure(input);
             expect(result.risk).toBeGreaterThanOrEqual(7.5);
@@ -364,7 +385,7 @@ describe('ASCVD Risk Calculator', () => {
                 'ascvd-sbp': 170,
                 'ascvd-htn': 'yes',
                 'ascvd-dm': 'yes',
-                'ascvd-smoker': 'yes'
+                'ascvd-smoker': 'current'
             };
             const result = ascvdCalculationPure(input);
             expect(result.risk).toBeGreaterThanOrEqual(20);
@@ -386,7 +407,7 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-sbp': 120,
             'ascvd-htn': 'no',
             'ascvd-dm': 'no',
-            'ascvd-smoker': 'no'
+            'ascvd-smoker': 'never'
         };
 
         test('Age 40 is valid (lower boundary)', () => {
@@ -411,4 +432,131 @@ describe('ASCVD Risk Calculator', () => {
             expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 40-79');
         });
     });
+
+    // ===========================================
+    // TC-011: calculateTherapyImpact
+    // ===========================================
+    describe('calculateTherapyImpact (Million Hearts RR Method)', () => {
+        test('No therapies = no change', () => {
+            const result = calculateTherapyImpact(15, {});
+            expect(result.treatedRisk).toBeCloseTo(15, 2);
+            expect(result.arr).toBeCloseTo(0, 2);
+            expect(result.nnt).toBeNull();
+        });
+
+        test('High-intensity statin: RR 0.75 applied', () => {
+            const result = calculateTherapyImpact(20, { highIntensityStatin: true });
+            expect(result.treatedRisk).toBeCloseTo(15, 2);
+            expect(result.arr).toBeCloseTo(5, 2);
+            expect(result.rrr).toBeCloseTo(25, 1);
+            expect(result.nnt).toBe(20);
+        });
+
+        test('High-intensity takes priority over moderate', () => {
+            const both = calculateTherapyImpact(10, { highIntensityStatin: true, moderateIntensityStatin: true });
+            const high = calculateTherapyImpact(10, { highIntensityStatin: true });
+            expect(both.treatedRisk).toBeCloseTo(high.treatedRisk, 5);
+        });
+
+        test('Combined therapies multiply RRs', () => {
+            const result = calculateTherapyImpact(20, { highIntensityStatin: true, bpControl: true });
+            expect(result.treatedRisk).toBeCloseTo(20 * 0.75 * 0.73, 3);
+            expect(result.interventions).toHaveLength(2);
+        });
+
+        test('Smoking cessation: RR 0.85 applied', () => {
+            const result = calculateTherapyImpact(10, { smokingCessation: true });
+            expect(result.treatedRisk).toBeCloseTo(8.5, 2);
+        });
+    });
+
+    // ===========================================
+    // TC-012: getLifetimeRisk
+    // ===========================================
+    describe('getLifetimeRisk', () => {
+        const makePatient = (overrides: Partial<any>) => ({
+            age: 50, tc: 180, hdl: 55, sbp: 115,
+            isMale: true, race: 'white' as const,
+            onHtnTx: false, isDiabetic: false,
+            isSmoker: false, smokerStatus: 'never' as const,
+            ...overrides
+        });
+
+        test('Optimal → ~5%', () => {
+            const result = getLifetimeRisk(makePatient({}));
+            expect(result?.lifetimeRisk).toBe('~5%');
+        });
+
+        test('1 major RF (current smoker) → ~50%', () => {
+            expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current' }))?.lifetimeRisk).toBe('~50%');
+        });
+
+        test('2+ major RFs → ~69%', () => {
+            expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current', isDiabetic: true }))?.lifetimeRisk).toBe('~69%');
+        });
+
+        test('Returns null for age < 40', () => {
+            expect(getLifetimeRisk(makePatient({ age: 39 }))).toBeNull();
+        });
+
+        test('Returns null for age > 59', () => {
+            expect(getLifetimeRisk(makePatient({ age: 60 }))).toBeNull();
+        });
+    });
+
+    // ===========================================
+    // TC-013: getAspirinRecommendation
+    // ===========================================
+    describe('getAspirinRecommendation', () => {
+        const makePatient = (age: number) => ({
+            age, tc: 200, hdl: 50, sbp: 120,
+            isMale: true, race: 'white' as const,
+            onHtnTx: false, isDiabetic: false,
+            isSmoker: false, smokerStatus: 'never' as const
+        });
+
+        test('Age 50, risk ≥10% → consider', () => {
+            expect(getAspirinRecommendation(makePatient(50), 12).recommendation).toBe('consider');
+        });
+
+        test('Age 50, risk <10% → not-recommended (info)', () => {
+            const rec = getAspirinRecommendation(makePatient(50), 8);
+            expect(rec.recommendation).toBe('not-recommended');
+            expect(rec.alertClass).toBe('info');
+        });
+
+        test('Age 60 → not-recommended (danger)', () => {
+            const rec = getAspirinRecommendation(makePatient(60), 15);
+            expect(rec.recommendation).toBe('not-recommended');
+            expect(rec.alertClass).toBe('danger');
+        });
+
+        test('Age 59 with risk=10% → consider', () => {
+            expect(getAspirinRecommendation(makePatient(59), 10).recommendation).toBe('consider');
+        });
+    });
+
+    // ===========================================
+    // TC-014: getCACGuidance
+    // ===========================================
+    describe('getCACGuidance', () => {
+        test('Risk < 5% → not shown', () => {
+            expect(getCACGuidance(4.9).show).toBe(false);
+        });
+
+        test('Risk 5-7.4% (borderline) → shown with warning', () => {
+            const result = getCACGuidance(6.0);
+            expect(result.show).toBe(true);
+            expect(result.alertClass).toBe('warning');
+        });
+
+        test('Risk 7.5-19.9% (intermediate) → shown', () => {
+            expect(getCACGuidance(12.0).show).toBe(true);
+        });
+
+        test('Risk ≥20% (high) → not shown', () => {
+            expect(getCACGuidance(20).show).toBe(false);
+        });
+    });
 });
+
