@@ -102,6 +102,8 @@ export interface YesNoQuestion {
     id: string;
     /** 問題標籤 */
     label: string;
+    /** 副標題/說明 (顯示於標籤下方的較小文字) */
+    subtitle?: string;
     /** 選「是」時的分數 */
     points: number;
     /** 額外說明 */

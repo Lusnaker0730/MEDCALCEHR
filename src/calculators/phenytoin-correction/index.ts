@@ -36,12 +36,13 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
                 {
                     type: 'number',
                     id: 'pheny-albumin',
-                    label: 'Serum Albumin',
-                    placeholder: 'e.g., 3.0',
+                    label: 'Albumin',
+                    helpText: 'If albumin >3.2 g/dL (32 g/L), this correction is not needed',
+                    placeholder: 'Norm: 35 - 55',
                     unitToggle: {
                         type: 'albumin',
-                        units: ['g/dL', 'g/L'],
-                        default: 'g/dL'
+                        units: ['g/L', 'g/dL'],
+                        default: 'g/L'
                     },
                     validationType: 'albumin',
                     loincCode: LOINC_CODES.ALBUMIN,
@@ -51,22 +52,20 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
                 {
                     type: 'radio',
                     id: 'pheny-renal',
-                    label: 'Renal Status (CrCl < 10 mL/min)',
+                    label: 'Creatinine clearance <20 mL/min',
                     options: [
-                        { value: 'no', label: 'No (Normal Function)', checked: true },
-                        { value: 'yes', label: 'Yes (Renal Failure)' }
-                    ],
-                    helpText: 'Select Yes if CrCl < 10 mL/min, ESRD, or on dialysis.'
+                        { value: 'no', label: 'No', checked: true },
+                        { value: 'yes', label: 'Yes' }
+                    ]
                 }
             ]
         }
     ],
     formulas: [
         {
-            label: 'Corrected Level',
-            formula:
-                '<span class="formula-fraction"><span class="numerator">Total Phenytoin</span><span class="denominator">((1 − K) × Albumin / 4.4) + K</span></span>',
-            notes: 'K = 0.1 (Normal) or 0.2 (Renal Failure)'
+            label: 'Corrected phenytoin',
+            formula: 'Measured level ÷ (adjustment × albumin, g/dL + 0.1)',
+            notes: 'Adjustment = 0.275; in patients with CrCl <20 mL/min, adjustment = 0.2. No correction needed for albumin >3.2 g/dL. Derived from the Winter-Tozer formula.'
         }
     ],
     calculate: phenytoinCorrectionCalculation,
@@ -80,21 +79,21 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-                label: res.label,
-                value: res.value,
-                unit: res.unit,
-                interpretation: res.interpretation,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: res.label,
+            value: res.value,
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Measured Total',
-                value: payload.measuredTotal.toFixed(1),
-                unit: 'mcg/mL'
-            })}
+            label: 'Measured Total',
+            value: payload.measuredTotal.toFixed(1),
+            unit: 'mcg/mL'
+        })}
             ${uiBuilder.createAlert({
-                type: alertClass as 'success' | 'warning' | 'danger' | 'info',
-                message: alertMsg
-            })}
+            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+            message: alertMsg
+        })}
         `;
     }
 });

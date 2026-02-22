@@ -64,7 +64,7 @@ export function calculatePreciseHbrScore(
     if (hb > 15.0) hbClamped = 15.0;
 
     if (hb < 15.0) {
-        const hbPoints = (15 - hbClamped) * 2.5;
+        const hbPoints = (15 - hbClamped) * 2.6;
         if (hbPoints > 0) {
             score += hbPoints;
             breakdownParts.push(`Hb ${hb} (Clamped: ${hbClamped}) -> +${hbPoints.toFixed(2)}`);

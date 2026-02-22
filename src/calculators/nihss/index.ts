@@ -17,149 +17,185 @@ const config: ScoringCalculatorConfig = {
     sections: [
         {
             id: 'nihss-1a',
-            title: '1a. Level of Consciousness',
+            title: '1A: Level of consciousness',
+            subtitle: 'May be assessed casually while taking history',
             options: [
-                { value: '0', label: '0 - Alert', checked: true },
-                { value: '1', label: '1 - Not alert, but arousable by minor stimulation' },
-                { value: '2', label: '2 - Not alert, requires repeated stimulation to attend' },
-                { value: '3', label: '3 - Unresponsive, or reflex motor responses only' }
+                { value: '0', label: 'Alert; keenly responsive', checked: true },
+                { value: '1', label: 'Arouses to minor stimulation' },
+                { value: '2', label: 'Requires repeated stimulation to arouse' },
+                { value: '2', label: 'Movements to pain' },
+                { value: '3', label: 'Postures or unresponsive' }
             ]
         },
         {
             id: 'nihss-1b',
-            title: '1b. LOC Questions (Month, Age)',
+            title: '1B: Ask month and age',
             options: [
-                { value: '0', label: '0 - Answers both correctly', checked: true },
-                { value: '1', label: '1 - Answers one correctly' },
-                { value: '2', label: '2 - Answers neither correctly' }
+                { value: '0', label: 'Both questions right', checked: true },
+                { value: '1', label: '1 question right' },
+                { value: '2', label: '0 questions right' },
+                { value: '1', label: 'Dysarthric/intubated/trauma/language barrier' },
+                { value: '2', label: 'Aphasic' }
             ]
         },
         {
             id: 'nihss-1c',
-            title: '1c. LOC Commands (Open/close eyes, grip/release hand)',
+            title: "1C: 'Blink eyes' & 'squeeze hands'",
+            subtitle: 'Pantomime commands if communication barrier',
             options: [
-                { value: '0', label: '0 - Performs both correctly', checked: true },
-                { value: '1', label: '1 - Performs one correctly' },
-                { value: '2', label: '2 - Performs neither correctly' }
+                { value: '0', label: 'Performs both tasks', checked: true },
+                { value: '1', label: 'Performs 1 task' },
+                { value: '2', label: 'Performs 0 tasks' }
             ]
         },
         {
             id: 'nihss-2',
-            title: '2. Best Gaze',
+            title: '2: Horizontal extraocular movements',
+            subtitle: 'Only assess horizontal gaze',
             options: [
-                { value: '0', label: '0 - Normal', checked: true },
-                { value: '1', label: '1 - Partial gaze palsy' },
-                { value: '2', label: '2 - Forced deviation' }
+                { value: '0', label: 'Normal', checked: true },
+                { value: '1', label: 'Partial gaze palsy: can be overcome' },
+                { value: '1', label: 'Partial gaze palsy: corrects with oculocephalic reflex' },
+                { value: '2', label: 'Forced gaze palsy: cannot be overcome' }
             ]
         },
         {
             id: 'nihss-3',
-            title: '3. Visual Fields',
+            title: '3: Visual fields',
             options: [
-                { value: '0', label: '0 - No visual loss', checked: true },
-                { value: '1', label: '1 - Partial hemianopia' },
-                { value: '2', label: '2 - Complete hemianopia' },
-                { value: '3', label: '3 - Bilateral hemianopia' }
+                { value: '0', label: 'No visual loss', checked: true },
+                { value: '1', label: 'Partial hemianopia' },
+                { value: '2', label: 'Complete hemianopia' },
+                { value: '3', label: 'Patient is bilaterally blind' },
+                { value: '3', label: 'Bilateral hemianopia' }
             ]
         },
         {
             id: 'nihss-4',
-            title: '4. Facial Palsy',
+            title: '4: Facial palsy',
+            subtitle: 'Use grimace if obtunded',
             options: [
-                { value: '0', label: '0 - Normal', checked: true },
-                { value: '1', label: '1 - Minor paralysis' },
-                { value: '2', label: '2 - Partial paralysis' },
-                { value: '3', label: '3 - Complete paralysis of one or both sides' }
+                { value: '0', label: 'Normal symmetry', checked: true },
+                { value: '1', label: 'Minor paralysis (flat nasolabial fold, smile asymmetry)' },
+                { value: '2', label: 'Partial paralysis (lower face)' },
+                { value: '3', label: 'Unilateral complete paralysis (upper/lower face)' },
+                { value: '3', label: 'Bilateral complete paralysis (upper/lower face)' }
             ]
         },
         {
             id: 'nihss-5a',
-            title: '5a. Motor Arm - Left',
+            title: '5A: Left arm motor drift',
+            subtitle: 'Count out loud and use your fingers to show the patient your count',
             options: [
-                { value: '0', label: '0 - No drift', checked: true },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
+                { value: '0', label: 'No drift for 10 seconds', checked: true },
+                { value: '1', label: "Drift, but doesn't hit bed" },
+                { value: '2', label: 'Drift, hits bed' },
+                { value: '2', label: 'Some effort against gravity' },
+                { value: '3', label: 'No effort against gravity' },
+                { value: '4', label: 'No movement' },
+                { value: '0', label: 'Amputation/joint fusion' }
             ]
         },
         {
             id: 'nihss-5b',
-            title: '5b. Motor Arm - Right',
+            title: '5B: Right arm motor drift',
+            subtitle: 'Count out loud and use your fingers to show the patient your count',
             options: [
-                { value: '0', label: '0 - No drift', checked: true },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
+                { value: '0', label: 'No drift for 10 seconds', checked: true },
+                { value: '1', label: "Drift, but doesn't hit bed" },
+                { value: '2', label: 'Drift, hits bed' },
+                { value: '2', label: 'Some effort against gravity' },
+                { value: '3', label: 'No effort against gravity' },
+                { value: '4', label: 'No movement' },
+                { value: '0', label: 'Amputation/joint fusion' }
             ]
         },
         {
             id: 'nihss-6a',
-            title: '6a. Motor Leg - Left',
+            title: '6A: Left leg motor drift',
+            subtitle: 'Count out loud and use your fingers to show the patient your count',
             options: [
-                { value: '0', label: '0 - No drift', checked: true },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
+                { value: '0', label: 'No drift for 5 seconds', checked: true },
+                { value: '1', label: "Drift, but doesn't hit bed" },
+                { value: '2', label: 'Drift, hits bed' },
+                { value: '2', label: 'Some effort against gravity' },
+                { value: '3', label: 'No effort against gravity' },
+                { value: '4', label: 'No movement' },
+                { value: '0', label: 'Amputation/joint fusion' }
             ]
         },
         {
             id: 'nihss-6b',
-            title: '6b. Motor Leg - Right',
+            title: '6B: Right leg motor drift',
+            subtitle: 'Count out loud and use your fingers to show the patient your count',
             options: [
-                { value: '0', label: '0 - No drift', checked: true },
-                { value: '1', label: '1 - Drift' },
-                { value: '2', label: '2 - Some effort against gravity' },
-                { value: '3', label: '3 - No effort against gravity, but moves' },
-                { value: '4', label: '4 - No movement' }
+                { value: '0', label: 'No drift for 5 seconds', checked: true },
+                { value: '1', label: "Drift, but doesn't hit bed" },
+                { value: '2', label: 'Drift, hits bed' },
+                { value: '2', label: 'Some effort against gravity' },
+                { value: '3', label: 'No effort against gravity' },
+                { value: '4', label: 'No movement' },
+                { value: '0', label: 'Amputation/joint fusion' }
             ]
         },
         {
             id: 'nihss-7',
-            title: '7. Limb Ataxia',
+            title: '7: Limb Ataxia',
+            subtitle: 'FNF/heel-shin',
             options: [
-                { value: '0', label: '0 - Absent', checked: true },
-                { value: '1', label: '1 - Present in one limb' },
-                { value: '2', label: '2 - Present in two or more limbs' }
+                { value: '0', label: 'No ataxia', checked: true },
+                { value: '1', label: 'Ataxia in 1 Limb' },
+                { value: '2', label: 'Ataxia in 2 Limbs' },
+                { value: '0', label: 'Does not understand' },
+                { value: '0', label: 'Paralyzed' },
+                { value: '0', label: 'Amputation/joint fusion' }
             ]
         },
         {
             id: 'nihss-8',
-            title: '8. Sensory',
+            title: '8: Sensation',
             options: [
-                { value: '0', label: '0 - Normal', checked: true },
-                { value: '1', label: '1 - Mild-to-moderate loss' },
-                { value: '2', label: '2 - Severe-to-total loss' }
+                { value: '0', label: 'Normal; no sensory loss', checked: true },
+                { value: '1', label: 'Mild-moderate loss: less sharp/more dull' },
+                { value: '1', label: 'Mild-moderate loss: can sense being touched' },
+                { value: '2', label: 'Complete loss: cannot sense being touched at all' },
+                { value: '2', label: 'No response and quadriplegic' },
+                { value: '2', label: 'Coma/unresponsive' }
             ]
         },
         {
             id: 'nihss-9',
-            title: '9. Best Language',
+            title: '9: Language/aphasia',
+            subtitle: 'Describe the scene; name the items; read the sentences',
             options: [
-                { value: '0', label: '0 - No aphasia', checked: true },
-                { value: '1', label: '1 - Mild-to-moderate aphasia' },
-                { value: '2', label: '2 - Severe aphasia' },
-                { value: '3', label: '3 - Mute, global aphasia' }
+                { value: '0', label: 'Normal; no aphasia', checked: true },
+                { value: '1', label: 'Mild-moderate aphasia: some obvious changes, without significant limitation' },
+                { value: '2', label: 'Severe aphasia: fragmentary expression, inference needed, cannot identify materials' },
+                { value: '3', label: 'Mute/global aphasia: no usable speech/auditory comprehension' },
+                { value: '3', label: 'Coma/unresponsive' }
             ]
         },
         {
             id: 'nihss-10',
-            title: '10. Dysarthria',
+            title: '10: Dysarthria',
+            subtitle: 'Read the words',
             options: [
-                { value: '0', label: '0 - Normal articulation', checked: true },
-                { value: '1', label: '1 - Mild-to-moderate dysarthria' },
-                { value: '2', label: '2 - Severe dysarthria (unintelligible)' }
+                { value: '0', label: 'Normal', checked: true },
+                { value: '1', label: 'Mild-moderate dysarthria: slurring but can be understood' },
+                { value: '2', label: 'Severe dysarthria: unintelligible slurring or out of proportion to dysphasia' },
+                { value: '2', label: 'Mute/anarthric' },
+                { value: '0', label: 'Intubated/unable to test' }
             ]
         },
         {
             id: 'nihss-11',
-            title: '11. Extinction and Inattention (Neglect)',
+            title: '11: Extinction/inattention',
             options: [
-                { value: '0', label: '0 - No neglect', checked: true },
-                { value: '1', label: '1 - Partial neglect' },
-                { value: '2', label: '2 - Complete neglect' }
+                { value: '0', label: 'No abnormality', checked: true },
+                { value: '1', label: 'Visual/tactile/auditory/spatial/personal inattention' },
+                { value: '1', label: 'Extinction to bilateral simultaneous stimulation' },
+                { value: '2', label: 'Profound hemi-inattention (ex: does not recognize own hand)' },
+                { value: '2', label: 'Extinction to >1 modality' }
             ]
         }
     ],
@@ -234,17 +270,17 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 42 points',
-                interpretation: severity,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 42 points',
+            interpretation: severity,
+            alertClass: `ui-alert-${alertClass}`
+        })}
             
             ${uiBuilder.createAlert({
-                type: alertClass,
-                message: interpretation
-            })}
+            type: alertClass,
+            message: interpretation
+        })}
         `;
     }
 };

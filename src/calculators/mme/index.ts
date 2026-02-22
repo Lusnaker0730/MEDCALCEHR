@@ -15,16 +15,20 @@ export const mme = createDynamicListCalculator({
 
     itemOptions: [
         { value: 'codeine', label: 'Codeine', factor: 0.15 },
-        { value: 'fentanyl', label: 'Fentanyl transdermal (mcg/hr)', factor: 2.4 },
-        { value: 'hydrocodone', label: 'Hydrocodone', factor: 1 },
-        { value: 'hydromorphone', label: 'Hydromorphone', factor: 4 },
+        { value: 'fentanyl-buccal', label: 'FentaNYL buccal or sublingual tablets (mcg)', factor: 0.13 },
+        { value: 'fentanyl', label: 'FentaNYL patch/transdermal (mcg/hr)', factor: 2.4 },
+        { value: 'hydrocodone', label: 'HYDROcodone (Vicodin, Norco, Lortab)', factor: 1 },
+        { value: 'hydromorphone', label: 'HYDROmorphone (Dilaudid)', factor: 5 },
         { value: 'methadone-1-20', label: 'Methadone (1-20mg/day)', factor: 4 },
         { value: 'methadone-21-40', label: 'Methadone (21-40mg/day)', factor: 8 },
         { value: 'methadone-41-60', label: 'Methadone (41-60mg/day)', factor: 10 },
-        { value: 'methadone-61-80', label: 'Methadone (61-80mg/day)', factor: 12 },
+        { value: 'methadone-61-80', label: 'Methadone (>60mg/day)', factor: 12 },
         { value: 'morphine', label: 'Morphine', factor: 1 },
-        { value: 'oxycodone', label: 'Oxycodone', factor: 1.5 },
-        { value: 'oxymorphone', label: 'Oxymorphone', factor: 3 }
+        { value: 'oxycodone', label: 'OxyCODONE (OxyCONTIN, Roxicodone)', factor: 1.5 },
+        { value: 'oxymorphone', label: 'OxyMORphone', factor: 3 },
+        { value: 'tapentadol', label: 'Tapentadol (Nucynta), mg', factor: 0.4 },
+        { value: 'tramadol', label: 'TraMADol (Ultram), mg', factor: 0.2 },
+        { value: 'buprenorphine', label: 'Buprenorphine', factor: 10 }
     ],
 
     itemLabel: 'Opioid',
@@ -37,49 +41,55 @@ export const mme = createDynamicListCalculator({
     riskLevels: [
         {
             minValue: 0,
-            maxValue: 50,
-            label: 'Lower Risk (<50 MME)',
+            maxValue: 20,
+            label: 'Reference (1 to <20 MME/day)',
             severity: 'success',
-            recommendation: 'Standard precautions.'
+            recommendation: 'Acceptable therapeutic range for acute pain and opioid-naïve patients. Annual overdose rate: 0.2%.'
+        },
+        {
+            minValue: 20,
+            maxValue: 50,
+            label: 'Moderate Risk (20 to <50 MME/day)',
+            severity: 'warning',
+            recommendation: 'There is no completely safe opioid dose; use caution when prescribing opioids at any dose and always prescribe the lowest effective dose. Annual overdose rate: data not available.'
         },
         {
             minValue: 50,
-            maxValue: 90,
-            label: 'Moderate Risk (50-90 MME)',
-            severity: 'warning',
-            recommendation: 'Reassess evidence of benefits and risks. Consider offering naloxone.'
+            maxValue: 100,
+            label: 'High Risk (50 to <100 MME/day)',
+            severity: 'danger',
+            recommendation: 'Strongly consider non-opioid analgesics and decreasing daily opioid dose. 3.7x higher risk of overdose. Annual overdose rate: 0.7%.'
         },
         {
-            minValue: 90,
+            minValue: 100,
             maxValue: Infinity,
-            label: 'High Risk (≥90 MME)',
+            label: 'Very High Risk (≥100 MME/day)',
             severity: 'danger',
-            recommendation:
-                'Avoid increasing dosage. Justify decision to titrate >90 MME/day. Consider specialist referral.'
+            recommendation: 'Consult pain specialist to reassess pain regimen and decrease dosage and/or wean off opioids. 8.9x higher risk of overdose. Annual overdose rate: 1.8%.'
         }
     ],
 
     additionalInfo: `
         ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    label: 'MME Calculation',
-                    formula: 'Total MME/day = Σ (Daily Dose × Conversion Factor)',
-                    notes: 'Each opioid has a specific conversion factor representing its potency relative to morphine.'
-                }
-            ]
-        })}
+        items: [
+            {
+                label: 'MME/day',
+                formula: 'Dosage¹ × Doses per day × MME conversion factor²',
+                notes: '¹Dosage in mcg/hr for fentaNYL patch, in mcg for fentaNYL buccal or sublingual tablets, and in mg for all other opioids. ²These dose conversions are estimated and cannot account for individual differences in genetics and pharmacokinetics.'
+            }
+        ]
+    })}
 
         ${uiBuilder.createAlert({
-            type: 'info',
-            message:
-                '<h4>📊 Conversion Factors</h4><div class="ui-data-table"><table><thead><tr><th>Opioid</th><th>Factor</th></tr></thead><tbody><tr><td>Morphine, Hydrocodone</td><td>1</td></tr><tr><td>Codeine</td><td>0.15</td></tr><tr><td>Oxycodone</td><td>1.5</td></tr><tr><td>Hydromorphone, Methadone (1-20mg)</td><td>4</td></tr><tr><td>Oxymorphone</td><td>3</td></tr><tr><td>Fentanyl transdermal (mcg/hr)</td><td>2.4</td></tr><tr><td>Methadone (>20mg)</td><td>8-12 (dose dependent)</td></tr></tbody></table></div>'
-        })}
+        type: 'info',
+        message:
+            '<h4>📊 MME Conversion Factors</h4><div class="ui-data-table"><table><thead><tr><th>Opioid</th><th>Factor</th></tr></thead><tbody><tr><td>Codeine</td><td>0.15</td></tr><tr><td>FentaNYL buccal/sublingual (mcg)</td><td>0.13</td></tr><tr><td>FentaNYL patch (mcg/hr)</td><td>2.4</td></tr><tr><td>HYDROcodone</td><td>1</td></tr><tr><td>HYDROmorphone</td><td>5</td></tr><tr><td>Methadone (1-20 mg/day)</td><td>4</td></tr><tr><td>Methadone (21-40 mg/day)</td><td>8</td></tr><tr><td>Methadone (41-60 mg/day)</td><td>10</td></tr><tr><td>Methadone (&gt;60 mg/day)</td><td>12</td></tr><tr><td>Morphine</td><td>1</td></tr><tr><td>OxyCODONE</td><td>1.5</td></tr><tr><td>OxyMORphone</td><td>3</td></tr><tr><td>Tapentadol</td><td>0.4</td></tr><tr><td>TraMADol</td><td>0.2</td></tr><tr><td>Buprenorphine</td><td>10</td></tr></tbody></table></div>'
+    })}
 
         ${uiBuilder.createAlert({
-            type: 'warning',
-            message:
-                '<h4>⚠️ CDC Recommendations</h4><ul class="info-list"><li><strong>≥50 MME/day:</strong> Increased risk. Reassess benefits/risks.</li><li><strong>≥90 MME/day:</strong> Avoid if possible. Consider specialist referral.</li></ul>'
-        })}
+        type: 'warning',
+        message:
+            '<h4>⚠️ Risk Interpretation</h4><ul class="info-list"><li><strong>20 to &lt;50 MME/day:</strong> 2x higher risk of overdose — use caution and prescribe lowest effective dose.</li><li><strong>50 to &lt;100 MME/day:</strong> 3.7x higher risk — strongly consider non-opioid analgesics.</li><li><strong>≥100 MME/day:</strong> 8.9x higher risk — consult pain specialist.</li></ul>'
+    })}
     `
 });

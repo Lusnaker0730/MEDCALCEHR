@@ -22,18 +22,30 @@ const config: ScoringCalculatorConfig = {
     questions: [
         {
             id: 'rcri-surgery',
-            label: 'High-risk surgery (intraperitoneal, intrathoracic, suprainguinal vascular)',
+            label: 'High-risk surgery',
+            subtitle: 'Intraperitoneal; intrathoracic; suprainguinal vascular',
             points: 1
         },
         {
             id: 'rcri-ihd',
-            label: 'History of Ischemic Heart Disease (MI or positive stress test)',
+            label: 'History of ischemic heart disease',
+            subtitle: 'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves',
             points: 1
         },
-        { id: 'rcri-hf', label: 'History of Congestive Heart Failure', points: 1 },
-        { id: 'rcri-cvd', label: 'History of Cerebrovascular Disease (stroke or TIA)', points: 1 },
-        { id: 'rcri-insulin', label: 'Preoperative treatment with insulin', points: 1 },
-        { id: 'rcri-creatinine', label: 'Preoperative serum creatinine > 2.0 mg/dL', points: 1 }
+        {
+            id: 'rcri-hf',
+            label: 'History of congestive heart failure',
+            subtitle: 'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution',
+            points: 1
+        },
+        {
+            id: 'rcri-cvd',
+            label: 'History of cerebrovascular disease',
+            subtitle: 'Prior transient ischemic attack (TIA) or stroke',
+            points: 1
+        },
+        { id: 'rcri-insulin', label: 'Pre-operative treatment with insulin', points: 1 },
+        { id: 'rcri-creatinine', label: 'Pre-operative creatinine >2 mg/dL / 176.8 µmol/L', points: 1 }
     ],
     riskLevels: [
         {
@@ -41,28 +53,28 @@ const config: ScoringCalculatorConfig = {
             maxScore: 0,
             label: 'Class I (Low Risk)',
             severity: 'success',
-            description: '0.4% risk of major cardiac complications'
+            description: '0.5% risk of major cardiac complications (95% CI)'
         },
         {
             minScore: 1,
             maxScore: 1,
             label: 'Class II (Low Risk)',
             severity: 'success',
-            description: '0.9% risk of major cardiac complications'
+            description: '1.1% risk of major cardiac complications (95% CI)'
         },
         {
             minScore: 2,
             maxScore: 2,
             label: 'Class III (Moderate Risk)',
             severity: 'warning',
-            description: '6.6% risk of major cardiac complications'
+            description: '5% risk of major cardiac complications (95% CI)'
         },
         {
             minScore: 3,
             maxScore: 999,
             label: 'Class IV (High Risk)',
             severity: 'danger',
-            description: '11% risk of major cardiac complications'
+            description: '10% risk of major cardiac complications (95% CI)'
         }
     ],
     references: [
@@ -119,31 +131,31 @@ const config: ScoringCalculatorConfig = {
             number,
             { risk: string; rate: string; level: 'success' | 'warning' | 'danger' }
         > = {
-            0: { risk: 'Class I (Low Risk)', rate: '0.4%', level: 'success' },
-            1: { risk: 'Class II (Low Risk)', rate: '0.9%', level: 'success' },
-            2: { risk: 'Class III (Moderate Risk)', rate: '6.6%', level: 'warning' }
+            0: { risk: 'Class I (Low Risk)', rate: '0.5%', level: 'success' },
+            1: { risk: 'Class II (Low Risk)', rate: '1.1%', level: 'success' },
+            2: { risk: 'Class III (Moderate Risk)', rate: '5%', level: 'warning' }
         };
 
         const data = riskData[score] || {
             risk: 'Class IV (High Risk)',
-            rate: '11%',
+            rate: '10%',
             level: 'danger' as const
         };
         const alertClass = `ui-alert-${data.level}`;
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'Total Score',
-                value: score.toString(),
-                unit: '/ 6 points',
-                interpretation: data.risk,
-                alertClass: alertClass
-            })}
+            label: 'Total Score',
+            value: score.toString(),
+            unit: '/ 6 points',
+            interpretation: data.risk,
+            alertClass: alertClass
+        })}
             
             ${uiBuilder.createAlert({
-                type: data.level,
-                message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
-            })}
+            type: data.level,
+            message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
+        })}
         `;
     },
 

@@ -24,15 +24,16 @@ export const heartScoreConfig: ScoringCalculatorConfig = {
             title: 'History',
             icon: '📋',
             options: [
-                { value: '0', label: 'Slightly suspicious (low risk features)', checked: true },
-                { value: '1', label: 'Moderately suspicious (mixture)' },
-                { value: '2', label: 'Highly suspicious (classic angina)' }
+                { value: '0', label: 'Slightly suspicious', checked: true },
+                { value: '1', label: 'Moderately suspicious' },
+                { value: '2', label: 'Highly suspicious' }
             ]
         },
         {
             id: 'heart-ecg',
             title: 'EKG',
             icon: '📊',
+            subtitle: '1 point: No ST deviation but LBBB, LVH, repolarization changes (e.g. digoxin); 2 points: ST deviation not due to LBBB, LVH, or digoxin',
             options: [
                 { value: '0', label: 'Normal', checked: true },
                 { value: '1', label: 'Non-specific repolarization disturbance' },
@@ -54,7 +55,7 @@ export const heartScoreConfig: ScoringCalculatorConfig = {
             title: 'Risk Factors',
             icon: '⚡',
             subtitle:
-                'HTN, hyperlipidemia, DM, obesity (BMI>30), smoking, family history, atherosclerotic disease',
+                'Risk factors: HTN, hypercholesterolemia, DM, obesity (BMI >30 kg/m²), smoking (current, or smoking cessation ≤3 mo), positive family history (parent or sibling with CVD before age 65); atherosclerotic disease: prior MI, PCI/CABG, CVA/TIA, or peripheral arterial disease',
             options: [
                 { value: '0', label: 'No known risk factors', checked: true },
                 { value: '1', label: '1-2 risk factors' },
@@ -65,11 +66,11 @@ export const heartScoreConfig: ScoringCalculatorConfig = {
             id: 'heart-troponin',
             title: 'Initial Troponin',
             icon: '🔬',
-            subtitle: 'Use local assay cutoffs',
+            subtitle: 'Use local, regular sensitivity troponin assays and corresponding cutoffs',
             options: [
-                { value: '0', label: '≤ normal limit', checked: true },
-                { value: '1', label: '1-3× normal limit' },
-                { value: '2', label: '> 3× normal limit' }
+                { value: '0', label: '≤normal limit', checked: true },
+                { value: '1', label: '1–3× normal limit' },
+                { value: '2', label: '>3× normal limit' }
             ]
         }
     ],

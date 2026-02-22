@@ -12,9 +12,9 @@ export const homaIrConfig: FormulaCalculatorConfig = {
         `<strong>Interpretation:</strong>` +
         uiBuilder.createList({
             items: [
-                '<strong>< 1.9:</strong> Optimal insulin sensitivity',
-                '<strong>1.9 - 2.9:</strong> Early insulin resistance is likely',
-                '<strong>> 2.9:</strong> High likelihood of insulin resistance'
+                '<strong>< 1.5:</strong> Optimal insulin sensitivity',
+                '<strong>1.5 - 2.5:</strong> Early insulin resistance is likely',
+                '<strong>> 2.5:</strong> High likelihood of insulin resistance'
             ]
         }),
     sections: [

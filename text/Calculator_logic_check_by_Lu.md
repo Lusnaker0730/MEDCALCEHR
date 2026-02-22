@@ -13,7 +13,7 @@
            apache-ii OK 新增 hct>= 46 1分
            apgar OK 無更改
            ariscat OK 無更改
-           ascvd *********需再確認************ 架構過大
+           ascvd *********需再確認************ 
            bacterial-meningitis-score OK 修改 gram stain 為 1分
            benzo-conversion OK 更改了換算表
            bmi bsa OK 無更改
@@ -45,6 +45,40 @@
            growth-chart *********需再確認************
            gupta-mica OK 更新計算權重
            gwtg-hf OK 更新計算權重
+           heart-score OK 更新描述
+           homa-ir OK 更新描述
+           h-score OK 無更改
+           ibw OK 無更改
+           intra-op fluid OK 保守性更動
+           isth-dic OK 無更改
+           kawasaki-score OK 增加 2D score
+           ldl OK 無更改
+           maggic OK 更正計算方式
+           maintenance-fluids OK 無更改
+           map OK 無更改
+           mdrd-gfr OK 無更改
+           meld-na OK 無更改
+           mews OK 無更改
+           mme OK 增加風險分類
+           nafld-fibrosis OK 無更改
+           nihss OK 優化選項描述
+           padua-vte OK 無更改
+           pecarn OK 更新圖片描述
+           pediatric BP OK 無更改
+           perc OK 無更改
+           phenytoin-correction OK 修正係數
+           phq-9 OK 無更改
+           precise-HBR OK 修正係數
+           qsofa OK 無更改
+           qtc OK 無更改
+           ranson OK 無更改
+           rcri OK 改善項目描述
+           regiscar OK 改善項目描述
+           anion-gap OK 增加 delta ratio 判讀
+           serum-osmolality OK 無更改
+           sex-shock OK 變數名稱改正
+           
+
            
            
 

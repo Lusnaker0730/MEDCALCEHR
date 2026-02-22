@@ -6,7 +6,7 @@ interface SexShockCoeffs {
     creatinine: number;
     st: number;
     lvef35to50: number;
-    lvefLess50: number;
+    lvefAbove50: number;
     age: number;
     arrest: number;
     killip: number;
@@ -23,7 +23,7 @@ const FEMALE_COEFFS: SexShockCoeffs = {
     creatinine: 0.6092,
     st: 0.0328,
     lvef35to50: -1.0953,
-    lvefLess50: -1.9474,
+    lvefAbove50: -1.9474,
     age: 0.1825,
     arrest: 1.2567,
     killip: 1.0503,
@@ -40,7 +40,7 @@ const MALE_COEFFS: SexShockCoeffs = {
     creatinine: 0.604,
     st: 0.768,
     lvef35to50: -1.2722,
-    lvefLess50: -2.0153,
+    lvefAbove50: -2.0153,
     age: 0.2635,
     arrest: 1.1459,
     killip: 0.6849,
@@ -89,27 +89,14 @@ export const calculateSexShock: SimpleCalculateFn = values => {
 
     Y += coeffs.st * st;
 
-    // LVEF adjustment
+    // LVEF adjustment (baseline = LVEF < 35%, no adjustment)
     if (lvef === 55) {
-        Y += coeffs.lvefLess50; // >50% (protective)  <-- Wait, logic in original was lvefLess50 for 55?
-        // Let's check original logic carefully.
-        // Original: if (lvef === 55) Y += coeffs.lvefLess50;
-        // Wait, 55 option label says "> 50%".
-        // coeffs.lvefLess50 is -2.0153 (Male) / -1.9474 (Female).
-        // If >50%, risk should be LOWER? The coefficient is negative, so risk decreases.
-        // But the variable name "lvefLess50" implies <50%.
-        // Let's check the other one:
-        // if (lvef === 42.5) Y += coeffs.lvef35to50;
-        // coeffs.lvef35to50 is -1.2722.
-        // coeffs.lvefLess50 is -2.0153.
-        // So 55 (>50%) gets a bigger negative (more protection) than 35-50%.
-        // So the usage is correct for the logic, but the variable name in original `SexShockCoeffs` might be confusing.
-        // In original FEMALE_COEFFS: lvefLess50: -1.9474.
-        // I will preserve exact original logic.
+        Y += coeffs.lvefAbove50; // LVEF > 50% (most protective)
     } else if (lvef === 42.5) {
-        Y += coeffs.lvef35to50; // 35-50%
+        Y += coeffs.lvef35to50; // LVEF 35–50%
     }
-    // lvef === 30 (<35%) is baseline, no adjustment
+    // lvef === 30 (< 35%) is the baseline reference, no adjustment
+
 
     Y += coeffs.age * age70;
     Y += coeffs.arrest * arrest;

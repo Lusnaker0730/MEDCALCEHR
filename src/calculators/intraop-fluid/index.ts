@@ -57,11 +57,11 @@ export const intraopFluidConfig: FormulaCalculatorConfig = {
                     label: 'Estimated severity of trauma to tissue',
                     options: [
                         {
-                            value: '4',
-                            label: 'Minimal (e.g. hernia repair, laparoscopy) (4 mL/kg/hr)'
+                            value: '3',
+                            label: 'Minimal (e.g. hernia repair, laparoscopy) (3 mL/kg/hr)'
                         },
-                        { value: '6', label: 'Moderate (e.g. open cholecystectomy) (6 mL/kg/hr)' },
-                        { value: '8', label: 'Severe (e.g. bowel resection) (8 mL/kg/hr)' }
+                        { value: '5', label: 'Moderate (e.g. open cholecystectomy) (5 mL/kg/hr)' },
+                        { value: '7', label: 'Severe (e.g. bowel resection) (7 mL/kg/hr)' }
                     ]
                 }
             ]
@@ -78,22 +78,22 @@ export const intraopFluidConfig: FormulaCalculatorConfig = {
     footerHTML: `
         <p class="text-sm text-muted mt-15">*Estimated fluid loss from surgical trauma:</p>
         ${uiBuilder.createTable({
-            headers: ['Severity', 'Example', 'Fluid Loss'],
-            rows: [
-                [
-                    'Minimal',
-                    'e.g. hernia repair, laparoscopy',
-                    '2-4 mL/kg/hr (calculator uses 4 mL/kg/hr)'
-                ],
-                [
-                    'Moderate',
-                    'e.g. open cholecystectomy, open appendectomy',
-                    '4-6 mL/kg/hr (calculator uses 6 mL/kg/hr)'
-                ],
-                ['Severe', 'e.g. bowel resection', '6-8 mL/kg/hr (calculator uses 8 mL/kg/hr)']
+        headers: ['Severity', 'Example', 'Fluid Loss'],
+        rows: [
+            [
+                'Minimal',
+                'e.g. hernia repair, laparoscopy',
+                '2-4 mL/kg/hr (calculator uses 3 mL/kg/hr)'
             ],
-            stickyFirstColumn: true
-        })}
+            [
+                'Moderate',
+                'e.g. open cholecystectomy, open appendectomy',
+                '4-6 mL/kg/hr (calculator uses 5 mL/kg/hr)'
+            ],
+            ['Severe', 'e.g. bowel resection', '6-8 mL/kg/hr (calculator uses 7 mL/kg/hr)']
+        ],
+        stickyFirstColumn: true
+    })}
     `,
     calculate: calculateIntraopFluid
 };
