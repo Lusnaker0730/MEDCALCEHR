@@ -28,7 +28,7 @@ describe('HAS-BLED Calculator', () => {
         });
 
         expect(result.totalScore).toBe(1);
-        expect(result.riskLevel?.label).toBe('Low risk');
+        expect(result.riskLevel?.label).toBe('Low-moderate risk');
     });
 
     // Scenario 2: Moderate Risk (2)

@@ -11,6 +11,7 @@ import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calcul
 import { uiBuilder } from '../../ui-builder.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { calculateEuroScoreII } from './calculation.js';
+import { fhirDataService } from '../../fhir-data-service.js';
 
 export const euroscoreII = createUnifiedFormulaCalculator({
     id: 'euroscore-ii',
@@ -282,24 +283,101 @@ export const euroscoreII = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-            title: 'Risk Stratification',
-            icon: '📊',
-            content: uiBuilder.createTable({
-                headers: ['Mortality', 'Risk Category'],
-                rows: [
-                    ['<2%', 'Low Risk'],
-                    ['2-5%', 'Moderate Risk'],
-                    ['5-10%', 'High Risk'],
-                    ['>10%', 'Very High Risk']
-                ]
-            })
-        })}
+        title: 'Risk Stratification',
+        icon: '📊',
+        content: uiBuilder.createTable({
+            headers: ['Mortality', 'Risk Category'],
+            rows: [
+                ['<2%', 'Low Risk'],
+                ['2-5%', 'Moderate Risk'],
+                ['5-10%', 'High Risk'],
+                ['>10%', 'Very High Risk']
+            ]
+        })
+    })}
 
         ${uiBuilder.createSection({
-            title: 'Reference',
-            icon: '📚',
-            content:
-                '<p>Nashef SA, et al. EuroSCORE II. <em>Eur J Cardiothorac Surg</em>. 2012;41(4):734-744.</p>'
-        })}
-    `
+        title: 'Reference',
+        icon: '📚',
+        content:
+            '<p>Nashef SA, et al. EuroSCORE II. <em>Eur J Cardiothorac Surg</em>. 2012;41(4):734-744.</p>'
+    })}
+    `,
+
+    customInitialize: async (client, patient, container, calculate) => {
+        if (!fhirDataService.isReady()) return;
+
+        // Auto-populate renal function (eGFR)
+        try {
+            const egfrResult = await fhirDataService.getObservation(LOINC_CODES.EGFR, {
+                trackStaleness: true,
+                stalenessLabel: 'es2-renal'
+            });
+
+            if (egfrResult.value !== null) {
+                // Round eGFR first
+                const egfr = Math.round(egfrResult.value);
+                let selectedRadioValue = '';
+
+                // Note: The UI options correspond to creatinine clearance but we are using eGFR as proxy
+                if (egfr > 85) {
+                    selectedRadioValue = 'normal';
+                } else if (egfr >= 51 && egfr <= 85) {
+                    selectedRadioValue = 'moderate';
+                } else if (egfr <= 50) {
+                    selectedRadioValue = 'severe'; // Dialysis requires separate detection, assuming severe here
+                }
+
+                if (selectedRadioValue) {
+                    const radio = container.querySelector(
+                        `input[name="es2-renal"][value="${selectedRadioValue}"]`
+                    ) as HTMLInputElement;
+
+                    if (radio) {
+                        radio.checked = true;
+                        // Dispatch change event to trigger calculation and UI update
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to auto-populate eGFR for EuroSCORE II', e);
+        }
+
+        // Auto-populate conditions
+        try {
+            // Check all condition codes in parallel
+            const conditionChecks = [
+                { id: 'es2-diabetes', code: SNOMED_CODES.DIABETES_TYPE_1 },
+                { id: 'es2-pulmonary', code: SNOMED_CODES.COPD },
+                { id: 'es2-recent-mi', code: SNOMED_CODES.MYOCARDIAL_INFARCTION },
+                { id: 'es2-arteriopathy', code: SNOMED_CODES.PERIPHERAL_ARTERY_DISEASE },
+                { id: 'es2-previous-surgery', code: SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY },
+                { id: 'es2-endocarditis', code: SNOMED_CODES.ENDOCARDITIS }
+            ];
+
+            const results = await Promise.all(
+                conditionChecks.map(async check => {
+                    const hasCondition = await fhirDataService.hasCondition([check.code]);
+                    return { id: check.id, hasCondition };
+                })
+            );
+
+            // Update UI based on results
+            results.forEach(result => {
+                if (result.hasCondition) {
+                    const radio = container.querySelector(
+                        `input[name="${result.id}"][value="1"]`
+                    ) as HTMLInputElement;
+
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            });
+        } catch (e) {
+            console.warn('Failed to auto-populate conditions for EuroSCORE II', e);
+        }
+    }
 });

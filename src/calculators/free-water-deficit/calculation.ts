@@ -3,47 +3,39 @@
 export const calculateFreeWaterDeficit: SimpleCalculateFn = values => {
     const weight = Number(values['fwd-weight']);
     const sodium = Number(values['fwd-sodium']);
-    const genderType = values['fwd-gender'] as string;
+    const desiredSodium = Number(values['fwd-desired-sodium']) || 140;
+    const sex = values['fwd-sex'] as string;
+    const ageRange = values['fwd-age-range'] as string;
 
-    if (!weight || !sodium || !genderType) return null;
+    if (!weight || !sodium || !sex || !ageRange || !desiredSodium) return null;
 
-    // TBW Factor based on gender/age
+    // TBW Factor based on gender/age range
     let tbwFactor = 0.6;
-    switch (genderType) {
-        case 'male':
-            tbwFactor = 0.6;
-            break;
-        case 'female':
-            tbwFactor = 0.5;
-            break;
-        case 'elderly':
-            tbwFactor = 0.5;
-            break;
-        case 'elderly_female':
-            tbwFactor = 0.45;
-            break;
-        case 'child':
-            tbwFactor = 0.6;
-            break;
+    if (ageRange === 'child') {
+        tbwFactor = 0.6; // Both male and female children are 0.6
+    } else if (ageRange === 'elderly') {
+        tbwFactor = sex === 'female' ? 0.45 : 0.5;
+    } else { // adult
+        tbwFactor = sex === 'female' ? 0.5 : 0.6;
     }
 
     const tbw = weight * tbwFactor;
-    const deficit = tbw * (sodium / 140 - 1);
+    const deficit = tbw * (sodium / desiredSodium - 1);
 
     // Determine status
     let status = '';
     let alertClass: 'success' | 'warning' | 'danger' | 'info' = 'info';
     let alertMsg = '';
 
-    if (sodium <= 140) {
+    if (sodium <= desiredSodium) {
         status = 'Not Indicated';
         alertClass = 'warning';
-        alertMsg = 'Calculation intended for hypernatremia (Na > 140).';
+        alertMsg = `Calculation intended for hypernatremia (Na > ${desiredSodium}).`;
     } else {
         status = 'Hypernatremia';
         alertClass = 'danger';
         alertMsg =
-            'Correction should be slow (e.g., over 48-72 hours) to avoid cerebral edema. Max rate ~0.5 mEq/L/hr.';
+            'Sufficient free water should be provided either orally or intravenously (e.g., 5% dextrose) to correct the serum sodium by up to 10 mEq/L in the first 24 hours.';
     }
 
     return [

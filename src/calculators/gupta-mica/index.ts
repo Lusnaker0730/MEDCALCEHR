@@ -54,11 +54,11 @@ const config: FormulaCalculatorConfig = {
                     helpText: 'Physical status classification',
                     loincCode: LOINC_CODES.ASA_PHYSICAL_STATUS,
                     options: [
-                        { value: '-6.17', label: 'Class 1 - Normal healthy patient' },
+                        { value: '-5.17', label: 'Class 1 - Normal healthy patient' },
                         { value: '-3.29', label: 'Class 2 - Mild systemic disease' },
-                        { value: '1.80', label: 'Class 3 - Severe systemic disease' },
+                        { value: '-1.92', label: 'Class 3 - Severe systemic disease' },
                         {
-                            value: '4.29',
+                            value: '-0.95',
                             label: 'Class 4 - Severe systemic disease (threat to life)'
                         },
                         { value: '0', label: 'Class 5 - Moribund' }
@@ -89,23 +89,27 @@ const config: FormulaCalculatorConfig = {
                     id: 'mica-procedure',
                     label: 'Surgical Procedure Type',
                     options: [
-                        { value: '-0.74', label: 'Urology' },
-                        { value: '-1.63', label: 'Breast' },
+                        { value: '-0.16', label: 'Anorectal' },
+                        { value: '1.60', label: 'Aortic' },
                         { value: '-0.25', label: 'Bariatric' },
-                        { value: '0', label: 'Hernia (ventral, inguinal, femoral)' },
-                        { value: '0.14', label: 'Skin' },
-                        { value: '0.59', label: 'Neck (thyroid/parathyroid)' },
-                        { value: '0.59', label: 'Gallbladder, appendix, intestine, or colon' },
-                        { value: '0.60', label: 'Orthopedic and non-vascular extremity' },
-                        { value: '0.63', label: 'Non-neurological thoracic' },
+                        { value: '1.40', label: 'Brain' },
+                        { value: '-1.61', label: 'Breast' },
+                        { value: '1.01', label: 'Cardiac' },
                         { value: '0.71', label: 'ENT (except thyroid/parathyroid)' },
-                        { value: '0.74', label: 'Spine' },
-                        { value: '0.96', label: 'Peripheral vascular' },
-                        { value: '1.13', label: 'Other abdominal' },
-                        { value: '1.14', label: 'Intestinal' },
-                        { value: '1.31', label: 'Cardiac' },
                         { value: '1.39', label: 'Foregut or hepatopancreaticobiliary' },
-                        { value: '1.48', label: 'Brain' }
+                        { value: '0.59', label: 'Gallbladder, appendix, adrenals, or spleen' },
+                        { value: '0', label: 'Hernia (ventral, inguinal, femoral)' },
+                        { value: '1.14', label: 'Intestinal' },
+                        { value: '0.18', label: 'Neck (thyroid/parathyroid)' },
+                        { value: '0.76', label: 'Obstetric/gynecologic' },
+                        { value: '0.80', label: 'Orthopedic and non-vascular extremity' },
+                        { value: '1.13', label: 'Other abdominal' },
+                        { value: '0.86', label: 'Peripheral vascular' },
+                        { value: '0.54', label: 'Skin' },
+                        { value: '0.21', label: 'Spine' },
+                        { value: '0.40', label: 'Non-esophageal thoracic' },
+                        { value: '-1.09', label: 'Vein' },
+                        { value: '-0.26', label: 'Urology' }
                     ]
                 }
             ]
@@ -258,10 +262,10 @@ const config: FormulaCalculatorConfig = {
                     // Map ASA Class (1-5) to Gupta MICA values
                     const asaClass = Math.round(asaResult.value);
                     const mapping: Record<number, string> = {
-                        1: '-6.17', // Class 1
+                        1: '-5.17', // Class 1
                         2: '-3.29', // Class 2
-                        3: '1.80',  // Class 3
-                        4: '4.29',  // Class 4
+                        3: '-1.92', // Class 3
+                        4: '-0.95', // Class 4
                         5: '0'      // Class 5
                     };
 

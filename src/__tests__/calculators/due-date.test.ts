@@ -21,7 +21,7 @@ describe('Due Date Calculator Logic', () => {
     test('LMP today (0 weeks GA)', () => {
         // LMP: 2023-10-01
         // We must pass a new clone of FIXED_NOW because the function mutates it (setHours)
-        const result = calculatePregnancyDates('2023-10-01', new Date(FIXED_NOW));
+        const result = calculatePregnancyDates('lmp', 28, '2023-10-01', 0, 0, new Date(FIXED_NOW));
 
         expect(result).not.toBeNull();
         expect(result?.gaWeeks).toBe(0);
@@ -45,7 +45,7 @@ describe('Due Date Calculator Logic', () => {
         lmp.setDate(lmp.getDate() - 70);
         const lmpStr = formatLocalDate(lmp); // Use local date format to avoid timezone issues
 
-        const result = calculatePregnancyDates(lmpStr, new Date(FIXED_NOW));
+        const result = calculatePregnancyDates('lmp', 28, lmpStr, 0, 0, new Date(FIXED_NOW));
         expect(result?.gaWeeks).toBe(10);
         expect(result?.gaDays).toBe(0);
         expect(result?.diffDays).toBe(70);
@@ -56,13 +56,13 @@ describe('Due Date Calculator Logic', () => {
         future.setDate(future.getDate() + 10);
         const lmpStr = formatLocalDate(future); // Use local date format to avoid timezone issues
 
-        const result = calculatePregnancyDates(lmpStr, new Date(FIXED_NOW));
+        const result = calculatePregnancyDates('lmp', 28, lmpStr, 0, 0, new Date(FIXED_NOW));
         expect(result?.diffDays).toBe(-10);
         expect(result?.gaWeeks).toBe(-2); // -1.4 -> -2 weeks floor? No, floor(-10/7) = -2 (since -1.42). Correct.
     });
 
     test('Invalid Date String', () => {
-        const result = calculatePregnancyDates('invalid-date', new Date(FIXED_NOW));
+        const result = calculatePregnancyDates('lmp', 28, 'invalid-date', 0, 0, new Date(FIXED_NOW));
         expect(result).toBeNull();
     });
 });

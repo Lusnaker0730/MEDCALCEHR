@@ -4,8 +4,8 @@ export const calculateGuptaMica: SimpleCalculateFn = values => {
     const age = values['mica-age'] ? parseFloat(values['mica-age'] as string) : null;
     const creat = values['mica-creat'] ? parseFloat(values['mica-creat'] as string) : null;
     const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
-    const asaClass = parseFloat((values['mica-asa'] as string) || '-6.17');
-    const procedure = parseFloat((values['mica-procedure'] as string) || '-0.74');
+    const asaClass = parseFloat((values['mica-asa'] as string) || '-5.17');
+    const procedure = parseFloat((values['mica-procedure'] as string) || '0');
 
     if (age === null || creat === null) {
         return [];

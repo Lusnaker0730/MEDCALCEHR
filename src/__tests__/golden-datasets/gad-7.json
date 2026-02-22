@@ -15,11 +15,19 @@
         "gad7-q3": "0",
         "gad7-q4": "0",
         "gad7-q5": "0",
-        "gad7-q6": "0"
+        "gad7-q6": "0",
+        "gad7-q7": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 0, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Minimal anxiety" }
+        {
+          "label": "Total Score",
+          "value": 0,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk",
+          "value": "Minimal anxiety disorder."
+        }
       ]
     },
     {
@@ -33,11 +41,19 @@
         "gad7-q3": "1",
         "gad7-q4": "0",
         "gad7-q5": "0",
-        "gad7-q6": "0"
+        "gad7-q6": "0",
+        "gad7-q7": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 4, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Minimal anxiety" }
+        {
+          "label": "Total Score",
+          "value": 4,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk",
+          "value": "Minimal anxiety disorder."
+        }
       ]
     },
     {
@@ -51,11 +67,19 @@
         "gad7-q3": "1",
         "gad7-q4": "1",
         "gad7-q5": "1",
-        "gad7-q6": "0"
+        "gad7-q6": "0",
+        "gad7-q7": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 8, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Mild anxiety" }
+        {
+          "label": "Total Score",
+          "value": 8,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk",
+          "value": "Mild anxiety disorder."
+        }
       ]
     },
     {
@@ -69,11 +93,19 @@
         "gad7-q3": "2",
         "gad7-q4": "2",
         "gad7-q5": "2",
-        "gad7-q6": "1"
+        "gad7-q6": "1",
+        "gad7-q7": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 13, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Moderate anxiety" }
+        {
+          "label": "Total Score",
+          "value": 13,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk",
+          "value": "Moderate anxiety disorder."
+        }
       ]
     },
     {
@@ -87,11 +119,19 @@
         "gad7-q3": "3",
         "gad7-q4": "3",
         "gad7-q5": "3",
-        "gad7-q6": "3"
+        "gad7-q6": "3",
+        "gad7-q7": "0"
       },
       "expected": [
-        { "label": "Total Score", "value": 21, "tolerance": 0 },
-        { "label": "Risk Level", "value": "Severe anxiety" }
+        {
+          "label": "Total Score",
+          "value": 21,
+          "tolerance": 0
+        },
+        {
+          "label": "Risk",
+          "value": "Severe anxiety disorder."
+        }
       ]
     }
   ]

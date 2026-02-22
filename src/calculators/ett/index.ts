@@ -46,7 +46,7 @@ export const ettConfig: FormulaCalculatorConfig = {
     formulas: [
         {
             label: 'ETT Depth (at lips)',
-            formula: 'Height (cm) / 10 + 5',
+            formula: 'Height (cm) / 10 + 4',
             notes: 'Estimates depth of tube at the lips in cm'
         },
         { label: 'IBW (Male)', formula: '50 + 2.3 × (Height in inches - 60)' },
@@ -61,12 +61,12 @@ export const ettConfig: FormulaCalculatorConfig = {
         <div class="info-section">
             <h4>📋 Clinical Pearls</h4>
             ${uiBuilder.createList({
-                items: [
-                    'Confirm ETT placement with capnography and chest X-ray',
-                    'Tube tip should be 3-5 cm above the carina',
-                    'Use lung-protective ventilation (6-8 mL/kg IBW) for ARDS patients'
-                ]
-            })}
+        items: [
+            'Confirm ETT placement with capnography and chest X-ray',
+            'Tube tip should be 3-5 cm above the carina',
+            'Use lung-protective ventilation (6-8 mL/kg IBW) for ARDS patients'
+        ]
+    })}
         </div>
     `,
     autoPopulateGender: 'ett-gender',

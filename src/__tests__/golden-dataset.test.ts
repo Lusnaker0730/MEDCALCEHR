@@ -60,7 +60,6 @@ import { calculateABL } from '../calculators/abl/calculation.js';
 import { calculateFourPeps } from '../calculators/4peps/calculation.js';
 import { calculate6MWD } from '../calculators/6mwd/calculation.js';
 import { calculateBwps } from '../calculators/bwps/calculation.js';
-import { calculateEthanolConcentration } from '../calculators/ethanol-concentration/calculation.js';
 import { calculateETT } from '../calculators/ett/calculation.js';
 import { calculateGuptaMica } from '../calculators/gupta-mica/calculation.js';
 import { calculateGwtgHf } from '../calculators/gwtg-hf/calculation.js';
@@ -331,7 +330,6 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
     '4peps': calculateFourPeps,
     '6mwd': calculate6MWD,
     'bwps': calculateBwps,
-    'ethanol-concentration': calculateEthanolConcentration,
     'ett': calculateETT,
     'gupta-mica': calculateGuptaMica,
     'gwtg-hf': calculateGwtgHf,

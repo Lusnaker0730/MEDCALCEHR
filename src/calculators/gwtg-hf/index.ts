@@ -91,8 +91,8 @@ const config: FormulaCalculatorConfig = {
                     helpText:
                         'Race may/may not provide better estimates of in-hospital mortality; optional',
                     options: [
-                        { value: '0', label: 'No (0)', checked: true },
-                        { value: '-3', label: 'Yes (-3)' }
+                        { value: '0', label: 'Yes (0)', checked: true },
+                        { value: '3', label: 'No (+3)' }
                     ]
                 }
             ]

@@ -58,16 +58,36 @@ export const freeWaterDeficitConfig: FormulaCalculatorConfig = {
                 },
                 {
                     type: 'radio',
-                    id: 'fwd-gender',
-                    label: 'Gender / Type',
+                    id: 'fwd-sex',
+                    label: 'Sex',
                     options: [
-                        { value: 'male', label: 'Adult Male', checked: true },
-                        { value: 'female', label: 'Adult Female' },
-                        { value: 'elderly', label: 'Elderly Male' },
-                        { value: 'elderly_female', label: 'Elderly Female' },
-                        { value: 'child', label: 'Child' }
-                    ],
-                    helpText: 'Determines Total Body Water (TBW) factor.'
+                        { value: 'female', label: 'Female', checked: true },
+                        { value: 'male', label: 'Male' }
+                    ]
+                },
+                {
+                    type: 'radio',
+                    id: 'fwd-age-range',
+                    label: 'Age range',
+                    options: [
+                        { value: 'child', label: 'Child' },
+                        { value: 'adult', label: 'Adult', checked: true },
+                        { value: 'elderly', label: 'Elderly' }
+                    ]
+                },
+                {
+                    type: 'number',
+                    id: 'fwd-desired-sodium',
+                    label: 'Sodium desired',
+                    placeholder: 'e.g., 140',
+                    unitConfig: {
+                        type: 'sodium',
+                        units: ['mEq/L', 'mmol/L'],
+                        default: 'mEq/L'
+                    },
+                    validationType: 'sodium',
+                    standardUnit: 'mEq/L',
+                    required: true
                 }
             ]
         }
@@ -76,14 +96,14 @@ export const freeWaterDeficitConfig: FormulaCalculatorConfig = {
         {
             label: 'Free Water Deficit (L)',
             formula:
-                'TBW × (<span class="formula-fraction"><span class="numerator">Current Na</span><span class="denominator">140</span></span> − 1)'
+                '% total body water × Weight × (<span class="formula-fraction"><span class="numerator">Current Na</span><span class="denominator">Ideal Na</span></span> − 1)'
         },
         {
             label: 'TBW (Total Body Water)',
             formula: 'Weight (kg) × Factor'
         }
     ],
-    autoPopulateGender: 'fwd-gender',
+    autoPopulateGender: 'fwd-sex',
     calculate: calculateFreeWaterDeficit,
     customResultRenderer: results => {
         const deficitResult = results[0];

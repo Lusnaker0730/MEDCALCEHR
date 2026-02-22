@@ -15,37 +15,37 @@ export const cpisConfig: ScoringCalculatorConfig = {
     sections: [
         {
             id: 'cpis-temperature',
-            title: 'Temperature',
+            title: 'Temperature (°C)',
             subtitle: 'Core body temperature',
             options: [
-                { value: '0', label: '36.5-38.4°C (0)', checked: true },
-                { value: '1', label: '38.5-38.9°C (+1)' },
-                { value: '2', label: '≥39 or ≤36°C (+2)' }
+                { value: '0', label: '36.5-38.4 (0)', checked: true },
+                { value: '1', label: '38.5-38.9 (+1)' },
+                { value: '2', label: '≥39.0 or ≤36.0 (+2)' }
             ]
         },
         {
             id: 'cpis-wbc',
-            title: 'White Blood Cell Count',
+            title: 'White blood cell count',
             subtitle: 'WBC count and band forms',
             options: [
-                { value: '0', label: '4-11 × 10³/μL (0)', checked: true },
-                { value: '1', label: '<4 or >11 × 10³/μL (+1)' },
-                { value: '2', label: '<4 or >11 + bands ≥50% (+2)' }
+                { value: '0', label: '4-11 (0)', checked: true },
+                { value: '1', label: '<4 or >11 (+1)' },
+                { value: '2', label: 'Either <4 or >11 plus band forms ≥500 (+2)' }
             ]
         },
         {
             id: 'cpis-secretions',
-            title: 'Tracheal Secretions',
+            title: 'Tracheal secretions',
             subtitle: 'Amount and purulence',
             options: [
-                { value: '0', label: 'Few (0)', checked: true },
-                { value: '1', label: 'Moderate (+1)' },
-                { value: '2', label: 'Large/Purulent (+2)' }
+                { value: '0', label: '<14+ (0)', checked: true },
+                { value: '1', label: '≥14+ (+1)' },
+                { value: '2', label: '≥14+ plus purulent secretions (+2)' }
             ]
         },
         {
             id: 'cpis-oxygenation',
-            title: 'Oxygenation: PaO₂/FiO₂ (mmHg)',
+            title: 'Oxygenation, PaO₂/FiO₂ mm Hg',
             subtitle: 'Arterial oxygen partial pressure to fractional inspired oxygen ratio',
             options: [
                 { value: '0', label: '>240 or ARDS (0)', checked: true },
@@ -54,22 +54,22 @@ export const cpisConfig: ScoringCalculatorConfig = {
         },
         {
             id: 'cpis-chest_xray',
-            title: 'Chest Radiograph Infiltrate',
+            title: 'Pulmonary radiography',
             subtitle: 'Pattern on chest imaging',
             options: [
                 { value: '0', label: 'No infiltrate (0)', checked: true },
-                { value: '1', label: 'Diffuse (+1)' },
-                { value: '2', label: 'Localized (+2)' }
+                { value: '1', label: 'Diffuse or patchy infiltrate (+1)' },
+                { value: '2', label: 'Localized infiltrate (+2)' }
             ]
         },
         {
             id: 'cpis-culture',
-            title: 'Culture of Tracheal Aspirate',
-            subtitle: 'Semi-quantitative culture result',
+            title: 'Culture of tracheal aspirate specimen',
+            subtitle: 'Semi-quantitative, 0, 1, 2, or 3+',
             options: [
-                { value: '0', label: 'No/Few pathogens (0)', checked: true },
-                { value: '1', label: 'Moderate/Many (+1)' },
-                { value: '2', label: 'Same on Gram stain (+2)' }
+                { value: '0', label: 'Pathogenic bacteria cultured ≤1 or no growth (0)', checked: true },
+                { value: '1', label: 'Pathogenic bacteria cultured >1+ (+1)' },
+                { value: '2', label: 'Pathogenic bacteria cultured >1+ plus same pathogenic bacteria on gram stain >1+ (+2)' }
             ]
         }
     ],
@@ -102,20 +102,20 @@ export const cpisConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'CPIS Score',
-                value: score.toString(),
-                unit: 'points',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertType}`
-            })}
+            label: 'CPIS Score',
+            value: score.toString(),
+            unit: 'points',
+            interpretation: interpretation,
+            alertClass: `ui-alert-${alertType}`
+        })}
             ${uiBuilder.createAlert({
-                type: alertType,
-                message: `<strong>Interpretation:</strong> ${detail}`
-            })}
+            type: alertType,
+            message: `<strong>Interpretation:</strong> ${detail}`
+        })}
             ${uiBuilder.createSection({
-                title: 'Management Considerations',
-                content: management
-            })}
+            title: 'Management Considerations',
+            content: management
+        })}
         `;
     },
     customInitialize: (

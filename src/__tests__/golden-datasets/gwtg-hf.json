@@ -1,57 +1,133 @@
 {
   "calculatorId": "gwtg-hf",
   "calculatorName": "GWTG-HF Mortality Risk Score",
-  "version": "1.0",
+  "version": "2.0",
   "calculatorType": "simple",
   "cases": [
     {
       "id": "GD-GWTG-001",
       "description": "Low risk - young, stable vitals",
-      "source": "SBP 130 (5pts, >=130<140) + BUN 15 (0pts, <20) + Na 140 (2pts, >135) + Age 45 (7pts, <50) + HR 70 (1pt, <80) = 15",
-      "inputs": { "gwtg-sbp": 130, "gwtg-bun": 15, "gwtg-sodium": 140, "gwtg-age": 45, "gwtg-hr": 70 },
+      "source": "SBP 130 (13pts, 130-139) + BUN 15 (2pts, 10-19) + Na 140 (0pts, >=139) + Age 45 (8pts, 40-49) + HR 70 (0pts, <=79) = 23",
+      "inputs": {
+        "gwtg-sbp": 130,
+        "gwtg-bun": 15,
+        "gwtg-sodium": 140,
+        "gwtg-age": 45,
+        "gwtg-hr": 70
+      },
       "expected": [
-        { "label": "GWTG-HF Score", "value": "15", "unit": "points", "tolerance": 1 },
-        { "label": "In-hospital Mortality", "value": "<1%", "tolerance": 0 }
+        {
+          "label": "GWTG-HF Score",
+          "value": "23",
+          "unit": "points",
+          "tolerance": 1
+        },
+        {
+          "label": "In-hospital Mortality",
+          "value": "<1%",
+          "tolerance": 0
+        }
       ]
     },
     {
       "id": "GD-GWTG-002",
       "description": "Moderate risk - elderly with elevated BUN",
-      "source": "SBP 110 (14pts, >=110<120) + BUN 45 (13pts, >=40<50) + Na 138 (2pts, >135) + Age 75 (28pts, >=70<80) + HR 95 (5pts, >=90<100) = 62",
-      "inputs": { "gwtg-sbp": 110, "gwtg-bun": 45, "gwtg-sodium": 138, "gwtg-age": 75, "gwtg-hr": 95 },
+      "source": "SBP 110 (17pts, 110-119) + BUN 45 (8pts, 40-49) + Na 138 (1pt, 137-138) + Age 75 (17pts, 70-79) + HR 95 (5pts, 95-99) = 48",
+      "inputs": {
+        "gwtg-sbp": 110,
+        "gwtg-bun": 45,
+        "gwtg-sodium": 138,
+        "gwtg-age": 75,
+        "gwtg-hr": 95
+      },
       "expected": [
-        { "label": "GWTG-HF Score", "value": "62", "unit": "points", "tolerance": 1 },
-        { "label": "In-hospital Mortality", "value": "15-20%", "tolerance": 0 }
+        {
+          "label": "GWTG-HF Score",
+          "value": "48",
+          "unit": "points",
+          "tolerance": 1
+        },
+        {
+          "label": "In-hospital Mortality",
+          "value": "1-5%",
+          "tolerance": 0
+        }
       ]
     },
     {
       "id": "GD-GWTG-003",
       "description": "High risk - hypotension, renal failure",
-      "source": "SBP 85 (28pts, <90) + BUN 75 (28pts, >=70) + Na 132 (0pts, <=135) + Age 80 (28pts, >=80) + HR 110 (8pts, >=110) = 92",
-      "inputs": { "gwtg-sbp": 85, "gwtg-bun": 75, "gwtg-sodium": 132, "gwtg-age": 80, "gwtg-hr": 110 },
+      "source": "SBP 85 (23pts, 80-89) + BUN 75 (13pts, 70-79) + Na 132 (3pts, 131-133) + Age 80 (19pts, 80-89) + HR 110 (8pts, >=105) = 66",
+      "inputs": {
+        "gwtg-sbp": 85,
+        "gwtg-bun": 75,
+        "gwtg-sodium": 132,
+        "gwtg-age": 80,
+        "gwtg-hr": 110
+      },
       "expected": [
-        { "label": "GWTG-HF Score", "value": "92", "unit": "points", "tolerance": 1 },
-        { "label": "In-hospital Mortality", "value": ">50%", "tolerance": 0 }
+        {
+          "label": "GWTG-HF Score",
+          "value": "66",
+          "unit": "points",
+          "tolerance": 1
+        },
+        {
+          "label": "In-hospital Mortality",
+          "value": "20-30%",
+          "tolerance": 0
+        }
       ]
     },
     {
       "id": "GD-GWTG-004",
-      "description": "Stable hemodynamics, elevated sodium",
-      "source": "SBP 140 (0pts, >=140) + BUN 20 (4pts, >=20<30) + Na 142 (4pts, >140) + Age 60 (21pts, >=60<70) + HR 80 (3pts, >=80<90) = 32",
-      "inputs": { "gwtg-sbp": 140, "gwtg-bun": 20, "gwtg-sodium": 142, "gwtg-age": 60, "gwtg-hr": 80 },
+      "description": "Stable hemodynamics with high sodium",
+      "source": "SBP 140 (11pts, 140-149) + BUN 20 (4pts, 20-29) + Na 142 (0pts, >=139) + Age 60 (14pts, 60-69) + HR 80 (1pt, 80-84) = 30",
+      "inputs": {
+        "gwtg-sbp": 140,
+        "gwtg-bun": 20,
+        "gwtg-sodium": 142,
+        "gwtg-age": 60,
+        "gwtg-hr": 80
+      },
       "expected": [
-        { "label": "GWTG-HF Score", "value": "32", "unit": "points", "tolerance": 1 },
-        { "label": "In-hospital Mortality", "value": "<1%", "tolerance": 0 }
+        {
+          "label": "GWTG-HF Score",
+          "value": "30",
+          "unit": "points",
+          "tolerance": 1
+        },
+        {
+          "label": "In-hospital Mortality",
+          "value": "<1%",
+          "tolerance": 0
+        }
       ]
     },
     {
       "id": "GD-GWTG-005",
       "description": "With COPD comorbidity",
-      "source": "SBP 120 (9pts, >=120<130) + BUN 30 (9pts, >=30<40) + Na 136 (2pts, >135) + Age 70 (28pts, >=70<80) + HR 90 (5pts, >=90<100) + COPD (2pts) = 55",
-      "inputs": { "gwtg-sbp": 120, "gwtg-bun": 30, "gwtg-sodium": 136, "gwtg-age": 70, "gwtg-hr": 90, "copd": "2" },
+      "source": "SBP 120 (15pts, 120-129) + BUN 30 (6pts, 30-39) + Na 136 (2pts, 134-136) + Age 70 (17pts, 70-79) + HR 90 (4pts, 90-94) + COPD (2pts) = 46",
+      "inputs": {
+        "gwtg-sbp": 120,
+        "gwtg-bun": 30,
+        "gwtg-sodium": 136,
+        "gwtg-age": 70,
+        "gwtg-hr": 90,
+        "copd": "2"
+      },
       "expected": [
-        { "label": "GWTG-HF Score", "value": "55", "unit": "points", "tolerance": 1 },
-        { "label": "In-hospital Mortality", "value": "5-10%", "tolerance": 0 }
+        {
+          "label": "GWTG-HF Score",
+          "value": "46",
+          "unit": "points",
+          "tolerance": 1
+        },
+        {
+          "label": "In-hospital Mortality",
+          "value": "1-5%",
+          "tolerance": 0
+        }
       ]
     }
   ]

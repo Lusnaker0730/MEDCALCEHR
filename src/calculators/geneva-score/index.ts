@@ -14,10 +14,10 @@ import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js'
 
 const config: FormulaCalculatorConfig = {
     id: 'geneva-score',
-    title: 'Revised Geneva Score (Simplified)',
+    title: 'Revised Geneva Score',
     description: 'Estimates the pre-test probability of pulmonary embolism (PE).',
     infoAlert:
-        '<strong>Note:</strong> This is the Simplified (Modified) Revised Geneva Score. Each criterion is worth 1 point (except heart rate scoring).',
+        '<strong>Note:</strong> This is the standard Revised Geneva Score. The original Geneva Score requires ABG and CXR, and the Simplified version uses only 1 point per criterion. This standard version weights clinical features differently based on statistical power.',
 
     autoPopulateAge: 'geneva-age',
 
@@ -38,31 +38,31 @@ const config: FormulaCalculatorConfig = {
                 {
                     type: 'radio',
                     id: 'geneva-prev-dvt',
-                    label: 'Previous DVT or PE (+1)',
+                    label: 'Previous DVT or PE (+3)',
                     snomedCode: `${SNOMED_CODES.DEEP_VEIN_THROMBOSIS},${SNOMED_CODES.PULMONARY_EMBOLISM}`,
                     options: [
                         { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes' }
+                        { value: '3', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
                     id: 'geneva-surgery',
-                    label: 'Surgery or fracture within 1 month (+1)',
+                    label: 'Surgery or fracture within 1 month (+2)',
                     snomedCode: SNOMED_CODES.FRACTURE,
                     options: [
                         { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes' }
+                        { value: '2', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
                     id: 'geneva-malignancy',
-                    label: 'Active malignancy (+1)',
+                    label: 'Active malignancy (+2)',
                     snomedCode: SNOMED_CODES.MALIGNANCY,
                     options: [
                         { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes' }
+                        { value: '2', label: 'Yes' }
                     ]
                 }
             ]
@@ -74,29 +74,29 @@ const config: FormulaCalculatorConfig = {
                 {
                     type: 'radio',
                     id: 'geneva-limb-pain',
-                    label: 'Unilateral lower limb pain (+1)',
+                    label: 'Unilateral lower limb pain (+3)',
                     options: [
                         { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes' }
+                        { value: '3', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
                     id: 'geneva-hemoptysis',
-                    label: 'Hemoptysis (+1)',
+                    label: 'Hemoptysis (+2)',
                     snomedCode: SNOMED_CODES.HEMOPTYSIS,
                     options: [
                         { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes' }
+                        { value: '2', label: 'Yes' }
                     ]
                 },
                 {
                     type: 'radio',
                     id: 'geneva-palpation',
-                    label: 'Pain on deep vein palpation AND unilateral edema (+1)',
+                    label: 'Pain on deep vein palpation AND unilateral edema (+4)',
                     options: [
                         { value: '0', label: 'No', checked: true },
-                        { value: '1', label: 'Yes' }
+                        { value: '4', label: 'Yes' }
                     ]
                 }
             ]
@@ -111,7 +111,7 @@ const config: FormulaCalculatorConfig = {
                     label: 'Heart Rate',
                     unit: 'bpm',
                     placeholder: 'Enter heart rate',
-                    helpText: '75-94 bpm (+1), ≥ 95 bpm (+2)',
+                    helpText: '75-94 bpm (+3), ≥ 95 bpm (+5)',
                     validationType: 'heartRate',
                     loincCode: LOINC_CODES.HEART_RATE
                 }
@@ -125,32 +125,32 @@ const config: FormulaCalculatorConfig = {
         calculationNote: 'Addition of the selected points:',
         scoringCriteria: [
             { criteria: 'Age > 65 years', points: '+1' },
-            { criteria: 'Previous DVT or PE', points: '+1' },
-            { criteria: 'Surgery or fracture within 1 month', points: '+1' },
-            { criteria: 'Active malignancy', points: '+1' },
-            { criteria: 'Unilateral lower limb pain', points: '+1' },
-            { criteria: 'Hemoptysis', points: '+1' },
-            { criteria: 'Pain on deep vein palpation AND unilateral edema', points: '+1' },
-            { criteria: 'Heart Rate 75-94 bpm', points: '+1' },
-            { criteria: 'Heart Rate ≥ 95 bpm', points: '+2' }
+            { criteria: 'Previous DVT or PE', points: '+3' },
+            { criteria: 'Surgery or fracture within 1 month', points: '+2' },
+            { criteria: 'Active malignancy', points: '+2' },
+            { criteria: 'Unilateral lower limb pain', points: '+3' },
+            { criteria: 'Hemoptysis', points: '+2' },
+            { criteria: 'Pain on deep vein palpation AND unilateral edema', points: '+4' },
+            { criteria: 'Heart Rate 75-94 bpm', points: '+3' },
+            { criteria: 'Heart Rate ≥ 95 bpm', points: '+5' }
         ],
         interpretations: [
             {
-                score: '0-1',
+                score: '0-3',
                 category: 'Low Risk',
-                interpretation: 'PE unlikely (8%)',
+                interpretation: 'PE unlikely (7-9% incidence)',
                 severity: 'success'
             },
             {
-                score: '2-4',
+                score: '4-10',
                 category: 'Intermediate Risk',
-                interpretation: 'PE possible (28%)',
+                interpretation: 'PE possible (28% incidence)',
                 severity: 'warning'
             },
             {
-                score: '≥5',
+                score: '≥11',
                 category: 'High Risk',
-                interpretation: 'PE likely (74%)',
+                interpretation: 'PE likely (74% incidence)',
                 severity: 'danger'
             }
         ]

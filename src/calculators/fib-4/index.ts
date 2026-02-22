@@ -69,32 +69,35 @@ export const fib4 = createUnifiedFormulaCalculator({
     autoPopulateAge: 'fib4-age',
     calculate: fib4Calculation,
     customResultRenderer: results => {
-        const res = results[0];
+        const res = results[0] as any;
         if (!res) return '';
 
-        const alertClass = res.alertClass || 'info';
+        const score = res.value;
+        const interp = res.ageInterpretation || '';
+        const alertClass = res.ageAlertClass || 'info';
+        const ishakStage = res.ishakStage || '';
 
-        let recommendation = '';
-        if (alertClass === 'success') {
-            recommendation = 'Continue routine monitoring.';
-        } else if (alertClass === 'danger') {
-            recommendation = 'Referral to hepatology recommended. Consider FibroScan or biopsy.';
-        } else {
-            recommendation = 'Further evaluation needed (e.g. FibroScan, elastography).';
-        }
+        const footnote = '*Use with caution in patients <35 or >65 years old, as the score has been shown to be less reliable in these patients.';
 
         return `
             ${uiBuilder.createResultItem({
-                label: res.label,
-                value: res.value,
-                unit: res.unit,
-                interpretation: res.interpretation,
-                alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
-            })}
-            ${uiBuilder.createAlert({
-                type: alertClass as 'success' | 'warning' | 'danger' | 'info',
-                message: `<strong>Recommendation:</strong> ${recommendation}`
-            })}
+            label: 'FIB-4 Score',
+            value: score,
+            unit: 'points'
+        })}
+            ${uiBuilder.createResultItem({
+            label: 'Age-Specific Interpretation',
+            value: interp,
+            alertClass: `ui-alert-${alertClass}`
+        })}
+            ${uiBuilder.createResultItem({
+            label: 'Approximate Fibrosis Stage*',
+            value: `Stage ${ishakStage}`,
+            interpretation: 'Based on Ishak fibrosis staging'
+        })}
+            <div class="result-footnote mt-3 text-muted" style="font-size: 0.85em;">
+                ${footnote}
+            </div>
         `;
     }
 });

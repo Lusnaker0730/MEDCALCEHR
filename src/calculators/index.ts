@@ -116,11 +116,6 @@ export const calculatorModules: CalculatorMetadata[] = [
     { id: 'curb-65', title: 'CURB-65 Score for Pneumonia Severity', category: 'respiratory' },
     { id: 'dasi', title: 'Duke Activity Status Index (DASI)', category: 'cardiovascular' },
     { id: 'due-date', title: 'Due Date Calculator', category: 'obstetrics' },
-    {
-        id: 'ethanol-concentration',
-        title: 'Ethanol Concentration Conversion',
-        category: 'metabolic'
-    },
     { id: 'ett', title: 'ETT Depth and Tidal Volume Calculator', category: 'respiratory' },
     {
         id: 'euroscore-ii',

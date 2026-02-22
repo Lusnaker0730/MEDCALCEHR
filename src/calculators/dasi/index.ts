@@ -21,54 +21,54 @@ export const dasiConfig: ScoringCalculatorConfig = {
             options: [
                 {
                     id: 'dasi-care',
-                    label: 'Can you take care of yourself (eating, dressing, bathing, using toilet)?',
+                    label: 'Take care of self (e.g. eating, dressing, bathing, using the toilet)',
                     value: 2.75
                 },
                 {
                     id: 'dasi-walk-indoors',
-                    label: 'Can you walk indoors, such as around your house?',
+                    label: 'Walk indoors',
                     value: 1.75
                 },
                 {
                     id: 'dasi-walk-flat',
-                    label: 'Can you walk a block or two on level ground?',
+                    label: 'Walk 1–2 blocks on level ground',
                     value: 2.75
                 },
                 {
                     id: 'dasi-climb-stairs',
-                    label: 'Can you climb a flight of stairs or walk up a hill?',
+                    label: 'Climb a flight of stairs or walk up a hill',
                     value: 5.5
                 },
-                { id: 'dasi-run', label: 'Can you run a short distance?', value: 8.0 },
+                { id: 'dasi-run', label: 'Run a short distance', value: 8.0 },
                 {
                     id: 'dasi-light-housework',
-                    label: 'Can you do light work around the house (dusting, washing dishes)?',
+                    label: 'Do light work around the house (e.g. dusting, washing dishes)',
                     value: 2.7
                 },
                 {
                     id: 'dasi-moderate-housework',
-                    label: 'Can you do moderate work (vacuuming, sweeping, carrying groceries)?',
+                    label: 'Do moderate work around the house (e.g. vacuuming, sweeping floors, carrying in groceries)',
                     value: 3.5
                 },
                 {
                     id: 'dasi-heavy-housework',
-                    label: 'Can you do heavy work (scrubbing floors, lifting/moving heavy furniture)?',
+                    label: 'Do heavy work around the house (e.g. scrubbing floors, lifting or moving heavy furniture)',
                     value: 8.0
                 },
                 {
                     id: 'dasi-yardwork',
-                    label: 'Can you do yardwork (raking leaves, weeding, pushing mower)?',
+                    label: 'Do yardwork (e.g. raking leaves, weeding, pushing a power mower)',
                     value: 4.5
                 },
-                { id: 'dasi-sex', label: 'Can you have sexual relations?', value: 5.25 },
+                { id: 'dasi-sex', label: 'Have sexual relations', value: 5.25 },
                 {
                     id: 'dasi-recreation-mild',
-                    label: 'Can you participate in mild recreational activities (bowling, dancing)?',
+                    label: 'Participate in moderate recreational activities (e.g. golf, bowling, dancing, doubles tennis, throwing a baseball or football)',
                     value: 6.0
                 },
                 {
                     id: 'dasi-recreation-strenuous',
-                    label: 'Can you participate in strenuous sports (swimming, tennis, basketball)?',
+                    label: 'Participate in strenuous sports (e.g. swimming, singles tennis, football, basketball, skiing)',
                     value: 7.5
                 }
             ]
@@ -136,22 +136,22 @@ export const dasiConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-                label: 'DASI Score',
-                value: score.toFixed(2),
-                unit: '/ 58.2 points'
-            })}
+            label: 'DASI Score',
+            value: score.toFixed(2),
+            unit: '/ 58.2 points'
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated VO₂ peak',
-                value: vo2peak.toFixed(1),
-                unit: 'mL/kg/min'
-            })}
+            label: 'Estimated VO₂ peak',
+            value: vo2peak.toFixed(1),
+            unit: 'mL/kg/min'
+        })}
             ${uiBuilder.createResultItem({
-                label: 'Estimated Peak METs',
-                value: mets.toFixed(1),
-                unit: '',
-                interpretation: interpretation,
-                alertClass: `ui-alert-${alertClass}`
-            })}
+            label: 'Estimated Peak METs',
+            value: mets.toFixed(1),
+            unit: '',
+            interpretation: interpretation,
+            alertClass: `ui-alert-${alertClass}`
+        })}
         `;
     }
 };
