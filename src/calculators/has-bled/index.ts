@@ -6,7 +6,7 @@
  */
 
 import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
-import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -50,7 +50,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             id: 'hasbled-bleeding',
             label: '<strong>B</strong>leeding history or predisposition',
             points: 1,
-            conditionCode: SNOMED_CODES.PREVIOUS_BLEEDING
+            conditionCode: SNOMED_CODES.BLEEDING_DISORDER
         },
         {
             id: 'hasbled-inr',
@@ -246,22 +246,7 @@ export const hasBledConfig: ScoringCalculatorConfig = {
             }
 
             // 檢查抗血小板藥物 (Aspirin, Clopidogrel, NSAIDs)
-            const bleedingMeds = [
-                RXNORM_CODES.ASPIRIN,
-                RXNORM_CODES.CLOPIDOGREL,
-                RXNORM_CODES.IBUPROFEN,
-                RXNORM_CODES.NAPROXEN,
-                RXNORM_CODES.DICLOFENAC,
-                RXNORM_CODES.KETOROLAC,
-                RXNORM_CODES.INDOMETHACIN,
-                RXNORM_CODES.MELOXICAM,
-                RXNORM_CODES.CELECOXIB
-            ];
-
-            const hasMeds = await fhirDataService.isOnMedication(bleedingMeds);
-            if (hasMeds) {
-                setRadioValue('hasbled-meds', '1');
-            }
+            // (Medication logic removed to align with TW Core terminology)
         } catch (error) {
             logger.warn('Error auto-populating HAS-BLED', { error: String(error) });
         }

@@ -168,7 +168,7 @@ const config: FormulaCalculatorConfig = {
                     label: 'Moderate to severe CKD',
                     helpText: 'Severe on dialysis, uremia, or creatinine >3 mg/dL',
                     type: 'radio',
-                    snomedCode: `${SNOMED_CODES.CHRONIC_KIDNEY_DISEASE},${SNOMED_CODES.END_STAGE_RENAL_DISEASE},${SNOMED_CODES.DIALYSIS_DEPENDENT}`,
+                    snomedCode: `${SNOMED_CODES.CHRONIC_KIDNEY_DISEASE},${SNOMED_CODES.END_STAGE_RENAL_DISEASE}`,
                     options: [
                         { value: '0', label: 'No (+0)', checked: true },
                         { value: '2', label: 'Yes (+2)' }

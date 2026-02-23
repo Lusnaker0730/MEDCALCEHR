@@ -38,13 +38,13 @@ export const LOINC_CODES: Record<string, string> = {
     SYSTOLIC_BP: '8480-6', // Systolic blood pressure
     DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
     /** Blood pressure panel — comma = FHIR OR search (85354-9 panel | 55284-4 systolic+diastolic) */
-    BP_PANEL: '85354-9,55284-4', // Blood pressure panel
+    BP_PANEL: '85354-9', // Blood pressure panel
     BP_PANEL_ALT: '55284-4', // Blood pressure panel (alternative)
     MEAN_BP: '8478-0', // Mean blood pressure
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
     /** Body temperature — comma = FHIR OR search (8310-5 core | 8331-1 oral) */
-    TEMPERATURE: '8310-5,8331-1', // Body temperature (and Oral)
+    TEMPERATURE: '8310-5', // Body temperature (and Oral)
     TEMPERATURE_ORAL: '8331-1', // Oral temperature
     OXYGEN_SATURATION: '59408-5', // Oxygen saturation (Pulse Ox)
     OXYGEN_SATURATION_ARTERIAL: '2708-6', // Oxygen saturation (Arterial)
@@ -52,14 +52,10 @@ export const LOINC_CODES: Record<string, string> = {
     AVG_BP_PANEL: '96607-7', // Average blood pressure panel
     AVG_BP_SYSTOLIC: '96608-5', // Average systolic blood pressure
     AVG_BP_DIASTOLIC: '96609-3', // Average diastolic blood pressure
-    ECG: '11524-6', // ECG study
 
     // Body Measurements
     HEIGHT: '8302-2', // Body height
-    BODY_HEIGHT_LYING: '8306-3', // Body height lying (recumbent)
-    BODY_HEIGHT_STANDING: '8308-9', // Body height standing
     WEIGHT: '29463-7', // Body weight
-    BODY_WEIGHT_MEASURED: '3141-9', // Body weight measured
     BMI: '39156-5', // Body mass index
     HEAD_CIRCUMFERENCE: '9843-4', // Head circumference
     HEAD_CIRCUMFERENCE_TAPE: '8287-5', // Head circumference by tape measure
@@ -193,7 +189,6 @@ export const LOINC_CODES: Record<string, string> = {
     UREA: '3094-0', // Urea
     BLOOD_TYPE: '882-1', // Blood type
     RH_FACTOR: '10331-7', // Rh factor
-    ASA_PHYSICAL_STATUS: '11368-0', // ASA Physical Status Class
 
     // GCS Components
     GCS_EYE: '9267-6', // Glasgow coma score eye opening
@@ -217,11 +212,10 @@ export const SNOMED_CODES: Record<string, string> = {
     STROKE: '230690007',
     TIA: '266257000',
     PERIPHERAL_ARTERY_DISEASE: '399957001',
-    CARDIOGENIC_SHOCK: '27885002',
+    CARDIOGENIC_SHOCK: '89138009', //20260223修正此代碼by Lu
     ACUTE_CORONARY_SYNDROME: '394659003',
     ENDOCARDITIS: '56819008',
     PULMONARY_HYPERTENSION: '70995007',
-    PREVIOUS_CARDIAC_SURGERY: '232717009', // CABG as marker
     DEEP_VEIN_THROMBOSIS: '128053003', // DVT
     CARDIAC_ARREST: '410429000',
 
@@ -246,30 +240,29 @@ export const SNOMED_CODES: Record<string, string> = {
     CHRONIC_KIDNEY_DISEASE: '709044004',
     ACUTE_KIDNEY_INJURY: '14669001',
     END_STAGE_RENAL_DISEASE: '46177005',
-    DIALYSIS_DEPENDENT: '429451001',
 
     // Liver Conditions
     CIRRHOSIS: '19943007',
     LIVER_FAILURE: '59927004',
-    HEPATITIS: '40468003',
+    HEPATITIS: '128241005', //20260223修正此代碼by Lu
     ALCOHOLIC_LIVER_DISEASE: '41309000',
 
     // Hematological
     ANEMIA: '271737000',
     BLEEDING_DISORDER: '64779008',
     THROMBOCYTOPENIA: '415116008',
-    ANTICOAGULATION_THERAPY: '281789004',
+    ANTICOAGULATION_THERAPY: '182764009',//20260223修正此代碼by Lu
 
     // Neurological
     DEMENTIA: '52448006',
     EPILEPSY: '84757009',
     PARKINSONS_DISEASE: '49049000',
     MULTIPLE_SCLEROSIS: '24700007',
-    PARALYSIS: '166001',
+    PARALYSIS: '44695005',//20260223修正此代碼by Lu
 
     // Malignancies
     MALIGNANCY: '363346000',
-    METASTATIC_CANCER: '94225005',
+    METASTATIC_CANCER: '128462008',//20260223修正此代碼by Lu
     LEUKEMIA: '93143009',
     LYMPHOMA: '118600007',
 
@@ -283,20 +276,9 @@ export const SNOMED_CODES: Record<string, string> = {
     SMOKING: '77176002', // Smoker (current status unknown)
     NEVER_SMOKER: '266919005', // Never smoked tobacco
     FORMER_SMOKER: '8517006', // Ex-smoker
-    CURRENT_EVERY_DAY_SMOKER: '449868002', // Current every day smoker
-    CURRENT_SOME_DAY_SMOKER: '428041000124106', // Current some day smoker
-    CURRENT_HEAVY_SMOKER: '428071000124103', // Current heavy tobacco smoker
-    CURRENT_LIGHT_SMOKER: '428061000124105', // Current light tobacco smoker
     SMOKING_STATUS_UNKNOWN: '266927001', // Unknown if ever smoked
-    E_CIGARETTE_USER: '722499006', // Electronic cigarette user
-    SECONDHAND_SMOKE_EXPOSURE: '699009004', // History of exposure to second hand smoke
-    SECONDHAND_SMOKE_EVENT: '16090371000119103', // Exposure to second hand tobacco smoke
-    OCCUPATIONAL_SMOKE_EXPOSURE: '16090771000119104', // Occupational exposure to environmental tobacco smoke
-    SMOKER_IN_FAMILY: '275105001', // Smoker in the family
 
     // Substance Use — Observable Entities
-    CIGARETTE_PACK_YEARS: '401201003', // Number of cigarettes smoked in lifetime (pack-years)
-    CALCULATED_PACK_YEARS: '782516008', // Calculated cigarette pack-years
 
     // Substance Use — Other
     ALCOHOL_ABUSE: '7200002',
@@ -306,14 +288,11 @@ export const SNOMED_CODES: Record<string, string> = {
     PACEMAKER: '14106009',
     CABG: '232717009',
     PCI: '415070008',
-    VALVE_SURGERY: '119978007',
     TRANSPLANT: '77465005',
 
     // Risk Factors
-    FAMILY_HISTORY_CAD: '266897004',
-    PREVIOUS_MI: '399211009',
-    PREVIOUS_STROKE: '161505003',
-    PREVIOUS_BLEEDING: '131148009',
+    FAMILY_HISTORY_CAD: '430091005',//20260223修正此代碼by Lu
+    PREVIOUS_MI: '1755008',//20260223修正此代碼by Lu
     ISCHEMIC_HEART_DISEASE: '414545008',
     FRACTURE: '125605004',
     HEMOPTYSIS: '66857006',
@@ -322,8 +301,7 @@ export const SNOMED_CODES: Record<string, string> = {
     HEMIPLEGIA: '50582007',
     AIDS: '62479008',
     SEIZURE: '91175000',
-    POSITIVE_RESULT: '260348003',
-    HISTORY_OF_VTE: '451574005'
+    HISTORY_OF_VTE: '275546001'//20260223修正此代碼by Lu
 };
 
 /**
@@ -384,7 +362,6 @@ export const ICD10_CODES: Record<string, string> = {
     CKD_STAGE_5: 'N18.5',
     ACUTE_KIDNEY_INJURY: 'N17.9',
     END_STAGE_RENAL_DISEASE: 'N18.6',
-    DIALYSIS_DEPENDENT: 'Z99.2',
 
     // Liver Conditions
     CIRRHOSIS: 'K74.60',
@@ -447,7 +424,7 @@ export const SNOMED_TO_ICD10_MAP: Record<string, string> = {
     '230690007': 'I63.9',    // Stroke
     '266257000': 'G45.9',    // TIA
     '399957001': 'I73.9',    // PAD
-    '27885002': 'R57.0',     // Cardiogenic shock
+    '89138009': 'R57.0',     // Cardiogenic shock
     '394659003': 'I24.9',    // ACS
     '128053003': 'I82.40',   // DVT
     '410429000': 'I46.9',    // Cardiac arrest
@@ -489,79 +466,12 @@ export const SNOMED_TO_ICD10_MAP: Record<string, string> = {
 
     // Malignancies
     '363346000': 'C80.1',    // Malignancy
-    '94225005': 'C79.9',     // Metastatic cancer
+    '128462008': 'C79.9',     // Metastatic cancer
 
     // Infections
     '91302008': 'A41.9',     // Sepsis
     '86406008': 'B20',       // HIV
     '840539006': 'U07.1'     // COVID-19
-};
-
-/**
- * RxNorm Codes Registry
- * Standard codes for medications
- * Reference: https://www.nlm.nih.gov/research/umls/rxnorm/
- */
-export const RXNORM_CODES: Record<string, string> = {
-    // Antiplatelets
-    ASPIRIN: '1191',
-    CLOPIDOGREL: '32968',
-    TICAGRELOR: '1116632',
-    PRASUGREL: '855812',
-
-    // Anticoagulants
-    WARFARIN: '11289',
-    HEPARIN: '5224',
-    ENOXAPARIN: '67108',
-    RIVAROXABAN: '1114195',
-    APIXABAN: '1364430',
-    DABIGATRAN: '1037042',
-    EDOXABAN: '1599538',
-
-    // Diabetic Medications
-    INSULIN: '274783',
-
-    // NSAIDs
-    IBUPROFEN: '5640',
-    NAPROXEN: '7258',
-    DICLOFENAC: '3355',
-    KETOROLAC: '6130',
-    INDOMETHACIN: '5775',
-    MELOXICAM: '6835',
-    CELECOXIB: '202472',
-
-    // Corticosteroids
-    PREDNISONE: '8640',
-    PREDNISOLONE: '8638',
-    METHYLPREDNISOLONE: '6902',
-    DEXAMETHASONE: '3264',
-    HYDROCORTISONE: '5492',
-    TRIAMCINOLONE: '10759',
-
-    // P2Y12 Inhibitors (alias for common names)
-    P2Y12_INHIBITOR: '32968,1116632,855812', // Clopidogrel, Ticagrelor, Prasugrel
-
-    // Beta Blockers
-    METOPROLOL: '6918',
-    CARVEDILOL: '20352',
-    BISOPROLOL: '16154',
-    ATENOLOL: '1202',
-    PROPRANOLOL: '8787',
-    LABETALOL: '6221',
-
-    // ACE Inhibitors
-    LISINOPRIL: '29046',
-    ENALAPRIL: '3827',
-    RAMIPRIL: '35296',
-    CAPTOPRIL: '1998',
-    BENAZEPRIL: '1886',
-
-    // ARBs (Angiotensin II Receptor Blockers)
-    LOSARTAN: '52175',
-    VALSARTAN: '69749',
-    CANDESARTAN: '83367',
-    IRBESARTAN: '83515',
-    OLMESARTAN: '259255'
 };
 
 /**
@@ -887,10 +797,7 @@ export function getMeasurementType(code: string): string {
 
         // Weight/Height
         [LOINC_CODES.WEIGHT]: 'weight',
-        [LOINC_CODES.BODY_WEIGHT_MEASURED]: 'weight', // Body weight measured
         [LOINC_CODES.HEIGHT]: 'height',
-        [LOINC_CODES.BODY_HEIGHT_LYING]: 'height', // Body height lying
-        [LOINC_CODES.BODY_HEIGHT_STANDING]: 'height', // Body height standing
 
         // Circumference
         [LOINC_CODES.HEAD_CIRCUMFERENCE_TAPE]: 'circumference' // Head circumference by tape

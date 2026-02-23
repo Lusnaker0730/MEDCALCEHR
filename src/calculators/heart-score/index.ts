@@ -188,7 +188,6 @@ export const heartScoreConfig: ScoringCalculatorConfig = {
                 SNOMED_CODES.STROKE,
                 SNOMED_CODES.TIA,
                 SNOMED_CODES.PREVIOUS_MI,
-                SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY,
                 SNOMED_CODES.MYOCARDIAL_INFARCTION,
                 SNOMED_CODES.CABG,
                 SNOMED_CODES.PCI

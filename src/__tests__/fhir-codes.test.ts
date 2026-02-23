@@ -9,7 +9,6 @@ import {
     SNOMED_CODES,
     ICD10_CODES,
     SNOMED_TO_ICD10_MAP,
-    RXNORM_CODES,
     FHIR_CODE_SYSTEMS,
     getLoincCode,
     getSnomedCode,
@@ -73,16 +72,7 @@ describe('FHIR Codes Module', () => {
         });
     });
 
-    // =========================================
-    // RXNORM_CODES Registry Tests
-    // =========================================
-    describe('RXNORM_CODES Registry', () => {
-        test('should contain common medications', () => {
-            expect(RXNORM_CODES.ASPIRIN).toBe('1191');
-            expect(RXNORM_CODES.CLOPIDOGREL).toBe('32968');
-            expect(RXNORM_CODES.WARFARIN).toBe('11289');
-        });
-    });
+
 
     // =========================================
     // getLoincCode Function Tests
@@ -387,6 +377,7 @@ describe('FHIR Codes Module', () => {
     });
 
     // =========================================
+    // =========================================
     // TW Core Vital Signs LOINC Codes Tests
     // =========================================
     describe('TW Core Vital Signs LOINC Codes', () => {
@@ -400,15 +391,6 @@ describe('FHIR Codes Module', () => {
 
         test('should contain O2 flow rate code', () => {
             expect(LOINC_CODES.O2_FLOW_RATE).toBe('3151-8');
-        });
-
-        test('should contain body height variants', () => {
-            expect(LOINC_CODES.BODY_HEIGHT_LYING).toBe('8306-3');
-            expect(LOINC_CODES.BODY_HEIGHT_STANDING).toBe('8308-9');
-        });
-
-        test('should contain body weight measured', () => {
-            expect(LOINC_CODES.BODY_WEIGHT_MEASURED).toBe('3141-9');
         });
 
         test('should contain head circumference tape', () => {
@@ -425,10 +407,6 @@ describe('FHIR Codes Module', () => {
             expect(LOINC_CODES.AVG_BP_SYSTOLIC).toBe('96608-5');
             expect(LOINC_CODES.AVG_BP_DIASTOLIC).toBe('96609-3');
         });
-
-        test('should contain ECG code', () => {
-            expect(LOINC_CODES.ECG).toBe('11524-6');
-        });
     });
 
     // =========================================
@@ -436,14 +414,12 @@ describe('FHIR Codes Module', () => {
     // =========================================
     describe('Comma-Separated Codes and Alternate Entries', () => {
         test('comma-separated values should remain unchanged', () => {
-            expect(LOINC_CODES.BP_PANEL).toBe('85354-9,55284-4');
-            expect(LOINC_CODES.TEMPERATURE).toBe('8310-5,8331-1');
+            expect(LOINC_CODES.BP_PANEL).toBe('85354-9');
+            expect(LOINC_CODES.TEMPERATURE).toBe('8310-5');
             expect(LOINC_CODES.URINE_SODIUM).toBe('2828-2,2955-3');
         });
 
         test('should have individual alternate entries', () => {
-            expect(LOINC_CODES.BP_PANEL_ALT).toBe('55284-4');
-            expect(LOINC_CODES.TEMPERATURE_ORAL).toBe('8331-1');
             expect(LOINC_CODES.URINE_SODIUM_RANDOM).toBe('2955-3');
         });
     });
@@ -473,27 +449,10 @@ describe('FHIR Codes Module', () => {
             expect(LOINC_CODES.TOBACCO_HISTORY).toBe('11367-0');
         });
 
-        test('should contain cigarette pack-years SNOMED codes', () => {
-            expect(SNOMED_CODES.CIGARETTE_PACK_YEARS).toBe('401201003');
-            expect(SNOMED_CODES.CALCULATED_PACK_YEARS).toBe('782516008');
-        });
-
         test('should contain smoking status result value codes (TW Core comprehensive)', () => {
             expect(SNOMED_CODES.NEVER_SMOKER).toBe('266919005');
             expect(SNOMED_CODES.FORMER_SMOKER).toBe('8517006');
-            expect(SNOMED_CODES.CURRENT_EVERY_DAY_SMOKER).toBe('449868002');
-            expect(SNOMED_CODES.CURRENT_SOME_DAY_SMOKER).toBe('428041000124106');
-            expect(SNOMED_CODES.CURRENT_HEAVY_SMOKER).toBe('428071000124103');
-            expect(SNOMED_CODES.CURRENT_LIGHT_SMOKER).toBe('428061000124105');
             expect(SNOMED_CODES.SMOKING_STATUS_UNKNOWN).toBe('266927001');
-        });
-
-        test('should contain e-cigarette and exposure codes', () => {
-            expect(SNOMED_CODES.E_CIGARETTE_USER).toBe('722499006');
-            expect(SNOMED_CODES.SECONDHAND_SMOKE_EXPOSURE).toBe('699009004');
-            expect(SNOMED_CODES.SECONDHAND_SMOKE_EVENT).toBe('16090371000119103');
-            expect(SNOMED_CODES.OCCUPATIONAL_SMOKE_EXPOSURE).toBe('16090771000119104');
-            expect(SNOMED_CODES.SMOKER_IN_FAMILY).toBe('275105001');
         });
     });
 
@@ -524,15 +483,6 @@ describe('FHIR Codes Module', () => {
             expect(getMeasurementType('96609-3')).toBe('pressure');
         });
 
-        test('should return height for height variant codes', () => {
-            expect(getMeasurementType('8306-3')).toBe('height');
-            expect(getMeasurementType('8308-9')).toBe('height');
-        });
-
-        test('should return weight for measured weight code', () => {
-            expect(getMeasurementType('3141-9')).toBe('weight');
-        });
-
         test('should return circumference for head circumference tape code', () => {
             expect(getMeasurementType('8287-5')).toBe('circumference');
         });
@@ -545,15 +495,15 @@ describe('FHIR Codes Module', () => {
         // All LOINC codes used in twcore/observation-profiles.ts LOINC_TO_TW_PROFILE_MAP
         const twCoreLoincCodes = [
             // Blood Pressure
-            '85354-9', '55284-4', '8480-6', '8462-4', '8478-0',
+            '85354-9', '8480-6', '8462-4', '8478-0',
             // BMI
             '39156-5',
             // Body Height
-            '8302-2', '8306-3', '8308-9',
+            '8302-2',
             // Body Weight
-            '29463-7', '3141-9',
+            '29463-7',
             // Body Temperature
-            '8310-5', '8331-1',
+            '8310-5',
             // Head Circumference
             '9843-4', '8287-5',
             // Heart Rate

@@ -105,16 +105,16 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(score).toBe(2);
         });
 
-        test('Hb 12 adds 7.5 points', () => {
-            // (15-12) * 2.5 = 7.5
+        test('Hb 12 adds 7.8 points', () => {
+            // (15-12) * 2.6 = 7.8
             const score = calculateScore(30, 12.0, 100, 3, false, false, false);
-            expect(score).toBe(10); // 2 + 7.5 rounded
+            expect(score).toBe(10); // 2 + 7.8 rounded
         });
 
-        test('Hb 8 adds 17.5 points', () => {
-            // (15-8) * 2.5 = 17.5
+        test('Hb 8 adds 18.2 points', () => {
+            // (15-8) * 2.6 = 18.2
             const score = calculateScore(30, 8.0, 100, 3, false, false, false);
-            expect(score).toBe(20); // 2 + 17.5 rounded
+            expect(score).toBe(20); // 2 + 18.2 rounded
         });
     });
 
@@ -269,7 +269,7 @@ describe('PRECISE-HBR Score Calculator', () => {
         test('Hb contribution is in breakdown when applicable', () => {
             const result = getFullResult(30, 12.0, 100, 3, false, false, false);
             expect(result.breakdown).toContain('Hb 12');
-            expect(result.breakdown).toContain('7.50');
+            expect(result.breakdown).toContain('7.80');
         });
 
         test('eGFR contribution is in breakdown when applicable', () => {

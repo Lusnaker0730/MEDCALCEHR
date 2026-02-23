@@ -5,7 +5,7 @@
  */
 
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
-import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { calculateMaggic } from './calculation.js';
@@ -358,33 +358,7 @@ const config: FormulaCalculatorConfig = {
             if (isSmoker) setRadio('maggic-smoker', '1');
 
             // Medications
-            // Beta Blockers
-            const bbCodes = [
-                RXNORM_CODES.METOPROLOL,
-                RXNORM_CODES.CARVEDILOL,
-                RXNORM_CODES.BISOPROLOL,
-                RXNORM_CODES.ATENOLOL,
-                RXNORM_CODES.PROPRANOLOL,
-                RXNORM_CODES.LABETALOL
-            ];
-            const onBB = await fhirDataService.isOnMedication(bbCodes);
-            if (onBB) setRadio('maggic-bb', '0'); // Yes (0 points) - Note: Logic is "No (+3)" so if Yes, select 0.
-
-            // ACEi / ARB
-            const aceArbCodes = [
-                RXNORM_CODES.LISINOPRIL,
-                RXNORM_CODES.ENALAPRIL,
-                RXNORM_CODES.RAMIPRIL,
-                RXNORM_CODES.CAPTOPRIL,
-                RXNORM_CODES.BENAZEPRIL,
-                RXNORM_CODES.LOSARTAN,
-                RXNORM_CODES.VALSARTAN,
-                RXNORM_CODES.CANDESARTAN,
-                RXNORM_CODES.IRBESARTAN,
-                RXNORM_CODES.OLMESARTAN
-            ];
-            const onAceArb = await fhirDataService.isOnMedication(aceArbCodes);
-            if (onAceArb) setRadio('maggic-acei', '0'); // Yes (0 points)
+            // (Beta Blockers and ACEi/ARB medication logic removed to align with TW Core terminology)
         } catch (e) {
             logger.warn('Error fetching FHIR data for MAGGIC', { error: String(e) });
         }

@@ -9,7 +9,7 @@
  */
 
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
-import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { logger } from '../../logger.js';
@@ -51,7 +51,7 @@ const calculateScore = (
     if (hb > 15.0) hbClamped = 15.0;
 
     if (hb < 15.0) {
-        const hbPoints = (15 - hbClamped) * 2.5;
+        const hbPoints = (15 - hbClamped) * 2.6;
         if (hbPoints > 0) {
             score += hbPoints;
             breakdownParts.push(`Hb ${hb} (Clamped: ${hbClamped}) -> +${hbPoints.toFixed(2)}`);
@@ -355,19 +355,19 @@ export const preciseHbr = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-            title: 'Risk Stratification',
-            icon: '📊',
-            content: uiBuilder.createTable({
-                headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
-                rows: [
-                    ['≤ 22', 'Non-HBR', '0.5% ~ 3.5%'],
-                    ['23 - 26', 'HBR', '3.5% ~ 5.5%'],
-                    ['27 - 30', 'Very HBR', '5.5% ~ 8.0%'],
-                    ['31 - 35', 'Extreme', '8.0% ~ 12.0%'],
-                    ['> 35', 'Capped', '~15%']
-                ]
-            })
-        })}
+        title: 'Risk Stratification',
+        icon: '📊',
+        content: uiBuilder.createTable({
+            headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
+            rows: [
+                ['≤ 22', 'Non-HBR', '0.5% ~ 3.5%'],
+                ['23 - 26', 'HBR', '3.5% ~ 5.5%'],
+                ['27 - 30', 'Very HBR', '5.5% ~ 8.0%'],
+                ['31 - 35', 'Extreme', '8.0% ~ 12.0%'],
+                ['> 35', 'Capped', '~15%']
+            ]
+        })
+    })}
     `,
 
     customInitialize: async (client, patient, container) => {
@@ -391,20 +391,12 @@ export const preciseHbr = createUnifiedFormulaCalculator({
         try {
             // 1. Prior Bleeding
             const hasPriorBleeding = await fhirDataService.hasCondition([
-                SNOMED_CODES.PREVIOUS_BLEEDING
+                SNOMED_CODES.BLEEDING_DISORDER
             ]);
             setRadioResult('prior_bleeding', hasPriorBleeding);
 
             // 2. Oral Anticoagulation (OAC)
-            const oacCodes = [
-                RXNORM_CODES.WARFARIN,
-                RXNORM_CODES.APIXABAN,
-                RXNORM_CODES.RIVAROXABAN,
-                RXNORM_CODES.DABIGATRAN,
-                RXNORM_CODES.EDOXABAN
-            ];
-            const onOAC = await fhirDataService.isOnMedication(oacCodes);
-            setRadioResult('oral_anticoagulation', onOAC);
+            // (Medication logic removed to align with TW Core terminology)
 
             // 3. Platelet count < 100
             // Note: Platelet unit varies (10*3/uL vs 10*9/L). Usually 100 x 10^9/L = 100,000 / uL.
@@ -444,25 +436,7 @@ export const preciseHbr = createUnifiedFormulaCalculator({
             setRadioResult('arc_hbr_cirrhosis', hasCirrhosis);
 
             // 7. Chronic NSAIDs or Steroids
-            const antiInflammatoryCodes = [
-                // NSAIDs
-                RXNORM_CODES.IBUPROFEN,
-                RXNORM_CODES.NAPROXEN,
-                RXNORM_CODES.DICLOFENAC,
-                RXNORM_CODES.KETOROLAC,
-                RXNORM_CODES.INDOMETHACIN,
-                RXNORM_CODES.MELOXICAM,
-                RXNORM_CODES.CELECOXIB,
-                // Steroids
-                RXNORM_CODES.PREDNISONE,
-                RXNORM_CODES.PREDNISOLONE,
-                RXNORM_CODES.METHYLPREDNISOLONE,
-                RXNORM_CODES.DEXAMETHASONE,
-                RXNORM_CODES.HYDROCORTISONE,
-                RXNORM_CODES.TRIAMCINOLONE
-            ];
-            const onAntiInflammatory = await fhirDataService.isOnMedication(antiInflammatoryCodes);
-            setRadioResult('arc_hbr_nsaids', onAntiInflammatory);
+            // (Medication logic removed to align with TW Core terminology)
         } catch (error) {
             logger.warn('Error in PRECISE-HBR auto-population', { error: String(error) });
         }

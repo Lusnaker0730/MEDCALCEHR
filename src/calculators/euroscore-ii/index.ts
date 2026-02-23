@@ -183,7 +183,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                     name: 'es2-previous-surgery',
                     label: 'Previous Cardiac Surgery',
                     helpText: '≥1 prior operation opening the pericardium',
-                    snomedCode: SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY,
+                    snomedCode: SNOMED_CODES.CABG,
                     options: [
                         { value: '0', label: 'No', checked: true },
                         { value: '1', label: 'Yes' }
@@ -352,7 +352,7 @@ export const euroscoreII = createUnifiedFormulaCalculator({
                 { id: 'es2-pulmonary', code: SNOMED_CODES.COPD },
                 { id: 'es2-recent-mi', code: SNOMED_CODES.MYOCARDIAL_INFARCTION },
                 { id: 'es2-arteriopathy', code: SNOMED_CODES.PERIPHERAL_ARTERY_DISEASE },
-                { id: 'es2-previous-surgery', code: SNOMED_CODES.PREVIOUS_CARDIAC_SURGERY },
+                { id: 'es2-previous-surgery', code: SNOMED_CODES.CABG },
                 { id: 'es2-endocarditis', code: SNOMED_CODES.ENDOCARDITIS }
             ];
 

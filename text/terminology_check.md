@@ -28,11 +28,11 @@
 
 | Code | 參考文件說明 | TW Core 狀態 |
 |:---:|:---|:---|
-| **55284-4** | BP panel (alternative) | TW Core 僅列 85354-9，未列此代碼 |
-| **8331-1** | 口溫 | TW Core 僅列 8310-5（通用體溫） |
-| **8306-3, 8308-9** | 臥式/站立身高 | TW Core 僅列 8302-2（通用身高） |
-| **3141-9** | 實測體重 | TW Core 僅列 29463-7（通用體重） |
-| **11524-6** | ECG study | 未出現在任何 TW Core 資源中 |
+| **55284-4** | BP panel (alternative) | TW Core 僅列 85354-9，未列此代碼 |=>20260223 刪除此代碼by Lu
+| **8331-1** | 口溫 | TW Core 僅列 8310-5（通用體溫） |=>20260223 刪除此代碼by Lu
+| **8306-3, 8308-9** | 臥式/站立身高 | TW Core 僅列 8302-2（通用身高） |=>20260223 刪除此代碼by Lu
+| **3141-9** | 實測體重 | TW Core 僅列 29463-7（通用體重） |=>20260223 刪除此代碼by Lu
+| **11524-6** | ECG study | 未出現在任何 TW Core 資源中 |=>20260223 刪除此代碼by Lu
 
 ### Display Name 差異（可接受，非錯誤）
 
@@ -58,7 +58,7 @@ TW Core 的 `ValueSet-loinc-observation-code` 使用 `CLASSTYPE = "Laboratory cl
 - Cardiac Measurements（5 codes）: 8633-1, 10230-1, 18043-0, 27164-3, 8414-5
 - Other Lab（16 codes）: 4548-4, 3016-3, 3053-6, 2143-6, 3084-1, 1798-8, 3040-3, 2532-0, 630-4, 49765-1, 2276-4, 1989-3, 664-3, 26485-3, 3137-7, 751-8
 - Clinical Assessments（9 codes）: 9269-2, 9267-6, 9270-0, 9268-4, 72514-3, 9272-6, 9274-2, 882-1, 10331-7
-- 不確定隱含有效: 11368-0（ASA Physical Status）
+- 不確定隱含有效: 11368-0（ASA Physical Status）=>20260223刪除此代碼by Lu
 
 ---
 
@@ -78,15 +78,15 @@ TW Core 的 `ValueSet-loinc-observation-code` 使用 `CLASSTYPE = "Laboratory cl
 
 | Code | 參考文件說明 | 實際 SNOMED 意義 | 建議修正 |
 |:---:|:---|:---|:---|
-| **166001** | Paralysis（癱瘓） | **Behavioral therapy**（行為治療）— 完全錯誤！ | 改用 **44695005**（Paralysis） |
-| **40468003** | Hepatitis（肝炎，泛指） | **Viral hepatitis, type A**（僅 A 型肝炎） | 改用 **128241005**（Hepatitis 泛指） |
+| **166001** | Paralysis（癱瘓） | **Behavioral therapy**（行為治療）— 完全錯誤！ | 改用 **44695005**（Paralysis） =>20260223修正此代碼by Lu
+| **40468003** | Hepatitis（肝炎，泛指） | **Viral hepatitis, type A**（僅 A 型肝炎） | 改用 **128241005**（Hepatitis 泛指） =>20260223修正此代碼by Lu
 
 ### 中度差異（建議確認）
 
 | Code | 參考文件說明 | 實際意義 | 建議 |
 |:---:|:---|:---|:---|
-| **281789004** | Anticoagulation therapy | 無法透過公開查詢確認 | 建議改用 **182764009**（Anticoagulant therapy） |
-| **131148009** | Previous bleeding | 實際為 **Bleeding (finding)**（活動性出血） | 若指「過去出血史」，建議改用 **275265003** |
+| **281789004** | Anticoagulation therapy | 無法透過公開查詢確認 | 建議改用 **182764009**（Anticoagulant therapy） =>20260223修正此代碼by Lu
+| **131148009** | Previous bleeding | 實際為 **Bleeding (finding)**（活動性出血） | 若指「過去出血史」，建議改用 **275265003** |   
 
 ### 未涵蓋的 Codes
 

@@ -6,7 +6,7 @@
  */
 
 import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
-import { LOINC_CODES, SNOMED_CODES, RXNORM_CODES } from '../../fhir-codes.js';
+import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { UnitConverter } from '../../unit-converter.js';
 import { uiBuilder } from '../../ui-builder.js';
@@ -226,12 +226,6 @@ const config: ScoringCalculatorConfig = {
                 if (hasCondition) {
                     setRadioValue(condition.inputName, '1');
                 }
-            }
-
-            // 檢測胰島素使用
-            const onInsulin = await fhirDataService.isOnMedication([RXNORM_CODES.INSULIN]); // Insulin RxNorm
-            if (onInsulin) {
-                setRadioValue('rcri-insulin', '1');
             }
         } catch (error) {
             logger.warn('Error auto-populating RCRI', { error: String(error) });
