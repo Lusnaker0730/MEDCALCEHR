@@ -1,62 +1,115 @@
 {
   "calculatorId": "tpa-dosing",
-  "calculatorName": "tPA (Alteplase) Dosing",
-  "version": "1.0",
+  "calculatorName": "tPA Dosing for PE and MI",
+  "version": "2.0",
   "calculatorType": "simple",
   "cases": [
     {
       "id": "GD-TPA-001",
-      "description": "Standard dosing - 70 kg patient",
-      "source": "Total = 70 * 0.9 = 63 mg; Bolus = 63 * 0.1 = 6.30 mg; Infusion = 63 * 0.9 = 56.70 mg",
-      "inputs": { "tpa-weight": 70 },
+      "description": "Standard PE Dosing (Weight >= 65kg)",
+      "source": "FDA Standard PE",
+      "inputs": {
+        "tpa-weight": 70,
+        "tpa-indication": "pe"
+      },
       "expected": [
-        { "label": "Total Dose", "value": "63.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Bolus Dose (10%)", "value": "6.30", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Infusion Dose (90%)", "value": "56.70", "unit": "mg", "tolerance": 0.01 }
+        {
+          "label": "Indication",
+          "value": "Acute Massive Pulmonary Embolism (PE)"
+        },
+        {
+          "label": "Total Administration",
+          "value": "100.0 mg"
+        }
       ]
     },
     {
       "id": "GD-TPA-002",
-      "description": "Maximum dosing - 120 kg patient (capped at 100 kg)",
-      "source": "Effective weight 100 kg; Total = 90 mg; Bolus = 9.00 mg; Infusion = 81.00 mg",
-      "inputs": { "tpa-weight": 120 },
+      "description": "PE Weight Capped (< 65kg)",
+      "source": "1.5mg/kg cap",
+      "inputs": {
+        "tpa-weight": 60,
+        "tpa-indication": "pe"
+      },
       "expected": [
-        { "label": "Total Dose", "value": "90.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Bolus Dose (10%)", "value": "9.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Infusion Dose (90%)", "value": "81.00", "unit": "mg", "tolerance": 0.01 }
+        {
+          "label": "Indication",
+          "value": "Acute Massive Pulmonary Embolism (PE)"
+        },
+        {
+          "label": "Total Administration",
+          "value": "90.0 mg"
+        }
       ]
     },
     {
       "id": "GD-TPA-003",
-      "description": "Small patient - 50 kg",
-      "source": "Total = 50 * 0.9 = 45 mg; Bolus = 4.50 mg; Infusion = 40.50 mg",
-      "inputs": { "tpa-weight": 50 },
+      "description": "STEMI Standard Dose (Weight > 67kg)",
+      "source": "15mg bolus, 50mg inf1, 35mg inf2",
+      "inputs": {
+        "tpa-weight": 80,
+        "tpa-indication": "stemi"
+      },
       "expected": [
-        { "label": "Total Dose", "value": "45.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Bolus Dose (10%)", "value": "4.50", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Infusion Dose (90%)", "value": "40.50", "unit": "mg", "tolerance": 0.01 }
+        {
+          "label": "Indication",
+          "value": "STEMI (Accelerated Infusion)"
+        },
+        {
+          "label": "Total Dose",
+          "value": "100.0",
+          "unit": "mg"
+        },
+        {
+          "label": "1. IV Bolus",
+          "value": "15.0",
+          "unit": "mg"
+        },
+        {
+          "label": "2. First Infusion",
+          "value": "50.0",
+          "unit": "mg"
+        },
+        {
+          "label": "3. Second Infusion",
+          "value": "35.0",
+          "unit": "mg"
+        }
       ]
     },
     {
       "id": "GD-TPA-004",
-      "description": "At threshold - exactly 100 kg",
-      "source": "Total = 100 * 0.9 = 90 mg (at max); Bolus = 9.00 mg; Infusion = 81.00 mg",
-      "inputs": { "tpa-weight": 100 },
+      "description": "STEMI Weight Adjusted (Weight <= 67kg)",
+      "source": "15mg bolus, 0.75 mg/kg inf1, 0.50 mg/kg inf2",
+      "inputs": {
+        "tpa-weight": 60,
+        "tpa-indication": "stemi"
+      },
       "expected": [
-        { "label": "Total Dose", "value": "90.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Bolus Dose (10%)", "value": "9.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Infusion Dose (90%)", "value": "81.00", "unit": "mg", "tolerance": 0.01 }
-      ]
-    },
-    {
-      "id": "GD-TPA-005",
-      "description": "Average adult - 80 kg",
-      "source": "Total = 80 * 0.9 = 72 mg; Bolus = 7.20 mg; Infusion = 64.80 mg",
-      "inputs": { "tpa-weight": 80 },
-      "expected": [
-        { "label": "Total Dose", "value": "72.00", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Bolus Dose (10%)", "value": "7.20", "unit": "mg", "tolerance": 0.01 },
-        { "label": "Infusion Dose (90%)", "value": "64.80", "unit": "mg", "tolerance": 0.01 }
+        {
+          "label": "Indication",
+          "value": "STEMI (Accelerated Infusion)"
+        },
+        {
+          "label": "Total Dose",
+          "value": "90.0",
+          "unit": "mg"
+        },
+        {
+          "label": "1. IV Bolus",
+          "value": "15.0",
+          "unit": "mg"
+        },
+        {
+          "label": "2. First Infusion",
+          "value": "45.0",
+          "unit": "mg"
+        },
+        {
+          "label": "3. Second Infusion",
+          "value": "30.0",
+          "unit": "mg"
+        }
       ]
     }
   ]

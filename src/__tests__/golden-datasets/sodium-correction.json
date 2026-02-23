@@ -1,52 +1,122 @@
 {
   "calculatorId": "sodium-correction",
   "calculatorName": "Sodium Correction for Hyperglycemia",
-  "version": "1.0",
+  "version": "2.0",
   "calculatorType": "simple",
   "cases": [
     {
       "id": "GD-NACOR-001",
-      "description": "Normal glucose - no correction needed",
-      "source": "Corrected Na = 135 + 1.6 * ((100-100)/100) = 135 + 0 = 135.0",
-      "inputs": { "measured-sodium": 135, "glucose": 100, "correction-factor": "1.6" },
+      "description": "Normal glucose - no correction (both formulas same result)",
+      "source": "Katz: 135 + 1.6 * (0/100) = 135.0 | Hillier: 135 + 2.4 * (0/100) = 135.0",
+      "inputs": {
+        "measured-sodium": 135,
+        "glucose": 100
+      },
       "expected": [
-        { "label": "Corrected Sodium", "value": "135.0", "unit": "mEq/L", "tolerance": 0.1 }
+        {
+          "label": "Corrected Sodium (Katz, 1973)",
+          "value": 135.0,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        },
+        {
+          "label": "Corrected Sodium (Hillier, 1999)",
+          "value": 135.0,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        }
       ]
     },
     {
       "id": "GD-NACOR-002",
-      "description": "Moderate hyperglycemia - DKA scenario with 1.6 factor",
-      "source": "Corrected Na = 130 + 1.6 * ((400-100)/100) = 130 + 4.8 = 134.8",
-      "inputs": { "measured-sodium": 130, "glucose": 400, "correction-factor": "1.6" },
+      "description": "Moderate hyperglycemia (DKA scenario) - Katz 134.8 vs Hillier 137.2",
+      "source": "Katz: 130 + 1.6 * (300/100) = 134.8 | Hillier: 130 + 2.4 * (300/100) = 137.2",
+      "inputs": {
+        "measured-sodium": 130,
+        "glucose": 400
+      },
       "expected": [
-        { "label": "Corrected Sodium", "value": "134.8", "unit": "mEq/L", "tolerance": 0.1 }
+        {
+          "label": "Corrected Sodium (Katz, 1973)",
+          "value": 134.8,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        },
+        {
+          "label": "Corrected Sodium (Hillier, 1999)",
+          "value": 137.2,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        }
       ]
     },
     {
       "id": "GD-NACOR-003",
-      "description": "Severe hyperglycemia with 2.4 factor (Hillier 1999)",
-      "source": "Corrected Na = 125 + 2.4 * ((600-100)/100) = 125 + 12.0 = 137.0",
-      "inputs": { "measured-sodium": 125, "glucose": 600, "correction-factor": "2.4" },
+      "description": "Severe hyperglycemia (glucose 600) - reference case from MDCalc image",
+      "source": "Katz: 125 + 1.6 * (500/100) = 133.0 | Hillier: 125 + 2.4 * (500/100) = 137.0",
+      "inputs": {
+        "measured-sodium": 125,
+        "glucose": 600
+      },
       "expected": [
-        { "label": "Corrected Sodium", "value": "137.0", "unit": "mEq/L", "tolerance": 0.1 }
+        {
+          "label": "Corrected Sodium (Katz, 1973)",
+          "value": 133.0,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        },
+        {
+          "label": "Corrected Sodium (Hillier, 1999)",
+          "value": 137.0,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        }
       ]
     },
     {
       "id": "GD-NACOR-004",
       "description": "Mild hyperglycemia - reveals true hypernatremia",
-      "source": "Corrected Na = 145 + 1.6 * ((200-100)/100) = 145 + 1.6 = 146.6",
-      "inputs": { "measured-sodium": 145, "glucose": 200, "correction-factor": "1.6" },
+      "source": "Katz: 145 + 1.6 * (100/100) = 146.6 | Hillier: 145 + 2.4 * (100/100) = 147.4",
+      "inputs": {
+        "measured-sodium": 145,
+        "glucose": 200
+      },
       "expected": [
-        { "label": "Corrected Sodium", "value": "146.6", "unit": "mEq/L", "tolerance": 0.1 }
+        {
+          "label": "Corrected Sodium (Katz, 1973)",
+          "value": 146.6,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        },
+        {
+          "label": "Corrected Sodium (Hillier, 1999)",
+          "value": 147.4,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        }
       ]
     },
     {
       "id": "GD-NACOR-005",
       "description": "Very high glucose - HHS scenario",
-      "source": "Corrected Na = 128 + 1.6 * ((800-100)/100) = 128 + 11.2 = 139.2",
-      "inputs": { "measured-sodium": 128, "glucose": 800, "correction-factor": "1.6" },
+      "source": "Katz: 128 + 1.6 * (700/100) = 139.2 | Hillier: 128 + 2.4 * (700/100) = 144.8",
+      "inputs": {
+        "measured-sodium": 128,
+        "glucose": 800
+      },
       "expected": [
-        { "label": "Corrected Sodium", "value": "139.2", "unit": "mEq/L", "tolerance": 0.1 }
+        {
+          "label": "Corrected Sodium (Katz, 1973)",
+          "value": 139.2,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        },
+        {
+          "label": "Corrected Sodium (Hillier, 1999)",
+          "value": 144.8,
+          "unit": "mEq/L",
+          "tolerance": 0.1
+        }
       ]
     }
   ]

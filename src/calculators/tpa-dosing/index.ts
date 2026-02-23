@@ -1,34 +1,134 @@
 import { uiBuilder } from '../../ui-builder.js';
 import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
-import { calculateTpaDosing } from './calculation.js';
 import { LOINC_CODES } from '../../fhir-codes.js';
 import type { FormulaCalculatorConfig } from '../../types/calculator-formula.js';
 
+export const calculateTpaDosing = (values: Record<string, any>): any[] | null => {
+    const weightInput = values['tpa-weight'];
+    const indication = values['tpa-indication']; // 'pe' | 'stemi'
+
+    if (weightInput === undefined || weightInput === null || weightInput === '' || !indication) {
+        return null;
+    }
+
+    const weight = Number(weightInput);
+    if (isNaN(weight) || weight <= 0) return null;
+
+    const results: any[] = [];
+
+    if (indication === 'pe') {
+        // Acute Massive PE
+        // Standard FDA dose: 100 mg over 2 hours
+        // Usually, if < 65 kg, max dose is 1.5 mg/kg for PE in some protocols but standard FDA says 100mg. We will cap it at 100 or 1.5mg/kg if <65kg.
+        let totalDose = 100;
+        let alertMsg = '';
+        let alertType: 'success' | 'warning' | 'danger' = 'success';
+
+        if (weight < 65) {
+            const weightBasedMax = Number((weight * 1.5).toFixed(1));
+            totalDose = Math.min(100, weightBasedMax);
+            alertType = 'warning';
+            alertMsg = `Weight < 65 kg. Total dose is capped at 1.5 mg/kg (${weightBasedMax} mg) to minimize bleeding risk.`;
+        } else {
+            alertMsg = 'Standard dose: 100 mg continuous IV over 2 hours.';
+        }
+
+        results.push({
+            label: 'Indication',
+            value: 'Acute Massive Pulmonary Embolism (PE)',
+            unit: ''
+        });
+
+        results.push({
+            label: 'Total Administration',
+            value: `${totalDose.toFixed(1)} mg`,
+            unit: '',
+            alertClass: alertType,
+            interpretation: alertMsg
+        });
+
+    } else if (indication === 'stemi') {
+        // STEMI (Accelerated Infusion)
+        let bolus = 15;
+        let infusion1 = 50;
+        let infusion2 = 35;
+        let total = bolus + infusion1 + infusion2;
+
+        if (weight <= 67) {
+            infusion1 = Math.min(50, weight * 0.75);
+            infusion2 = Math.min(35, weight * 0.5);
+            total = bolus + infusion1 + infusion2;
+        }
+
+        bolus = Number(bolus.toFixed(1));
+        infusion1 = Number(infusion1.toFixed(1));
+        infusion2 = Number(infusion2.toFixed(1));
+        total = Number(total.toFixed(1));
+
+        results.push({
+            label: 'Indication',
+            value: 'STEMI (Accelerated Infusion)',
+            unit: ''
+        });
+
+        results.push({
+            label: 'Total Dose',
+            value: total.toFixed(1),
+            unit: 'mg',
+            interpretation: weight <= 67 ? 'Weight ≤ 67 kg: Weight-adjusted dose.' : 'Weight > 67 kg: Standard accelerated dose.',
+            alertClass: 'success'
+        });
+
+        results.push({
+            label: '1. IV Bolus',
+            value: bolus.toFixed(1),
+            unit: 'mg',
+            interpretation: 'Administer over 1-2 minutes'
+        });
+
+        results.push({
+            label: '2. First Infusion',
+            value: infusion1.toFixed(1),
+            unit: 'mg',
+            interpretation: 'Administer over 30 minutes'
+        });
+
+        results.push({
+            label: '3. Second Infusion',
+            value: infusion2.toFixed(1),
+            unit: 'mg',
+            interpretation: 'Administer over 60 minutes'
+        });
+    }
+
+    return results;
+};
+
 export const tpaDosingConfig: FormulaCalculatorConfig = {
     id: 'tpa-dosing',
-    title: 'tPA (Alteplase) Dosing for Ischemic Stroke',
+    title: 'tPA Dosing for PE and MI',
     description:
-        'Calculates tPA (alteplase) dosing for acute ischemic stroke based on patient weight.',
+        'Calculates tissue plasminogen activator (tPA/Alteplase) dosing for Acute Massive Pulmonary Embolism (PE) and acute Myocardial Infarction (STEMI).',
     infoAlert:
         uiBuilder.createAlert({
             type: 'warning',
             message:
-                '<strong>⚠️ Important:</strong> This calculator is for acute ischemic stroke only. Verify all inclusion/exclusion criteria before administration.'
-        }) +
-        '<h4>Dosing Guidelines</h4>' +
-        uiBuilder.createList({
-            items: [
-                '<strong>Total Dose:</strong> 0.9 mg/kg (Maximum 90 mg)',
-                '<strong>Bolus:</strong> 10% of total dose over 1 minute',
-                '<strong>Infusion:</strong> 90% of total dose over 60 minutes',
-                '<strong>Time Window:</strong> Within 4.5 hours of symptom onset'
-            ]
+                '<strong>⚠️ Important:</strong> Verify all inclusion and exclusion criteria before alteplase administration. <br>For <strong>Acute Ischemic Stroke</strong>, please use the dedicated Stroke tPA calculator.'
         }),
     sections: [
         {
-            title: 'Patient Weight',
-            icon: '⚖️',
+            title: 'Patient Data',
+            icon: '📋',
             fields: [
+                {
+                    type: 'radio',
+                    id: 'tpa-indication',
+                    label: 'Indication',
+                    options: [
+                        { value: 'pe', label: 'Acute Massive Pulmonary Embolism (PE)', checked: true },
+                        { value: 'stemi', label: 'STEMI (Accelerated Infusion)' }
+                    ]
+                },
                 {
                     type: 'number',
                     id: 'tpa-weight',
@@ -44,16 +144,47 @@ export const tpaDosingConfig: FormulaCalculatorConfig = {
         }
     ],
     formulas: [
-        { label: 'Total Dose', formula: '0.9 mg/kg (Max 90 mg)' },
-        { label: 'Bolus Dose', formula: '10% of total dose over 1 minute' },
-        { label: 'Infusion Dose', formula: '90% of total dose over 60 minutes' }
+        {
+            label: 'Acute Massive PE',
+            formula: '100 mg continuous IV infusion over 2 hours.'
+        },
+        {
+            label: 'STEMI (Accelerated Infusion)',
+            formula: 'For weight > 67 kg: 15 mg bolus, then 50 mg over 30 min, then 35 mg over 60 min (Total: 100 mg).<br>For weight ≤ 67 kg: 15 mg bolus, then 0.75 mg/kg over 30 min (max 50 mg), then 0.50 mg/kg over 60 min (max 35 mg).'
+        }
     ],
     reference: uiBuilder.createReference({
         citations: [
-            'NINDS rt-PA Stroke Study Group. Tissue plasminogen activator for acute ischemic stroke. <em>N Engl J Med</em>. 1995;333(24):1581-1587.'
+            'Activase (alteplase) prescribing information. Genentech, Inc.',
+            'O\'Gara PT, et al. 2013 ACCF/AHA guideline for the management of ST-elevation myocardial infarction. <em>Circulation</em>. 2013;127(4):e362-e425.'
         ]
     }),
-    calculate: calculateTpaDosing
+    calculate: calculateTpaDosing,
+    customResultRenderer: results => {
+        if (!results || results.length === 0) return '';
+
+        let html = '';
+        const ind = results.find(r => r.label === 'Indication');
+        if (ind) {
+            html += uiBuilder.createAlert({
+                type: 'info',
+                message: `<strong>Selected Indication:</strong> ${ind.value}`
+            });
+            html += '<hr class="mt-10 mb-10">';
+        }
+
+        const items = results.filter(r => r.label !== 'Indication');
+
+        html += items.map(res => uiBuilder.createResultItem({
+            label: res.label,
+            value: res.value?.toString() || '',
+            unit: res.unit,
+            interpretation: res.interpretation,
+            alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
+        })).join('');
+
+        return html;
+    }
 };
 
 export const tpaDosing = createUnifiedFormulaCalculator(tpaDosingConfig);

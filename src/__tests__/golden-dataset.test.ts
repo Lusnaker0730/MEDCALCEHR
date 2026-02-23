@@ -54,7 +54,7 @@ import { calculateFreeWaterDeficit } from '../calculators/free-water-deficit/cal
 import { ttkgCalculation } from '../calculators/ttkg/calculation.js';
 import { calculateMDRD } from '../calculators/mdrd-gfr/calculation.js';
 import { calculateNafldFibrosisScore } from '../calculators/nafld-fibrosis-score/calculation.js';
-import { calculateTpaDosing } from '../calculators/tpa-dosing/calculation.js';
+import { calculateTpaDosing } from '../calculators/tpa-dosing/index.js';
 import { calculateTpaDosingStroke } from '../calculators/tpa-dosing-stroke/calculation.js';
 import { calculateABL } from '../calculators/abl/calculation.js';
 import { calculateFourPeps } from '../calculators/4peps/calculation.js';

@@ -77,6 +77,17 @@
            anion-gap OK 增加 delta ratio 判讀
            serum-osmolality OK 無更改
            sex-shock OK 變數名稱改正
+           sodium-correction OK 修正標籤對應
+           sofa OK 修正一個選項
+           steroid conversion OK 無更改
+           stop-bang OK 無更改
+           timi-nstemi OK 無更改
+           tpa-dosing OK 修正計算為 PE/MI
+           tpa-dosing-stroke OK 無更改
+           trade-off OK 無更改
+           ttkg OK 無更改
+           wells-dvt OK 無更改
+           wells-pe OK 無更改
            
 
            

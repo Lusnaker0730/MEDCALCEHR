@@ -30,13 +30,14 @@ export const sofaConfig: ScoringCalculatorConfig = {
         {
             id: 'resp',
             title: 'Respiration - PaO₂/FiO₂ Ratio',
-            subtitle: 'Mechanical ventilation or CPAP required for scores 3-4',
+            subtitle: 'Mechanical ventilation or CPAP required for scores 3–4',
             options: [
                 { value: '0', label: '≥400 (0)', checked: true },
-                { value: '1', label: '<400 (+1)' },
-                { value: '2', label: '<300 (+2)' },
-                { value: '3', label: '<200 with respiratory support (+3)' },
-                { value: '4', label: '<100 with respiratory support (+4)' }
+                { value: '1', label: '300–399 (+1)' },
+                { value: '2', label: '200–299 (+2)' },
+                { value: '2', label: '≤199 and NOT mechanically ventilated (+2)' },
+                { value: '3', label: '100–199 and mechanically ventilated (+3)' },
+                { value: '4', label: '<100 and mechanically ventilated (+4)' }
             ]
         },
         {
@@ -66,13 +67,13 @@ export const sofaConfig: ScoringCalculatorConfig = {
         {
             id: 'cardio',
             title: 'Cardiovascular - Hypotension & Vasopressors',
-            subtitle: 'Vasopressor doses in μg/kg/min',
+            subtitle: 'Vasopressor doses in mcg/kg/min',
             options: [
                 { value: '0', label: 'No hypotension (0)', checked: true },
                 { value: '1', label: 'MAP <70 mmHg (+1)' },
-                { value: '2', label: 'Dopamine ≤5 or Dobutamine (any) (+2)' },
-                { value: '3', label: 'Dopamine >5 or Epi/NE ≤0.1 (+3)' },
-                { value: '4', label: 'Dopamine >15 or Epi/NE >0.1 (+4)' }
+                { value: '2', label: 'DOPamine ≤5 or DOBUTamine (any dose) (+2)' },
+                { value: '3', label: 'DOPamine >5, EPINEPHrine ≤0.1, or norEPINEPHrine ≤0.1 (+3)' },
+                { value: '4', label: 'DOPamine >15, EPINEPHrine >0.1, or norEPINEPHrine >0.1 (+4)' }
             ]
         },
         {
