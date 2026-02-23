@@ -17,8 +17,8 @@
  *   - autoPopulateFromRequirements
  *   - createFHIRDataService factory
  *
- * Mock strategy: jest.unstable_mockModule() for ESM dependencies,
- * re-registered after jest.resetModules() with dynamic import of module under test.
+ * Mock strategy: jest.mock() (hoisted) for all dependencies,
+ * with jest.resetModules() + dynamic import of module under test.
  */
 import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
 // ---------------------------------------------------------------------------
@@ -57,6 +57,11 @@ const mockRecordCalculation = jest.fn();
 const mockRecordDerivation = jest.fn();
 const mockGetProvenanceForTarget = jest.fn();
 const mockGenerateLineageReport = jest.fn();
+const mockLoggerDebug = jest.fn();
+const mockLoggerInfo = jest.fn();
+const mockLoggerWarn = jest.fn();
+const mockLoggerError = jest.fn();
+const mockLoggerFatal = jest.fn();
 // LOINC code constants used by the service
 const MOCK_LOINC_CODES = {
     SYSTOLIC_BP: '8480-6',
@@ -67,69 +72,75 @@ const MOCK_LOINC_CODES = {
     CREATININE: '2160-0',
 };
 // ---------------------------------------------------------------------------
-// Register mocks function -- called at module scope and after resetModules
+// Register mocks — jest.mock is hoisted and survives jest.resetModules()
 // ---------------------------------------------------------------------------
-function registerMocks() {
-    jest.unstable_mockModule('../utils.js', () => ({
-        getMostRecentObservation: mockGetMostRecentObservation,
-        getObservationValue: mockGetObservationValue,
-        getPatientConditions: mockGetPatientConditions,
-        getMedicationRequests: mockGetMedicationRequests,
-        calculateAge: mockCalculateAge,
-        isRestrictedResource: mockIsRestrictedResource,
-    }));
-    jest.unstable_mockModule('../fhir-codes.js', () => ({
-        LOINC_CODES: MOCK_LOINC_CODES,
-        SNOMED_CODES: {},
-        getLoincName: mockGetLoincName,
-        getMeasurementType: mockGetMeasurementType,
-        isValidLoincCode: mockIsValidLoincCode,
-    }));
-    jest.unstable_mockModule('../lab-name-mapping.js', () => ({
-        getTextNameByLoinc: mockGetTextNameByLoinc,
-    }));
-    jest.unstable_mockModule('../cache-manager.js', () => ({
-        fhirCache: {
-            getCachedObservation: mockGetCachedObservation,
-            cacheObservation: mockCacheObservation,
-            clearPatientCache: mockClearPatientCache,
-        },
-    }));
-    jest.unstable_mockModule('../data-staleness.js', () => ({
-        createStalenessTracker: mockCreateStalenessTracker,
-        DataStalenessTracker: jest.fn(),
-    }));
-    jest.unstable_mockModule('../unit-converter.js', () => ({
-        UnitConverter: {
-            convert: mockUnitConvert,
-            setInputValue: mockSetInputValue,
-        },
-    }));
-    jest.unstable_mockModule('../fhir-feedback.js', () => ({
-        fhirFeedback: {
-            createLoadingBanner: mockCreateLoadingBanner,
-            removeLoadingBanner: mockRemoveLoadingBanner,
-            createDataSummary: mockCreateDataSummary,
-            setupDynamicTracking: mockSetupDynamicTracking,
-        },
-    }));
-    jest.unstable_mockModule('../audit-event-service.js', () => ({
-        auditEventService: {
-            logResourceRead: mockLogResourceRead,
-        },
-    }));
-    jest.unstable_mockModule('../provenance-service.js', () => ({
-        provenanceService: {
-            recordCalculation: mockRecordCalculation,
-            recordDerivation: mockRecordDerivation,
-            getProvenanceForTarget: mockGetProvenanceForTarget,
-            generateLineageReport: mockGenerateLineageReport,
-        },
-        CalculationResult: {},
-    }));
-}
-// Initial registration at module scope
-registerMocks();
+jest.mock('../logger', () => ({
+    logger: {
+        debug: mockLoggerDebug,
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        fatal: mockLoggerFatal,
+    },
+}));
+jest.mock('../utils', () => ({
+    getMostRecentObservation: mockGetMostRecentObservation,
+    getObservationValue: mockGetObservationValue,
+    getPatientConditions: mockGetPatientConditions,
+    getMedicationRequests: mockGetMedicationRequests,
+    calculateAge: mockCalculateAge,
+    isRestrictedResource: mockIsRestrictedResource,
+}));
+jest.mock('../fhir-codes', () => ({
+    LOINC_CODES: MOCK_LOINC_CODES,
+    SNOMED_CODES: {},
+    getLoincName: mockGetLoincName,
+    getMeasurementType: mockGetMeasurementType,
+    isValidLoincCode: mockIsValidLoincCode,
+}));
+jest.mock('../lab-name-mapping', () => ({
+    getTextNameByLoinc: mockGetTextNameByLoinc,
+}));
+jest.mock('../cache-manager', () => ({
+    fhirCache: {
+        getCachedObservation: mockGetCachedObservation,
+        cacheObservation: mockCacheObservation,
+        clearPatientCache: mockClearPatientCache,
+    },
+}));
+const mockDataStalenessTrackerCtor = jest.fn();
+jest.mock('../data-staleness', () => ({
+    createStalenessTracker: mockCreateStalenessTracker,
+    DataStalenessTracker: mockDataStalenessTrackerCtor,
+}));
+jest.mock('../unit-converter', () => ({
+    UnitConverter: {
+        convert: mockUnitConvert,
+        setInputValue: mockSetInputValue,
+    },
+}));
+jest.mock('../fhir-feedback', () => ({
+    fhirFeedback: {
+        createLoadingBanner: mockCreateLoadingBanner,
+        removeLoadingBanner: mockRemoveLoadingBanner,
+        createDataSummary: mockCreateDataSummary,
+        setupDynamicTracking: mockSetupDynamicTracking,
+    },
+}));
+jest.mock('../audit-event-service', () => ({
+    auditEventService: {
+        logResourceRead: mockLogResourceRead,
+    },
+}));
+jest.mock('../provenance-service', () => ({
+    provenanceService: {
+        recordCalculation: mockRecordCalculation,
+        recordDerivation: mockRecordDerivation,
+        getProvenanceForTarget: mockGetProvenanceForTarget,
+        generateLineageReport: mockGenerateLineageReport,
+    },
+    CalculationResult: {},
+}));
 // ---------------------------------------------------------------------------
 // Test helpers
 // ---------------------------------------------------------------------------
@@ -205,6 +216,11 @@ function resetAllMocks() {
     mockRecordDerivation.mockReset();
     mockGetProvenanceForTarget.mockReset();
     mockGenerateLineageReport.mockReset();
+    mockLoggerDebug.mockReset();
+    mockLoggerInfo.mockReset();
+    mockLoggerWarn.mockReset();
+    mockLoggerError.mockReset();
+    mockLoggerFatal.mockReset();
 }
 function setDefaultMockBehaviors() {
     mockCreateStalenessTracker.mockReturnValue(mockStalenessTracker);
@@ -243,9 +259,7 @@ describe('FHIRDataService -- extended coverage', () => {
     beforeEach(async () => {
         // 1. Reset module registry so dynamic import returns a fresh module
         jest.resetModules();
-        // 2. Re-register all mocks (required after resetModules for ESM)
-        registerMocks();
-        // 3. Reset and configure mocks
+        // 2. Reset and configure mocks
         resetAllMocks();
         setDefaultMockBehaviors();
         // Suppress console noise during tests
@@ -1376,7 +1390,7 @@ describe('FHIRDataService -- extended coverage', () => {
             svc.initialize(createMockClient(), { id: 'p1' }, document.createElement('div'));
             // Should not throw
             await svc.recordCalculationProvenance('calc-1', 'BMI Calculator', {}, {});
-            expect(console.warn).toHaveBeenCalled();
+            expect(mockLoggerWarn).toHaveBeenCalled();
         });
         test('uses client.patient.id when patient is null', async () => {
             const svc = new FHIRDataService();

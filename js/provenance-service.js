@@ -2,6 +2,7 @@
 // FHIR Provenance Service for Data Lineage Tracking
 // Reference: https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition-Provenance-twcore.html
 // Reference: https://build.fhir.org/provenance.html
+import { logger } from './logger.js';
 // ============================================================================
 // Constants
 // ============================================================================
@@ -15,6 +16,7 @@ const CODE_SYSTEMS = {
     PROVENANCE_ENTITY_ROLE: 'http://hl7.org/fhir/provenance-entity-role',
     SIGNATURE_TYPE: 'urn:iso-astm:E1762-95:2013',
     TW_CORE: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-activity-type',
+    TW_PROVENANCE_PARTICIPANT: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-participant-type-tw',
     ACT_REASON: 'http://terminology.hl7.org/CodeSystem/v3-ActReason',
     DATA_SOURCE: 'https://medcalc-ehr.example.com/CodeSystem/data-source-type'
 };
@@ -325,12 +327,20 @@ export class ProvenanceService {
             provenance.policy = params.policies;
         }
         // Add agents
+        // TW Core Provenance requires agent.type (min=1) with dual-coding
         for (const agent of params.agents) {
             const agentTypeCode = AGENT_TYPE_CODES[agent.type];
             const agentRoleCode = AGENT_ROLE_CODES[agent.role];
+            // Dual-coding: HL7 standard + TW Core participant type
+            const typeCoding = [agentTypeCode];
+            typeCoding.push({
+                system: CODE_SYSTEMS.TW_PROVENANCE_PARTICIPANT,
+                code: agentTypeCode.code,
+                display: agentTypeCode.display,
+            });
             const fhirAgent = {
                 type: {
-                    coding: [agentTypeCode]
+                    coding: typeCoding
                 },
                 role: [
                     {
@@ -348,9 +358,17 @@ export class ProvenanceService {
             provenance.agent.push(fhirAgent);
         }
         // Always add the application as an agent (assembler)
+        // Ensure type is present (TW Core min=1)
         provenance.agent.push({
             type: {
-                coding: [AGENT_TYPE_CODES.device]
+                coding: [
+                    AGENT_TYPE_CODES.device,
+                    {
+                        system: CODE_SYSTEMS.TW_PROVENANCE_PARTICIPANT,
+                        code: AGENT_TYPE_CODES.device.code,
+                        display: AGENT_TYPE_CODES.device.display,
+                    }
+                ]
             },
             role: [
                 {
@@ -711,7 +729,7 @@ export class ProvenanceService {
             this.log(`Provenance stored locally (${stored.length} pending)`);
         }
         catch (error) {
-            console.error('Failed to store provenance locally:', error);
+            logger.error('Failed to store provenance locally', { error: String(error) });
         }
     }
     /**
@@ -823,7 +841,7 @@ export class ProvenanceService {
      */
     log(...args) {
         if (this.config.enableDebugLogging) {
-            console.log('[Provenance]', ...args);
+            logger.debug('[Provenance]', { detail: args.map(String).join(' ') });
         }
     }
     /**

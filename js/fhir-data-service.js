@@ -12,6 +12,9 @@ import { UnitConverter } from './unit-converter.js';
 import { fhirFeedback } from './fhir-feedback.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
+import { logger } from './logger.js';
+import { getActiveAdapter } from './ehr-adapters/index.js';
+import { TW_CORE_PROFILES, TW_IDENTIFIER_SYSTEMS, TW_IDENTIFIER_TYPE_CODES, getTWCoreObservationProfile, } from './twcore/index.js';
 // ============================================================================
 // FHIR Data Service Class
 // ============================================================================
@@ -107,7 +110,7 @@ export class FHIRDataService {
                 if (response.entry && response.entry.length > 0) {
                     const resource = response.entry[0].resource;
                     if (isRestrictedResource(resource)) {
-                        console.warn(`[Security] Access to restricted Observation (${textName}) blocked.`);
+                        logger.warn('Access to restricted Observation blocked', { detail: textName });
                         observation = null;
                     }
                     else {
@@ -116,21 +119,27 @@ export class FHIRDataService {
                 }
             }
             else {
-                // Standard LOINC query
-                observation = await getMostRecentObservation(this.client, code);
+                // Standard LOINC query — apply EHR adapter code transformation if available
+                const adapter = getActiveAdapter();
+                const transformedCode = adapter ? adapter.transformCode(code) : code;
+                observation = await getMostRecentObservation(this.client, transformedCode);
             }
             // Cache the result (cache key remains the original code/LOINC for consistency)
             if (observation && this.patientId) {
                 await fhirCache.cacheObservation(this.patientId, code, observation);
                 // Log FHIR resource access to audit trail (IHE BALP)
                 auditEventService.logResourceRead('Observation', observation.id || code, `code=${code}`).catch(err => {
-                    console.warn('[FHIRDataService] Failed to log resource read audit:', err);
+                    logger.warn('Failed to log resource read audit', { error: String(err) });
                 });
             }
             return this.processObservation(observation, code, options);
         }
         catch (error) {
-            console.error(`Error fetching observation ${code} (TextQuery: ${options.useTextQuery}):`, error);
+            logger.error('Error fetching observation', {
+                code,
+                textQuery: String(options.useTextQuery),
+                error: String(error)
+            });
             return result;
         }
     }
@@ -162,6 +171,21 @@ export class FHIRDataService {
             result.value = observation.valueQuantity.value;
             result.originalValue = result.value;
         }
+        // Special handling for GCS: Aggregation from components if total score is missing
+        if (code === LOINC_CODES.GCS && result.value === null && observation.component) {
+            const getComponentValue = (compCode) => {
+                const comp = observation.component.find((c) => c.code?.coding?.some((coding) => coding.code === compCode));
+                return comp?.valueQuantity?.value;
+            };
+            const eye = getComponentValue(LOINC_CODES.GCS_EYE);
+            const verbal = getComponentValue(LOINC_CODES.GCS_VERBAL);
+            const motor = getComponentValue(LOINC_CODES.GCS_MOTOR);
+            if (eye !== undefined && verbal !== undefined && motor !== undefined) {
+                result.value = eye + verbal + motor;
+                result.originalValue = result.value;
+                result.unit = '{score}';
+            }
+        }
         // Extract unit
         if (observation.valueQuantity?.unit) {
             result.unit = observation.valueQuantity.unit;
@@ -178,6 +202,19 @@ export class FHIRDataService {
             if (stalenessInfo) {
                 result.isStale = stalenessInfo.isStale;
                 result.ageInDays = stalenessInfo.ageInDays;
+            }
+        }
+        // TW Core Observation profile detection
+        // Priority: server-side meta.profile > local LOINC-to-profile lookup
+        const serverProfiles = observation.meta?.profile || [];
+        const twcoreServerProfile = serverProfiles.find((p) => p.startsWith('https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-'));
+        if (twcoreServerProfile) {
+            result.twcoreProfile = twcoreServerProfile;
+        }
+        else {
+            const localProfile = getTWCoreObservationProfile(code);
+            if (localProfile) {
+                result.twcoreProfile = localProfile;
             }
         }
         // Unit conversion
@@ -221,7 +258,7 @@ export class FHIRDataService {
             return [];
         }
         catch (error) {
-            console.error(`Error fetching all observations for ${code}:`, error);
+            logger.error('Error fetching all observations', { code, error: String(error) });
             return [];
         }
     }
@@ -236,7 +273,7 @@ export class FHIRDataService {
             return await getMostRecentObservation(this.client, code);
         }
         catch (error) {
-            console.error(`Error fetching raw observation ${code}:`, error);
+            logger.error('Error fetching raw observation', { code, error: String(error) });
             return null;
         }
     }
@@ -280,7 +317,7 @@ export class FHIRDataService {
             return results;
         }
         catch (error) {
-            console.error(`Error fetching observation window for ${code}:`, error);
+            logger.error('Error fetching observation window', { code, error: String(error) });
             return [];
         }
     }
@@ -385,7 +422,7 @@ export class FHIRDataService {
             return result;
         }
         catch (error) {
-            console.error('Error fetching blood pressure:', error);
+            logger.error('Error fetching blood pressure', { error: String(error) });
             return result;
         }
     }
@@ -480,7 +517,7 @@ export class FHIRDataService {
                     }
                 }
                 catch (e) {
-                    console.error('Error auto-populating BP:', e);
+                    logger.error('Error auto-populating BP', { error: String(e) });
                 }
             }
             // Process remaining fields (exclude successfully processed BP fields)
@@ -547,7 +584,7 @@ export class FHIRDataService {
             return await getPatientConditions(this.client, snomedCodes);
         }
         catch (error) {
-            console.error('Error fetching conditions:', error);
+            logger.error('Error fetching conditions', { error: String(error) });
             return [];
         }
     }
@@ -557,6 +594,28 @@ export class FHIRDataService {
     async hasCondition(snomedCodes) {
         const conditions = await this.getConditions(snomedCodes);
         return conditions.length > 0;
+    }
+    /**
+     * Check if patient has any condition matching the given ICD-10 prefixes
+     */
+    async hasConditionByPrefix(prefixes) {
+        if (!this.client) {
+            return false;
+        }
+        try {
+            const { getAllActiveConditions } = await import('./utils.js');
+            const conditions = await getAllActiveConditions(this.client);
+            return conditions.some((condition) => {
+                const codings = condition.code?.coding || [];
+                return codings.some((coding) => {
+                    return prefixes.some(prefix => coding.code?.startsWith(prefix));
+                });
+            });
+        }
+        catch (error) {
+            logger.error('Error checking conditions by prefix', { error: String(error) });
+            return false;
+        }
     }
     /**
      * Get patient medications by RxNorm codes
@@ -569,7 +628,7 @@ export class FHIRDataService {
             return await getMedicationRequests(this.client, rxnormCodes);
         }
         catch (error) {
-            console.error('Error fetching medications:', error);
+            logger.error('Error fetching medications', { error: String(error) });
             return [];
         }
     }
@@ -696,6 +755,69 @@ export class FHIRDataService {
         };
     }
     // ========================================================================
+    // TW Core Patient Methods
+    // ========================================================================
+    /**
+     * Extract patient identifiers classified by TW Core identifier systems.
+     * Returns National ID, Passport, Resident Certificate, and Medical Record Number.
+     */
+    getPatientIdentifiers() {
+        if (!this.patient?.identifier) {
+            return [];
+        }
+        const result = [];
+        for (const id of this.patient.identifier) {
+            if (!id.system || !id.value)
+                continue;
+            switch (id.system) {
+                case TW_IDENTIFIER_SYSTEMS.NATIONAL_ID:
+                    result.push({ type: 'NATIONAL_ID', system: id.system, value: id.value, label: '國民身分證' });
+                    break;
+                case TW_IDENTIFIER_SYSTEMS.PASSPORT:
+                    result.push({ type: 'PASSPORT', system: id.system, value: id.value, label: '護照' });
+                    break;
+                case TW_IDENTIFIER_SYSTEMS.RESIDENT_CERTIFICATE:
+                    result.push({ type: 'RESIDENT_CERTIFICATE', system: id.system, value: id.value, label: '居留證' });
+                    break;
+                case TW_IDENTIFIER_SYSTEMS.MEDICAL_RECORD:
+                    result.push({ type: 'MEDICAL_RECORD', system: id.system, value: id.value, label: '病歷號' });
+                    break;
+                default:
+                    // Check type.coding for MR code (common hospital pattern)
+                    if (id.type?.coding?.some(c => c.code === TW_IDENTIFIER_TYPE_CODES.MEDICAL_RECORD.code)) {
+                        result.push({ type: 'MEDICAL_RECORD', system: id.system, value: id.value, label: '病歷號' });
+                    }
+                    break;
+            }
+        }
+        return result;
+    }
+    /**
+     * Get patient age with TW Core person-age extension support.
+     * Prefers the FHIR person-age extension value, falls back to calculateAge from birthDate.
+     */
+    getPatientAgeTWCore() {
+        // 1. Check for person-age extension
+        if (this.patient?.extension) {
+            const ageExt = this.patient.extension.find(ext => ext.url === 'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/person-age' ||
+                ext.url === 'http://hl7.org/fhir/StructureDefinition/patient-age');
+            if (ageExt?.valueAge?.value !== undefined) {
+                return ageExt.valueAge.value;
+            }
+        }
+        // 2. Fallback to calculateAge
+        return this.getPatientAge();
+    }
+    /**
+     * Check if the patient resource has a TW Core Patient profile in meta.profile.
+     */
+    isTWCorePatient() {
+        if (!this.patient?.meta?.profile) {
+            return false;
+        }
+        return this.patient.meta.profile.includes(TW_CORE_PROFILES.Patient);
+    }
+    // ========================================================================
     // Provenance Tracking
     // ========================================================================
     /**
@@ -729,10 +851,10 @@ export class FHIRDataService {
                     display: 'Source observation'
                 })), `Calculated using ${calculatorName}`);
             }
-            console.log(`[FHIRDataService] Recorded provenance for ${calculatorName}`);
+            logger.info('Recorded provenance', { calculatorId: calculatorName });
         }
         catch (err) {
-            console.warn('[FHIRDataService] Failed to record calculation provenance:', err);
+            logger.warn('Failed to record calculation provenance', { error: String(err) });
         }
     }
     /**

@@ -54,12 +54,11 @@ export async function loadCalculator(calculatorId) {
         return module;
     }
     catch (error) {
-        console.error(`Failed to load calculator: ${calculatorId}`, error);
         throw new Error(`Calculator "${calculatorId}" not found`);
     }
 }
 /**
- * Lazy load Chart.js only when needed
+ * Lazy load Chart.js only when needed (bundled via Vite)
  * @returns Chart.js module
  */
 let chartJsPromise = null;
@@ -67,26 +66,8 @@ export function loadChartJS() {
     if (chartJsPromise) {
         return chartJsPromise;
     }
-    chartJsPromise = new Promise((resolve, reject) => {
-        // Check if Chart.js is already loaded
-        if (window.Chart) {
-            resolve(window.Chart);
-            return;
-        }
-        // Load from CDN
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js';
-        script.async = true;
-        script.onload = () => {
-            if (window.Chart) {
-                resolve(window.Chart);
-            }
-            else {
-                reject(new Error('Chart.js failed to load'));
-            }
-        };
-        script.onerror = () => reject(new Error('Failed to load Chart.js'));
-        document.head.appendChild(script);
+    chartJsPromise = import('chart.js').then(module => {
+        return module.Chart;
     });
     return chartJsPromise;
 }
@@ -149,7 +130,6 @@ export class ImageLazyLoader {
         };
         tempImg.onerror = () => {
             img.classList.add('error');
-            console.error(`Failed to load image: ${src}`);
         };
         // Add loading class
         img.classList.add('loading');

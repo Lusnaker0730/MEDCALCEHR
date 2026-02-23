@@ -1,10 +1,24 @@
 // src/main.ts
+import FHIR from 'fhirclient';
 import { displayPatientInfo } from './utils.js';
 import { calculatorModules, categories } from './calculators/index.js';
 import { favoritesManager } from './favorites.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { initSentry } from './sentry.js';
+import { logger } from './logger.js';
+import { initWebVitals } from './web-vitals.js';
+import { FuzzySearch } from './fuzzy-search.js';
+import { calculationHistory } from './calculation-history.js';
+import { initI18n, t, hydrateI18n, onLocaleChange } from './i18n/index.js';
+// Initialize Sentry early
+initSentry();
+// Initialize Web Vitals
+initWebVitals();
+// Initialize i18n
+initI18n();
+const fuzzySearch = new FuzzySearch(calculatorModules);
 /**
  * Sort calculator list
  */
@@ -49,6 +63,13 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
                 .filter((calc) => calc !== undefined);
             return filtered; // Keep order for recent
         }
+        case 'history': {
+            // We just return an empty array here because history rendering is handled
+            // completely separately in updateDisplay() by calling renderHistoryList()
+            // We shouldn't map history entries back to calculator modules as they contain
+            // their own localized title and timestamp info.
+            return [];
+        }
         case 'all':
         default:
             // No special filter
@@ -58,11 +79,18 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
     if (category && category !== 'all') {
         filtered = filtered.filter(calc => calc.category === category);
     }
-    // Filter by search term
+    // Filter by search term (fuzzy search for 2+ chars, substring for 1 char)
     if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        filtered = filtered.filter(calc => calc.title.toLowerCase().includes(term) ||
-            (calc.description && calc.description.toLowerCase().includes(term)));
+        if (searchTerm.trim().length >= 2) {
+            const fuzzyResults = fuzzySearch.search(searchTerm);
+            const filteredIds = new Set(filtered.map(c => c.id));
+            filtered = fuzzyResults.filter(c => filteredIds.has(c.id));
+        }
+        else {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(calc => calc.title.toLowerCase().includes(term) ||
+                (calc.description && calc.description.toLowerCase().includes(term)));
+        }
     }
     return filtered;
 }
@@ -72,7 +100,7 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
 function renderCalculatorList(calculators, container) {
     container.innerHTML = '';
     if (calculators.length === 0) {
-        container.innerHTML = `<p class="no-results">No calculators found matching your criteria.</p>`;
+        container.innerHTML = `<p class="no-results">${t('noResults')}</p>`;
         return;
     }
     calculators.forEach(calc => {
@@ -90,7 +118,7 @@ function renderCalculatorList(calculators, container) {
         if (calc.category) {
             const categoryBadge = document.createElement('span');
             categoryBadge.className = 'category-badge';
-            categoryBadge.textContent = categories[calc.category] || calc.category;
+            categoryBadge.textContent = t(`category.${calc.category}`) || categories[calc.category] || calc.category;
             categoryBadge.setAttribute('data-category', calc.category);
             contentDiv.appendChild(categoryBadge);
         }
@@ -108,15 +136,15 @@ function renderCalculatorList(calculators, container) {
         favoriteBtn.setAttribute('data-calculator-id', calc.id);
         favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
         favoriteBtn.title = favoritesManager.isFavorite(calc.id)
-            ? 'Remove from Favorites'
-            : 'Add to Favorites';
+            ? t('favorites.remove')
+            : t('favorites.add');
         // Prevent clicking favorite button from triggering link
         favoriteBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             const isFavorite = favoritesManager.toggleFavorite(calc.id);
             favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
-            favoriteBtn.title = isFavorite ? 'Remove from Favorites' : 'Add to Favorites';
+            favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
         });
         link.appendChild(favoriteBtn);
         container.appendChild(link);
@@ -128,8 +156,96 @@ function renderCalculatorList(calculators, container) {
 function updateStats(total, showing) {
     const statsEl = document.getElementById('calculator-stats');
     if (statsEl) {
-        statsEl.textContent = `Showing ${showing} / ${total} results`;
+        statsEl.textContent = t('stats.showing', { showing, total });
     }
+}
+/**
+ * Render category chips (desktop horizontal bar)
+ */
+function renderCategoryChips(container, currentCategory, onCategoryChange) {
+    container.innerHTML = '';
+    const allChip = document.createElement('button');
+    allChip.className = `category-chip${currentCategory === 'all' ? ' active' : ''}`;
+    allChip.textContent = t('filter.all');
+    allChip.addEventListener('click', () => onCategoryChange('all'));
+    container.appendChild(allChip);
+    Object.keys(categories).forEach(key => {
+        const count = calculatorModules.filter(c => c.category === key).length;
+        const chip = document.createElement('button');
+        chip.className = `category-chip${currentCategory === key ? ' active' : ''}`;
+        const label = document.createTextNode(t(`category.${key}`) + ' ');
+        chip.appendChild(label);
+        const badge = document.createElement('span');
+        badge.className = 'chip-count';
+        badge.textContent = String(count);
+        chip.appendChild(badge);
+        chip.addEventListener('click', () => onCategoryChange(key));
+        container.appendChild(chip);
+    });
+}
+/**
+ * Render recently used calculator strip
+ */
+function renderRecentStrip(container) {
+    const recent = favoritesManager.getRecent().slice(0, 5);
+    if (recent.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = '';
+    container.innerHTML = '';
+    const title = document.createElement('div');
+    title.className = 'recent-strip-title';
+    title.textContent = t('recentStrip.title');
+    container.appendChild(title);
+    const list = document.createElement('div');
+    list.className = 'recent-strip-list';
+    recent.forEach(id => {
+        const calc = calculatorModules.find(c => c.id === id);
+        if (!calc)
+            return;
+        const item = document.createElement('a');
+        item.href = `calculator.html?name=${calc.id}`;
+        item.className = 'recent-strip-item';
+        item.textContent = calc.title;
+        list.appendChild(item);
+    });
+    container.appendChild(list);
+}
+/**
+ * Render calculation history list
+ */
+function renderHistoryList(container) {
+    const entries = calculationHistory.getEntries(50);
+    container.innerHTML = '';
+    if (entries.length === 0) {
+        container.innerHTML = `<p class="no-results">${t('historyList.empty')}</p>`;
+        return;
+    }
+    const list = document.createElement('div');
+    list.className = 'history-list';
+    entries.forEach(entry => {
+        const item = document.createElement('a');
+        item.href = `calculator.html?name=${entry.calculatorId}`;
+        item.className = 'history-entry';
+        const header = document.createElement('div');
+        header.className = 'history-entry-header';
+        const titleEl = document.createElement('span');
+        titleEl.className = 'history-entry-title';
+        titleEl.textContent = entry.calculatorTitle;
+        header.appendChild(titleEl);
+        const time = document.createElement('span');
+        time.className = 'history-entry-time';
+        time.textContent = new Date(entry.timestamp).toLocaleString();
+        header.appendChild(time);
+        item.appendChild(header);
+        const summary = document.createElement('div');
+        summary.className = 'history-entry-summary';
+        summary.textContent = entry.resultSummary;
+        item.appendChild(summary);
+        list.appendChild(item);
+    });
+    container.appendChild(list);
 }
 /**
  * Main program
@@ -143,7 +259,7 @@ window.onload = () => {
     const categorySelectEl = document.getElementById('category-select');
     const filterBtns = document.querySelectorAll('.filter-btn');
     if (!patientInfoEl || !calculatorListEl || !searchBarEl || !sortSelectEl) {
-        console.error('Required DOM elements not found');
+        logger.error('Required DOM elements not found');
         return;
     }
     // Type narrowing - these are guaranteed to be non-null after the check above
@@ -161,6 +277,32 @@ window.onload = () => {
      */
     function updateDisplay() {
         const searchTerm = searchBar.value;
+        // Show/hide recent strip (only when filter='all' and no search)
+        const recentStripEl = document.getElementById('recent-strip');
+        if (recentStripEl) {
+            if (currentFilterType === 'all' && !searchTerm) {
+                renderRecentStrip(recentStripEl);
+            }
+            else {
+                recentStripEl.style.display = 'none';
+            }
+        }
+        // Render category chips (sync with dropdown)
+        const categoryChipsEl = document.getElementById('category-chips');
+        if (categoryChipsEl) {
+            renderCategoryChips(categoryChipsEl, currentCategory, (cat) => {
+                currentCategory = cat;
+                if (categorySelect)
+                    categorySelect.value = cat;
+                updateDisplay();
+            });
+        }
+        // History mode: render history entries directly
+        if (currentFilterType === 'history') {
+            renderHistoryList(calculatorListDiv);
+            updateStats(calculatorModules.length, calculationHistory.getEntryCount());
+            return;
+        }
         // Filter and sort
         const filtered = filterCalculators(calculatorModules, currentFilterType, currentCategory, searchTerm);
         const sorted = sortCalculators(filtered, currentSortType);
@@ -202,73 +344,82 @@ window.onload = () => {
                     btn.appendChild(countBadge);
                 }
             }
+            else if (filterType === 'history') {
+                const count = calculationHistory.getEntryCount();
+                btn.querySelector('.filter-count')?.remove();
+                if (count > 0) {
+                    const countBadge = document.createElement('span');
+                    countBadge.className = 'filter-count';
+                    countBadge.textContent = count.toString();
+                    btn.appendChild(countBadge);
+                }
+            }
         });
     }
     // ========== Initialize FHIR ==========
     displayPatientInfo(null, patientInfoDiv);
-    if (typeof window.FHIR !== 'undefined') {
-        window.FHIR.oauth2
-            .ready()
-            .then(async (client) => {
-            displayPatientInfo(client, patientInfoDiv);
-            // Fetch User/Practitioner Info
-            try {
-                // Try to read the user (Practitioner) from the client
-                const user = await client.user.read();
-                const practitionerNameEl = document.getElementById('practitioner-name');
-                const practitionerInfoEl = document.getElementById('practitioner-info');
-                if (user &&
-                    (user.resourceType === 'Practitioner' ||
-                        user.resourceType === 'PractitionerRole')) {
-                    let name = 'Unknown Practitioner';
-                    if (user.resourceType === 'Practitioner') {
-                        name =
-                            user.name?.[0]?.text ||
-                                `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
-                    }
-                    else if (user.resourceType === 'PractitionerRole' &&
-                        user.practitioner?.display) {
-                        name = user.practitioner.display;
-                    }
-                    if (practitionerNameEl)
-                        practitionerNameEl.textContent = name || 'Practitioner';
-                    if (practitionerInfoEl) {
-                        practitionerInfoEl.classList.remove('hidden');
-                        practitionerInfoEl.style.display = 'flex';
-                    }
-                    // Set Practitioner ID for favorites
-                    if (user.id) {
-                        favoritesManager.setPractitionerId(user.id);
-                        console.log(`[MedCalc] Practitioner set to: ${user.id}`);
-                        // Log login event to audit trail (IHE BALP)
-                        auditEventService.logLogin(user.id, name, true).catch(err => {
-                            console.warn('[MedCalc] Failed to log audit event:', err);
-                        });
-                        // Set provenance context for data lineage tracking
-                        provenanceService.setPractitioner(user.id, name);
-                    }
+    FHIR.oauth2
+        .ready()
+        .then(async (client) => {
+        displayPatientInfo(client, patientInfoDiv);
+        // Fetch User/Practitioner Info
+        try {
+            // Try to read the user (Practitioner) from the client
+            const user = await client.user.read();
+            const practitionerNameEl = document.getElementById('practitioner-name');
+            const practitionerInfoEl = document.getElementById('practitioner-info');
+            if (user &&
+                (user.resourceType === 'Practitioner' ||
+                    user.resourceType === 'PractitionerRole')) {
+                let name = 'Unknown Practitioner';
+                if (user.resourceType === 'Practitioner') {
+                    name =
+                        user.name?.[0]?.text ||
+                            `${user.name?.[0]?.family || ''} ${user.name?.[0]?.given?.join(' ') || ''}`.trim();
+                }
+                else if (user.resourceType === 'PractitionerRole' &&
+                    user.practitioner?.display) {
+                    name = user.practitioner.display;
+                }
+                if (practitionerNameEl)
+                    practitionerNameEl.textContent = name || 'Practitioner';
+                if (practitionerInfoEl) {
+                    practitionerInfoEl.classList.remove('hidden');
+                    practitionerInfoEl.style.display = 'flex';
+                }
+                // Set Practitioner ID for favorites
+                if (user.id) {
+                    favoritesManager.setPractitionerId(user.id);
+                    calculationHistory.setPractitionerId(user.id);
+                    logger.info('Practitioner set', { practitionerId: user.id });
+                    // Log login event to audit trail (IHE BALP)
+                    auditEventService.logLogin(user.id, name, true).catch(err => {
+                        logger.warn('Failed to log audit event', { error: String(err) });
+                    });
+                    // Set provenance context for data lineage tracking
+                    provenanceService.setPractitioner(user.id, name);
                 }
             }
-            catch (error) {
-                console.warn('[MedCalc] Failed to fetch user info:', error);
-            }
-        })
-            .catch(() => {
-            console.log('FHIR client not ready, patient info will be loaded from cache if available.');
-        });
-    }
+        }
+        catch (error) {
+            logger.warn('Failed to fetch user info', { error: String(error) });
+        }
+    })
+        .catch(() => {
+        logger.info('FHIR client not ready, patient info will be loaded from cache if available.');
+    });
     // ========== Initialize Category Selector ==========
     if (categorySelect) {
         // Add All option
         const allOption = document.createElement('option');
         allOption.value = 'all';
-        allOption.textContent = 'All Categories';
+        allOption.textContent = t('category.all');
         categorySelect.appendChild(allOption);
         // Add category options
         Object.keys(categories).forEach(categoryKey => {
             const option = document.createElement('option');
             option.value = categoryKey;
-            option.textContent = categories[categoryKey];
+            option.textContent = t(`category.${categoryKey}`);
             categorySelect.appendChild(option);
         });
         categorySelect.addEventListener('change', (e) => {
@@ -295,7 +446,7 @@ window.onload = () => {
     favoritesManager.addListener(() => {
         updateFilterButtons();
         // If currently showing favorites/recent, update list
-        if (currentFilterType === 'favorites' || currentFilterType === 'recent') {
+        if (currentFilterType === 'favorites' || currentFilterType === 'recent' || currentFilterType === 'history') {
             updateDisplay();
         }
     });
@@ -307,7 +458,29 @@ window.onload = () => {
             sessionManager.logout();
         });
     }
+    // ========== i18n: Re-render on locale change ==========
+    onLocaleChange(() => {
+        hydrateI18n();
+        // Re-populate category selector with translated labels
+        if (categorySelect) {
+            categorySelect.innerHTML = '';
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all';
+            allOpt.textContent = t('category.all');
+            categorySelect.appendChild(allOpt);
+            Object.keys(categories).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = t(`category.${key}`);
+                categorySelect.appendChild(opt);
+            });
+            categorySelect.value = currentCategory;
+        }
+        updateDisplay();
+        updateFilterButtons();
+    });
     // ========== Initial Render ==========
+    hydrateI18n();
     updateDisplay();
     updateFilterButtons();
 };

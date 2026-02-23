@@ -88,16 +88,11 @@ function filterCalculators(
             return filtered; // Keep order for recent
         }
         case 'history': {
-            const entries = calculationHistory.getEntries(20);
-            const seen = new Set<string>();
-            filtered = entries
-                .map(entry => calculators.find(calc => calc.id === entry.calculatorId))
-                .filter((calc): calc is CalculatorMetadata => {
-                    if (!calc || seen.has(calc.id)) return false;
-                    seen.add(calc.id);
-                    return true;
-                });
-            return filtered;
+            // We just return an empty array here because history rendering is handled
+            // completely separately in updateDisplay() by calling renderHistoryList()
+            // We shouldn't map history entries back to calculator modules as they contain
+            // their own localized title and timestamp info.
+            return [];
         }
         case 'all':
         default:

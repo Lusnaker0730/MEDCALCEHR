@@ -15,46 +15,54 @@ export const calculateGraceAcs = values => {
     }
     // Age points
     let agePoints = 0;
-    if (age >= 40 && age <= 49)
-        agePoints = 18;
+    if (age <= 30)
+        agePoints = 0;
+    else if (age >= 30 && age <= 39)
+        agePoints = 8;
+    else if (age >= 40 && age <= 49)
+        agePoints = 25;
     else if (age >= 50 && age <= 59)
-        agePoints = 36;
+        agePoints = 41;
     else if (age >= 60 && age <= 69)
-        agePoints = 55;
+        agePoints = 58;
     else if (age >= 70 && age <= 79)
-        agePoints = 73;
-    else if (age >= 80)
+        agePoints = 75;
+    else if (age >= 80 && age <= 89)
         agePoints = 91;
+    else if (age >= 90)
+        agePoints = 100;
     // HR points
     let hrPoints = 0;
-    if (hr >= 50 && hr <= 69)
+    if (hr <= 50)
         hrPoints = 0;
-    else if (hr >= 70 && hr <= 89)
+    else if (hr >= 50 && hr <= 69)
         hrPoints = 3;
+    else if (hr >= 70 && hr <= 89)
+        hrPoints = 9;
     else if (hr >= 90 && hr <= 109)
-        hrPoints = 7;
+        hrPoints = 15;
     else if (hr >= 110 && hr <= 149)
-        hrPoints = 13;
+        hrPoints = 24;
     else if (hr >= 150 && hr <= 199)
-        hrPoints = 23;
+        hrPoints = 38;
     else if (hr >= 200)
-        hrPoints = 36;
+        hrPoints = 46;
     // SBP points
     let sbpPoints = 0;
-    if (sbp >= 200)
-        sbpPoints = 0;
+    if (sbp <= 80)
+        sbpPoints = 58;
+    else if (sbp >= 80 && sbp <= 99)
+        sbpPoints = 53;
+    else if (sbp >= 100 && sbp <= 119)
+        sbpPoints = 43;
+    else if (sbp >= 120 && sbp <= 139)
+        sbpPoints = 34;
+    else if (sbp >= 140 && sbp <= 159)
+        sbpPoints = 24;
     else if (sbp >= 160 && sbp <= 199)
         sbpPoints = 10;
-    else if (sbp >= 140 && sbp <= 159)
-        sbpPoints = 18;
-    else if (sbp >= 120 && sbp <= 139)
-        sbpPoints = 24;
-    else if (sbp >= 100 && sbp <= 119)
-        sbpPoints = 34;
-    else if (sbp >= 80 && sbp <= 99)
-        sbpPoints = 43;
-    else if (sbp < 80)
-        sbpPoints = 53;
+    else if (sbp >= 200)
+        sbpPoints = 0;
     // Creatinine points
     let crPoints = 0;
     if (creatinine >= 0 && creatinine <= 0.39)

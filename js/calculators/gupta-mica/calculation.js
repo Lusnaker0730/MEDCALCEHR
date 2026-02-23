@@ -2,8 +2,8 @@ export const calculateGuptaMica = values => {
     const age = values['mica-age'] ? parseFloat(values['mica-age']) : null;
     const creat = values['mica-creat'] ? parseFloat(values['mica-creat']) : null;
     const functionalStatus = parseFloat(values['mica-status'] || '0');
-    const asaClass = parseFloat(values['mica-asa'] || '-6.17');
-    const procedure = parseFloat(values['mica-procedure'] || '-0.74');
+    const asaClass = parseFloat(values['mica-asa'] || '-5.17');
+    const procedure = parseFloat(values['mica-procedure'] || '0');
     if (age === null || creat === null) {
         return [];
     }

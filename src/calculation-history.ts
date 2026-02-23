@@ -21,6 +21,36 @@ export class CalculationHistory {
 
     setPractitionerId(id: string | null): void {
         this.practitionerId = id;
+        // Migrate any entries saved without practitioner scope to the scoped key
+        if (id) {
+            this.migrateUnscopedEntries();
+        }
+    }
+
+    /**
+     * Move entries from the unscoped key ("calculation-history") into the
+     * practitioner-scoped key so that previously orphaned records become visible.
+     */
+    private migrateUnscopedEntries(): void {
+        try {
+            const unscopedData = localStorage.getItem(BASE_KEY);
+            if (!unscopedData) return;
+
+            const unscopedEntries: HistoryEntry[] = JSON.parse(unscopedData);
+            if (unscopedEntries.length === 0) return;
+
+            // Merge: existing scoped entries first, then unscoped (older)
+            const scopedEntries = this.getEntries();
+            const merged = [...scopedEntries, ...unscopedEntries]
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                .slice(0, MAX_ENTRIES);
+
+            this.save(merged);
+            localStorage.removeItem(BASE_KEY);
+            logger.info('Migrated unscoped calculation history entries', { count: unscopedEntries.length });
+        } catch {
+            logger.warn('Failed to migrate unscoped calculation history');
+        }
     }
 
     addEntry(entry: Omit<HistoryEntry, 'timestamp'>): void {

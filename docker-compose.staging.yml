@@ -11,15 +11,28 @@ services:
         image: medcalcehr:staging
         container_name: medcalcehr-staging
         ports:
-            - '8081:80'
+            - '8081:8080'
         restart: unless-stopped
+        security_opt:
+            - 'no-new-privileges:true'
+        cap_drop:
+            - ALL
+        tmpfs:
+            - /var/cache/nginx:uid=101,gid=101
+            - /var/run:uid=101,gid=101
+            - /tmp:uid=101,gid=101
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+                    cpus: '1.0'
         env_file:
             - .env.staging
         environment:
             - TZ=Asia/Taipei
             - SENTRY_ENVIRONMENT=staging
         healthcheck:
-            test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/']
+            test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:8080/']
             interval: 30s
             timeout: 10s
             retries: 3

@@ -16,8 +16,10 @@ export const calculate6MWD = values => {
         // female
         expectedDistance = 2.11 * heightCm - 2.29 * weightKg - 5.78 * age + 667;
     }
-    // Lower limit of normal: subtract 153 m for men and women
-    const lowerLimitNormal = expectedDistance - 153;
+    // Lower limit of normal:
+    // Male: Expected - 153 m
+    // Female: Expected - 139 m
+    const lowerLimitNormal = gender === 'male' ? expectedDistance - 153 : expectedDistance - 139;
     const results = [
         {
             label: 'Expected Distance',

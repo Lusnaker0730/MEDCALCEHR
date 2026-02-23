@@ -18,28 +18,61 @@ export function fib4Calculation(values) {
     // Note: User input checks should handle PLT units but here we assume standardized input if configured correctly.
     // Standard units: Age (years), AST (U/L), ALT (U/L), Platelets (10^9/L or K/uL - same value)
     const score = (age * ast) / (plt * Math.sqrt(alt));
-    // Interpretation
-    let interpretation = '';
-    let alertClass = 'info';
-    if (score < 1.3) {
-        interpretation = 'Low Risk (Low probability of advanced fibrosis F3-F4)';
-        alertClass = 'success';
+    const roundedScore = Number(score.toFixed(2));
+    let ageInterpretation = '';
+    let ageAlertClass = 'info';
+    // Age specific use of FIB-4 Score (Suspected NAFLD)
+    // METAVIR stage F3-F4 threshold
+    if (age <= 35) {
+        ageInterpretation = 'Alternative fibrosis assessment';
+        ageAlertClass = 'info';
     }
-    else if (score > 2.67) {
-        interpretation = 'High Risk (High probability of advanced fibrosis F3-F4)';
-        alertClass = 'danger';
+    else if (age >= 36 && age <= 64) {
+        if (score < 1.3) {
+            ageInterpretation = 'Advanced fibrosis excluded';
+            ageAlertClass = 'success';
+        }
+        else if (score >= 1.3 && score <= 2.67) {
+            ageInterpretation = 'Further investigation';
+            ageAlertClass = 'warning';
+        }
+        else {
+            ageInterpretation = 'Advanced fibrosis likely';
+            ageAlertClass = 'danger';
+        }
+    }
+    else { // age >= 65
+        if (score < 2.0) {
+            ageInterpretation = 'Advanced fibrosis excluded';
+            ageAlertClass = 'success';
+        }
+        else if (score >= 2.0 && score <= 2.67) {
+            ageInterpretation = 'Further investigation';
+            ageAlertClass = 'warning';
+        }
+        else {
+            ageInterpretation = 'Advanced fibrosis likely';
+            ageAlertClass = 'danger';
+        }
+    }
+    // Approximate fibrosis stage (Ishak staging)
+    let ishakStage = '';
+    if (score < 1.45) {
+        ishakStage = '0-1';
+    }
+    else if (score >= 1.45 && score <= 3.25) {
+        ishakStage = '2-3';
     }
     else {
-        interpretation = 'Indeterminate Risk';
-        alertClass = 'warning';
+        ishakStage = '4-6';
     }
-    return [
-        {
-            label: 'FIB-4 Score',
-            value: Number(score.toFixed(2)),
-            unit: 'points',
-            interpretation: interpretation,
-            alertClass: alertClass
-        }
-    ];
+    const result = {
+        label: 'FIB-4 Score',
+        value: roundedScore,
+        unit: 'points',
+        ageInterpretation: ageInterpretation,
+        ageAlertClass: ageAlertClass,
+        ishakStage: ishakStage
+    };
+    return [result];
 }

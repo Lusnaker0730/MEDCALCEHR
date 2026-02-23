@@ -7,9 +7,25 @@ import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globa
 // ---------------------------------------------------------------------------
 // Mocks — must be declared before importing the module under test
 // ---------------------------------------------------------------------------
+// Pre-declared mock functions for logger
+const mockLoggerDebug = jest.fn();
+const mockLoggerInfo = jest.fn();
+const mockLoggerWarn = jest.fn();
+const mockLoggerError = jest.fn();
+const mockLoggerFatal = jest.fn();
+// Mock the logger dependency (used by audit-event-service and others)
+jest.mock('../logger', () => ({
+    logger: {
+        debug: mockLoggerDebug,
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        fatal: mockLoggerFatal,
+    }
+}));
 // Mock the audit-event-service dependency
 const mockLogLogout = jest.fn().mockResolvedValue(undefined);
-jest.unstable_mockModule('../audit-event-service.js', () => ({
+jest.mock('../audit-event-service', () => ({
     auditEventService: {
         logLogout: mockLogLogout
     }
@@ -38,17 +54,11 @@ function simulateActivity(eventName) {
 describe('SessionManager', () => {
     let sessionManager;
     beforeEach(async () => {
-        // Reset all mocks
+        // Reset module registry for fresh session-manager import with different config
         jest.resetModules();
         jest.restoreAllMocks();
         mockLogLogout.mockClear();
         mockLogLogout.mockResolvedValue(undefined);
-        // Re-register the mock after resetModules (required for ESM mock stability)
-        jest.unstable_mockModule('../audit-event-service.js', () => ({
-            auditEventService: {
-                logLogout: mockLogLogout
-            }
-        }));
         // Use fake timers so we can control setTimeout / setInterval / Date.now
         jest.useFakeTimers();
         // Clear any leftover DOM overlay elements

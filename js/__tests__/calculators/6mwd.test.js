@@ -15,6 +15,8 @@ describe('6MWD Calculator', () => {
         expect(result).not.toBeNull();
         const expectedVal = result.find(r => r.label === 'Expected Distance');
         expect(expectedVal?.value).toBe('574'); // rounded
+        const llnVal = result.find(r => r.label === 'Lower Limit of Normal');
+        expect(llnVal?.value).toBe('421'); // 573.75 - 153 = 420.75 -> 421
     });
     test('Calculates Distance for Female correctly', () => {
         // formula: (2.11 × height_cm) - (2.29 × weight_kg) - (5.78 × age) + 667
@@ -30,6 +32,8 @@ describe('6MWD Calculator', () => {
         expect(result).not.toBeNull();
         const expectedVal = result.find(r => r.label === 'Expected Distance');
         expect(expectedVal?.value).toBe('520'); // rounded
+        const llnVal = result.find(r => r.label === 'Lower Limit of Normal');
+        expect(llnVal?.value).toBe('381'); // 520.4 - 139 = 381.4 -> 381
     });
     test('Calculates Percentage of Expected', () => {
         // Based on Male test expectation ~574m

@@ -2,7 +2,7 @@
  * Endotracheal Tube (ETT) Depth and Tidal Volume Calculator
  *
  * Formulas:
- *   ETT Depth (at lips) = Height (cm) / 10 + 5
+ *   ETT Depth (at lips) = Height (cm) / 10 + 4
  *
  *   IBW (Male) = 50 + 2.3 × (Height in inches - 60)
  *   IBW (Female) = 45.5 + 2.3 × (Height in inches - 60)
@@ -18,8 +18,8 @@ export const calculateETT = values => {
     if (!heightCm || isNaN(heightCm)) {
         return null;
     }
-    // ETT Depth Calculation (Height/10 + 5)
-    const ettDepth = heightCm / 10 + 5;
+    // ETT Depth Calculation (Height/10 + 4) Based on Chula formula
+    const ettDepth = heightCm / 10 + 4;
     // Ideal Body Weight (IBW) Calculation
     const heightIn = heightCm / 2.54;
     const heightInOver5Ft = Math.max(0, heightIn - 60);

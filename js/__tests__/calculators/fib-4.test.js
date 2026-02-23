@@ -11,8 +11,8 @@ describe('FIB-4 Calculator', () => {
         });
         expect(result).toHaveLength(1);
         expect(result[0].value).toBe(0.47);
-        expect(result[0].interpretation).toContain('Low Risk');
-        expect(result[0].alertClass).toBe('success');
+        expect(result[0].ageInterpretation).toContain('Alternative fibrosis assessment');
+        expect(result[0].ageAlertClass).toBe('info');
     });
     test('Should calculate High Risk correctly (> 2.67)', () => {
         // Age 60, AST 80, ALT 40, PLT 100
@@ -26,8 +26,8 @@ describe('FIB-4 Calculator', () => {
         });
         expect(result).toHaveLength(1);
         expect(result[0].value).toBe(7.59);
-        expect(result[0].interpretation).toContain('High Risk');
-        expect(result[0].alertClass).toBe('danger');
+        expect(result[0].ageInterpretation).toContain('Advanced fibrosis likely');
+        expect(result[0].ageAlertClass).toBe('danger');
     });
     test('Should calculate Indeterminate Risk correctly (1.3 - 2.67)', () => {
         // Age 50, AST 40, ALT 40, PLT 200
@@ -40,8 +40,8 @@ describe('FIB-4 Calculator', () => {
         });
         expect(result).toHaveLength(1);
         expect(result[0].value).toBe(1.58);
-        expect(result[0].interpretation).toContain('Indeterminate Risk');
-        expect(result[0].alertClass).toBe('warning');
+        expect(result[0].ageInterpretation).toContain('Further investigation');
+        expect(result[0].ageAlertClass).toBe('warning');
     });
     test('Should return empty for invalid or missing inputs', () => {
         const result = fib4Calculation({

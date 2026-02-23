@@ -1,24 +1,65 @@
 // Centralized management of LOINC and SNOMED CT codes
 /**
+ * Standard FHIR Code System URLs
+ * Canonical URIs used in Coding.system fields
+ */
+export const FHIR_CODE_SYSTEMS = {
+    /** LOINC — Logical Observation Identifiers Names and Codes */
+    LOINC: 'http://loinc.org',
+    /** SNOMED CT — Systematized Nomenclature of Medicine */
+    SNOMED_CT: 'http://snomed.info/sct',
+    /** ICD-10 (WHO) */
+    ICD10: 'http://hl7.org/fhir/sid/icd-10',
+    /** ICD-10-CM (US Clinical Modification) */
+    ICD10_CM: 'http://hl7.org/fhir/sid/icd-10-cm',
+    /** ICD-10-CM Taiwan NHI 2023 version (TW Core primary) */
+    ICD10_CM_TW: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-cm-2023-tw',
+    /** ICD-10-PCS Taiwan NHI 2023 version */
+    ICD10_PCS_TW: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-pcs-2023-tw',
+    /** RxNorm — medication codes */
+    RXNORM: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+    /** HL7 Observation Category */
+    OBSERVATION_CATEGORY: 'http://terminology.hl7.org/CodeSystem/observation-category',
+    /** HL7 Condition Clinical Status */
+    CONDITION_CLINICAL: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
+    /** HL7 v2 Identifier Type */
+    V2_IDENTIFIER_TYPE: 'http://terminology.hl7.org/CodeSystem/v2-0203',
+};
+/**
  * LOINC Codes Registry
  * Standard codes for laboratory and clinical observations
  * Reference: https://loinc.org/
  */
 export const LOINC_CODES = {
     // Vital Signs
+    VITAL_SIGNS_PANEL: '85353-1', // Vital signs, weight, height, head circumference, oxygen saturation, and BMI panel
     SYSTOLIC_BP: '8480-6', // Systolic blood pressure
     DIASTOLIC_BP: '8462-4', // Diastolic blood pressure
-    BP_PANEL: '85354-9,55284-4', // Blood pressure panel
+    /** Blood pressure panel — comma = FHIR OR search (85354-9 panel | 55284-4 systolic+diastolic) */
+    BP_PANEL: '85354-9', // Blood pressure panel
+    BP_PANEL_ALT: '55284-4', // Blood pressure panel (alternative)
+    MEAN_BP: '8478-0', // Mean blood pressure
     HEART_RATE: '8867-4', // Heart rate
     RESPIRATORY_RATE: '9279-1', // Respiratory rate
-    TEMPERATURE: '8310-5,8331-1', // Body temperature (and Oral)
+    /** Body temperature — comma = FHIR OR search (8310-5 core | 8331-1 oral) */
+    TEMPERATURE: '8310-5', // Body temperature (and Oral)
+    TEMPERATURE_ORAL: '8331-1', // Oral temperature
     OXYGEN_SATURATION: '59408-5', // Oxygen saturation (Pulse Ox)
     OXYGEN_SATURATION_ARTERIAL: '2708-6', // Oxygen saturation (Arterial)
+    O2_FLOW_RATE: '3151-8', // Inhaled oxygen flow rate
+    AVG_BP_PANEL: '96607-7', // Average blood pressure panel
+    AVG_BP_SYSTOLIC: '96608-5', // Average systolic blood pressure
+    AVG_BP_DIASTOLIC: '96609-3', // Average diastolic blood pressure
     // Body Measurements
     HEIGHT: '8302-2', // Body height
     WEIGHT: '29463-7', // Body weight
     BMI: '39156-5', // Body mass index
-    HEAD_CIRCUMFERENCE: '8287-5', // Head circumference
+    HEAD_CIRCUMFERENCE: '9843-4', // Head circumference
+    HEAD_CIRCUMFERENCE_TAPE: '8287-5', // Head circumference by tape measure
+    // Pediatric Measurements
+    PEDIATRIC_BMI_FOR_AGE: '59576-9', // Pediatric BMI for age percentile
+    PEDIATRIC_WEIGHT_FOR_HEIGHT: '77606-2', // Pediatric weight for height percentile
+    PEDIATRIC_HEAD_CIRCUMFERENCE: '8289-1', // Pediatric head circumference percentile
     // Laboratory - Hematology
     HEMOGLOBIN: '718-7', // Hemoglobin
     HEMATOCRIT: '4544-3', // Hematocrit
@@ -64,7 +105,9 @@ export const LOINC_CODES = {
     URINE_POTASSIUM: '2829-0', // Urine potassium
     SERUM_OSMOLALITY: '2695-6', // Serum osmolality
     URINE_OSMOLALITY: '2697-2', // Urine osmolality
+    /** Urine sodium — comma = FHIR OR search (2828-2 24h | 2955-3 random) */
     URINE_SODIUM: '2828-2,2955-3', // Urine sodium
+    URINE_SODIUM_RANDOM: '2955-3', // Urine sodium random
     URINE_CREATININE: '2161-8', // Urine creatinine
     URINE_UREA_NITROGEN: '3095-7', // Urine Urea Nitrogen
     // Laboratory - Inflammatory Markers
@@ -98,7 +141,7 @@ export const LOINC_CODES = {
     QT_INTERVAL: '8633-1', // QT interval (raw)
     LVEF: '10230-1', // Left ventricular ejection fraction
     LVEF_2D: '18043-0', // LVEF by 2D Echo
-    PA_SYSTOLIC_PRESSURE: '8480-6', // Pulmonary artery systolic pressure
+    PA_SYSTOLIC_PRESSURE: '27164-3', // Pulmonary artery systolic pressure
     PA_MEAN_PRESSURE: '8414-5', // Pulmonary artery mean pressure
     // Laboratory - Other
     HBA1C: '4548-4', // Hemoglobin A1c
@@ -123,11 +166,15 @@ export const LOINC_CODES = {
     APGAR_1MIN: '9272-6', // Apgar score 1 minute
     APGAR_5MIN: '9274-2', // Apgar score 5 minute
     SMOKING_STATUS: '72166-2', // Smoking status
+    TOBACCO_HISTORY: '11367-0', // Tobacco use and exposure
     // Other Observations
     UREA: '3094-0', // Urea
     BLOOD_TYPE: '882-1', // Blood type
     RH_FACTOR: '10331-7', // Rh factor
-    ASA_PHYSICAL_STATUS: '11368-0' // ASA Physical Status Class
+    // GCS Components
+    GCS_EYE: '9267-6', // Glasgow coma score eye opening
+    GCS_VERBAL: '9270-0', // Glasgow coma score verbal
+    GCS_MOTOR: '9268-4', // Glasgow coma score motor
 };
 /**
  * SNOMED CT Codes Registry
@@ -145,11 +192,10 @@ export const SNOMED_CODES = {
     STROKE: '230690007',
     TIA: '266257000',
     PERIPHERAL_ARTERY_DISEASE: '399957001',
-    CARDIOGENIC_SHOCK: '27885002',
+    CARDIOGENIC_SHOCK: '89138009', //20260223修正此代碼by Lu
     ACUTE_CORONARY_SYNDROME: '394659003',
     ENDOCARDITIS: '56819008',
     PULMONARY_HYPERTENSION: '70995007',
-    PREVIOUS_CARDIAC_SURGERY: '232717009', // CABG as marker
     DEEP_VEIN_THROMBOSIS: '128053003', // DVT
     CARDIAC_ARREST: '410429000',
     // Respiratory Conditions
@@ -171,26 +217,25 @@ export const SNOMED_CODES = {
     CHRONIC_KIDNEY_DISEASE: '709044004',
     ACUTE_KIDNEY_INJURY: '14669001',
     END_STAGE_RENAL_DISEASE: '46177005',
-    DIALYSIS_DEPENDENT: '429451001',
     // Liver Conditions
     CIRRHOSIS: '19943007',
     LIVER_FAILURE: '59927004',
-    HEPATITIS: '40468003',
+    HEPATITIS: '128241005', //20260223修正此代碼by Lu
     ALCOHOLIC_LIVER_DISEASE: '41309000',
     // Hematological
     ANEMIA: '271737000',
     BLEEDING_DISORDER: '64779008',
     THROMBOCYTOPENIA: '415116008',
-    ANTICOAGULATION_THERAPY: '281789004',
+    ANTICOAGULATION_THERAPY: '182764009', //20260223修正此代碼by Lu
     // Neurological
     DEMENTIA: '52448006',
     EPILEPSY: '84757009',
     PARKINSONS_DISEASE: '49049000',
     MULTIPLE_SCLEROSIS: '24700007',
-    PARALYSIS: '166001',
+    PARALYSIS: '44695005', //20260223修正此代碼by Lu
     // Malignancies
     MALIGNANCY: '363346000',
-    METASTATIC_CANCER: '94225005',
+    METASTATIC_CANCER: '128462008', //20260223修正此代碼by Lu
     LEUKEMIA: '93143009',
     LYMPHOMA: '118600007',
     // Infections
@@ -198,21 +243,23 @@ export const SNOMED_CODES = {
     HIV: '86406008',
     TUBERCULOSIS: '56717001',
     COVID_19: '840539006',
-    // Substance Use
-    SMOKING: '77176002',
+    // Substance Use — Smoking Status Result Values (TW Core smoking-status-comprehensive-code)
+    SMOKING: '77176002', // Smoker (current status unknown)
+    NEVER_SMOKER: '266919005', // Never smoked tobacco
+    FORMER_SMOKER: '8517006', // Ex-smoker
+    SMOKING_STATUS_UNKNOWN: '266927001', // Unknown if ever smoked
+    // Substance Use — Observable Entities
+    // Substance Use — Other
     ALCOHOL_ABUSE: '7200002',
     DRUG_ABUSE: '66214007',
     // Procedures
     PACEMAKER: '14106009',
     CABG: '232717009',
     PCI: '415070008',
-    VALVE_SURGERY: '119978007',
     TRANSPLANT: '77465005',
     // Risk Factors
-    FAMILY_HISTORY_CAD: '266897004',
-    PREVIOUS_MI: '399211009',
-    PREVIOUS_STROKE: '161505003',
-    PREVIOUS_BLEEDING: '131148009',
+    FAMILY_HISTORY_CAD: '430091005', //20260223修正此代碼by Lu
+    PREVIOUS_MI: '1755008', //20260223修正此代碼by Lu
     ISCHEMIC_HEART_DISEASE: '414545008',
     FRACTURE: '125605004',
     HEMOPTYSIS: '66857006',
@@ -221,8 +268,7 @@ export const SNOMED_CODES = {
     HEMIPLEGIA: '50582007',
     AIDS: '62479008',
     SEIZURE: '91175000',
-    POSITIVE_RESULT: '260348003',
-    HISTORY_OF_VTE: '451574005'
+    HISTORY_OF_VTE: '275546001' //20260223修正此代碼by Lu
 };
 /**
  * ICD-10 Codes Registry
@@ -249,10 +295,13 @@ export const ICD10_CODES = {
     ENDOCARDITIS: 'I33.0',
     PULMONARY_HYPERTENSION: 'I27.0',
     DEEP_VEIN_THROMBOSIS: 'I82.40',
+    VTE_PREFIX: 'I82',
+    HISTORY_OF_VTE: 'I82.90',
     CARDIAC_ARREST: 'I46.9',
     ISCHEMIC_HEART_DISEASE: 'I25.9',
     // Respiratory Conditions
     COPD: 'J44.9',
+    COPD_PREFIX: 'J44',
     ASTHMA: 'J45.909',
     PNEUMONIA: 'J18.9',
     PULMONARY_EMBOLISM: 'I26.99',
@@ -276,7 +325,6 @@ export const ICD10_CODES = {
     CKD_STAGE_5: 'N18.5',
     ACUTE_KIDNEY_INJURY: 'N17.9',
     END_STAGE_RENAL_DISEASE: 'N18.6',
-    DIALYSIS_DEPENDENT: 'Z99.2',
     // Liver Conditions
     CIRRHOSIS: 'K74.60',
     LIVER_FAILURE: 'K72.90',
@@ -331,7 +379,7 @@ export const SNOMED_TO_ICD10_MAP = {
     '230690007': 'I63.9', // Stroke
     '266257000': 'G45.9', // TIA
     '399957001': 'I73.9', // PAD
-    '27885002': 'R57.0', // Cardiogenic shock
+    '89138009': 'R57.0', // Cardiogenic shock
     '394659003': 'I24.9', // ACS
     '128053003': 'I82.40', // DVT
     '410429000': 'I46.9', // Cardiac arrest
@@ -366,77 +414,11 @@ export const SNOMED_TO_ICD10_MAP = {
     '50582007': 'G81.90', // Hemiplegia
     // Malignancies
     '363346000': 'C80.1', // Malignancy
-    '94225005': 'C79.9', // Metastatic cancer
+    '128462008': 'C79.9', // Metastatic cancer
     // Infections
     '91302008': 'A41.9', // Sepsis
     '86406008': 'B20', // HIV
     '840539006': 'U07.1' // COVID-19
-};
-/**
- * RxNorm Codes Registry
- * Standard codes for medications
- * Reference: https://www.nlm.nih.gov/research/umls/rxnorm/
- *
- * NOTE: These are Ingredient-level (TTY=IN) codes, used for searching
- * patient medication records (MedicationStatement/MedicationRequest).
- * TW Core IG ValueSet "medication-rxnorm-tw" requires SCD/SBD/GPCK/BPCK
- * level codes for Medication resource binding. IN codes are intentionally
- * used here because the medical calculator only needs to determine WHETHER
- * a patient is taking a given medication class, not the specific formulation.
- * FHIR servers support hierarchical RxNorm queries (IN matches its child SCDs).
- */
-export const RXNORM_CODES = {
-    // Antiplatelets
-    ASPIRIN: '1191',
-    CLOPIDOGREL: '32968',
-    TICAGRELOR: '1116632',
-    PRASUGREL: '855812',
-    // Anticoagulants
-    WARFARIN: '11289',
-    HEPARIN: '5224',
-    ENOXAPARIN: '67108',
-    RIVAROXABAN: '1114195',
-    APIXABAN: '1364430',
-    DABIGATRAN: '1037042',
-    EDOXABAN: '1599538',
-    // Diabetic Medications
-    INSULIN: '274783',
-    // NSAIDs
-    IBUPROFEN: '5640',
-    NAPROXEN: '7258',
-    DICLOFENAC: '3355',
-    KETOROLAC: '6130',
-    INDOMETHACIN: '5775',
-    MELOXICAM: '6835',
-    CELECOXIB: '202472',
-    // Corticosteroids
-    PREDNISONE: '8640',
-    PREDNISOLONE: '8638',
-    METHYLPREDNISOLONE: '6902',
-    DEXAMETHASONE: '3264',
-    HYDROCORTISONE: '5492',
-    TRIAMCINOLONE: '10759',
-    // P2Y12 Inhibitors (alias for common names)
-    P2Y12_INHIBITOR: '32968,1116632,855812', // Clopidogrel, Ticagrelor, Prasugrel
-    // Beta Blockers
-    METOPROLOL: '6918',
-    CARVEDILOL: '20352',
-    BISOPROLOL: '16154',
-    ATENOLOL: '1202',
-    PROPRANOLOL: '8787',
-    LABETALOL: '6221',
-    // ACE Inhibitors
-    LISINOPRIL: '29046',
-    ENALAPRIL: '3827',
-    RAMIPRIL: '35296',
-    CAPTOPRIL: '1998',
-    BENAZEPRIL: '1886',
-    // ARBs (Angiotensin II Receptor Blockers)
-    LOSARTAN: '52175',
-    VALSARTAN: '69749',
-    CANDESARTAN: '83367',
-    IRBESARTAN: '83515',
-    OLMESARTAN: '259255'
 };
 /**
  * Get LOINC code by common name
@@ -590,12 +572,19 @@ export function matchDiagnosisCode(code) {
  */
 export function getVitalSignsCodes() {
     return {
+        vitalSignsPanel: LOINC_CODES.VITAL_SIGNS_PANEL,
         systolicBP: LOINC_CODES.SYSTOLIC_BP,
         diastolicBP: LOINC_CODES.DIASTOLIC_BP,
+        meanBP: LOINC_CODES.MEAN_BP,
         heartRate: LOINC_CODES.HEART_RATE,
         respiratoryRate: LOINC_CODES.RESPIRATORY_RATE,
         temperature: LOINC_CODES.TEMPERATURE,
-        oxygenSaturation: LOINC_CODES.OXYGEN_SATURATION
+        oxygenSaturation: LOINC_CODES.OXYGEN_SATURATION,
+        oxygenSaturationArterial: LOINC_CODES.OXYGEN_SATURATION_ARTERIAL,
+        height: LOINC_CODES.HEIGHT,
+        weight: LOINC_CODES.WEIGHT,
+        bmi: LOINC_CODES.BMI,
+        headCircumference: LOINC_CODES.HEAD_CIRCUMFERENCE
     };
 }
 /**
@@ -645,6 +634,7 @@ export function getLabCodesByCategory(category) {
 }
 // Export default object with all codes
 export default {
+    FHIR_CODE_SYSTEMS,
     LOINC: LOINC_CODES,
     SNOMED: SNOMED_CODES,
     ICD10: ICD10_CODES,
@@ -679,6 +669,11 @@ export function getMeasurementType(code) {
         // Vital Signs
         [LOINC_CODES.TEMPERATURE]: 'temperature', // Body temperature 8310-5
         '8331-1': 'temperature', // Oral temperature
+        // Blood Pressure
+        [LOINC_CODES.MEAN_BP]: 'pressure', // Mean blood pressure
+        [LOINC_CODES.AVG_BP_PANEL]: 'pressure', // Average BP panel
+        [LOINC_CODES.AVG_BP_SYSTOLIC]: 'pressure', // Average systolic
+        [LOINC_CODES.AVG_BP_DIASTOLIC]: 'pressure', // Average diastolic
         // Cholesterol/Lipids
         [LOINC_CODES.CHOLESTEROL_TOTAL]: 'cholesterol',
         [LOINC_CODES.HDL]: 'hdl',
@@ -709,7 +704,9 @@ export function getMeasurementType(code) {
         [LOINC_CODES.POTASSIUM]: 'electrolyte',
         // Weight/Height
         [LOINC_CODES.WEIGHT]: 'weight',
-        [LOINC_CODES.HEIGHT]: 'height'
+        [LOINC_CODES.HEIGHT]: 'height',
+        // Circumference
+        [LOINC_CODES.HEAD_CIRCUMFERENCE_TAPE]: 'circumference' // Head circumference by tape
     };
     return codeMap[primaryCode] || 'concentration';
 }

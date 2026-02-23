@@ -5,6 +5,7 @@
  * @security This module is critical for preventing XSS attacks.
  *           Any changes should be reviewed carefully and tested with penetration tests.
  */
+import { logger } from './logger.js';
 // Dangerous tags that should always be removed (mXSS prevention)
 const DANGEROUS_TAGS = [
     'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed',
@@ -167,7 +168,7 @@ export function createSafeElement(tag, content = '', attributes = {}) {
     Object.keys(attributes).forEach(key => {
         // Skip event handlers
         if (key.startsWith('on')) {
-            console.warn(`Skipping event handler attribute: ${key}`);
+            logger.warn('Skipping event handler attribute', { detail: key });
             return;
         }
         // Validate URLs for href and src
@@ -176,7 +177,7 @@ export function createSafeElement(tag, content = '', attributes = {}) {
                 element.setAttribute(key, attributes[key]);
             }
             else {
-                console.warn(`Invalid URL blocked: ${attributes[key]}`);
+                logger.warn('Invalid URL blocked', { detail: attributes[key] });
             }
         }
         else {
@@ -285,7 +286,7 @@ export function validateInput(input, options = {}) {
  */
 export function setSafeInnerHTML(element, html) {
     if (!element) {
-        console.error('setSafeInnerHTML: element is null or undefined');
+        logger.error('setSafeInnerHTML: element is null or undefined');
         return;
     }
     element.innerHTML = sanitizeHTML(html);
@@ -297,7 +298,7 @@ export function setSafeInnerHTML(element, html) {
  */
 export function setSafeTextContent(element, text) {
     if (!element) {
-        console.error('setSafeTextContent: element is null or undefined');
+        logger.error('setSafeTextContent: element is null or undefined');
         return;
     }
     element.textContent = text || '';
@@ -319,7 +320,7 @@ export function createSafeEventHandler(handler) {
             return handler.call(this, event);
         }
         catch (error) {
-            console.error('Error in event handler:', error);
+            logger.error('Error in event handler', { error: String(error) });
             return false;
         }
     };
@@ -380,7 +381,7 @@ export function encodeForStorage(data) {
         return 'enc:' + encoded; // Prefix to identify encoded data
     }
     catch (error) {
-        console.error('[Security] Failed to encode data for storage:', error);
+        logger.error('Failed to encode data for storage', { error: String(error) });
         return '';
     }
 }
@@ -403,7 +404,7 @@ export function decodeFromStorage(encoded) {
         return JSON.parse(json);
     }
     catch (error) {
-        console.error('[Security] Failed to decode data from storage:', error);
+        logger.error('Failed to decode data from storage', { error: String(error) });
         return null;
     }
 }
@@ -522,7 +523,7 @@ export async function secureSessionStore(key, data) {
         sessionStorage.setItem(key, encrypted);
     }
     catch (error) {
-        console.error('[Security] Failed to store data securely:', error);
+        logger.error('Failed to store data securely', { error: String(error) });
     }
 }
 /**
@@ -539,7 +540,7 @@ export async function secureSessionRetrieve(key) {
         return await decodeStoredData(stored, key, sessionStorage);
     }
     catch (error) {
-        console.error('[Security] Failed to retrieve data securely:', error);
+        logger.error('Failed to retrieve data securely', { error: String(error) });
         return null;
     }
 }
@@ -556,7 +557,7 @@ export async function secureLocalStore(key, data) {
         localStorage.setItem(key, encrypted);
     }
     catch (error) {
-        console.error('[Security] Failed to store data in localStorage:', error);
+        logger.error('Failed to store data in localStorage', { error: String(error) });
     }
 }
 /**
@@ -573,7 +574,7 @@ export async function secureLocalRetrieve(key) {
         return await decodeStoredData(stored, key, localStorage);
     }
     catch (error) {
-        console.error('[Security] Failed to retrieve data from localStorage:', error);
+        logger.error('Failed to retrieve data from localStorage', { error: String(error) });
         return null;
     }
 }
@@ -598,7 +599,7 @@ export function extractMinimalPatientData(patient) {
         };
     }
     catch (error) {
-        console.error('[Security] Failed to extract minimal patient data:', error);
+        logger.error('Failed to extract minimal patient data', { error: String(error) });
         return null;
     }
 }

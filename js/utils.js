@@ -1,4 +1,6 @@
 import { escapeHTML, isRestrictedResource, secureSessionStore, secureSessionRetrieve, extractMinimalPatientData } from './security.js';
+import { logger } from './logger.js';
+import { FHIR_CODE_SYSTEMS } from './fhir-codes.js';
 /** Storage key for patient display data */
 const PATIENT_CACHE_KEY = 'patientDisplayData';
 /**
@@ -17,7 +19,7 @@ export function getMostRecentObservation(client, code) {
         if (response.entry && response.entry.length > 0) {
             const resource = response.entry[0].resource;
             if (isRestrictedResource(resource)) {
-                console.warn(`[Security] Access to restricted Observation (${code}) blocked.`);
+                logger.warn('Access to restricted Observation blocked', { detail: code });
                 return null;
             }
             return resource;
@@ -25,7 +27,7 @@ export function getMostRecentObservation(client, code) {
         return null;
     })
         .catch((error) => {
-        console.error('Error fetching observation:', error);
+        logger.error('Error fetching observation', { error: String(error) });
         return null;
     });
 }
@@ -120,7 +122,7 @@ export async function displayPatientInfo(client, patientInfoDiv) {
         // Return full patient object (kept in memory only, not persisted)
         return patient;
     }, (error) => {
-        console.error(error);
+        logger.error('Error reading patient data', { error: String(error) });
         if (!cachedMinimal) {
             patientInfoDiv.innerText = 'Error fetching patient data.';
         }
@@ -128,9 +130,39 @@ export async function displayPatientInfo(client, patientInfoDiv) {
     });
 }
 /**
+ * Gets all active conditions for the patient.
+ * @param {Object} client The FHIR client instance.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
+ */
+export function getAllActiveConditions(client) {
+    if (!client || !client.patient) {
+        return Promise.resolve([]);
+    }
+    return client.patient
+        .request(`Condition?clinical-status=active&_count=50`)
+        .then((response) => {
+        if (response.entry) {
+            return response.entry
+                .map((e) => e.resource)
+                .filter((r) => {
+                if (isRestrictedResource(r)) {
+                    logger.warn('Access to restricted Condition blocked', { detail: r.id });
+                    return false;
+                }
+                return true;
+            });
+        }
+        return [];
+    })
+        .catch((error) => {
+        logger.error('Error fetching all active conditions', { error: String(error) });
+        return [];
+    });
+}
+/**
  * Gets patient's conditions for a given set of SNOMED codes.
  * @param {Object} client The FHIR client instance.
- * @param {Array<string>} codes Array of SNOMED codes for the conditions.
+ * @param {Array<string>} codes Array of codes for the conditions.
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of Condition resources.
  */
 export function getPatientConditions(client, codes) {
@@ -146,7 +178,7 @@ export function getPatientConditions(client, codes) {
                 .map((e) => e.resource)
                 .filter((r) => {
                 if (isRestrictedResource(r)) {
-                    console.warn(`[Security] Access to restricted Condition (${r.id}) blocked.`);
+                    logger.warn('Access to restricted Condition blocked', { detail: r.id });
                     return false;
                 }
                 return true;
@@ -155,7 +187,7 @@ export function getPatientConditions(client, codes) {
         return [];
     })
         .catch((error) => {
-        console.error('Error fetching patient conditions:', error);
+        logger.error('Error fetching patient conditions', { error: String(error) });
         return [];
     });
 }
@@ -172,7 +204,7 @@ export function getPatient(client) {
         .read()
         .then((patient) => patient || null)
         .catch((error) => {
-        console.error('Error fetching patient:', error);
+        logger.error('Error fetching patient', { error: String(error) });
         return null;
     });
 }
@@ -195,7 +227,7 @@ export function getObservation(client, code) {
         return null;
     })
         .catch((error) => {
-        console.error('Error fetching observation:', error);
+        logger.error('Error fetching observation', { error: String(error) });
         return null;
     });
 }
@@ -233,7 +265,7 @@ export async function getMedicationRequests(client, rxnormCodes) {
     }
     try {
         const query = new URLSearchParams({
-            code: `http://www.nlm.nih.gov/research/umls/rxnorm|${rxnormCodes.join(',')}`,
+            code: `${FHIR_CODE_SYSTEMS.RXNORM}|${rxnormCodes.join(',')}`,
             patient: client.patient.id,
             status: 'active'
         });
@@ -243,7 +275,7 @@ export async function getMedicationRequests(client, rxnormCodes) {
                 .map((e) => e.resource)
                 .filter((r) => {
                 if (isRestrictedResource(r)) {
-                    console.warn(`[Security] Access to restricted MedicationRequest (${r.id}) blocked.`);
+                    logger.warn('Access to restricted MedicationRequest blocked', { detail: r.id });
                     return false;
                 }
                 return true;
@@ -251,7 +283,7 @@ export async function getMedicationRequests(client, rxnormCodes) {
             : [];
     }
     catch (error) {
-        console.error('Error fetching medication requests:', error);
+        logger.error('Error fetching medication requests', { error: String(error) });
         return [];
     }
 }

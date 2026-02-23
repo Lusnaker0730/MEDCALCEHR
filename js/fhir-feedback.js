@@ -1,5 +1,6 @@
 // FHIR Data Loading Feedback System
 // Provides visual feedback for FHIR data loading status
+import { logger } from './logger.js';
 /** Icons for each feedback status */
 const STATUS_ICONS = {
     loading: '⏳',
@@ -297,7 +298,7 @@ export class FHIRFeedback {
                 }
             }
             catch (error) {
-                console.error(`Error loading ${field.label}:`, error);
+                logger.error('Error loading FHIR field', { detail: field.label, error: String(error) });
                 this.showError(input, field.label, error);
                 results.failed.push(field.label);
             }

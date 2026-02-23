@@ -1,16 +1,35 @@
+const NORMAL_AG = 12; // mEq/L
+const NORMAL_BICARB = 24; // mEq/L
+const NORMAL_ALBUMIN = 4; // g/dL
+const ALBUMIN_CORRECTION_FACTOR = 2.5;
+function getDeltaRatioInterpretation(deltaRatio) {
+    if (deltaRatio < 0.4) {
+        return { interpretation: 'Pure normal anion gap acidosis', alertClass: 'info' };
+    }
+    else if (deltaRatio < 0.8) {
+        return {
+            interpretation: 'Mixed high and normal anion gap acidosis',
+            alertClass: 'warning'
+        };
+    }
+    else if (deltaRatio <= 2.0) {
+        return { interpretation: 'Pure anion gap acidosis', alertClass: 'warning' };
+    }
+    else {
+        return {
+            interpretation: 'High anion gap acidosis with pre-existing metabolic alkalosis',
+            alertClass: 'danger'
+        };
+    }
+}
 export function serumAnionGapCalculation(values) {
     const naInput = values['sag-na'];
     const clInput = values['sag-cl'];
     const hco3Input = values['sag-hco3'];
-    if (naInput === undefined ||
-        naInput === null ||
-        naInput === '' ||
-        clInput === undefined ||
-        clInput === null ||
-        clInput === '' ||
-        hco3Input === undefined ||
-        hco3Input === null ||
-        hco3Input === '') {
+    const albuminInput = values['sag-albumin'];
+    if (naInput === undefined || naInput === null || naInput === '' ||
+        clInput === undefined || clInput === null || clInput === '' ||
+        hco3Input === undefined || hco3Input === null || hco3Input === '') {
         return [];
     }
     const na = Number(naInput);
@@ -19,38 +38,103 @@ export function serumAnionGapCalculation(values) {
     if (isNaN(na) || isNaN(cl) || isNaN(hco3)) {
         return [];
     }
-    // Formula: Na - (Cl + HCO3)
+    // 1. Anion Gap = Na - (Cl + HCO3)
     const anionGap = na - (cl + hco3);
-    let interpretation = '';
-    let alertClass = 'success';
-    let alertMsg = '';
-    if (anionGap > 12) {
-        interpretation = 'High Anion Gap';
-        alertClass = 'danger';
-        alertMsg =
-            'Suggests metabolic acidosis (e.g., DKA, lactic acidosis, renal failure, toxic ingestions - MUDPILES).';
+    // 2. Delta Gap = Anion Gap - Normal Anion Gap (12)
+    const deltaGap = anionGap - NORMAL_AG;
+    // 3. Delta Ratio = Delta Gap / (24 - HCO3)
+    const hco3Diff = NORMAL_BICARB - hco3;
+    const deltaRatio = hco3Diff !== 0 ? deltaGap / hco3Diff : null;
+    const results = [];
+    // Anion Gap interpretation
+    let agInterpretation = '';
+    let agAlertClass = 'success';
+    if (anionGap > NORMAL_AG) {
+        agInterpretation = 'High Anion Gap';
+        agAlertClass = 'danger';
     }
     else if (anionGap < 6) {
-        interpretation = 'Low Anion Gap';
-        alertClass = 'warning';
-        alertMsg = 'Less common, may be due to lab error, hypoalbuminemia, or paraproteinemia.';
+        agInterpretation = 'Low Anion Gap';
+        agAlertClass = 'warning';
     }
     else {
-        interpretation = 'Normal Anion Gap';
-        alertClass = 'success';
-        alertMsg =
-            'Metabolic acidosis, if present, is likely non-anion gap (e.g., diarrhea, renal tubular acidosis).';
+        agInterpretation = 'Normal';
+        agAlertClass = 'success';
     }
-    return [
-        {
-            label: 'Serum Anion Gap',
-            value: Number(anionGap.toFixed(1)),
-            unit: 'mEq/L',
-            interpretation: interpretation,
-            alertClass: alertClass,
-            alertPayload: {
-                alertMsg
+    results.push({
+        label: 'Anion Gap',
+        value: Number(anionGap.toFixed(1)),
+        unit: 'mEq/L',
+        interpretation: agInterpretation,
+        alertClass: agAlertClass,
+        alertPayload: {
+            alertMsg: anionGap > NORMAL_AG
+                ? 'High anion gap suggests metabolic acidosis (MUDPILES: Methanol, Uremia, DKA, Propylene glycol, Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates).'
+                : anionGap < 6
+                    ? 'Low anion gap is uncommon. Consider lab error, hypoalbuminemia, or paraproteinemia.'
+                    : 'Anion gap is within normal range (6–12 mEq/L).'
+        }
+    });
+    results.push({
+        label: 'Delta Gap',
+        value: Number(deltaGap.toFixed(1)),
+        unit: 'mEq/L',
+        interpretation: `Anion Gap – Normal AG (${NORMAL_AG})`,
+        alertClass: 'info'
+    });
+    if (deltaRatio !== null) {
+        const { interpretation: drInterp, alertClass: drAlertClass } = getDeltaRatioInterpretation(deltaRatio);
+        results.push({
+            label: 'Delta Ratio',
+            value: Number(deltaRatio.toFixed(2)),
+            unit: '',
+            interpretation: drInterp,
+            alertClass: drAlertClass
+        });
+    }
+    // Albumin-corrected results (only if albumin is provided)
+    if (albuminInput !== undefined && albuminInput !== null && albuminInput !== '') {
+        const albumin = Number(albuminInput);
+        if (!isNaN(albumin)) {
+            // Albumin-corrected AG = AG + [2.5 × (4 - albumin)]
+            const correctedAG = anionGap + ALBUMIN_CORRECTION_FACTOR * (NORMAL_ALBUMIN - albumin);
+            const correctedDeltaGap = correctedAG - NORMAL_AG;
+            const correctedDeltaRatio = hco3Diff !== 0 ? correctedDeltaGap / hco3Diff : null;
+            let correctedAgInterp = 'Normal';
+            let correctedAgAlertClass = 'success';
+            if (correctedAG > NORMAL_AG) {
+                correctedAgInterp = 'High (Albumin-corrected)';
+                correctedAgAlertClass = 'danger';
+            }
+            else if (correctedAG < 6) {
+                correctedAgInterp = 'Low (Albumin-corrected)';
+                correctedAgAlertClass = 'warning';
+            }
+            results.push({
+                label: 'Albumin-corrected Anion Gap',
+                value: Number(correctedAG.toFixed(1)),
+                unit: 'mEq/L',
+                interpretation: correctedAgInterp,
+                alertClass: correctedAgAlertClass
+            });
+            results.push({
+                label: 'Albumin-corrected Delta Gap',
+                value: Number(correctedDeltaGap.toFixed(1)),
+                unit: 'mEq/L',
+                interpretation: `Corrected AG – Normal AG (${NORMAL_AG})`,
+                alertClass: 'info'
+            });
+            if (correctedDeltaRatio !== null) {
+                const { interpretation: cdrInterp, alertClass: cdrAlertClass } = getDeltaRatioInterpretation(correctedDeltaRatio);
+                results.push({
+                    label: 'Albumin-corrected Delta Ratio',
+                    value: Number(correctedDeltaRatio.toFixed(2)),
+                    unit: '',
+                    interpretation: cdrInterp,
+                    alertClass: cdrAlertClass
+                });
             }
         }
-    ];
+    }
+    return results;
 }

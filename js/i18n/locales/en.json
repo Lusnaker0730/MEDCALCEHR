@@ -1,0 +1,98 @@
+{
+    "app": {
+        "title": "CGMH EHRCALC on FHIR",
+        "subtitle": "92 Clinical Calculators for Healthcare Professionals",
+        "logout": "Logout",
+        "print": "Print",
+        "toggleTheme": "Toggle Theme",
+        "skipToContent": "Skip to main content",
+        "loadingPatient": "Loading patient data...",
+        "backToList": "Back to Calculator List"
+    },
+    "filter": {
+        "all": "All",
+        "favorites": "Favorites",
+        "recent": "Recent",
+        "history": "History"
+    },
+    "search": {
+        "placeholder": "Search for a calculator...",
+        "ariaLabel": "Search calculators"
+    },
+    "sort": {
+        "label": "Sort:",
+        "az": "A → Z",
+        "za": "Z → A",
+        "dateAdded": "Date Added",
+        "mostUsed": "Most Used"
+    },
+    "category": {
+        "label": "Category:",
+        "all": "All Categories",
+        "cardiovascular": "Cardiovascular",
+        "renal": "Renal",
+        "critical-care": "Critical Care",
+        "pediatric": "Pediatric",
+        "drug-conversion": "Drug Conversion",
+        "infection": "Infection",
+        "neurology": "Neurology",
+        "respiratory": "Respiratory",
+        "metabolic": "Metabolic",
+        "hematology": "Hematology",
+        "gastroenterology": "Gastroenterology",
+        "obstetrics": "Obstetrics",
+        "psychiatry": "Psychiatry",
+        "general": "General Medicine"
+    },
+    "stats": {
+        "showing": "Showing {{showing}} / {{total}} results"
+    },
+    "favorites": {
+        "add": "Add to Favorites",
+        "remove": "Remove from Favorites"
+    },
+    "recentStrip": {
+        "title": "Recently Used"
+    },
+    "historyList": {
+        "empty": "No calculation history yet."
+    },
+    "noResults": "No calculators found matching your criteria.",
+    "practitioner": {
+        "label": "Practitioner:",
+        "loading": "Loading..."
+    },
+    "calculator": {
+        "calculate": "Calculate",
+        "reset": "Reset",
+        "result": "Result",
+        "results": "Results",
+        "interpretation": "Interpretation",
+        "reference": "Reference",
+        "formula": "Formula",
+        "scoringCriteria": "Scoring Criteria",
+        "disclaimer": "This calculator is for educational and clinical decision support purposes only. Clinical judgment should always take precedence.",
+        "fhirAutoPopulated": "Auto-populated from EHR",
+        "dataStale": "Data may be outdated",
+        "manualEntry": "Manual entry required",
+        "pleaseSelect": "Please select",
+        "required": "Required"
+    },
+    "validation": {
+        "required": "This field is required",
+        "outOfRange": "Value out of range ({{min}} - {{max}})",
+        "redZone": "Value is outside safe limits",
+        "yellowZone": "Value is unusual but accepted",
+        "invalidNumber": "Please enter a valid number"
+    },
+    "session": {
+        "timeoutWarning": "Your session will expire soon. Would you like to extend it?",
+        "extend": "Extend Session",
+        "expired": "Session expired. Please log in again."
+    },
+    "language": {
+        "toggle": "EN / 中文",
+        "en": "English",
+        "zhTW": "繁體中文"
+    }
+}

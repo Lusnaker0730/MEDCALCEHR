@@ -544,6 +544,8 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
     if (!inputElement) {
         return;
     }
+    // Generate unique error span ID for aria-describedby
+    const errorId = `${inputElement.id || 'input'}-error`;
     const validate = () => {
         const value = inputElement.value;
         const result = validateCalculatorInput({ value }, { value: rule });
@@ -551,10 +553,12 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
             inputElement.classList.add('invalid');
             inputElement.setAttribute('aria-invalid', 'true');
             // Display error message
-            let errorSpan = inputElement.nextElementSibling;
-            if (!errorSpan || !errorSpan.classList.contains('error-text')) {
+            let errorSpan = inputElement.parentNode?.querySelector(`#${errorId}`);
+            if (!errorSpan) {
                 errorSpan = document.createElement('span');
                 errorSpan.className = 'error-text';
+                errorSpan.id = errorId;
+                errorSpan.setAttribute('role', 'alert');
                 errorSpan.style.color = '#d32f2f';
                 errorSpan.style.fontSize = '1.1rem';
                 errorSpan.style.fontWeight = '500';
@@ -565,6 +569,8 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
                 }
             }
             errorSpan.textContent = result.errors[0];
+            // Link input to error via aria-describedby
+            inputElement.setAttribute('aria-describedby', errorId);
             if (onError) {
                 onError(result.errors);
             }
@@ -572,19 +578,22 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
         else {
             inputElement.classList.remove('invalid');
             inputElement.removeAttribute('aria-invalid');
-            // 移除错误消息
-            const errorSpan = inputElement.nextElementSibling;
-            if (errorSpan && errorSpan.classList.contains('error-text')) {
+            inputElement.removeAttribute('aria-describedby');
+            // Remove error message
+            const errorSpan = inputElement.parentNode?.querySelector(`#${errorId}`);
+            if (errorSpan) {
                 errorSpan.remove();
             }
         }
     };
     inputElement.addEventListener('blur', validate);
     inputElement.addEventListener('input', () => {
-        // 移除错误状态但不立即验证
+        // Remove error state but don't validate immediately
         inputElement.classList.remove('invalid');
-        const errorSpan = inputElement.nextElementSibling;
-        if (errorSpan && errorSpan.classList.contains('error-text')) {
+        inputElement.removeAttribute('aria-invalid');
+        inputElement.removeAttribute('aria-describedby');
+        const errorSpan = inputElement.parentNode?.querySelector(`#${errorId}`);
+        if (errorSpan) {
             errorSpan.remove();
         }
     });

@@ -1,11 +1,21 @@
 // src/calculator-page.ts
+import FHIR from 'fhirclient';
 import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata } from './calculators/index.js';
+import { calculationHistory } from './calculation-history.js';
+import { initSwipeNavigation } from './swipe-navigation.js';
 import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { initSentry } from './sentry.js';
+import { logger } from './logger.js';
+import { initWebVitals } from './web-vitals.js';
+// Initialize Sentry early
+initSentry();
+// Initialize Web Vitals
+initWebVitals();
 // Cache version - increment this when you update calculators to force reload
 window.CACHE_VERSION = '1.0.5';
 /**
@@ -26,7 +36,7 @@ window.onload = () => {
     const container = document.getElementById('calculator-container');
     const pageTitle = document.getElementById('page-title');
     if (!patientInfoDiv || !container || !pageTitle) {
-        console.error('Required DOM elements not found');
+        logger.error('Required DOM elements not found');
         return;
     }
     if (!calculatorId) {
@@ -60,6 +70,26 @@ window.onload = () => {
                 throw new Error('Invalid calculator module structure.');
             }
             card.innerHTML = calculator.generateHTML();
+            // Auto-log calculation results to history via MutationObserver
+            const resultContents = card.querySelectorAll('.ui-result-content');
+            let historyDebounce = null;
+            resultContents.forEach(resultEl => {
+                const observer = new MutationObserver(() => {
+                    if (historyDebounce)
+                        clearTimeout(historyDebounce);
+                    historyDebounce = setTimeout(() => {
+                        const summary = resultEl.textContent?.trim().slice(0, 200) || '';
+                        if (summary) {
+                            calculationHistory.addEntry({
+                                calculatorId: calculatorId,
+                                calculatorTitle: calculatorInfo.title,
+                                resultSummary: summary
+                            });
+                        }
+                    }, 300);
+                });
+                observer.observe(resultEl, { childList: true, subtree: true, characterData: true });
+            });
             // 初始化計算器的輔助函數
             const initializeCalculator = (client, patient) => {
                 if (typeof calculator.initialize === 'function') {
@@ -67,13 +97,13 @@ window.onload = () => {
                         calculator.initialize(client, patient, card);
                     }
                     catch (initError) {
-                        console.error('Error during calculator initialization:', initError);
+                        logger.error('Error during calculator initialization', { error: String(initError), calculatorId });
                         card.innerHTML =
                             '<div class="error-box">An error occurred while initializing this calculator.</div>';
                     }
                 }
             };
-            window.FHIR.oauth2
+            FHIR.oauth2
                 .ready()
                 .then((client) => {
                 displayPatientInfo(client, patientInfoDiv).then((patient) => {
@@ -85,14 +115,14 @@ window.onload = () => {
                         auditEventService.setPatientContext(patient.id, patientName);
                         provenanceService.setPatientContext(patient.id, patientName);
                         auditEventService.logPatientAccess(patient.id, patientName, 'Calculator', calculatorId).catch(err => {
-                            console.warn('[MedCalc] Failed to log patient access audit:', err);
+                            logger.warn('Failed to log patient access audit', { error: String(err) });
                         });
                     }
                     initializeCalculator(client, patient);
                 });
             })
                 .catch((error) => {
-                console.error(error);
+                logger.error('FHIR client error', { error: error.message });
                 patientInfoDiv.innerText =
                     'No patient data available. Please launch from the EHR.';
                 // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
@@ -100,7 +130,7 @@ window.onload = () => {
             });
         }
         catch (error) {
-            console.error(`Failed to load calculator module: ${calculatorId}`, error);
+            logger.error('Failed to load calculator module', { calculatorId, error: String(error) });
             displayError(card, error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
         }
     };
@@ -112,5 +142,42 @@ window.onload = () => {
             sessionManager.logout();
         });
     }
+    // Print functionality — compact 1-2 page A4 output
+    const printBtn = document.getElementById('print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            // Print header
+            let printHeader = document.querySelector('.print-header');
+            if (!printHeader) {
+                printHeader = document.createElement('div');
+                printHeader.className = 'print-header';
+                container.insertBefore(printHeader, container.firstChild);
+            }
+            const patientText = patientInfoDiv.textContent || 'Patient: N/A';
+            printHeader.innerHTML = '';
+            const titleEl = document.createElement('div');
+            const strong = document.createElement('strong');
+            strong.textContent = calculatorInfo.title;
+            titleEl.appendChild(strong);
+            printHeader.appendChild(titleEl);
+            const patientEl = document.createElement('div');
+            patientEl.textContent = patientText;
+            printHeader.appendChild(patientEl);
+            const dateEl = document.createElement('div');
+            dateEl.textContent = new Date().toLocaleString();
+            printHeader.appendChild(dateEl);
+            // Print footer
+            let printFooter = document.querySelector('.print-footer');
+            if (!printFooter) {
+                printFooter = document.createElement('div');
+                printFooter.className = 'print-footer';
+                document.body.appendChild(printFooter);
+            }
+            printFooter.textContent = 'CGMH EHRCALC on FHIR — For clinical reference only';
+            window.print();
+        });
+    }
+    // Initialize swipe navigation between calculators
+    initSwipeNavigation(calculatorId);
     loadCalculatorModule();
 };

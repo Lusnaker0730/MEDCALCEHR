@@ -79,20 +79,35 @@ describe('CalculationHistory', () => {
         expect(history.getEntryCount()).toBe(3);
     });
 
-    it('setPractitionerId scopes storage by practitioner', () => {
+    it('setPractitionerId migrates unscoped entries to scoped key', () => {
         history.addEntry({ calculatorId: 'global', calculatorTitle: 'Global', resultSummary: 'R' });
         expect(history.getEntryCount()).toBe(1);
 
+        // Setting practitioner ID migrates unscoped entries into scoped key
         history.setPractitionerId('practitioner-123');
-        expect(history.getEntryCount()).toBe(0); // Different storage key
+        expect(history.getEntryCount()).toBe(1); // Migrated from unscoped key
+        expect(history.getEntries()[0].calculatorId).toBe('global');
 
+        // Unscoped key should be removed after migration
+        expect(localStorage.getItem('calculation-history')).toBeNull();
+
+        history.addEntry({ calculatorId: 'scoped', calculatorTitle: 'Scoped', resultSummary: 'R' });
+        expect(history.getEntryCount()).toBe(2);
+    });
+
+    it('setPractitionerId scopes storage by practitioner', () => {
+        history.setPractitionerId('practitioner-456');
         history.addEntry({ calculatorId: 'scoped', calculatorTitle: 'Scoped', resultSummary: 'R' });
         expect(history.getEntryCount()).toBe(1);
 
-        // Switch back to global
-        history.setPractitionerId(null);
+        // Switch to different practitioner — should see empty
+        history.setPractitionerId('practitioner-789');
+        expect(history.getEntryCount()).toBe(0);
+
+        // Switch back — should see original entry
+        history.setPractitionerId('practitioner-456');
         expect(history.getEntryCount()).toBe(1);
-        expect(history.getEntries()[0].calculatorId).toBe('global');
+        expect(history.getEntries()[0].calculatorId).toBe('scoped');
     });
 
     it('enforces maximum 100 entries', () => {

@@ -98,6 +98,8 @@ export const getPoints = {
             return 4;
         if (v >= 50 || v < 30)
             return 2;
+        if (v >= 46)
+            return 1;
         return 0;
     },
     wbc: (v) => {

@@ -2,6 +2,7 @@
 // FHIR AuditEvent Service following IHE BALP (Basic Audit Log Patterns)
 // Reference: https://profiles.ihe.net/ITI/BALP/index.html
 import { secureLocalStore, secureLocalRetrieve } from './security.js';
+import { logger } from './logger.js';
 // ============================================================================
 // Constants
 // ============================================================================
@@ -653,7 +654,7 @@ export class AuditEventService {
             this.log(`Audit event stored locally (${stored.length} pending)`);
         }
         catch (error) {
-            console.error('Failed to store audit event locally:', error);
+            logger.error('Failed to store audit event locally', { error: String(error) });
         }
     }
     /**
@@ -755,7 +756,7 @@ export class AuditEventService {
      */
     log(...args) {
         if (this.config.enableDebugLogging) {
-            console.log('[AuditEvent]', ...args);
+            logger.debug('[AuditEvent]', { detail: args.map(String).join(' ') });
         }
     }
     /**

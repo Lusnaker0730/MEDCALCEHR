@@ -1,4 +1,5 @@
 // Universal Unit Conversion System for MedCalcEHR
+import { logger } from './logger.js';
 /**
  * Unit conversion definitions and functions
  */
@@ -49,7 +50,8 @@ export const UnitConverter = {
         },
         // Concentration (generic)
         concentration: {
-            'mg/dL': { 'mmol/L': null },
+            'mg/dL': { 'mmol/L': null, 'mg/L': 10 },
+            'mg/L': { 'mg/dL': 0.1 },
             'g/L': { 'mg/dL': 100, 'g/dL': 0.1 },
             'g/dL': { 'mg/dL': 1000, 'g/L': 10 }
         },
@@ -360,7 +362,9 @@ export const UnitConverter = {
                     // Conversion failed, fall back to raw value?
                     // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
                     // Just set raw value as fallback.
-                    console.warn(`Unit conversion failed from ${unit} to ${currentUnit} for type ${type}`);
+                    logger.warn('Unit conversion failed', {
+                        detail: `from ${unit} to ${currentUnit} for type ${type}`
+                    });
                     inputElement.value = value.toString();
                 }
             }

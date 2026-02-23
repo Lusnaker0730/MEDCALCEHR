@@ -25,6 +25,9 @@ interface FHIRClient {
     patient: {
         read(): Promise<Patient>;
     };
+    user: {
+        read(): Promise<Record<string, any>>;
+    };
 }
 
 interface Patient {
@@ -143,6 +146,16 @@ window.onload = () => {
             FHIR.oauth2
                 .ready()
                 .then((client: FHIRClient) => {
+                    // Set practitioner ID for calculation history & favorites
+                    client.user.read().then(user => {
+                        if (user?.id) {
+                            calculationHistory.setPractitionerId(user.id);
+                            favoritesManager.setPractitionerId(user.id);
+                        }
+                    }).catch(() => {
+                        logger.warn('Could not read practitioner on calculator page');
+                    });
+
                     displayPatientInfo(client, patientInfoDiv).then((patient: Patient | null) => {
                         // Log patient access to audit trail (IHE BALP)
                         if (patient?.id) {

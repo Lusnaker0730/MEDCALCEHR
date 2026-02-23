@@ -173,8 +173,11 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Run npm audit
+            - name: Run npm audit (high severity - blocking)
               run: npm audit --audit-level=high
+
+            - name: Run npm audit (moderate - advisory)
+              run: npm audit --audit-level=moderate
               continue-on-error: true
 
     sbom:
@@ -212,6 +215,7 @@ jobs:
         permissions:
             contents: read
             packages: write
+            security-events: write
 
         steps:
             - name: Checkout repository
@@ -238,11 +242,35 @@ jobs:
 
             - name: Test Docker container
               run: |
-                  docker run -d --name test-container -p 8080:80 medcalc-ehr:latest
+                  docker run -d --name test-container -p 8080:8080 medcalc-ehr:latest
                   sleep 5
                   curl -f http://localhost:8080/health-check.html || exit 1
                   curl -f http://localhost:8080/api/health || exit 1
                   docker stop test-container
+
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@master
+              with:
+                  image-ref: 'medcalc-ehr:latest'
+                  format: 'table'
+                  exit-code: '1'
+                  severity: 'CRITICAL,HIGH'
+                  ignore-unfixed: true
+
+            - name: Run Trivy scanner (SARIF output)
+              uses: aquasecurity/trivy-action@master
+              if: always()
+              with:
+                  image-ref: 'medcalc-ehr:latest'
+                  format: 'sarif'
+                  output: 'trivy-results.sarif'
+                  severity: 'CRITICAL,HIGH,MEDIUM'
+
+            - name: Upload Trivy SARIF to GitHub Security
+              uses: github/codeql-action/upload-sarif@v3
+              if: always()
+              with:
+                  sarif_file: 'trivy-results.sarif'
 
             - name: Push to GitHub Container Registry
               run: |

@@ -2,6 +2,7 @@
  * Cache Manager for Medical Calculator Application
  * Provides caching strategies for different types of data
  */
+import { logger } from './logger.js';
 const CACHE_VERSION = '1.0.0';
 export const CACHE_NAMES = {
     static: `medcalc-static-v${CACHE_VERSION}`,
@@ -56,7 +57,7 @@ export class CacheManager {
                 await cache.put(key, response);
             }
             catch (error) {
-                console.warn('Failed to write to cache:', error);
+                logger.warn('Failed to write to cache', { error: String(error) });
             }
         }
         return true;
@@ -97,7 +98,7 @@ export class CacheManager {
                 }
             }
             catch (error) {
-                console.warn('Failed to read from cache:', error);
+                logger.warn('Failed to read from cache', { error: String(error) });
             }
         }
         return null;
@@ -113,7 +114,7 @@ export class CacheManager {
                 await cache.delete(key);
             }
             catch (error) {
-                console.warn('Failed to delete from cache:', error);
+                logger.warn('Failed to delete from cache', { error: String(error) });
             }
         }
     }
@@ -126,7 +127,7 @@ export class CacheManager {
                 await caches.delete(cacheName);
             }
             catch (error) {
-                console.warn('Failed to clear cache:', error);
+                logger.warn('Failed to clear cache', { error: String(error) });
             }
         }
     }
@@ -142,7 +143,7 @@ export class CacheManager {
                 await Promise.all(promises);
             }
             catch (error) {
-                console.warn('Failed to clear all caches:', error);
+                logger.warn('Failed to clear all caches', { error: String(error) });
             }
         }
     }
@@ -172,7 +173,7 @@ export class CacheManager {
             }
         }
         catch (error) {
-            console.warn('Failed to clean expired cache:', error);
+            logger.warn('Failed to clean expired cache', { error: String(error) });
         }
     }
     /**
@@ -187,7 +188,7 @@ export class CacheManager {
             return requests.length;
         }
         catch (error) {
-            console.warn('Failed to get cache size:', error);
+            logger.warn('Failed to get cache size', { error: String(error) });
             return 0;
         }
     }
@@ -238,7 +239,7 @@ export class CalculatorCacheManager extends CacheManager {
                 }
             }
             catch (error) {
-                console.warn(`Failed to preload calculator: ${id}`, error);
+                logger.warn('Failed to preload calculator', { detail: id, error: String(error) });
             }
         });
         await Promise.all(promises);
@@ -294,7 +295,7 @@ export class FHIRCacheManager extends CacheManager {
             }
         }
         catch (error) {
-            console.warn('Failed to clear patient cache:', error);
+            logger.warn('Failed to clear patient cache', { error: String(error) });
         }
     }
 }
@@ -313,7 +314,7 @@ export class StaticCacheManager extends CacheManager {
             await cache.addAll(urls);
         }
         catch (error) {
-            console.warn('Failed to cache static resources:', error);
+            logger.warn('Failed to cache static resources', { error: String(error) });
         }
     }
     /**
@@ -355,7 +356,7 @@ function getPopularCalculators() {
  * Initialize caching system
  */
 export async function initializeCaching() {
-    console.log('Initializing cache system...');
+    logger.info('Initializing cache system');
     // Clean expired caches on startup
     await Promise.all([
         cacheManager.cleanExpired(CACHE_NAMES.static),
@@ -377,14 +378,14 @@ export async function initializeCaching() {
     if (popularCalculators.length > 0) {
         await calculatorCache.preloadPopularCalculators(popularCalculators);
     }
-    console.log('Cache system initialized');
+    logger.info('Cache system initialized');
 }
 /**
  * Get cache statistics for debugging
  */
 export async function getCacheStatistics() {
     const stats = await cacheManager.getCacheStats();
-    console.table(stats);
+    logger.debug('Cache statistics', { stats: JSON.stringify(stats) });
     return stats;
 }
 /**
@@ -392,7 +393,7 @@ export async function getCacheStatistics() {
  */
 export async function clearAllApplicationCaches() {
     await cacheManager.clearAllCaches();
-    console.log('All caches cleared');
+    logger.info('All caches cleared');
 }
 export default {
     cacheManager,

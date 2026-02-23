@@ -1,5 +1,6 @@
 // Universal UI Component Builder for MedCalcEHR Calculators
 import { UnitConverter } from './unit-converter.js';
+import { logger } from './logger.js';
 /**
  * DOM element IDs used throughout the application
  */
@@ -51,7 +52,8 @@ export class UIBuilder {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         // Only show static unit if unitToggle is not present (toggle button will handle unit display)
         const unitHTML = unit && !unitToggle ? `<span class="ui-input-unit">${unit}</span>` : '';
-        const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
+        const helpId = helpText ? `${id}-help` : '';
+        const helpHTML = helpText ? `<div class="help-text" id="${helpId}">${helpText}</div>` : '';
         let attrs = `id="${id}" type="${type}" placeholder="${placeholder}"`;
         if (min !== undefined)
             attrs += ` min="${min}"`;
@@ -62,7 +64,9 @@ export class UIBuilder {
         if (defaultValue)
             attrs += ` value="${defaultValue}"`;
         if (required)
-            attrs += ` required`;
+            attrs += ` required aria-required="true"`;
+        if (helpId)
+            attrs += ` aria-describedby="${helpId}"`;
         // Add data attribute for unit toggle if specified
         const toggleData = unitToggle ? `data-unit-toggle='${JSON.stringify(unitToggle)}'` : '';
         return `
@@ -84,6 +88,7 @@ export class UIBuilder {
     required = false, helpText = '' }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
+        const requiredAttr = required ? ' aria-required="true"' : '';
         const optionsHTML = options
             .map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
@@ -91,11 +96,11 @@ export class UIBuilder {
             const id = opt.id || `${name}-${opt.value}-${index}`;
             return `
                 <div class="ui-radio-option">
-                    <input type="radio" 
-                           id="${id}" 
-                           name="${name}" 
-                           value="${opt.value}" 
-                           ${checked} 
+                    <input type="radio"
+                           id="${id}"
+                           name="${name}"
+                           value="${opt.value}"${requiredAttr}
+                           ${checked}
                            ${disabled}>
                     <label for="${id}" class="radio-label">
                         ${opt.label}
@@ -106,11 +111,13 @@ export class UIBuilder {
             .join('');
         return `
             <div class="ui-input-group">
-                ${label ? `<label>${label}${requiredMark}</label>` : ''}
-                <div class="ui-radio-group">
-                    ${optionsHTML}
-                </div>
-                ${helpHTML}
+                <fieldset>
+                    ${label ? `<legend>${label}${requiredMark}</legend>` : ''}
+                    <div class="ui-radio-group">
+                        ${optionsHTML}
+                    </div>
+                    ${helpHTML}
+                </fieldset>
             </div>
         `;
     }
@@ -131,11 +138,11 @@ export class UIBuilder {
                 : '';
             return `
                 <div class="ui-checkbox-option">
-                    <input type="checkbox" 
-                           id="${id}" 
-                           name="${name}" 
-                           value="${opt.value}" 
-                           ${checked} 
+                    <input type="checkbox"
+                           id="${id}"
+                           name="${name}"
+                           value="${opt.value}"
+                           ${checked}
                            ${disabled}>
                     <label for="${id}" class="checkbox-label">
                         ${opt.label}
@@ -147,11 +154,13 @@ export class UIBuilder {
             .join('');
         return `
             <div class="ui-input-group">
-                ${label ? `<label>${label}</label>` : ''}
-                <div class="ui-checkbox-group">
-                    ${optionsHTML}
-                </div>
-                ${helpHTML}
+                <fieldset>
+                    ${label ? `<legend>${label}</legend>` : ''}
+                    <div class="ui-checkbox-group">
+                        ${optionsHTML}
+                    </div>
+                    ${helpHTML}
+                </fieldset>
             </div>
         `;
     }
@@ -184,17 +193,23 @@ export class UIBuilder {
     createSelect({ id, label, options = [], // [{ value, label, selected }]
     required = false, helpText = '' }) {
         const requiredMark = required ? '<span class="required">*</span>' : '';
-        const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
+        const helpId = helpText ? `${id}-help` : '';
+        const helpHTML = helpText ? `<div class="help-text" id="${helpId}">${helpText}</div>` : '';
         const optionsHTML = options
             .map(opt => {
             const selected = opt.selected ? 'selected' : '';
             return `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
         })
             .join('');
+        let selectAttrs = `class="ui-select" id="${id}"`;
+        if (required)
+            selectAttrs += ' aria-required="true"';
+        if (helpId)
+            selectAttrs += ` aria-describedby="${helpId}"`;
         return `
             <div class="ui-input-group">
                 <label for="${id}">${label}${requiredMark}</label>
-                <select class="ui-select" id="${id}">
+                <select ${selectAttrs}>
                     ${optionsHTML}
                 </select>
                 ${helpHTML}
@@ -210,13 +225,17 @@ export class UIBuilder {
             <div class="ui-input-group">
                 <label for="${id}">${label}</label>
                 <div class="ui-range-group">
-                    <input type="range" 
-                           class="ui-range-slider" 
-                           id="${id}" 
-                           min="${min}" 
-                           max="${max}" 
-                           step="${step}" 
-                           value="${defaultValue}">
+                    <input type="range"
+                           class="ui-range-slider"
+                           id="${id}"
+                           min="${min}"
+                           max="${max}"
+                           step="${step}"
+                           value="${defaultValue}"
+                           aria-label="${label}"
+                           aria-valuemin="${min}"
+                           aria-valuemax="${max}"
+                           aria-valuenow="${defaultValue}">
                     ${showValue ? `<span class="ui-range-value" id="${id}-value">${defaultValue}${unit}</span>` : ''}
                 </div>
             </div>
@@ -235,7 +254,7 @@ export class UIBuilder {
                         📋 Copy Report
                     </button>
                 </div>
-                <div class="ui-result-content"></div>
+                <div class="ui-result-content" role="region" aria-live="polite" aria-label="${title}"></div>
             </div>
         `;
     }
@@ -362,7 +381,17 @@ export class UIBuilder {
             </div>
         `;
         if (interpretation) {
-            html += `<div class="ui-result-interpretation ${alertClass}">${interpretation}</div>`;
+            // Add non-color indicator (icon + sr-only text) based on alert class
+            const stateIndicators = {
+                success: { icon: '&#x2713;', srText: 'Normal: ' },
+                warning: { icon: '&#x26A0;', srText: 'Warning: ' },
+                danger: { icon: '&#x2717;', srText: 'Critical: ' },
+                info: { icon: '&#x2139;', srText: 'Info: ' },
+            };
+            const indicator = stateIndicators[alertClass] || { icon: '', srText: '' };
+            const iconHTML = indicator.icon ? `<span class="state-icon" aria-hidden="true">${indicator.icon}</span>` : '';
+            const srHTML = indicator.srText ? `<span class="sr-only">${indicator.srText}</span>` : '';
+            html += `<div class="ui-result-interpretation ${alertClass}">${iconHTML}${srHTML}${interpretation}</div>`;
         }
         return html;
     }
@@ -384,10 +413,19 @@ export class UIBuilder {
         };
         const alertIcon = icon || icons[type] || icons.info;
         const safeMessage = escapeMessage ? this.escapeHtml(message) : message;
+        const ariaLive = type === 'danger' ? 'assertive' : 'polite';
+        // Non-color state prefix for screen readers
+        const stateLabels = {
+            info: 'Info',
+            warning: 'Warning',
+            danger: 'Critical',
+            success: 'Success',
+        };
+        const srPrefix = `<span class="sr-only">${stateLabels[type] || 'Info'}: </span>`;
         return `
-            <div class="ui-alert ui-alert-${type}">
-                <span class="ui-alert-icon">${alertIcon}</span>
-                <div class="ui-alert-content">${safeMessage}</div>
+            <div class="ui-alert ui-alert-${type}" role="alert" aria-live="${ariaLive}">
+                <span class="ui-alert-icon" aria-hidden="true">${alertIcon}</span>
+                <div class="ui-alert-content">${srPrefix}${safeMessage}</div>
             </div>
         `;
     }
@@ -450,7 +488,7 @@ export class UIBuilder {
                 config = JSON.parse(wrapper.dataset.unitToggle || 'null');
             }
             catch (e) {
-                console.warn('Failed to parse unit toggle config:', e);
+                logger.warn('Failed to parse unit toggle config', { error: String(e) });
             }
             // Ensure config is a proper object with units before attempting to enhance
             if (input && config && typeof config === 'object' && Array.isArray(config.units)) {
@@ -517,7 +555,7 @@ export class UIBuilder {
                     }, 2000);
                 })
                     .catch(err => {
-                    console.error('Failed to copy report:', err);
+                    logger.error('Failed to copy report', { error: String(err) });
                     alert('Failed to copy report to clipboard');
                 });
             });
