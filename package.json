@@ -55,7 +55,7 @@
     "devDependencies": {
         "@axe-core/playwright": "^4.10.0",
         "@cyclonedx/cyclonedx-npm": "^1.19.0",
-        "@jest/globals": "^29.7.0",
+        "@jest/globals": "^30.2.0",
         "@lhci/cli": "^0.14.0",
         "@playwright/test": "^1.58.2",
         "@testing-library/dom": "^9.3.4",
