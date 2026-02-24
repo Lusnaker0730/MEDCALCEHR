@@ -60,7 +60,7 @@ export const ascvd = createUnifiedFormulaCalculator({
         <strong>2013 ACC/AHA Pooled Cohort Equations</strong>
         ${uiBuilder.createList({
         items: [
-            'Valid for ages 40-79 years',
+            'Valid for ages 20-79 years',
             'Estimates 10-year risk of first hard ASCVD event',
             'Hard ASCVD = nonfatal MI, CHD death, or fatal/nonfatal stroke'
         ],
@@ -97,7 +97,7 @@ export const ascvd = createUnifiedFormulaCalculator({
                     label: 'Age',
                     type: 'number',
                     unit: 'years',
-                    min: 40,
+                    min: 20,
                     max: 79,
                     validationType: 'age',
                     required: false

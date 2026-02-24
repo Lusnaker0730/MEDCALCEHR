@@ -22,8 +22,7 @@
            caprini 刪除計算器
            centor OK 更改風險分層至新版
 
-2026-02-22 
-           child-pugh OK 無更改
+2026-02-22 child-pugh OK 無更改
            charlson OK 無更改
            ciwa-ar OK 無更改
            ckd-epi OK 無更改

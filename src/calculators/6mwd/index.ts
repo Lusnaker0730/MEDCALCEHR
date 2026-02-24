@@ -78,15 +78,13 @@ export const sixMwdConfig: FormulaCalculatorConfig = {
         {
             title: 'Men',
             formulas: [
-                '6MWD = (7.57 × height<sub>cm</sub>) - (5.02 × age) - (1.76 × weight<sub>kg</sub>) - 309 m',
-                'Alternate: 6MWD = 1,140 m - (5.61 × BMI) - (6.94 × age)'
+                '6MWD = (7.57 × height<sub>cm</sub>) - (5.02 × age) - (1.76 × weight<sub>kg</sub>) - 309 m'
             ]
         },
         {
             title: 'Women',
             formulas: [
-                '6MWD = (2.11 × height<sub>cm</sub>) - (2.29 × weight<sub>kg</sub>) - (5.78 × age) + 667 m',
-                'Alternate: 6MWD = 1,017 m - (6.24 × BMI) - (5.83 × age)'
+                '6MWD = (2.11 × height<sub>cm</sub>) - (2.29 × weight<sub>kg</sub>) - (5.78 × age) + 667 m'
             ]
         },
         {
@@ -105,7 +103,8 @@ export const sixMwdConfig: FormulaCalculatorConfig = {
     ],
     reference: uiBuilder.createReference({
         citations: [
-            'Enright PL, Sherrill DL. Reference equations for the six-minute walk in healthy adults. <em>Am J Respir Crit Care Med</em>. 1998;158(5 Pt 1):1384-7.'
+            'Enright PL, Sherrill DL. Reference equations for the six-minute walk in healthy adults. <em>Am J Respir Crit Care Med</em>. 1998;158(5 Pt 1):1384-7.',
+            'ATS Committee on Proficiency Standards for Clinical Pulmonary Function Laboratories. ATS statement: guidelines for the six-minute walk test. <em>Am J Respir Crit Care Med</em>. 2002;166(1):111-117. doi:10.1164/ajrccm.166.1.at1102'
         ]
     }),
     autoPopulateAge: 'mwd6-age',

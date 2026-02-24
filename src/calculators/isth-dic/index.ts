@@ -256,7 +256,7 @@ const config: FormulaCalculatorConfig = {
         try {
             // Platelets (LOINC 26515-7)
             const plateletResult = await fhirDataService.getObservation(
-                LOINC_CODES.PLATELET_COUNT,
+                LOINC_CODES.PLATELETS,
                 {
                     trackStaleness: true,
                     stalenessLabel: 'Platelets'

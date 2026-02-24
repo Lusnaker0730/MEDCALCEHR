@@ -42,6 +42,8 @@ declare global {
             };
             /** Feature flag: enable write-back of calculation results to EHR */
             enableWriteBack?: boolean;
+            /** Dev bypass: skip review gating and enable all calculators */
+            enableAllCalculators?: boolean;
         };
         CACHE_VERSION: string;
     }

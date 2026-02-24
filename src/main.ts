@@ -18,6 +18,7 @@ import { FuzzySearch } from './fuzzy-search.js';
 import { calculationHistory } from './calculation-history.js';
 import { initI18n, t, hydrateI18n, onLocaleChange } from './i18n/index.js';
 import { BeaconTransport } from './log-transport.js';
+import { isCalculatorApproved, getReviewStatus, getApprovedCount } from './review-gate.js';
 
 // Initialize Sentry early
 initSentry();
@@ -152,9 +153,18 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
     }
 
     calculators.forEach(calc => {
-        const link = document.createElement('a');
-        link.href = `calculator.html?name=${calc.id}`;
-        link.className = 'list-item';
+        const approved = isCalculatorApproved(calc.id);
+
+        // Use <div> for disabled items, <a> for approved
+        const item = document.createElement(approved ? 'a' : 'div');
+        if (approved) {
+            (item as HTMLAnchorElement).href = `calculator.html?name=${calc.id}`;
+        }
+        item.className = approved ? 'list-item' : 'list-item list-item--disabled';
+        if (!approved) {
+            item.title = t('review.disabledTooltip');
+            item.setAttribute('aria-disabled', 'true');
+        }
 
         // Content area
         const contentDiv = document.createElement('div');
@@ -164,6 +174,15 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
         title.className = 'list-item-title';
         title.textContent = calc.title;
         contentDiv.appendChild(title);
+
+        // Review badge for non-approved calculators
+        if (!approved) {
+            const status = getReviewStatus(calc.id);
+            const badge = document.createElement('span');
+            badge.className = `review-badge review-badge--${status}`;
+            badge.textContent = t(`review.${status}`);
+            contentDiv.appendChild(badge);
+        }
 
         // Category badge
         if (calc.category) {
@@ -182,28 +201,31 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
             contentDiv.appendChild(description);
         }
 
-        link.appendChild(contentDiv);
+        item.appendChild(contentDiv);
 
-        // Favorite button
-        const favoriteBtn = document.createElement('button');
-        favoriteBtn.className = 'favorite-btn';
-        favoriteBtn.setAttribute('data-calculator-id', calc.id);
-        favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
-        favoriteBtn.title = favoritesManager.isFavorite(calc.id)
-            ? t('favorites.remove')
-            : t('favorites.add');
+        // Favorite button (only for approved calculators)
+        if (approved) {
+            const favoriteBtn = document.createElement('button');
+            favoriteBtn.className = 'favorite-btn';
+            favoriteBtn.setAttribute('data-calculator-id', calc.id);
+            favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
+            favoriteBtn.title = favoritesManager.isFavorite(calc.id)
+                ? t('favorites.remove')
+                : t('favorites.add');
 
-        // Prevent clicking favorite button from triggering link
-        favoriteBtn.addEventListener('click', (e: Event) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const isFavorite = favoritesManager.toggleFavorite(calc.id);
-            favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
-            favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
-        });
+            // Prevent clicking favorite button from triggering link
+            favoriteBtn.addEventListener('click', (e: Event) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const isFavorite = favoritesManager.toggleFavorite(calc.id);
+                favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
+                favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
+            });
 
-        link.appendChild(favoriteBtn);
-        container.appendChild(link);
+            item.appendChild(favoriteBtn);
+        }
+
+        container.appendChild(item);
     });
 }
 
@@ -213,7 +235,12 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
 function updateStats(total: number, showing: number): void {
     const statsEl = document.getElementById('calculator-stats');
     if (statsEl) {
-        statsEl.textContent = t('stats.showing', { showing, total });
+        const approved = getApprovedCount();
+        if (approved > 0 && approved < total) {
+            statsEl.textContent = `${t('stats.showing', { showing, total })} (${approved} ${t('review.approved')})`;
+        } else {
+            statsEl.textContent = t('stats.showing', { showing, total });
+        }
     }
 }
 
@@ -275,6 +302,8 @@ function renderRecentStrip(container: HTMLElement): void {
     recent.forEach(id => {
         const calc = calculatorModules.find(c => c.id === id);
         if (!calc) return;
+        // Skip unapproved calculators in recent strip
+        if (!isCalculatorApproved(calc.id)) return;
         const item = document.createElement('a');
         item.href = `calculator.html?name=${calc.id}`;
         item.className = 'recent-strip-item';

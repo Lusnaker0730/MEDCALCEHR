@@ -28,7 +28,8 @@
         "build:analyze": "vite build -- --analyze",
         "generate:soup": "npx ts-node --project scripts/tsconfig.json scripts/generate-soup-list.ts",
         "generate:traceability": "npx ts-node --project scripts/tsconfig.json scripts/generate-traceability-matrix.ts",
-        "audit:validation": "npx ts-node --project scripts/tsconfig.json scripts/audit-validation-coverage.ts"
+        "audit:validation": "npx ts-node --project scripts/tsconfig.json scripts/audit-validation-coverage.ts",
+        "audit:review": "npx ts-node --project scripts/tsconfig.json scripts/audit-review-status.ts"
     },
     "repository": {
         "type": "git",

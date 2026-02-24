@@ -4,6 +4,8 @@ import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata, CalculatorModule } from './calculators/index.js';
 import { calculationHistory } from './calculation-history.js';
 import { initSwipeNavigation } from './swipe-navigation.js';
+import { isCalculatorApproved, getReviewStatus } from './review-gate.js';
+import { t } from './i18n/index.js';
 import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
@@ -101,6 +103,27 @@ window.onload = () => {
 
     // Set page title immediately from metadata
     pageTitle.textContent = calculatorInfo.title;
+
+    // === Clinical Review Gate ===
+    if (!isCalculatorApproved(calculatorId)) {
+        const status = getReviewStatus(calculatorId);
+        const blockedDiv = document.createElement('div');
+        blockedDiv.className = 'review-blocked';
+        blockedDiv.setAttribute('role', 'alert');
+        blockedDiv.innerHTML = `
+            <div class="review-blocked__icon" aria-hidden="true">&#128274;</div>
+            <div class="review-blocked__title">${calculatorInfo.title}</div>
+            <div class="review-blocked__status">
+                <span class="review-badge review-badge--${status}">${t(`review.${status}`)}</span>
+            </div>
+            <p class="review-blocked__message">${t('review.blockedMessage')}</p>
+            <a href="index.html" class="review-blocked__back">&larr; ${t('review.backToList')}</a>
+        `;
+        container.appendChild(blockedDiv);
+        logger.info('Calculator blocked by review gate', { calculatorId, status });
+        return;
+    }
+
     const card = document.createElement('div');
     card.className = 'calculator-card';
     container.appendChild(card);

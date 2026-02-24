@@ -62,7 +62,10 @@
       "Bash(npx ts-node:*)",
       "Bash(npm run type-check:*)",
       "Bash(npm run build:*)",
-      "Bash(cd /d/CGHCALC/MEDCALCEHR && docker compose ps 2>&1 || docker-compose ps 2>&1)"
+      "Bash(cd /d/CGHCALC/MEDCALCEHR && docker compose ps 2>&1 || docker-compose ps 2>&1)",
+      "Bash(echo === $calc ===:*)",
+      "Bash(fi)",
+      "Bash(tail:*)"
     ]
   }
 }
