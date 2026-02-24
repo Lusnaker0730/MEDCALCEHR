@@ -10,14 +10,30 @@ import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
 import { initSentry } from './sentry.js';
-import { logger } from './logger.js';
+import { logger, LogLevel } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
+import { BeaconTransport } from './log-transport.js';
 
 // Initialize Sentry early
 initSentry();
 
 // Initialize Web Vitals
 initWebVitals();
+
+// Initialize remote log transport if configured
+const _logConfig = window.MEDCALC_CONFIG?.logging;
+if (_logConfig?.remoteEndpoint) {
+    const levelMap: Record<string, LogLevel> = {
+        DEBUG: LogLevel.DEBUG, INFO: LogLevel.INFO,
+        WARN: LogLevel.WARN, ERROR: LogLevel.ERROR,
+    };
+    const minLevel = levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
+    const transport = new BeaconTransport(_logConfig.remoteEndpoint, minLevel, _logConfig.bufferSize);
+    logger.addTransport(transport);
+    window.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') transport.flush();
+    });
+}
 
 // Window.CACHE_VERSION type declared in src/types/global.d.ts
 

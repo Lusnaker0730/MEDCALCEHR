@@ -28,8 +28,10 @@ COPY --from=builder /app/dist .
 # Copy nginx configuration and fix Windows line endings
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY nginx-rate-limit.conf /etc/nginx/conf.d/00-rate-limit.conf
+COPY nginx-log-format.conf /etc/nginx/conf.d/01-log-format.conf
 RUN sed -i 's/\r$//' /etc/nginx/conf.d/default.conf \
-    && sed -i 's/\r$//' /etc/nginx/conf.d/00-rate-limit.conf
+    && sed -i 's/\r$//' /etc/nginx/conf.d/00-rate-limit.conf \
+    && sed -i 's/\r$//' /etc/nginx/conf.d/01-log-format.conf
 
 # Copy entrypoint script and fix Windows line endings
 COPY docker-entrypoint.sh /docker-entrypoint.sh

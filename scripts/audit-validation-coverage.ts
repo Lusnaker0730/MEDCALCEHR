@@ -183,6 +183,11 @@ FHIR Server -> fhir-data-service.ts (fetch Observation)
 \`unified-formula-calculator.ts\`, which maps \`validationType\` to the central \`validator.ts\` rules.
 This ensures FHIR data receives the same red-zone/yellow-zone validation as manual input.
 
+**Structured Logging:** FHIR auto-fill values are checked against validation rules before
+\`calculate()\` runs. Out-of-range values emit \`logger.warn()\` with \`source: 'fhir-autofill'\`;
+warning-zone values emit \`logger.info()\`. These logs are shipped to the centralized log
+endpoint (if configured) via \`BeaconTransport\` for auditing and monitoring.
+
 ---
 
 ## 3. Inherently Validated Calculators (Scoring/Selection)

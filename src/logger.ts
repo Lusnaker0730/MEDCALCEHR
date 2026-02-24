@@ -1,5 +1,7 @@
 // src/logger.ts — Structured logging with PHI stripping
 
+import type { LogTransport } from './log-transport.js';
+
 export enum LogLevel {
     DEBUG = 0,
     INFO = 1,
@@ -8,7 +10,7 @@ export enum LogLevel {
     FATAL = 4,
 }
 
-interface LogEntry {
+export interface LogEntry {
     timestamp: string;
     level: string;
     message: string;
@@ -68,6 +70,7 @@ const LEVEL_NAMES: Record<LogLevel, string> = {
 class Logger {
     private level: LogLevel = LogLevel.INFO;
     private sessionId: string = '';
+    private transports: LogTransport[] = [];
 
     setLevel(level: LogLevel): void {
         this.level = level;
@@ -75,6 +78,18 @@ class Logger {
 
     setSessionId(id: string): void {
         this.sessionId = id;
+    }
+
+    addTransport(transport: LogTransport): void {
+        this.transports.push(transport);
+    }
+
+    removeTransport(name: string): void {
+        const idx = this.transports.findIndex(t => t.name === name);
+        if (idx !== -1) {
+            this.transports[idx].destroy();
+            this.transports.splice(idx, 1);
+        }
     }
 
     private createEntry(level: LogLevel, message: string, context?: Record<string, unknown>): LogEntry {
@@ -137,6 +152,13 @@ class Logger {
                 }
             } catch {
                 // Sentry not available
+            }
+        }
+
+        // Dispatch to registered transports
+        for (const transport of this.transports) {
+            if (level >= transport.minLevel) {
+                try { transport.send(entry); } catch { /* silent */ }
             }
         }
     }

@@ -13,6 +13,11 @@ services:
         ports:
             - '8081:8080'
         restart: unless-stopped
+        logging:
+            driver: json-file
+            options:
+                max-size: '5m'
+                max-file: '3'
         security_opt:
             - 'no-new-privileges:true'
         cap_drop:
@@ -28,9 +33,13 @@ services:
                     cpus: '1.0'
         env_file:
             - .env.staging
+        volumes:
+            - nginx-logs:/var/log/nginx
         environment:
             - TZ=Asia/Taipei
             - SENTRY_ENVIRONMENT=staging
+            - LOG_REMOTE_ENDPOINT=${LOG_REMOTE_ENDPOINT:-/api/client-logs}
+            - LOG_REMOTE_MIN_LEVEL=${LOG_REMOTE_MIN_LEVEL:-WARN}
         healthcheck:
             test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:8080/']
             interval: 30s
@@ -39,6 +48,9 @@ services:
             start_period: 40s
         networks:
             - medcalc-staging-network
+
+volumes:
+    nginx-logs:
 
 networks:
     medcalc-staging-network:

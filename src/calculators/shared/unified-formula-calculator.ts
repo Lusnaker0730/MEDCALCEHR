@@ -1015,6 +1015,26 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     }
                 }
 
+                // FHIR auto-fill validation logging: check populated values against rules
+                numberInputs.forEach(inputConfig => {
+                    const inputEl = container.querySelector(`[id="${inputConfig.id}"]`) as HTMLInputElement;
+                    if (!inputEl || inputEl.value === '') return;
+                    const val = parseFloat(inputEl.value);
+                    if (isNaN(val)) return;
+                    const rule = getValidationRuleForInput(inputConfig);
+                    if ((rule.min !== undefined && val < rule.min) || (rule.max !== undefined && val > rule.max)) {
+                        logger.warn('FHIR auto-fill value out of range', {
+                            calculatorId: config.id, field: inputConfig.id,
+                            value: val, min: rule.min, max: rule.max, source: 'fhir-autofill'
+                        });
+                    } else if ((rule.warnMin !== undefined && val < rule.warnMin) || (rule.warnMax !== undefined && val > rule.warnMax)) {
+                        logger.info('FHIR auto-fill value in warning range', {
+                            calculatorId: config.id, field: inputConfig.id,
+                            value: val, warnMin: rule.warnMin, warnMax: rule.warnMax, source: 'fhir-autofill'
+                        });
+                    }
+                });
+
                 calculate();
             };
 

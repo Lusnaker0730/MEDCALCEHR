@@ -71,6 +71,26 @@ validate_fhir_base_url() {
     fi
 }
 
+validate_log_level() {
+    case "$1" in
+        DEBUG|INFO|WARN|ERROR) return 0 ;;
+        *)
+            echo "[entrypoint] ERROR: Invalid log level: $1 (allowed: DEBUG, INFO, WARN, ERROR)" >&2
+            return 1
+            ;;
+    esac
+}
+
+validate_log_endpoint() {
+    # Empty is valid (disabled)
+    [ -z "$1" ] && return 0
+    # Allow relative paths (/api/...) or https URLs
+    if ! printf '%s' "$1" | grep -qE '^(/[a-zA-Z0-9._/-]+|https://[a-zA-Z0-9._/-]+)$'; then
+        echo "[entrypoint] ERROR: Invalid log endpoint: $1 (must start with / or https://)" >&2
+        return 1
+    fi
+}
+
 validate_scope() {
     # FHIR scopes: alphanumeric, slashes, dots, spaces, underscores
     if ! printf '%s' "$1" | grep -qE '^[a-zA-Z0-9/ ._*-]+$'; then
@@ -100,6 +120,8 @@ SENTRY_DSN="${SENTRY_DSN:-}"
 SENTRY_ENVIRONMENT="${SENTRY_ENVIRONMENT:-production}"
 EHR_VENDOR="${EHR_VENDOR:-generic}"
 EHR_FHIR_BASE_URL="${EHR_FHIR_BASE_URL:-}"
+LOG_REMOTE_ENDPOINT="${LOG_REMOTE_ENDPOINT:-}"
+LOG_REMOTE_MIN_LEVEL="${LOG_REMOTE_MIN_LEVEL:-ERROR}"
 
 # --- Validate All Inputs ---
 
@@ -114,6 +136,8 @@ validate_sentry_dsn "$SENTRY_DSN" || exit 1
 validate_environment "$SENTRY_ENVIRONMENT" || exit 1
 validate_ehr_vendor "$EHR_VENDOR" || exit 1
 validate_fhir_base_url "$EHR_FHIR_BASE_URL" || exit 1
+validate_log_endpoint "$LOG_REMOTE_ENDPOINT" || exit 1
+validate_log_level "$LOG_REMOTE_MIN_LEVEL" || exit 1
 
 echo "[entrypoint] All environment variables validated."
 
@@ -126,6 +150,8 @@ SAFE_SENTRY_DSN=$(sanitize_js_string "$SENTRY_DSN")
 SAFE_SENTRY_ENV=$(sanitize_js_string "$SENTRY_ENVIRONMENT")
 SAFE_EHR_VENDOR=$(sanitize_js_string "$EHR_VENDOR")
 SAFE_EHR_FHIR_BASE_URL=$(sanitize_js_string "$EHR_FHIR_BASE_URL")
+SAFE_LOG_ENDPOINT=$(sanitize_js_string "$LOG_REMOTE_ENDPOINT")
+SAFE_LOG_LEVEL=$(sanitize_js_string "$LOG_REMOTE_MIN_LEVEL")
 
 # JSON-safe values for health.json
 JSON_SAFE_VERSION=$(sanitize_json_string "${BUILD_VERSION:-unknown}")
@@ -165,6 +191,15 @@ if [ "$EHR_VENDOR" != "generic" ] || [ -n "$EHR_FHIR_BASE_URL" ]; then
     },"
 fi
 
+LOGGING_CONFIG=""
+if [ -n "$LOG_REMOTE_ENDPOINT" ]; then
+    LOGGING_CONFIG="
+    logging: {
+        remoteEndpoint: '${SAFE_LOG_ENDPOINT}',
+        remoteMinLevel: '${SAFE_LOG_LEVEL}'
+    },"
+fi
+
 # --- Generate app-config.js ---
 
 cat > "$CONFIG_FILE" <<EOF
@@ -177,11 +212,11 @@ window.MEDCALC_CONFIG = {
     session: {
         timeoutMinutes: ${SESSION_TIMEOUT_MINUTES},
         warningMinutes: ${SESSION_WARNING_MINUTES}
-    },${SENTRY_CONFIG}${EHR_CONFIG}
+    },${SENTRY_CONFIG}${EHR_CONFIG}${LOGGING_CONFIG}
 };
 EOF
 
-echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID}, sentry=${SENTRY_DSN:+enabled})"
+echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID}, sentry=${SENTRY_DSN:+enabled}, logging=${LOG_REMOTE_ENDPOINT:+enabled})"
 
 # Start nginx as non-root user
 exec su-exec nginx nginx -g 'daemon off;'

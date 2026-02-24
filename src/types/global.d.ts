@@ -31,6 +31,15 @@ declare global {
                 fhirBaseUrl?: string;
                 vendorConfig?: Record<string, unknown>;
             };
+            /** Log centralization: ship client-side logs to a remote endpoint */
+            logging?: {
+                /** Remote endpoint URL, e.g. '/api/client-logs' */
+                remoteEndpoint?: string;
+                /** Minimum log level to ship remotely: 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' */
+                remoteMinLevel?: string;
+                /** Number of entries to buffer before flushing */
+                bufferSize?: number;
+            };
             /** Feature flag: enable write-back of calculation results to EHR */
             enableWriteBack?: boolean;
         };
