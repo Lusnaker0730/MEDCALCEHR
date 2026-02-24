@@ -1,7 +1,6 @@
 {
     "app": {
         "title": "CGMH EHRCALC on FHIR",
-        "subtitle": "92 Clinical Calculators for Healthcare Professionals",
         "logout": "Logout",
         "print": "Print",
         "toggleTheme": "Toggle Theme",
@@ -94,5 +93,14 @@
         "toggle": "EN / 中文",
         "en": "English",
         "zhTW": "繁體中文"
+    },
+    "review": {
+        "pending": "Under Review",
+        "conditional": "Conditionally Approved",
+        "rejected": "Not Approved",
+        "approved": "Approved",
+        "blockedMessage": "This calculator has not yet passed clinical review and is currently unavailable. Please contact the clinical review team for updates.",
+        "disabledTooltip": "This calculator is undergoing clinical review",
+        "backToList": "Back to Calculator List"
     }
 }

@@ -82,11 +82,6 @@ export const calculatorModules: CalculatorMetadata[] = [
     },
     { id: 'ascvd', title: 'ASCVD Risk Score (10-Year)', category: 'cardiovascular' },
     {
-        id: 'bacterial-meningitis-score',
-        title: 'Bacterial Meningitis Score for Children',
-        category: 'pediatric'
-    },
-    {
         id: 'benzo-conversion',
         title: 'Benzodiazepine Conversion Calculator',
         category: 'drug-conversion'

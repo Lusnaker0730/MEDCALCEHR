@@ -27,8 +27,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     OXYGEN_SATURATION_ARTERIAL: { primary: 'SaO2', aliases: ['Arterial O2 Sat'] },
     VITAL_SIGNS_PANEL: { primary: 'Vital Signs Panel', aliases: ['Vitals Panel'] },
     MEAN_BP: { primary: 'Mean Blood Pressure', aliases: ['Mean BP', 'MAP'] },
-    BP_PANEL_ALT: { primary: 'Blood Pressure (Systolic+Diastolic)', aliases: ['BP Alt'] },
-    TEMPERATURE_ORAL: { primary: 'Oral Temperature', aliases: ['Oral Temp'] },
     O2_FLOW_RATE: { primary: 'O2 Flow Rate', aliases: ['Oxygen Flow Rate'] },
     AVG_BP_PANEL: { primary: 'Average Blood Pressure Panel', aliases: ['Avg BP Panel'] },
     AVG_BP_SYSTOLIC: { primary: 'Average Systolic BP', aliases: ['Avg SBP'] },
@@ -43,7 +41,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     BODY_WEIGHT_MEASURED: { primary: 'Body Weight (Measured)', aliases: ['Measured Weight'] },
     BMI: { primary: 'BMI', aliases: ['Body Mass Index'] },
     HEAD_CIRCUMFERENCE: { primary: 'Head Circumference', aliases: ['HC'] },
-    HEAD_CIRCUMFERENCE_TAPE: { primary: 'Head Circumference (Tape)', aliases: ['HC Tape'] },
 
     // Pediatric Measurements
     PEDIATRIC_BMI_FOR_AGE: { primary: 'Pediatric BMI for Age', aliases: ['BMI Percentile'] },
@@ -55,7 +52,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     HEMATOCRIT: { primary: 'Hematocrit', aliases: ['Hct'] },
     WBC: { primary: 'WBC', aliases: ['White Blood Count', 'Leukocytes'] },
     PLATELETS: { primary: 'Platelets', aliases: ['Plt', 'Platelet Count'] },
-    PLATELETS_ALT: { primary: 'Platelets (Blood)', aliases: ['Plt'] },
     EOSINOPHILS: { primary: 'Eosinophils', aliases: ['Eos'] },
 
     // Laboratory - Chemistry
@@ -65,7 +61,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     BICARBONATE: { primary: 'Bicarbonate', aliases: ['HCO3'] },
     CO2: { primary: 'CO2', aliases: ['Carbon Dioxide'] },
     BUN: { primary: 'BUN', aliases: ['Blood Urea Nitrogen'] },
-    BUN_ALT: { primary: 'BUN', aliases: [] },
     CREATININE: { primary: 'Creatinine', aliases: ['Cr', 'Creat'] },
     GLUCOSE: { primary: 'Glucose', aliases: ['Glu', 'Blood Sugar'] },
     CALCIUM: { primary: 'Calcium', aliases: ['Ca'] },
@@ -80,7 +75,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     ALT: { primary: 'ALT', aliases: ['SGPT'] },
     ALP: { primary: 'ALP', aliases: ['Alk Phos', 'Alkaline Phosphatase'] },
     GGT: { primary: 'GGT', aliases: [] },
-    ALBUMIN_SERUM: { primary: 'Albumin (Serum)', aliases: [] },
     TOTAL_PROTEIN: { primary: 'Total Protein', aliases: ['TP'] },
     INR: { primary: 'INR', aliases: ['International Normalized Ratio'] },
 
@@ -96,7 +90,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     SERUM_OSMOLALITY: { primary: 'Serum Osmolality', aliases: [] },
     URINE_OSMOLALITY: { primary: 'Urine Osmolality', aliases: [] },
     URINE_SODIUM: { primary: 'Urine Sodium', aliases: ['U-Na'] },
-    URINE_SODIUM_RANDOM: { primary: 'Urine Sodium (Random)', aliases: ['U-Na Random'] },
     URINE_CREATININE: { primary: 'Urine Creatinine', aliases: ['U-Cr'] },
 
     // Laboratory - Inflammatory Markers
@@ -107,9 +100,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     // Laboratory - Cardiac Markers
     TROPONIN_I: { primary: 'Troponin I', aliases: ['Trop I', 'TnI'] },
     TROPONIN_T: { primary: 'Troponin T', aliases: ['Trop T', 'TnT'] },
-    TROPONIN_T_HIGH: { primary: 'High Sensitivity Troponin T', aliases: ['hs-TnT'] },
-    TROPONIN_I_HIGH: { primary: 'High Sensitivity Troponin I', aliases: ['hs-TnI'] },
-    TROPONIN_ALT: { primary: 'Troponin', aliases: [] },
     BNP: { primary: 'BNP', aliases: [] },
     NT_PRO_BNP: { primary: 'NT-proBNP', aliases: [] },
 
@@ -152,16 +142,9 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     AMYLASE: { primary: 'Amylase', aliases: ['Amy'] },
     LIPASE: { primary: 'Lipase', aliases: ['Lip'] },
     LDH: { primary: 'LDH', aliases: [] },
-    CULTURE: { primary: 'Culture', aliases: [] },
     ETHANOL: { primary: 'Ethanol', aliases: ['ETOH', 'Alcohol'] },
     FERRITIN: { primary: 'Ferritin', aliases: [] },
     VITAMIN_D: { primary: 'Vitamin D', aliases: ['Vit D', '25-OH Vit D'] },
-    CSF_GRAM_STAIN: { primary: 'CSF Gram Stain', aliases: ['Gram Stain CSF'] },
-    CSF_ANC: {
-        primary: 'CSF ANC',
-        aliases: ['CSF Neutrophils', 'Cerebrospinal Fluid Neutrophils']
-    },
-    CSF_PROTEIN: { primary: 'CSF Protein', aliases: ['Cerebrospinal Fluid Protein'] },
     NEUTROPHILS_ABSOLUTE: { primary: 'Absolute Neutrophil Count', aliases: ['ANC', 'Neutrophils'] },
     URINE_UREA_NITROGEN: { primary: 'Urine Urea Nitrogen', aliases: ['UUN', 'Urine Urea'] },
 
@@ -174,7 +157,6 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
     TOBACCO_HISTORY: { primary: 'Tobacco Use History', aliases: ['Tobacco History'] },
 
     // Other Observations
-    UREA: { primary: 'Urea', aliases: [] },
     BLOOD_TYPE: { primary: 'Blood Type', aliases: ['ABO/Rh'] },
     RH_FACTOR: { primary: 'Rh Factor', aliases: [] }
 };

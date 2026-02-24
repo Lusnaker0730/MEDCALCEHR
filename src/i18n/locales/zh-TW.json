@@ -1,7 +1,6 @@
 {
     "app": {
         "title": "長庚 EHRCALC on FHIR",
-        "subtitle": "92 個臨床計算器，專為醫療專業人員設計",
         "logout": "登出",
         "print": "列印",
         "toggleTheme": "切換主題",
@@ -94,5 +93,14 @@
         "toggle": "EN / 中文",
         "en": "English",
         "zhTW": "繁體中文"
+    },
+    "review": {
+        "pending": "審核中",
+        "conditional": "有條件通過",
+        "rejected": "未通過",
+        "approved": "已通過",
+        "blockedMessage": "此計算器尚未通過臨床審核，目前無法使用。請聯繫臨床審查團隊了解進度。",
+        "disabledTooltip": "此計算器正在接受臨床審核",
+        "backToList": "返回計算器列表"
     }
 }
