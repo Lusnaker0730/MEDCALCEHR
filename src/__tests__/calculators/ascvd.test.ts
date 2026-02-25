@@ -49,7 +49,7 @@ describe('ASCVD Risk Calculator', () => {
         };
 
         const result = ascvdCalculation(input);
-        expect(result).toHaveLength(1);
+        expect(result.length).toBeGreaterThanOrEqual(1);
         const risk = parseFloat(result[0].value);
         expect(risk).toBeGreaterThan(5);
         expect(risk).toBeLessThan(15);
@@ -107,10 +107,64 @@ describe('ASCVD Risk Calculator', () => {
         expect(() => ascvdCalculation(input)).toThrow('Please complete all fields');
     });
 
+    test('TC-005a: Throws Error for HDL+LDL > TC', () => {
+        const input = {
+            'ascvd-age': 55,
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-ldl': 160,
+            'ascvd-sbp': 120,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'no'
+        };
+
+        expect(() => ascvdCalculation(input)).toThrow(ValidationError);
+        expect(() => ascvdCalculation(input)).toThrow('HDL + LDL must be less than Total Cholesterol');
+    });
+
+    test('TC-005a2: Throws Error for HDL+LDL = TC (boundary)', () => {
+        const input = {
+            'ascvd-age': 55,
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-ldl': 150,
+            'ascvd-sbp': 120,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'no'
+        };
+
+        expect(() => ascvdCalculation(input)).toThrow(ValidationError);
+        expect(() => ascvdCalculation(input)).toThrow('HDL + LDL must be less than Total Cholesterol');
+    });
+
+    test('TC-005b: Throws Error for DBP >= SBP', () => {
+        const input = {
+            'ascvd-age': 55,
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 200,
+            'ascvd-hdl': 50,
+            'ascvd-sbp': 120,
+            'ascvd-dbp': 130,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'no'
+        };
+
+        expect(() => ascvdCalculation(input)).toThrow(ValidationError);
+        expect(() => ascvdCalculation(input)).toThrow('must be less than systolic blood pressure');
+    });
+
     // TC-004: Boundary - Age Out of Range
     test('TC-004: Throws Error for Out of Range Age', () => {
         const input = {
-            'ascvd-age': 30,
+            'ascvd-age': 10,
             'ascvd-gender': 'male',
             'ascvd-race': 'white',
             'ascvd-tc': 200,
@@ -121,7 +175,7 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-smoker': 'no'
         };
 
-        expect(() => ascvdCalculation(input)).toThrow('Valid for ages 40-79');
+        expect(() => ascvdCalculation(input)).toThrow('Valid for ages 20-79');
     });
 
     // TC-006: Known ASCVD Short-Circuit
@@ -134,6 +188,26 @@ describe('ASCVD Risk Calculator', () => {
         const result = ascvdCalculation(input);
         expect(result).toHaveLength(2);
         expect(result[0].value).toBe('High Risk');
+    });
+
+    // TC-NEW: LDL >= 190 Override
+    test('TC-NEW: LDL >= 190 Overrides Result', () => {
+        const input = {
+            'ascvd-age': 40,
+            'ascvd-gender': 'male',
+            'ascvd-race': 'white',
+            'ascvd-tc': 280,
+            'ascvd-hdl': 60,
+            'ascvd-sbp': 110,
+            'ascvd-htn': 'no',
+            'ascvd-dm': 'no',
+            'ascvd-smoker': 'never',
+            'ascvd-ldl': 195 // High LDL triggering the override
+        };
+
+        const result = ascvdCalculation(input);
+        expect(result[0].alertClass).toBe('danger');
+        expect(result[0].interpretation).toContain('High Risk. Primary Severe Hypercholesterolemia');
     });
 
     // ===========================================
@@ -410,10 +484,10 @@ describe('ASCVD Risk Calculator', () => {
             'ascvd-smoker': 'never'
         };
 
-        test('Age 40 is valid (lower boundary)', () => {
-            const input = { ...baseInputs, 'ascvd-age': 40 };
+        test('Age 20 is valid (lower boundary)', () => {
+            const input = { ...baseInputs, 'ascvd-age': 20 };
             const result = ascvdCalculationPure(input);
-            expect(result.risk).toBeGreaterThan(0);
+            expect(result.results[0].value).toBe('N/A');
         });
 
         test('Age 79 is valid (upper boundary)', () => {
@@ -422,14 +496,14 @@ describe('ASCVD Risk Calculator', () => {
             expect(result.risk).toBeGreaterThan(0);
         });
 
-        test('Age 39 throws error (below range)', () => {
-            const input = { ...baseInputs, 'ascvd-age': 39 };
-            expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 40-79');
+        test('Age 19 throws error (below range)', () => {
+            const input = { ...baseInputs, 'ascvd-age': 19 };
+            expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 20-79');
         });
 
         test('Age 80 throws error (above range)', () => {
             const input = { ...baseInputs, 'ascvd-age': 80 };
-            expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 40-79');
+            expect(() => ascvdCalculationPure(input)).toThrow('Valid for ages 20-79');
         });
     });
 
@@ -495,8 +569,16 @@ describe('ASCVD Risk Calculator', () => {
             expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current', isDiabetic: true }))?.lifetimeRisk).toBe('~69%');
         });
 
-        test('Returns null for age < 40', () => {
-            expect(getLifetimeRisk(makePatient({ age: 39 }))).toBeNull();
+        test('Returns result for age 20 (lower boundary)', () => {
+            expect(getLifetimeRisk(makePatient({ age: 20 }))).not.toBeNull();
+        });
+
+        test('Returns result for age 39 (young adult)', () => {
+            expect(getLifetimeRisk(makePatient({ age: 39 }))).not.toBeNull();
+        });
+
+        test('Returns null for age < 20', () => {
+            expect(getLifetimeRisk(makePatient({ age: 19 }))).toBeNull();
         });
 
         test('Returns null for age > 59', () => {

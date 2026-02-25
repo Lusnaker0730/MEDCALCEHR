@@ -42,7 +42,7 @@ services:
             - LOG_REMOTE_ENDPOINT=${LOG_REMOTE_ENDPOINT:-/api/client-logs}
             - LOG_REMOTE_MIN_LEVEL=${LOG_REMOTE_MIN_LEVEL:-ERROR}
         healthcheck:
-            test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:8080/']
+            test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://127.0.0.1:8080/']
             interval: 30s
             timeout: 10s
             retries: 3

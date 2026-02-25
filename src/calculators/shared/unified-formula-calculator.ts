@@ -50,6 +50,8 @@ export type {
     SimpleCalculateFn,
     ComplexCalculateFn,
     FormulaCalculatorConfig,
+    CrossFieldValidationError,
+    CrossFieldValidationFn,
     CalculatorModule,
     // 向後兼容別名
     FormulaNumberInputConfig,
@@ -85,6 +87,7 @@ import type {
     SimpleCalculateFn,
     ComplexCalculateFn,
     FormulaCalculatorConfig,
+    CrossFieldValidationError,
     CalculatorModule
 } from '../../types/index.js';
 
@@ -145,12 +148,24 @@ function getValidationRuleForInput(input: NumberInputConfig): ValidationRule {
         ruleType && ValidationRules[ruleType] ? ValidationRules[ruleType] : {};
 
     // Merge: explicit input config takes precedence over default rules
+    const resolvedMin = input.min !== undefined ? input.min : defaultRule.min;
+    const resolvedMax = input.max !== undefined ? input.max : defaultRule.max;
+
+    // Auto-generate error message when field config overrides min/max
+    // so the message reflects the actual limits, not the generic rule's range
+    const minOverridden = input.min !== undefined && input.min !== defaultRule.min;
+    const maxOverridden = input.max !== undefined && input.max !== defaultRule.max;
+    const unit = input.unit || input.unitConfig?.default || input.unitToggle?.default || '';
+    const message = (minOverridden || maxOverridden)
+        ? `${input.label} must be between ${resolvedMin}-${resolvedMax}${unit ? ' ' + unit : ''}`
+        : defaultRule.message;
+
     return {
-        min: input.min !== undefined ? input.min : defaultRule.min,
-        max: input.max !== undefined ? input.max : defaultRule.max,
+        min: resolvedMin,
+        max: resolvedMax,
         warnMin: defaultRule.warnMin,
         warnMax: defaultRule.warnMax,
-        message: defaultRule.message,
+        message,
         warningMessage: defaultRule.warningMessage,
         required: input.required !== false
     };
@@ -749,6 +764,28 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         hasWarnings: validation.hasWarnings,
                         warnings: validation.warnings
                     };
+                }
+
+                // 跨欄位驗證（即時顯示 inline 錯誤）
+                if (config.crossFieldValidation) {
+                    const crossErrors = config.crossFieldValidation(values);
+                    if (crossErrors.length > 0) {
+                        for (const err of crossErrors) {
+                            const inputEl = container.querySelector(
+                                `[id="${err.fieldId}"]`
+                            ) as HTMLInputElement;
+                            if (inputEl) {
+                                updateFieldValidationUI(inputEl, 'error', err.message);
+                            }
+                        }
+
+                        return {
+                            isValid: false,
+                            values,
+                            hasWarnings: validation.hasWarnings,
+                            warnings: validation.warnings
+                        };
+                    }
                 }
 
                 // 黃區警告：允許計算但顯示警告

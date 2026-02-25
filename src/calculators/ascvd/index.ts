@@ -12,7 +12,7 @@
  * - Uses uiBuilder for all UI elements
  */
 
-import { createUnifiedFormulaCalculator } from '../shared/unified-formula-calculator.js';
+import { createUnifiedFormulaCalculator, type CrossFieldValidationError } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import {
@@ -138,6 +138,8 @@ export const ascvd = createUnifiedFormulaCalculator({
                         default: 'mg/dL'
                     },
                     validationType: 'totalCholesterol',
+                    min: 130,
+                    max: 320,
                     required: false
                 },
                 {
@@ -147,6 +149,19 @@ export const ascvd = createUnifiedFormulaCalculator({
                     loincCode: LOINC_CODES.HDL,
                     unitConfig: { type: 'hdl', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
                     validationType: 'hdl',
+                    min: 20,
+                    max: 100,
+                    required: false
+                },
+                {
+                    id: 'ascvd-ldl',
+                    label: 'LDL Cholesterol',
+                    type: 'number',
+                    loincCode: LOINC_CODES.LDL,
+                    unitConfig: { type: 'ldl', units: ['mg/dL', 'mmol/L'], default: 'mg/dL' },
+                    validationType: 'ldl',
+                    min: 30,
+                    max: 300,
                     required: false
                 }
             ]
@@ -162,8 +177,19 @@ export const ascvd = createUnifiedFormulaCalculator({
                     unit: 'mmHg',
                     loincCode: LOINC_CODES.SYSTOLIC_BP,
                     validationType: 'systolicBP',
-                    min: 50,
-                    max: 300,
+                    min: 90,
+                    max: 200,
+                    required: false
+                },
+                {
+                    id: 'ascvd-dbp',
+                    label: 'Diastolic Blood Pressure',
+                    type: 'number',
+                    unit: 'mmHg',
+                    loincCode: LOINC_CODES.DIASTOLIC_BP,
+                    validationType: 'diastolicBP',
+                    min: 60,
+                    max: 130,
                     required: false
                 },
                 {
@@ -209,6 +235,33 @@ export const ascvd = createUnifiedFormulaCalculator({
     ],
 
     calculate: ascvdCalculation,
+
+    // 跨欄位即時驗證
+    crossFieldValidation: (values: Record<string, any>): CrossFieldValidationError[] => {
+        const errors: CrossFieldValidationError[] = [];
+
+        // DBP must be < SBP
+        if (values['ascvd-dbp'] !== undefined && values['ascvd-sbp'] !== undefined) {
+            if (values['ascvd-dbp'] >= values['ascvd-sbp']) {
+                errors.push({
+                    fieldId: 'ascvd-dbp',
+                    message: 'Diastolic BP must be less than Systolic BP.'
+                });
+            }
+        }
+
+        // HDL + LDL must be < Total Cholesterol
+        if (values['ascvd-tc'] !== undefined && values['ascvd-hdl'] !== undefined && values['ascvd-ldl'] !== undefined) {
+            if (values['ascvd-hdl'] + values['ascvd-ldl'] >= values['ascvd-tc']) {
+                errors.push({
+                    fieldId: 'ascvd-ldl',
+                    message: 'HDL + LDL must be less than Total Cholesterol.'
+                });
+            }
+        }
+
+        return errors;
+    },
 
     // ==========================================
     // Formula Documentation
@@ -345,7 +398,7 @@ export const ascvd = createUnifiedFormulaCalculator({
     customInitialize: (client, patient, container, calculateFn) => {
         // ── Helper: show secondary panels after risk is calculated ──────────
         const showSecondaryPanels = () => {
-            if (!currentPatientData || currentBaselineRisk <= 0) return;
+            if (!currentPatientData) return;
             const panels = container.querySelector('#ascvd-secondary-panels') as HTMLElement;
             if (panels) panels.classList.remove('ui-hidden');
 
@@ -358,7 +411,7 @@ export const ascvd = createUnifiedFormulaCalculator({
                 const lr = getLifetimeRisk(p);
                 if (lr) {
                     lifetimeEl.innerHTML = uiBuilder.createSection({
-                        title: '📈 Lifetime ASCVD Risk (Ages 40-59)',
+                        title: '📈 Lifetime ASCVD Risk (Ages 20-59)',
                         content:
                             uiBuilder.createResultItem({
                                 label: 'Estimated Lifetime Risk',
@@ -446,7 +499,7 @@ export const ascvd = createUnifiedFormulaCalculator({
         const resultBox = container.querySelector('#ascvd-result');
         if (resultBox) {
             const observer = new MutationObserver(() => {
-                if (resultBox.classList.contains('show') && currentBaselineRisk > 0) {
+                if (resultBox.classList.contains('show') && currentPatientData) {
                     showSecondaryPanels();
                 } else {
                     const panels = container.querySelector('#ascvd-secondary-panels') as HTMLElement;

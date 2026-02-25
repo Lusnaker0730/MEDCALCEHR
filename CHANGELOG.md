@@ -8,6 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-02-25
+
+### Added
+- **Cross-field validation framework**: `crossFieldValidation` callback in `FormulaCalculatorConfig` for real-time inline validation between related fields
+- **ASCVD cross-field validation**: DBP >= SBP and HDL + LDL >= TC now show inline errors immediately on input, not just at calculation time
+- **ASCVD Lifetime Risk for ages 20-39**: `getLifetimeRisk()` extended from 40-59 to 20-59 per 2013 ACC/AHA guideline recommendations
+
+### Fixed
+- **Docker startup failure**: Container crashed in restart loop due to `cap_drop: ALL` + `no-new-privileges` conflicting with `su-exec` privilege dropping. Switched to `USER nginx` in Dockerfile, removed `su-exec` dependency
+- **Docker healthcheck IPv6**: `localhost` resolved to `::1` but nginx only listened on IPv4; changed healthcheck URLs to `127.0.0.1`
+- **Validation error messages**: Field-level error messages now reflect the calculator's actual `min`/`max` range instead of showing generic rule ranges (e.g., "Age must be between 20-79 years" instead of "0-150 years")
+- **ASCVD lipid validation boundary**: Changed HDL + LDL check from `>` to `>=` Total Cholesterol (TC also includes VLDL)
+
+### Changed
+- Docker production image runs as non-root `nginx` user directly (no `su-exec`)
+- Nginx `user` directive commented out for non-root operation
+- ASCVD clinical review status updated to approved
+
 ## [1.6.0] - 2026-02-23
 
 ### Added

@@ -113,6 +113,10 @@ export type {
     // 主要配置
     FormulaCalculatorConfig,
 
+    // 跨欄位驗證
+    CrossFieldValidationError,
+    CrossFieldValidationFn,
+
     // 向後兼容別名
     FormulaNumberInputConfig,
     FormulaRadioInputConfig,

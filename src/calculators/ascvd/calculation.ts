@@ -81,7 +81,9 @@ export interface AscvdPatient {
     age: number;
     tc: number;
     hdl: number;
+    ldl?: number;
     sbp: number;
+    dbp?: number;
     isMale: boolean;
     race: 'white' | 'aa' | 'other';
     onHtnTx: boolean;
@@ -182,6 +184,28 @@ export function calculatePCE(patient: AscvdPatient): number {
 }
 
 /**
+ * Calculates optimal 10-year ASCVD risk (assuming optimal risk factors)
+ * Reference: ACC ASCVD Risk Estimator Plus "Optimal Risk" calculation logic
+ * Optimal values: TC=170 mg/dL, HDL=50 mg/dL, SBP=110 mmHg, Not treated for HTN, Non-smoker, Non-diabetic
+ */
+export function getOptimalRisk(patient: AscvdPatient): number | null {
+    if (patient.age < 40 || patient.age > 79) return null;
+
+    const optimalPatient: AscvdPatient = {
+        ...patient,
+        tc: 170,
+        hdl: 50,
+        sbp: 110,
+        onHtnTx: false,
+        isSmoker: false,
+        smokerStatus: 'never',
+        isDiabetic: false
+    };
+
+    return calculatePCE(optimalPatient);
+}
+
+/**
  * Main calculation function with validation
  * @param values - Input values from calculator form
  * @returns AscvdResult object with risk, patient data, and formatted results
@@ -224,10 +248,25 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
     const tc = values['ascvd-tc'];
     const hdl = values['ascvd-hdl'];
     const sbp = values['ascvd-sbp'];
+    const ldl = values['ascvd-ldl'];
+    const dbp = values['ascvd-dbp'];
 
-    // Validate age range
-    if (age < 40 || age > 79) {
-        throw new ValidationError(`Valid for ages 40-79. Current age: ${age}.`, 'OUT_OF_RANGE');
+    // Validate age range explicitly
+    if (age < 20 || age > 79) {
+        throw new ValidationError(`Valid for ages 20-79. Current age: ${age}.`, 'OUT_OF_RANGE');
+    }
+
+    // 2a. Cross-Field Validations
+    if (values['ascvd-dbp'] !== undefined && values['ascvd-sbp'] !== undefined) {
+        if (values['ascvd-dbp'] >= values['ascvd-sbp']) {
+            throw new ValidationError('Diastolic blood pressure must be less than systolic blood pressure.', 'LOGIC_ERROR');
+        }
+    }
+
+    if (values['ascvd-tc'] !== undefined && values['ascvd-hdl'] !== undefined && values['ascvd-ldl'] !== undefined) {
+        if (values['ascvd-hdl'] + values['ascvd-ldl'] >= values['ascvd-tc']) {
+            throw new ValidationError('HDL + LDL must be less than Total Cholesterol (TC also includes VLDL and other lipoproteins).', 'LOGIC_ERROR');
+        }
     }
 
     // 3. Prepare Patient Object
@@ -239,7 +278,9 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
         age,
         tc,
         hdl,
+        ldl,
         sbp,
+        dbp,
         isMale: values['ascvd-gender'] !== 'female',
         race: values['ascvd-race'] || 'white',
         onHtnTx: values['ascvd-htn'] === 'yes',
@@ -249,13 +290,19 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
     };
 
     // 4. Calculate Risk
-    const risk = calculatePCE(patient);
+    // 10-year risk is only valid for ages 40-79
+    const isTenYearValid = patient.age >= 40 && patient.age <= 79;
+    const risk = isTenYearValid ? calculatePCE(patient) : 0;
+    const optimalRisk = isTenYearValid ? getOptimalRisk(patient) : null;
 
     // 5. Interpret Result
     let interpretation = '';
     let alertClass: AlertSeverity = 'info';
 
-    if (risk < 5) {
+    if (!isTenYearValid) {
+        interpretation = `10-year ASCVD risk is validated for ages 40-79. For age ${patient.age}, please refer to the Lifetime Risk panel below.`;
+        alertClass = 'info';
+    } else if (risk < 5) {
         interpretation = 'Low Risk (<5%). Emphasize lifestyle modifications.';
         alertClass = 'success';
     } else if (risk < 7.5) {
@@ -270,23 +317,48 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
         alertClass = 'danger';
     }
 
-    if (patient.race === 'other') {
+    if (patient.ldl !== undefined && patient.ldl >= 190) {
+        interpretation = 'High Risk. Primary Severe Hypercholesterolemia (LDL ≥ 190 mg/dL). Initiate high-intensity statin regardless of 10-year risk score.';
+        alertClass = 'danger';
+    }
+
+    if (patient.race === 'other' && isTenYearValid) {
         interpretation +=
             '<br><small>Note: Risk for "Other" race may be over- or underestimated.</small>';
+    }
+
+    const results: any[] = [];
+    if (isTenYearValid) {
+        results.push({
+            label: '10-Year ASCVD Risk',
+            value: risk.toFixed(1),
+            unit: '%',
+            interpretation: interpretation,
+            alertClass: alertClass
+        });
+
+        if (optimalRisk !== null && optimalRisk < risk) {
+            results.push({
+                label: 'Optimal 10-Year Risk',
+                value: optimalRisk.toFixed(1),
+                unit: '%',
+                interpretation: 'Estimated risk if all modifiable risk factors were optimal (TC=170, HDL=50, SBP=110, untreated HTN, non-smoker, no diabetes).',
+                alertClass: 'success'
+            });
+        }
+    } else {
+        results.push({
+            label: '10-Year ASCVD Risk',
+            value: 'N/A',
+            interpretation: interpretation,
+            alertClass: 'info'
+        });
     }
 
     return {
         risk,
         patient,
-        results: [
-            {
-                label: '10-Year ASCVD Risk',
-                value: risk.toFixed(1),
-                unit: '%',
-                interpretation: interpretation,
-                alertClass: alertClass
-            }
-        ]
+        results
     };
 };
 
@@ -380,8 +452,9 @@ export function getLifetimeRisk(patient: AscvdPatient): {
     lifetimeRisk: string;
     description: string;
 } | null {
-    // Lifetime risk only meaningful for age 40-59 with low 10yr risk
-    if (patient.age < 40 || patient.age > 59) return null;
+    // Lifetime risk meaningful for age 20-59
+    // Reference: 2013 ACC/AHA Guidelines recommend lifetime risk discussion for ages 20-59
+    if (patient.age < 20 || patient.age > 59) return null;
 
     // Count major risk factors
     let majorRFs = 0;

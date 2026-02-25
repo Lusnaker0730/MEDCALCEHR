@@ -218,5 +218,5 @@ EOF
 
 echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID}, sentry=${SENTRY_DSN:+enabled}, logging=${LOG_REMOTE_ENDPOINT:+enabled})"
 
-# Start nginx as non-root user
-exec su-exec nginx nginx -g 'daemon off;'
+# Start nginx (already running as nginx user via Dockerfile USER directive)
+exec nginx -g 'daemon off;'

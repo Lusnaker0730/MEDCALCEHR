@@ -288,6 +288,9 @@ export interface FormulaCalculatorConfig extends BaseCalculatorConfig {
     /** 自動填入性別欄位 ID */
     autoPopulateGender?: string;
 
+    /** 跨欄位驗證函數（即時驗證，輸入時觸發） */
+    crossFieldValidation?: CrossFieldValidationFn;
+
     /** 自定義初始化函數 */
     customInitialize?: (
         client: FHIRClientType | null,
@@ -296,6 +299,21 @@ export interface FormulaCalculatorConfig extends BaseCalculatorConfig {
         calculate: () => void
     ) => void;
 }
+
+// ==========================================
+// 跨欄位驗證
+// ==========================================
+
+/** 跨欄位驗證錯誤 */
+export interface CrossFieldValidationError {
+    /** 要標記錯誤的欄位 ID */
+    fieldId: string;
+    /** 錯誤訊息 */
+    message: string;
+}
+
+/** 跨欄位驗證函數 */
+export type CrossFieldValidationFn = (values: Record<string, any>) => CrossFieldValidationError[];
 
 // ==========================================
 // 向後兼容別名

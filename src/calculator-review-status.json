@@ -94,11 +94,11 @@
             "notes": ""
         },
         "ascvd": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
-            "reviewDocId": null,
-            "notes": ""
+            "status": "approved",
+            "reviewDate": "2026-02-25",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "ascvd.md",
+            "notes": "無"
         },
         "benzo-conversion": {
             "status": "pending",
