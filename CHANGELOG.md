@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.7.4] - 2026-02-25
+
+### Changed
+- **Growth chart: Taiwan reference data**: Replaced CDC growth curves with 衛生福利部國民健康署台灣兒童生長標準 (birth to 17 years, P3/P15/P25/P50/P75/P85/P97)
+- **Growth chart: BMI thresholds**: Uses Taiwan-specific BMI cutoffs for underweight/overweight/obese instead of CDC percentiles
+
+### Added
+- **Growth chart: manual height/weight input**: Clinicians can enter current-visit height (cm) and weight (kg) directly — auto-calculates age in months from FHIR patient birthDate, merges with historical data, recalculates BMI, and redraws all charts instantly
+- **Growth chart: same-day overwrite**: Re-entering data on the same day replaces the previous manual entry instead of duplicating it
+
 ## [1.7.3] - 2026-02-25
 
 ### Fixed
