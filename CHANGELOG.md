@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-02-25
+
+### Fixed
+- **ASCVD Therapy Impact: patient-aware calculation**: BP control and smoking cessation now use PCE recalculation instead of fixed RR multipliers, producing risk reductions proportional to the patient's actual baseline values
+- **ASCVD Therapy Impact: optimal risk floor**: Treated risk is clamped to never fall below the 10-year optimal risk (theoretical minimum achievable with all optimal risk factors)
+- **ASCVD Optimal Risk hidden for near-optimal patients**: Removed `optimalRisk < risk` guard — optimal risk is now always shown for ages 40-79, with a positive message when risk factors are already near optimal
+- **ASCVD Statin selection not mutually exclusive**: Changed statin intensity from checkboxes to radio group (None / High / Moderate) to enforce single selection
+- **Unit converter missing cross-conversions**: Added D-dimer `µg/mL ↔ ng/mL` and Hemoglobin `g/L ↔ mmol/L` direct conversion pairs that previously returned null
+
+### Changed
+- ASCVD therapy impact uses hybrid approach: PCE recalculation for BP/smoking (parameters in the equation), RR multipliers for statin/aspirin (not modeled in PCE)
+- Therapy impact panel hides statin options when 10-year risk < 5%, hides BP control when SBP ≤ 130 mmHg
+- BP control label shows patient's current SBP dynamically (e.g., "Target SBP <130 mmHg (current: 160 mmHg)")
+- Therapy results table header changed from "RR Applied" to "Method" (PCE recalc vs RR)
+- Skipped therapies (already at target) displayed in therapy results
+- Updated references to full citations: Lloyd-Jones DM et al. Circulation 2006;113(6):791-8 and Karmali KN et al. Circulation 2015;132(16):1571-8
+
 ## [1.7.1] - 2026-02-25
 
 ### Fixed

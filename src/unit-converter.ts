@@ -87,8 +87,8 @@ export const UnitConverter = {
         // Hemoglobin
         hemoglobin: {
             'g/dL': { 'g/L': 10, 'mmol/L': 0.6206 },
-            'g/L': { 'g/dL': 0.1 },
-            'mmol/L': { 'g/dL': 1.611 }
+            'g/L': { 'g/dL': 0.1, 'mmol/L': 0.06206 },
+            'mmol/L': { 'g/dL': 1.611, 'g/L': 16.11 }
         },
         // Urea/BUN
         bun: {
@@ -147,8 +147,8 @@ export const UnitConverter = {
         // D-dimer
         ddimer: {
             'mg/L': { 'µg/mL': 1, 'ng/mL': 1000 },
-            'µg/mL': { 'mg/L': 1 },
-            'ng/mL': { 'mg/L': 0.001 }
+            'µg/mL': { 'mg/L': 1, 'ng/mL': 1000 },
+            'ng/mL': { 'mg/L': 0.001, 'µg/mL': 0.001 }
         },
         // Fibrinogen
         fibrinogen: {
@@ -185,7 +185,7 @@ export const UnitConverter = {
         if (!typeConversions || !typeConversions[fromUnit]) return null;
 
         const conversion = typeConversions[fromUnit][toUnit];
-        if (conversion === undefined) return null;
+        if (conversion === undefined || conversion === null) return null;
 
         // Handle function-based conversions (like temperature)
         if (typeof conversion === 'function') {
@@ -221,7 +221,7 @@ export const UnitConverter = {
 
         // Store original value and unit
         let storedValue: number | null = null;
-        let currentUnitIndex = 0;
+        let currentUnitIndex = Math.max(0, units.indexOf(defaultUnit));
 
         toggleBtn.addEventListener('click', e => {
             e.preventDefault();
@@ -446,7 +446,8 @@ export const UnitConverter = {
 
         if (!type) return value;
 
-        return this.convert(value, currentUnit, standardUnit, type) || value;
+        const converted = this.convert(value, currentUnit, standardUnit, type);
+        return converted !== null ? converted : value;
     }
 };
 

@@ -337,12 +337,15 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
             alertClass: alertClass
         });
 
-        if (optimalRisk !== null && optimalRisk < risk) {
+        if (optimalRisk !== null) {
+            const isNearOptimal = optimalRisk >= risk;
             results.push({
                 label: 'Optimal 10-Year Risk',
                 value: optimalRisk.toFixed(1),
                 unit: '%',
-                interpretation: 'Estimated risk if all modifiable risk factors were optimal (TC=170, HDL=50, SBP=110, untreated HTN, non-smoker, no diabetes).',
+                interpretation: isNearOptimal
+                    ? 'Your risk factors are already at or near optimal levels.'
+                    : 'Estimated risk if all modifiable risk factors were optimal (TC=170, HDL=50, SBP=110, untreated HTN, non-smoker, no diabetes).',
                 alertClass: 'success'
             });
         }
@@ -380,56 +383,88 @@ export interface TherapyImpactResult {
     rrr: number;           // Relative Risk Reduction (%)
     nnt: number | null;    // Number Needed to Treat (10 yr)
     interventions: string[];
+    skipped: string[];     // Therapies skipped (already at target)
 }
 
 /**
- * Calculate therapy impact using Million Hearts Longitudinal RR multipliers.
- * Reference: Karmali et al. Circulation. 2015;132(16):1571-8.
+ * Calculate therapy impact using a hybrid approach:
+ * - BP control & Smoking cessation → PCE recalculation (parameters in the equation)
+ * - Statin & Aspirin → RR multipliers (not directly modeled in PCE)
  *
- * RR values from high-quality meta-analyses:
- *   High-intensity statin:   RR 0.75  (CTT Collaboration, LDL↓≥50%)
- *   Moderate statin:         RR 0.82  (proportional to LDL reduction)
- *   Smoking cessation:       RR 0.85  (short-term; full effect ≈10 yr)
- *   BP control to <130:      RR 0.73  (Ettehad et al. Lancet 2016)
- *   Aspirin (qualified):     RR 0.90  (conservative primary prevention)
+ * References:
+ *   Statin RR: CTT Collaboration meta-analysis
+ *   Aspirin RR: 2022 USPSTF primary prevention
+ *   BP/Smoking: PCE recalculation with modified patient parameters
  */
 export function calculateTherapyImpact(
     baselineRisk: number,
-    options: TherapyOptions
+    options: TherapyOptions,
+    patient: AscvdPatient
 ): TherapyImpactResult {
     const interventions: string[] = [];
-    let combinedRR = 1.0;
+    const skipped: string[] = [];
+
+    // Start with baseline risk; PCE recalculations replace it, RR multiplies it
+    let pceRecalcPatient: AscvdPatient = { ...patient };
+    let hasPCEChange = false;
+
+    // --- PCE recalculation therapies ---
+
+    // BP control: recalculate with SBP=130, onHtnTx=true (if SBP > 130)
+    if (options.bpControl) {
+        if (patient.sbp > 130) {
+            pceRecalcPatient = { ...pceRecalcPatient, sbp: 130, onHtnTx: true };
+            hasPCEChange = true;
+            interventions.push(`BP control to <130 mmHg (PCE recalc, from ${patient.sbp})`);
+        } else {
+            skipped.push('BP control: SBP already ≤130 mmHg');
+        }
+    }
+
+    // Smoking cessation: recalculate with isSmoker=false (if current smoker)
+    if (options.smokingCessation) {
+        if (patient.isSmoker) {
+            pceRecalcPatient = { ...pceRecalcPatient, isSmoker: false, smokerStatus: 'former' };
+            hasPCEChange = true;
+            interventions.push('Smoking cessation (PCE recalc)');
+        } else {
+            skipped.push('Smoking cessation: patient is not a current smoker');
+        }
+    }
+
+    // Determine the risk after PCE recalculation
+    let treatedRisk = hasPCEChange ? calculatePCE(pceRecalcPatient) : baselineRisk;
+
+    // --- RR multiplier therapies (applied on top of PCE-recalculated risk) ---
+    let rrMultiplier = 1.0;
 
     // Statin therapy (prioritise high over moderate)
     if (options.highIntensityStatin) {
-        combinedRR *= 0.75;
+        rrMultiplier *= 0.75;
         interventions.push('High-intensity statin (≥50% LDL↓, RR 0.75)');
     } else if (options.moderateIntensityStatin) {
-        combinedRR *= 0.82;
+        rrMultiplier *= 0.82;
         interventions.push('Moderate-intensity statin (30-49% LDL↓, RR 0.82)');
     }
 
-    if (options.smokingCessation) {
-        combinedRR *= 0.85;
-        interventions.push('Smoking cessation (RR 0.85)');
-    }
-
-    if (options.bpControl) {
-        combinedRR *= 0.73;
-        interventions.push('BP control to <130 mmHg (RR 0.73)');
-    }
-
     if (options.aspirin) {
-        combinedRR *= 0.90;
+        rrMultiplier *= 0.90;
         interventions.push('Low-dose aspirin (RR 0.90)');
     }
 
-    const treatedRisk = Math.max(0, baselineRisk * combinedRR);
+    treatedRisk = Math.max(0, treatedRisk * rrMultiplier);
+
+    // Clamp: treated risk cannot fall below optimal 10-year risk
+    const optimalRisk = getOptimalRisk(patient);
+    if (optimalRisk !== null && treatedRisk < optimalRisk) {
+        treatedRisk = optimalRisk;
+    }
+
     const arr = Math.max(0, baselineRisk - treatedRisk);
-    const rrr = baselineRisk > 0 ? ((1 - combinedRR) * 100) : 0;
+    const rrr = baselineRisk > 0 ? ((baselineRisk - treatedRisk) / baselineRisk * 100) : 0;
     const nnt = arr > 0 ? Math.round(100 / arr) : null;
 
-    return { treatedRisk, arr, rrr, nnt, interventions };
+    return { treatedRisk, arr, rrr, nnt, interventions, skipped };
 }
 
 // ==========================================

@@ -2,10 +2,13 @@ import { describe, expect, test } from '@jest/globals';
 import {
     ascvdCalculationPure,
     PCE_COEFFICIENTS,
+    calculatePCE,
     calculateTherapyImpact,
+    getOptimalRisk,
     getLifetimeRisk,
     getAspirinRecommendation,
-    getCACGuidance
+    getCACGuidance,
+    type AscvdPatient
 } from '../../calculators/ascvd/calculation.js';
 import { ValidationError } from '../../errorHandler.js';
 
@@ -510,16 +513,33 @@ describe('ASCVD Risk Calculator', () => {
     // ===========================================
     // TC-011: calculateTherapyImpact
     // ===========================================
-    describe('calculateTherapyImpact (Million Hearts RR Method)', () => {
+    describe('calculateTherapyImpact (Hybrid PCE + RR Method)', () => {
+        // Default patient for therapy tests: smoker with high SBP
+        const therapyPatient: AscvdPatient = {
+            age: 55, tc: 213, hdl: 50, sbp: 160,
+            isMale: true, race: 'white',
+            onHtnTx: false, isDiabetic: false,
+            isSmoker: true, smokerStatus: 'current'
+        };
+
+        // Low-SBP non-smoker patient
+        const lowRiskPatient: AscvdPatient = {
+            age: 55, tc: 213, hdl: 50, sbp: 120,
+            isMale: true, race: 'white',
+            onHtnTx: false, isDiabetic: false,
+            isSmoker: false, smokerStatus: 'never'
+        };
+
         test('No therapies = no change', () => {
-            const result = calculateTherapyImpact(15, {});
+            const result = calculateTherapyImpact(15, {}, therapyPatient);
             expect(result.treatedRisk).toBeCloseTo(15, 2);
             expect(result.arr).toBeCloseTo(0, 2);
             expect(result.nnt).toBeNull();
+            expect(result.skipped).toHaveLength(0);
         });
 
         test('High-intensity statin: RR 0.75 applied', () => {
-            const result = calculateTherapyImpact(20, { highIntensityStatin: true });
+            const result = calculateTherapyImpact(20, { highIntensityStatin: true }, therapyPatient);
             expect(result.treatedRisk).toBeCloseTo(15, 2);
             expect(result.arr).toBeCloseTo(5, 2);
             expect(result.rrr).toBeCloseTo(25, 1);
@@ -527,20 +547,79 @@ describe('ASCVD Risk Calculator', () => {
         });
 
         test('High-intensity takes priority over moderate', () => {
-            const both = calculateTherapyImpact(10, { highIntensityStatin: true, moderateIntensityStatin: true });
-            const high = calculateTherapyImpact(10, { highIntensityStatin: true });
+            const both = calculateTherapyImpact(10, { highIntensityStatin: true, moderateIntensityStatin: true }, therapyPatient);
+            const high = calculateTherapyImpact(10, { highIntensityStatin: true }, therapyPatient);
             expect(both.treatedRisk).toBeCloseTo(high.treatedRisk, 5);
         });
 
-        test('Combined therapies multiply RRs', () => {
-            const result = calculateTherapyImpact(20, { highIntensityStatin: true, bpControl: true });
-            expect(result.treatedRisk).toBeCloseTo(20 * 0.75 * 0.73, 3);
+        test('BP control uses PCE recalculation (SBP 160 → 130)', () => {
+            const baselineRisk = calculatePCE(therapyPatient);
+            const result = calculateTherapyImpact(baselineRisk, { bpControl: true }, therapyPatient);
+            // Should recalculate with SBP=130, onHtnTx=true
+            const expectedPatient: AscvdPatient = { ...therapyPatient, sbp: 130, onHtnTx: true };
+            const expectedRisk = calculatePCE(expectedPatient);
+            expect(result.treatedRisk).toBeCloseTo(expectedRisk, 3);
+            expect(result.treatedRisk).toBeLessThan(baselineRisk);
+            expect(result.interventions[0]).toContain('PCE recalc');
+            expect(result.skipped).toHaveLength(0);
+        });
+
+        test('BP control skipped when SBP ≤ 130', () => {
+            const result = calculateTherapyImpact(10, { bpControl: true }, lowRiskPatient);
+            expect(result.treatedRisk).toBeCloseTo(10, 2);
+            expect(result.skipped).toHaveLength(1);
+            expect(result.skipped[0]).toContain('SBP already');
+        });
+
+        test('Higher SBP gives larger BP control benefit', () => {
+            const sbp160 = { ...therapyPatient, sbp: 160 };
+            const sbp180 = { ...therapyPatient, sbp: 180 };
+            const base160 = calculatePCE(sbp160);
+            const base180 = calculatePCE(sbp180);
+            const impact160 = calculateTherapyImpact(base160, { bpControl: true }, sbp160);
+            const impact180 = calculateTherapyImpact(base180, { bpControl: true }, sbp180);
+            // Both treated risks should converge toward SBP=130 risk, but
+            // the ARR for SBP 180 should be larger than for SBP 160
+            expect(impact180.arr).toBeGreaterThan(impact160.arr);
+        });
+
+        test('Smoking cessation uses PCE recalculation', () => {
+            const baselineRisk = calculatePCE(therapyPatient);
+            const result = calculateTherapyImpact(baselineRisk, { smokingCessation: true }, therapyPatient);
+            const expectedPatient: AscvdPatient = { ...therapyPatient, isSmoker: false, smokerStatus: 'former' };
+            const expectedRisk = calculatePCE(expectedPatient);
+            expect(result.treatedRisk).toBeCloseTo(expectedRisk, 3);
+            expect(result.treatedRisk).toBeLessThan(baselineRisk);
+            expect(result.interventions[0]).toContain('PCE recalc');
+        });
+
+        test('Smoking cessation skipped for non-smoker', () => {
+            const result = calculateTherapyImpact(10, { smokingCessation: true }, lowRiskPatient);
+            expect(result.treatedRisk).toBeCloseTo(10, 2);
+            expect(result.skipped).toHaveLength(1);
+            expect(result.skipped[0]).toContain('not a current smoker');
+        });
+
+        test('Combined: statin RR applied on top of PCE-recalculated BP risk', () => {
+            const baselineRisk = calculatePCE(therapyPatient);
+            const result = calculateTherapyImpact(baselineRisk, { highIntensityStatin: true, bpControl: true }, therapyPatient);
+            // BP recalc first, then statin RR 0.75
+            const bpRecalcPatient: AscvdPatient = { ...therapyPatient, sbp: 130, onHtnTx: true };
+            const bpRecalcRisk = calculatePCE(bpRecalcPatient);
+            const expectedRisk = bpRecalcRisk * 0.75;
+            expect(result.treatedRisk).toBeCloseTo(expectedRisk, 3);
             expect(result.interventions).toHaveLength(2);
         });
 
-        test('Smoking cessation: RR 0.85 applied', () => {
-            const result = calculateTherapyImpact(10, { smokingCessation: true });
-            expect(result.treatedRisk).toBeCloseTo(8.5, 2);
+        test('Treated risk cannot go below optimal risk (floor)', () => {
+            const optimalRisk = getOptimalRisk(therapyPatient);
+            expect(optimalRisk).not.toBeNull();
+            // Use a synthetic low baseline (1.2× optimal) so statin+aspirin pushes below floor
+            // Without floor: 1.2 × 0.75 × 0.90 = 0.81 × optimal → below optimal
+            const lowBaseline = optimalRisk! * 1.2;
+            const result = calculateTherapyImpact(lowBaseline, { highIntensityStatin: true, aspirin: true }, therapyPatient);
+            expect(result.treatedRisk).toBeCloseTo(optimalRisk!, 3);
+            expect(result.treatedRisk).toBeGreaterThanOrEqual(optimalRisk!);
         });
     });
 
@@ -716,6 +795,66 @@ describe('ASCVD Risk Calculator', () => {
 
         test('Risk ≥20% (high) → not shown', () => {
             expect(getCACGuidance(20).show).toBe(false);
+        });
+    });
+
+    // ===========================================
+    // TC-015: Optimal Risk Always Shown
+    // ===========================================
+    describe('Optimal risk display', () => {
+        test('Optimal risk shown for near-optimal patient', () => {
+            const input = {
+                'ascvd-age': 45,
+                'ascvd-gender': 'female',
+                'ascvd-race': 'white',
+                'ascvd-tc': 175,
+                'ascvd-hdl': 55,
+                'ascvd-sbp': 112,
+                'ascvd-htn': 'no',
+                'ascvd-dm': 'no',
+                'ascvd-smoker': 'never'
+            };
+            const result = ascvdCalculationPure(input);
+            // Should have both 10-year risk and optimal risk
+            const optimalResult = result.results.find(r => r.label === 'Optimal 10-Year Risk');
+            expect(optimalResult).toBeDefined();
+            expect(optimalResult!.alertClass).toBe('success');
+            expect(optimalResult!.interpretation).toContain('already at or near optimal');
+        });
+
+        test('Optimal risk shown for high-risk patient with standard message', () => {
+            const input = {
+                'ascvd-age': 60,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white',
+                'ascvd-tc': 250,
+                'ascvd-hdl': 35,
+                'ascvd-sbp': 150,
+                'ascvd-htn': 'yes',
+                'ascvd-dm': 'yes',
+                'ascvd-smoker': 'current'
+            };
+            const result = ascvdCalculationPure(input);
+            const optimalResult = result.results.find(r => r.label === 'Optimal 10-Year Risk');
+            expect(optimalResult).toBeDefined();
+            expect(optimalResult!.interpretation).toContain('optimal');
+        });
+
+        test('Optimal risk not shown for ages outside 40-79', () => {
+            const input = {
+                'ascvd-age': 30,
+                'ascvd-gender': 'male',
+                'ascvd-race': 'white',
+                'ascvd-tc': 200,
+                'ascvd-hdl': 50,
+                'ascvd-sbp': 120,
+                'ascvd-htn': 'no',
+                'ascvd-dm': 'no',
+                'ascvd-smoker': 'never'
+            };
+            const result = ascvdCalculationPure(input);
+            const optimalResult = result.results.find(r => r.label === 'Optimal 10-Year Risk');
+            expect(optimalResult).toBeUndefined();
         });
     });
 });
