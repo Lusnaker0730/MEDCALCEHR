@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-02-25
+
+### Fixed
+- **ASCVD Lifetime Risk accuracy**: Rewrote `getLifetimeRisk()` to match Lloyd-Jones 2006 Table 3 with 5 mutually exclusive sex-specific categories (All Optimal, ≥1 Not Optimal, ≥1 Elevated, 1 Major, ≥2 Major) and correct thresholds
+- **ASCVD Lifetime Risk DBP classification**: Added diastolic blood pressure to risk stratification (DBP ≥100 = Major, 90-99 = Elevated, 80-89 = Not Optimal) per Lloyd-Jones 2006
+- **ASCVD Lifetime Risk former smoker**: Former smokers no longer incorrectly counted as major risk factor (only current smokers per guideline)
+- **Validation message overlapping unit label**: Validation error messages now append to `.ui-input-group` instead of `.ui-input-wrapper`, preventing overlap with absolutely-positioned unit labels
+
+### Changed
+- ASCVD calculator footer (Pooled Cohort Equations, Risk Stratification, References) moved below result panel
+- Lifetime risk values are now exact percentages (e.g., "5%") instead of approximate (e.g., "~5%"), sex-specific per Lloyd-Jones Table 3
+
 ## [1.7.0] - 2026-02-25
 
 ### Added

@@ -548,27 +548,105 @@ describe('ASCVD Risk Calculator', () => {
     // TC-012: getLifetimeRisk
     // ===========================================
     describe('getLifetimeRisk', () => {
+        // Default: male, all optimal (TC<180, SBP<120, DBP<80, no HTN Tx, non-smoker, no DM)
         const makePatient = (overrides: Partial<any>) => ({
-            age: 50, tc: 180, hdl: 55, sbp: 115,
+            age: 50, tc: 170, hdl: 55, sbp: 115, dbp: 75,
             isMale: true, race: 'white' as const,
             onHtnTx: false, isDiabetic: false,
             isSmoker: false, smokerStatus: 'never' as const,
             ...overrides
         });
 
-        test('Optimal → ~5%', () => {
-            const result = getLifetimeRisk(makePatient({}));
-            expect(result?.lifetimeRisk).toBe('~5%');
+        // --- 5 categories, male ---
+        test('Male: All optimal → 5%', () => {
+            expect(getLifetimeRisk(makePatient({}))?.lifetimeRisk).toBe('5%');
+            expect(getLifetimeRisk(makePatient({}))?.category).toBe('All Optimal Risk Factors');
         });
 
-        test('1 major RF (current smoker) → ~50%', () => {
-            expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current' }))?.lifetimeRisk).toBe('~50%');
+        test('Male: ≥1 Not optimal (SBP 120) → 36%', () => {
+            const result = getLifetimeRisk(makePatient({ sbp: 120 }));
+            expect(result?.lifetimeRisk).toBe('36%');
+            expect(result?.category).toBe('≥1 Not Optimal Risk Factor');
         });
 
-        test('2+ major RFs → ~69%', () => {
-            expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current', isDiabetic: true }))?.lifetimeRisk).toBe('~69%');
+        test('Male: ≥1 Not optimal (TC 190) → 36%', () => {
+            expect(getLifetimeRisk(makePatient({ tc: 190 }))?.lifetimeRisk).toBe('36%');
         });
 
+        test('Male: ≥1 Elevated (TC 200) → 46%', () => {
+            expect(getLifetimeRisk(makePatient({ tc: 200 }))?.lifetimeRisk).toBe('46%');
+        });
+
+        test('Male: ≥1 Elevated (SBP 140 untreated) → 46%', () => {
+            expect(getLifetimeRisk(makePatient({ sbp: 140 }))?.lifetimeRisk).toBe('46%');
+        });
+
+        // --- DBP-based classification ---
+        test('Male: ≥1 Not optimal (DBP 80) → 36%', () => {
+            expect(getLifetimeRisk(makePatient({ dbp: 80 }))?.lifetimeRisk).toBe('36%');
+            expect(getLifetimeRisk(makePatient({ dbp: 80 }))?.category).toBe('≥1 Not Optimal Risk Factor');
+        });
+
+        test('Male: ≥1 Elevated (DBP 90) → 46%', () => {
+            expect(getLifetimeRisk(makePatient({ dbp: 90 }))?.lifetimeRisk).toBe('46%');
+            expect(getLifetimeRisk(makePatient({ dbp: 90 }))?.category).toBe('≥1 Elevated Risk Factor');
+        });
+
+        test('Male: 1 major RF (DBP ≥100) → 50%', () => {
+            expect(getLifetimeRisk(makePatient({ dbp: 100 }))?.lifetimeRisk).toBe('50%');
+            expect(getLifetimeRisk(makePatient({ dbp: 100 }))?.category).toBe('1 Major Risk Factor');
+        });
+
+        test('Male: ≥2 major RFs (DBP ≥100 + smoker) → 69%', () => {
+            expect(getLifetimeRisk(makePatient({ dbp: 105, isSmoker: true, smokerStatus: 'current' }))?.lifetimeRisk).toBe('69%');
+        });
+
+        test('Male: 1 major RF (current smoker) → 50%', () => {
+            expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current' }))?.lifetimeRisk).toBe('50%');
+        });
+
+        test('Male: 1 major RF (TC ≥240) → 50%', () => {
+            expect(getLifetimeRisk(makePatient({ tc: 240 }))?.lifetimeRisk).toBe('50%');
+        });
+
+        test('Male: ≥2 major RFs → 69%', () => {
+            expect(getLifetimeRisk(makePatient({ isSmoker: true, smokerStatus: 'current', isDiabetic: true }))?.lifetimeRisk).toBe('69%');
+        });
+
+        // --- Sex-specific: female ---
+        test('Female: All optimal → 8%', () => {
+            expect(getLifetimeRisk(makePatient({ isMale: false }))?.lifetimeRisk).toBe('8%');
+        });
+
+        test('Female: ≥1 Not optimal (SBP 125) → 27%', () => {
+            expect(getLifetimeRisk(makePatient({ isMale: false, sbp: 125 }))?.lifetimeRisk).toBe('27%');
+        });
+
+        test('Female: ≥1 Elevated (TC 210) → 39%', () => {
+            expect(getLifetimeRisk(makePatient({ isMale: false, tc: 210 }))?.lifetimeRisk).toBe('39%');
+        });
+
+        test('Female: 1 major RF → 39%', () => {
+            expect(getLifetimeRisk(makePatient({ isMale: false, isSmoker: true, smokerStatus: 'current' }))?.lifetimeRisk).toBe('39%');
+        });
+
+        test('Female: ≥2 major RFs → 50%', () => {
+            expect(getLifetimeRisk(makePatient({ isMale: false, isSmoker: true, smokerStatus: 'current', isDiabetic: true }))?.lifetimeRisk).toBe('50%');
+        });
+
+        // --- Former smoker is NOT a major RF ---
+        test('Former smoker is not a major RF (treated as non-smoker)', () => {
+            const result = getLifetimeRisk(makePatient({ smokerStatus: 'former', isSmoker: false }));
+            expect(result?.lifetimeRisk).toBe('5%');
+        });
+
+        // --- On HTN Tx counts as major RF ---
+        test('On HTN Tx counts as major RF', () => {
+            const result = getLifetimeRisk(makePatient({ onHtnTx: true, sbp: 115 }));
+            expect(result?.lifetimeRisk).toBe('50%');
+        });
+
+        // --- Age boundaries ---
         test('Returns result for age 20 (lower boundary)', () => {
             expect(getLifetimeRisk(makePatient({ age: 20 }))).not.toBeNull();
         });

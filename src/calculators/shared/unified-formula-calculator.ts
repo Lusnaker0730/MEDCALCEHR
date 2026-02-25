@@ -505,9 +505,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     title: config.resultTitle || 'Results'
                 })}
 
+                ${config.footerHTML || ''}
                 ${formulaSection}
                 ${referencesHTML}
-                ${config.footerHTML || ''}
             `;
         },
 
@@ -569,9 +569,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 // 清除現有狀態
                 inputEl.classList.remove('validation-error', 'validation-warning');
 
-                // 找到或創建訊息容器
-                const inputWrapper = inputEl.closest('.ui-input-wrapper') || inputEl.parentElement;
-                let messageEl = inputWrapper?.querySelector('.validation-message') as HTMLElement;
+                // 找到訊息容器：使用 .ui-input-group（避免在 .ui-input-wrapper 內與單位標籤重疊）
+                const inputGroup = inputEl.closest('.ui-input-group') || inputEl.closest('.ui-input-wrapper') || inputEl.parentElement;
+                let messageEl = inputGroup?.querySelector('.validation-message') as HTMLElement;
 
                 if (status === 'valid') {
                     // 移除訊息
@@ -589,7 +589,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     if (!messageEl) {
                         messageEl = document.createElement('div');
                         messageEl.className = 'validation-message';
-                        inputWrapper?.appendChild(messageEl);
+                        inputGroup?.appendChild(messageEl);
                     }
                     messageEl.className = `validation-message ${status}`;
                     messageEl.textContent = message;

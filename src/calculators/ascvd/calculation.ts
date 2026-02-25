@@ -433,19 +433,47 @@ export function calculateTherapyImpact(
 }
 
 // ==========================================
-// Lifetime Risk (Framingham category method)
+// Lifetime Risk (Lloyd-Jones 2006, 5-category)
 // ==========================================
 
 /**
- * Estimate lifetime ASCVD risk for patients aged 40-59 with low 10-year risk.
- * Uses major risk factor count to classify into published lifetime risk categories.
- * Reference: Lloyd-Jones DM et al. Circulation. 2006;113(6):791-798.
+ * Sex-specific lifetime ASCVD risk lookup table (To 95 y).
+ * Source: Lloyd-Jones DM et al. Circulation. 2006;113(6):791-798, Table 3.
+ * Values match the ACC ASCVD Risk Estimator Plus (Cerner reference implementation).
+ */
+export const LIFETIME_RISK_TABLE = {
+    male:   { allOptimal: 5,  notOptimal: 36, elevated: 46, major1: 50, major2: 69 },
+    female: { allOptimal: 8,  notOptimal: 27, elevated: 39, major1: 39, major2: 50 }
+};
+
+/**
+ * Estimate lifetime ASCVD risk for patients aged 20-59.
+ * Uses 5 mutually exclusive sex-specific risk factor categories.
  *
- * Major Risk Factors:
- *   - Current/former smoking
+ * References:
+ * - Lloyd-Jones DM et al. Circulation. 2006;113(6):791-798.
+ * - Berry JD et al. N Engl J Med. 2012;366(4):321-329.
+ * - 2013 ACC/AHA Guideline (Goff DC Jr et al. Circulation. 2014;129:S49-S73).
+ *
+ * Major Risk Factors (§):
+ *   - Current smoker
  *   - Total cholesterol ≥240 mg/dL
- *   - Systolic BP ≥160 mmHg (untreated) or on antihypertensive therapy
+ *   - Systolic BP ≥160 mmHg OR on antihypertensive therapy
+ *   - Diastolic BP ≥100 mmHg
  *   - Diabetes mellitus
+ *
+ * Elevated (‡, no major RFs, nonsmoker, nondiabetic):
+ *   - Total cholesterol 200-239 mg/dL
+ *   - Systolic BP 140-159 mmHg (untreated)
+ *   - Diastolic BP 90-99 mmHg
+ *
+ * Not Optimal (†, no major or elevated RFs, nonsmoker, nondiabetic):
+ *   - Total cholesterol 180-199 mg/dL
+ *   - Systolic BP 120-139 mmHg (untreated)
+ *   - Diastolic BP 80-89 mmHg
+ *
+ * All Optimal (* , all of the following):
+ *   - TC <180, SBP <120, DBP <80, not on HTN Tx, non-smoker, non-diabetic
  */
 export function getLifetimeRisk(patient: AscvdPatient): {
     category: string;
@@ -453,46 +481,68 @@ export function getLifetimeRisk(patient: AscvdPatient): {
     description: string;
 } | null {
     // Lifetime risk meaningful for age 20-59
-    // Reference: 2013 ACC/AHA Guidelines recommend lifetime risk discussion for ages 20-59
     if (patient.age < 20 || patient.age > 59) return null;
 
-    // Count major risk factors
+    const table = patient.isMale ? LIFETIME_RISK_TABLE.male : LIFETIME_RISK_TABLE.female;
+
+    // 1. Count major risk factors (only current smoker, not former)
+    const dbp = patient.dbp ?? 0;
     let majorRFs = 0;
-    if (patient.isSmoker || patient.smokerStatus === 'former') majorRFs++;
+    if (patient.isSmoker) majorRFs++;
     if (patient.tc >= 240) majorRFs++;
     if (patient.sbp >= 160 || patient.onHtnTx) majorRFs++;
+    if (dbp >= 100) majorRFs++;
     if (patient.isDiabetic) majorRFs++;
-
-    // Count elevated (but not major) risk factors
-    const hasElevatedRF = patient.tc >= 200 || patient.sbp >= 130 || patient.hdl < 50;
-    const isOptimal = majorRFs === 0 && !hasElevatedRF;
 
     if (majorRFs >= 2) {
         return {
             category: '≥2 Major Risk Factors',
-            lifetimeRisk: '~69%',
+            lifetimeRisk: `${table.major2}%`,
             description: 'Multiple major risk factors present — high lifetime risk'
         };
-    } else if (majorRFs === 1) {
+    }
+    if (majorRFs === 1) {
         return {
             category: '1 Major Risk Factor',
-            lifetimeRisk: '~50%',
+            lifetimeRisk: `${table.major1}%`,
             description: 'One major risk factor present — elevated lifetime risk'
         };
-    } else if (hasElevatedRF) {
+    }
+
+    // 2. No major RFs — check elevated (nonsmoker, nondiabetic by definition since majorRFs === 0)
+    const hasElevated =
+        (patient.tc >= 200 && patient.tc < 240) ||
+        (patient.sbp >= 140 && patient.sbp < 160 && !patient.onHtnTx) ||
+        (dbp >= 90 && dbp < 100);
+
+    if (hasElevated) {
         return {
-            category: 'Elevated (Not Major) Risk Factors',
-            lifetimeRisk: '~36%',
-            description: 'Elevated but below threshold risk factors — moderate lifetime risk'
-        };
-    } else if (isOptimal) {
-        return {
-            category: 'Optimal Risk Factors',
-            lifetimeRisk: '~5%',
-            description: 'All risk factors near optimal — low lifetime risk'
+            category: '≥1 Elevated Risk Factor',
+            lifetimeRisk: `${table.elevated}%`,
+            description: 'Elevated risk factors present — moderate-high lifetime risk'
         };
     }
-    return null;
+
+    // 3. No major or elevated RFs — check not optimal
+    const hasNotOptimal =
+        (patient.tc >= 180 && patient.tc < 200) ||
+        (patient.sbp >= 120 && patient.sbp < 140 && !patient.onHtnTx) ||
+        (dbp >= 80 && dbp < 90);
+
+    if (hasNotOptimal) {
+        return {
+            category: '≥1 Not Optimal Risk Factor',
+            lifetimeRisk: `${table.notOptimal}%`,
+            description: 'Risk factors above optimal but below elevated threshold'
+        };
+    }
+
+    // 4. All optimal
+    return {
+        category: 'All Optimal Risk Factors',
+        lifetimeRisk: `${table.allOptimal}%`,
+        description: 'All risk factors near optimal — low lifetime risk'
+    };
 }
 
 // ==========================================
