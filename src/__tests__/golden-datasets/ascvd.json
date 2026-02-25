@@ -123,6 +123,101 @@
           "tolerance": 0
         }
       ]
+    },
+    {
+      "id": "GD-ASCVD-006",
+      "description": "Borderline risk boundary - white male, 5-7.4% range",
+      "source": "ACC/AHA PCE 2013: White male, 55y, TC=200, HDL=50, SBP=130, no HTN Tx, no DM, non-smoker → ~5.7%",
+      "inputs": {
+        "ascvd-age": 55,
+        "ascvd-tc": 200,
+        "ascvd-hdl": 50,
+        "ascvd-sbp": 130,
+        "ascvd-gender": "male",
+        "ascvd-race": "white",
+        "ascvd-htn": "no",
+        "ascvd-dm": "no",
+        "ascvd-smoker": "never"
+      },
+      "expected": [
+        {
+          "label": "10-Year ASCVD Risk",
+          "value": "5.7",
+          "unit": "%",
+          "tolerance": 0
+        }
+      ]
+    },
+    {
+      "id": "GD-ASCVD-007",
+      "description": "Intermediate risk boundary - white male, 7.5-19.9% range",
+      "source": "ACC/AHA PCE 2013: White male, 55y, TC=220, HDL=45, SBP=140, no HTN Tx, no DM, non-smoker → ~8.0%",
+      "inputs": {
+        "ascvd-age": 55,
+        "ascvd-tc": 220,
+        "ascvd-hdl": 45,
+        "ascvd-sbp": 140,
+        "ascvd-gender": "male",
+        "ascvd-race": "white",
+        "ascvd-htn": "no",
+        "ascvd-dm": "no",
+        "ascvd-smoker": "never"
+      },
+      "expected": [
+        {
+          "label": "10-Year ASCVD Risk",
+          "value": "8.0",
+          "unit": "%",
+          "tolerance": 0
+        }
+      ]
+    },
+    {
+      "id": "GD-ASCVD-008",
+      "description": "High risk boundary - white male with HTN Tx and DM, ≥20%",
+      "source": "ACC/AHA PCE 2013: White male, 55y, TC=230, HDL=40, SBP=145, on HTN Tx, DM, non-smoker → ~21.0%",
+      "inputs": {
+        "ascvd-age": 55,
+        "ascvd-tc": 230,
+        "ascvd-hdl": 40,
+        "ascvd-sbp": 145,
+        "ascvd-gender": "male",
+        "ascvd-race": "white",
+        "ascvd-htn": "yes",
+        "ascvd-dm": "yes",
+        "ascvd-smoker": "never"
+      },
+      "expected": [
+        {
+          "label": "10-Year ASCVD Risk",
+          "value": "21.0",
+          "unit": "%",
+          "tolerance": 0
+        }
+      ]
+    },
+    {
+      "id": "GD-ASCVD-009",
+      "description": "Young adult (age 25) - 10-year risk N/A, lifetime risk only",
+      "source": "ACC/AHA PCE 2013: Age <40 → 10-year risk not validated; refer to lifetime risk panel",
+      "inputs": {
+        "ascvd-age": 25,
+        "ascvd-tc": 190,
+        "ascvd-hdl": 55,
+        "ascvd-sbp": 118,
+        "ascvd-gender": "male",
+        "ascvd-race": "white",
+        "ascvd-htn": "no",
+        "ascvd-dm": "no",
+        "ascvd-smoker": "never"
+      },
+      "expected": [
+        {
+          "label": "10-Year ASCVD Risk",
+          "value": "N/A",
+          "tolerance": 0
+        }
+      ]
     }
   ]
 }

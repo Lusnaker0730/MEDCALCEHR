@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.7.3] - 2026-02-25
+
+### Fixed
+- **ASCVD Known ASCVD checkbox not working**: `unified-formula-calculator` `validateInputs` was missing checkbox value collection — `known-ascvd` checkbox state was never passed to calculation function
+- **ASCVD Hypertension Treatment auto-detect incorrect**: Removed `snomedCode: SNOMED_CODES.HYPERTENSION` from "On Hypertension Treatment?" field — a hypertension diagnosis does not imply active treatment
+- **ASCVD Diabetes auto-detect incomplete**: Changed `snomedCode` to accept both Type 1 (`46635009`) and Type 2 (`44054006`) DM, matching PCE's treatment of all diabetes equally
+
+### Added
+- **Unified formula calculator: snomedCode auto-populate for radio fields**: Factory now auto-detects FHIR Conditions matching radio field `snomedCode` and selects the appropriate option; supports comma-separated codes; batches all codes into a single `getConditions()` call
+- **9 unit tests for snomedCode auto-populate**: Covers matching, no-match, comma-separated codes, batched call, FHIR-not-ready, error handling, dedup, and multi-coding conditions
+- **4 ASCVD golden dataset cases**: Borderline risk 5.7% (GD-ASCVD-006), Intermediate risk 8.0% (GD-ASCVD-007), High risk 21.0% (GD-ASCVD-008), Young adult age 25 lifetime-risk-only (GD-ASCVD-009)
+
+### Changed
+- **ASCVD references consolidated**: Removed 4 scattered inline `uiBuilder.createReference()` calls from Therapy Impact, Lifetime Risk, CAC Guidance, and Therapy Results panels; unified all 5 citations into a single References section at the bottom of the calculator
+- ASCVD Smoking Status `snomedCode` removed (smoking status is an Observation, not a Condition — manual selection required)
+
 ## [1.7.2] - 2026-02-25
 
 ### Fixed

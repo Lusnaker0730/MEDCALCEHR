@@ -698,6 +698,13 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         if (select) {
                             values[inputConfig.id] = select.value;
                         }
+                    } else if (isCheckboxInput(inputConfig)) {
+                        const checkbox = container.querySelector(
+                            `[id="${inputConfig.id}"]`
+                        ) as HTMLInputElement;
+                        if (checkbox) {
+                            values[inputConfig.id] = checkbox.checked;
+                        }
                     }
                 });
 
@@ -1049,6 +1056,59 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         } catch (e) {
                             logger.warn('Error auto-populating field', { detail: autoConfig.fieldId, error: String(e) });
                         }
+                    }
+                }
+
+                // Auto-populate radio/select fields with snomedCode (condition detection)
+                const radioInputsWithSnomed = allInputs.filter(
+                    (i): i is RadioInputConfig =>
+                        (isRadioInput(i) || isSelectInput(i)) && !!(i as any).snomedCode
+                );
+
+                if (radioInputsWithSnomed.length > 0 && fhirDataService.isReady()) {
+                    // Collect all SNOMED codes and map back to field configs
+                    const codeToFields = new Map<string, RadioInputConfig[]>();
+                    const allCodes: string[] = [];
+
+                    for (const field of radioInputsWithSnomed) {
+                        const codes = field.snomedCode!.split(',').map(c => c.trim()).filter(Boolean);
+                        for (const code of codes) {
+                            if (!codeToFields.has(code)) {
+                                codeToFields.set(code, []);
+                                allCodes.push(code);
+                            }
+                            codeToFields.get(code)!.push(field);
+                        }
+                    }
+
+                    try {
+                        const conditions = await fhirDataService.getConditions(allCodes);
+                        const matchedFields = new Set<string>();
+
+                        for (const condition of conditions) {
+                            const codings = condition.code?.coding || [];
+                            for (const coding of codings) {
+                                const fields = codeToFields.get(coding.code);
+                                if (!fields) continue;
+                                for (const field of fields) {
+                                    const name = field.id || field.name || '';
+                                    if (matchedFields.has(name)) continue;
+                                    matchedFields.add(name);
+
+                                    // Select the first non-default option (typically "yes")
+                                    const defaultValue = field.options.find(o => o.checked)?.value;
+                                    const yesOption = field.options.find(o => o.value !== defaultValue);
+                                    if (yesOption) {
+                                        const radio = container.querySelector(
+                                            `input[name="${name}"][value="${yesOption.value}"]`
+                                        ) as HTMLInputElement;
+                                        if (radio) radio.checked = true;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        logger.warn('Error auto-populating conditions', { calculatorId: config.id, error: String(e) });
                     }
                 }
 

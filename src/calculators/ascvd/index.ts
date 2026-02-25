@@ -196,7 +196,6 @@ export const ascvd = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'ascvd-htn',
                     label: 'On Hypertension Treatment?',
-                    snomedCode: SNOMED_CODES.HYPERTENSION,
                     options: [
                         { value: 'no', label: 'No', checked: true },
                         { value: 'yes', label: 'Yes' }
@@ -212,7 +211,7 @@ export const ascvd = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'ascvd-dm',
                     label: 'Diabetes?',
-                    snomedCode: SNOMED_CODES.DIABETES_TYPE_2,
+                    snomedCode: `${SNOMED_CODES.DIABETES_TYPE_2},${SNOMED_CODES.DIABETES_TYPE_1}`,
                     options: [
                         { value: 'no', label: 'No', checked: true },
                         { value: 'yes', label: 'Yes' }
@@ -222,7 +221,6 @@ export const ascvd = createUnifiedFormulaCalculator({
                     type: 'radio',
                     name: 'ascvd-smoker',
                     label: 'Smoking Status',
-                    snomedCode: SNOMED_CODES.SMOKING,
                     options: [
                         { value: 'never', label: 'Never', checked: true },
                         { value: 'former', label: 'Former (quit ≥2 years)' },
@@ -283,7 +281,7 @@ export const ascvd = createUnifiedFormulaCalculator({
     },
 
     // ==========================================
-    // Reference Section
+    // Reference Section (consolidated at bottom)
     // ==========================================
     reference: `
         ${uiBuilder.createSection({
@@ -299,15 +297,17 @@ export const ascvd = createUnifiedFormulaCalculator({
             ]
         })
     })}
-        
-        ${uiBuilder.createSection({
-        title: 'Reference',
+
+        ${uiBuilder.createReference({
+        title: 'References',
         icon: '📚',
-        content: `
-                <p>Goff DC Jr, Lloyd-Jones DM, Bennett G, et al. 
-                2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. 
-                <em>Circulation</em>. 2014;129:S49-S73.</p>
-            `
+        citations: [
+            'Goff DC Jr, Lloyd-Jones DM, Bennett G, et al. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. <em>Circulation</em>. 2014;129:S49-S73.',
+            'Lloyd-Jones DM, Leip EP, Larson MG, et al. Prediction of lifetime risk for cardiovascular disease by risk factor burden at 50 years of age. <em>Circulation</em>. 2006 Feb 14;113(6):791-8.',
+            'Grundy SM, Stone NJ, Bailey AL, et al. 2018 AHA/ACC/AACVPR/AAPA/ABC/ACPM/ADA/AGS/APhA/ASPC/NLA/PCNA Guideline on the Management of Blood Cholesterol. <em>Circulation</em>. 2019;139(25):e1082-e1143.',
+            'Karmali KN, Goff DC Jr, Ning H, Lloyd-Jones DM. A systematic examination of the 2013 ACC/AHA pooled cohort risk assessment tool for atherosclerotic cardiovascular disease. <em>Circulation</em>. 2015;132(16):1571-8.',
+            'US Preventive Services Task Force. Aspirin Use to Prevent Cardiovascular Disease: Preventive Medication. <em>JAMA</em>. 2022;327(16):1577-1584.'
+        ]
     })}
     `,
 
@@ -388,12 +388,6 @@ export const ascvd = createUnifiedFormulaCalculator({
                     </button>
 
                     <div id="therapy-results" class="therapy-results ui-hidden"></div>
-
-                    ${uiBuilder.createReference({
-            title: 'Method',
-            icon: '📖',
-            citations: ['Karmali KN, Goff DC Jr, Ning H, Lloyd-Jones DM. A systematic examination of the 2013 ACC/AHA pooled cohort risk assessment tool for atherosclerotic cardiovascular disease. <em>Circulation</em>. 2015;132(16):1571-8.']
-        })}
                 `
     })}
         </div>
@@ -419,18 +413,12 @@ export const ascvd = createUnifiedFormulaCalculator({
                 if (lr) {
                     lifetimeEl.innerHTML = uiBuilder.createSection({
                         title: '📈 Lifetime ASCVD Risk (Ages 20-59)',
-                        content:
-                            uiBuilder.createResultItem({
-                                label: 'Estimated Lifetime Risk',
-                                value: lr.lifetimeRisk,
-                                interpretation: `Risk Factor Category: ${lr.category} — ${lr.description}`,
-                                alertClass: 'info'
-                            }) +
-                            uiBuilder.createReference({
-                                title: 'Source',
-                                icon: '📖',
-                                citations: ['Lloyd-Jones DM, Leip EP, Larson MG, et al. Prediction of lifetime risk for cardiovascular disease by risk factor burden at 50 years of age. <em>Circulation</em>. 2006 Feb 14;113(6):791-8.']
-                            })
+                        content: uiBuilder.createResultItem({
+                            label: 'Estimated Lifetime Risk',
+                            value: lr.lifetimeRisk,
+                            interpretation: `Risk Factor Category: ${lr.category} — ${lr.description}`,
+                            alertClass: 'info'
+                        })
                     });
                 } else {
                     lifetimeEl.innerHTML = '';
@@ -474,12 +462,7 @@ export const ascvd = createUnifiedFormulaCalculator({
                         title: cac.title,
                         content:
                             uiBuilder.createAlert({ type: cac.alertClass, message: cac.guidance }) +
-                            uiBuilder.createList({ items: interpretationItems, className: 'cac-interpretation' }) +
-                            uiBuilder.createReference({
-                                title: 'Reference',
-                                icon: '📖',
-                                citations: ['2018 AHA/ACC Cholesterol Guidelines (Grundy SM et al.)']
-                            })
+                            uiBuilder.createList({ items: interpretationItems, className: 'cac-interpretation' })
                     });
                 } else {
                     cacEl.innerHTML = '';
@@ -627,14 +610,6 @@ export const ascvd = createUnifiedFormulaCalculator({
                     rows: tableRows
                 })}
                     ${skippedHTML}
-                    ${uiBuilder.createReference({
-                    title: 'Method',
-                    icon: '📖',
-                    citations: [
-                        'Karmali KN, Goff DC Jr, Ning H, Lloyd-Jones DM. A systematic examination of the 2013 ACC/AHA pooled cohort risk assessment tool for atherosclerotic cardiovascular disease. <em>Circulation</em>. 2015;132(16):1571-8.',
-                        'Lloyd-Jones DM, Leip EP, Larson MG, et al. Prediction of lifetime risk for cardiovascular disease by risk factor burden at 50 years of age. <em>Circulation</em>. 2006 Feb 14;113(6):791-8.'
-                    ]
-                })}
                 `;
 
                 resultsEl.classList.remove('ui-hidden');
