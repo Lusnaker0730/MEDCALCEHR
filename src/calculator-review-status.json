@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "lastUpdated": "2026-02-24",
+    "lastUpdated": "2026-02-25",
     "calculators": {
         "2helps2b": {
             "status": "pending",
@@ -39,7 +39,7 @@
         },
         "6mwd": {
             "status": "approved",
-            "reviewDate": "2026-02-25",
+            "reviewDate": "2026-02-24",
             "reviewer": "呂侑穎",
             "reviewDocId": "6mwd.md",
             "notes": "無"
@@ -269,10 +269,10 @@
             "notes": ""
         },
         "growth-chart": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
-            "reviewDocId": null,
+            "status": "approved",
+            "reviewDate": "2026-02-25",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "growthchart.md",
             "notes": ""
         },
         "gupta-mica": {

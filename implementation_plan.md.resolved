@@ -1,0 +1,31 @@
+# Implementing Taiwan HPA / WHO Growth Chart Standards
+
+This plan outlines the steps to implement the Taiwan Health Promotion Administration (HPA) and Pediatric Association guidelines, which adopt the WHO Child Growth Standards for children aged 0-5 years.
+
+## Proposed Changes
+
+### 1. Data Layer: Introducing WHO Data
+- **[NEW] `src/calculators/growth-chart/who-data.ts`**
+  Fetch and format the official WHO LMS parameters (L, M, S values for generating exact percentiles and Z-scores) into TypeScript. We need:
+  - Weight-for-age (0-60 months)
+  - Length/Height-for-age (0-60 months)
+  - BMI-for-age (0-60 months)
+
+### 2. Logic Layer: Calculator Adjustments
+- **[MODIFY] [src/calculators/growth-chart/calculation.ts](file:///d:/CGHCALC/MEDCALCEHR/src/calculators/growth-chart/calculation.ts)**
+  Ensure the existing [calculateZScore](file:///d:/CGHCALC/MEDCALCEHR/src/calculators/growth-chart/calculation.ts#22-82) easily accepts LMS structures from both [cdc-data.ts](file:///d:/CGHCALC/MEDCALCEHR/src/calculators/growth-chart/cdc-data.ts) and the new `who-data.ts` and strictly respects age limits.
+
+### 3. Presentation Layer: Calculator UI
+- **[MODIFY] [src/calculators/growth-chart/index.ts](file:///d:/CGHCALC/MEDCALCEHR/src/calculators/growth-chart/index.ts)**
+  - **Dataset Router**: Change the dataset selection logic. If the child's age is $\le$ 60 months, use `who-data.ts`.
+  - **Information Display**: Update the UI text. Indicate whether the "WHO Standard (0-5 years)" or "CDC Reference" is currently plotted. Add a banner or note citing the Taiwan HPA recommendation.
+
+## Verification Plan
+
+### Automated/Mathematical Verification
+1. Manually test values for a 12-month-old and 24-month-old against published WHO Z-score tables.
+2. Ensure the chart rendering smoothly connects or transitions the data ranges.
+
+### Manual UI Verification
+1. Plot data for an infant (18 months old) and verify that the UI shows "Reference: WHO Growth Standards".
+2. Ensure the plotted lines use the [LMSDataRow](file:///d:/CGHCALC/MEDCALCEHR/src/calculators/growth-chart/cdc-data.ts#7-22) precision data properly.

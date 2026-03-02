@@ -65,7 +65,18 @@
       "Bash(cd /d/CGHCALC/MEDCALCEHR && docker compose ps 2>&1 || docker-compose ps 2>&1)",
       "Bash(echo === $calc ===:*)",
       "Bash(fi)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(docker inspect medcalcehr-app --format='{{.State.Health.Status}}' 2>&1 && docker exec medcalcehr-app wget --quiet --tries=1 --spider http://localhost:8080/ 2>&1)",
+      "Bash(docker exec:*)",
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:www.ahajournals.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:static.heart.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:clincalc.com)",
+      "WebFetch(domain:www.mdcalc.com)",
+      "Bash(cd D:/CGHCALC/MEDCALCEHR && npm run dev 2>&1)",
+      "Bash(claude update:*)"
     ]
   }
 }
