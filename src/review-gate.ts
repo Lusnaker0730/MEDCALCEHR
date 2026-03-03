@@ -25,10 +25,11 @@ const data = reviewData as ReviewData;
 /**
  * Check if a calculator is approved for clinical use.
  * Returns true only for 'approved' status.
- * Dev bypass: window.MEDCALC_CONFIG?.enableAllCalculators === true
+ * Dev bypass: window.MEDCALC_CONFIG?.enableAllCalculators === true (dev mode only)
  */
 export function isCalculatorApproved(id: string): boolean {
-    if (window.MEDCALC_CONFIG?.enableAllCalculators === true) {
+    // Dev-only bypass (disabled in production builds)
+    if (__DEV__ && window.MEDCALC_CONFIG?.enableAllCalculators === true) {
         return true;
     }
     const entry = data.calculators[id];

@@ -7,11 +7,17 @@ import { initializeAdapter, getActiveAdapter } from './ehr-adapters/index.js';
 const config = window.MEDCALC_CONFIG?.fhir || {};
 const ehrConfig = window.MEDCALC_CONFIG?.ehr;
 
+// H-11: Require client ID from configuration — no hardcoded fallback
+const clientId = config.clientId;
+if (!clientId) {
+    throw new Error('FHIR client ID is required. Configure it in app-config.js or MEDCALC_CONFIG.');
+}
+
 // Initialize the EHR adapter based on configuration
 if (ehrConfig?.vendor) {
     initializeAdapter({
         vendor: ehrConfig.vendor,
-        clientId: config.clientId || 'e1b41914-e2b5-4475-90ba-29022b57f820',
+        clientId,
         fhirBaseUrl: ehrConfig.fhirBaseUrl,
         scope: config.scope,
         redirectUri: config.redirectUri,
@@ -24,21 +30,39 @@ const adapter = getActiveAdapter();
 const authParams = adapter
     ? adapter.getAuthorizationParams({
         vendor: ehrConfig?.vendor || 'generic',
-        clientId: config.clientId || 'e1b41914-e2b5-4475-90ba-29022b57f820',
+        clientId,
         scope: config.scope,
         redirectUri: config.redirectUri
     })
     : null;
 
+// H-11: Use validated clientId from config (no hardcoded fallback)
+const resolvedClientId = authParams?.clientId || clientId;
+if (!resolvedClientId) {
+    throw new Error('FHIR client ID is required. Configure it in app-config.js or MEDCALC_CONFIG.');
+}
+
+// H-12: Validate redirect URI against allowlist
+const rawRedirectUri = authParams?.redirectUri || config.redirectUri || './index.html';
+const ALLOWED_REDIRECTS = ['./index.html', '/index.html', 'index.html'];
+const redirectUri = ALLOWED_REDIRECTS.includes(rawRedirectUri) || rawRedirectUri.startsWith(window.location.origin)
+    ? rawRedirectUri
+    : './index.html';
+
+// M-06: Use online_access instead of offline_access
 const authorizeOptions: Record<string, string> = {
-    client_id: authParams?.clientId || config.clientId || 'e1b41914-e2b5-4475-90ba-29022b57f820',
-    scope: authParams?.scope || config.scope || 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs offline_access',
-    redirect_uri: authParams?.redirectUri || config.redirectUri || './index.html',
+    client_id: resolvedClientId,
+    scope: authParams?.scope || config.scope || 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access',
+    redirect_uri: redirectUri,
 };
 
-// Merge any extra params from the adapter (e.g., Epic's 'aud' parameter)
+// M-07: Merge extra params from the adapter, but prevent overriding critical fields
 if (authParams?.extraParams) {
-    Object.assign(authorizeOptions, authParams.extraParams);
+    const safeParams = { ...authParams.extraParams };
+    delete safeParams.client_id;
+    delete safeParams.redirect_uri;
+    delete safeParams.scope;
+    Object.assign(authorizeOptions, safeParams);
 }
 
 FHIR.oauth2.authorize(authorizeOptions);

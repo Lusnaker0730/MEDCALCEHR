@@ -38,6 +38,8 @@ function resolve(dict: TranslationDictionary, key: string): string | undefined {
 
     for (const part of parts) {
         if (typeof current !== 'object' || current === null) return undefined;
+        if (part === '__proto__' || part === 'constructor' || part === 'prototype') return undefined;
+        if (!Object.prototype.hasOwnProperty.call(current, part)) return undefined;
         current = (current as TranslationDictionary)[part];
     }
 

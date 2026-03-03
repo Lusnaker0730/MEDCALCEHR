@@ -1,5 +1,6 @@
 import { logger } from './logger.js';
 import { captureException } from './sentry.js';
+import { escapeHTML } from './security.js';
 
 // Custom Calculator Error Class
 
@@ -101,14 +102,14 @@ export function displayError(
                 ⚠️ Error
             </div>
             <div class="error-content">
-                ${message}
+                ${escapeHTML(message)}
             </div>
             ${
-                typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                __DEV__
                     ? `
                 <details>
                     <summary>Technical Details</summary>
-                    <pre>${error.stack || error.message}</pre>
+                    <pre>${escapeHTML(error.stack || error.message)}</pre>
                 </details>
             `
                     : ''

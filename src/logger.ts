@@ -25,13 +25,21 @@ const PHI_PATTERNS: RegExp[] = [
     /\b\d{3}-\d{2}-\d{4}\b/g,                  // SSN
     /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g,            // Date of birth (YYYY-MM-DD)
     /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g,            // Date of birth (MM/DD/YYYY)
+    /\b[A-Z]\d{9}\b/g,                          // National ID (Taiwan)
+    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g,          // Phone numbers
+    /\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g,            // Email addresses
 ];
 
 const PHI_KEYS = [
-    'ssn', 'socialsecuritynumber', 'password', 'pin',
-    'creditcard', 'bankaccount', 'identifier',
-    'patientname', 'dob', 'dateofbirth', 'birthdate',
-    'address', 'phone', 'email', 'mrn',
+    'name', 'patientname', 'fullname', 'firstname', 'lastname', 'familyname', 'givenname',
+    'dob', 'dateofbirth', 'birthdate', 'birthday',
+    'address', 'streetaddress', 'city', 'zipcode', 'postalcode',
+    'phone', 'phonenumber', 'telephone', 'mobile', 'fax',
+    'email', 'emailaddress',
+    'ssn', 'socialsecuritynumber', 'nationalid', 'passport',
+    'mrn', 'medicalrecordnumber', 'patientid',
+    'password', 'pin', 'creditcard', 'bankaccount',
+    'identifier', 'id_number',
 ];
 
 function stripPHI(value: string): string {
@@ -50,7 +58,13 @@ function sanitizeContext(obj: Record<string, unknown>): Record<string, unknown> 
             sanitized[key] = '[REDACTED]';
         } else if (typeof value === 'string') {
             sanitized[key] = stripPHI(value);
-        } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        } else if (Array.isArray(value)) {
+            sanitized[key] = value.map(item => {
+                if (typeof item === 'string') return stripPHI(item);
+                if (typeof item === 'object' && item !== null) return sanitizeContext(item as Record<string, unknown>);
+                return item;
+            });
+        } else if (typeof value === 'object' && value !== null) {
             sanitized[key] = sanitizeContext(value as Record<string, unknown>);
         } else {
             sanitized[key] = value;
@@ -97,7 +111,9 @@ class Logger {
             timestamp: new Date().toISOString(),
             level: LEVEL_NAMES[level],
             message: stripPHI(message),
-            url: typeof window !== 'undefined' && window.location ? window.location.href : undefined,
+            url: typeof window !== 'undefined' && window.location
+                ? window.location.origin + window.location.pathname
+                : undefined,
         };
 
         if (this.sessionId) {

@@ -8,6 +8,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-03-03
+
+### Security
+- **C-01: Per-session encryption key**: Replaced hardcoded PBKDF2 passphrase with `crypto.subtle.generateKey()` random non-extractable AES-256-GCM key per page session (`security.ts`)
+- **C-02: Encrypted PHI cache**: Patient/observation data now stored via `secureLocalStore` (AES-GCM) instead of plaintext Cache API (`cache-manager.ts`)
+- **H-01/H-02: XSS escape-by-default**: All 16+ `UIBuilder` template methods now call `escapeHtml()` on string inputs; `createAlert` defaults to `escapeMessage: true` (`ui-builder.ts`)
+- **H-03: Review gate dev-only bypass**: `enableAllCalculators` bypass restricted to `__DEV__` builds only; `window.MEDCALC_CONFIG` frozen via `Object.freeze()` after init (`review-gate.ts`, `main.ts`)
+- **H-04/H-05: FHIR write validation**: Patient ID matched against SMART context; string fields sanitized (length limits, alphanumeric `calculatorId`); generic error responses (`fhir-write-service.ts`)
+- **H-06/H-07: FHIR feedback & staleness XSS**: All FHIR-sourced values escaped before innerHTML insertion (`fhir-feedback.ts`, `data-staleness.ts`)
+- **H-08/H-09: Security labels hardened defaults**: Break-the-glass defaults to deny; Restricted without user context now DENY (was MASK); Moderate now MASK (was ALLOW) (`security-labels-service.ts`)
+- **H-10: Session timeout bounds**: Clamped to 1–120 minutes (`session-manager.ts`)
+- **H-11/H-12: OAuth hardening**: Removed hardcoded client ID fallback; redirect URI whitelist + same-origin validation; `offline_access` → `online_access`; `extraParams` sanitized (`fhir-launch.ts`)
+- **H-15/H-16: PHI storage encryption**: Provenance and calculation history now use `secureLocalStore`/`secureLocalRetrieve` (`provenance-service.ts`, `calculation-history.ts`)
+- **H-17/H-18: PHI stripping expanded**: +3 PHI patterns (Taiwan National ID, phone, email), +16 healthcare keys, array recursion, URL logging stripped to origin+pathname (`logger.ts`, `sentry.ts`)
+- **M-01**: Removed public export of deprecated XOR obfuscation (`security.ts`)
+- **M-02**: `data:image/` restricted to explicit safe types (png, jpeg, gif, webp) (`security.ts`)
+- **M-04**: CSS comment stripping + `behavior:`/`-moz-binding` checks in style sanitization (`security.ts`)
+- **M-05**: Logout clears all `medcalc-phi-*`, `medcalc-history-*`, `medcalc-provenance-*` keys + encryption key cache (`session-manager.ts`)
+- **M-08**: VIP detection uses specific extension URL whitelist (`security-labels-service.ts`)
+- **M-10**: `encodeURIComponent()` on FHIR query parameters (`fhir-data-service.ts`)
+- **M-13**: FHIR write string fields truncated and sanitized (`fhir-write-service.ts`)
+- **M-14/M-15**: Audit PHI sanitization expanded; `clearLocalEvents` adds warning + flush attempt (`audit-event-service.ts`)
+- **M-18**: Error handler uses `escapeHTML()` and `__DEV__` build flag (`errorHandler.ts`)
+- **M-19**: i18n `resolve()` blocks `__proto__`/`constructor`/`prototype` traversal (`i18n/index.ts`)
+- **M-23**: `loadCalculator` validates ID format (`/^[a-z0-9-]+$/`) and whitelist (`calculators/index.ts`)
+- **L-08/L-09/L-10/L-11**: `Math.random` UUIDs replaced with `crypto.randomUUID()` (`audit-event-service.ts`, `provenance-service.ts`)
+
+### Added
+- Security review report: `docs/compliance/SECURITY_REVIEW_2026-03-03.md` (65 findings)
+- Security remediation report: `docs/compliance/SECURITY_REMEDIATION_2026-03-03.md` (48 fixed, 17 deferred)
+- `__DEV__` build-time constant for Vite/Jest compatible dev-mode detection (`vite.config.ts`, `jest.setup.ts`, `global.d.ts`)
+
+### Changed
+- `README.md` rewritten to reflect current architecture (86 calculators, 14 categories, factory patterns, UIBuilder examples)
+- `calculation-history.ts` methods now async (encrypted storage)
+- `provenance-service.ts` local storage now async (encrypted storage)
+
+### Removed
+- `CONTRIBUTING.md` (consolidated into README)
+- `product.md` (consolidated into README)
+
 ## [1.7.4] - 2026-02-25
 
 ### Changed

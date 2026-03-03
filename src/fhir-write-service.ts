@@ -77,6 +77,15 @@ class FHIRWriteService {
             };
         }
 
+        // H-04/H-05: Validate patient context matches request
+        if (this.client?.patient?.id && request.patientId !== this.client.patient.id) {
+            logger.error('Write-back rejected: patientId mismatch', {
+                requestPatient: request.patientId,
+                contextPatient: this.client.patient.id
+            });
+            return { success: false, observationIds: [], error: 'Patient ID mismatch with SMART context' };
+        }
+
         const observationIds: string[] = [];
 
         try {
@@ -134,7 +143,7 @@ class FHIRWriteService {
             return {
                 success: false,
                 observationIds,
-                error: String(error),
+                error: 'Write operation failed. Please try again.',
             };
         }
     }
@@ -144,6 +153,11 @@ class FHIRWriteService {
      */
     private buildObservation(request: WriteBackRequest, result: WriteBackResult): any {
         const now = new Date().toISOString();
+
+        // M-13: Sanitize string fields before building FHIR resource
+        const safeTitle = (request.calculatorTitle || '').slice(0, 200);
+        const safeLabel = (result.label || '').slice(0, 100);
+        const safeCalcId = (request.calculatorId || '').replace(/[^a-z0-9-]/gi, '');
 
         const observation: any = {
             resourceType: 'Observation',
@@ -161,7 +175,7 @@ class FHIRWriteService {
                 },
             ],
             code: {
-                text: `${request.calculatorTitle} - ${result.label}`,
+                text: `${safeTitle} - ${safeLabel}`,
             },
             subject: {
                 reference: `Patient/${request.patientId}`,
@@ -176,7 +190,7 @@ class FHIRWriteService {
             },
             note: [
                 {
-                    text: `Calculated by MEDCALCEHR - ${request.calculatorTitle} (${request.calculatorId})`,
+                    text: `Calculated by MEDCALCEHR - ${safeTitle} (${safeCalcId})`,
                 },
             ],
         };
@@ -187,7 +201,7 @@ class FHIRWriteService {
                 {
                     system: 'http://loinc.org',
                     code: result.loincCode,
-                    display: result.label,
+                    display: safeLabel,
                 },
             ];
         }

@@ -375,10 +375,9 @@ describe('ProvenanceService', () => {
                 'internal'
             );
 
-            const stored = localStorage.getItem('medcalc_provenance_pending');
-            expect(stored).not.toBeNull();
-            const parsed = JSON.parse(stored!);
-            expect(parsed.length).toBe(1);
+            // Records are now stored encrypted; verify via public API
+            const count = await provenanceService.getPendingRecordCount();
+            expect(count).toBe(1);
         });
 
         it('should respect maxLocalRecords limit', async () => {
@@ -399,23 +398,23 @@ describe('ProvenanceService', () => {
                 );
             }
 
-            const stored = localStorage.getItem('medcalc_provenance_pending');
-            const parsed = JSON.parse(stored!);
-            expect(parsed.length).toBe(3); // Should be pruned to max
+            // Records are pruned to max via encrypted storage
+            const count = await smallService.getPendingRecordCount();
+            expect(count).toBe(3);
         });
 
         it('should return pending record count', async () => {
             await provenanceService.recordDataCreation('Obs/1', 'Test 1', 'internal');
             await provenanceService.recordDataCreation('Obs/2', 'Test 2', 'internal');
 
-            expect(provenanceService.getPendingRecordCount()).toBe(2);
+            expect(await provenanceService.getPendingRecordCount()).toBe(2);
         });
 
         it('should clear local records', async () => {
             await provenanceService.recordDataCreation('Obs/1', 'Test', 'internal');
             provenanceService.clearLocalRecords();
 
-            expect(provenanceService.getPendingRecordCount()).toBe(0);
+            expect(await provenanceService.getPendingRecordCount()).toBe(0);
             expect(provenanceService.getProvenanceRecords().length).toBe(0);
         });
     });

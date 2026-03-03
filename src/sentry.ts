@@ -6,10 +6,15 @@ import * as Sentry from '@sentry/browser';
 
 // PHI fields to strip from Sentry events
 const PHI_KEYS = [
-    'ssn', 'socialsecuritynumber', 'password', 'pin',
-    'creditcard', 'bankaccount', 'identifier',
-    'patientname', 'dob', 'dateofbirth', 'birthdate',
-    'address', 'phone', 'email', 'mrn',
+    'name', 'patientname', 'fullname', 'firstname', 'lastname', 'familyname', 'givenname',
+    'dob', 'dateofbirth', 'birthdate', 'birthday',
+    'address', 'streetaddress', 'city', 'zipcode', 'postalcode',
+    'phone', 'phonenumber', 'telephone', 'mobile', 'fax',
+    'email', 'emailaddress',
+    'ssn', 'socialsecuritynumber', 'nationalid', 'passport',
+    'mrn', 'medicalrecordnumber', 'patientid',
+    'password', 'pin', 'creditcard', 'bankaccount',
+    'identifier', 'id_number',
 ];
 
 const PHI_PATTERNS: RegExp[] = [
@@ -34,7 +39,13 @@ function stripPHIFromObject(obj: Record<string, unknown>): Record<string, unknow
             sanitized[key] = '[REDACTED]';
         } else if (typeof value === 'string') {
             sanitized[key] = stripPHIFromString(value);
-        } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        } else if (Array.isArray(value)) {
+            sanitized[key] = value.map(item => {
+                if (typeof item === 'string') return stripPHIFromString(item);
+                if (typeof item === 'object' && item !== null) return stripPHIFromObject(item as Record<string, unknown>);
+                return item;
+            });
+        } else if (typeof value === 'object' && value !== null) {
             sanitized[key] = stripPHIFromObject(value as Record<string, unknown>);
         } else {
             sanitized[key] = value;
@@ -81,6 +92,19 @@ export function initSentry(): void {
                     }
                     return bc;
                 });
+            }
+            // Sanitize exception messages
+            if (event.exception?.values) {
+                event.exception.values.forEach(ex => {
+                    if (ex.value) ex.value = stripPHIFromString(ex.value);
+                });
+            }
+            // Sanitize request URL
+            if (event.request?.url) {
+                try {
+                    const url = new URL(event.request.url);
+                    event.request.url = url.origin + url.pathname;
+                } catch { /* keep as-is if not a valid URL */ }
             }
             return event;
         },

@@ -428,7 +428,7 @@ export class AuditEventService {
      * Generate a unique session ID
      */
     private generateSessionId(): string {
-        return `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+        return `session-${crypto.randomUUID()}`;
     }
 
     /**
@@ -917,7 +917,7 @@ export class AuditEventService {
             additionalInfo: {
                 alertType,
                 severity,
-                url: window.location.href,
+                url: window.location.origin + window.location.pathname,
                 userAgent: navigator.userAgent
             }
         });
@@ -1073,9 +1073,11 @@ export class AuditEventService {
      * Clear all local audit events
      */
     clearLocalEvents(): void {
+        this.log('WARNING: Clearing local audit events');
+        // Attempt to flush to server before clearing
+        this.flushPendingEvents().catch(() => {});
         localStorage.removeItem(STORAGE_KEYS.PENDING_EVENTS); // Clear both encrypted and legacy
         this.eventQueue = [];
-        this.log('Local audit events cleared');
     }
 
     // ========================================================================
@@ -1087,8 +1089,12 @@ export class AuditEventService {
      */
     private sanitizeForAudit(data: Record<string, any>): Record<string, any> {
         const sensitiveFields = [
-            'ssn', 'socialSecurityNumber', 'password', 'pin',
-            'creditCard', 'bankAccount', 'identifier'
+            'ssn', 'socialsecuritynumber', 'password', 'pin',
+            'creditcard', 'bankaccount', 'identifier',
+            'name', 'patientname', 'fullname', 'firstname', 'lastname',
+            'birthdate', 'dob', 'dateofbirth',
+            'address', 'phone', 'email', 'telecom',
+            'mrn', 'nationalid', 'passport', 'photo'
         ];
 
         const sanitized: Record<string, any> = {};
@@ -1097,6 +1103,13 @@ export class AuditEventService {
             const lowerKey = key.toLowerCase();
             if (sensitiveFields.some(field => lowerKey.includes(field))) {
                 sanitized[key] = '[REDACTED]';
+            } else if (Array.isArray(value)) {
+                sanitized[key] = value.map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        return this.sanitizeForAudit(item);
+                    }
+                    return item;
+                });
             } else if (typeof value === 'object' && value !== null) {
                 sanitized[key] = this.sanitizeForAudit(value);
             } else {
@@ -1142,11 +1155,7 @@ export class AuditEventService {
      * Generate a UUID v4
      */
     private generateUUID(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+        return crypto.randomUUID();
     }
 }
 

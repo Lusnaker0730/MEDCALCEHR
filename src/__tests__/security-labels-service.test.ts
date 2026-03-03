@@ -203,7 +203,7 @@ describe('SecurityLabelsService', () => {
             expect(assessment.confidentiality).toBe('N');
         });
 
-        it('should return MASK for restricted without user context', () => {
+        it('should return DENY for restricted without user context', () => {
             const resource: SecuredResource = {
                 resourceType: 'Observation',
                 meta: {
@@ -214,7 +214,7 @@ describe('SecurityLabelsService', () => {
             };
 
             const assessment = service.assessSecurity(resource);
-            expect(assessment.decision).toBe('MASK');
+            expect(assessment.decision).toBe('DENY');
         });
 
         it('should return DENY for very restricted without user context', () => {

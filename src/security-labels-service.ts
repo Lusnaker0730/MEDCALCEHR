@@ -521,9 +521,14 @@ export class SecurityLabelsService {
         }
 
         // Check extension for VIP indicator
+        const VIP_EXTENSION_URLS = [
+            'http://hl7.org/fhir/StructureDefinition/patient-importance',
+            'vip-status'
+        ];
         if (patient.extension) {
             return patient.extension.some(
-                (ext: any) => ext.url?.includes('vip') || ext.valueBoolean === true
+                (ext: any) => VIP_EXTENSION_URLS.some(url => ext.url?.includes(url)) &&
+                    (ext.valueBoolean === true || ext.valueCodeableConcept?.coding?.some((c: any) => c.code === 'VIP'))
             );
         }
 
@@ -583,10 +588,10 @@ export class SecurityLabelsService {
     ): AccessDecision {
         // If no user context, be restrictive
         if (!this.currentUser) {
-            if (confidentiality === 'V') {
+            if (confidentiality === 'V' || confidentiality === 'R') {
                 return 'DENY';
             }
-            if (confidentiality === 'R') {
+            if (confidentiality === 'M') {
                 return 'MASK';
             }
             return 'ALLOW';
@@ -1075,9 +1080,9 @@ export class SecurityLabelsService {
             return this.breakTheGlassCallback(resource, reason, this.currentUser);
         }
 
-        // Default: allow with logging
-        this.log('Break-the-glass granted:', resource.resourceType, resource.id);
-        return true;
+        // Default: deny when no callback is registered (secure by default)
+        this.log('Break-the-glass DENIED (no callback registered):', resource.resourceType, resource.id);
+        return false;
     }
 
     // ========================================================================

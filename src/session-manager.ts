@@ -7,6 +7,7 @@
  */
 
 import { auditEventService } from './audit-event-service.js';
+import { clearEncryptionKeyCache } from './security.js';
 
 // Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 
@@ -35,9 +36,13 @@ class SessionManager {
 
     constructor() {
         const userConfig = window.MEDCALC_CONFIG?.session;
+        const MIN_TIMEOUT = 1;
+        const MAX_TIMEOUT = 120;
+        const rawTimeout = userConfig?.timeoutMinutes ?? DEFAULT_CONFIG.timeoutMinutes;
+        const rawWarning = userConfig?.warningMinutes ?? DEFAULT_CONFIG.warningMinutes;
         this.config = {
-            timeoutMinutes: userConfig?.timeoutMinutes ?? DEFAULT_CONFIG.timeoutMinutes,
-            warningMinutes: userConfig?.warningMinutes ?? DEFAULT_CONFIG.warningMinutes
+            timeoutMinutes: Math.max(MIN_TIMEOUT, Math.min(MAX_TIMEOUT, rawTimeout)),
+            warningMinutes: Math.max(0, Math.min(rawWarning, rawTimeout - 1))
         };
 
         // Throttle activity handler to avoid excessive resets (max once per 30s)
@@ -93,6 +98,19 @@ class SessionManager {
 
         // Clear sensitive localStorage items (keep user preferences like favorites)
         localStorage.removeItem('patientDisplayData');
+
+        // Clear all PHI-related localStorage items
+        const phiPrefixes = ['medcalc-phi-', 'medcalc-history-', 'medcalc-provenance-'];
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && phiPrefixes.some(prefix => key.startsWith(prefix))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+
+        clearEncryptionKeyCache();
 
         // Redirect to SMART launch page
         window.location.href = 'launch.html';

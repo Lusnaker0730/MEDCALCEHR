@@ -1,4 +1,5 @@
 import { logger } from './logger.js';
+import { secureLocalStore, secureLocalRetrieve } from './security.js';
 
 export interface HistoryEntry {
     calculatorId: string;
@@ -7,7 +8,7 @@ export interface HistoryEntry {
     resultSummary: string;
 }
 
-const BASE_KEY = 'calculation-history';
+const BASE_KEY = 'medcalc-phi-calculation-history';
 const MAX_ENTRIES = 100;
 
 export class CalculationHistory {
@@ -28,33 +29,40 @@ export class CalculationHistory {
     }
 
     /**
-     * Move entries from the unscoped key ("calculation-history") into the
+     * Move entries from the unscoped key into the
      * practitioner-scoped key so that previously orphaned records become visible.
+     * Also checks the legacy unencrypted key ("calculation-history").
      */
-    private migrateUnscopedEntries(): void {
+    private async migrateUnscopedEntries(): Promise<void> {
         try {
-            const unscopedData = localStorage.getItem(BASE_KEY);
-            if (!unscopedData) return;
+            // Check legacy unencrypted key first
+            const legacyData = localStorage.getItem('calculation-history');
+            if (legacyData) {
+                localStorage.removeItem('calculation-history');
+            }
 
-            const unscopedEntries: HistoryEntry[] = JSON.parse(unscopedData);
-            if (unscopedEntries.length === 0) return;
+            const unscopedEntries = await secureLocalRetrieve<HistoryEntry[]>(BASE_KEY) || [];
+            const legacyEntries: HistoryEntry[] = legacyData ? JSON.parse(legacyData) : [];
+            const allUnscopedEntries = [...unscopedEntries, ...legacyEntries];
+
+            if (allUnscopedEntries.length === 0) return;
 
             // Merge: existing scoped entries first, then unscoped (older)
-            const scopedEntries = this.getEntries();
-            const merged = [...scopedEntries, ...unscopedEntries]
+            const scopedEntries = await this.getEntries();
+            const merged = [...scopedEntries, ...allUnscopedEntries]
                 .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
                 .slice(0, MAX_ENTRIES);
 
-            this.save(merged);
+            await this.save(merged);
             localStorage.removeItem(BASE_KEY);
-            logger.info('Migrated unscoped calculation history entries', { count: unscopedEntries.length });
+            logger.info('Migrated unscoped calculation history entries', { count: allUnscopedEntries.length });
         } catch {
             logger.warn('Failed to migrate unscoped calculation history');
         }
     }
 
-    addEntry(entry: Omit<HistoryEntry, 'timestamp'>): void {
-        const entries = this.getEntries();
+    async addEntry(entry: Omit<HistoryEntry, 'timestamp'>): Promise<void> {
+        const entries = await this.getEntries();
         entries.unshift({
             ...entry,
             timestamp: new Date().toISOString()
@@ -62,13 +70,12 @@ export class CalculationHistory {
         if (entries.length > MAX_ENTRIES) {
             entries.length = MAX_ENTRIES;
         }
-        this.save(entries);
+        await this.save(entries);
     }
 
-    getEntries(limit?: number): HistoryEntry[] {
+    async getEntries(limit?: number): Promise<HistoryEntry[]> {
         try {
-            const stored = localStorage.getItem(this.storageKey);
-            const all: HistoryEntry[] = stored ? JSON.parse(stored) : [];
+            const all = await secureLocalRetrieve<HistoryEntry[]>(this.storageKey) || [];
             return limit ? all.slice(0, limit) : all;
         } catch {
             logger.error('Failed to load calculation history');
@@ -84,13 +91,13 @@ export class CalculationHistory {
         }
     }
 
-    getEntryCount(): number {
-        return this.getEntries().length;
+    async getEntryCount(): Promise<number> {
+        return (await this.getEntries()).length;
     }
 
-    private save(entries: HistoryEntry[]): void {
+    private async save(entries: HistoryEntry[]): Promise<void> {
         try {
-            localStorage.setItem(this.storageKey, JSON.stringify(entries));
+            await secureLocalStore(this.storageKey, entries);
         } catch {
             logger.error('Failed to save calculation history');
         }

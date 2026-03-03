@@ -2,6 +2,7 @@
 // Provides visual feedback for FHIR data loading status
 
 import { logger } from './logger.js';
+import { escapeHTML } from './security.js';
 
 // ============================================================================
 // Type Definitions
@@ -93,11 +94,12 @@ export class FHIRFeedback {
      * @private
      */
     private createIndicator(status: FeedbackStatus, tooltip: string): HTMLElement {
+        const safeTooltip = escapeHTML(tooltip);
         const indicator = document.createElement('div');
         indicator.className = `fhir-feedback-indicator ${STATUS_CLASSES[status]}`;
         indicator.innerHTML = `
             <span>${STATUS_ICONS[status]}</span>
-            <div class="fhir-feedback-tooltip">${tooltip}</div>
+            <div class="fhir-feedback-tooltip">${safeTooltip}</div>
         `;
         return indicator;
     }
@@ -155,7 +157,9 @@ export class FHIRFeedback {
      * Show success indicator (auto-removes after 5 seconds)
      */
     showSuccess(inputElement: HTMLElement, label: string = 'data', value: string = ''): void {
-        const tooltip = `✓ ${label} loaded from EHR${value ? `: ${value}` : ''}`;
+        const safeLabel = escapeHTML(label);
+        const safeValue = value ? escapeHTML(value) : '';
+        const tooltip = `✓ ${safeLabel} loaded from EHR${safeValue ? `: ${safeValue}` : ''}`;
         this.showIndicator(inputElement, 'success', tooltip, { autoRemove: 5000 });
     }
 
@@ -167,7 +171,8 @@ export class FHIRFeedback {
         label: string = 'data',
         message: string | null = null
     ): void {
-        const tooltip = message || `⚠️ No ${label} found in EHR. Please enter manually.`;
+        const safeLabel = escapeHTML(label);
+        const tooltip = message ? escapeHTML(message) : `⚠️ No ${safeLabel} found in EHR. Please enter manually.`;
         this.showIndicator(inputElement, 'warning', tooltip, { dismissOnInput: true });
     }
 
@@ -175,8 +180,9 @@ export class FHIRFeedback {
      * Show error indicator
      */
     showError(inputElement: HTMLElement, label: string = 'data', error: Error | null = null): void {
-        const errorMsg = error?.message || 'Failed to load from EHR';
-        this.showIndicator(inputElement, 'error', `❌ ${label}: ${errorMsg}`);
+        const safeLabel = escapeHTML(label);
+        const errorMsg = escapeHTML(error?.message || 'Failed to load from EHR');
+        this.showIndicator(inputElement, 'error', `❌ ${safeLabel}: ${errorMsg}`);
     }
 
     /**
@@ -204,12 +210,13 @@ export class FHIRFeedback {
         // Remove existing feedback
         inputGroup.querySelector('.fhir-field-feedback')?.remove();
 
+        const safeMessage = escapeHTML(message);
         const icons = { success: '✓', warning: '⚠️', info: 'ℹ️' };
         const feedback = document.createElement('div');
         feedback.className = `fhir-field-feedback ${type}`;
         feedback.innerHTML = `
             <span class="icon">${icons[type]}</span>
-            <span>${message}</span>
+            <span>${safeMessage}</span>
         `;
 
         const wrapper = inputElement.closest('.ui-input-wrapper, .fhir-feedback-wrapper');
@@ -286,14 +293,15 @@ export class FHIRFeedback {
         let detailsHTML = '';
 
         if (loaded.length > 0) {
-            detailsHTML += `<div class="details">Loaded: ${loaded.join(', ')}</div>`;
+            const safeLoaded = loaded.map(l => escapeHTML(String(l)));
+            detailsHTML += `<div class="details">Loaded: ${safeLoaded.join(', ')}</div>`;
         }
 
         if (missing.length > 0) {
             const listItems = missing
                 .map(item => {
-                    if (typeof item === 'string') return `<li>${item}</li>`;
-                    return `<li data-field-id="${item.id}">${item.label}</li>`;
+                    if (typeof item === 'string') return `<li>${escapeHTML(item)}</li>`;
+                    return `<li data-field-id="${escapeHTML(item.id)}">${escapeHTML(item.label)}</li>`;
                 })
                 .join('');
             detailsHTML += `
@@ -305,7 +313,7 @@ export class FHIRFeedback {
         }
 
         if (failed.length > 0) {
-            const listItems = failed.map(item => `<li>${item}</li>`).join('');
+            const listItems = failed.map(item => `<li>${escapeHTML(item)}</li>`).join('');
             detailsHTML += `
                 <div class="details">
                     <strong>Failed to load:</strong>

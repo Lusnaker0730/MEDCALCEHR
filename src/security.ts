@@ -147,10 +147,12 @@ export function sanitizeHTML(html: string): string {
 
             // Special handling for style attribute - remove javascript: and expression()
             if (attrName === 'style') {
-                const styleValue = attrValue.toLowerCase();
+                const styleValue = attrValue.toLowerCase().replace(/\/\*[\s\S]*?\*\//g, '');
                 if (styleValue.includes('javascript:') ||
                     styleValue.includes('expression(') ||
-                    styleValue.includes('url(') && hasDangerousScheme(styleValue)) {
+                    styleValue.includes('behavior:') ||
+                    styleValue.includes('-moz-binding') ||
+                    (styleValue.includes('url(') && hasDangerousScheme(styleValue))) {
                     element.removeAttribute('style');
                     return;
                 }
@@ -158,9 +160,12 @@ export function sanitizeHTML(html: string): string {
 
             // Remove data: URLs from src and href (except for safe data URLs)
             if ((attrName === 'src' || attrName === 'href' || attrName === 'action') &&
-                attrValue.toLowerCase().trim().startsWith('data:') &&
-                !attrValue.toLowerCase().startsWith('data:image/')) {
-                element.removeAttribute(attr.name);
+                attrValue.toLowerCase().trim().startsWith('data:')) {
+                const lower = attrValue.toLowerCase().trim();
+                const safeDataTypes = ['data:image/png', 'data:image/jpeg', 'data:image/jpg', 'data:image/gif', 'data:image/webp'];
+                if (!safeDataTypes.some(t => lower.startsWith(t))) {
+                    element.removeAttribute(attr.name);
+                }
             }
         });
     });
@@ -243,7 +248,7 @@ export function isValidURL(url: string): boolean {
         trimmedURL.startsWith('https://') ||
         trimmedURL.startsWith('/') ||
         trimmedURL.startsWith('#') ||
-        trimmedURL.startsWith('.')
+        trimmedURL.startsWith('./')
     );
 }
 
@@ -435,7 +440,7 @@ function xorCipher(data: string, key: string): string {
  * @deprecated Use AES-GCM encryption via secureLocalStore/secureSessionStore instead.
  * Encodes data using XOR obfuscation. Kept for backwards compatibility migration.
  */
-export function encodeForStorage(data: unknown): string {
+function encodeForStorage(data: unknown): string {
     try {
         const json = JSON.stringify(data);
         const key = getObfuscationKey();
@@ -455,7 +460,7 @@ export function encodeForStorage(data: unknown): string {
  * @deprecated Use AES-GCM decryption via secureLocalRetrieve/secureSessionRetrieve instead.
  * Decodes XOR-obfuscated data. Kept for backwards compatibility migration.
  */
-export function decodeFromStorage<T = unknown>(encoded: string): T | null {
+function decodeFromStorage<T = unknown>(encoded: string): T | null {
     try {
         // Check for encoding prefix
         if (!encoded || !encoded.startsWith('enc:')) {
@@ -487,38 +492,29 @@ export function decodeFromStorage<T = unknown>(encoded: string): T | null {
 let _cachedKey: CryptoKey | null = null;
 
 /**
- * Derives an AES-256-GCM encryption key using PBKDF2
- * @security Uses 100,000 iterations of PBKDF2 with SHA-256 for key derivation
+ * Generates a random per-session AES-256-GCM encryption key
+ * @security Key is non-extractable and exists only in memory for the current page session
  */
 async function deriveEncryptionKey(): Promise<CryptoKey> {
     if (_cachedKey) return _cachedKey;
 
-    const encoder = new TextEncoder();
-    const passphrase = 'MedCalcEHR_PHI_Protection_v2' +
-        (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
-
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        encoder.encode(passphrase),
-        'PBKDF2',
-        false,
-        ['deriveKey']
-    );
-
-    _cachedKey = await crypto.subtle.deriveKey(
-        {
-            name: 'PBKDF2',
-            salt: encoder.encode('MedCalcEHR-salt-v2'),
-            iterations: 100000,
-            hash: 'SHA-256'
-        },
-        keyMaterial,
+    // Generate a random per-session key (not persisted, not extractable)
+    // Data encrypted with this key is only readable within the current page session
+    _cachedKey = await crypto.subtle.generateKey(
         { name: 'AES-GCM', length: 256 },
-        false,
+        false, // non-extractable
         ['encrypt', 'decrypt']
     );
 
     return _cachedKey;
+}
+
+/**
+ * Clears the cached encryption key. Must be called on logout to prevent key reuse.
+ * @security Call this from session-manager.ts logout flow.
+ */
+export function clearEncryptionKeyCache(): void {
+    _cachedKey = null;
 }
 
 /**
@@ -732,8 +728,6 @@ export default {
     createSafeEventHandler,
     isRestrictedResource,
     // Secure storage utilities
-    encodeForStorage,
-    decodeFromStorage,
     secureSessionStore,
     secureSessionRetrieve,
     secureLocalStore,

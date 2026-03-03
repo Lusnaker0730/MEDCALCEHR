@@ -41,6 +41,11 @@ if (_logConfig?.remoteEndpoint) {
     });
 }
 
+// Freeze config to prevent runtime tampering
+if (window.MEDCALC_CONFIG) {
+    Object.freeze(window.MEDCALC_CONFIG);
+}
+
 // Initialize i18n
 initI18n();
 
@@ -317,8 +322,8 @@ function renderRecentStrip(container: HTMLElement): void {
 /**
  * Render calculation history list
  */
-function renderHistoryList(container: HTMLElement): void {
-    const entries = calculationHistory.getEntries(50);
+async function renderHistoryList(container: HTMLElement): Promise<void> {
+    const entries = await calculationHistory.getEntries(50);
     container.innerHTML = '';
 
     if (entries.length === 0) {
@@ -392,7 +397,7 @@ window.onload = () => {
     /**
      * Update display
      */
-    function updateDisplay(): void {
+    async function updateDisplay(): Promise<void> {
         const searchTerm = searchBar.value;
 
         // Show/hide recent strip (only when filter='all' and no search)
@@ -417,8 +422,8 @@ window.onload = () => {
 
         // History mode: render history entries directly
         if (currentFilterType === 'history') {
-            renderHistoryList(calculatorListDiv);
-            updateStats(calculatorModules.length, calculationHistory.getEntryCount());
+            await renderHistoryList(calculatorListDiv);
+            updateStats(calculatorModules.length, await calculationHistory.getEntryCount());
             return;
         }
 
@@ -471,14 +476,15 @@ window.onload = () => {
                     btn.appendChild(countBadge);
                 }
             } else if (filterType === 'history') {
-                const count = calculationHistory.getEntryCount();
-                btn.querySelector('.filter-count')?.remove();
-                if (count > 0) {
-                    const countBadge = document.createElement('span');
-                    countBadge.className = 'filter-count';
-                    countBadge.textContent = count.toString();
-                    btn.appendChild(countBadge);
-                }
+                calculationHistory.getEntryCount().then(count => {
+                    btn.querySelector('.filter-count')?.remove();
+                    if (count > 0) {
+                        const countBadge = document.createElement('span');
+                        countBadge.className = 'filter-count';
+                        countBadge.textContent = count.toString();
+                        btn.appendChild(countBadge);
+                    }
+                });
             }
         });
     }

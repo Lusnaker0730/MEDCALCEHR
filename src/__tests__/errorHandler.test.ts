@@ -348,11 +348,9 @@ describe('Error Handler Module', () => {
         });
 
         test('should NOT show technical details in production', () => {
-            Object.defineProperty(window, 'location', {
-                value: { hostname: 'production.example.com', href: 'https://production.example.com/' },
-                writable: true,
-                configurable: true
-            });
+            // Simulate production by setting __DEV__ to false
+            const originalDev = (globalThis as any).__DEV__;
+            (globalThis as any).__DEV__ = false;
 
             const error = new Error('Stack trace error');
             displayError(container, error);
@@ -361,11 +359,7 @@ describe('Error Handler Module', () => {
             expect(details).toBeNull();
 
             // Restore for other tests
-            Object.defineProperty(window, 'location', {
-                value: { hostname: 'localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true
-            });
+            (globalThis as any).__DEV__ = originalDev;
         });
 
         test('should load error-handler CSS stylesheet', () => {

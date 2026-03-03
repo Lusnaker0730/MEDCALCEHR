@@ -6,6 +6,10 @@ export default defineConfig(({ mode }) => ({
     root: '.',
     publicDir: 'public',
 
+    define: {
+        __DEV__: mode !== 'production',
+    },
+
     build: {
         outDir: 'dist',
         sourcemap: true,

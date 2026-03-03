@@ -237,6 +237,14 @@ export const calculatorModules: CalculatorMetadata[] = [
  * @returns The calculator module
  */
 export async function loadCalculator(calculatorId: string): Promise<CalculatorModule> {
+    // Validate calculator ID format (alphanumeric and hyphens only)
+    if (!/^[a-z0-9-]+$/.test(calculatorId)) {
+        throw new Error(`Invalid calculator ID format: ${calculatorId}`);
+    }
+    // Validate against registered calculator list
+    if (!calculatorExists(calculatorId)) {
+        throw new Error(`Unknown calculator: ${calculatorId}`);
+    }
     try {
         // Vite handles dynamic imports natively with code splitting
         const module = await import(`./${calculatorId}/index.ts`);

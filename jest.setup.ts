@@ -49,12 +49,6 @@ Object.defineProperty(globalThis, 'crypto', {
     configurable: true
 });
 
-// Mock import.meta.env for Vite compatibility in Jest
-// (ts-jest runs source directly, not via Vite, so import.meta.env is undefined)
-if (typeof (globalThis as any).importMetaEnv === 'undefined') {
-    Object.defineProperty(globalThis, 'importMetaEnv', {
-        value: { DEV: true, PROD: false, MODE: 'test' },
-        writable: true,
-        configurable: true,
-    });
-}
+// Define __DEV__ global for Vite compatibility in Jest
+// (Vite replaces __DEV__ at build time; in Jest we set it as a global)
+(globalThis as any).__DEV__ = true;

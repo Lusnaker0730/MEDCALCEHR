@@ -1072,13 +1072,14 @@ describe('UI Builder Extended Tests', () => {
             expect(html).not.toContain('<li>');
         });
 
-        test('renders items with HTML content', () => {
+        test('renders items with HTML content escaped for safety', () => {
             const html = uiBuilder.createList({
                 items: ['<strong>Bold</strong>', '<em>Italic</em>']
             });
 
-            expect(html).toContain('<strong>Bold</strong>');
-            expect(html).toContain('<em>Italic</em>');
+            // Items are escaped to prevent XSS
+            expect(html).toContain('&lt;strong&gt;Bold&lt;/strong&gt;');
+            expect(html).toContain('&lt;em&gt;Italic&lt;/em&gt;');
         });
     });
 

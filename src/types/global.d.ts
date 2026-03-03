@@ -6,6 +6,9 @@
 export {};
 
 declare global {
+    /** Build-time constant: true in dev/test, false in production builds */
+    const __DEV__: boolean;
+
     interface Window {
         MEDCALC_CONFIG?: {
             fhir?: {

@@ -478,7 +478,7 @@ export class FHIRDataService {
         try {
             const sortDirection = options.sortOrder === 'desc' ? '-date' : 'date';
             const response = await this.client.patient.request(
-                `Observation?code=${code}&_sort=${sortDirection}`
+                `Observation?code=${encodeURIComponent(code)}&_sort=${encodeURIComponent(sortDirection)}`
             );
 
             if (response.entry && Array.isArray(response.entry)) {
@@ -531,7 +531,7 @@ export class FHIRDataService {
             // Note: We use ge (greater or equal) for date/time filtering ideally
             // standard FHIR: date=ge2024-01-01
             const response = await this.client.patient.request(
-                `Observation?code=${code}&date=ge${dateStr}&_sort=-date`
+                `Observation?code=${encodeURIComponent(code)}&date=ge${encodeURIComponent(dateStr)}&_sort=-date`
             );
 
             if (!response.entry || !Array.isArray(response.entry)) {

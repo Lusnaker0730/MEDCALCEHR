@@ -4,6 +4,7 @@
 // Reference: https://build.fhir.org/provenance.html
 
 import { logger } from './logger.js';
+import { secureLocalStore, secureLocalRetrieve } from './security.js';
 
 // ============================================================================
 // Type Definitions
@@ -520,7 +521,7 @@ const DATA_SOURCE_DISPLAY: Record<DataSourceType, string> = {
 // ============================================================================
 
 const STORAGE_KEYS = {
-    PENDING_RECORDS: 'medcalc_provenance_pending',
+    PENDING_RECORDS: 'medcalc-provenance-pending',
     RECORD_SEQUENCE: 'medcalc_provenance_sequence'
 };
 
@@ -1108,7 +1109,7 @@ export class ProvenanceService {
 
         // Store locally if offline or server send failed
         if (this.config.enableLocalStorage) {
-            this.storeLocally(provenance);
+            await this.storeLocally(provenance);
         }
 
         // Also keep in memory queue
@@ -1140,11 +1141,11 @@ export class ProvenanceService {
     }
 
     /**
-     * Store provenance locally
+     * Store provenance locally (encrypted)
      */
-    private storeLocally(provenance: FHIRProvenance): void {
+    private async storeLocally(provenance: FHIRProvenance): Promise<void> {
         try {
-            const stored = this.getPendingRecords();
+            const stored = await this.getPendingRecords();
             stored.push(provenance);
 
             // Prune if exceeds max
@@ -1152,29 +1153,28 @@ export class ProvenanceService {
                 stored.shift();
             }
 
-            localStorage.setItem(STORAGE_KEYS.PENDING_RECORDS, JSON.stringify(stored));
+            await secureLocalStore(STORAGE_KEYS.PENDING_RECORDS, stored);
             this.log(`Provenance stored locally (${stored.length} pending)`);
         } catch (error) {
-            logger.error('Failed to store provenance locally', { error: String(error) });
+            this.log('Failed to store provenance locally:', error);
         }
     }
 
     /**
      * Load pending records from local storage
      */
-    private loadPendingRecords(): void {
-        const records = this.getPendingRecords();
+    private async loadPendingRecords(): Promise<void> {
+        const records = await this.getPendingRecords();
         this.recordQueue = records;
         this.log(`Loaded ${records.length} pending provenance records from local storage`);
     }
 
     /**
-     * Get pending records from local storage
+     * Get pending records from local storage (encrypted)
      */
-    private getPendingRecords(): FHIRProvenance[] {
+    private async getPendingRecords(): Promise<FHIRProvenance[]> {
         try {
-            const stored = localStorage.getItem(STORAGE_KEYS.PENDING_RECORDS);
-            return stored ? JSON.parse(stored) : [];
+            return await secureLocalRetrieve<FHIRProvenance[]>(STORAGE_KEYS.PENDING_RECORDS) || [];
         } catch {
             return [];
         }
@@ -1188,7 +1188,7 @@ export class ProvenanceService {
             return;
         }
 
-        const pending = this.getPendingRecords();
+        const pending = await this.getPendingRecords();
         if (pending.length === 0) {
             return;
         }
@@ -1205,8 +1205,8 @@ export class ProvenanceService {
             }
         }
 
-        // Update local storage with only failed records
-        localStorage.setItem(STORAGE_KEYS.PENDING_RECORDS, JSON.stringify(failed));
+        // Update local storage with only failed records (encrypted)
+        await secureLocalStore(STORAGE_KEYS.PENDING_RECORDS, failed);
         this.recordQueue = failed;
 
         this.log(`Flushed ${pending.length - failed.length} records, ${failed.length} failed`);
@@ -1222,8 +1222,8 @@ export class ProvenanceService {
     /**
      * Get pending record count
      */
-    getPendingRecordCount(): number {
-        return this.getPendingRecords().length;
+    async getPendingRecordCount(): Promise<number> {
+        return (await this.getPendingRecords()).length;
     }
 
     /**
@@ -1252,7 +1252,7 @@ export class ProvenanceService {
      * Generate a unique ID
      */
     private generateId(): string {
-        return `prov-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        return `prov-${crypto.randomUUID()}`;
     }
 
     /**
@@ -1315,11 +1315,7 @@ export class ProvenanceService {
      * Generate a UUID v4
      */
     private generateUUID(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+        return crypto.randomUUID();
     }
 
     /**
