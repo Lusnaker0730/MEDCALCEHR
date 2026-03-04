@@ -11,6 +11,7 @@ import { favoritesManager } from './favorites.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { tokenLifecycleManager } from './token-lifecycle-manager.js';
 import { initSentry } from './sentry.js';
 import { logger, LogLevel } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
@@ -495,6 +496,7 @@ window.onload = () => {
     FHIR.oauth2
         .ready()
         .then(async (client: any) => {
+            tokenLifecycleManager.initialize(client);
             displayPatientInfo(client, patientInfoDiv!);
 
             // Fetch User/Practitioner Info

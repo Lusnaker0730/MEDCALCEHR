@@ -76,7 +76,9 @@
       "WebFetch(domain:clincalc.com)",
       "WebFetch(domain:www.mdcalc.com)",
       "Bash(cd D:/CGHCALC/MEDCALCEHR && npm run dev 2>&1)",
-      "Bash(claude update:*)"
+      "Bash(claude update:*)",
+      "Bash(git:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

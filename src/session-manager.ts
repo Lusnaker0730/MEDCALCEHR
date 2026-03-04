@@ -28,11 +28,13 @@ const OVERLAY_ID = 'session-timeout-overlay';
 
 class SessionManager {
     private config: SessionManagerConfig;
+    private effectiveTimeoutMinutes: number | null = null;
     private timeoutTimer: ReturnType<typeof setTimeout> | null = null;
     private warningTimer: ReturnType<typeof setTimeout> | null = null;
     private countdownInterval: ReturnType<typeof setInterval> | null = null;
     private isWarningVisible = false;
     private activityHandler: () => void;
+    private onLogoutCallback: (() => void) | null = null;
 
     constructor() {
         const userConfig = window.MEDCALC_CONFIG?.session;
@@ -67,6 +69,33 @@ class SessionManager {
         });
 
         this.resetTimers();
+    }
+
+    /**
+     * Return the configured inactivity timeout in minutes.
+     */
+    getTimeoutMinutes(): number {
+        return this.config.timeoutMinutes;
+    }
+
+    /**
+     * Override the effective timeout (e.g. to match a shorter token TTL).
+     * Resets all running timers to use the new value.
+     */
+    setEffectiveTimeout(minutes: number): void {
+        this.effectiveTimeoutMinutes = Math.max(1, minutes);
+        // If already started, restart timers with the new timeout
+        if (this.timeoutTimer !== null || this.warningTimer !== null) {
+            this.resetTimers();
+        }
+    }
+
+    /**
+     * Register a callback that fires at the end of logout().
+     * Used by TokenLifecycleManager to avoid circular imports.
+     */
+    onLogout(callback: () => void): void {
+        this.onLogoutCallback = callback;
     }
 
     /**
@@ -112,6 +141,11 @@ class SessionManager {
 
         clearEncryptionKeyCache();
 
+        // Notify subscribers (e.g. TokenLifecycleManager)
+        if (this.onLogoutCallback) {
+            try { this.onLogoutCallback(); } catch { /* best-effort */ }
+        }
+
         // Redirect to SMART launch page
         window.location.href = 'launch.html';
     }
@@ -125,7 +159,8 @@ class SessionManager {
             this.hideWarning();
         }
 
-        const timeoutMs = this.config.timeoutMinutes * 60 * 1000;
+        const activeTimeout = this.effectiveTimeoutMinutes ?? this.config.timeoutMinutes;
+        const timeoutMs = activeTimeout * 60 * 1000;
         const warningMs = this.config.warningMinutes * 60 * 1000;
         const warningStartMs = timeoutMs - warningMs;
 

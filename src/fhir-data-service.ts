@@ -27,6 +27,8 @@ import { fhirFeedback } from './fhir-feedback.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService, CalculationResult } from './provenance-service.js';
 import { logger } from './logger.js';
+import { isAuthError } from './fhir-auth-interceptor.js';
+import { tokenLifecycleManager } from './token-lifecycle-manager.js';
 import { getActiveAdapter } from './ehr-adapters/index.js';
 import {
     TW_CORE_PROFILES,
@@ -327,6 +329,9 @@ export class FHIRDataService {
 
             return this.processObservation(observation, code, options);
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching observation', {
                 code,
                 textQuery: String(options.useTextQuery),
@@ -487,6 +492,9 @@ export class FHIRDataService {
 
             return [];
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching all observations', { code, error: String(error) });
             return [];
         }
@@ -503,6 +511,9 @@ export class FHIRDataService {
         try {
             return await getMostRecentObservation(this.client, code);
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching raw observation', { code, error: String(error) });
             return null;
         }
@@ -559,6 +570,9 @@ export class FHIRDataService {
 
             return results;
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching observation window', { code, error: String(error) });
             return [];
         }
@@ -708,6 +722,9 @@ export class FHIRDataService {
 
             return result;
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching blood pressure', { error: String(error) });
             return result;
         }
@@ -920,6 +937,9 @@ export class FHIRDataService {
         try {
             return await getPatientConditions(this.client, snomedCodes);
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching conditions', { error: String(error) });
             return [];
         }
@@ -952,6 +972,9 @@ export class FHIRDataService {
                 });
             });
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error checking conditions by prefix', { error: String(error) });
             return false;
         }
@@ -968,6 +991,9 @@ export class FHIRDataService {
         try {
             return await getMedicationRequests(this.client, rxnormCodes);
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Error fetching medications', { error: String(error) });
             return [];
         }

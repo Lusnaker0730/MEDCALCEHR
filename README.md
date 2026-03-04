@@ -28,6 +28,7 @@ A comprehensive SMART on FHIR application providing **86 clinical calculators** 
 - FHIR write-back and provenance tracking
 - Multi-EHR adapter support (Epic, Cerner, Meditech, Generic)
 - OAuth 2.0 authentication flow
+- Token lifecycle management with proactive expiry warnings and cross-tab sync
 
 ### 🛡️ **SaMD Compliance Infrastructure**
 
@@ -251,6 +252,7 @@ flowchart TB
             Provenance["ProvenanceService<br/>來源追蹤"]
             Cache["CacheManager<br/>快取管理"]
             Staleness["DataStaleness<br/>資料時效"]
+            TokenLM["TokenLifecycle<br/>Token 生命週期"]
         end
 
         subgraph Adapters["EHR Adapters"]
@@ -330,6 +332,8 @@ MEDCALCEHR/
 │   ├── calculation-history.ts    # 計算歷史記錄
 │   ├── favorites.ts              # 使用者收藏
 │   ├── session-manager.ts        # Session 逾時管理
+│   ├── token-lifecycle-manager.ts # Token 生命週期管理
+│   ├── fhir-auth-interceptor.ts  # FHIR 認證錯誤攔截
 │   ├── security.ts               # 安全控制
 │   ├── logger.ts                 # 日誌基礎設施
 │   ├── sentry.ts                 # 錯誤追蹤 (Sentry)

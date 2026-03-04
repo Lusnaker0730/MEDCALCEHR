@@ -20,7 +20,9 @@ declare global {
             session?: {
                 timeoutMinutes?: number;
                 warningMinutes?: number;
-                [key: string]: number | undefined;
+                tokenWarningSeconds?: number;
+                disableTokenLifecycle?: boolean;
+                [key: string]: number | boolean | undefined;
             };
             sentry?: {
                 dsn?: string;

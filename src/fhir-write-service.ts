@@ -9,7 +9,11 @@
  */
 
 import { logger } from './logger.js';
+import { isAuthError } from './fhir-auth-interceptor.js';
+import { tokenLifecycleManager } from './token-lifecycle-manager.js';
 import { provenanceService } from './provenance-service.js';
+import { securityLabelsService } from './security-labels-service.js';
+import type { SecuredResource, SensitivityCategory } from './security-labels-service.js';
 
 // ============================================================================
 // Types
@@ -127,6 +131,7 @@ class FHIRWriteService {
                 calculatorId: request.calculatorId,
                 observationCount: observationIds.length,
                 provenanceId,
+                securityLabelsApplied: true,
             });
 
             return {
@@ -135,6 +140,9 @@ class FHIRWriteService {
                 provenanceId,
             };
         } catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure((error as any)?.status);
+            }
             logger.error('Write-back failed', {
                 calculatorId: request.calculatorId,
                 error: String(error),
@@ -206,7 +214,18 @@ class FHIRWriteService {
             ];
         }
 
-        return observation;
+        // Apply security labels
+        const sensitivities: SensitivityCategory[] = securityLabelsService.detectSensitivities(
+            observation as SecuredResource
+        );
+        const confidentiality = sensitivities.some(s => s !== 'GENERAL') ? 'R' : 'N';
+        const labeled = securityLabelsService.addSecurityLabel(
+            observation as SecuredResource,
+            confidentiality,
+            sensitivities
+        );
+
+        return labeled;
     }
 }
 

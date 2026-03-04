@@ -19,6 +19,7 @@ import { fhirDataService, FieldDataRequirement } from '../../fhir-data-service.j
 import { ValidationError, displayError } from '../../errorHandler.js';
 import { sanitizeHTML } from '../../security.js';
 import { logger } from '../../logger.js';
+import { auditEventService } from '../../audit-event-service.js';
 import {
     ValidationRules,
     validateCalculatorInput,
@@ -831,6 +832,27 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 }
             };
 
+            // Debounced audit logging: only fire after user stops typing for 2s
+            let auditTimer: ReturnType<typeof setTimeout> | null = null;
+            const debouncedAuditLog = (
+                inputs: Record<string, any>,
+                result: Record<string, any>,
+                success: boolean
+            ): void => {
+                if (auditTimer) clearTimeout(auditTimer);
+                auditTimer = setTimeout(() => {
+                    auditEventService.logCalculation(
+                        config.id,
+                        config.title,
+                        inputs,
+                        result,
+                        success
+                    ).catch(err => {
+                        logger.warn('Failed to log calculation audit', { error: String(err) });
+                    });
+                }, 2000);
+            };
+
             /**
              * Simple 模式計算
              */
@@ -866,6 +888,12 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                                 .join('');
                         }
                         showResultBox();
+
+                        // Audit: log successful calculation (debounced)
+                        const resultRecord = Object.fromEntries(
+                            results.map(r => [r.label, r.value])
+                        );
+                        debouncedAuditLog(values, resultRecord, true);
                     } else {
                         hideResultBox();
                     }
@@ -874,6 +902,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     if (errorContainer) {
                         displayError(errorContainer, e as Error);
                     }
+                    // Audit: log failed calculation (immediate)
+                    auditEventService.logCalculation(
+                        config.id, config.title, values, { error: String(e) }, false
+                    ).catch(() => {});
                 }
             };
 
@@ -886,7 +918,7 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 if (errorContainer) errorContainer.innerHTML = '';
 
                 // Also run validation for complex mode
-                const { isValid } = validateInputs();
+                const { isValid, values } = validateInputs();
                 if (!isValid) {
                     // validateInputs handles waiting message
                     return;
@@ -945,9 +977,20 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     }
 
                     showResultBox();
+
+                    // Audit: log successful calculation (debounced)
+                    const resultRecord: Record<string, any> = {};
+                    if (result.score !== undefined) resultRecord.score = result.score;
+                    if (result.value !== undefined) resultRecord.value = result.value;
+                    if (result.interpretation) resultRecord.interpretation = result.interpretation;
+                    debouncedAuditLog(values, resultRecord, true);
                 } catch (e) {
                     logger.error('Error calculating', { calculatorId: config.id, error: String(e) });
                     hideResultBox();
+                    // Audit: log failed calculation (immediate)
+                    auditEventService.logCalculation(
+                        config.id, config.title, {}, { error: String(e) }, false
+                    ).catch(() => {});
                 }
             };
 

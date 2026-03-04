@@ -4,6 +4,7 @@
 
 import { secureLocalStore, secureLocalRetrieve } from './security.js';
 import { logger } from './logger.js';
+import { securityLabelsService } from './security-labels-service.js';
 
 // ============================================================================
 // Type Definitions
@@ -611,13 +612,26 @@ export class AuditEventService {
                     description: entity.description
                 };
 
-                // Add security labels if provided
+                // Add security labels if provided, or auto-detect for resource entities
                 if (entity.securityLabel && entity.securityLabel.length > 0) {
                     entityEntry.securityLabel = entity.securityLabel.map(label => ({
                         system: CODE_SYSTEMS.SECURITY_LABELS,
                         code: label,
                         display: label
                     }));
+                } else if (entity.type === 'resource') {
+                    // Auto-detect sensitivities from the resource reference
+                    const minimalResource = {
+                        resourceType: entity.what.split('/')[0] || 'Resource',
+                        id: entity.what.split('/')[1],
+                    };
+                    const sensitivities = securityLabelsService.detectSensitivities(minimalResource as any);
+                    const confidentiality = sensitivities.some(s => s !== 'GENERAL') ? 'R' : 'N';
+                    entityEntry.securityLabel = [{
+                        system: CODE_SYSTEMS.SECURITY_LABELS,
+                        code: confidentiality,
+                        display: confidentiality === 'R' ? 'Restricted' : 'Normal'
+                    }];
                 }
 
                 // Add query if this is a query entity

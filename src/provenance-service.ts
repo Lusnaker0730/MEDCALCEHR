@@ -5,6 +5,7 @@
 
 import { logger } from './logger.js';
 import { secureLocalStore, secureLocalRetrieve } from './security.js';
+import { securityLabelsService } from './security-labels-service.js';
 
 // ============================================================================
 // Type Definitions
@@ -123,6 +124,7 @@ export interface FHIRProvenance {
         profile?: string[];
         lastUpdated?: string;
         versionId?: string;
+        security?: Array<{ system: string; code: string; display?: string }>;
     };
     /** Target resources that this provenance applies to */
     target: Array<{
@@ -789,7 +791,12 @@ export class ProvenanceService {
             ];
         }
 
-        return provenance;
+        // Apply default 'N' (Normal) security label — Provenance is metadata, not clinical data
+        const labeled = securityLabelsService.addSecurityLabel(
+            provenance as any,
+            'N'
+        );
+        return labeled as unknown as FHIRProvenance;
     }
 
     /**
