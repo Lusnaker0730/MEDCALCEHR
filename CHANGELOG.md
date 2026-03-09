@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Penetration test report: `docs/compliance/PENETRATION_TEST_2026-03-09.md` (17 findings, 13 fixed)
 
 ### Fixed
+- **Token expiry immediate logout**: `handleAuthFailure()` no longer immediately redirects to `launch.html` on 401/403; shows a 60-second grace period overlay so users can finish reading current content before re-authentication (`token-lifecycle-manager.ts`)
+- **Alert HTML rendering**: `createAlert` now uses `sanitizeHTML()` instead of `escapeHTML()` to preserve safe formatting tags (`<strong>`, `<ul>`, `<li>`) while still stripping dangerous elements (`ui-builder.ts`)
+- **Standalone FHIR launch**: Added `fhirServiceUrl` fallback for dev mode when no `iss` parameter is present in the URL (`fhir-launch.ts`, `public/js/app-config.js`)
 - **UIBuilder CSS selector injection**: `querySelector` calls now use `CSS.escape()` for dynamic IDs and names (`ui-builder.ts`)
 - **UIBuilder escapeHtml consolidation**: Delegates to shared `escapeHTML()` from `security.ts` for consistent null-byte and extended character escaping (`ui-builder.ts`)
 - **Unit converter toggle bug**: Reset stored value when input is empty; update `dataset.currentUnit` regardless of value presence; added platelet, WBC, D-dimer, fibrinogen decimal places (`unit-converter.ts`)

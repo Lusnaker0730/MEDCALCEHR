@@ -47,6 +47,14 @@ const authorizeOptions = {
     scope: authParams?.scope || config.scope || 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access',
     redirect_uri: redirectUri,
 };
+// Standalone launch: if no `iss` in URL query, use fhirBaseUrl from config
+const urlParams = new URLSearchParams(window.location.search);
+if (!urlParams.has('iss') && !urlParams.has('fhirServiceUrl')) {
+    const fhirBaseUrl = ehrConfig?.fhirBaseUrl || config.fhirServiceUrl;
+    if (fhirBaseUrl) {
+        authorizeOptions.fhirServiceUrl = fhirBaseUrl;
+    }
+}
 // M-07: Merge extra params from the adapter, but prevent overriding critical fields
 if (authParams?.extraParams) {
     const safeParams = { ...authParams.extraParams };

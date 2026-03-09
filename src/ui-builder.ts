@@ -2,7 +2,7 @@
 
 import { UnitConverter } from './unit-converter.js';
 import { logger } from './logger.js';
-import { escapeHTML } from './security.js';
+import { escapeHTML, sanitizeHTML } from './security.js';
 
 export interface UISectionOptions {
     title?: string;
@@ -675,7 +675,9 @@ export class UIBuilder {
             success: '✅'
         };
         const alertIcon = icon || icons[type] || icons.info;
-        const safeMessage = escapeMessage ? this.escapeHtml(message) : message;
+        // sanitizeHTML preserves safe formatting tags (<strong>, <ul>, <li>, <br>, <em>)
+        // while stripping dangerous elements (script, iframe, event handlers)
+        const safeMessage = escapeMessage ? sanitizeHTML(message) : message;
         const ariaLive = type === 'danger' ? 'assertive' : 'polite';
 
         // Non-color state prefix for screen readers
@@ -969,7 +971,7 @@ export class UIBuilder {
     }): string {
         const safeIcon = icon ? this.escapeHtml(icon) : '';
         const safeTitle = this.escapeHtml(title);
-        const citationsHTML = citations.map(citation => `<p>${this.escapeHtml(citation)}</p>`).join('');
+        const citationsHTML = citations.map(citation => `<p>${sanitizeHTML(citation)}</p>`).join('');
 
         return `
             <div class="info-section mt-20 text-sm text-muted">
