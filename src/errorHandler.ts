@@ -1,6 +1,7 @@
 import { logger } from './logger.js';
 import { captureException } from './sentry.js';
 import { escapeHTML } from './security.js';
+import { t } from './i18n/index.js';
 
 // Custom Calculator Error Class
 
@@ -99,7 +100,7 @@ export function displayError(
     container.innerHTML = `
         <div class="error-message">
             <div class="error-title">
-                ⚠️ Error
+                ⚠️ ${t('errors.title')}
             </div>
             <div class="error-content">
                 ${escapeHTML(message)}
@@ -108,7 +109,7 @@ export function displayError(
                 __DEV__
                     ? `
                 <details>
-                    <summary>Technical Details</summary>
+                    <summary>${t('errors.technicalDetails')}</summary>
                     <pre>${escapeHTML(error.stack || error.message)}</pre>
                 </details>
             `
@@ -139,11 +140,11 @@ function loadErrorStyles(): void {
  */
 function getUserFriendlyMessage(error: any): string {
     if (error instanceof FHIRDataError) {
-        return 'Unable to retrieve patient data from EHR system. Please check connection or enter data manually.';
+        return t('errors.fhirDataError');
     }
 
     if (error instanceof ValidationError) {
-        return `Input validation failed: ${error.message}`;
+        return t('errors.validationFailed', { message: error.message });
     }
 
     if (error instanceof CalculatorError) {
@@ -151,7 +152,7 @@ function getUserFriendlyMessage(error: any): string {
     }
 
     // Generic error message
-    return 'Calculator encountered an error. Please refresh the page and try again or contact support.';
+    return t('errors.genericError');
 }
 
 /**

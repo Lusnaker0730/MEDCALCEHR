@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - **Unapproved calculators hidden**: Calculators pending clinical review are now completely hidden from the list instead of showing as disabled with "審核中" badge; approval filter applied before all filter paths (fixes recent-tab bypass bug); category chip counts and stats reflect only approved calculators (`main.ts`)
+- **i18n: ~60 hardcoded English strings translated**: Session/token overlays, error messages, FHIR feedback, patient display, calculator page messages, validation fallbacks, service worker notifications, and data staleness warnings now use `t()` translation function with full zh-TW support (`token-lifecycle-manager.ts`, `session-manager.ts`, `calculator-page.ts`, `errorHandler.ts`, `fhir-feedback.ts`, `data-staleness.ts`, `utils.ts`, `validator.ts`, `sw-register.ts`, `ui-builder.ts`)
 
 ### Added
 - `CLAUDE.md` files for AI-assisted development context at root, `src/`, `src/calculators/`, and `src/calculators/shared/`

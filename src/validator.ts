@@ -1,5 +1,6 @@
 // js/validator.js
 import { ValidationError } from './errorHandler.js';
+import { t } from './i18n/index.js';
 
 export interface ValidationRule {
     required?: boolean;
@@ -665,7 +666,7 @@ export function setupLiveValidation(
                 }
             }
             errorSpan.style.color = '#d32f2f'; // Error red
-            errorSpan.textContent = result.errors[0] || 'Invalid value';
+            errorSpan.textContent = result.errors[0] || t('validation.invalidValue');
 
             // Link input to error via aria-describedby
             inputElement.setAttribute('aria-describedby', errorId);
@@ -694,7 +695,7 @@ export function setupLiveValidation(
                 }
             }
             errorSpan.style.color = '#ed6c02'; // Warning orange
-            errorSpan.textContent = result.warnings[0] || 'Please double-check this value';
+            errorSpan.textContent = result.warnings[0] || t('validation.doubleCheck');
 
             inputElement.setAttribute('aria-describedby', errorId);
         } else {

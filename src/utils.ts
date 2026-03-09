@@ -7,6 +7,7 @@ import {
 } from './security.js';
 import { logger } from './logger.js';
 import { FHIR_CODE_SYSTEMS } from './fhir-codes.js';
+import { t } from './i18n/index.js';
 
 /** Storage key for patient display data */
 const PATIENT_CACHE_KEY = 'patientDisplayData';
@@ -105,9 +106,9 @@ function renderMinimalPatient(minimalData: MinimalPatientData, patientInfoDiv: H
     const safeGender = escapeHTML(minimalData.gender);
 
     patientInfoDiv.innerHTML = `
-        <p><strong>Name:</strong> ${safeName}</p>
-        <p><strong>Birth Date:</strong> ${safeBirthDate} (Age: ${age})</p>
-        <p><strong>Gender:</strong> ${safeGender}</p>
+        <p><strong>${t('patient.name')}</strong> ${safeName}</p>
+        <p><strong>${t('patient.birthDate')}</strong> ${safeBirthDate} (${t('patient.age')} ${age})</p>
+        <p><strong>${t('patient.gender')}</strong> ${safeGender}</p>
     `;
 }
 
@@ -129,7 +130,7 @@ export async function displayPatientInfo(client: any, patientInfoDiv: HTMLElemen
     if (!client?.patient?.id) {
         if (!cachedMinimal) {
             patientInfoDiv.innerHTML =
-                '<p>No patient data available. Please launch from the EHR.</p>';
+                `<p>${t('patient.noData')}</p>`;
         }
         // Return a reconstructed minimal patient object for compatibility
         return cachedMinimal ? {
@@ -154,7 +155,7 @@ export async function displayPatientInfo(client: any, patientInfoDiv: HTMLElemen
         (error: any) => {
             logger.error('Error reading patient data', { error: String(error) });
             if (!cachedMinimal) {
-                patientInfoDiv.innerText = 'Error fetching patient data.';
+                patientInfoDiv.innerText = t('patient.fetchError');
             }
             throw error;
         }

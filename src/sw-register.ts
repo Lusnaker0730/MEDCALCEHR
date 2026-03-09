@@ -5,6 +5,7 @@
  */
 
 import { logger } from './logger.js';
+import { t } from './i18n/index.js';
 
 interface MessagePayload {
     type: string;
@@ -72,9 +73,9 @@ function showUpdateNotification(registration: ServiceWorkerRegistration): void {
     notification.innerHTML = `
         <div class="sw-update-content">
             <span class="sw-update-icon">🔄</span>
-            <span class="sw-update-text">New version available!</span>
-            <button class="sw-update-button" id="sw-update-btn">Update</button>
-            <button class="sw-dismiss-button" id="sw-dismiss-btn">Later</button>
+            <span class="sw-update-text">${t('sw.newVersion')}</span>
+            <button class="sw-update-button" id="sw-update-btn">${t('sw.update')}</button>
+            <button class="sw-dismiss-button" id="sw-dismiss-btn">${t('sw.later')}</button>
         </div>
     `;
 

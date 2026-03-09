@@ -6,7 +6,8 @@
         "toggleTheme": "切換主題",
         "skipToContent": "跳至主要內容",
         "loadingPatient": "正在載入病患資料...",
-        "backToList": "返回計算器列表"
+        "backToList": "返回計算器列表",
+        "printFooter": "長庚 EHRCALC on FHIR — 僅供臨床參考"
     },
     "filter": {
         "all": "全部",
@@ -75,19 +76,79 @@
         "dataStale": "資料可能已過時",
         "manualEntry": "需手動輸入",
         "pleaseSelect": "請選擇",
-        "required": "必填"
+        "required": "必填",
+        "loading": "正在載入計算器...",
+        "notFound": "找不到計算器「{{id}}」。",
+        "noCalculatorSpecified": "未指定計算器。",
+        "initError": "計算器初始化時發生錯誤。",
+        "unavailable": "此計算器暫時無法使用。請稍後再試或聯繫技術支援。",
+        "copyReport": "複製報告至剪貼簿",
+        "copied": "已複製！"
     },
     "validation": {
         "required": "此欄位為必填",
         "outOfRange": "數值超出範圍（{{min}} - {{max}}）",
         "redZone": "數值超出安全範圍",
         "yellowZone": "數值異常但可接受",
-        "invalidNumber": "請輸入有效數字"
+        "invalidNumber": "請輸入有效數字",
+        "invalidValue": "數值無效",
+        "doubleCheck": "請再次確認此數值"
     },
     "session": {
         "timeoutWarning": "您的連線即將過期，是否要延長？",
         "extend": "延長連線",
-        "expired": "連線已過期，請重新登入。"
+        "expired": "連線已過期，請重新登入。",
+        "expiringTitle": "連線即將過期",
+        "expiringMessage": "因閒置過久，您的連線即將過期。",
+        "timeRemaining": "剩餘時間：",
+        "continueSession": "繼續使用",
+        "logoutNow": "立即登出",
+        "tokenExpiringTitle": "認證即將過期",
+        "tokenExpiringMessage": "您的 EHR 認證權杖即將過期，系統將自動登出。",
+        "tokenExpiredTitle": "連線已過期",
+        "tokenExpiredMessage": "您的 EHR 連線已過期。您可以繼續閱讀目前的頁面內容，系統將自動導向重新認證。",
+        "redirectingIn": "將在以下時間後導向：",
+        "reauthenticate": "立即重新認證",
+        "continueReading": "繼續閱讀"
+    },
+    "patient": {
+        "name": "姓名：",
+        "birthDate": "出生日期：",
+        "gender": "性別：",
+        "age": "年齡：",
+        "noData": "無法取得病患資料。請從 EHR 系統啟動。",
+        "fetchError": "讀取病患資料時發生錯誤。"
+    },
+    "fhir": {
+        "loadingFromEHR": "正在從 EHR 載入{{label}}...",
+        "loadedFromEHR": "已從 EHR 載入{{label}}",
+        "loadedWithValue": "已從 EHR 載入{{label}}：{{value}}",
+        "notFoundInEHR": "EHR 中未找到{{label}}，請手動輸入。",
+        "failedToLoad": "從 EHR 載入失敗",
+        "loadingPatientData": "正在從 EHR 載入病患資料...",
+        "dataLoadedSuccess": "病患資料載入成功",
+        "dataLoadedError": "部分病患資料載入失敗",
+        "dataLoadedMissing": "部分病患資料缺失",
+        "loaded": "已載入：",
+        "enterManually": "請手動輸入：",
+        "failedToLoadList": "載入失敗：",
+        "allDataEntered": "所有必要資料已輸入完成"
+    },
+    "errors": {
+        "title": "錯誤",
+        "technicalDetails": "技術詳情",
+        "fhirDataError": "無法從 EHR 系統取得病患資料。請檢查連線或手動輸入資料。",
+        "validationFailed": "輸入驗證失敗：{{message}}",
+        "genericError": "計算器發生錯誤。請重新整理頁面後再試，或聯繫技術支援。"
+    },
+    "staleness": {
+        "title": "資料過期警告",
+        "message": "以下自動帶入的數值已超過 3 個月，請確認是否需要更新："
+    },
+    "sw": {
+        "newVersion": "新版本已可用！",
+        "update": "更新",
+        "later": "稍後"
     },
     "language": {
         "toggle": "EN / 中文",

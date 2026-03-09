@@ -16,6 +16,7 @@
 
 import { sessionManager } from './session-manager.js';
 import { logger } from './logger.js';
+import { t } from './i18n/index.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -310,7 +311,7 @@ class TokenLifecycleManager {
         overlay.className = 'session-timeout-overlay';
         overlay.setAttribute('role', 'alertdialog');
         overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', 'Token expiration warning');
+        overlay.setAttribute('aria-label', t('session.tokenExpiringTitle'));
 
         let seconds = remainingSeconds;
 
@@ -323,19 +324,19 @@ class TokenLifecycleManager {
         overlay.innerHTML = `
             <div class="session-timeout-dialog">
                 <div class="session-timeout-icon">&#9888;</div>
-                <h2 class="session-timeout-title">Session Token Expiring</h2>
+                <h2 class="session-timeout-title">${t('session.tokenExpiringTitle')}</h2>
                 <p class="session-timeout-message">
-                    Your EHR authentication token is about to expire. You will be logged out automatically.
+                    ${t('session.tokenExpiringMessage')}
                 </p>
                 <p class="session-timeout-countdown">
-                    Time remaining: <strong id="token-countdown">${formatTime(seconds)}</strong>
+                    ${t('session.timeRemaining')} <strong id="token-countdown">${formatTime(seconds)}</strong>
                 </p>
                 <div class="session-timeout-actions">
                     <button id="token-continue-btn" class="session-btn session-btn-primary">
-                        Extend Session
+                        ${t('session.extend')}
                     </button>
                     <button id="token-logout-btn" class="session-btn session-btn-secondary">
-                        Logout Now
+                        ${t('session.logoutNow')}
                     </button>
                 </div>
             </div>
@@ -403,7 +404,7 @@ class TokenLifecycleManager {
         overlay.className = 'session-timeout-overlay';
         overlay.setAttribute('role', 'alertdialog');
         overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', 'Session expired');
+        overlay.setAttribute('aria-label', t('session.tokenExpiredTitle'));
 
         let seconds = AUTH_FAILURE_GRACE_SECONDS;
 
@@ -416,20 +417,19 @@ class TokenLifecycleManager {
         overlay.innerHTML = `
             <div class="session-timeout-dialog">
                 <div class="session-timeout-icon">&#128274;</div>
-                <h2 class="session-timeout-title">Session Expired</h2>
+                <h2 class="session-timeout-title">${t('session.tokenExpiredTitle')}</h2>
                 <p class="session-timeout-message">
-                    Your EHR session has expired. You can continue reading the current page.
-                    You will be redirected to re-authenticate automatically.
+                    ${t('session.tokenExpiredMessage')}
                 </p>
                 <p class="session-timeout-countdown">
-                    Redirecting in: <strong id="auth-failure-countdown">${formatTime(seconds)}</strong>
+                    ${t('session.redirectingIn')} <strong id="auth-failure-countdown">${formatTime(seconds)}</strong>
                 </p>
                 <div class="session-timeout-actions">
                     <button id="auth-reauth-btn" class="session-btn session-btn-primary">
-                        Re-authenticate Now
+                        ${t('session.reauthenticate')}
                     </button>
                     <button id="auth-dismiss-btn" class="session-btn session-btn-secondary">
-                        Continue Reading
+                        ${t('session.continueReading')}
                     </button>
                 </div>
             </div>

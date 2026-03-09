@@ -9,6 +9,7 @@
 import { auditEventService } from './audit-event-service.js';
 import { clearEncryptionKeyCache } from './security.js';
 import { clearFHIRCache } from './sw-register.js';
+import { t } from './i18n/index.js';
 
 // Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 
@@ -208,26 +209,26 @@ class SessionManager {
         overlay.className = 'session-timeout-overlay';
         overlay.setAttribute('role', 'alertdialog');
         overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', 'Session timeout warning');
+        overlay.setAttribute('aria-label', t('session.expiringTitle'));
 
         let remainingSeconds = this.config.warningMinutes * 60;
 
         overlay.innerHTML = `
             <div class="session-timeout-dialog">
                 <div class="session-timeout-icon">&#9888;</div>
-                <h2 class="session-timeout-title">Session Expiring</h2>
+                <h2 class="session-timeout-title">${t('session.expiringTitle')}</h2>
                 <p class="session-timeout-message">
-                    Your session will expire due to inactivity.
+                    ${t('session.expiringMessage')}
                 </p>
                 <p class="session-timeout-countdown">
-                    Time remaining: <strong id="session-countdown">${this.formatTime(remainingSeconds)}</strong>
+                    ${t('session.timeRemaining')} <strong id="session-countdown">${this.formatTime(remainingSeconds)}</strong>
                 </p>
                 <div class="session-timeout-actions">
                     <button id="session-continue-btn" class="session-btn session-btn-primary">
-                        Continue Session
+                        ${t('session.continueSession')}
                     </button>
                     <button id="session-logout-btn" class="session-btn session-btn-secondary">
-                        Logout Now
+                        ${t('session.logoutNow')}
                     </button>
                 </div>
             </div>
