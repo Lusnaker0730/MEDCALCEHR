@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **Unapproved calculators hidden**: Calculators pending clinical review are now completely hidden from the list instead of showing as disabled with "審核中" badge; approval filter applied before all filter paths (fixes recent-tab bypass bug); category chip counts and stats reflect only approved calculators (`main.ts`)
+
 ### Security
 - **PHI cache leak on logout**: FHIR API responses cached by the service worker (containing patient demographics, observations, and clinical data) now cleared on logout via targeted `CLEAR_FHIR_CACHE` message (`service-worker.js`, `sw-register.ts`, `session-manager.ts`)
 

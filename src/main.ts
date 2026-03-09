@@ -19,7 +19,7 @@ import { FuzzySearch } from './fuzzy-search.js';
 import { calculationHistory } from './calculation-history.js';
 import { initI18n, t, hydrateI18n, onLocaleChange } from './i18n/index.js';
 import { BeaconTransport } from './log-transport.js';
-import { isCalculatorApproved, getReviewStatus, getApprovedCount } from './review-gate.js';
+import { isCalculatorApproved } from './review-gate.js';
 
 // Initialize Sentry early
 initSentry();
@@ -94,7 +94,8 @@ function filterCalculators(
     category: string,
     searchTerm: string = ''
 ): CalculatorMetadata[] {
-    let filtered = [...calculators];
+    // Hide calculators that haven't passed clinical review
+    let filtered = calculators.filter(calc => isCalculatorApproved(calc.id));
 
     // Filter by special filters
     switch (filterType) {
@@ -106,7 +107,7 @@ function filterCalculators(
         case 'recent': {
             const recent = favoritesManager.getRecent();
             filtered = recent
-                .map(id => calculators.find(calc => calc.id === id))
+                .map(id => filtered.find(calc => calc.id === id))
                 .filter((calc): calc is CalculatorMetadata => calc !== undefined);
             return filtered; // Keep order for recent
         }
@@ -159,18 +160,9 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
     }
 
     calculators.forEach(calc => {
-        const approved = isCalculatorApproved(calc.id);
-
-        // Use <div> for disabled items, <a> for approved
-        const item = document.createElement(approved ? 'a' : 'div');
-        if (approved) {
-            (item as HTMLAnchorElement).href = `calculator.html?name=${calc.id}`;
-        }
-        item.className = approved ? 'list-item' : 'list-item list-item--disabled';
-        if (!approved) {
-            item.title = t('review.disabledTooltip');
-            item.setAttribute('aria-disabled', 'true');
-        }
+        const item = document.createElement('a') as HTMLAnchorElement;
+        item.href = `calculator.html?name=${calc.id}`;
+        item.className = 'list-item';
 
         // Content area
         const contentDiv = document.createElement('div');
@@ -180,15 +172,6 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
         title.className = 'list-item-title';
         title.textContent = calc.title;
         contentDiv.appendChild(title);
-
-        // Review badge for non-approved calculators
-        if (!approved) {
-            const status = getReviewStatus(calc.id);
-            const badge = document.createElement('span');
-            badge.className = `review-badge review-badge--${status}`;
-            badge.textContent = t(`review.${status}`);
-            contentDiv.appendChild(badge);
-        }
 
         // Category badge
         if (calc.category) {
@@ -209,27 +192,25 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
 
         item.appendChild(contentDiv);
 
-        // Favorite button (only for approved calculators)
-        if (approved) {
-            const favoriteBtn = document.createElement('button');
-            favoriteBtn.className = 'favorite-btn';
-            favoriteBtn.setAttribute('data-calculator-id', calc.id);
-            favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
-            favoriteBtn.title = favoritesManager.isFavorite(calc.id)
-                ? t('favorites.remove')
-                : t('favorites.add');
+        // Favorite button
+        const favoriteBtn = document.createElement('button');
+        favoriteBtn.className = 'favorite-btn';
+        favoriteBtn.setAttribute('data-calculator-id', calc.id);
+        favoriteBtn.innerHTML = favoritesManager.isFavorite(calc.id) ? '⭐' : '☆';
+        favoriteBtn.title = favoritesManager.isFavorite(calc.id)
+            ? t('favorites.remove')
+            : t('favorites.add');
 
-            // Prevent clicking favorite button from triggering link
-            favoriteBtn.addEventListener('click', (e: Event) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const isFavorite = favoritesManager.toggleFavorite(calc.id);
-                favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
-                favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
-            });
+        // Prevent clicking favorite button from triggering link
+        favoriteBtn.addEventListener('click', (e: Event) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const isFavorite = favoritesManager.toggleFavorite(calc.id);
+            favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
+            favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
+        });
 
-            item.appendChild(favoriteBtn);
-        }
+        item.appendChild(favoriteBtn);
 
         container.appendChild(item);
     });
@@ -241,12 +222,7 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
 function updateStats(total: number, showing: number): void {
     const statsEl = document.getElementById('calculator-stats');
     if (statsEl) {
-        const approved = getApprovedCount();
-        if (approved > 0 && approved < total) {
-            statsEl.textContent = `${t('stats.showing', { showing, total })} (${approved} ${t('review.approved')})`;
-        } else {
-            statsEl.textContent = t('stats.showing', { showing, total });
-        }
+        statsEl.textContent = t('stats.showing', { showing, total });
     }
 }
 
@@ -267,7 +243,7 @@ function renderCategoryChips(
     container.appendChild(allChip);
 
     (Object.keys(categories) as CategoryKey[]).forEach(key => {
-        const count = calculatorModules.filter(c => c.category === key).length;
+        const count = calculatorModules.filter(c => c.category === key && isCalculatorApproved(c.id)).length;
         const chip = document.createElement('button');
         chip.className = `category-chip${currentCategory === key ? ' active' : ''}`;
 
@@ -424,7 +400,7 @@ window.onload = () => {
         // History mode: render history entries directly
         if (currentFilterType === 'history') {
             await renderHistoryList(calculatorListDiv);
-            updateStats(calculatorModules.length, await calculationHistory.getEntryCount());
+            updateStats(calculatorModules.filter(c => isCalculatorApproved(c.id)).length, await calculationHistory.getEntryCount());
             return;
         }
 
@@ -442,7 +418,7 @@ window.onload = () => {
         renderCalculatorList(sorted, calculatorListDiv);
 
         // Update stats
-        updateStats(calculatorModules.length, sorted.length);
+        updateStats(calculatorModules.filter(c => isCalculatorApproved(c.id)).length, sorted.length);
     }
 
     /**
