@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Security
+- **PHI cache leak on logout**: FHIR API responses cached by the service worker (containing patient demographics, observations, and clinical data) now cleared on logout via targeted `CLEAR_FHIR_CACHE` message (`service-worker.js`, `sw-register.ts`, `session-manager.ts`)
+
 ## [1.8.0] - 2026-03-03
 
 ### Security

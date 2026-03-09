@@ -184,6 +184,31 @@ export async function sendMessageToSW(message: MessagePayload): Promise<unknown>
 }
 
 /**
+ * Clear FHIR cache only (used on logout to remove cached PHI)
+ */
+export async function clearFHIRCache(): Promise<unknown> {
+    try {
+        const result = await sendMessageToSW({ type: 'CLEAR_FHIR_CACHE' });
+        logger.info('FHIR cache cleared');
+        return result;
+    } catch (error) {
+        // Fallback: clear FHIR cache directly via Cache API
+        try {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames
+                    .filter(name => name.startsWith('medcalc-fhir-'))
+                    .map(name => caches.delete(name))
+            );
+            logger.info('FHIR cache cleared via fallback');
+        } catch {
+            logger.error('Failed to clear FHIR cache', { error: String(error) });
+        }
+        return null;
+    }
+}
+
+/**
  * Clear Service Worker caches
  */
 export async function clearServiceWorkerCaches(): Promise<unknown> {
@@ -228,6 +253,7 @@ export default {
     unregisterServiceWorker,
     getServiceWorkerStatus,
     sendMessageToSW,
+    clearFHIRCache,
     clearServiceWorkerCaches,
     getCacheStats,
     initializeServiceWorker

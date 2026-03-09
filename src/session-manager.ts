@@ -8,6 +8,7 @@
 
 import { auditEventService } from './audit-event-service.js';
 import { clearEncryptionKeyCache } from './security.js';
+import { clearFHIRCache } from './sw-register.js';
 
 // Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 
@@ -140,6 +141,13 @@ class SessionManager {
         keysToRemove.forEach(key => localStorage.removeItem(key));
 
         clearEncryptionKeyCache();
+
+        // Clear cached FHIR responses (contain PHI) from Service Worker cache
+        try {
+            await clearFHIRCache();
+        } catch {
+            // Best-effort: don't block logout if cache clearing fails
+        }
 
         // Notify subscribers (e.g. TokenLifecycleManager)
         if (this.onLogoutCallback) {

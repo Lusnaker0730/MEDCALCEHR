@@ -270,6 +270,16 @@ self.addEventListener('message', event => {
         self.skipWaiting();
     }
 
+    if (event.data && event.data.type === 'CLEAR_FHIR_CACHE') {
+        event.waitUntil(
+            caches
+                .delete(CACHE_NAMES.fhir)
+                .then(() => {
+                    event.ports[0].postMessage({ success: true });
+                })
+        );
+    }
+
     if (event.data && event.data.type === 'CLEAR_CACHE') {
         event.waitUntil(
             caches
