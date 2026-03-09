@@ -42,10 +42,10 @@ if (!resolvedClientId) {
     throw new Error('FHIR client ID is required. Configure it in app-config.js or MEDCALC_CONFIG.');
 }
 
-// H-12: Validate redirect URI against allowlist
+// PT-11/H-12: Validate redirect URI against strict allowlist only (no same-origin prefix fallback)
 const rawRedirectUri = authParams?.redirectUri || config.redirectUri || './index.html';
 const ALLOWED_REDIRECTS = ['./index.html', '/index.html', 'index.html'];
-const redirectUri = ALLOWED_REDIRECTS.includes(rawRedirectUri) || rawRedirectUri.startsWith(window.location.origin)
+const redirectUri = ALLOWED_REDIRECTS.includes(rawRedirectUri)
     ? rawRedirectUri
     : './index.html';
 

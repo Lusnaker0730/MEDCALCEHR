@@ -42,9 +42,16 @@ if (_logConfig?.remoteEndpoint) {
     });
 }
 
-// Freeze config to prevent runtime tampering
+// PT-05: Deep freeze config to prevent runtime tampering (including nested objects)
 if (window.MEDCALC_CONFIG) {
-    Object.freeze(window.MEDCALC_CONFIG);
+    (function deepFreeze(obj: any) {
+        Object.freeze(obj);
+        Object.getOwnPropertyNames(obj).forEach(prop => {
+            if (obj[prop] !== null && typeof obj[prop] === 'object' && !Object.isFrozen(obj[prop])) {
+                deepFreeze(obj[prop]);
+            }
+        });
+    })(window.MEDCALC_CONFIG);
 }
 
 // Initialize i18n

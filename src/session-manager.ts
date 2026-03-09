@@ -129,8 +129,8 @@ class SessionManager {
         // Clear sensitive localStorage items (keep user preferences like favorites)
         localStorage.removeItem('patientDisplayData');
 
-        // Clear all PHI-related localStorage items
-        const phiPrefixes = ['medcalc-phi-', 'medcalc-history-', 'medcalc-provenance-'];
+        // PT-06: Clear all PHI-related localStorage items (including audit events)
+        const phiPrefixes = ['medcalc-phi-', 'medcalc-history-', 'medcalc-provenance-', 'medcalc_audit'];
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);

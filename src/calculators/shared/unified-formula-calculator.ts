@@ -970,7 +970,8 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         }
 
                         if (result.breakdown) {
-                            html += `<div class="mt-15 text-sm text-muted">${result.breakdown}</div>`;
+                            // PT-09: Sanitize breakdown HTML to allow safe tags but strip dangerous elements
+                            html += `<div class="mt-15 text-sm text-muted">${sanitizeHTML(result.breakdown)}</div>`;
                         }
 
                         resultContent.innerHTML = html;

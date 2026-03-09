@@ -81,8 +81,12 @@ class FHIRWriteService {
             };
         }
 
-        // H-04/H-05: Validate patient context matches request
-        if (this.client?.patient?.id && request.patientId !== this.client.patient.id) {
+        // PT-01/H-04/H-05: Require patient context and validate match
+        if (!this.client?.patient?.id) {
+            logger.error('Write-back rejected: no patient context in SMART session');
+            return { success: false, observationIds: [], error: 'Patient context required for write operations' };
+        }
+        if (request.patientId !== this.client.patient.id) {
             logger.error('Write-back rejected: patientId mismatch', {
                 requestPatient: request.patientId,
                 contextPatient: this.client.patient.id

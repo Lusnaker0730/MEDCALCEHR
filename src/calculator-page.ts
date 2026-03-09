@@ -38,6 +38,18 @@ if (_logConfig?.remoteEndpoint) {
     });
 }
 
+// PT-05: Deep freeze config on calculator page too (main.ts only freezes on index page)
+if (window.MEDCALC_CONFIG && !Object.isFrozen(window.MEDCALC_CONFIG)) {
+    (function deepFreeze(obj: any) {
+        Object.freeze(obj);
+        Object.getOwnPropertyNames(obj).forEach(prop => {
+            if (obj[prop] !== null && typeof obj[prop] === 'object' && !Object.isFrozen(obj[prop])) {
+                deepFreeze(obj[prop]);
+            }
+        });
+    })(window.MEDCALC_CONFIG);
+}
+
 // Window.CACHE_VERSION type declared in src/types/global.d.ts
 
 interface FHIRClient {

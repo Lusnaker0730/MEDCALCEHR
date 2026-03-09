@@ -17,10 +17,14 @@ const PHI_KEYS = [
     'identifier', 'id_number',
 ];
 
+// PT-08: PHI patterns aligned with logger.ts (was missing phone, email, Taiwan National ID)
 const PHI_PATTERNS: RegExp[] = [
     /\b\d{3}-\d{2}-\d{4}\b/g,                  // SSN
     /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g,            // DOB YYYY-MM-DD
     /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g,            // DOB MM/DD/YYYY
+    /\b0\d{1,2}[-\s]?\d{6,8}\b/g,              // Phone (TW landline/mobile)
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,  // Email
+    /\b[A-Z][12]\d{8}\b/g,                     // Taiwan National ID
 ];
 
 function stripPHIFromString(value: string): string {

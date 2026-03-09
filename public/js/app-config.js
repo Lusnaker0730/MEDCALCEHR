@@ -4,7 +4,7 @@
 window.MEDCALC_CONFIG = {
     fhir: {
         clientId: 'e1b41914-e2b5-4475-90ba-29022b57f820',
-        scope: 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs offline_access',
+        scope: 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access',
         redirectUri: './index.html'
     },
     session: {

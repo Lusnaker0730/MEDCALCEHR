@@ -108,8 +108,10 @@ self.addEventListener('fetch', event => {
         // Calculator modules: Stale While Revalidate
         event.respondWith(staleWhileRevalidate(request, CACHE_NAMES.calculators));
     } else if (isFHIRRequest(url)) {
-        // FHIR requests: Network First with short cache
-        event.respondWith(networkFirst(request, CACHE_NAMES.fhir, 5000));
+        // PT-02: FHIR requests bypass SW cache entirely.
+        // PHI responses must not be stored in Cache Storage.
+        // Application-level FHIRCacheManager provides encrypted caching.
+        return;
     } else if (isImageRequest(url)) {
         // Images: Cache First with long expiry
         event.respondWith(cacheFirst(request, CACHE_NAMES.images));
@@ -358,11 +360,25 @@ self.addEventListener('push', event => {
 
 /**
  * Notification Click Event
+ * PT-13: Validate URL is same-origin to prevent open redirect
  */
 self.addEventListener('notificationclick', event => {
     event.notification.close();
 
-    event.waitUntil(clients.openWindow(event.notification.data.url || '/'));
+    let targetUrl = '/';
+    if (event.notification.data && event.notification.data.url) {
+        try {
+            const parsed = new URL(event.notification.data.url, self.location.origin);
+            // Only allow same-origin URLs
+            if (parsed.origin === self.location.origin) {
+                targetUrl = parsed.href;
+            }
+        } catch (e) {
+            // Invalid URL, use default
+        }
+    }
+
+    event.waitUntil(clients.openWindow(targetUrl));
 });
 
 console.log('[Service Worker] Script loaded');

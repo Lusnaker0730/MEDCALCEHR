@@ -15,6 +15,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CLAUDE.md` files for AI-assisted development context at root, `src/`, `src/calculators/`, and `src/calculators/shared/`
 
 ### Security
+- **PT-01: FHIR write patient validation bypass**: Write service now requires patient context; rejects writes when `client.patient.id` is undefined instead of silently skipping validation (`fhir-write-service.ts`)
+- **PT-02: FHIR responses no longer cached by service worker**: Removed FHIR response caching from service worker to prevent PHI/token storage in Cache API; application-level `FHIRCacheManager` provides encrypted caching (`service-worker.js`)
+- **PT-03: Default scope `offline_access` → `online_access`**: Aligned deployment configs with source code fix (`docker-compose.yml`, `docker-entrypoint.sh`, `public/js/app-config.js`)
+- **PT-04: Security headers on all responses**: Re-added CSP, HSTS, X-Content-Type-Options, X-Frame-Options to static asset and JS/CSS location blocks that were missing them due to nginx `add_header` inheritance (`nginx.conf`)
+- **PT-05: Deep freeze `MEDCALC_CONFIG`**: Replaced shallow `Object.freeze` with recursive deep freeze on both `main.ts` and `calculator-page.ts` to prevent nested config tampering
+- **PT-06: Audit event cleanup on logout**: Added `medcalc_audit` prefix to logout cleanup to clear audit events containing PHI (`session-manager.ts`)
+- **PT-08: Sentry PHI patterns aligned with logger**: Added phone, email, and Taiwan National ID patterns to Sentry's `PHI_PATTERNS` (`sentry.ts`)
+- **PT-09: `result.breakdown` sanitized**: Applied `sanitizeHTML()` to breakdown HTML in unified-formula-calculator to prevent XSS (`unified-formula-calculator.ts`)
+- **PT-10: `X-Frame-Options` aligned with CSP**: Changed from `SAMEORIGIN` to `DENY` to match `frame-ancestors 'none'` (`nginx.conf`)
+- **PT-11: Redirect URI strict allowlist**: Removed `startsWith(origin)` fallback in redirect URI validation, using strict allowlist only (`fhir-launch.ts`)
+- **PT-13: Notification click URL validation**: Added same-origin check for push notification click URLs to prevent open redirect (`service-worker.js`)
 - **PHI cache leak on logout**: FHIR API responses cached by the service worker (containing patient demographics, observations, and clinical data) now cleared on logout via targeted `CLEAR_FHIR_CACHE` message (`service-worker.js`, `sw-register.ts`, `session-manager.ts`)
 
 ## [1.8.0] - 2026-03-03
