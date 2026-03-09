@@ -1,5 +1,6 @@
 // js/validator.js
 import { ValidationError } from './errorHandler.js';
+import { t } from './i18n/index.js';
 /**
  * 驗證計算器輸入
  * @param {Object} input - 輸入值對象
@@ -567,7 +568,7 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
                 }
             }
             errorSpan.style.color = '#d32f2f'; // Error red
-            errorSpan.textContent = result.errors[0] || 'Invalid value';
+            errorSpan.textContent = result.errors[0] || t('validation.invalidValue');
             // Link input to error via aria-describedby
             inputElement.setAttribute('aria-describedby', errorId);
             if (onError) {
@@ -594,7 +595,7 @@ export function setupLiveValidation(inputElement, rule, onError = null) {
                 }
             }
             errorSpan.style.color = '#ed6c02'; // Warning orange
-            errorSpan.textContent = result.warnings[0] || 'Please double-check this value';
+            errorSpan.textContent = result.warnings[0] || t('validation.doubleCheck');
             inputElement.setAttribute('aria-describedby', errorId);
         }
         else {

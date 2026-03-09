@@ -55,7 +55,7 @@ function showLoading(element) {
     element.innerHTML = `
         <div class="loading-container">
             <div class="loading-spinner"></div>
-            <p>Loading calculator...</p>
+            <p>${t('calculator.loading')}</p>
         </div>
     `;
 }
@@ -70,7 +70,7 @@ window.onload = () => {
         return;
     }
     if (!calculatorId) {
-        container.innerHTML = '<h2>No calculator specified.</h2>';
+        container.innerHTML = `<h2>${t('calculator.noCalculatorSpecified')}</h2>`;
         return;
     }
     // Find metadata for title
@@ -78,7 +78,7 @@ window.onload = () => {
     if (!calculatorInfo) {
         // Use textContent to prevent XSS from URL parameter
         const errorHeading = document.createElement('h2');
-        errorHeading.textContent = `Calculator "${calculatorId}" not found.`;
+        errorHeading.textContent = t('calculator.notFound', { id: calculatorId });
         container.appendChild(errorHeading);
         return;
     }
@@ -148,7 +148,7 @@ window.onload = () => {
                     catch (initError) {
                         logger.error('Error during calculator initialization', { error: String(initError), calculatorId });
                         card.innerHTML =
-                            '<div class="error-box">An error occurred while initializing this calculator.</div>';
+                            `<div class="error-box">${t('calculator.initError')}</div>`;
                     }
                 }
             };
@@ -182,15 +182,14 @@ window.onload = () => {
             })
                 .catch((error) => {
                 logger.error('FHIR client error', { error: error.message });
-                patientInfoDiv.innerText =
-                    'No patient data available. Please launch from the EHR.';
+                patientInfoDiv.innerText = t('patient.noData');
                 // 即使沒有 FHIR 客戶端，也要初始化計算器（讓用戶可以手動輸入）
                 initializeCalculator(null, null);
             });
         }
         catch (error) {
             logger.error('Failed to load calculator module', { calculatorId, error: String(error) });
-            displayError(card, error, 'This calculator is temporarily unavailable. Please try again later or contact support.');
+            displayError(card, error, t('calculator.unavailable'));
         }
     };
     // ========== Session Management ==========
@@ -232,7 +231,7 @@ window.onload = () => {
                 printFooter.className = 'print-footer';
                 document.body.appendChild(printFooter);
             }
-            printFooter.textContent = 'CGMH EHRCALC on FHIR — For clinical reference only';
+            printFooter.textContent = t('app.printFooter');
             window.print();
         });
     }

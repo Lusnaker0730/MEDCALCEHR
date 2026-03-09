@@ -1,11 +1,15 @@
 /**
  * @jest-environment jsdom
  */
-import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach, beforeAll, jest } from '@jest/globals';
 import { FHIRFeedback } from '../fhir-feedback.js';
+import { setLocale } from '../i18n/index.js';
 describe('FHIRFeedback', () => {
     let feedback;
     let container;
+    beforeAll(() => {
+        setLocale('en');
+    });
     beforeEach(() => {
         // Clear DOM completely between tests
         document.head.innerHTML = '';

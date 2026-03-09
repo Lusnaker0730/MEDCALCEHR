@@ -2,6 +2,7 @@
 // Provides visual feedback for FHIR data loading status
 import { logger } from './logger.js';
 import { escapeHTML } from './security.js';
+import { t } from './i18n/index.js';
 /** Icons for each feedback status */
 const STATUS_ICONS = {
     loading: '⏳',
@@ -107,7 +108,7 @@ export class FHIRFeedback {
      * Show loading indicator
      */
     showLoading(inputElement, label = 'data') {
-        this.showIndicator(inputElement, 'loading', `Loading ${label} from EHR...`);
+        this.showIndicator(inputElement, 'loading', t('fhir.loadingFromEHR', { label }));
     }
     /**
      * Show success indicator (auto-removes after 5 seconds)
@@ -115,7 +116,9 @@ export class FHIRFeedback {
     showSuccess(inputElement, label = 'data', value = '') {
         const safeLabel = escapeHTML(label);
         const safeValue = value ? escapeHTML(value) : '';
-        const tooltip = `✓ ${safeLabel} loaded from EHR${safeValue ? `: ${safeValue}` : ''}`;
+        const tooltip = safeValue
+            ? `✓ ${t('fhir.loadedWithValue', { label: safeLabel, value: safeValue })}`
+            : `✓ ${t('fhir.loadedFromEHR', { label: safeLabel })}`;
         this.showIndicator(inputElement, 'success', tooltip, { autoRemove: 5000 });
     }
     /**
@@ -123,7 +126,7 @@ export class FHIRFeedback {
      */
     showWarning(inputElement, label = 'data', message = null) {
         const safeLabel = escapeHTML(label);
-        const tooltip = message ? escapeHTML(message) : `⚠️ No ${safeLabel} found in EHR. Please enter manually.`;
+        const tooltip = message ? escapeHTML(message) : `⚠️ ${t('fhir.notFoundInEHR', { label: safeLabel })}`;
         this.showIndicator(inputElement, 'warning', tooltip, { dismissOnInput: true });
     }
     /**
@@ -131,7 +134,7 @@ export class FHIRFeedback {
      */
     showError(inputElement, label = 'data', error = null) {
         const safeLabel = escapeHTML(label);
-        const errorMsg = escapeHTML(error?.message || 'Failed to load from EHR');
+        const errorMsg = escapeHTML(error?.message || t('fhir.failedToLoad'));
         this.showIndicator(inputElement, 'error', `❌ ${safeLabel}: ${errorMsg}`);
     }
     /**
@@ -174,7 +177,7 @@ export class FHIRFeedback {
     /**
      * Create a loading banner for the entire form
      */
-    createLoadingBanner(container, message = 'Loading patient data from EHR...') {
+    createLoadingBanner(container, message = t('fhir.loadingPatientData')) {
         const banner = document.createElement('div');
         banner.className = 'fhir-loading-banner';
         banner.id = 'fhir-loading-banner';
@@ -206,16 +209,16 @@ export class FHIRFeedback {
         const { loaded = [], missing = [], failed = [] } = summary;
         let type = 'success';
         let icon = '✓';
-        let title = 'Patient data loaded successfully';
+        let title = t('fhir.dataLoadedSuccess');
         if (failed.length > 0) {
             type = 'error';
             icon = '❌';
-            title = 'Error loading some patient data';
+            title = t('fhir.dataLoadedError');
         }
         else if (missing.length > 0) {
             type = 'warning';
             icon = '⚠️';
-            title = 'Some patient data is missing';
+            title = t('fhir.dataLoadedMissing');
         }
         const summaryDiv = document.createElement('div');
         summaryDiv.className = `fhir-data-summary ${type}`;
@@ -223,7 +226,7 @@ export class FHIRFeedback {
         let detailsHTML = '';
         if (loaded.length > 0) {
             const safeLoaded = loaded.map(l => escapeHTML(String(l)));
-            detailsHTML += `<div class="details">Loaded: ${safeLoaded.join(', ')}</div>`;
+            detailsHTML += `<div class="details">${t('fhir.loaded')} ${safeLoaded.join(', ')}</div>`;
         }
         if (missing.length > 0) {
             const listItems = missing
@@ -235,7 +238,7 @@ export class FHIRFeedback {
                 .join('');
             detailsHTML += `
                 <div class="details">
-                    <strong>Please enter manually:</strong>
+                    <strong>${t('fhir.enterManually')}</strong>
                     <ul class="missing-list">${listItems}</ul>
                 </div>
             `;
@@ -244,7 +247,7 @@ export class FHIRFeedback {
             const listItems = failed.map(item => `<li>${escapeHTML(item)}</li>`).join('');
             detailsHTML += `
                 <div class="details">
-                    <strong>Failed to load:</strong>
+                    <strong>${t('fhir.failedToLoadList')}</strong>
                     <ul class="missing-list">${listItems}</ul>
                 </div>
             `;
@@ -423,7 +426,7 @@ export class FHIRFeedback {
             if (icon)
                 icon.textContent = '✓';
             if (title)
-                title.textContent = 'All required data has been entered';
+                title.textContent = t('fhir.allDataEntered');
             // Hide the details section
             summary
                 .querySelectorAll('.details')
@@ -444,7 +447,7 @@ export class FHIRFeedback {
             if (icon)
                 icon.textContent = '⚠️';
             if (title)
-                title.textContent = 'Some patient data is missing';
+                title.textContent = t('fhir.dataLoadedMissing');
             // Show the details section
             summary
                 .querySelectorAll('.details')

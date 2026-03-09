@@ -1019,6 +1019,10 @@ export class AuditEventService {
      */
     private async loadPendingEvents(): Promise<void> {
         const events = await this.getPendingEvents();
+        // Merge with any events recorded before load completed (race condition guard)
+        if (this.eventQueue.length > 0) {
+            events.push(...this.eventQueue);
+        }
         this.eventQueue = events;
         this.log(`Loaded ${events.length} pending audit events from local storage`);
     }
@@ -1086,11 +1090,14 @@ export class AuditEventService {
     /**
      * Clear all local audit events
      */
-    clearLocalEvents(): void {
+    async clearLocalEvents(): Promise<void> {
         this.log('WARNING: Clearing local audit events');
         // Attempt to flush to server before clearing
-        this.flushPendingEvents().catch(() => {});
-        localStorage.removeItem(STORAGE_KEYS.PENDING_EVENTS); // Clear both encrypted and legacy
+        await this.flushPendingEvents().catch(() => {});
+        // Clear via encrypted storage API (matches how events are written)
+        await secureLocalStore(STORAGE_KEYS.PENDING_EVENTS, []);
+        // Also remove any legacy unencrypted key
+        localStorage.removeItem(STORAGE_KEYS.PENDING_EVENTS);
         this.eventQueue = [];
     }
 
@@ -1101,7 +1108,10 @@ export class AuditEventService {
     /**
      * Sanitize data for audit logging (remove sensitive PHI)
      */
-    private sanitizeForAudit(data: Record<string, any>): Record<string, any> {
+    private sanitizeForAudit(data: Record<string, any>): Record<string, any> | any {
+        if (typeof data !== 'object' || data === null) {
+            return data;
+        }
         const sensitiveFields = [
             'ssn', 'socialsecuritynumber', 'password', 'pin',
             'creditcard', 'bankaccount', 'identifier',

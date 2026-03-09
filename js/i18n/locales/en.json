@@ -6,7 +6,8 @@
         "toggleTheme": "Toggle Theme",
         "skipToContent": "Skip to main content",
         "loadingPatient": "Loading patient data...",
-        "backToList": "Back to Calculator List"
+        "backToList": "Back to Calculator List",
+        "printFooter": "CGMH EHRCALC on FHIR — For clinical reference only"
     },
     "filter": {
         "all": "All",
@@ -75,19 +76,79 @@
         "dataStale": "Data may be outdated",
         "manualEntry": "Manual entry required",
         "pleaseSelect": "Please select",
-        "required": "Required"
+        "required": "Required",
+        "loading": "Loading calculator...",
+        "notFound": "Calculator \"{{id}}\" not found.",
+        "noCalculatorSpecified": "No calculator specified.",
+        "initError": "An error occurred while initializing this calculator.",
+        "unavailable": "This calculator is temporarily unavailable. Please try again later or contact support.",
+        "copyReport": "Copy Report to Clipboard",
+        "copied": "Copied!"
     },
     "validation": {
         "required": "This field is required",
         "outOfRange": "Value out of range ({{min}} - {{max}})",
         "redZone": "Value is outside safe limits",
         "yellowZone": "Value is unusual but accepted",
-        "invalidNumber": "Please enter a valid number"
+        "invalidNumber": "Please enter a valid number",
+        "invalidValue": "Invalid value",
+        "doubleCheck": "Please double-check this value"
     },
     "session": {
         "timeoutWarning": "Your session will expire soon. Would you like to extend it?",
         "extend": "Extend Session",
-        "expired": "Session expired. Please log in again."
+        "expired": "Session expired. Please log in again.",
+        "expiringTitle": "Session Expiring",
+        "expiringMessage": "Your session will expire due to inactivity.",
+        "timeRemaining": "Time remaining:",
+        "continueSession": "Continue Session",
+        "logoutNow": "Logout Now",
+        "tokenExpiringTitle": "Session Token Expiring",
+        "tokenExpiringMessage": "Your EHR authentication token is about to expire. You will be logged out automatically.",
+        "tokenExpiredTitle": "Session Expired",
+        "tokenExpiredMessage": "Your EHR session has expired. You can continue reading the current page. You will be redirected to re-authenticate automatically.",
+        "redirectingIn": "Redirecting in:",
+        "reauthenticate": "Re-authenticate Now",
+        "continueReading": "Continue Reading"
+    },
+    "patient": {
+        "name": "Name:",
+        "birthDate": "Birth Date:",
+        "gender": "Gender:",
+        "age": "Age:",
+        "noData": "No patient data available. Please launch from the EHR.",
+        "fetchError": "Error fetching patient data."
+    },
+    "fhir": {
+        "loadingFromEHR": "Loading {{label}} from EHR...",
+        "loadedFromEHR": "{{label}} loaded from EHR",
+        "loadedWithValue": "{{label}} loaded from EHR: {{value}}",
+        "notFoundInEHR": "No {{label}} found in EHR. Please enter manually.",
+        "failedToLoad": "Failed to load from EHR",
+        "loadingPatientData": "Loading patient data from EHR...",
+        "dataLoadedSuccess": "Patient data loaded successfully",
+        "dataLoadedError": "Error loading some patient data",
+        "dataLoadedMissing": "Some patient data is missing",
+        "loaded": "Loaded:",
+        "enterManually": "Please enter manually:",
+        "failedToLoadList": "Failed to load:",
+        "allDataEntered": "All required data has been entered"
+    },
+    "errors": {
+        "title": "Error",
+        "technicalDetails": "Technical Details",
+        "fhirDataError": "Unable to retrieve patient data from EHR system. Please check connection or enter data manually.",
+        "validationFailed": "Input validation failed: {{message}}",
+        "genericError": "Calculator encountered an error. Please refresh the page and try again or contact support."
+    },
+    "staleness": {
+        "title": "Stale Data Warning",
+        "message": "The following auto-populated values are older than 3 months. Please verify if updates are needed:"
+    },
+    "sw": {
+        "newVersion": "New version available!",
+        "update": "Update",
+        "later": "Later"
     },
     "language": {
         "toggle": "EN / 中文",

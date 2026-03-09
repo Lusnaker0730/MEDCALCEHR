@@ -21,9 +21,10 @@ const DANGEROUS_URL_SCHEMES = ['javascript:', 'data:', 'vbscript:', 'file:'];
  * @param str - String to sanitize
  * @returns Sanitized string without null bytes
  */
+const NULL_BYTE_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
 function stripNullBytes(str) {
     // Remove null bytes and other control characters (except newlines and tabs)
-    return str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    return str.replace(NULL_BYTE_RE, '');
 }
 /**
  * Escapes HTML special characters to prevent XSS attacks
@@ -32,23 +33,24 @@ function stripNullBytes(str) {
  * @returns {string} The escaped string safe for HTML insertion
  * @security Escapes: & < > " ' / ` = to prevent XSS in various contexts
  */
+const HTML_ESCAPE_MAP = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
+};
+const HTML_ESCAPE_RE = /[&<>"'/`=]/g;
 export function escapeHTML(str) {
     if (str === null || str === undefined) {
         return '';
     }
     // Strip null bytes first
     const cleaned = stripNullBytes(String(str));
-    const htmlEscapeMap = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '/': '&#x2F;',
-        '`': '&#x60;',
-        '=': '&#x3D;'
-    };
-    return cleaned.replace(/[&<>"'/`=]/g, char => htmlEscapeMap[char]);
+    return cleaned.replace(HTML_ESCAPE_RE, char => HTML_ESCAPE_MAP[char]);
 }
 /**
  * Alternative implementation using character replacement

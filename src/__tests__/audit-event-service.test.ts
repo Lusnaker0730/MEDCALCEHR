@@ -337,7 +337,7 @@ describe('AuditEventService', () => {
 
         it('should clear local events', async () => {
             await auditService.logLogin('prac-123', 'Dr. Smith', true);
-            auditService.clearLocalEvents();
+            await auditService.clearLocalEvents();
 
             expect(await auditService.getPendingEventCount()).toBe(0);
             expect(auditService.getAuditEvents().length).toBe(0);

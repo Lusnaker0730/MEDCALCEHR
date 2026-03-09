@@ -2,6 +2,7 @@
 import { UnitConverter } from './unit-converter.js';
 import { logger } from './logger.js';
 import { escapeHTML, sanitizeHTML } from './security.js';
+import { t } from './i18n/index.js';
 /**
  * DOM element IDs used throughout the application
  */
@@ -275,7 +276,7 @@ export class UIBuilder {
             <div id="${safeId}" class="ui-result-box">
                 <div class="ui-result-header">
                     <span>${safeTitle}</span>
-                    <button class="copy-report-btn" data-target="${safeId}" title="Copy Report to Clipboard">
+                    <button class="copy-report-btn" data-target="${safeId}" title="${t('calculator.copyReport')}">
                         📋 Copy Report
                     </button>
                 </div>
@@ -471,10 +472,10 @@ export class UIBuilder {
             const safeLabel = this.escapeHtml(label);
             const formulaText = item.formula || item.content || '';
             const formulaContent = Array.isArray(item.formulas)
-                ? item.formulas.map(f => `<div>${this.escapeHtml(f)}</div>`).join('')
-                : this.escapeHtml(formulaText);
+                ? item.formulas.map(f => `<div>${sanitizeHTML(f)}</div>`).join('')
+                : sanitizeHTML(formulaText);
             const notesHTML = item.notes
-                ? `<div class="ui-formula-notes">${this.escapeHtml(item.notes)}</div>`
+                ? `<div class="ui-formula-notes">${sanitizeHTML(item.notes)}</div>`
                 : '';
             return `
             <div class="ui-formula-item">
@@ -580,7 +581,7 @@ export class UIBuilder {
                     .then(() => {
                     const originalText = btn.textContent;
                     if (btn instanceof HTMLElement)
-                        btn.textContent = '✅ Copied!';
+                        btn.textContent = `✅ ${t('calculator.copied')}`;
                     setTimeout(() => {
                         if (btn instanceof HTMLElement)
                             btn.textContent = originalText;
@@ -650,7 +651,7 @@ export class UIBuilder {
         const headerHTML = headers
             .map((h, i) => {
             const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
-            return `<th class="${stickyClass}">${this.escapeHtml(h)}</th>`;
+            return `<th class="${stickyClass}">${sanitizeHTML(h)}</th>`;
         })
             .join('');
         const rowsHTML = rows
@@ -658,7 +659,7 @@ export class UIBuilder {
             const cellsHTML = row
                 .map((cell, i) => {
                 const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
-                return `<td class="${stickyClass}">${this.escapeHtml(cell)}</td>`;
+                return `<td class="${stickyClass}">${sanitizeHTML(cell)}</td>`;
             })
                 .join('');
             return `<tr>${cellsHTML}</tr>`;
@@ -680,7 +681,7 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createList({ items = [], type = 'ul', className = '' }) {
-        const itemsHTML = items.map(item => `<li>${this.escapeHtml(item)}</li>`).join('');
+        const itemsHTML = items.map(item => `<li>${sanitizeHTML(item)}</li>`).join('');
         return `<${type} class="ui-list ${className}">${itemsHTML}</${type}>`;
     }
     /**

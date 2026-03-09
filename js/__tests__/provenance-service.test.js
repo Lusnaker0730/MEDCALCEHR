@@ -293,7 +293,7 @@ describe('ProvenanceService', () => {
         });
         it('should clear local records', async () => {
             await provenanceService.recordDataCreation('Obs/1', 'Test', 'internal');
-            provenanceService.clearLocalRecords();
+            await provenanceService.clearLocalRecords();
             expect(await provenanceService.getPendingRecordCount()).toBe(0);
             expect(provenanceService.getProvenanceRecords().length).toBe(0);
         });

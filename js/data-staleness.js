@@ -1,6 +1,7 @@
 // Module for tracking and warning about stale (outdated) lab values and vital signs
 import { getLoincName } from './fhir-codes.js';
 import { escapeHTML } from './security.js';
+import { t } from './i18n/index.js';
 /**
  * Default staleness threshold: 3 months in milliseconds
  */
@@ -174,9 +175,9 @@ export class DataStalenessTracker {
             <div class="staleness-warning ui-alert ui-alert-warning">
                 <span class="ui-alert-icon">⚠️</span>
                 <div class="ui-alert-content">
-                    <strong>Stale Data Warning</strong>
+                    <strong>${t('staleness.title')}</strong>
                     <p class="staleness-warning-text">
-                        The following auto-populated values are older than 3 months. Please verify if updates are needed:
+                        ${t('staleness.message')}
                     </p>
                     <ul class="staleness-list">
                         ${itemsHtml}

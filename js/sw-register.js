@@ -4,6 +4,7 @@
  * Registers and manages the Service Worker lifecycle
  */
 import { logger } from './logger.js';
+import { t } from './i18n/index.js';
 /**
  * Register Service Worker
  */
@@ -50,9 +51,9 @@ function showUpdateNotification(registration) {
     notification.innerHTML = `
         <div class="sw-update-content">
             <span class="sw-update-icon">🔄</span>
-            <span class="sw-update-text">New version available!</span>
-            <button class="sw-update-button" id="sw-update-btn">Update</button>
-            <button class="sw-dismiss-button" id="sw-dismiss-btn">Later</button>
+            <span class="sw-update-text">${t('sw.newVersion')}</span>
+            <button class="sw-update-button" id="sw-update-btn">${t('sw.update')}</button>
+            <button class="sw-dismiss-button" id="sw-dismiss-btn">${t('sw.later')}</button>
         </div>
     `;
     // Load styles if not already loaded

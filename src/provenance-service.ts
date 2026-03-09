@@ -1172,6 +1172,10 @@ export class ProvenanceService {
      */
     private async loadPendingRecords(): Promise<void> {
         const records = await this.getPendingRecords();
+        // Merge with any records added before load completed (race condition guard)
+        if (this.recordQueue.length > 0) {
+            records.push(...this.recordQueue);
+        }
         this.recordQueue = records;
         this.log(`Loaded ${records.length} pending provenance records from local storage`);
     }
@@ -1236,7 +1240,10 @@ export class ProvenanceService {
     /**
      * Clear all local provenance records
      */
-    clearLocalRecords(): void {
+    async clearLocalRecords(): Promise<void> {
+        // Clear via encrypted storage API (matches how records are written)
+        await secureLocalStore(STORAGE_KEYS.PENDING_RECORDS, []);
+        // Also remove any legacy unencrypted key
         localStorage.removeItem(STORAGE_KEYS.PENDING_RECORDS);
         this.recordQueue = [];
         this.log('Local provenance records cleared');
@@ -1265,10 +1272,17 @@ export class ProvenanceService {
     /**
      * Sanitize data for storage (remove sensitive PHI)
      */
-    private sanitizeData(data: Record<string, any>): Record<string, any> {
+    private sanitizeData(data: Record<string, any>): Record<string, any> | any {
+        if (typeof data !== 'object' || data === null) {
+            return data;
+        }
         const sensitiveFields = [
-            'ssn', 'socialSecurityNumber', 'password', 'pin',
-            'creditCard', 'bankAccount'
+            'ssn', 'socialsecuritynumber', 'password', 'pin',
+            'creditcard', 'bankaccount', 'identifier',
+            'name', 'patientname', 'fullname', 'firstname', 'lastname',
+            'birthdate', 'dob', 'dateofbirth',
+            'address', 'phone', 'email', 'telecom',
+            'mrn', 'nationalid', 'passport', 'photo'
         ];
 
         const sanitized: Record<string, any> = {};
@@ -1277,7 +1291,14 @@ export class ProvenanceService {
             const lowerKey = key.toLowerCase();
             if (sensitiveFields.some(field => lowerKey.includes(field))) {
                 sanitized[key] = '[REDACTED]';
-            } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            } else if (Array.isArray(value)) {
+                sanitized[key] = value.map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        return this.sanitizeData(item);
+                    }
+                    return item;
+                });
+            } else if (typeof value === 'object' && value !== null) {
                 sanitized[key] = this.sanitizeData(value);
             } else {
                 sanitized[key] = value;
