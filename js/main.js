@@ -6,16 +6,45 @@ import { favoritesManager } from './favorites.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { tokenLifecycleManager } from './token-lifecycle-manager.js';
 import { initSentry } from './sentry.js';
-import { logger } from './logger.js';
+import { logger, LogLevel } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
 import { FuzzySearch } from './fuzzy-search.js';
 import { calculationHistory } from './calculation-history.js';
 import { initI18n, t, hydrateI18n, onLocaleChange } from './i18n/index.js';
+import { BeaconTransport } from './log-transport.js';
+import { isCalculatorApproved } from './review-gate.js';
 // Initialize Sentry early
 initSentry();
 // Initialize Web Vitals
 initWebVitals();
+// Initialize remote log transport if configured
+const _logConfig = window.MEDCALC_CONFIG?.logging;
+if (_logConfig?.remoteEndpoint) {
+    const levelMap = {
+        DEBUG: LogLevel.DEBUG, INFO: LogLevel.INFO,
+        WARN: LogLevel.WARN, ERROR: LogLevel.ERROR,
+    };
+    const minLevel = levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
+    const transport = new BeaconTransport(_logConfig.remoteEndpoint, minLevel, _logConfig.bufferSize);
+    logger.addTransport(transport);
+    window.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden')
+            transport.flush();
+    });
+}
+// PT-05: Deep freeze config to prevent runtime tampering (including nested objects)
+if (window.MEDCALC_CONFIG) {
+    (function deepFreeze(obj) {
+        Object.freeze(obj);
+        Object.getOwnPropertyNames(obj).forEach(prop => {
+            if (obj[prop] !== null && typeof obj[prop] === 'object' && !Object.isFrozen(obj[prop])) {
+                deepFreeze(obj[prop]);
+            }
+        });
+    })(window.MEDCALC_CONFIG);
+}
 // Initialize i18n
 initI18n();
 const fuzzySearch = new FuzzySearch(calculatorModules);
@@ -48,7 +77,8 @@ function sortCalculators(calculators, sortType) {
  * Filter calculator list
  */
 function filterCalculators(calculators, filterType, category, searchTerm = '') {
-    let filtered = [...calculators];
+    // Hide calculators that haven't passed clinical review
+    let filtered = calculators.filter(calc => isCalculatorApproved(calc.id));
     // Filter by special filters
     switch (filterType) {
         case 'favorites': {
@@ -59,7 +89,7 @@ function filterCalculators(calculators, filterType, category, searchTerm = '') {
         case 'recent': {
             const recent = favoritesManager.getRecent();
             filtered = recent
-                .map(id => calculators.find(calc => calc.id === id))
+                .map(id => filtered.find(calc => calc.id === id))
                 .filter((calc) => calc !== undefined);
             return filtered; // Keep order for recent
         }
@@ -104,9 +134,9 @@ function renderCalculatorList(calculators, container) {
         return;
     }
     calculators.forEach(calc => {
-        const link = document.createElement('a');
-        link.href = `calculator.html?name=${calc.id}`;
-        link.className = 'list-item';
+        const item = document.createElement('a');
+        item.href = `calculator.html?name=${calc.id}`;
+        item.className = 'list-item';
         // Content area
         const contentDiv = document.createElement('div');
         contentDiv.className = 'list-item-content';
@@ -129,7 +159,7 @@ function renderCalculatorList(calculators, container) {
             description.textContent = calc.description;
             contentDiv.appendChild(description);
         }
-        link.appendChild(contentDiv);
+        item.appendChild(contentDiv);
         // Favorite button
         const favoriteBtn = document.createElement('button');
         favoriteBtn.className = 'favorite-btn';
@@ -146,8 +176,8 @@ function renderCalculatorList(calculators, container) {
             favoriteBtn.innerHTML = isFavorite ? '⭐' : '☆';
             favoriteBtn.title = isFavorite ? t('favorites.remove') : t('favorites.add');
         });
-        link.appendChild(favoriteBtn);
-        container.appendChild(link);
+        item.appendChild(favoriteBtn);
+        container.appendChild(item);
     });
 }
 /**
@@ -170,7 +200,7 @@ function renderCategoryChips(container, currentCategory, onCategoryChange) {
     allChip.addEventListener('click', () => onCategoryChange('all'));
     container.appendChild(allChip);
     Object.keys(categories).forEach(key => {
-        const count = calculatorModules.filter(c => c.category === key).length;
+        const count = calculatorModules.filter(c => c.category === key && isCalculatorApproved(c.id)).length;
         const chip = document.createElement('button');
         chip.className = `category-chip${currentCategory === key ? ' active' : ''}`;
         const label = document.createTextNode(t(`category.${key}`) + ' ');
@@ -204,6 +234,9 @@ function renderRecentStrip(container) {
         const calc = calculatorModules.find(c => c.id === id);
         if (!calc)
             return;
+        // Skip unapproved calculators in recent strip
+        if (!isCalculatorApproved(calc.id))
+            return;
         const item = document.createElement('a');
         item.href = `calculator.html?name=${calc.id}`;
         item.className = 'recent-strip-item';
@@ -215,8 +248,8 @@ function renderRecentStrip(container) {
 /**
  * Render calculation history list
  */
-function renderHistoryList(container) {
-    const entries = calculationHistory.getEntries(50);
+async function renderHistoryList(container) {
+    const entries = await calculationHistory.getEntries(50);
     container.innerHTML = '';
     if (entries.length === 0) {
         container.innerHTML = `<p class="no-results">${t('historyList.empty')}</p>`;
@@ -275,7 +308,7 @@ window.onload = () => {
     /**
      * Update display
      */
-    function updateDisplay() {
+    async function updateDisplay() {
         const searchTerm = searchBar.value;
         // Show/hide recent strip (only when filter='all' and no search)
         const recentStripEl = document.getElementById('recent-strip');
@@ -299,8 +332,8 @@ window.onload = () => {
         }
         // History mode: render history entries directly
         if (currentFilterType === 'history') {
-            renderHistoryList(calculatorListDiv);
-            updateStats(calculatorModules.length, calculationHistory.getEntryCount());
+            await renderHistoryList(calculatorListDiv);
+            updateStats(calculatorModules.filter(c => isCalculatorApproved(c.id)).length, await calculationHistory.getEntryCount());
             return;
         }
         // Filter and sort
@@ -309,7 +342,7 @@ window.onload = () => {
         // Render
         renderCalculatorList(sorted, calculatorListDiv);
         // Update stats
-        updateStats(calculatorModules.length, sorted.length);
+        updateStats(calculatorModules.filter(c => isCalculatorApproved(c.id)).length, sorted.length);
     }
     /**
      * Update filter button states
@@ -345,14 +378,15 @@ window.onload = () => {
                 }
             }
             else if (filterType === 'history') {
-                const count = calculationHistory.getEntryCount();
-                btn.querySelector('.filter-count')?.remove();
-                if (count > 0) {
-                    const countBadge = document.createElement('span');
-                    countBadge.className = 'filter-count';
-                    countBadge.textContent = count.toString();
-                    btn.appendChild(countBadge);
-                }
+                calculationHistory.getEntryCount().then(count => {
+                    btn.querySelector('.filter-count')?.remove();
+                    if (count > 0) {
+                        const countBadge = document.createElement('span');
+                        countBadge.className = 'filter-count';
+                        countBadge.textContent = count.toString();
+                        btn.appendChild(countBadge);
+                    }
+                });
             }
         });
     }
@@ -361,6 +395,7 @@ window.onload = () => {
     FHIR.oauth2
         .ready()
         .then(async (client) => {
+        tokenLifecycleManager.initialize(client);
         displayPatientInfo(client, patientInfoDiv);
         // Fetch User/Practitioner Info
         try {

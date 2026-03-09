@@ -86,7 +86,6 @@ import { stopBangConfig } from '../calculators/stop-bang/index.js';
 import { fourCMortalityCovidConfig } from '../calculators/4c-mortality-covid/index.js';
 import { fourAsDeliriumConfig } from '../calculators/4as-delirium/index.js';
 import { helps2bConfig } from '../calculators/2helps2b/index.js';
-import { bacterialMeningitisScoreConfig } from '../calculators/bacterial-meningitis-score/index.js';
 import { actionIcuConfig } from '../calculators/action-icu/index.js';
 import { afRiskConfig } from '../calculators/af-risk/index.js';
 import { ciwaArConfig } from '../calculators/ciwa-ar/index.js';
@@ -341,7 +340,6 @@ const scoringConfigMap = {
     '4c-mortality-covid': fourCMortalityCovidConfig,
     '4as-delirium': fourAsDeliriumConfig,
     '2helps2b': helps2bConfig,
-    'bacterial-meningitis-score': bacterialMeningitisScoreConfig,
     'action-icu': actionIcuConfig,
     'af-risk': afRiskConfig,
     'ciwa-ar': ciwaArConfig,

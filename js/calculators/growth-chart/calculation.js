@@ -1,29 +1,73 @@
 /**
- * Calculate Z-score using LMS method or legacy estimation
- * @param ageMonths - Age in months
- * @param value - Measurement value
- * @param cdcDataArray - CDC reference data array
- * @returns Z-score or null if calculation not possible
+ * Interpolate between two reference data points at a given age.
+ * Returns an interpolated data point with all percentile values.
  */
-export function calculateZScore(ageMonths, value, cdcDataArray) {
-    if (!cdcDataArray || cdcDataArray.length === 0) {
+function interpolateReference(ageMonths, data) {
+    if (!data || data.length === 0)
+        return null;
+    // Exact match
+    const exact = data.find(d => d.Agemos === ageMonths);
+    if (exact)
+        return exact;
+    // Before first data point or after last
+    if (ageMonths < data[0].Agemos - 3 || ageMonths > data[data.length - 1].Agemos + 6) {
         return null;
     }
-    // Find closest age point in CDC data
-    const closestPoint = cdcDataArray.reduce((prev, curr) => Math.abs(curr.Agemos - ageMonths) < Math.abs(prev.Agemos - ageMonths) ? curr : prev);
-    if (Math.abs(closestPoint.Agemos - ageMonths) > 1) {
-        return null; // Too far from reference point
-    }
-    // Use LMS Method for precise calculation
-    if (closestPoint.L !== undefined &&
-        closestPoint.M !== undefined &&
-        closestPoint.S !== undefined) {
-        const L = closestPoint.L;
-        const M = closestPoint.M;
-        const S = closestPoint.S;
-        if (value <= 0) {
-            return null;
+    // Clamp to range
+    if (ageMonths <= data[0].Agemos)
+        return data[0];
+    if (ageMonths >= data[data.length - 1].Agemos)
+        return data[data.length - 1];
+    // Find surrounding points
+    let lower = data[0];
+    let upper = data[data.length - 1];
+    for (let i = 0; i < data.length - 1; i++) {
+        if (data[i].Agemos <= ageMonths && data[i + 1].Agemos >= ageMonths) {
+            lower = data[i];
+            upper = data[i + 1];
+            break;
         }
+    }
+    // Linear interpolation factor
+    const t = (ageMonths - lower.Agemos) / (upper.Agemos - lower.Agemos);
+    return {
+        Agemos: ageMonths,
+        P3: lower.P3 + t * (upper.P3 - lower.P3),
+        P15: lower.P15 + t * (upper.P15 - lower.P15),
+        P25: lower.P25 + t * (upper.P25 - lower.P25),
+        P50: lower.P50 + t * (upper.P50 - lower.P50),
+        P75: lower.P75 + t * (upper.P75 - lower.P75),
+        P85: lower.P85 + t * (upper.P85 - lower.P85),
+        P97: lower.P97 + t * (upper.P97 - lower.P97)
+    };
+}
+/**
+ * Calculate Z-score using reference data with interpolation.
+ * Supports LMS method (if L/M/S available) or percentile-based estimation.
+ * @param ageMonths - Age in months
+ * @param value - Measurement value
+ * @param referenceData - Growth reference data array
+ * @returns Z-score or null if calculation not possible
+ */
+export function calculateZScore(ageMonths, value, referenceData) {
+    if (!referenceData || referenceData.length === 0) {
+        return null;
+    }
+    if (value <= 0) {
+        return null;
+    }
+    // Interpolate to get reference values at exact age
+    const refPoint = interpolateReference(ageMonths, referenceData);
+    if (!refPoint) {
+        return null;
+    }
+    // Method 1: LMS if available (for future compatibility)
+    if (refPoint.L !== undefined &&
+        refPoint.M !== undefined &&
+        refPoint.S !== undefined) {
+        const L = refPoint.L;
+        const M = refPoint.M;
+        const S = refPoint.S;
         if (Math.abs(L) < 0.01) {
             return Math.log(value / M) / S;
         }
@@ -31,19 +75,25 @@ export function calculateZScore(ageMonths, value, cdcDataArray) {
             return (Math.pow(value / M, L) - 1) / (L * S);
         }
     }
-    // Approximate Z-score using P50 and standard deviation estimation (Legacy Fallback)
-    const p50 = closestPoint.P50;
-    const p5 = closestPoint.P5;
-    const p95 = closestPoint.P95;
-    if (p50 === undefined || p5 === undefined || p95 === undefined) {
+    // Method 2: Percentile-based SD estimation
+    const p50 = refPoint.P50;
+    if (p50 === undefined) {
         return null;
     }
-    // Rough estimate: assume normal distribution where P5 ≈ -1.645 SD, P95 ≈ +1.645 SD
-    const sdEstimate = (p95 - p5) / (2 * 1.645);
+    // Use P3/P97 for SD estimation: Z(P3)=-1.881, Z(P97)=+1.881
+    const p3 = refPoint.P3;
+    const p97 = refPoint.P97;
+    if (p3 === undefined || p97 === undefined) {
+        return null;
+    }
+    const sdEstimate = (p97 - p3) / (2 * 1.881);
+    if (sdEstimate <= 0) {
+        return null;
+    }
     return (value - p50) / sdEstimate;
 }
 /**
- * Estimate percentile from Z-score
+ * Estimate percentile from Z-score (Taiwan percentile set)
  * @param zscore - Z-score value
  * @returns Percentile string or empty string
  */
@@ -51,24 +101,21 @@ export function estimatePercentile(zscore) {
     if (zscore === null) {
         return '';
     }
-    if (zscore <= -2.33)
+    // Taiwan percentiles: 3, 15, 25, 50, 75, 85, 97
+    if (zscore <= -1.881)
+        return '<3';
+    if (zscore <= -1.036)
         return '3';
-    if (zscore <= -1.645)
-        return '5';
-    if (zscore <= -1.28)
-        return '10';
     if (zscore <= -0.674)
-        return '25';
+        return '15';
     if (zscore <= 0)
-        return '50';
+        return '25';
     if (zscore <= 0.674)
+        return '50';
+    if (zscore <= 1.036)
         return '75';
-    if (zscore <= 1.28)
-        return '90';
-    if (zscore <= 1.645)
-        return '95';
-    if (zscore <= 2.33)
-        return '97';
+    if (zscore <= 1.881)
+        return '85';
     return '>97';
 }
 /**

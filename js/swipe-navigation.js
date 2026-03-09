@@ -1,4 +1,5 @@
 import { calculatorModules } from './calculators/index.js';
+import { isCalculatorApproved } from './review-gate.js';
 const MIN_DISTANCE = 50;
 const MAX_VERTICAL_RATIO = 0.75;
 const MAX_TIME = 500;
@@ -6,7 +7,7 @@ export function initSwipeNavigation(currentCalcId) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;
     }
-    const sortedIds = calculatorModules.map(c => c.id);
+    const sortedIds = calculatorModules.filter(c => isCalculatorApproved(c.id)).map(c => c.id);
     const currentIndex = sortedIds.indexOf(currentCalcId);
     if (currentIndex === -1)
         return;

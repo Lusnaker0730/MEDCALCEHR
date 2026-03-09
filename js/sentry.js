@@ -3,15 +3,24 @@ import * as Sentry from '@sentry/browser';
 // Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 // PHI fields to strip from Sentry events
 const PHI_KEYS = [
-    'ssn', 'socialsecuritynumber', 'password', 'pin',
-    'creditcard', 'bankaccount', 'identifier',
-    'patientname', 'dob', 'dateofbirth', 'birthdate',
-    'address', 'phone', 'email', 'mrn',
+    'name', 'patientname', 'fullname', 'firstname', 'lastname', 'familyname', 'givenname',
+    'dob', 'dateofbirth', 'birthdate', 'birthday',
+    'address', 'streetaddress', 'city', 'zipcode', 'postalcode',
+    'phone', 'phonenumber', 'telephone', 'mobile', 'fax',
+    'email', 'emailaddress',
+    'ssn', 'socialsecuritynumber', 'nationalid', 'passport',
+    'mrn', 'medicalrecordnumber', 'patientid',
+    'password', 'pin', 'creditcard', 'bankaccount',
+    'identifier', 'id_number',
 ];
+// PT-08: PHI patterns aligned with logger.ts (was missing phone, email, Taiwan National ID)
 const PHI_PATTERNS = [
     /\b\d{3}-\d{2}-\d{4}\b/g, // SSN
     /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g, // DOB YYYY-MM-DD
     /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g, // DOB MM/DD/YYYY
+    /\b0\d{1,2}[-\s]?\d{6,8}\b/g, // Phone (TW landline/mobile)
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, // Email
+    /\b[A-Z][12]\d{8}\b/g, // Taiwan National ID
 ];
 function stripPHIFromString(value) {
     let sanitized = value;
@@ -30,7 +39,16 @@ function stripPHIFromObject(obj) {
         else if (typeof value === 'string') {
             sanitized[key] = stripPHIFromString(value);
         }
-        else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        else if (Array.isArray(value)) {
+            sanitized[key] = value.map(item => {
+                if (typeof item === 'string')
+                    return stripPHIFromString(item);
+                if (typeof item === 'object' && item !== null)
+                    return stripPHIFromObject(item);
+                return item;
+            });
+        }
+        else if (typeof value === 'object' && value !== null) {
             sanitized[key] = stripPHIFromObject(value);
         }
         else {
@@ -74,6 +92,21 @@ export function initSentry() {
                     }
                     return bc;
                 });
+            }
+            // Sanitize exception messages
+            if (event.exception?.values) {
+                event.exception.values.forEach(ex => {
+                    if (ex.value)
+                        ex.value = stripPHIFromString(ex.value);
+                });
+            }
+            // Sanitize request URL
+            if (event.request?.url) {
+                try {
+                    const url = new URL(event.request.url);
+                    event.request.url = url.origin + url.pathname;
+                }
+                catch { /* keep as-is if not a valid URL */ }
             }
             return event;
         },

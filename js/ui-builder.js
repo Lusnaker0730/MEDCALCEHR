@@ -1,6 +1,7 @@
 // Universal UI Component Builder for MedCalcEHR Calculators
 import { UnitConverter } from './unit-converter.js';
 import { logger } from './logger.js';
+import { escapeHTML } from './security.js';
 /**
  * DOM element IDs used throughout the application
  */
@@ -15,30 +16,26 @@ const DOM_IDS = {
  */
 export class UIBuilder {
     /**
-     * Escape HTML special characters to prevent XSS attacks
-     * @param text - The text to escape
-     * @returns Escaped HTML-safe string
+     * Escape HTML special characters to prevent XSS attacks.
+     * Delegates to the shared escapeHTML from security.ts which also
+     * strips null bytes and escapes /, `, and =.
      */
     escapeHtml(text) {
-        const htmlEntities = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        };
-        return text.replace(/[&<>"']/g, char => htmlEntities[char]);
+        return escapeHTML(text);
     }
     /**
      * Create a section container
      * @param {Object} options - { title, subtitle, content }
      */
     createSection({ title, subtitle, icon, content = '' }) {
-        const iconHTML = icon ? `<span class="section-icon">${icon}</span>` : '';
+        const safeTitle = title ? this.escapeHtml(title) : '';
+        const safeSubtitle = subtitle ? this.escapeHtml(subtitle) : '';
+        const safeIcon = icon ? this.escapeHtml(icon) : '';
+        const iconHTML = safeIcon ? `<span class="section-icon">${safeIcon}</span>` : '';
         return `
             <div class="ui-section">
-                ${title ? `<div class="ui-section-title">${iconHTML}${title}</div>` : ''}
-                ${subtitle ? `<div class="ui-section-subtitle">${subtitle}</div>` : ''}
+                ${title ? `<div class="ui-section-title">${iconHTML}${safeTitle}</div>` : ''}
+                ${subtitle ? `<div class="ui-section-subtitle">${safeSubtitle}</div>` : ''}
                 ${content}
             </div>
         `;
@@ -49,12 +46,17 @@ export class UIBuilder {
      */
     createInput({ id, label, type = 'number', placeholder = '', required = false, unit = null, unitToggle = null, // { type: 'weight', units: ['kg', 'lbs'] }
     helpText = '', min, max, step, defaultValue = '' }) {
+        const safeId = this.escapeHtml(id);
+        const safeLabel = this.escapeHtml(label);
+        const safePlaceholder = this.escapeHtml(placeholder);
+        const safeHelpText = helpText ? this.escapeHtml(helpText) : '';
+        const safeUnit = unit ? this.escapeHtml(unit) : '';
         const requiredMark = required ? '<span class="required">*</span>' : '';
         // Only show static unit if unitToggle is not present (toggle button will handle unit display)
-        const unitHTML = unit && !unitToggle ? `<span class="ui-input-unit">${unit}</span>` : '';
-        const helpId = helpText ? `${id}-help` : '';
-        const helpHTML = helpText ? `<div class="help-text" id="${helpId}">${helpText}</div>` : '';
-        let attrs = `id="${id}" type="${type}" placeholder="${placeholder}"`;
+        const unitHTML = unit && !unitToggle ? `<span class="ui-input-unit">${safeUnit}</span>` : '';
+        const helpId = helpText ? `${safeId}-help` : '';
+        const helpHTML = helpText ? `<div class="help-text" id="${helpId}">${safeHelpText}</div>` : '';
+        let attrs = `id="${safeId}" type="${type}" placeholder="${safePlaceholder}"`;
         if (min !== undefined)
             attrs += ` min="${min}"`;
         if (max !== undefined)
@@ -71,7 +73,7 @@ export class UIBuilder {
         const toggleData = unitToggle ? `data-unit-toggle='${JSON.stringify(unitToggle)}'` : '';
         return `
             <div class="ui-input-group">
-                <label for="${id}">${label}${requiredMark}</label>
+                <label for="${safeId}">${safeLabel}${requiredMark}</label>
                 <div class="ui-input-wrapper" ${toggleData}>
                     <input class="ui-input" ${attrs}>
                     ${unitHTML}
@@ -86,24 +88,28 @@ export class UIBuilder {
      */
     createRadioGroup({ name, label, options = [], // [{ value, label, checked }]
     required = false, helpText = '' }) {
+        const safeLabel = label ? this.escapeHtml(label) : '';
+        const safeHelpText = helpText ? this.escapeHtml(helpText) : '';
         const requiredMark = required ? '<span class="required">*</span>' : '';
-        const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
+        const helpHTML = safeHelpText ? `<div class="help-text">${safeHelpText}</div>` : '';
         const requiredAttr = required ? ' aria-required="true"' : '';
         const optionsHTML = options
             .map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
-            const id = opt.id || `${name}-${opt.value}-${index}`;
+            const safeOptValue = this.escapeHtml(opt.value);
+            const safeOptLabel = this.escapeHtml(opt.label);
+            const id = opt.id || `${name}-${safeOptValue}-${index}`;
             return `
                 <div class="ui-radio-option">
                     <input type="radio"
                            id="${id}"
                            name="${name}"
-                           value="${opt.value}"${requiredAttr}
+                           value="${safeOptValue}"${requiredAttr}
                            ${checked}
                            ${disabled}>
                     <label for="${id}" class="radio-label">
-                        ${opt.label}
+                        ${safeOptLabel}
                     </label>
                 </div>
             `;
@@ -112,7 +118,7 @@ export class UIBuilder {
         return `
             <div class="ui-input-group">
                 <fieldset>
-                    ${label ? `<legend>${label}${requiredMark}</legend>` : ''}
+                    ${label ? `<legend>${safeLabel}${requiredMark}</legend>` : ''}
                     <div class="ui-radio-group">
                         ${optionsHTML}
                     </div>
@@ -127,25 +133,30 @@ export class UIBuilder {
      */
     createCheckboxGroup({ name, label, options = [], // [{ value, label, description, checked }]
     helpText = '' }) {
-        const helpHTML = helpText ? `<div class="help-text">${helpText}</div>` : '';
+        const safeLabel = label ? this.escapeHtml(label) : '';
+        const safeHelpText = helpText ? this.escapeHtml(helpText) : '';
+        const helpHTML = safeHelpText ? `<div class="help-text">${safeHelpText}</div>` : '';
         const optionsHTML = options
             .map((opt, index) => {
             const checked = opt.checked ? 'checked' : '';
             const disabled = opt.disabled ? 'disabled' : '';
+            const safeOptValue = this.escapeHtml(opt.value);
+            const safeOptLabel = this.escapeHtml(opt.label);
+            const safeOptDesc = opt.description ? this.escapeHtml(opt.description) : '';
             const id = opt.id || `${name}-${index}`;
-            const descHTML = opt.description
-                ? `<div class="checkbox-description">${opt.description}</div>`
+            const descHTML = safeOptDesc
+                ? `<div class="checkbox-description">${safeOptDesc}</div>`
                 : '';
             return `
                 <div class="ui-checkbox-option">
                     <input type="checkbox"
                            id="${id}"
                            name="${name}"
-                           value="${opt.value}"
+                           value="${safeOptValue}"
                            ${checked}
                            ${disabled}>
                     <label for="${id}" class="checkbox-label">
-                        ${opt.label}
+                        ${safeOptLabel}
                     </label>
                     ${descHTML}
                 </div>
@@ -155,7 +166,7 @@ export class UIBuilder {
         return `
             <div class="ui-input-group">
                 <fieldset>
-                    ${label ? `<legend>${label}</legend>` : ''}
+                    ${label ? `<legend>${safeLabel}</legend>` : ''}
                     <div class="ui-checkbox-group">
                         ${optionsHTML}
                     </div>
@@ -169,18 +180,22 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createCheckbox({ id, label, value = '1', checked = false, description = '' }) {
+        const safeId = this.escapeHtml(id);
+        const safeLabel = this.escapeHtml(label);
+        const safeValue = this.escapeHtml(value);
+        const safeDesc = description ? this.escapeHtml(description) : '';
         const checkedAttr = checked ? 'checked' : '';
-        const descHTML = description
-            ? `<div class="checkbox-description">${description}</div>`
+        const descHTML = safeDesc
+            ? `<div class="checkbox-description">${safeDesc}</div>`
             : '';
         return `
             <div class="ui-checkbox-option">
-                <input type="checkbox" 
-                       id="${id}" 
-                       value="${value}" 
+                <input type="checkbox"
+                       id="${safeId}"
+                       value="${safeValue}"
                        ${checkedAttr}>
-                <label for="${id}" class="checkbox-label">
-                    ${label}
+                <label for="${safeId}" class="checkbox-label">
+                    ${safeLabel}
                 </label>
                 ${descHTML}
             </div>
@@ -192,23 +207,28 @@ export class UIBuilder {
      */
     createSelect({ id, label, options = [], // [{ value, label, selected }]
     required = false, helpText = '' }) {
+        const safeId = this.escapeHtml(id);
+        const safeLabel = this.escapeHtml(label);
+        const safeHelpText = helpText ? this.escapeHtml(helpText) : '';
         const requiredMark = required ? '<span class="required">*</span>' : '';
-        const helpId = helpText ? `${id}-help` : '';
-        const helpHTML = helpText ? `<div class="help-text" id="${helpId}">${helpText}</div>` : '';
+        const helpId = safeHelpText ? `${safeId}-help` : '';
+        const helpHTML = safeHelpText ? `<div class="help-text" id="${helpId}">${safeHelpText}</div>` : '';
         const optionsHTML = options
             .map(opt => {
             const selected = opt.selected ? 'selected' : '';
-            return `<option value="${opt.value}" ${selected}>${opt.label}</option>`;
+            const safeOptValue = this.escapeHtml(opt.value);
+            const safeOptLabel = this.escapeHtml(opt.label);
+            return `<option value="${safeOptValue}" ${selected}>${safeOptLabel}</option>`;
         })
             .join('');
-        let selectAttrs = `class="ui-select" id="${id}"`;
+        let selectAttrs = `class="ui-select" id="${safeId}"`;
         if (required)
             selectAttrs += ' aria-required="true"';
         if (helpId)
             selectAttrs += ` aria-describedby="${helpId}"`;
         return `
             <div class="ui-input-group">
-                <label for="${id}">${label}${requiredMark}</label>
+                <label for="${safeId}">${safeLabel}${requiredMark}</label>
                 <select ${selectAttrs}>
                     ${optionsHTML}
                 </select>
@@ -221,22 +241,25 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createRange({ id, label, min = 0, max = 100, step = 1, defaultValue = 50, unit = '', showValue = true }) {
+        const safeId = this.escapeHtml(id);
+        const safeLabel = this.escapeHtml(label);
+        const safeUnit = unit ? this.escapeHtml(unit) : '';
         return `
             <div class="ui-input-group">
-                <label for="${id}">${label}</label>
+                <label for="${safeId}">${safeLabel}</label>
                 <div class="ui-range-group">
                     <input type="range"
                            class="ui-range-slider"
-                           id="${id}"
+                           id="${safeId}"
                            min="${min}"
                            max="${max}"
                            step="${step}"
                            value="${defaultValue}"
-                           aria-label="${label}"
+                           aria-label="${safeLabel}"
                            aria-valuemin="${min}"
                            aria-valuemax="${max}"
                            aria-valuenow="${defaultValue}">
-                    ${showValue ? `<span class="ui-range-value" id="${id}-value">${defaultValue}${unit}</span>` : ''}
+                    ${showValue ? `<span class="ui-range-value" id="${safeId}-value">${defaultValue}${safeUnit}</span>` : ''}
                 </div>
             </div>
         `;
@@ -246,15 +269,17 @@ export class UIBuilder {
      * @param {Object} options - { id, title, content }
      */
     createResultBox({ id, title = 'Results' }) {
+        const safeId = this.escapeHtml(id);
+        const safeTitle = this.escapeHtml(title);
         return `
-            <div id="${id}" class="ui-result-box">
+            <div id="${safeId}" class="ui-result-box">
                 <div class="ui-result-header">
-                    <span>${title}</span>
-                    <button class="copy-report-btn" data-target="${id}" title="Copy Report to Clipboard">
+                    <span>${safeTitle}</span>
+                    <button class="copy-report-btn" data-target="${safeId}" title="Copy Report to Clipboard">
                         📋 Copy Report
                     </button>
                 </div>
-                <div class="ui-result-content" role="region" aria-live="polite" aria-label="${title}"></div>
+                <div class="ui-result-content" role="region" aria-live="polite" aria-label="${safeTitle}"></div>
             </div>
         `;
     }
@@ -277,7 +302,7 @@ export class UIBuilder {
         const getLabel = (element) => {
             const id = element.id;
             if (id) {
-                const label = document.querySelector(`label[for="${id}"]`);
+                const label = document.querySelector(`label[for="${CSS.escape(id)}"]`);
                 if (label)
                     return label.textContent?.replace('*', '').trim() || id;
             }
@@ -374,10 +399,14 @@ export class UIBuilder {
      * Helper to create result item HTML
      */
     createResultItem({ label, value, unit = '', interpretation = '', alertClass = '' }) {
+        const safeLabel = label ? this.escapeHtml(label) : '';
+        const safeValue = this.escapeHtml(String(value));
+        const safeUnit = unit ? this.escapeHtml(unit) : '';
+        const safeInterpretation = interpretation ? this.escapeHtml(interpretation) : '';
         let html = `
             <div class="ui-result-score">
-                ${label ? `<div class="ui-result-label">${label}</div>` : ''}
-                <div class="ui-result-value">${value}<span class="ui-result-unit">${unit}</span></div>
+                ${label ? `<div class="ui-result-label">${safeLabel}</div>` : ''}
+                <div class="ui-result-value">${safeValue}<span class="ui-result-unit">${safeUnit}</span></div>
             </div>
         `;
         if (interpretation) {
@@ -391,7 +420,7 @@ export class UIBuilder {
             const indicator = stateIndicators[alertClass] || { icon: '', srText: '' };
             const iconHTML = indicator.icon ? `<span class="state-icon" aria-hidden="true">${indicator.icon}</span>` : '';
             const srHTML = indicator.srText ? `<span class="sr-only">${indicator.srText}</span>` : '';
-            html += `<div class="ui-result-interpretation ${alertClass}">${iconHTML}${srHTML}${interpretation}</div>`;
+            html += `<div class="ui-result-interpretation ${alertClass}">${iconHTML}${srHTML}${safeInterpretation}</div>`;
         }
         return html;
     }
@@ -404,7 +433,7 @@ export class UIBuilder {
      * @param options.escapeMessage - Set to true to escape HTML in message (prevents XSS)
      * @security When message comes from user input or URL parameters, set escapeMessage: true
      */
-    createAlert({ type = 'info', message, icon, escapeMessage = false }) {
+    createAlert({ type = 'info', message, icon, escapeMessage = true }) {
         const icons = {
             info: 'ℹ️',
             warning: '⚠️',
@@ -437,16 +466,17 @@ export class UIBuilder {
         const itemsHTML = items
             .map(item => {
             const label = item.label || item.title || 'Formula';
+            const safeLabel = this.escapeHtml(label);
             const formulaText = item.formula || item.content || '';
             const formulaContent = Array.isArray(item.formulas)
-                ? item.formulas.map(f => `<div>${f}</div>`).join('')
-                : formulaText;
+                ? item.formulas.map(f => `<div>${this.escapeHtml(f)}</div>`).join('')
+                : this.escapeHtml(formulaText);
             const notesHTML = item.notes
-                ? `<div class="ui-formula-notes">${item.notes}</div>`
+                ? `<div class="ui-formula-notes">${this.escapeHtml(item.notes)}</div>`
                 : '';
             return `
             <div class="ui-formula-item">
-                <strong>${label}:</strong>
+                <strong>${safeLabel}:</strong>
                 <div class="ui-formula-math">${formulaContent}</div>
                 ${notesHTML}
             </div>
@@ -466,7 +496,7 @@ export class UIBuilder {
      * @param {string} value - The value to select
      */
     setRadioValue(name, value) {
-        const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+        const radio = document.querySelector(`input[name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`);
         if (radio) {
             radio.checked = true;
             radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -498,7 +528,7 @@ export class UIBuilder {
         // Initialize range sliders with value display
         const rangeSliders = container.querySelectorAll('.ui-range-slider');
         rangeSliders.forEach(slider => {
-            const valueDisplay = container.querySelector(`#${slider.id}-value`);
+            const valueDisplay = container.querySelector(`#${CSS.escape(slider.id)}-value`);
             if (valueDisplay) {
                 slider.addEventListener('input', e => {
                     const unit = valueDisplay.textContent?.replace(/[0-9.-]/g, '') || '';
@@ -511,7 +541,7 @@ export class UIBuilder {
         radioInputs.forEach(radio => {
             radio.addEventListener('change', () => {
                 // Remove 'selected' class from all options in the same group
-                const group = container.querySelectorAll(`input[name="${radio.name}"]`);
+                const group = container.querySelectorAll(`input[name="${CSS.escape(radio.name)}"]`);
                 group.forEach(r => {
                     if (r.parentElement)
                         r.parentElement.classList.remove('selected');
@@ -593,10 +623,11 @@ export class UIBuilder {
             }
         })
             .join('');
+        const safeSubmitLabel = this.escapeHtml(submitLabel);
         const submitHTML = showSubmit
             ? `
             <div class="ui-button-group">
-                <button type="submit" class="ui-button ui-button-primary">${submitLabel}</button>
+                <button type="submit" class="ui-button ui-button-primary">${safeSubmitLabel}</button>
             </div>
         `
             : '';
@@ -617,7 +648,7 @@ export class UIBuilder {
         const headerHTML = headers
             .map((h, i) => {
             const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
-            return `<th class="${stickyClass}">${h}</th>`;
+            return `<th class="${stickyClass}">${this.escapeHtml(h)}</th>`;
         })
             .join('');
         const rowsHTML = rows
@@ -625,7 +656,7 @@ export class UIBuilder {
             const cellsHTML = row
                 .map((cell, i) => {
                 const stickyClass = stickyFirstColumn && i === 0 ? 'sticky-col' : '';
-                return `<td class="${stickyClass}">${cell}</td>`;
+                return `<td class="${stickyClass}">${this.escapeHtml(cell)}</td>`;
             })
                 .join('');
             return `<tr>${cellsHTML}</tr>`;
@@ -647,7 +678,7 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createList({ items = [], type = 'ul', className = '' }) {
-        const itemsHTML = items.map(item => `<li>${item}</li>`).join('');
+        const itemsHTML = items.map(item => `<li>${this.escapeHtml(item)}</li>`).join('');
         return `<${type} class="ui-list ${className}">${itemsHTML}</${type}>`;
     }
     /**
@@ -655,10 +686,12 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createReference({ title = 'Reference', citations = [], icon = '📚' }) {
-        const citationsHTML = citations.map(citation => `<p>${citation}</p>`).join('');
+        const safeIcon = icon ? this.escapeHtml(icon) : '';
+        const safeTitle = this.escapeHtml(title);
+        const citationsHTML = citations.map(citation => `<p>${this.escapeHtml(citation)}</p>`).join('');
         return `
             <div class="info-section mt-20 text-sm text-muted">
-                <h4>${icon} ${title}</h4>
+                <h4>${safeIcon} ${safeTitle}</h4>
                 ${citationsHTML}
             </div>
         `;
@@ -669,9 +702,11 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createRiskFactorItem({ id, label, type = 'checkbox', name, checked = false, bleedingHR, ischemicHR, dataFactorId }) {
+        const safeId = this.escapeHtml(id);
+        const safeLabel = this.escapeHtml(label);
         const checkedAttr = checked ? 'checked' : '';
-        const nameAttr = name ? `name="${name}"` : '';
-        const dataAttr = dataFactorId ? `data-factor-id="${dataFactorId}"` : '';
+        const nameAttr = name ? `name="${this.escapeHtml(name)}"` : '';
+        const dataAttr = dataFactorId ? `data-factor-id="${this.escapeHtml(dataFactorId)}"` : '';
         const bleedingBadge = bleedingHR && bleedingHR !== 1.0
             ? `<span class="hr-badge hr-badge-bleeding">Bleeding HR: ${bleedingHR}</span>`
             : '';
@@ -681,8 +716,8 @@ export class UIBuilder {
         return `
             <div class="risk-factor-item">
                 <label class="risk-factor-label">
-                    <input type="${type}" id="${id}" ${nameAttr} ${dataAttr} ${checkedAttr}>
-                    <span class="factor-text">${label}</span>
+                    <input type="${type}" id="${safeId}" ${nameAttr} ${dataAttr} ${checkedAttr}>
+                    <span class="factor-text">${safeLabel}</span>
                 </label>
                 <div class="hr-badges">
                     ${bleedingBadge}
@@ -696,10 +731,11 @@ export class UIBuilder {
      * @param {Object} options - Configuration object
      */
     createRiskFactorGroup({ title, icon, items }) {
-        const iconHTML = icon ? `${icon} ` : '';
+        const safeIcon = icon ? `${this.escapeHtml(icon)} ` : '';
+        const safeTitle = this.escapeHtml(title);
         const itemsHTML = items.map(item => this.createRiskFactorItem(item)).join('');
         return `
-            <h3 class="factor-group-title">${iconHTML}${title}</h3>
+            <h3 class="factor-group-title">${safeIcon}${safeTitle}</h3>
             ${itemsHTML}
         `;
     }

@@ -6,6 +6,8 @@
  * Configuration is read from window.MEDCALC_CONFIG.session.
  */
 import { auditEventService } from './audit-event-service.js';
+import { clearEncryptionKeyCache } from './security.js';
+import { clearFHIRCache } from './sw-register.js';
 const DEFAULT_CONFIG = {
     timeoutMinutes: 15,
     warningMinutes: 2
@@ -14,14 +16,20 @@ const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'
 const OVERLAY_ID = 'session-timeout-overlay';
 class SessionManager {
     constructor() {
+        this.effectiveTimeoutMinutes = null;
         this.timeoutTimer = null;
         this.warningTimer = null;
         this.countdownInterval = null;
         this.isWarningVisible = false;
+        this.onLogoutCallback = null;
         const userConfig = window.MEDCALC_CONFIG?.session;
+        const MIN_TIMEOUT = 1;
+        const MAX_TIMEOUT = 120;
+        const rawTimeout = userConfig?.timeoutMinutes ?? DEFAULT_CONFIG.timeoutMinutes;
+        const rawWarning = userConfig?.warningMinutes ?? DEFAULT_CONFIG.warningMinutes;
         this.config = {
-            timeoutMinutes: userConfig?.timeoutMinutes ?? DEFAULT_CONFIG.timeoutMinutes,
-            warningMinutes: userConfig?.warningMinutes ?? DEFAULT_CONFIG.warningMinutes
+            timeoutMinutes: Math.max(MIN_TIMEOUT, Math.min(MAX_TIMEOUT, rawTimeout)),
+            warningMinutes: Math.max(0, Math.min(rawWarning, rawTimeout - 1))
         };
         // Throttle activity handler to avoid excessive resets (max once per 30s)
         let lastActivity = 0;
@@ -44,6 +52,30 @@ class SessionManager {
             document.addEventListener(event, this.activityHandler, { passive: true });
         });
         this.resetTimers();
+    }
+    /**
+     * Return the configured inactivity timeout in minutes.
+     */
+    getTimeoutMinutes() {
+        return this.config.timeoutMinutes;
+    }
+    /**
+     * Override the effective timeout (e.g. to match a shorter token TTL).
+     * Resets all running timers to use the new value.
+     */
+    setEffectiveTimeout(minutes) {
+        this.effectiveTimeoutMinutes = Math.max(1, minutes);
+        // If already started, restart timers with the new timeout
+        if (this.timeoutTimer !== null || this.warningTimer !== null) {
+            this.resetTimers();
+        }
+    }
+    /**
+     * Register a callback that fires at the end of logout().
+     * Used by TokenLifecycleManager to avoid circular imports.
+     */
+    onLogout(callback) {
+        this.onLogoutCallback = callback;
     }
     /**
      * Stop tracking and clear all timers.
@@ -71,6 +103,31 @@ class SessionManager {
         sessionStorage.clear();
         // Clear sensitive localStorage items (keep user preferences like favorites)
         localStorage.removeItem('patientDisplayData');
+        // PT-06: Clear all PHI-related localStorage items (including audit events)
+        const phiPrefixes = ['medcalc-phi-', 'medcalc-history-', 'medcalc-provenance-', 'medcalc_audit'];
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && phiPrefixes.some(prefix => key.startsWith(prefix))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        clearEncryptionKeyCache();
+        // Clear cached FHIR responses (contain PHI) from Service Worker cache
+        try {
+            await clearFHIRCache();
+        }
+        catch {
+            // Best-effort: don't block logout if cache clearing fails
+        }
+        // Notify subscribers (e.g. TokenLifecycleManager)
+        if (this.onLogoutCallback) {
+            try {
+                this.onLogoutCallback();
+            }
+            catch { /* best-effort */ }
+        }
         // Redirect to SMART launch page
         window.location.href = 'launch.html';
     }
@@ -80,7 +137,8 @@ class SessionManager {
         if (this.isWarningVisible) {
             this.hideWarning();
         }
-        const timeoutMs = this.config.timeoutMinutes * 60 * 1000;
+        const activeTimeout = this.effectiveTimeoutMinutes ?? this.config.timeoutMinutes;
+        const timeoutMs = activeTimeout * 60 * 1000;
         const warningMs = this.config.warningMinutes * 60 * 1000;
         const warningStartMs = timeoutMs - warningMs;
         // Timer to show warning overlay

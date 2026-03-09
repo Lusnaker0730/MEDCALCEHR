@@ -8,7 +8,10 @@
  * 2. Provenance resource tracking the calculation event
  */
 import { logger } from './logger.js';
+import { isAuthError } from './fhir-auth-interceptor.js';
+import { tokenLifecycleManager } from './token-lifecycle-manager.js';
 import { provenanceService } from './provenance-service.js';
+import { securityLabelsService } from './security-labels-service.js';
 // ============================================================================
 // FHIR Write Service
 // ============================================================================
@@ -46,6 +49,18 @@ class FHIRWriteService {
                 error: 'FHIR client not available',
             };
         }
+        // PT-01/H-04/H-05: Require patient context and validate match
+        if (!this.client?.patient?.id) {
+            logger.error('Write-back rejected: no patient context in SMART session');
+            return { success: false, observationIds: [], error: 'Patient context required for write operations' };
+        }
+        if (request.patientId !== this.client.patient.id) {
+            logger.error('Write-back rejected: patientId mismatch', {
+                requestPatient: request.patientId,
+                contextPatient: this.client.patient.id
+            });
+            return { success: false, observationIds: [], error: 'Patient ID mismatch with SMART context' };
+        }
         const observationIds = [];
         try {
             for (const result of request.results) {
@@ -81,6 +96,7 @@ class FHIRWriteService {
                 calculatorId: request.calculatorId,
                 observationCount: observationIds.length,
                 provenanceId,
+                securityLabelsApplied: true,
             });
             return {
                 success: true,
@@ -89,6 +105,9 @@ class FHIRWriteService {
             };
         }
         catch (error) {
+            if (isAuthError(error)) {
+                tokenLifecycleManager.handleAuthFailure(error?.status);
+            }
             logger.error('Write-back failed', {
                 calculatorId: request.calculatorId,
                 error: String(error),
@@ -96,7 +115,7 @@ class FHIRWriteService {
             return {
                 success: false,
                 observationIds,
-                error: String(error),
+                error: 'Write operation failed. Please try again.',
             };
         }
     }
@@ -105,6 +124,10 @@ class FHIRWriteService {
      */
     buildObservation(request, result) {
         const now = new Date().toISOString();
+        // M-13: Sanitize string fields before building FHIR resource
+        const safeTitle = (request.calculatorTitle || '').slice(0, 200);
+        const safeLabel = (result.label || '').slice(0, 100);
+        const safeCalcId = (request.calculatorId || '').replace(/[^a-z0-9-]/gi, '');
         const observation = {
             resourceType: 'Observation',
             status: 'final',
@@ -121,7 +144,7 @@ class FHIRWriteService {
                 },
             ],
             code: {
-                text: `${request.calculatorTitle} - ${result.label}`,
+                text: `${safeTitle} - ${safeLabel}`,
             },
             subject: {
                 reference: `Patient/${request.patientId}`,
@@ -136,7 +159,7 @@ class FHIRWriteService {
             },
             note: [
                 {
-                    text: `Calculated by MEDCALCEHR - ${request.calculatorTitle} (${request.calculatorId})`,
+                    text: `Calculated by MEDCALCEHR - ${safeTitle} (${safeCalcId})`,
                 },
             ],
         };
@@ -146,11 +169,15 @@ class FHIRWriteService {
                 {
                     system: 'http://loinc.org',
                     code: result.loincCode,
-                    display: result.label,
+                    display: safeLabel,
                 },
             ];
         }
-        return observation;
+        // Apply security labels
+        const sensitivities = securityLabelsService.detectSensitivities(observation);
+        const confidentiality = sensitivities.some(s => s !== 'GENERAL') ? 'R' : 'N';
+        const labeled = securityLabelsService.addSecurityLabel(observation, confidentiality, sensitivities);
+        return labeled;
     }
 }
 export const fhirWriteService = new FHIRWriteService();

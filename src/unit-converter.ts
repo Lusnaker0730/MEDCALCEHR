@@ -229,6 +229,8 @@ export const UnitConverter = {
             const currentValue = parseFloat(inputElement.value);
             if (!isNaN(currentValue)) {
                 storedValue = currentValue;
+            } else {
+                storedValue = null; // Fix: reset stored value when input is empty
             }
 
             // Cycle to next unit
@@ -244,10 +246,11 @@ export const UnitConverter = {
                     const decimals = this.getDecimalPlaces(type, newUnit);
                     inputElement.value = converted.toFixed(decimals);
                     storedValue = converted;
-                    // Fix: Update input element dataset unit immediately
-                    inputElement.dataset.currentUnit = newUnit;
                 }
             }
+
+            // Fix: Update input element dataset unit immediately regardless of value presence
+            inputElement.dataset.currentUnit = newUnit;
 
             // Update button
             toggleBtn.textContent = newUnit;
@@ -282,7 +285,11 @@ export const UnitConverter = {
             creatinine: { 'mg/dL': 2, 'µmol/L': 0, 'umol/L': 0 },
             calcium: { 'mg/dL': 2, 'mmol/L': 2 },
             albumin: { 'g/dL': 1, 'g/L': 0 },
-            bilirubin: { 'mg/dL': 1, 'µmol/L': 0, 'umol/L': 0 }
+            bilirubin: { 'mg/dL': 1, 'µmol/L': 0, 'umol/L': 0 },
+            platelet: { '×10⁹/L': 0, '×10³/µL': 0, 'K/µL': 0, '10*3/uL': 0 },
+            wbc: { '×10⁹/L': 1, '×10³/µL': 1, 'K/µL': 1, '10*3/uL': 1 },
+            ddimer: { 'mg/L': 2, 'µg/mL': 2, 'ng/mL': 0 },
+            fibrinogen: { 'g/L': 2, 'mg/dL': 0 }
         };
 
         return decimalMap[type]?.[unit] ?? 2;
@@ -387,40 +394,41 @@ export const UnitConverter = {
     setInputValue(inputElement: HTMLInputElement, value: number, unit: string): void {
         if (!inputElement || value === null || value === undefined) return;
 
-        // Clean up unit string (sometimes FHIR returns messy units or variations)
-        // Basic normalization if needed, or rely on exact map.
-        // For now, assume exact or close enough mapping in conversions.
-
         const currentUnit = this.getCurrentUnit(inputElement);
+        const wrapper = inputElement.closest('.unit-converter-wrapper');
+        const toggleBtn = wrapper?.querySelector('.unit-toggle-btn') as HTMLElement;
+        const type = toggleBtn?.dataset.type;
 
         if (currentUnit && unit && currentUnit !== unit) {
             // Need conversion
-            const wrapper = inputElement.closest('.unit-converter-wrapper');
-            const toggleBtn = wrapper?.querySelector('.unit-toggle-btn') as HTMLElement;
-            const type = toggleBtn?.dataset.type;
-
             if (type) {
                 const converted = this.convert(value, unit, currentUnit, type);
                 if (converted !== null) {
                     const decimals = this.getDecimalPlaces(type, currentUnit);
                     inputElement.value = converted.toFixed(decimals);
                 } else {
-                    // Conversion failed, fall back to raw value?
-                    // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
-                    // Just set raw value as fallback.
+                    // Conversion failed, fall back to raw value
                     logger.warn('Unit conversion failed', {
                         detail: `from ${unit} to ${currentUnit} for type ${type}`
                     });
-                    inputElement.value = value.toString();
+                    // Try to format the raw value if type is known
+                    const decimals = this.getDecimalPlaces(type, unit);
+                    inputElement.value = value.toFixed(decimals);
                 }
             } else {
                 inputElement.value = value.toString();
             }
         } else {
             // Units match or no UI unit context
-            // If we have a type, we might still want to respect decimal places?
-            // Optional polish.
-            inputElement.value = value.toString();
+            if (type && currentUnit) {
+                const decimals = this.getDecimalPlaces(type, currentUnit);
+                inputElement.value = value.toFixed(decimals);
+            } else if (type && unit) {
+                const decimals = this.getDecimalPlaces(type, unit);
+                inputElement.value = value.toFixed(decimals);
+            } else {
+                inputElement.value = value.toString();
+            }
         }
 
         // Dispatch input event to trigger listeners

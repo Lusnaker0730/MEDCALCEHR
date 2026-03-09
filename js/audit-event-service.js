@@ -3,6 +3,7 @@
 // Reference: https://profiles.ihe.net/ITI/BALP/index.html
 import { secureLocalStore, secureLocalRetrieve } from './security.js';
 import { logger } from './logger.js';
+import { securityLabelsService } from './security-labels-service.js';
 // ============================================================================
 // Constants
 // ============================================================================
@@ -178,7 +179,7 @@ export class AuditEventService {
      * Generate a unique session ID
      */
     generateSessionId() {
-        return `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+        return `session-${crypto.randomUUID()}`;
     }
     /**
      * Set the current practitioner context
@@ -346,13 +347,27 @@ export class AuditEventService {
                     name: entity.name,
                     description: entity.description
                 };
-                // Add security labels if provided
+                // Add security labels if provided, or auto-detect for resource entities
                 if (entity.securityLabel && entity.securityLabel.length > 0) {
                     entityEntry.securityLabel = entity.securityLabel.map(label => ({
                         system: CODE_SYSTEMS.SECURITY_LABELS,
                         code: label,
                         display: label
                     }));
+                }
+                else if (entity.type === 'resource') {
+                    // Auto-detect sensitivities from the resource reference
+                    const minimalResource = {
+                        resourceType: entity.what.split('/')[0] || 'Resource',
+                        id: entity.what.split('/')[1],
+                    };
+                    const sensitivities = securityLabelsService.detectSensitivities(minimalResource);
+                    const confidentiality = sensitivities.some(s => s !== 'GENERAL') ? 'R' : 'N';
+                    entityEntry.securityLabel = [{
+                            system: CODE_SYSTEMS.SECURITY_LABELS,
+                            code: confidentiality,
+                            display: confidentiality === 'R' ? 'Restricted' : 'Normal'
+                        }];
                 }
                 // Add query if this is a query entity
                 if (entity.type === 'query' && entity.query) {
@@ -586,7 +601,7 @@ export class AuditEventService {
             additionalInfo: {
                 alertType,
                 severity,
-                url: window.location.href,
+                url: window.location.origin + window.location.pathname,
                 userAgent: navigator.userAgent
             }
         });
@@ -721,9 +736,11 @@ export class AuditEventService {
      * Clear all local audit events
      */
     clearLocalEvents() {
+        this.log('WARNING: Clearing local audit events');
+        // Attempt to flush to server before clearing
+        this.flushPendingEvents().catch(() => { });
         localStorage.removeItem(STORAGE_KEYS.PENDING_EVENTS); // Clear both encrypted and legacy
         this.eventQueue = [];
-        this.log('Local audit events cleared');
     }
     // ========================================================================
     // Utility Methods
@@ -733,14 +750,26 @@ export class AuditEventService {
      */
     sanitizeForAudit(data) {
         const sensitiveFields = [
-            'ssn', 'socialSecurityNumber', 'password', 'pin',
-            'creditCard', 'bankAccount', 'identifier'
+            'ssn', 'socialsecuritynumber', 'password', 'pin',
+            'creditcard', 'bankaccount', 'identifier',
+            'name', 'patientname', 'fullname', 'firstname', 'lastname',
+            'birthdate', 'dob', 'dateofbirth',
+            'address', 'phone', 'email', 'telecom',
+            'mrn', 'nationalid', 'passport', 'photo'
         ];
         const sanitized = {};
         for (const [key, value] of Object.entries(data)) {
             const lowerKey = key.toLowerCase();
             if (sensitiveFields.some(field => lowerKey.includes(field))) {
                 sanitized[key] = '[REDACTED]';
+            }
+            else if (Array.isArray(value)) {
+                sanitized[key] = value.map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        return this.sanitizeForAudit(item);
+                    }
+                    return item;
+                });
             }
             else if (typeof value === 'object' && value !== null) {
                 sanitized[key] = this.sanitizeForAudit(value);
@@ -783,11 +812,7 @@ export class AuditEventService {
      * Generate a UUID v4
      */
     generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+        return crypto.randomUUID();
     }
 }
 // ============================================================================

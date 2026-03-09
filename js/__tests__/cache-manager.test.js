@@ -218,11 +218,11 @@ describe('Cache Manager Module', () => {
             expect(data).toBeNull();
             expect(manager.memoryCache.has('key-1')).toBe(false);
         });
-        test('set without expiry should store with null expiry', async () => {
-            await manager.set('test-cache', 'no-expiry', 'data');
+        test('set with expiry should store with capped expiry', async () => {
+            await manager.set('test-cache', 'no-expiry', 'data', 60000);
             const entry = manager.memoryCache.get('no-expiry');
             expect(entry).toBeDefined();
-            expect(entry.expiry).toBeNull();
+            expect(entry.expiry).toBeDefined();
         });
         test('get should return data even after expiry if checkExpiry is false', async () => {
             // Store with a very short expiry (already expired)
@@ -252,8 +252,8 @@ describe('Cache Manager Module', () => {
             await manager.get('test-cache', 'expired-key', true);
             expect(manager.memoryCache.has('expired-key')).toBe(false);
         });
-        test('get should return data for item with null expiry (never expires)', async () => {
-            await manager.set('test-cache', 'forever', 'eternal-data');
+        test('get should return data for item with valid expiry', async () => {
+            await manager.set('test-cache', 'forever', 'eternal-data', 3600000);
             const result = await manager.get('test-cache', 'forever');
             expect(result).toBe('eternal-data');
         });
@@ -640,11 +640,10 @@ describe('Cache Manager Module', () => {
         test('should be an instance of CacheManager', () => {
             expect(fhirManager).toBeInstanceOf(CacheManager);
         });
-        test('cachePatient should store patient with correct key pattern', async () => {
+        test('cachePatient should store patient and retrieve via public API', async () => {
             await fhirManager.cachePatient('P001', { name: 'Jane Doe', id: 'P001' });
-            const entry = fhirManager.memoryCache.get('patient-P001');
-            expect(entry).toBeDefined();
-            expect(entry.data).toEqual({ name: 'Jane Doe', id: 'P001' });
+            const cached = await fhirManager.getCachedPatient('P001');
+            expect(cached).toEqual({ name: 'Jane Doe', id: 'P001' });
         });
         test('getCachedPatient should retrieve stored patient', async () => {
             const patient = { name: 'John Smith', id: 'P002', birthDate: '1990-01-01' };
@@ -656,12 +655,11 @@ describe('Cache Manager Module', () => {
             const result = await fhirManager.getCachedPatient('unknown-id');
             expect(result).toBeNull();
         });
-        test('cacheObservation should store with correct key pattern', async () => {
+        test('cacheObservation should store and retrieve via public API', async () => {
             const obs = { value: 1.2, unit: 'mg/dL' };
             await fhirManager.cacheObservation('P001', '2160-0', obs);
-            const entry = fhirManager.memoryCache.get('observation-P001-2160-0');
-            expect(entry).toBeDefined();
-            expect(entry.data).toEqual(obs);
+            const cached = await fhirManager.getCachedObservation('P001', '2160-0');
+            expect(cached).toEqual(obs);
         });
         test('getCachedObservation should retrieve stored observation', async () => {
             const obs = { value: 14.2, unit: 'g/dL', code: '718-7' };
@@ -678,8 +676,10 @@ describe('Cache Manager Module', () => {
             const now = Date.now();
             jest.setSystemTime(now);
             await fhirManager.cachePatient('P010', { name: 'Test' });
-            const entry = fhirManager.memoryCache.get('patient-P010');
-            expect(entry.expiry).toBe(now + CACHE_EXPIRY.fhir);
+            // Verify data is accessible before expiry
+            jest.setSystemTime(now + CACHE_EXPIRY.fhir - 1);
+            const before = await fhirManager.getCachedPatient('P010');
+            expect(before).toEqual({ name: 'Test' });
             jest.useRealTimers();
         });
         test('observation cache should use FHIR expiry duration', async () => {
@@ -687,8 +687,10 @@ describe('Cache Manager Module', () => {
             const now = Date.now();
             jest.setSystemTime(now);
             await fhirManager.cacheObservation('P010', '2160-0', { value: 1 });
-            const entry = fhirManager.memoryCache.get('observation-P010-2160-0');
-            expect(entry.expiry).toBe(now + CACHE_EXPIRY.fhir);
+            // Verify data is accessible before expiry
+            jest.setSystemTime(now + CACHE_EXPIRY.fhir - 1);
+            const before = await fhirManager.getCachedObservation('P010', '2160-0');
+            expect(before).toEqual({ value: 1 });
             jest.useRealTimers();
         });
         test('patient data should expire after FHIR expiry', async () => {
@@ -746,22 +748,17 @@ describe('Cache Manager Module', () => {
             delete window.caches;
             jest.restoreAllMocks();
         });
-        test('clearPatientCache should remove patient and observation entries for given patient', async () => {
-            // Set up entries via the Cache API directly
-            const cache = await mockCacheStorage.open(CACHE_NAMES.fhir);
-            // Simulate stored entries with URLs matching the pattern
-            await cache.put(`http://localhost/patient-P100`, new Response(JSON.stringify({ data: 'patient data' })));
-            await cache.put(`http://localhost/observation-P100-2160-0`, new Response(JSON.stringify({ data: 'obs data' })));
-            await cache.put(`http://localhost/patient-P200`, new Response(JSON.stringify({ data: 'other patient' })));
+        test('clearPatientCache should remove patient and observation entries from localStorage', async () => {
+            // Set up encrypted localStorage entries matching PHI key pattern
+            localStorage.setItem('medcalc-phi-patient-P100', 'encrypted-patient-data');
+            localStorage.setItem('medcalc-phi-observation-P100-2160-0', 'encrypted-obs-data');
+            localStorage.setItem('medcalc-phi-patient-P200', 'encrypted-other-patient');
             await fhirManager.clearPatientCache('P100');
-            // cache.delete should have been called for P100 entries
-            const deleteCalls = cache.delete.mock.calls;
-            const deletedUrls = deleteCalls.map((call) => {
-                const arg = call[0];
-                return typeof arg === 'string' ? arg : arg.url;
-            });
-            expect(deletedUrls.some((url) => url.includes('patient-P100'))).toBe(true);
-            expect(deletedUrls.some((url) => url.includes('observation-P100'))).toBe(true);
+            // P100 entries should be removed
+            expect(localStorage.getItem('medcalc-phi-patient-P100')).toBeNull();
+            expect(localStorage.getItem('medcalc-phi-observation-P100-2160-0')).toBeNull();
+            // P200 should be untouched
+            expect(localStorage.getItem('medcalc-phi-patient-P200')).toBe('encrypted-other-patient');
         });
         test('clearPatientCache should not throw when Cache API is unavailable', async () => {
             delete window.caches;

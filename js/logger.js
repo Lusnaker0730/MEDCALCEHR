@@ -12,12 +12,20 @@ const PHI_PATTERNS = [
     /\b\d{3}-\d{2}-\d{4}\b/g, // SSN
     /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g, // Date of birth (YYYY-MM-DD)
     /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g, // Date of birth (MM/DD/YYYY)
+    /\b[A-Z]\d{9}\b/g, // National ID (Taiwan)
+    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, // Phone numbers
+    /\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g, // Email addresses
 ];
 const PHI_KEYS = [
-    'ssn', 'socialsecuritynumber', 'password', 'pin',
-    'creditcard', 'bankaccount', 'identifier',
-    'patientname', 'dob', 'dateofbirth', 'birthdate',
-    'address', 'phone', 'email', 'mrn',
+    'name', 'patientname', 'fullname', 'firstname', 'lastname', 'familyname', 'givenname',
+    'dob', 'dateofbirth', 'birthdate', 'birthday',
+    'address', 'streetaddress', 'city', 'zipcode', 'postalcode',
+    'phone', 'phonenumber', 'telephone', 'mobile', 'fax',
+    'email', 'emailaddress',
+    'ssn', 'socialsecuritynumber', 'nationalid', 'passport',
+    'mrn', 'medicalrecordnumber', 'patientid',
+    'password', 'pin', 'creditcard', 'bankaccount',
+    'identifier', 'id_number',
 ];
 function stripPHI(value) {
     let sanitized = value;
@@ -36,7 +44,16 @@ function sanitizeContext(obj) {
         else if (typeof value === 'string') {
             sanitized[key] = stripPHI(value);
         }
-        else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        else if (Array.isArray(value)) {
+            sanitized[key] = value.map(item => {
+                if (typeof item === 'string')
+                    return stripPHI(item);
+                if (typeof item === 'object' && item !== null)
+                    return sanitizeContext(item);
+                return item;
+            });
+        }
+        else if (typeof value === 'object' && value !== null) {
             sanitized[key] = sanitizeContext(value);
         }
         else {
@@ -56,6 +73,7 @@ class Logger {
     constructor() {
         this.level = LogLevel.INFO;
         this.sessionId = '';
+        this.transports = [];
     }
     setLevel(level) {
         this.level = level;
@@ -63,12 +81,24 @@ class Logger {
     setSessionId(id) {
         this.sessionId = id;
     }
+    addTransport(transport) {
+        this.transports.push(transport);
+    }
+    removeTransport(name) {
+        const idx = this.transports.findIndex(t => t.name === name);
+        if (idx !== -1) {
+            this.transports[idx].destroy();
+            this.transports.splice(idx, 1);
+        }
+    }
     createEntry(level, message, context) {
         const entry = {
             timestamp: new Date().toISOString(),
             level: LEVEL_NAMES[level],
             message: stripPHI(message),
-            url: typeof window !== 'undefined' && window.location ? window.location.href : undefined,
+            url: typeof window !== 'undefined' && window.location
+                ? window.location.origin + window.location.pathname
+                : undefined,
         };
         if (this.sessionId) {
             entry.sessionId = this.sessionId;
@@ -118,6 +148,15 @@ class Logger {
             }
             catch {
                 // Sentry not available
+            }
+        }
+        // Dispatch to registered transports
+        for (const transport of this.transports) {
+            if (level >= transport.minLevel) {
+                try {
+                    transport.send(entry);
+                }
+                catch { /* silent */ }
             }
         }
     }

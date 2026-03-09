@@ -85,8 +85,8 @@ export const UnitConverter = {
         // Hemoglobin
         hemoglobin: {
             'g/dL': { 'g/L': 10, 'mmol/L': 0.6206 },
-            'g/L': { 'g/dL': 0.1 },
-            'mmol/L': { 'g/dL': 1.611 }
+            'g/L': { 'g/dL': 0.1, 'mmol/L': 0.06206 },
+            'mmol/L': { 'g/dL': 1.611, 'g/L': 16.11 }
         },
         // Urea/BUN
         bun: {
@@ -145,8 +145,8 @@ export const UnitConverter = {
         // D-dimer
         ddimer: {
             'mg/L': { 'µg/mL': 1, 'ng/mL': 1000 },
-            'µg/mL': { 'mg/L': 1 },
-            'ng/mL': { 'mg/L': 0.001 }
+            'µg/mL': { 'mg/L': 1, 'ng/mL': 1000 },
+            'ng/mL': { 'mg/L': 0.001, 'µg/mL': 0.001 }
         },
         // Fibrinogen
         fibrinogen: {
@@ -183,7 +183,7 @@ export const UnitConverter = {
         if (!typeConversions || !typeConversions[fromUnit])
             return null;
         const conversion = typeConversions[fromUnit][toUnit];
-        if (conversion === undefined)
+        if (conversion === undefined || conversion === null)
             return null;
         // Handle function-based conversions (like temperature)
         if (typeof conversion === 'function') {
@@ -211,12 +211,15 @@ export const UnitConverter = {
         toggleBtn.title = `Click to switch units (${units.join(' ↔ ')})`;
         // Store original value and unit
         let storedValue = null;
-        let currentUnitIndex = 0;
+        let currentUnitIndex = Math.max(0, units.indexOf(defaultUnit));
         toggleBtn.addEventListener('click', e => {
             e.preventDefault();
             const currentValue = parseFloat(inputElement.value);
             if (!isNaN(currentValue)) {
                 storedValue = currentValue;
+            }
+            else {
+                storedValue = null; // Fix: reset stored value when input is empty
             }
             // Cycle to next unit
             currentUnitIndex = (currentUnitIndex + 1) % units.length;
@@ -230,10 +233,10 @@ export const UnitConverter = {
                     const decimals = this.getDecimalPlaces(type, newUnit);
                     inputElement.value = converted.toFixed(decimals);
                     storedValue = converted;
-                    // Fix: Update input element dataset unit immediately
-                    inputElement.dataset.currentUnit = newUnit;
                 }
             }
+            // Fix: Update input element dataset unit immediately regardless of value presence
+            inputElement.dataset.currentUnit = newUnit;
             // Update button
             toggleBtn.textContent = newUnit;
             toggleBtn.dataset.currentUnit = newUnit;
@@ -264,7 +267,11 @@ export const UnitConverter = {
             creatinine: { 'mg/dL': 2, 'µmol/L': 0, 'umol/L': 0 },
             calcium: { 'mg/dL': 2, 'mmol/L': 2 },
             albumin: { 'g/dL': 1, 'g/L': 0 },
-            bilirubin: { 'mg/dL': 1, 'µmol/L': 0, 'umol/L': 0 }
+            bilirubin: { 'mg/dL': 1, 'µmol/L': 0, 'umol/L': 0 },
+            platelet: { '×10⁹/L': 0, '×10³/µL': 0, 'K/µL': 0, '10*3/uL': 0 },
+            wbc: { '×10⁹/L': 1, '×10³/µL': 1, 'K/µL': 1, '10*3/uL': 1 },
+            ddimer: { 'mg/L': 2, 'µg/mL': 2, 'ng/mL': 0 },
+            fibrinogen: { 'g/L': 2, 'mg/dL': 0 }
         };
         return decimalMap[type]?.[unit] ?? 2;
     },
@@ -343,15 +350,12 @@ export const UnitConverter = {
     setInputValue(inputElement, value, unit) {
         if (!inputElement || value === null || value === undefined)
             return;
-        // Clean up unit string (sometimes FHIR returns messy units or variations)
-        // Basic normalization if needed, or rely on exact map.
-        // For now, assume exact or close enough mapping in conversions.
         const currentUnit = this.getCurrentUnit(inputElement);
+        const wrapper = inputElement.closest('.unit-converter-wrapper');
+        const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
+        const type = toggleBtn?.dataset.type;
         if (currentUnit && unit && currentUnit !== unit) {
             // Need conversion
-            const wrapper = inputElement.closest('.unit-converter-wrapper');
-            const toggleBtn = wrapper?.querySelector('.unit-toggle-btn');
-            const type = toggleBtn?.dataset.type;
             if (type) {
                 const converted = this.convert(value, unit, currentUnit, type);
                 if (converted !== null) {
@@ -359,13 +363,13 @@ export const UnitConverter = {
                     inputElement.value = converted.toFixed(decimals);
                 }
                 else {
-                    // Conversion failed, fall back to raw value?
-                    // Or maybe the unit string didn't match our map (e.g. 'mg/dl' vs 'mg/dL').
-                    // Just set raw value as fallback.
+                    // Conversion failed, fall back to raw value
                     logger.warn('Unit conversion failed', {
                         detail: `from ${unit} to ${currentUnit} for type ${type}`
                     });
-                    inputElement.value = value.toString();
+                    // Try to format the raw value if type is known
+                    const decimals = this.getDecimalPlaces(type, unit);
+                    inputElement.value = value.toFixed(decimals);
                 }
             }
             else {
@@ -374,9 +378,17 @@ export const UnitConverter = {
         }
         else {
             // Units match or no UI unit context
-            // If we have a type, we might still want to respect decimal places?
-            // Optional polish.
-            inputElement.value = value.toString();
+            if (type && currentUnit) {
+                const decimals = this.getDecimalPlaces(type, currentUnit);
+                inputElement.value = value.toFixed(decimals);
+            }
+            else if (type && unit) {
+                const decimals = this.getDecimalPlaces(type, unit);
+                inputElement.value = value.toFixed(decimals);
+            }
+            else {
+                inputElement.value = value.toString();
+            }
         }
         // Dispatch input event to trigger listeners
         inputElement.dispatchEvent(new Event('input', { bubbles: true }));
@@ -399,7 +411,8 @@ export const UnitConverter = {
         const type = toggleBtn?.dataset.type;
         if (!type)
             return value;
-        return this.convert(value, currentUnit, standardUnit, type) || value;
+        const converted = this.convert(value, currentUnit, standardUnit, type);
+        return converted !== null ? converted : value;
     }
 };
 // Load external CSS for unit toggle buttons

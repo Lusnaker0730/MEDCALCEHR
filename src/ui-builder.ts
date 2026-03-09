@@ -2,6 +2,7 @@
 
 import { UnitConverter } from './unit-converter.js';
 import { logger } from './logger.js';
+import { escapeHTML } from './security.js';
 
 export interface UISectionOptions {
     title?: string;
@@ -166,19 +167,12 @@ const DOM_IDS = {
  */
 export class UIBuilder {
     /**
-     * Escape HTML special characters to prevent XSS attacks
-     * @param text - The text to escape
-     * @returns Escaped HTML-safe string
+     * Escape HTML special characters to prevent XSS attacks.
+     * Delegates to the shared escapeHTML from security.ts which also
+     * strips null bytes and escapes /, `, and =.
      */
     private escapeHtml(text: string): string {
-        const htmlEntities: Record<string, string> = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        };
-        return text.replace(/[&<>"']/g, char => htmlEntities[char]);
+        return escapeHTML(text);
     }
 
     /**
@@ -524,7 +518,7 @@ export class UIBuilder {
         const getLabel = (element: Element): string => {
             const id = element.id;
             if (id) {
-                const label = document.querySelector(`label[for="${id}"]`);
+                const label = document.querySelector(`label[for="${CSS.escape(id)}"]`);
                 if (label) return label.textContent?.replace('*', '').trim() || id;
             }
             return id || 'Unknown Field';
@@ -744,7 +738,7 @@ export class UIBuilder {
      */
     setRadioValue(name: string, value: string): void {
         const radio = document.querySelector(
-            `input[name="${name}"][value="${value}"]`
+            `input[name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`
         ) as HTMLInputElement;
         if (radio) {
             radio.checked = true;
@@ -784,7 +778,7 @@ export class UIBuilder {
         // Initialize range sliders with value display
         const rangeSliders = container.querySelectorAll('.ui-range-slider');
         rangeSliders.forEach(slider => {
-            const valueDisplay = container.querySelector(`#${slider.id}-value`);
+            const valueDisplay = container.querySelector(`#${CSS.escape(slider.id)}-value`);
             if (valueDisplay) {
                 slider.addEventListener('input', e => {
                     const unit = valueDisplay.textContent?.replace(/[0-9.-]/g, '') || '';
@@ -799,7 +793,7 @@ export class UIBuilder {
             radio.addEventListener('change', () => {
                 // Remove 'selected' class from all options in the same group
                 const group = container.querySelectorAll(
-                    `input[name="${(radio as HTMLInputElement).name}"]`
+                    `input[name="${CSS.escape((radio as HTMLInputElement).name)}"]`
                 );
                 group.forEach(r => {
                     if (r.parentElement) r.parentElement.classList.remove('selected');

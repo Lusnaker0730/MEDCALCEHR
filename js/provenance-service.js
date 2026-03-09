@@ -3,6 +3,8 @@
 // Reference: https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition-Provenance-twcore.html
 // Reference: https://build.fhir.org/provenance.html
 import { logger } from './logger.js';
+import { secureLocalStore, secureLocalRetrieve } from './security.js';
+import { securityLabelsService } from './security-labels-service.js';
 // ============================================================================
 // Constants
 // ============================================================================
@@ -200,7 +202,7 @@ const DATA_SOURCE_DISPLAY = {
 // Local Storage Keys
 // ============================================================================
 const STORAGE_KEYS = {
-    PENDING_RECORDS: 'medcalc_provenance_pending',
+    PENDING_RECORDS: 'medcalc-provenance-pending',
     RECORD_SEQUENCE: 'medcalc_provenance_sequence'
 };
 // ============================================================================
@@ -440,7 +442,9 @@ export class ProvenanceService {
                 }
             ];
         }
-        return provenance;
+        // Apply default 'N' (Normal) security label — Provenance is metadata, not clinical data
+        const labeled = securityLabelsService.addSecurityLabel(provenance, 'N');
+        return labeled;
     }
     /**
      * Get reference string for an agent
@@ -689,7 +693,7 @@ export class ProvenanceService {
         }
         // Store locally if offline or server send failed
         if (this.config.enableLocalStorage) {
-            this.storeLocally(provenance);
+            await this.storeLocally(provenance);
         }
         // Also keep in memory queue
         this.recordQueue.push(provenance);
@@ -715,38 +719,37 @@ export class ProvenanceService {
         this.log('Provenance sent to server successfully');
     }
     /**
-     * Store provenance locally
+     * Store provenance locally (encrypted)
      */
-    storeLocally(provenance) {
+    async storeLocally(provenance) {
         try {
-            const stored = this.getPendingRecords();
+            const stored = await this.getPendingRecords();
             stored.push(provenance);
             // Prune if exceeds max
             while (stored.length > this.config.maxLocalRecords) {
                 stored.shift();
             }
-            localStorage.setItem(STORAGE_KEYS.PENDING_RECORDS, JSON.stringify(stored));
+            await secureLocalStore(STORAGE_KEYS.PENDING_RECORDS, stored);
             this.log(`Provenance stored locally (${stored.length} pending)`);
         }
         catch (error) {
-            logger.error('Failed to store provenance locally', { error: String(error) });
+            this.log('Failed to store provenance locally:', error);
         }
     }
     /**
      * Load pending records from local storage
      */
-    loadPendingRecords() {
-        const records = this.getPendingRecords();
+    async loadPendingRecords() {
+        const records = await this.getPendingRecords();
         this.recordQueue = records;
         this.log(`Loaded ${records.length} pending provenance records from local storage`);
     }
     /**
-     * Get pending records from local storage
+     * Get pending records from local storage (encrypted)
      */
-    getPendingRecords() {
+    async getPendingRecords() {
         try {
-            const stored = localStorage.getItem(STORAGE_KEYS.PENDING_RECORDS);
-            return stored ? JSON.parse(stored) : [];
+            return await secureLocalRetrieve(STORAGE_KEYS.PENDING_RECORDS) || [];
         }
         catch {
             return [];
@@ -759,7 +762,7 @@ export class ProvenanceService {
         if (!this.config.fhirServerUrl || !this.isOnline) {
             return;
         }
-        const pending = this.getPendingRecords();
+        const pending = await this.getPendingRecords();
         if (pending.length === 0) {
             return;
         }
@@ -773,8 +776,8 @@ export class ProvenanceService {
                 failed.push(record);
             }
         }
-        // Update local storage with only failed records
-        localStorage.setItem(STORAGE_KEYS.PENDING_RECORDS, JSON.stringify(failed));
+        // Update local storage with only failed records (encrypted)
+        await secureLocalStore(STORAGE_KEYS.PENDING_RECORDS, failed);
         this.recordQueue = failed;
         this.log(`Flushed ${pending.length - failed.length} records, ${failed.length} failed`);
     }
@@ -787,8 +790,8 @@ export class ProvenanceService {
     /**
      * Get pending record count
      */
-    getPendingRecordCount() {
-        return this.getPendingRecords().length;
+    async getPendingRecordCount() {
+        return (await this.getPendingRecords()).length;
     }
     /**
      * Clear all local provenance records
@@ -811,7 +814,7 @@ export class ProvenanceService {
      * Generate a unique ID
      */
     generateId() {
-        return `prov-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        return `prov-${crypto.randomUUID()}`;
     }
     /**
      * Sanitize data for storage (remove sensitive PHI)
@@ -868,11 +871,7 @@ export class ProvenanceService {
      * Generate a UUID v4
      */
     generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-        });
+        return crypto.randomUUID();
     }
     /**
      * Create a data lineage report for a resource

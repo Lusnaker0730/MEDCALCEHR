@@ -28,6 +28,10 @@ function resolve(dict, key) {
     for (const part of parts) {
         if (typeof current !== 'object' || current === null)
             return undefined;
+        if (part === '__proto__' || part === 'constructor' || part === 'prototype')
+            return undefined;
+        if (!Object.prototype.hasOwnProperty.call(current, part))
+            return undefined;
         current = current[part];
     }
     return typeof current === 'string' ? current : undefined;

@@ -4,18 +4,48 @@ import { displayPatientInfo } from './utils.js';
 import { loadCalculator, getCalculatorMetadata } from './calculators/index.js';
 import { calculationHistory } from './calculation-history.js';
 import { initSwipeNavigation } from './swipe-navigation.js';
+import { isCalculatorApproved, getReviewStatus } from './review-gate.js';
+import { t } from './i18n/index.js';
 import { favoritesManager } from './favorites.js';
 import { displayError } from './errorHandler.js';
 import { auditEventService } from './audit-event-service.js';
 import { provenanceService } from './provenance-service.js';
 import { sessionManager } from './session-manager.js';
+import { tokenLifecycleManager } from './token-lifecycle-manager.js';
 import { initSentry } from './sentry.js';
-import { logger } from './logger.js';
+import { logger, LogLevel } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
+import { BeaconTransport } from './log-transport.js';
 // Initialize Sentry early
 initSentry();
 // Initialize Web Vitals
 initWebVitals();
+// Initialize remote log transport if configured
+const _logConfig = window.MEDCALC_CONFIG?.logging;
+if (_logConfig?.remoteEndpoint) {
+    const levelMap = {
+        DEBUG: LogLevel.DEBUG, INFO: LogLevel.INFO,
+        WARN: LogLevel.WARN, ERROR: LogLevel.ERROR,
+    };
+    const minLevel = levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
+    const transport = new BeaconTransport(_logConfig.remoteEndpoint, minLevel, _logConfig.bufferSize);
+    logger.addTransport(transport);
+    window.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden')
+            transport.flush();
+    });
+}
+// PT-05: Deep freeze config on calculator page too (main.ts only freezes on index page)
+if (window.MEDCALC_CONFIG && !Object.isFrozen(window.MEDCALC_CONFIG)) {
+    (function deepFreeze(obj) {
+        Object.freeze(obj);
+        Object.getOwnPropertyNames(obj).forEach(prop => {
+            if (obj[prop] !== null && typeof obj[prop] === 'object' && !Object.isFrozen(obj[prop])) {
+                deepFreeze(obj[prop]);
+            }
+        });
+    })(window.MEDCALC_CONFIG);
+}
 // Cache version - increment this when you update calculators to force reload
 window.CACHE_VERSION = '1.0.5';
 /**
@@ -54,6 +84,25 @@ window.onload = () => {
     }
     // Set page title immediately from metadata
     pageTitle.textContent = calculatorInfo.title;
+    // === Clinical Review Gate ===
+    if (!isCalculatorApproved(calculatorId)) {
+        const status = getReviewStatus(calculatorId);
+        const blockedDiv = document.createElement('div');
+        blockedDiv.className = 'review-blocked';
+        blockedDiv.setAttribute('role', 'alert');
+        blockedDiv.innerHTML = `
+            <div class="review-blocked__icon" aria-hidden="true">&#128274;</div>
+            <div class="review-blocked__title">${calculatorInfo.title}</div>
+            <div class="review-blocked__status">
+                <span class="review-badge review-badge--${status}">${t(`review.${status}`)}</span>
+            </div>
+            <p class="review-blocked__message">${t('review.blockedMessage')}</p>
+            <a href="index.html" class="review-blocked__back">&larr; ${t('review.backToList')}</a>
+        `;
+        container.appendChild(blockedDiv);
+        logger.info('Calculator blocked by review gate', { calculatorId, status });
+        return;
+    }
     const card = document.createElement('div');
     card.className = 'calculator-card';
     container.appendChild(card);
@@ -106,6 +155,16 @@ window.onload = () => {
             FHIR.oauth2
                 .ready()
                 .then((client) => {
+                tokenLifecycleManager.initialize(client);
+                // Set practitioner ID for calculation history & favorites
+                client.user.read().then(user => {
+                    if (user?.id) {
+                        calculationHistory.setPractitionerId(user.id);
+                        favoritesManager.setPractitionerId(user.id);
+                    }
+                }).catch(() => {
+                    logger.warn('Could not read practitioner on calculator page');
+                });
                 displayPatientInfo(client, patientInfoDiv).then((patient) => {
                     // Log patient access to audit trail (IHE BALP)
                     if (patient?.id) {

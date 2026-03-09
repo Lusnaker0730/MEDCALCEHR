@@ -48,26 +48,22 @@ export function validateCalculatorInput(
         const rule = schema[key];
         let status: 'valid' | 'warning' | 'error' = 'valid';
 
+        // Handle whitespace in string inputs
+        const isEmpty =
+            value === null ||
+            value === undefined ||
+            (typeof value === 'string' && value.trim() === '') ||
+            (typeof value === 'number' && Number.isNaN(value));
+
         // Required field validation
-        if (
-            rule.required &&
-            (value === null ||
-                value === undefined ||
-                value === '' ||
-                (typeof value === 'number' && Number.isNaN(value)))
-        ) {
+        if (rule.required && isEmpty) {
             errors.push(rule.message || `${key} is required`);
             fieldStatus[key] = 'error';
             return;
         }
 
         // Skip further validation if value is empty and not required
-        if (
-            value === null ||
-            value === undefined ||
-            value === '' ||
-            (typeof value === 'number' && Number.isNaN(value))
-        ) {
+        if (isEmpty) {
             fieldStatus[key] = 'valid';
             return;
         }
@@ -650,6 +646,7 @@ export function setupLiveValidation(
 
         if (!result.isValid) {
             inputElement.classList.add('invalid');
+            inputElement.classList.remove('warning');
             inputElement.setAttribute('aria-invalid', 'true');
 
             // Display error message
@@ -659,7 +656,6 @@ export function setupLiveValidation(
                 errorSpan.className = 'error-text';
                 errorSpan.id = errorId;
                 errorSpan.setAttribute('role', 'alert');
-                errorSpan.style.color = '#d32f2f';
                 errorSpan.style.fontSize = '1.1rem';
                 errorSpan.style.fontWeight = '500';
                 errorSpan.style.marginTop = '6px';
@@ -668,7 +664,8 @@ export function setupLiveValidation(
                     inputElement.parentNode.insertBefore(errorSpan, inputElement.nextSibling);
                 }
             }
-            errorSpan.textContent = result.errors[0];
+            errorSpan.style.color = '#d32f2f'; // Error red
+            errorSpan.textContent = result.errors[0] || 'Invalid value';
 
             // Link input to error via aria-describedby
             inputElement.setAttribute('aria-describedby', errorId);
@@ -676,8 +673,32 @@ export function setupLiveValidation(
             if (onError) {
                 onError(result.errors);
             }
-        } else {
+        } else if (result.hasWarnings) {
+            inputElement.classList.add('warning');
             inputElement.classList.remove('invalid');
+            inputElement.removeAttribute('aria-invalid');
+
+            // Display warning message
+            let errorSpan = inputElement.parentNode?.querySelector(`#${errorId}`) as HTMLElement;
+            if (!errorSpan) {
+                errorSpan = document.createElement('span');
+                errorSpan.className = 'error-text warning-text'; // Reuse or add warning specific class
+                errorSpan.id = errorId;
+                errorSpan.setAttribute('role', 'alert');
+                errorSpan.style.fontSize = '1.1rem';
+                errorSpan.style.fontWeight = '500';
+                errorSpan.style.marginTop = '6px';
+                errorSpan.style.display = 'block';
+                if (inputElement.parentNode) {
+                    inputElement.parentNode.insertBefore(errorSpan, inputElement.nextSibling);
+                }
+            }
+            errorSpan.style.color = '#ed6c02'; // Warning orange
+            errorSpan.textContent = result.warnings[0] || 'Please double-check this value';
+
+            inputElement.setAttribute('aria-describedby', errorId);
+        } else {
+            inputElement.classList.remove('invalid', 'warning');
             inputElement.removeAttribute('aria-invalid');
             inputElement.removeAttribute('aria-describedby');
 
@@ -692,7 +713,7 @@ export function setupLiveValidation(
     inputElement.addEventListener('blur', validate);
     inputElement.addEventListener('input', () => {
         // Remove error state but don't validate immediately
-        inputElement.classList.remove('invalid');
+        inputElement.classList.remove('invalid', 'warning');
         inputElement.removeAttribute('aria-invalid');
         inputElement.removeAttribute('aria-describedby');
         const errorSpan = inputElement.parentNode?.querySelector(`#${errorId}`) as HTMLElement;

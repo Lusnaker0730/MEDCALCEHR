@@ -13,6 +13,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - `CLAUDE.md` files for AI-assisted development context at root, `src/`, `src/calculators/`, and `src/calculators/shared/`
+- Penetration test report: `docs/compliance/PENETRATION_TEST_2026-03-09.md` (17 findings, 13 fixed)
+
+### Fixed
+- **UIBuilder CSS selector injection**: `querySelector` calls now use `CSS.escape()` for dynamic IDs and names (`ui-builder.ts`)
+- **UIBuilder escapeHtml consolidation**: Delegates to shared `escapeHTML()` from `security.ts` for consistent null-byte and extended character escaping (`ui-builder.ts`)
+- **Unit converter toggle bug**: Reset stored value when input is empty; update `dataset.currentUnit` regardless of value presence; added platelet, WBC, D-dimer, fibrinogen decimal places (`unit-converter.ts`)
+- **Validator whitespace handling**: Whitespace-only string inputs now treated as empty for required field validation; removed inline `color` style in favor of CSS class (`validator.ts`)
 
 ### Security
 - **PT-01: FHIR write patient validation bypass**: Write service now requires patient context; rejects writes when `client.patient.id` is undefined instead of silently skipping validation (`fhir-write-service.ts`)

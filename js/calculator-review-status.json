@@ -1,0 +1,608 @@
+{
+    "version": "1.0.0",
+    "lastUpdated": "2026-02-25",
+    "calculators": {
+        "2helps2b": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "4as-delirium": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "4c-mortality-covid": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "4peps": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "4ts-hit": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "6mwd": {
+            "status": "approved",
+            "reviewDate": "2026-02-24",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "6mwd.md",
+            "notes": "無"
+        },
+        "abl": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "abg-analyzer": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "action-icu": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "af-risk": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "apache-ii": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "apgar": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ariscat": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ascvd": {
+            "status": "approved",
+            "reviewDate": "2026-02-25",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "ascvd.md",
+            "notes": "無"
+        },
+        "benzo-conversion": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "bmi-bsa": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "bwps": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "calcium-correction": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "centor": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "charlson": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "child-pugh": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ciwa-ar": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ckd-epi": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "cpis": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "crcl": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "curb-65": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "dasi": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "due-date": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ett": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "euroscore-ii": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "fena": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "feurea": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "fib-4": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "free-water-deficit": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "gad-7": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "gcs": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "geneva-score": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "grace-acs": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "growth-chart": {
+            "status": "approved",
+            "reviewDate": "2026-02-25",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "growthchart.md",
+            "notes": ""
+        },
+        "gupta-mica": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "gwtg-hf": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "has-bled": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "heart-score": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "homa-ir": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "hscore": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ibw": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "intraop-fluid": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "isth-dic": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "kawasaki": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ldl": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "maggic": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "maintenance-fluids": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "map": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "mdrd-gfr": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "meld-na": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "mews": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "mme": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "nafld-fibrosis-score": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "nihss": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "padua-vte": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "pecarn": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "pediatric-bp": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "perc": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "phenytoin-correction": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "phq-9": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "precise-hbr": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "qsofa": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "qtc": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ranson": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "rcri": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "regiscar": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "serum-anion-gap": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "serum-osmolality": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "sex-shock": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "sirs": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "sodium-correction": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "sofa": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "steroid-conversion": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "stop-bang": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "timi-nstemi": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "tpa-dosing": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "tpa-dosing-stroke": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "trade-off-analysis": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "ttkg": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "wells-dvt": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        },
+        "wells-pe": {
+            "status": "pending",
+            "reviewDate": null,
+            "reviewer": null,
+            "reviewDocId": null,
+            "notes": ""
+        }
+    }
+}

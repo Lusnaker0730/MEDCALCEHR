@@ -3,6 +3,7 @@
  * Provides caching strategies for different types of data
  */
 import { logger } from './logger.js';
+import { secureLocalStore, secureLocalRetrieve } from './security.js';
 const CACHE_VERSION = '1.0.0';
 export const CACHE_NAMES = {
     static: `medcalc-static-v${CACHE_VERSION}`,
@@ -33,9 +34,9 @@ export class CacheManager {
     /**
      * Store item in cache with expiry
      */
-    async set(cacheName, key, data, expiryMs = null) {
-        // Memory cache
-        const expiryTime = expiryMs ? Date.now() + expiryMs : null;
+    async set(cacheName, key, data, expiryMs) {
+        // Memory cache (PHI data uses secureLocalStore directly, not this method)
+        const expiryTime = Date.now() + expiryMs;
         this.memoryCache.set(key, {
             data,
             expiry: expiryTime
@@ -138,8 +139,10 @@ export class CacheManager {
         this.memoryCache.clear();
         if (this.cacheEnabled) {
             try {
+                const appCachePrefix = 'medcalc-';
                 const keys = await caches.keys();
-                const promises = keys.map((key) => caches.delete(key));
+                const appKeys = keys.filter((k) => k.startsWith(appCachePrefix));
+                const promises = appKeys.map((key) => caches.delete(key));
                 await Promise.all(promises);
             }
             catch (error) {
@@ -250,49 +253,62 @@ export class CalculatorCacheManager extends CacheManager {
  */
 export class FHIRCacheManager extends CacheManager {
     /**
-     * Cache patient data
+     * Cache patient data (encrypted in localStorage, not Cache API)
      */
     async cachePatient(patientId, patientData) {
-        const key = `patient-${patientId}`;
-        await this.set(CACHE_NAMES.fhir, key, patientData, CACHE_EXPIRY.fhir);
+        const key = `medcalc-phi-patient-${patientId}`;
+        await secureLocalStore(key, { data: patientData, expiry: Date.now() + CACHE_EXPIRY.fhir });
     }
     /**
-     * Get cached patient data
+     * Get cached patient data (from encrypted localStorage)
      */
     async getCachedPatient(patientId) {
-        const key = `patient-${patientId}`;
-        return await this.get(CACHE_NAMES.fhir, key);
+        const key = `medcalc-phi-patient-${patientId}`;
+        const cached = await secureLocalRetrieve(key);
+        if (!cached || Date.now() > cached.expiry) {
+            if (cached)
+                localStorage.removeItem(key);
+            return null;
+        }
+        return cached.data;
     }
     /**
-     * Cache observation data
+     * Cache observation data (encrypted in localStorage, not Cache API)
      */
     async cacheObservation(patientId, observationCode, observationData) {
-        const key = `observation-${patientId}-${observationCode}`;
-        await this.set(CACHE_NAMES.fhir, key, observationData, CACHE_EXPIRY.fhir);
+        const key = `medcalc-phi-observation-${patientId}-${observationCode}`;
+        await secureLocalStore(key, { data: observationData, expiry: Date.now() + CACHE_EXPIRY.fhir });
     }
     /**
-     * Get cached observation data
+     * Get cached observation data (from encrypted localStorage)
      */
     async getCachedObservation(patientId, observationCode) {
-        const key = `observation-${patientId}-${observationCode}`;
-        return await this.get(CACHE_NAMES.fhir, key);
+        const key = `medcalc-phi-observation-${patientId}-${observationCode}`;
+        const cached = await secureLocalRetrieve(key);
+        if (!cached || Date.now() > cached.expiry) {
+            if (cached)
+                localStorage.removeItem(key);
+            return null;
+        }
+        return cached.data;
     }
     /**
-     * Clear patient-specific cache
+     * Clear patient-specific cache (removes encrypted localStorage entries)
      */
     async clearPatientCache(patientId) {
-        if (!this.cacheEnabled)
-            return;
         try {
-            const cache = await caches.open(CACHE_NAMES.fhir);
-            const requests = await cache.keys();
-            for (const request of requests) {
-                const url = request.url;
-                if (url.includes(`patient-${patientId}`) ||
-                    url.includes(`observation-${patientId}`)) {
-                    await cache.delete(request);
+            // Clear encrypted localStorage entries for this patient
+            const patientKey = `medcalc-phi-patient-${patientId}`;
+            localStorage.removeItem(patientKey);
+            // Clear observation entries for this patient
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(`medcalc-phi-observation-${patientId}-`)) {
+                    keysToRemove.push(key);
                 }
             }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
         }
         catch (error) {
             logger.warn('Failed to clear patient cache', { error: String(error) });
