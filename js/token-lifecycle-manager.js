@@ -21,6 +21,8 @@ import { logger } from './logger.js';
 const TOKEN_CHECK_INTERVAL_MS = 30000; // 30 seconds
 const CHANNEL_NAME = 'medcalc-auth';
 const TOKEN_WARNING_OVERLAY_ID = 'token-warning-overlay';
+const AUTH_FAILURE_OVERLAY_ID = 'auth-failure-overlay';
+const AUTH_FAILURE_GRACE_SECONDS = 60; // Give user 60s to read current content
 // ---------------------------------------------------------------------------
 // TokenLifecycleManager
 // ---------------------------------------------------------------------------
@@ -34,6 +36,8 @@ class TokenLifecycleManager {
         this.visibilityHandler = null;
         this.warningSeconds = 120;
         this.disabled = false;
+        this.authFailureHandled = false;
+        this.authFailureTimer = null;
     }
     // -----------------------------------------------------------------------
     // Public API
@@ -121,11 +125,31 @@ class TokenLifecycleManager {
     }
     /**
      * Handle an authentication failure (e.g. 401/403 from a FHIR call).
-     * This is the terminal handler — it logs out the session.
+     * Shows a grace-period overlay so the user can finish reading current content
+     * before being redirected to re-authenticate.
      */
     handleAuthFailure(status) {
-        logger.warn('Auth failure detected, logging out', { status });
+        // Prevent multiple overlays from concurrent 401s
+        if (this.authFailureHandled)
+            return;
+        this.authFailureHandled = true;
+        logger.warn('Auth failure detected, showing grace period', { status });
         this.broadcastEvent({ type: 'session-expired' });
+        // Stop token clock but don't destroy everything yet
+        if (this.checkTimer != null) {
+            clearInterval(this.checkTimer);
+            this.checkTimer = null;
+        }
+        this.hideTokenWarning();
+        this.showAuthFailureOverlay();
+    }
+    /** Force logout without grace period (used by overlay countdown). */
+    forceLogout() {
+        if (this.authFailureTimer) {
+            clearInterval(this.authFailureTimer);
+            this.authFailureTimer = null;
+        }
+        this.hideAuthFailureOverlay();
         this.destroy();
         sessionManager.logout();
     }
@@ -134,6 +158,10 @@ class TokenLifecycleManager {
         if (this.checkTimer != null) {
             clearInterval(this.checkTimer);
             this.checkTimer = null;
+        }
+        if (this.authFailureTimer) {
+            clearInterval(this.authFailureTimer);
+            this.authFailureTimer = null;
         }
         if (this.visibilityHandler) {
             document.removeEventListener('visibilitychange', this.visibilityHandler);
@@ -147,7 +175,9 @@ class TokenLifecycleManager {
             this.channel = null;
         }
         this.hideTokenWarning();
+        this.hideAuthFailureOverlay();
         this.warningShown = false;
+        this.authFailureHandled = false;
         this.client = null;
     }
     // -----------------------------------------------------------------------
@@ -311,6 +341,88 @@ class TokenLifecycleManager {
     /** Remove the token warning overlay if it exists. */
     hideTokenWarning() {
         document.getElementById(TOKEN_WARNING_OVERLAY_ID)?.remove();
+    }
+    /** Show overlay giving user time to read current content before re-auth. */
+    showAuthFailureOverlay() {
+        if (document.getElementById(AUTH_FAILURE_OVERLAY_ID))
+            return;
+        const overlay = document.createElement('div');
+        overlay.id = AUTH_FAILURE_OVERLAY_ID;
+        overlay.className = 'session-timeout-overlay';
+        overlay.setAttribute('role', 'alertdialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Session expired');
+        let seconds = AUTH_FAILURE_GRACE_SECONDS;
+        const formatTime = (s) => {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        };
+        overlay.innerHTML = `
+            <div class="session-timeout-dialog">
+                <div class="session-timeout-icon">&#128274;</div>
+                <h2 class="session-timeout-title">Session Expired</h2>
+                <p class="session-timeout-message">
+                    Your EHR session has expired. You can continue reading the current page.
+                    You will be redirected to re-authenticate automatically.
+                </p>
+                <p class="session-timeout-countdown">
+                    Redirecting in: <strong id="auth-failure-countdown">${formatTime(seconds)}</strong>
+                </p>
+                <div class="session-timeout-actions">
+                    <button id="auth-reauth-btn" class="session-btn session-btn-primary">
+                        Re-authenticate Now
+                    </button>
+                    <button id="auth-dismiss-btn" class="session-btn session-btn-secondary">
+                        Continue Reading
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const reauthBtn = document.getElementById('auth-reauth-btn');
+        const dismissBtn = document.getElementById('auth-dismiss-btn');
+        reauthBtn?.focus();
+        reauthBtn?.addEventListener('click', () => {
+            this.forceLogout();
+        });
+        dismissBtn?.addEventListener('click', () => {
+            // Hide overlay but keep countdown running — auto-logout when time is up
+            overlay.style.display = 'none';
+        });
+        // Countdown timer
+        const countdownEl = document.getElementById('auth-failure-countdown');
+        this.authFailureTimer = setInterval(() => {
+            seconds--;
+            if (countdownEl)
+                countdownEl.textContent = formatTime(Math.max(0, seconds));
+            if (seconds <= 0) {
+                this.forceLogout();
+            }
+        }, 1000);
+        // Focus trap
+        overlay.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                overlay.style.display = 'none';
+            }
+            if (e.key === 'Tab') {
+                const btns = overlay.querySelectorAll('button');
+                const first = btns[0];
+                const last = btns[btns.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                }
+                else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+    }
+    /** Remove the auth failure overlay if it exists. */
+    hideAuthFailureOverlay() {
+        document.getElementById(AUTH_FAILURE_OVERLAY_ID)?.remove();
     }
     // -----------------------------------------------------------------------
     // BroadcastChannel

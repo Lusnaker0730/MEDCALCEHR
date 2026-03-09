@@ -170,7 +170,7 @@ describe('TokenLifecycleManager', () => {
             jest.advanceTimersByTime(30000);
             expect(document.getElementById('token-warning-overlay')).toBeNull();
         });
-        test('should call handleAuthFailure when token expires and no refresh token', () => {
+        test('should show auth failure overlay when token expires and no refresh token', () => {
             const client = createMockClient({
                 expiresAt: Date.now() + 15000, // 15 seconds
                 tokenResponse: {}, // no refresh token
@@ -178,7 +178,10 @@ describe('TokenLifecycleManager', () => {
             tokenLifecycleManager.initialize(client);
             // Advance past expiry
             jest.advanceTimersByTime(30000);
-            expect(mockLogout).toHaveBeenCalled();
+            // Should show overlay instead of immediate logout
+            expect(document.getElementById('auth-failure-overlay')).not.toBeNull();
+            // Should NOT logout immediately — user gets grace period
+            expect(mockLogout).not.toHaveBeenCalled();
         });
         test('should respect custom tokenWarningSeconds config', async () => {
             jest.resetModules();
@@ -356,9 +359,29 @@ describe('TokenLifecycleManager', () => {
     // 10. handleAuthFailure()
     // ======================================================================
     describe('handleAuthFailure()', () => {
-        test('should call sessionManager.logout()', () => {
+        test('should show grace period overlay instead of immediate logout', () => {
             tokenLifecycleManager.initialize(createMockClient());
             tokenLifecycleManager.handleAuthFailure(401);
+            // Should NOT logout immediately — user gets a grace period
+            expect(mockLogout).not.toHaveBeenCalled();
+            // Should show auth failure overlay
+            const overlay = document.getElementById('auth-failure-overlay');
+            expect(overlay).not.toBeNull();
+        });
+        test('should only handle auth failure once (debounce concurrent 401s)', () => {
+            tokenLifecycleManager.initialize(createMockClient());
+            tokenLifecycleManager.handleAuthFailure(401);
+            tokenLifecycleManager.handleAuthFailure(403);
+            tokenLifecycleManager.handleAuthFailure(401);
+            // Only one overlay should exist
+            const overlays = document.querySelectorAll('#auth-failure-overlay');
+            expect(overlays.length).toBe(1);
+        });
+        test('should logout when re-authenticate button is clicked', () => {
+            tokenLifecycleManager.initialize(createMockClient());
+            tokenLifecycleManager.handleAuthFailure(401);
+            const reauthBtn = document.getElementById('auth-reauth-btn');
+            reauthBtn?.click();
             expect(mockLogout).toHaveBeenCalled();
         });
     });

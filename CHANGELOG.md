@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - **Token expiry immediate logout**: `handleAuthFailure()` no longer immediately redirects to `launch.html` on 401/403; shows a 60-second grace period overlay so users can finish reading current content before re-authentication (`token-lifecycle-manager.ts`)
 - **Alert HTML rendering**: `createAlert` now uses `sanitizeHTML()` instead of `escapeHTML()` to preserve safe formatting tags (`<strong>`, `<ul>`, `<li>`) while still stripping dangerous elements (`ui-builder.ts`)
+- **Reference citation formatting**: `createReference` citations now use `sanitizeHTML()` to preserve `<em>` journal name italics instead of escaping them to literal text (`ui-builder.ts`)
+- **CSP `frame-ancestors` warning**: Removed `frame-ancestors` from `<meta>` CSP tags where it is ignored by browsers; directive is already delivered via nginx HTTP headers (`launch.html`, `health-check.html`, `test-calculators.html`)
 - **Standalone FHIR launch**: Added `fhirServiceUrl` fallback for dev mode when no `iss` parameter is present in the URL (`fhir-launch.ts`, `public/js/app-config.js`)
 - **UIBuilder CSS selector injection**: `querySelector` calls now use `CSS.escape()` for dynamic IDs and names (`ui-builder.ts`)
 - **UIBuilder escapeHtml consolidation**: Delegates to shared `escapeHTML()` from `security.ts` for consistent null-byte and extended character escaping (`ui-builder.ts`)
