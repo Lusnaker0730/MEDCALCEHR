@@ -107,7 +107,6 @@ export interface GetObservationOptions {
     /** Target unit for automatic conversion */
     targetUnit?: string;
     /** Unit type for conversion (e.g., 'creatinine', 'weight', 'height') */
-    /** Unit type for conversion (e.g., 'creatinine', 'weight', 'height') */
     unitType?: string;
     /** Use text-based query instead of LOINC code (for hospitals without LOINC support) */
     useTextQuery?: boolean;

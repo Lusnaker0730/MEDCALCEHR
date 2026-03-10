@@ -17,6 +17,7 @@
 import { sessionManager } from './session-manager.js';
 import { logger } from './logger.js';
 import { t } from './i18n/index.js';
+import { formatCountdown } from './utils.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -58,6 +59,7 @@ class TokenLifecycleManager {
     private disabled = false;
     private authFailureHandled = false;
     private authFailureTimer: ReturnType<typeof setInterval> | null = null;
+    private tokenWarningTimer: ReturnType<typeof setInterval> | null = null;
 
     // -----------------------------------------------------------------------
     // Public API
@@ -315,12 +317,6 @@ class TokenLifecycleManager {
 
         let seconds = remainingSeconds;
 
-        const formatTime = (s: number) => {
-            const m = Math.floor(s / 60);
-            const sec = s % 60;
-            return `${m}:${sec.toString().padStart(2, '0')}`;
-        };
-
         overlay.innerHTML = `
             <div class="session-timeout-dialog">
                 <div class="session-timeout-icon">&#9888;</div>
@@ -329,7 +325,7 @@ class TokenLifecycleManager {
                     ${t('session.tokenExpiringMessage')}
                 </p>
                 <p class="session-timeout-countdown">
-                    ${t('session.timeRemaining')} <strong id="token-countdown">${formatTime(seconds)}</strong>
+                    ${t('session.timeRemaining')} <strong id="token-countdown">${formatCountdown(seconds)}</strong>
                 </p>
                 <div class="session-timeout-actions">
                     <button id="token-continue-btn" class="session-btn session-btn-primary">
@@ -361,12 +357,15 @@ class TokenLifecycleManager {
             sessionManager.logout();
         });
 
-        // Countdown timer
+        // Countdown timer — tracked so hideTokenWarning() can clear it
         const countdownEl = document.getElementById('token-countdown');
-        const countdownInterval = setInterval(() => {
+        this.tokenWarningTimer = setInterval(() => {
             seconds--;
-            if (countdownEl) countdownEl.textContent = formatTime(Math.max(0, seconds));
-            if (seconds <= 0) clearInterval(countdownInterval);
+            if (countdownEl) countdownEl.textContent = formatCountdown(Math.max(0, seconds));
+            if (seconds <= 0 && this.tokenWarningTimer) {
+                clearInterval(this.tokenWarningTimer);
+                this.tokenWarningTimer = null;
+            }
         }, 1000);
 
         // Focus trap
@@ -390,8 +389,12 @@ class TokenLifecycleManager {
         });
     }
 
-    /** Remove the token warning overlay if it exists. */
+    /** Remove the token warning overlay and clear its countdown timer. */
     private hideTokenWarning(): void {
+        if (this.tokenWarningTimer) {
+            clearInterval(this.tokenWarningTimer);
+            this.tokenWarningTimer = null;
+        }
         document.getElementById(TOKEN_WARNING_OVERLAY_ID)?.remove();
     }
 
@@ -408,12 +411,6 @@ class TokenLifecycleManager {
 
         let seconds = AUTH_FAILURE_GRACE_SECONDS;
 
-        const formatTime = (s: number) => {
-            const m = Math.floor(s / 60);
-            const sec = s % 60;
-            return `${m}:${sec.toString().padStart(2, '0')}`;
-        };
-
         overlay.innerHTML = `
             <div class="session-timeout-dialog">
                 <div class="session-timeout-icon">&#128274;</div>
@@ -422,7 +419,7 @@ class TokenLifecycleManager {
                     ${t('session.tokenExpiredMessage')}
                 </p>
                 <p class="session-timeout-countdown">
-                    ${t('session.redirectingIn')} <strong id="auth-failure-countdown">${formatTime(seconds)}</strong>
+                    ${t('session.redirectingIn')} <strong id="auth-failure-countdown">${formatCountdown(seconds)}</strong>
                 </p>
                 <div class="session-timeout-actions">
                     <button id="auth-reauth-btn" class="session-btn session-btn-primary">
@@ -454,7 +451,7 @@ class TokenLifecycleManager {
         const countdownEl = document.getElementById('auth-failure-countdown');
         this.authFailureTimer = setInterval(() => {
             seconds--;
-            if (countdownEl) countdownEl.textContent = formatTime(Math.max(0, seconds));
+            if (countdownEl) countdownEl.textContent = formatCountdown(Math.max(0, seconds));
             if (seconds <= 0) {
                 this.forceLogout();
             }

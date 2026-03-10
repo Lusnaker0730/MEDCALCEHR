@@ -78,7 +78,8 @@
       "Bash(cd D:/CGHCALC/MEDCALCEHR && npm run dev 2>&1)",
       "Bash(claude update:*)",
       "Bash(git:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(gh pr:*)"
     ]
   }
 }

@@ -487,7 +487,7 @@ export class UIBuilder {
                 <div class="ui-result-header">
                     <span>${safeTitle}</span>
                     <button class="copy-report-btn" data-target="${safeId}" title="${t('calculator.copyReport')}">
-                        📋 Copy Report
+                        📋 ${t('calculator.copyReport')}
                     </button>
                 </div>
                 <div class="ui-result-content" role="region" aria-live="polite" aria-label="${safeTitle}"></div>

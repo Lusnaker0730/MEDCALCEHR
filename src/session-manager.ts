@@ -10,6 +10,7 @@ import { auditEventService } from './audit-event-service.js';
 import { clearEncryptionKeyCache } from './security.js';
 import { clearFHIRCache } from './sw-register.js';
 import { t } from './i18n/index.js';
+import { formatCountdown } from './utils.js';
 
 // Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 
@@ -221,7 +222,7 @@ class SessionManager {
                     ${t('session.expiringMessage')}
                 </p>
                 <p class="session-timeout-countdown">
-                    ${t('session.timeRemaining')} <strong id="session-countdown">${this.formatTime(remainingSeconds)}</strong>
+                    ${t('session.timeRemaining')} <strong id="session-countdown">${formatCountdown(remainingSeconds)}</strong>
                 </p>
                 <div class="session-timeout-actions">
                     <button id="session-continue-btn" class="session-btn session-btn-primary">
@@ -273,7 +274,7 @@ class SessionManager {
         this.countdownInterval = setInterval(() => {
             remainingSeconds--;
             if (countdownEl) {
-                countdownEl.textContent = this.formatTime(remainingSeconds);
+                countdownEl.textContent = formatCountdown(remainingSeconds);
             }
             if (remainingSeconds <= 0 && this.countdownInterval) {
                 clearInterval(this.countdownInterval);
@@ -293,11 +294,7 @@ class SessionManager {
         }
     }
 
-    private formatTime(totalSeconds: number): string {
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
+    // formatTime removed — uses shared formatCountdown() from utils.ts
 }
 
 /** Singleton instance */

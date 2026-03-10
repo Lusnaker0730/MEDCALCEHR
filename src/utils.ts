@@ -9,6 +9,15 @@ import { logger } from './logger.js';
 import { FHIR_CODE_SYSTEMS } from './fhir-codes.js';
 import { t } from './i18n/index.js';
 
+/**
+ * Format seconds as m:ss for countdown displays.
+ */
+export function formatCountdown(totalSeconds: number): string {
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 /** Storage key for patient display data */
 const PATIENT_CACHE_KEY = 'patientDisplayData';
 
