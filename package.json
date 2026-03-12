@@ -29,7 +29,10 @@
         "generate:soup": "npx ts-node --project scripts/tsconfig.json scripts/generate-soup-list.ts",
         "generate:traceability": "npx ts-node --project scripts/tsconfig.json scripts/generate-traceability-matrix.ts",
         "audit:validation": "npx ts-node --project scripts/tsconfig.json scripts/audit-validation-coverage.ts",
-        "audit:review": "npx ts-node --project scripts/tsconfig.json scripts/audit-review-status.ts"
+        "audit:review": "npx ts-node --project scripts/tsconfig.json scripts/audit-review-status.ts",
+        "setup:labels": "npx ts-node --project scripts/tsconfig.json scripts/setup-github-labels.ts",
+        "generate:regulatory": "npx ts-node --project scripts/tsconfig.json scripts/regulatory/generate-all.ts",
+        "test:regulatory": "REGULATORY_REPORT=1 jest --reporters=default --reporters=./scripts/regulatory/jest-chinese-reporter.ts"
     },
     "repository": {
         "type": "git",
@@ -58,6 +61,7 @@
         "@cyclonedx/cyclonedx-npm": "^1.19.0",
         "@jest/globals": "^29.7.0",
         "@lhci/cli": "^0.14.0",
+        "@octokit/rest": "^22.0.1",
         "@playwright/test": "^1.58.2",
         "@testing-library/dom": "^9.3.4",
         "@types/jest": "^29.5.14",

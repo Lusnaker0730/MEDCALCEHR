@@ -1,0 +1,71 @@
+name: "[風險] 風險分析"
+description: "新增或更新風險分析項目 (ISO 14971)"
+title: "[風險] "
+labels: ["ISO14971:風險"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 風險分析記錄
+        請填寫以下欄位，此 Issue 將自動納入風險管理報告生成流程。
+        風險分數 = 嚴重度 × 發生機率
+  - type: textarea
+    id: hazard_scenario
+    attributes:
+      label: 危害情境
+      description: 描述可能導致危害的失敗模式與情境
+      placeholder: "當...時，可能導致..."
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 嚴重度 (Severity)
+      options:
+        - "1 — 可忽略 (Negligible)"
+        - "2 — 輕微 (Minor)"
+        - "3 — 嚴重 (Serious)"
+        - "4 — 危急 (Critical)"
+        - "5 — 災難性 (Catastrophic)"
+    validations:
+      required: true
+  - type: dropdown
+    id: probability
+    attributes:
+      label: 發生機率 (Probability)
+      options:
+        - "1 — 極不可能 (Improbable)"
+        - "2 — 罕見 (Remote)"
+        - "3 — 偶發 (Occasional)"
+        - "4 — 可能 (Probable)"
+        - "5 — 頻繁 (Frequent)"
+    validations:
+      required: true
+  - type: textarea
+    id: risk_control
+    attributes:
+      label: 風險控制措施
+      description: 降低風險的設計或流程控制措施
+    validations:
+      required: true
+  - type: textarea
+    id: residual_risk
+    attributes:
+      label: 殘餘風險
+      description: 實施控制措施後的殘餘風險評估
+    validations:
+      required: true
+  - type: textarea
+    id: verification_method
+    attributes:
+      label: 驗證方法
+      description: 如何驗證風險控制措施的有效性
+      placeholder: "單元測試、E2E測試、程式碼審查..."
+    validations:
+      required: true
+  - type: input
+    id: related_issues
+    attributes:
+      label: 關聯 Issues
+      description: 相關的需求或設計 Issue 編號
+      placeholder: "#12, #15"

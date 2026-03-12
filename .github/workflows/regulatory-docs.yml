@@ -1,0 +1,74 @@
+name: Regulatory Documents
+
+on:
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: 'Force refresh GitHub API cache'
+        required: false
+        default: 'false'
+        type: boolean
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        continue-on-error: true
+
+      - name: Generate regulatory documents
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.refresh }}" = "true" ]; then
+            ARGS="--refresh"
+          fi
+          npx ts-node --project scripts/tsconfig.json scripts/regulatory/generate-all.ts $ARGS
+
+      - name: Generate Chinese test report
+        run: REGULATORY_REPORT=1 npm test -- --reporters=default --reporters=./scripts/regulatory/jest-chinese-reporter.ts
+        continue-on-error: true
+
+      - name: Upload regulatory documents
+        uses: actions/upload-artifact@v4
+        with:
+          name: regulatory-docs-${{ github.sha }}
+          path: regulatory_docs/
+          retention-days: 90
+
+  regulatory-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Validate regulatory document generation (dry-run)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx ts-node --project scripts/tsconfig.json scripts/regulatory/generate-all.ts --dry-run

@@ -1,0 +1,63 @@
+name: "[驗證] 驗證記錄"
+description: "新增軟體驗證記錄 (IEC 62304)"
+title: "[驗證] "
+labels: ["IEC62304:驗證"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 軟體驗證記錄
+        請填寫以下欄位，此 Issue 將自動納入軟體驗證報告生成流程。
+  - type: textarea
+    id: test_purpose
+    attributes:
+      label: 測試目的
+      description: 此驗證項目要確認的功能或需求
+    validations:
+      required: true
+  - type: textarea
+    id: test_steps
+    attributes:
+      label: 測試步驟
+      description: 詳細的測試執行步驟
+      placeholder: |
+        1. 步驟一
+        2. 步驟二
+        3. 步驟三
+    validations:
+      required: true
+  - type: textarea
+    id: expected_result
+    attributes:
+      label: 預期結果
+      description: 測試通過的判定條件
+    validations:
+      required: true
+  - type: input
+    id: related_requirements
+    attributes:
+      label: 關聯需求
+      description: 此驗證對應的需求 Issue 編號
+      placeholder: "#12, #15"
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: 測試結果
+      options:
+        - "通過 (PASS)"
+        - "失敗 (FAIL)"
+        - "待執行 (PENDING)"
+    validations:
+      required: true
+  - type: textarea
+    id: actual_result
+    attributes:
+      label: 實際結果
+      description: 實際測試結果與觀察（選填，失敗時必填）
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 測試證據
+      description: 截圖、日誌、測試報告連結等

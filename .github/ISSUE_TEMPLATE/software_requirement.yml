@@ -1,0 +1,63 @@
+name: "[需求] 軟體需求"
+description: "新增或修改軟體需求 (IEC 62304)"
+title: "[需求] "
+labels: ["IEC62304:需求"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 軟體需求規格
+        請填寫以下欄位，此 Issue 將自動納入軟體需求規格書 (SRS) 生成流程。
+  - type: textarea
+    id: description
+    attributes:
+      label: 需求描述
+      description: 詳細描述此軟體需求
+      placeholder: "系統應..."
+    validations:
+      required: true
+  - type: textarea
+    id: clinical_scenario
+    attributes:
+      label: 臨床情境
+      description: 此需求對應的臨床使用情境
+      placeholder: "當臨床醫師需要..."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 驗收條件
+      description: 需求完成的判定條件（可用列表）
+      placeholder: |
+        - [ ] 條件一
+        - [ ] 條件二
+    validations:
+      required: true
+  - type: dropdown
+    id: risk_level
+    attributes:
+      label: 風險等級
+      description: 依 IEC 62304 軟體安全性分類
+      options:
+        - "A — 無傷害可能"
+        - "B — 非嚴重傷害"
+        - "C — 死亡或嚴重傷害"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先級
+      options:
+        - "Must — 必要"
+        - "Should — 應有"
+        - "Could — 可有"
+    validations:
+      required: true
+  - type: input
+    id: related_requirements
+    attributes:
+      label: 關聯需求
+      description: 相關的需求 Issue 編號（如 #12, #15）
+      placeholder: "#12, #15"

@@ -60,6 +60,10 @@ js/app-config.js
 *.tmp
 *.bak
 
+# Regulatory docs (auto-generated, CI artifact)
+regulatory_docs/
+.cache/regulatory/
+
 # Playwright
 /test-results/
 /playwright-report/
