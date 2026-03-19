@@ -1,0 +1,290 @@
+{
+  "calculatorId": "trade-off-analysis",
+  "calculatorName": "ARC-HBR Trade-off Analysis",
+  "version": "1.0",
+  "calculatorType": "simple",
+  "cases": [
+    {
+      "id": "T-BASE",
+      "description": "All factors off (baseline)",
+      "source": "No active factors. HR=1.0 for both. P=1-exp(-(-ln(1-0.014))*1.0)=1.4%",
+      "inputs": {},
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.4, "tolerance": 0.01 },
+        { "label": "Ischemic Risk", "value": 1.4, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "T-BL-01",
+      "description": "Age>=65 only",
+      "source": "Bleeding HR=1.50. P=1-exp(-0.014099*1.50)*100=2.09%",
+      "inputs": { "age_65": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 2.09, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 1.4, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "T-BL-02",
+      "description": "Liver/cancer/surgery only",
+      "source": "Bleeding HR=1.63. P=2.27%",
+      "inputs": { "liver_cancer_surgery": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 2.27, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 1.4, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "T-BL-03",
+      "description": "COPD only",
+      "source": "Bleeding HR=1.39. P=1.94%",
+      "inputs": { "copd": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.94, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 1.4, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "T-BL-04",
+      "description": "Smoker only (shared factor)",
+      "source": "Bleeding HR=1.47, Ischemic HR=1.48",
+      "inputs": { "current_smoker": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 2.05, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 2.07, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-BL-05",
+      "description": "Hb 11-12.9 only",
+      "source": "Bleeding HR=1.69, Ischemic HR=1.27",
+      "inputs": { "hb_11_13": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 2.35, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 1.77, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-BL-06",
+      "description": "Hb <11 only",
+      "source": "Bleeding HR=3.99, Ischemic HR=1.50",
+      "inputs": { "hb_lt_11": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 5.47, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 2.09, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-BL-07",
+      "description": "eGFR <30 only",
+      "source": "Bleeding HR=1.43, Ischemic HR=1.69",
+      "inputs": { "egfr_lt_30": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 2.0, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 2.35, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-BL-08",
+      "description": "Complex PCI only",
+      "source": "Bleeding HR=1.32, Ischemic HR=1.50",
+      "inputs": { "complex_pci": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.84, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 2.09, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-BL-09",
+      "description": "OAC at discharge only",
+      "source": "Bleeding HR=2.00",
+      "inputs": { "oac_discharge": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 2.78, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 1.4, "tolerance": 0.01 }
+      ]
+    },
+    {
+      "id": "T-TH-01",
+      "description": "Diabetes only",
+      "source": "Ischemic HR=1.56",
+      "inputs": { "diabetes": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.4, "tolerance": 0.01 },
+        { "label": "Ischemic Risk", "value": 2.18, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-TH-02",
+      "description": "Prior MI only",
+      "source": "Ischemic HR=1.89",
+      "inputs": { "prior_mi": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.4, "tolerance": 0.01 },
+        { "label": "Ischemic Risk", "value": 2.63, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-TH-03",
+      "description": "NSTEMI/STEMI only",
+      "source": "Ischemic HR=1.82",
+      "inputs": { "nstemi_stemi": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.4, "tolerance": 0.01 },
+        { "label": "Ischemic Risk", "value": 2.53, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-TH-04",
+      "description": "eGFR 30-59 only",
+      "source": "Bleeding HR=0.99, Ischemic HR=1.30",
+      "inputs": { "egfr_30_59": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.39, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 1.82, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-TH-05",
+      "description": "BMS only",
+      "source": "Ischemic HR=1.53",
+      "inputs": { "bare_metal_stent": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.4, "tolerance": 0.01 },
+        { "label": "Ischemic Risk", "value": 2.13, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-COMB-01",
+      "description": "Age>=65 + Hb<11 + OAC (high bleeding combo)",
+      "source": "Bleeding HR=1.50*3.99*2.00=11.97. P=15.53%",
+      "inputs": { "age_65": 1, "hb_lt_11": 1, "oac_discharge": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 15.53, "tolerance": 0.1 },
+        { "label": "Ischemic Risk", "value": 2.09, "tolerance": 0.02 }
+      ]
+    },
+    {
+      "id": "T-COMB-02",
+      "description": "Diabetes + Prior MI + NSTEMI (high thrombotic combo)",
+      "source": "Ischemic HR=1.56*1.89*1.82=5.363. P=7.29%",
+      "inputs": { "diabetes": 1, "prior_mi": 1, "nstemi_stemi": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.4, "tolerance": 0.01 },
+        { "label": "Ischemic Risk", "value": 7.29, "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "T-COMB-03",
+      "description": "Smoker + Hb 11-12.9 + eGFR<30 (mixed risk)",
+      "source": "Bleeding HR=1.47*1.69*1.43=3.553, Ischemic HR=1.48*1.27*1.69=3.176",
+      "inputs": { "current_smoker": 1, "hb_11_13": 1, "egfr_lt_30": 1 },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 4.89, "tolerance": 0.1 },
+        { "label": "Ischemic Risk", "value": 4.38, "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "T-COMB-04",
+      "description": "All bleeding factors on",
+      "source": "All bleeding-affecting factors active. HR product=75.25. P=65.39%",
+      "inputs": {
+        "age_65": 1, "liver_cancer_surgery": 1, "copd": 1, "current_smoker": 1,
+        "hb_lt_11": 1, "egfr_lt_30": 1, "complex_pci": 1, "oac_discharge": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 65.39, "tolerance": 0.2 },
+        { "label": "Ischemic Risk", "value": 7.63, "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "T-COMB-05",
+      "description": "All thrombotic factors on",
+      "source": "All thrombotic-affecting factors active. Ischemic HR product very high.",
+      "inputs": {
+        "current_smoker": 1, "hb_lt_11": 1, "egfr_lt_30": 1, "complex_pci": 1,
+        "diabetes": 1, "prior_mi": 1, "nstemi_stemi": 1, "bare_metal_stent": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 14.45, "tolerance": 0.2 },
+        { "label": "Ischemic Risk", "value": 47.87, "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "T-COMB-06",
+      "description": "All factors on",
+      "source": "All 14 factors active. Max risk scenario.",
+      "inputs": {
+        "age_65": 1, "liver_cancer_surgery": 1, "copd": 1, "current_smoker": 1,
+        "hb_lt_11": 1, "egfr_lt_30": 1, "complex_pci": 1, "oac_discharge": 1,
+        "diabetes": 1, "prior_mi": 1, "nstemi_stemi": 1, "bare_metal_stent": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 65.39, "tolerance": 0.3 },
+        { "label": "Ischemic Risk", "value": 47.87, "tolerance": 0.3 }
+      ]
+    },
+    {
+      "id": "T-PAPER-01",
+      "description": "Paper Patient 1 (63M NSTEMI complex)",
+      "source": "Hb 11-12.9 + eGFR<30 + complex PCI + OAC + diabetes + NSTEMI",
+      "inputs": {
+        "hb_11_13": 1, "egfr_lt_30": 1, "complex_pci": 1, "oac_discharge": 1,
+        "diabetes": 1, "nstemi_stemi": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 8.6, "tolerance": 0.2 },
+        { "label": "Ischemic Risk", "value": 12.09, "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "T-PAPER-02",
+      "description": "Paper Patient 2 (77F stable Hb10.7)",
+      "source": "Age>=65 + Hb<11 + eGFR 30-59 + diabetes",
+      "inputs": {
+        "age_65": 1, "hb_lt_11": 1, "egfr_30_59": 1, "diabetes": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 8.01, "tolerance": 0.2 },
+        { "label": "Ischemic Risk", "value": 4.2, "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "T-PAPER-03",
+      "description": "Paper Patient 3 (51M NSTEMI liver smoker)",
+      "source": "Liver/cancer + smoker + Hb 11-12.9 + NSTEMI",
+      "inputs": {
+        "liver_cancer_surgery": 1, "current_smoker": 1, "hb_11_13": 1, "nstemi_stemi": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 5.55, "tolerance": 0.1 },
+        { "label": "Ischemic Risk", "value": 4.71, "tolerance": 0.1 }
+      ]
+    },
+    {
+      "id": "T-EDGE-01",
+      "description": "Thrombotic factors only (no bleeding)",
+      "source": "eGFR 30-59 + diabetes + prior MI + NSTEMI + BMS. Bleeding near baseline.",
+      "inputs": {
+        "egfr_30_59": 1, "diabetes": 1, "prior_mi": 1, "nstemi_stemi": 1, "bare_metal_stent": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 1.39, "tolerance": 0.02 },
+        { "label": "Ischemic Risk", "value": 13.97, "tolerance": 0.2 }
+      ]
+    },
+    {
+      "id": "T-EDGE-02",
+      "description": "Bleeding factors only (no thrombotic)",
+      "source": "Age>=65 + liver + COPD + Hb<11 + eGFR<30 + OAC. Thrombotic near baseline.",
+      "inputs": {
+        "age_65": 1, "liver_cancer_surgery": 1, "copd": 1,
+        "hb_lt_11": 1, "egfr_lt_30": 1, "oac_discharge": 1
+      },
+      "expected": [
+        { "label": "Bleeding Risk", "value": 42.12, "tolerance": 0.3 },
+        { "label": "Ischemic Risk", "value": 3.50, "tolerance": 0.05 }
+      ]
+    }
+  ]
+}

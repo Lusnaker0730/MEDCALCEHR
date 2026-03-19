@@ -37,7 +37,7 @@ const calculateScore = (
     if (age > 80) ageClamped = 80;
 
     if (age > 30) {
-        const agePoints = (ageClamped - 30) * 0.26;
+        const agePoints = (ageClamped - 30) * 0.25;
         if (agePoints > 0) {
             score += agePoints;
             breakdownParts.push(`Age ${age} (Clamped: ${ageClamped}) -> +${agePoints.toFixed(2)}`);
@@ -51,7 +51,7 @@ const calculateScore = (
     if (hb > 15.0) hbClamped = 15.0;
 
     if (hb < 15.0) {
-        const hbPoints = (15 - hbClamped) * 2.6;
+        const hbPoints = (15 - hbClamped) * 2.5;
         if (hbPoints > 0) {
             score += hbPoints;
             breakdownParts.push(`Hb ${hb} (Clamped: ${hbClamped}) -> +${hbPoints.toFixed(2)}`);
@@ -65,7 +65,7 @@ const calculateScore = (
     if (egfr > 100) egfrClamped = 100;
 
     if (egfr < 100) {
-        const egfrPoints = (100 - egfrClamped) * 0.05;
+        const egfrPoints = (100 - egfrClamped) * 0.055;
         if (egfrPoints > 0) {
             score += egfrPoints;
             breakdownParts.push(
@@ -288,37 +288,26 @@ export const preciseHbr = createUnifiedFormulaCalculator({
             arcHbrRisk
         );
 
-        // Interpretation
+        // Risk calculation via cloglog formula
         const s = result.score;
-        let riskLevel = '';
-        let bleedingRisk = '';
-        let severity: 'success' | 'warning' | 'danger' = 'success';
+        const clamped = Math.max(2, Math.min(54, s));
+        const lp = -5.3945 + 0.09725 * clamped;
+        const riskPercent = Math.round((1.0 - Math.exp(-Math.exp(lp))) * 10000) / 100;
+        const bleedingRisk = `${riskPercent}%`;
+
+        // Risk stratification per PRECISE-HBR thresholds
+        let riskLevel: string;
+        let severity: 'success' | 'warning' | 'danger';
 
         if (s <= 22) {
             riskLevel = 'Non-HBR (Low Risk)';
-            bleedingRisk = '0.5% ~ 3.5%';
             severity = 'success';
         } else if (s <= 26) {
             riskLevel = 'HBR (High Risk)';
-            bleedingRisk = '3.5% ~ 5.5%';
             severity = 'warning';
-        } else if (s <= 30) {
-            riskLevel = 'Very HBR (Very High Risk)';
-            bleedingRisk = '5.5% ~ 8.0%';
-            severity = 'danger';
         } else {
-            // > 30
-            // Image says 31-35 is Extreme (8.0-12.0)
-            // > 35 is Cap (15%)
-            if (s <= 35) {
-                riskLevel = 'Extreme Risk';
-                bleedingRisk = '8.0% ~ 12.0%';
-                severity = 'danger';
-            } else {
-                riskLevel = 'Extreme Risk (Capped)';
-                bleedingRisk = 'Upper limit ~15%';
-                severity = 'danger';
-            }
+            riskLevel = 'Very HBR (Very High Risk)';
+            severity = 'danger';
         }
 
         return {
@@ -360,11 +349,9 @@ export const preciseHbr = createUnifiedFormulaCalculator({
         content: uiBuilder.createTable({
             headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
             rows: [
-                ['≤ 22', 'Non-HBR', '0.5% ~ 3.5%'],
-                ['23 - 26', 'HBR', '3.5% ~ 5.5%'],
-                ['27 - 30', 'Very HBR', '5.5% ~ 8.0%'],
-                ['31 - 35', 'Extreme', '8.0% ~ 12.0%'],
-                ['> 35', 'Capped', '~15%']
+                ['≤ 22', 'Non-HBR (Low Risk)', '< 4%'],
+                ['23 - 26', 'HBR (High Risk)', '~ 4%'],
+                ['≥ 27', 'Very HBR (Very High Risk)', '≥ 6%']
             ]
         })
     })}

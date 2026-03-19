@@ -9,11 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Changed
+- **PRECISE-HBR coefficients aligned with cdss_config**: Age 0.26→0.25, Hb 2.6→2.5, eGFR 0.05→0.055 (Costa F, Lancet 2017); 1-year bleeding risk now computed via cloglog formula `P = 1 - exp(-exp(-5.3945 + 0.09725 × score))` instead of hardcoded ranges; risk stratification simplified to 3 tiers (Non-HBR ≤22 / HBR 23-26 / Very HBR ≥27) (`precise-hbr/calculation.ts`, `precise-hbr/index.ts`)
+- **Trade-off analysis: Cox PH model**: Replaced incorrect simple-multiplication risk formula with validated Cox proportional hazards model `P = 1 - exp(-baselineHazard × HR_product)`; baseline rates corrected from 5.7%/5.3% to 1.4%/1.4% (ARC-HBR reference group, validated against official app with <0.01% error) (`trade-off-analysis/risk-factors.ts`, `trade-off-analysis/index.ts`)
 - **Unapproved calculators hidden**: Calculators pending clinical review are now completely hidden from the list instead of showing as disabled with "審核中" badge; approval filter applied before all filter paths (fixes recent-tab bypass bug); category chip counts and stats reflect only approved calculators (`main.ts`)
 - **i18n: ~60 hardcoded English strings translated**: Session/token overlays, error messages, FHIR feedback, patient display, calculator page messages, validation fallbacks, service worker notifications, and data staleness warnings now use `t()` translation function with full zh-TW support (`token-lifecycle-manager.ts`, `session-manager.ts`, `calculator-page.ts`, `errorHandler.ts`, `fhir-feedback.ts`, `data-staleness.ts`, `utils.ts`, `validator.ts`, `sw-register.ts`, `ui-builder.ts`)
 
 ### Added
 - `CLAUDE.md` files for AI-assisted development context at root, `src/`, `src/calculators/`, and `src/calculators/shared/`
+- **PRECISE-HBR golden dataset v3.0**: 10 clinically validated cases from official PRECISE-HBR validation data, covering baseline, categorical factors, boundary scores (22/26/27), age clamping, and extreme scores (`golden-datasets/precise-hbr.json`)
+- **Trade-off analysis golden dataset**: 26 validated cases from official ARC-HBR app (baseline, 9 bleeding, 5 thrombotic, 6 combinations, 3 paper patients, 2 edge cases) with Cox PH model verification (`golden-datasets/trade-off-analysis.json`, `golden-dataset.test.ts`)
+- **`calculateRiskPercent()` export**: Cloglog risk function for PRECISE-HBR score-to-percentage conversion (`precise-hbr/calculation.ts`)
+- **`convertHrToProbability()` export**: Cox PH hazard-to-probability conversion for trade-off analysis (`trade-off-analysis/risk-factors.ts`)
 - Penetration test report: `docs/compliance/PENETRATION_TEST_2026-03-09.md` (17 findings, 13 fixed)
 
 ### Fixed

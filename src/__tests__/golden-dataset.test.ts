@@ -77,6 +77,7 @@ import { calculateEuroScoreII } from '../calculators/euroscore-ii/calculation.js
 import { calculateABG } from '../calculators/abg-analyzer/calculation.js';
 import { calculatePediatricBP } from '../calculators/pediatric-bp/calculation.js';
 import { preciseHbrCalculation } from '../calculators/precise-hbr/calculation.js';
+import { calculateBleedingRisk, calculateIschemicRisk } from '../calculators/trade-off-analysis/risk-factors.js';
 
 // ==========================================
 // Scoring Calculator Config Imports (Pattern B)
@@ -337,6 +338,15 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
     'maggic': calculateMaggic,
     'maintenance-fluids': calculateMaintenanceFluids,
     'sex-shock': calculateSexShock,
+    'trade-off-analysis': (values: Record<string, any>) => {
+        const factorIds = Object.keys(values).filter(k => values[k] === 1 || values[k] === true);
+        const bleeding = calculateBleedingRisk(factorIds);
+        const ischemic = calculateIschemicRisk(factorIds);
+        return [
+            { label: 'Bleeding Risk', value: bleeding },
+            { label: 'Ischemic Risk', value: ischemic }
+        ];
+    },
 };
 
 const complexCalculatorMap: Record<string, (...args: any[]) => any> = {

@@ -1,18 +1,18 @@
 {
   "calculatorId": "precise-hbr",
   "calculatorName": "PRECISE-HBR Bleeding Risk Score",
-  "version": "1.0",
+  "version": "3.0",
   "calculatorType": "complex",
   "cases": [
     {
       "id": "GD-PHBR-001",
-      "description": "Low risk - young, normal labs, no risk factors",
-      "source": "Base(2) + Age(40-30)*0.26=2.6 + Hb(15-14)*2.5=2.5 + eGFR(100-90)*0.05=0.5 + WBC(7-3)*0.8=3.2 = 10.8 → Round=11. Non-HBR.",
+      "description": "Baseline minimum - all optimal values, no risk factors",
+      "source": "Base(2), Age≤30→+0, Hb≥15→+0, eGFR≥100→+0, WBC≤3→+0. Score=2, cloglog risk=0.55%",
       "inputs": {
-        "precise-hbr-age": 40,
-        "precise-hbr-hb": 14,
-        "precise-hbr-wbc": 7,
-        "precise-hbr-egfr": 90,
+        "precise-hbr-age": 20,
+        "precise-hbr-hb": 20,
+        "precise-hbr-wbc": 3,
+        "precise-hbr-egfr": 150,
         "prior_bleeding": "0",
         "oral_anticoagulation": "0",
         "arc_hbr_plt": "0",
@@ -23,24 +23,116 @@
         "arc_hbr_nsaids": "0"
       },
       "expected": [
-        { "label": "Score", "value": 11, "tolerance": 1 },
+        { "label": "Score", "value": 2, "tolerance": 0 },
         { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
       ]
     },
     {
       "id": "GD-PHBR-002",
-      "description": "Borderline HBR - older with mild anemia and reduced eGFR",
-      "source": "Base(2) + Age(65-30)*0.26=9.1 + Hb(15-12)*2.5=7.5 + eGFR(100-45)*0.05=2.75 + WBC(9-3)*0.8=4.8 = 26.15 → Round=26. HBR (High Risk).",
+      "description": "Prior bleeding only adds +7",
+      "source": "Base(2) + PriorBleeding(+7) = 9. cloglog risk=1.09%",
       "inputs": {
-        "precise-hbr-age": 65,
-        "precise-hbr-hb": 12,
-        "precise-hbr-wbc": 9,
-        "precise-hbr-egfr": 45,
-        "prior_bleeding": "0",
+        "precise-hbr-age": 20,
+        "precise-hbr-hb": 20,
+        "precise-hbr-wbc": 3,
+        "precise-hbr-egfr": 150,
+        "prior_bleeding": "1",
         "oral_anticoagulation": "0",
         "arc_hbr_plt": "0",
         "arc_hbr_diathesis": "0",
         "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 9, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-003",
+      "description": "OAC only adds +5",
+      "source": "Base(2) + OAC(+5) = 7. cloglog risk=0.89%",
+      "inputs": {
+        "precise-hbr-age": 20,
+        "precise-hbr-hb": 20,
+        "precise-hbr-wbc": 3,
+        "precise-hbr-egfr": 150,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "1",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 7, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-004",
+      "description": "ARC-HBR only adds +3",
+      "source": "Base(2) + ARC-HBR(+3) = 5. cloglog risk=0.74%",
+      "inputs": {
+        "precise-hbr-age": 20,
+        "precise-hbr-hb": 20,
+        "precise-hbr-wbc": 3,
+        "precise-hbr-egfr": 150,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "0",
+        "arc_hbr_plt": "1",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 5, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-005",
+      "description": "Boundary score=22, non-HBR upper limit",
+      "source": "Base(2) + Hb(15-12)*2.5=7.5 + WBC(5-3)*0.8=1.6 + eGFR(100-30)*0.055=3.85 + PriorBleeding(+7) = 21.95→22. cloglog risk=3.79%",
+      "inputs": {
+        "precise-hbr-age": 20,
+        "precise-hbr-hb": 12,
+        "precise-hbr-wbc": 5,
+        "precise-hbr-egfr": 30,
+        "prior_bleeding": "1",
+        "oral_anticoagulation": "0",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "0",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 22, "tolerance": 0 },
+        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-006",
+      "description": "Boundary score=26, HBR",
+      "source": "Base(2) + Age(50-30)*0.25=5.0 + Hb(15-12)*2.5=7.5 + WBC(5-3)*0.8=1.6 + eGFR(100-60)*0.055=2.2 + OAC(+5) + ARC-HBR(+3) = 26.3→26. cloglog risk=5.54%",
+      "inputs": {
+        "precise-hbr-age": 50,
+        "precise-hbr-hb": 12,
+        "precise-hbr-wbc": 5,
+        "precise-hbr-egfr": 60,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "1",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "1",
         "arc_hbr_malignancy": "0",
         "arc_hbr_surgery": "0",
         "arc_hbr_nsaids": "0"
@@ -51,14 +143,14 @@
       ]
     },
     {
-      "id": "GD-PHBR-003",
-      "description": "High risk - prior bleeding adds +7",
-      "source": "Base(2) + Age(55-30)*0.26=6.5 + Hb(15-13)*2.5=5.0 + eGFR(100-60)*0.05=2.0 + WBC(8-3)*0.8=4.0 + PriorBleeding(+7) = 26.5 → Round=27. Very HBR.",
+      "id": "GD-PHBR-007",
+      "description": "Boundary score=27, Very HBR",
+      "source": "Base(2) + Age(50-30)*0.25=5.0 + Hb(15-12)*2.5=7.5 + WBC(5-3)*0.8=1.6 + eGFR(100-30)*0.055=3.85 + PriorBleeding(+7) = 26.95→27. cloglog risk=6.09%",
       "inputs": {
-        "precise-hbr-age": 55,
-        "precise-hbr-hb": 13,
-        "precise-hbr-wbc": 8,
-        "precise-hbr-egfr": 60,
+        "precise-hbr-age": 50,
+        "precise-hbr-hb": 12,
+        "precise-hbr-wbc": 5,
+        "precise-hbr-egfr": 30,
         "prior_bleeding": "1",
         "oral_anticoagulation": "0",
         "arc_hbr_plt": "0",
@@ -74,15 +166,15 @@
       ]
     },
     {
-      "id": "GD-PHBR-004",
-      "description": "Extreme risk - prior bleeding + OAC + ARC-HBR factor",
-      "source": "Base(2) + Age(70-30)*0.26=10.4 + Hb(15-10)*2.5=12.5 + eGFR(100-30)*0.05=3.5 + WBC(11-3)*0.8=6.4 + PriorBleeding(+7) + OAC(+5) + ARC-HBR(+3) = 50.3 → Round=50. Extreme Risk (Capped).",
+      "id": "GD-PHBR-008",
+      "description": "High score with age capped at 80",
+      "source": "Base(2) + Age(80-30)*0.25=12.5 + Hb(15-12)*2.5=7.5 + WBC(5-3)*0.8=1.6 + eGFR(100-10)*0.055=4.95 + OAC(+5) + ARC-HBR(+3) = 36.55→37. cloglog risk=15.30%",
       "inputs": {
-        "precise-hbr-age": 70,
-        "precise-hbr-hb": 10,
-        "precise-hbr-wbc": 11,
-        "precise-hbr-egfr": 30,
-        "prior_bleeding": "1",
+        "precise-hbr-age": 80,
+        "precise-hbr-hb": 12,
+        "precise-hbr-wbc": 5,
+        "precise-hbr-egfr": 10,
+        "prior_bleeding": "0",
         "oral_anticoagulation": "1",
         "arc_hbr_plt": "0",
         "arc_hbr_diathesis": "0",
@@ -92,21 +184,44 @@
         "arc_hbr_nsaids": "0"
       },
       "expected": [
-        { "label": "Score", "value": 50, "tolerance": 2 },
-        { "label": "Interpretation", "value": "Extreme Risk" }
+        { "label": "Score", "value": 37, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Very HBR (Very High Risk)" }
       ]
     },
     {
-      "id": "GD-PHBR-005",
-      "description": "OAC only - moderate addition",
-      "source": "Base(2) + Age(50-30)*0.26=5.2 + Hb(15-14.5)*2.5=1.25 + eGFR(100-80)*0.05=1.0 + WBC(6-3)*0.8=2.4 + OAC(+5) = 16.85 → Round=17. Non-HBR.",
+      "id": "GD-PHBR-009",
+      "description": "Age >80 capped same as 80",
+      "source": "Age 100 clamped to 80. Same score as GD-PHBR-008 = 37. cloglog risk=15.30%",
       "inputs": {
-        "precise-hbr-age": 50,
-        "precise-hbr-hb": 14.5,
-        "precise-hbr-wbc": 6,
-        "precise-hbr-egfr": 80,
+        "precise-hbr-age": 100,
+        "precise-hbr-hb": 12,
+        "precise-hbr-wbc": 5,
+        "precise-hbr-egfr": 10,
         "prior_bleeding": "0",
         "oral_anticoagulation": "1",
+        "arc_hbr_plt": "0",
+        "arc_hbr_diathesis": "0",
+        "arc_hbr_cirrhosis": "1",
+        "arc_hbr_malignancy": "0",
+        "arc_hbr_surgery": "0",
+        "arc_hbr_nsaids": "0"
+      },
+      "expected": [
+        { "label": "Score", "value": 37, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Very HBR (Very High Risk)" }
+      ]
+    },
+    {
+      "id": "GD-PHBR-010",
+      "description": "Extreme score - severe anemia + high WBC",
+      "source": "Base(2) + Age(80-30)*0.25=12.5 + Hb(15-7)*2.5=20.0 + WBC(15-3)*0.8=9.6 + eGFR(100-80)*0.055=1.1 = 45.2→45. cloglog risk=30.35%",
+      "inputs": {
+        "precise-hbr-age": 100,
+        "precise-hbr-hb": 7,
+        "precise-hbr-wbc": 15,
+        "precise-hbr-egfr": 80,
+        "prior_bleeding": "0",
+        "oral_anticoagulation": "0",
         "arc_hbr_plt": "0",
         "arc_hbr_diathesis": "0",
         "arc_hbr_cirrhosis": "0",
@@ -115,8 +230,8 @@
         "arc_hbr_nsaids": "0"
       },
       "expected": [
-        { "label": "Score", "value": 17, "tolerance": 1 },
-        { "label": "Interpretation", "value": "Non-HBR (Low Risk)" }
+        { "label": "Score", "value": 45, "tolerance": 1 },
+        { "label": "Interpretation", "value": "Very HBR (Very High Risk)" }
       ]
     }
   ]

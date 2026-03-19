@@ -12,7 +12,26 @@ import type {
 
 // ==========================================
 // PRECISE-HBR Score Calculation
+// Coefficients from cdss_config.json (Costa F, Lancet 2017)
+// Risk formula: cloglog link from Fine-Gray competing risks model
 // ==========================================
+
+// Cloglog coefficients for 1-year BARC 3/5 bleeding risk
+const CLOGLOG_A = -5.3945;
+const CLOGLOG_B = 0.09725;
+
+/**
+ * Calculate 1-year bleeding risk percentage from PRECISE-HBR score
+ * using complementary log-log (cloglog) link function.
+ *
+ * Risk% = 100 × (1 - exp(-exp(a + b × score)))
+ */
+export function calculateRiskPercent(score: number): number {
+    const clamped = Math.max(2, Math.min(54, score));
+    const lp = CLOGLOG_A + CLOGLOG_B * clamped;
+    const risk = 1.0 - Math.exp(-Math.exp(lp));
+    return Math.round(risk * 10000) / 100; // round to 2 decimals
+}
 
 export interface ScoreResult {
     score: number;
@@ -44,13 +63,13 @@ export function calculatePreciseHbrScore(
     const breakdownParts: string[] = ['Base Score (2)'];
 
     // --- Age ---
-    // Range 30-80. If > 30: + (Age - 30) * 0.25
+    // Range 30-80. If > 30: + (Age - 30) × 0.25
     let ageClamped = age;
     if (age < 30) ageClamped = 30;
     if (age > 80) ageClamped = 80;
 
     if (age > 30) {
-        const agePoints = (ageClamped - 30) * 0.26;
+        const agePoints = (ageClamped - 30) * 0.25;
         if (agePoints > 0) {
             score += agePoints;
             breakdownParts.push(`Age ${age} (Clamped: ${ageClamped}) -> +${agePoints.toFixed(2)}`);
@@ -58,13 +77,13 @@ export function calculatePreciseHbrScore(
     }
 
     // --- Hb ---
-    // Range 5.0 - 15.0 g/dL. If < 15: + (15 - Hb) * 2.5
+    // Range 5.0 - 15.0 g/dL. If < 15: + (15 - Hb) × 2.5
     let hbClamped = hb;
     if (hb < 5.0) hbClamped = 5.0;
     if (hb > 15.0) hbClamped = 15.0;
 
     if (hb < 15.0) {
-        const hbPoints = (15 - hbClamped) * 2.6;
+        const hbPoints = (15 - hbClamped) * 2.5;
         if (hbPoints > 0) {
             score += hbPoints;
             breakdownParts.push(`Hb ${hb} (Clamped: ${hbClamped}) -> +${hbPoints.toFixed(2)}`);
@@ -72,13 +91,13 @@ export function calculatePreciseHbrScore(
     }
 
     // --- eGFR ---
-    // Range 5 - 100. If < 100: + (100 - eGFR) * 0.05
+    // Range 5 - 100. If < 100: + (100 - eGFR) × 0.055
     let egfrClamped = egfr;
     if (egfr < 5) egfrClamped = 5;
     if (egfr > 100) egfrClamped = 100;
 
     if (egfr < 100) {
-        const egfrPoints = (100 - egfrClamped) * 0.05;
+        const egfrPoints = (100 - egfrClamped) * 0.055;
         if (egfrPoints > 0) {
             score += egfrPoints;
             breakdownParts.push(
@@ -170,35 +189,24 @@ export function preciseHbrCalculation(
         arcHbrRisk
     );
 
-    // Interpretation
+    // Risk calculation via cloglog formula
     const s = result.score;
-    let riskLevel = '';
-    let bleedingRisk = '';
-    let severity: 'success' | 'warning' | 'danger' = 'success';
+    const riskPercent = calculateRiskPercent(s);
+    const bleedingRisk = `${riskPercent}%`;
+
+    // Risk stratification per PRECISE-HBR thresholds
+    let riskLevel: string;
+    let severity: 'success' | 'warning' | 'danger';
 
     if (s <= 22) {
         riskLevel = 'Non-HBR (Low Risk)';
-        bleedingRisk = '0.5% ~ 3.5%';
         severity = 'success';
     } else if (s <= 26) {
         riskLevel = 'HBR (High Risk)';
-        bleedingRisk = '3.5% ~ 5.5%';
         severity = 'warning';
-    } else if (s <= 30) {
-        riskLevel = 'Very HBR (Very High Risk)';
-        bleedingRisk = '5.5% ~ 8.0%';
-        severity = 'danger';
     } else {
-        // > 30
-        if (s <= 35) {
-            riskLevel = 'Extreme Risk';
-            bleedingRisk = '8.0% ~ 12.0%';
-            severity = 'danger';
-        } else {
-            riskLevel = 'Extreme Risk (Capped)';
-            bleedingRisk = 'Upper limit ~15%';
-            severity = 'danger';
-        }
+        riskLevel = 'Very HBR (Very High Risk)';
+        severity = 'danger';
     }
 
     return {

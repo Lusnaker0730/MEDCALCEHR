@@ -111,20 +111,20 @@ function generateHTML(): string {
                     <div class="vertical-bar-item">
                         <div class="vertical-bar-wrapper">
                             <div class="vertical-bar-fill bleeding" id="bleeding-risk-bar">
-                                <span id="bleeding-bar-text">5.7%</span>
+                                <span id="bleeding-bar-text">1.4%</span>
                             </div>
                         </div>
                         <div class="vertical-bar-label">1-Year Bleeding Risk</div>
-                        <div class="vertical-bar-value bleeding" id="bleeding-risk-value">5.7%</div>
+                        <div class="vertical-bar-value bleeding" id="bleeding-risk-value">1.4%</div>
                     </div>
                     <div class="vertical-bar-item">
                         <div class="vertical-bar-wrapper">
                             <div class="vertical-bar-fill ischemic" id="ischemic-risk-bar">
-                                <span id="ischemic-bar-text">5.3%</span>
+                                <span id="ischemic-bar-text">1.4%</span>
                             </div>
                         </div>
                         <div class="vertical-bar-label">1-Year Ischemic Risk</div>
-                        <div class="vertical-bar-value ischemic" id="ischemic-risk-value">5.3%</div>
+                        <div class="vertical-bar-value ischemic" id="ischemic-risk-value">1.4%</div>
                     </div>
                 </div>
                 
@@ -252,8 +252,8 @@ function initialize(_client: unknown, _patient: unknown, _container: HTMLElement
     setTimeout(() => {
         currentChart = createTradeOffChart({
             containerId: 'trade-off-chart-container',
-            bleedingRisk: 5.7, // baseline
-            ischemicRisk: 5.3 // baseline
+            bleedingRisk: 1.4, // baseline (all predictors absent)
+            ischemicRisk: 1.4 // baseline (all predictors absent)
         });
         updateCalculation();
 

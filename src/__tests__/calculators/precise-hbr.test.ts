@@ -7,6 +7,7 @@
 import { describe, expect, test } from '@jest/globals';
 import {
     calculatePreciseHbrScore,
+    calculateRiskPercent,
     preciseHbrCalculation
 } from '../../calculators/precise-hbr/calculation.js';
 
@@ -76,16 +77,16 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(score).toBe(2); // Base only
         });
 
-        test('Age 50 adds ~5.2 points', () => {
-            // (50-30) * 0.26 = 5.2
+        test('Age 50 adds 5 points', () => {
+            // (50-30) * 0.25 = 5.0
             const score = calculateScore(50, 15.0, 100, 3, false, false, false);
-            expect(score).toBe(7); // 2 + 5.2 rounded
+            expect(score).toBe(7); // 2 + 5.0 rounded
         });
 
-        test('Age 80 adds ~13 points (capped)', () => {
-            // (80-30) * 0.26 = 13
+        test('Age 80 adds 12.5 points (capped)', () => {
+            // (80-30) * 0.25 = 12.5
             const score = calculateScore(80, 15.0, 100, 3, false, false, false);
-            expect(score).toBe(15); // 2 + 13
+            expect(score).toBe(15); // 2 + 12.5 rounded
         });
 
         test('Age above 80 is capped', () => {
@@ -105,16 +106,16 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(score).toBe(2);
         });
 
-        test('Hb 12 adds 7.8 points', () => {
-            // (15-12) * 2.6 = 7.8
+        test('Hb 12 adds 7.5 points', () => {
+            // (15-12) * 2.5 = 7.5
             const score = calculateScore(30, 12.0, 100, 3, false, false, false);
-            expect(score).toBe(10); // 2 + 7.8 rounded
+            expect(score).toBe(10); // 2 + 7.5 rounded
         });
 
-        test('Hb 8 adds 18.2 points', () => {
-            // (15-8) * 2.6 = 18.2
+        test('Hb 8 adds 17.5 points', () => {
+            // (15-8) * 2.5 = 17.5
             const score = calculateScore(30, 8.0, 100, 3, false, false, false);
-            expect(score).toBe(20); // 2 + 18.2 rounded
+            expect(score).toBe(20); // 2 + 17.5 rounded
         });
     });
 
@@ -128,16 +129,16 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(score).toBe(2);
         });
 
-        test('eGFR 60 adds 2 points', () => {
-            // (100-60) * 0.05 = 2
+        test('eGFR 60 adds 2.2 points', () => {
+            // (100-60) * 0.055 = 2.2
             const score = calculateScore(30, 15.0, 60, 3, false, false, false);
-            expect(score).toBe(4); // 2 + 2
+            expect(score).toBe(4); // 2 + 2.2 rounded
         });
 
-        test('eGFR 20 adds 4 points', () => {
-            // (100-20) * 0.05 = 4
+        test('eGFR 20 adds 4.4 points', () => {
+            // (100-20) * 0.055 = 4.4
             const score = calculateScore(30, 15.0, 20, 3, false, false, false);
-            expect(score).toBe(6); // 2 + 4
+            expect(score).toBe(6); // 2 + 4.4 rounded
         });
     });
 
@@ -263,19 +264,19 @@ describe('PRECISE-HBR Score Calculator', () => {
         test('Age contribution is in breakdown when applicable', () => {
             const result = getFullResult(50, 15.0, 100, 3, false, false, false);
             expect(result.breakdown).toContain('Age 50');
-            expect(result.breakdown).toContain('5.20');
+            expect(result.breakdown).toContain('5.00');
         });
 
         test('Hb contribution is in breakdown when applicable', () => {
             const result = getFullResult(30, 12.0, 100, 3, false, false, false);
             expect(result.breakdown).toContain('Hb 12');
-            expect(result.breakdown).toContain('7.80');
+            expect(result.breakdown).toContain('7.50');
         });
 
         test('eGFR contribution is in breakdown when applicable', () => {
             const result = getFullResult(30, 15.0, 60, 3, false, false, false);
             expect(result.breakdown).toContain('eGFR 60');
-            expect(result.breakdown).toContain('2.00');
+            expect(result.breakdown).toContain('2.20');
         });
 
         test('WBC contribution is in breakdown when applicable', () => {
@@ -302,7 +303,7 @@ describe('PRECISE-HBR Score Calculator', () => {
         test('Rounding is shown in breakdown when needed', () => {
             // Score that will have fractional part
             const result = getFullResult(45, 15.0, 100, 3, false, false, false);
-            // (45-30)*0.26 = 3.9, total = 5.9 -> rounds to 6
+            // (45-30)*0.25 = 3.75, total = 5.75 -> rounds to 6
             expect(result.breakdown).toContain('Rounded');
         });
 
@@ -359,8 +360,10 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(result).not.toBeNull();
             expect(result!.severity).toBe('success');
             expect(result!.interpretation).toBe('Non-HBR (Low Risk)');
+            // Bleeding risk computed via cloglog formula
+            const expectedRisk = calculateRiskPercent(result!.score as number);
             expect(result!.additionalResults).toContainEqual(
-                expect.objectContaining({ label: '1-Year Bleeding Risk', value: '0.5% ~ 3.5%' })
+                expect.objectContaining({ label: '1-Year Bleeding Risk', value: `${expectedRisk}%` })
             );
         });
 
@@ -384,7 +387,7 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(result!.interpretation).toBe('HBR (High Risk)');
         });
 
-        test('Very HBR (Very High Risk) for score 27-30', () => {
+        test('Very HBR (Very High Risk) for score >= 27', () => {
             const getValue = createGetValue({
                 'precise-hbr-age': 75,
                 'precise-hbr-hb': 9,
@@ -398,14 +401,12 @@ describe('PRECISE-HBR Score Calculator', () => {
 
             const result = preciseHbrCalculation(getValue, mockGetStdValue, getRadioValue);
             expect(result).not.toBeNull();
-            const score = result?.score;
-            if (score !== undefined && score > 26 && score <= 30) {
-                expect(result!.severity).toBe('danger');
-                expect(result!.interpretation).toBe('Very HBR (Very High Risk)');
-            }
+            expect(result!.score).toBeGreaterThan(26);
+            expect(result!.severity).toBe('danger');
+            expect(result!.interpretation).toBe('Very HBR (Very High Risk)');
         });
 
-        test('Extreme Risk for score 31-35', () => {
+        test('Very HBR for score > 30', () => {
             const getValue = createGetValue({
                 'precise-hbr-age': 80,
                 'precise-hbr-hb': 8,
@@ -419,17 +420,12 @@ describe('PRECISE-HBR Score Calculator', () => {
 
             const result = preciseHbrCalculation(getValue, mockGetStdValue, getRadioValue);
             expect(result).not.toBeNull();
-            const score = result?.score;
-            if (score !== undefined && score > 30 && score <= 35) {
-                expect(result!.severity).toBe('danger');
-                expect(result!.interpretation).toBe('Extreme Risk');
-                expect(result!.additionalResults).toContainEqual(
-                    expect.objectContaining({ value: '8.0% ~ 12.0%' })
-                );
-            }
+            expect(result!.score).toBeGreaterThan(26);
+            expect(result!.severity).toBe('danger');
+            expect(result!.interpretation).toBe('Very HBR (Very High Risk)');
         });
 
-        test('Extreme Risk (Capped) for score > 35', () => {
+        test('Very HBR for extreme score > 35', () => {
             const getValue = createGetValue({
                 'precise-hbr-age': 80,
                 'precise-hbr-hb': 5,
@@ -446,9 +442,11 @@ describe('PRECISE-HBR Score Calculator', () => {
             expect(result).not.toBeNull();
             expect(result!.score).toBeGreaterThan(35);
             expect(result!.severity).toBe('danger');
-            expect(result!.interpretation).toBe('Extreme Risk (Capped)');
+            expect(result!.interpretation).toBe('Very HBR (Very High Risk)');
+            // Bleeding risk from cloglog formula
+            const expectedRisk = calculateRiskPercent(result!.score as number);
             expect(result!.additionalResults).toContainEqual(
-                expect.objectContaining({ value: 'Upper limit ~15%' })
+                expect.objectContaining({ label: '1-Year Bleeding Risk', value: `${expectedRisk}%` })
             );
         });
 
