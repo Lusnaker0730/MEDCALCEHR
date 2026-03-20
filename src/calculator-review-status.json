@@ -458,10 +458,10 @@
             "notes": ""
         },
         "precise-hbr": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
-            "reviewDocId": null,
+            "status": "approved",
+            "reviewDate": "2026-03-20",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "precise-hbr.md",
             "notes": ""
         },
         "qsofa": {
@@ -577,10 +577,10 @@
             "notes": ""
         },
         "trade-off-analysis": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
-            "reviewDocId": null,
+            "status": "approved",
+            "reviewDate": "2026-03-20",
+            "reviewer": "呂侑穎",
+            "reviewDocId": "trade-off-analysis.md",
             "notes": ""
         },
         "ttkg": {

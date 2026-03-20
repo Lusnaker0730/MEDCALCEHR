@@ -79,7 +79,18 @@
       "Bash(claude update:*)",
       "Bash(git:*)",
       "Bash(npm run:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(find \"/d/CGHCALC/MEDCALCEHR\" -type d -name \"*regulatory*\" -o -type d -name \"*compliance*\" -o -type d -name \"*docs*\" 2>/dev/null | grep -v node_modules | head -20)",
+      "Bash(find . -type f -name \"*github*\" -o -name \"*gh-*\" -o -name \"*octokit*\" 2>/dev/null | head -20)",
+      "Bash(source .env && npx ts-node --project scripts/tsconfig.json scripts/setup-github-labels.ts 2>&1)",
+      "Bash(gh --version 2>&1 || echo \"gh not installed\")",
+      "Bash(gh --version 2>&1)",
+      "Bash(where gh:*)",
+      "Read(//c/Program Files/GitHub CLI/**)",
+      "Read(//c/Program Files \\(x86\\)/GitHub CLI/**)",
+      "Read(//d/CGHCALC/MEDCALCEHR/$LOCALAPPDATA/Programs/GitHub CLI/**)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" auth status 2>&1)",
+      "Bash(find /d/CGHCALC/MEDCALCEHR -name *precise*hbr* -o -name *hbr*)"
     ]
   }
 }
