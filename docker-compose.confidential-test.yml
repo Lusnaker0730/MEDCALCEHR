@@ -1,0 +1,89 @@
+version: '3.8'
+
+# Confidential symmetric SMART on FHIR testing setup
+# Usage:
+#   docker compose -f docker-compose.confidential-test.yml up --build
+#
+# Access via: https://localhost
+# (Accept self-signed certificate warning in browser)
+
+services:
+    medcalcehr:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: medcalcehr:confidential-test
+        container_name: medcalcehr-confidential
+        restart: unless-stopped
+        security_opt:
+            - 'no-new-privileges:true'
+        cap_drop:
+            - ALL
+        tmpfs:
+            - /var/cache/nginx:uid=101,gid=101
+            - /var/run:uid=101,gid=101
+            - /tmp:uid=101,gid=101
+        deploy:
+            resources:
+                limits:
+                    memory: 512M
+                    cpus: '1.0'
+        environment:
+            - TZ=Asia/Taipei
+            - FHIR_CLIENT_ID=cc344727-6f90-496c-94fd-c7829aa9a51d
+            - FHIR_CLIENT_SECRET=79f04b56b33491716c0880af72cdef7d3f0629111421cedd18353651cd313d9e
+            - FHIR_SCOPE=openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access
+            - FHIR_REDIRECT_URI=./index.html
+            - SESSION_TIMEOUT_MINUTES=30
+            - SESSION_WARNING_MINUTES=5
+            - SENTRY_ENVIRONMENT=test
+        networks:
+            - medcalc-test-network
+        # Internal only — accessed via reverse proxy
+        expose:
+            - '8080'
+
+    # HTTPS reverse proxy with self-signed certificate
+    https-proxy:
+        image: nginx:alpine
+        container_name: medcalcehr-https-proxy
+        ports:
+            - '443:443'
+            - '80:80'
+        volumes:
+            - ./nginx-https-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+            - tls-certs:/etc/nginx/certs
+        depends_on:
+            medcalcehr:
+                condition: service_healthy
+        entrypoint: /bin/sh
+        command:
+            - -c
+            - |
+                # Generate self-signed certificate if not exists
+                if [ ! -f /etc/nginx/certs/server.crt ]; then
+                    apk add --no-cache openssl > /dev/null 2>&1
+                    openssl req -x509 -nodes -days 365 \
+                        -newkey rsa:2048 \
+                        -keyout /etc/nginx/certs/server.key \
+                        -out /etc/nginx/certs/server.crt \
+                        -subj "/C=TW/ST=Taiwan/L=Taipei/O=MedCalcEHR-Test/CN=localhost" \
+                        -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+                    echo "[https-proxy] Self-signed TLS certificate generated."
+                fi
+                nginx -g 'daemon off;'
+        networks:
+            - medcalc-test-network
+        healthcheck:
+            test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', '--no-check-certificate', 'https://127.0.0.1:443/']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 15s
+
+volumes:
+    tls-certs:
+
+networks:
+    medcalc-test-network:
+        driver: bridge

@@ -91,6 +91,16 @@ validate_log_endpoint() {
     fi
 }
 
+validate_client_secret() {
+    # Empty is valid (public client)
+    [ -z "$1" ] && return 0
+    # Hex string, 64 chars
+    if ! printf '%s' "$1" | grep -qE '^[0-9a-fA-F]{64}$'; then
+        echo "[entrypoint] ERROR: Invalid client secret format (expected 64-char hex)" >&2
+        return 1
+    fi
+}
+
 validate_scope() {
     # FHIR scopes: alphanumeric, slashes, dots, spaces, underscores
     if ! printf '%s' "$1" | grep -qE '^[a-zA-Z0-9/ ._*-]+$'; then
@@ -112,6 +122,7 @@ validate_environment() {
 # --- Read Environment Variables ---
 
 FHIR_CLIENT_ID="${FHIR_CLIENT_ID:-e1b41914-e2b5-4475-90ba-29022b57f820}"
+FHIR_CLIENT_SECRET="${FHIR_CLIENT_SECRET:-}"
 FHIR_SCOPE="${FHIR_SCOPE:-openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access}"
 FHIR_REDIRECT_URI="${FHIR_REDIRECT_URI:-./index.html}"
 SESSION_TIMEOUT_MINUTES="${SESSION_TIMEOUT_MINUTES:-15}"
@@ -128,6 +139,7 @@ LOG_REMOTE_MIN_LEVEL="${LOG_REMOTE_MIN_LEVEL:-ERROR}"
 echo "[entrypoint] Validating environment variables..."
 
 validate_uuid "$FHIR_CLIENT_ID" || exit 1
+validate_client_secret "$FHIR_CLIENT_SECRET" || exit 1
 validate_scope "$FHIR_SCOPE" || exit 1
 validate_url_or_relative "$FHIR_REDIRECT_URI" || exit 1
 validate_positive_int "$SESSION_TIMEOUT_MINUTES" || exit 1
@@ -144,6 +156,7 @@ echo "[entrypoint] All environment variables validated."
 # --- Sanitize String Values ---
 
 SAFE_CLIENT_ID=$(sanitize_js_string "$FHIR_CLIENT_ID")
+SAFE_CLIENT_SECRET=$(sanitize_js_string "$FHIR_CLIENT_SECRET")
 SAFE_SCOPE=$(sanitize_js_string "$FHIR_SCOPE")
 SAFE_REDIRECT_URI=$(sanitize_js_string "$FHIR_REDIRECT_URI")
 SAFE_SENTRY_DSN=$(sanitize_js_string "$SENTRY_DSN")
@@ -200,12 +213,21 @@ if [ -n "$LOG_REMOTE_ENDPOINT" ]; then
     },"
 fi
 
+# --- Build Confidential Client Config ---
+
+FHIR_SECRET_CONFIG=""
+if [ -n "$FHIR_CLIENT_SECRET" ]; then
+    FHIR_SECRET_CONFIG="
+        clientSecret: '${SAFE_CLIENT_SECRET}',"
+    echo "[entrypoint] Confidential symmetric client mode enabled."
+fi
+
 # --- Generate app-config.js ---
 
 cat > "$CONFIG_FILE" <<EOF
 window.MEDCALC_CONFIG = {
     fhir: {
-        clientId: '${SAFE_CLIENT_ID}',
+        clientId: '${SAFE_CLIENT_ID}',${FHIR_SECRET_CONFIG}
         scope: '${SAFE_SCOPE}',
         redirectUri: '${SAFE_REDIRECT_URI}'
     },
@@ -216,7 +238,7 @@ window.MEDCALC_CONFIG = {
 };
 EOF
 
-echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID}, sentry=${SENTRY_DSN:+enabled}, logging=${LOG_REMOTE_ENDPOINT:+enabled})"
+echo "[entrypoint] Generated app-config.js (clientId=${FHIR_CLIENT_ID}, confidential=${FHIR_CLIENT_SECRET:+yes}, sentry=${SENTRY_DSN:+enabled}, logging=${LOG_REMOTE_ENDPOINT:+enabled})"
 
 # Start nginx (already running as nginx user via Dockerfile USER directive)
 exec nginx -g 'daemon off;'

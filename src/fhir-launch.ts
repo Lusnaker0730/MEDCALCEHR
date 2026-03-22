@@ -56,6 +56,11 @@ const authorizeOptions: Record<string, string> = {
     redirect_uri: redirectUri,
 };
 
+// Confidential symmetric: pass client_secret for token exchange
+if (config.clientSecret) {
+    authorizeOptions.clientSecret = config.clientSecret;
+}
+
 // Standalone launch: if no `iss` in URL query, use fhirBaseUrl from config
 const urlParams = new URLSearchParams(window.location.search);
 if (!urlParams.has('iss') && !urlParams.has('fhirServiceUrl')) {

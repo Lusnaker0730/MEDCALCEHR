@@ -13,8 +13,10 @@ declare global {
         MEDCALC_CONFIG?: {
             fhir?: {
                 clientId?: string;
+                clientSecret?: string;
                 scope?: string;
                 redirectUri?: string;
+                fhirServiceUrl?: string;
                 [key: string]: string | undefined;
             };
             session?: {
