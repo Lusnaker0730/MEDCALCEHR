@@ -78,9 +78,9 @@ const config: FormulaCalculatorConfig = {
                     label: 'Killip Class (Heart Failure Classification)',
                     options: [
                         { value: '0', label: 'Class I - No heart failure', checked: true },
-                        { value: '20', label: 'Class II - Mild HF (rales, S3)' },
-                        { value: '39', label: 'Class III - Pulmonary edema' },
-                        { value: '59', label: 'Class IV - Cardiogenic shock' }
+                        { value: '21', label: 'Class II - Mild HF (rales, S3)' },
+                        { value: '43', label: 'Class III - Pulmonary edema' },
+                        { value: '64', label: 'Class IV - Cardiogenic shock' }
                     ]
                 },
                 {

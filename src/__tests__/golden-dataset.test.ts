@@ -67,7 +67,6 @@ import { calculateIntraopFluid } from '../calculators/intraop-fluid/calculation.
 import { calculateIsthDic } from '../calculators/isth-dic/calculation.js';
 import { calculateMaggic } from '../calculators/maggic/calculation.js';
 import { calculateMaintenanceFluids } from '../calculators/maintenance-fluids/calculation.js';
-import { calculateSexShock } from '../calculators/sex-shock/calculation.js';
 
 // ==========================================
 // Complex Calculator Imports (Pattern C)
@@ -337,7 +336,6 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
     'isth-dic': calculateIsthDic,
     'maggic': calculateMaggic,
     'maintenance-fluids': calculateMaintenanceFluids,
-    'sex-shock': calculateSexShock,
     'trade-off-analysis': (values: Record<string, any>) => {
         const factorIds = Object.keys(values).filter(k => values[k] === 1 || values[k] === true);
         const bleeding = calculateBleedingRisk(factorIds);

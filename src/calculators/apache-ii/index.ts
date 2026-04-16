@@ -343,12 +343,7 @@ export const apacheIi = createUnifiedFormulaCalculator({
 
             // GCS
             { criteria: 'Glasgow Coma Scale (GCS)', isHeader: true },
-            { criteria: '15', points: '0' },
-            { criteria: '14', points: '+1' },
-            { criteria: '13', points: '+2' },
-            { criteria: '10-12', points: '+3' },
-            { criteria: '6-9', points: '+6' },
-            { criteria: '3-5', points: '+9' }
+            { criteria: 'Points = 15 − actual GCS', points: '0 to 12' }
         ],
         footnotes: [
             '*Acute renal failure was not defined in the original study. Use clinical judgment to determine if patient has acute kidney injury.',

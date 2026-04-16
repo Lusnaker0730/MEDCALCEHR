@@ -1,41 +1,41 @@
 {
     "version": "1.0.0",
-    "lastUpdated": "2026-02-25",
+    "lastUpdated": "2026-04-16",
     "calculators": {
         "2helps2b": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "4as-delirium": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "4c-mortality-covid": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "4peps": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "4ts-hit": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "6mwd": {
             "status": "approved",
@@ -45,53 +45,53 @@
             "notes": "無"
         },
         "abl": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "abg-analyzer": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "action-icu": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "af-risk": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "apache-ii": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "apgar": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ariscat": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ascvd": {
             "status": "approved",
@@ -101,172 +101,172 @@
             "notes": "無"
         },
         "benzo-conversion": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "bmi-bsa": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "bwps": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "calcium-correction": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "centor": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "charlson": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "child-pugh": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ciwa-ar": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ckd-epi": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "cpis": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "crcl": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "curb-65": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "dasi": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "due-date": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ett": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "euroscore-ii": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "fena": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "feurea": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "fib-4": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "free-water-deficit": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "gad-7": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "gcs": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "geneva-score": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "grace-acs": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "growth-chart": {
             "status": "approved",
@@ -276,186 +276,186 @@
             "notes": ""
         },
         "gupta-mica": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "gwtg-hf": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "has-bled": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "heart-score": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "homa-ir": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "hscore": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ibw": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "intraop-fluid": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "isth-dic": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "kawasaki": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ldl": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "maggic": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "maintenance-fluids": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "map": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "mdrd-gfr": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "meld-na": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "mews": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "mme": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "nafld-fibrosis-score": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "nihss": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "padua-vte": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "pecarn": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "pediatric-bp": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "perc": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "phenytoin-correction": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "phq-9": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "precise-hbr": {
             "status": "approved",
@@ -465,116 +465,109 @@
             "notes": ""
         },
         "qsofa": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "qtc": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "ranson": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "rcri": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "regiscar": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "serum-anion-gap": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "serum-osmolality": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
-        },
-        "sex-shock": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
-            "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "sirs": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "sodium-correction": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "sofa": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "steroid-conversion": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "stop-bang": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "timi-nstemi": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "tpa-dosing": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "tpa-dosing-stroke": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "trade-off-analysis": {
             "status": "approved",
@@ -584,25 +577,25 @@
             "notes": ""
         },
         "ttkg": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "wells-dvt": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
         "wells-pe": {
-            "status": "pending",
-            "reviewDate": null,
-            "reviewer": null,
+            "status": "approved",
+            "reviewDate": "2026-04-16",
+            "reviewer": "呂侑穎",
             "reviewDocId": null,
-            "notes": ""
+            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         }
     }
 }

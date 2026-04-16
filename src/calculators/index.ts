@@ -201,11 +201,6 @@ export const calculatorModules: CalculatorMetadata[] = [
     { id: 'serum-anion-gap', title: 'Serum Anion Gap', category: 'metabolic' },
     { id: 'serum-osmolality', title: 'Serum Osmolality', category: 'metabolic' },
     {
-        id: 'sex-shock',
-        title: 'SEX-SHOCK Risk Score for Cardiogenic Shock',
-        category: 'cardiovascular'
-    },
-    {
         id: 'sirs',
         title: 'SIRS Criteria for Systemic Inflammatory Response',
         category: 'critical-care'

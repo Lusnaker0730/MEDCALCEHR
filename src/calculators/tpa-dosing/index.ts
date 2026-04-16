@@ -18,20 +18,10 @@ export const calculateTpaDosing = (values: Record<string, any>): any[] | null =>
 
     if (indication === 'pe') {
         // Acute Massive PE
-        // Standard FDA dose: 100 mg over 2 hours
-        // Usually, if < 65 kg, max dose is 1.5 mg/kg for PE in some protocols but standard FDA says 100mg. We will cap it at 100 or 1.5mg/kg if <65kg.
-        let totalDose = 100;
-        let alertMsg = '';
-        let alertType: 'success' | 'warning' | 'danger' = 'success';
-
-        if (weight < 65) {
-            const weightBasedMax = Number((weight * 1.5).toFixed(1));
-            totalDose = Math.min(100, weightBasedMax);
-            alertType = 'warning';
-            alertMsg = `Weight < 65 kg. Total dose is capped at 1.5 mg/kg (${weightBasedMax} mg) to minimize bleeding risk.`;
-        } else {
-            alertMsg = 'Standard dose: 100 mg continuous IV over 2 hours.';
-        }
+        // FDA prescribing information: 100 mg continuous IV over 2 hours, regardless of weight.
+        const totalDose = 100;
+        const alertMsg =
+            'Standard dose: 100 mg continuous IV over 2 hours per FDA prescribing information.';
 
         results.push({
             label: 'Indication',
@@ -43,7 +33,7 @@ export const calculateTpaDosing = (values: Record<string, any>): any[] | null =>
             label: 'Total Administration',
             value: `${totalDose.toFixed(1)} mg`,
             unit: '',
-            alertClass: alertType,
+            alertClass: 'success',
             interpretation: alertMsg
         });
 

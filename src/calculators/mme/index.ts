@@ -18,7 +18,7 @@ export const mme = createDynamicListCalculator({
         { value: 'fentanyl-buccal', label: 'FentaNYL buccal or sublingual tablets (mcg)', factor: 0.13 },
         { value: 'fentanyl', label: 'FentaNYL patch/transdermal (mcg/hr)', factor: 2.4 },
         { value: 'hydrocodone', label: 'HYDROcodone (Vicodin, Norco, Lortab)', factor: 1 },
-        { value: 'hydromorphone', label: 'HYDROmorphone (Dilaudid)', factor: 5 },
+        { value: 'hydromorphone', label: 'HYDROmorphone (Dilaudid)', factor: 4 },
         { value: 'methadone-1-20', label: 'Methadone (1-20mg/day)', factor: 4 },
         { value: 'methadone-21-40', label: 'Methadone (21-40mg/day)', factor: 8 },
         { value: 'methadone-41-60', label: 'Methadone (41-60mg/day)', factor: 10 },
@@ -27,8 +27,7 @@ export const mme = createDynamicListCalculator({
         { value: 'oxycodone', label: 'OxyCODONE (OxyCONTIN, Roxicodone)', factor: 1.5 },
         { value: 'oxymorphone', label: 'OxyMORphone', factor: 3 },
         { value: 'tapentadol', label: 'Tapentadol (Nucynta), mg', factor: 0.4 },
-        { value: 'tramadol', label: 'TraMADol (Ultram), mg', factor: 0.2 },
-        { value: 'buprenorphine', label: 'Buprenorphine', factor: 10 }
+        { value: 'tramadol', label: 'TraMADol (Ultram), mg', factor: 0.2 }
     ],
 
     itemLabel: 'Opioid',
@@ -83,7 +82,13 @@ export const mme = createDynamicListCalculator({
         ${uiBuilder.createAlert({
         type: 'info',
         message:
-            '<h4>📊 MME Conversion Factors</h4><div class="ui-data-table"><table><thead><tr><th>Opioid</th><th>Factor</th></tr></thead><tbody><tr><td>Codeine</td><td>0.15</td></tr><tr><td>FentaNYL buccal/sublingual (mcg)</td><td>0.13</td></tr><tr><td>FentaNYL patch (mcg/hr)</td><td>2.4</td></tr><tr><td>HYDROcodone</td><td>1</td></tr><tr><td>HYDROmorphone</td><td>5</td></tr><tr><td>Methadone (1-20 mg/day)</td><td>4</td></tr><tr><td>Methadone (21-40 mg/day)</td><td>8</td></tr><tr><td>Methadone (41-60 mg/day)</td><td>10</td></tr><tr><td>Methadone (&gt;60 mg/day)</td><td>12</td></tr><tr><td>Morphine</td><td>1</td></tr><tr><td>OxyCODONE</td><td>1.5</td></tr><tr><td>OxyMORphone</td><td>3</td></tr><tr><td>Tapentadol</td><td>0.4</td></tr><tr><td>TraMADol</td><td>0.2</td></tr><tr><td>Buprenorphine</td><td>10</td></tr></tbody></table></div>'
+            '<h4>📊 MME Conversion Factors (CDC 2022)</h4><div class="ui-data-table"><table><thead><tr><th>Opioid</th><th>Factor</th></tr></thead><tbody><tr><td>Codeine</td><td>0.15</td></tr><tr><td>FentaNYL buccal/sublingual (mcg)</td><td>0.13</td></tr><tr><td>FentaNYL patch (mcg/hr)</td><td>2.4</td></tr><tr><td>HYDROcodone</td><td>1</td></tr><tr><td>HYDROmorphone</td><td>4</td></tr><tr><td>Methadone (1-20 mg/day)</td><td>4</td></tr><tr><td>Methadone (21-40 mg/day)</td><td>8</td></tr><tr><td>Methadone (41-60 mg/day)</td><td>10</td></tr><tr><td>Methadone (&gt;60 mg/day)</td><td>12</td></tr><tr><td>Morphine</td><td>1</td></tr><tr><td>OxyCODONE</td><td>1.5</td></tr><tr><td>OxyMORphone</td><td>3</td></tr><tr><td>Tapentadol</td><td>0.4</td></tr><tr><td>TraMADol</td><td>0.2</td></tr></tbody></table></div>'
+    })}
+
+        ${uiBuilder.createAlert({
+        type: 'warning',
+        message:
+            '<h4>⚠️ Buprenorphine</h4><p>Buprenorphine is <strong>intentionally excluded</strong> from this calculator. Per the CDC 2022 Clinical Practice Guideline, buprenorphine conversion is unreliable due to partial agonist activity and ceiling effect. Dose adjustment should be <strong>discussed with a pain specialist</strong>.</p>'
     })}
 
         ${uiBuilder.createAlert({

@@ -84,7 +84,7 @@ export const calculateGraceAcs: SimpleCalculateFn = values => {
         alertClass = 'danger';
         riskDescription =
             'High risk of in-hospital mortality - Consider intensive monitoring and aggressive intervention';
-    } else if (score > 118) {
+    } else if (score > 108) {
         inHospitalMortality = '1-3%';
         riskLevel = 'Intermediate Risk';
         alertClass = 'warning';

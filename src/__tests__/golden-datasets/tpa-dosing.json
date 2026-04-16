@@ -25,8 +25,8 @@
     },
     {
       "id": "GD-TPA-002",
-      "description": "PE Weight Capped (< 65kg)",
-      "source": "1.5mg/kg cap",
+      "description": "PE Standard Dose (any weight, FDA fixed 100 mg)",
+      "source": "FDA prescribing information: 100 mg over 2 hours regardless of weight",
       "inputs": {
         "tpa-weight": 60,
         "tpa-indication": "pe"
@@ -38,7 +38,7 @@
         },
         {
           "label": "Total Administration",
-          "value": "90.0 mg"
+          "value": "100.0 mg"
         }
       ]
     },
