@@ -261,13 +261,6 @@
             "reviewDocId": null,
             "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
         },
-        "grace-acs": {
-            "status": "approved",
-            "reviewDate": "2026-04-16",
-            "reviewer": "呂侑穎",
-            "reviewDocId": null,
-            "notes": "Bulk-approved 2026-04-16 after MDCalc cross-check audit; pending formal SaMD validation documentation"
-        },
         "growth-chart": {
             "status": "approved",
             "reviewDate": "2026-02-25",

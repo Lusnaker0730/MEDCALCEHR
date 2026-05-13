@@ -34,7 +34,6 @@ import { childPughCalculation } from '../calculators/child-pugh/calculation.js';
 import { calculateCharlson } from '../calculators/charlson/calculation.js';
 import { qsofaCalculation } from '../calculators/qsofa/calculation.js';
 import { ascvdCalculationPure } from '../calculators/ascvd/calculation.js';
-import { calculateGraceAcs } from '../calculators/grace-acs/calculation.js';
 import { calculateGenevaScore } from '../calculators/geneva-score/calculation.js';
 import { sirsCalculation } from '../calculators/sirs/calculation.js';
 import { calciumCorrectionCalculation } from '../calculators/calcium-correction/calculation.js';
@@ -303,7 +302,6 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
         const result = ascvdCalculationPure(values);
         return result?.results ?? null;
     },
-    'grace-acs': calculateGraceAcs,
     'geneva-score': calculateGenevaScore,
     'sirs': sirsCalculation,
     'calcium-correction': calciumCorrectionCalculation,

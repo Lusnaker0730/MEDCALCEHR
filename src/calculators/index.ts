@@ -133,7 +133,6 @@ export const calculatorModules: CalculatorMetadata[] = [
         category: 'cardiovascular'
     },
     { id: 'growth-chart', title: 'Pediatric Growth Chart', category: 'pediatric' },
-    { id: 'grace-acs', title: 'GRACE ACS Risk Score', category: 'cardiovascular' },
     {
         id: 'gupta-mica',
         title: 'Gupta Perioperative Cardiac Risk (MICA)',
