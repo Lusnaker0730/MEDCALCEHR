@@ -1,23 +1,42 @@
 import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
+// Creatinine coefficients per Gupta et al. (2011)
+const CREAT_COEF_NORMAL = 0;        // Creatinine < 1.5 mg/dL
+const CREAT_COEF_ELEVATED = 0.61;   // Creatinine ≥ 1.5 mg/dL
+const CREAT_COEF_UNKNOWN = -0.10;   // No preoperative creatinine available
+
 export const calculateGuptaMica: SimpleCalculateFn = values => {
     const age = values['mica-age'] ? parseFloat(values['mica-age'] as string) : null;
     const creat = values['mica-creat'] ? parseFloat(values['mica-creat'] as string) : null;
+    const creatUnknown = values['mica-creat-unknown'] === true || values['mica-creat-unknown'] === 'true';
     const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
     const asaClass = parseFloat((values['mica-asa'] as string) || '-5.17');
     const procedure = parseFloat((values['mica-procedure'] as string) || '0');
 
-    if (age === null || creat === null) {
-        return [];
+    // Age is required; creatinine is "required OR explicitly marked unknown"
+    if (age === null) return [];
+    if (creat === null && !creatUnknown) return [];
+
+    // Resolve creatinine coefficient: explicit Unknown wins over a stale value;
+    // otherwise the published 1.5 mg/dL bin.
+    let creatCoef: number;
+    let creatLabel: string;
+    if (creatUnknown) {
+        creatCoef = CREAT_COEF_UNKNOWN;
+        creatLabel = 'Unknown';
+    } else if ((creat as number) >= 1.5) {
+        creatCoef = CREAT_COEF_ELEVATED;
+        creatLabel = `Elevated (${(creat as number).toFixed(2)} mg/dL)`;
+    } else {
+        creatCoef = CREAT_COEF_NORMAL;
+        creatLabel = `Normal (${(creat as number).toFixed(2)} mg/dL)`;
     }
 
     let x = -5.25;
     x += age * 0.02;
     x += functionalStatus;
     x += asaClass;
-    if (creat >= 1.5) {
-        x += 0.61;
-    }
+    x += creatCoef;
     x += procedure;
 
     const risk = (1 / (1 + Math.exp(-x))) * 100;
@@ -42,7 +61,7 @@ export const calculateGuptaMica: SimpleCalculateFn = values => {
             <p>Age Component: ${(age * 0.02).toFixed(2)}</p>
             <p>Functional Status: ${functionalStatus.toFixed(2)}</p>
             <p>ASA Class: ${asaClass.toFixed(2)}</p>
-            <p>Creatinine (≥1.5 mg/dL): ${creat >= 1.5 ? '0.61' : '0.00'}</p>
+            <p>Creatinine — ${creatLabel}: ${creatCoef.toFixed(2)}</p>
             <p>Procedure Type: ${procedure.toFixed(2)}</p>
             <p><strong>X Value: ${x.toFixed(2)}</strong></p>
         </div>

@@ -76,7 +76,15 @@ const config: FormulaCalculatorConfig = {
                     step: 0.1,
                     placeholder: 'Enter creatinine',
                     validationType: 'creatinine',
-                    loincCode: LOINC_CODES.CREATININE
+                    loincCode: LOINC_CODES.CREATININE,
+                    required: false
+                },
+                {
+                    type: 'checkbox',
+                    id: 'mica-creat-unknown',
+                    label: 'Creatinine not measured / unknown',
+                    description:
+                        'Check if no preoperative creatinine is available. Applies the published "Unknown" coefficient (−0.10) per Gupta et al.'
                 }
             ]
         },
@@ -239,13 +247,20 @@ const config: FormulaCalculatorConfig = {
 
                 if (result.value !== null) {
                     setValue('mica-creat', result.value.toFixed(2));
+                } else {
+                    // No preoperative creatinine on file — auto-check Unknown so the user
+                    // doesn't have to click it manually and so the calculation can proceed.
+                    const unknownBox = container.querySelector(
+                        '#mica-creat-unknown'
+                    ) as HTMLInputElement | null;
+                    if (unknownBox && !unknownBox.checked) {
+                        unknownBox.checked = true;
+                        unknownBox.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 }
             } catch (e) {
                 logger.warn('Error fetching creatinine for Gupta MICA', { error: String(e) });
             }
-
-
-
         }
 
         calculate();
