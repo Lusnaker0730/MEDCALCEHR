@@ -189,6 +189,11 @@ export const calculatorModules: CalculatorMetadata[] = [
     },
     { id: 'phq-9', title: 'PHQ-9 for Depression', category: 'psychiatry' },
     { id: 'precise-hbr', title: 'PRECISE-HBR Score', category: 'cardiovascular' },
+    {
+        id: 'prevent',
+        title: 'AHA PREVENT Risk Calculator (10/30-Year CVD)',
+        category: 'cardiovascular'
+    },
     { id: 'qsofa', title: 'qSOFA Score for Sepsis', category: 'critical-care' },
     { id: 'qtc', title: 'Corrected QT Interval (QTc)', category: 'cardiovascular' },
     {
