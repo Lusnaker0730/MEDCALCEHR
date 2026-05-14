@@ -82,16 +82,18 @@ export function calculateScoringResult(
 
     // 2. Determine Risk Level
     // Sort risk levels by minScore to ensure correct range checking
-    const sortedRisks = [...config.riskLevels].sort((a, b) => a.minScore - b.minScore);
+    const sortedRisks = config.riskLevels
+        ? [...config.riskLevels].sort((a, b) => a.minScore - b.minScore)
+        : [];
 
     let riskLevel = sortedRisks.find(r => totalScore >= r.minScore && totalScore <= r.maxScore);
 
     // Fallback: if not found, use the last one if score is higher than max
-    if (!riskLevel && totalScore > sortedRisks[sortedRisks.length - 1].maxScore) {
+    if (!riskLevel && sortedRisks.length > 0 && totalScore > sortedRisks[sortedRisks.length - 1].maxScore) {
         riskLevel = sortedRisks[sortedRisks.length - 1];
     }
     // Fallback: use first one if lower (though usually 0 is min)
-    if (!riskLevel && totalScore < sortedRisks[0].minScore) {
+    if (!riskLevel && sortedRisks.length > 0 && totalScore < sortedRisks[0].minScore) {
         riskLevel = sortedRisks[0];
     }
 

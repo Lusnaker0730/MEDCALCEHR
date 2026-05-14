@@ -203,8 +203,8 @@ export interface ScoringCalculatorConfig extends BaseCalculatorConfig {
     /** 分數範圍文字 */
     scoreRange?: string;
 
-    /** 風險等級列表 */
-    riskLevels: ScoringRiskLevel[];
+    /** 風險等級列表 (可選，若提供 customResultRenderer 則不需要) */
+    riskLevels?: ScoringRiskLevel[];
 
     /** 解釋說明 */
     interpretationInfo?: string;

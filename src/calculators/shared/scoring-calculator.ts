@@ -525,12 +525,6 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                     });
                 }
 
-                // 找到對應的風險等級
-                const riskLevel =
-                    config.riskLevels.find(
-                        r => totalScore >= r.minScore && totalScore <= r.maxScore
-                    ) || config.riskLevels[config.riskLevels.length - 1];
-
                 // 更新結果顯示
                 const resultBox = document.getElementById(`${config.id}-result`);
                 if (resultBox) {
@@ -543,7 +537,13 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                     sectionScores
                                 )
                             );
-                        } else {
+                        } else if (config.riskLevels && config.riskLevels.length > 0) {
+                            // 找到對應的風險等級
+                            const riskLevel =
+                                config.riskLevels.find(
+                                    r => totalScore >= r.minScore && totalScore <= r.maxScore
+                                ) || config.riskLevels[config.riskLevels.length - 1];
+
                             // 根據配置格式選擇顯示方式
                             const displayLabel = riskLevel.label || riskLevel.category || '';
                             const displayRisk = riskLevel.risk || '';
@@ -574,6 +574,12 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                             }
 
                             resultContent.innerHTML = resultHTML;
+                        } else {
+                            resultContent.innerHTML = uiBuilder.createResultItem({
+                                label: 'Total Score',
+                                value: totalScore.toString(),
+                                unit: 'points'
+                            });
                         }
                     }
                     resultBox.classList.add('show');

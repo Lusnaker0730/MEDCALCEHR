@@ -158,12 +158,6 @@ export const afRiskConfig: ScoringCalculatorConfig = {
         }
     ],
 
-    riskLevels: [
-        { minScore: 0, maxScore: 2, label: 'Low Combined Risk', severity: 'success' },
-        { minScore: 3, maxScore: 5, label: 'Moderate Combined Risk', severity: 'warning' },
-        { minScore: 6, maxScore: 999, label: 'High Combined Risk', severity: 'danger' }
-    ],
-
     formulaSection: {
         show: true,
         title: 'Scoring Systems',
