@@ -17,7 +17,7 @@ export const qtc = createUnifiedFormulaCalculator({
             ],
             className: 'info-list'
         })}
-        <p class="mt-5 text-sm">Select formula: Bazett (standard), Fridericia (better for high/low HR), Hodges, or Framingham.</p>
+        <p class="mt-5 text-sm">Select formula: Bazett (standard), Fridericia (better for high/low HR), Framingham, Hodges, or Rautaharju.</p>
     `,
     sections: [
         {
@@ -76,8 +76,9 @@ export const qtc = createUnifiedFormulaCalculator({
                     options: [
                         { value: 'bazett', label: 'Bazett (Standard)', checked: true },
                         { value: 'fridericia', label: 'Fridericia' },
+                        { value: 'framingham', label: 'Framingham' },
                         { value: 'hodges', label: 'Hodges' },
-                        { value: 'framingham', label: 'Framingham' }
+                        { value: 'rautaharju', label: 'Rautaharju' }
                     ]
                 }
             ]
@@ -86,8 +87,9 @@ export const qtc = createUnifiedFormulaCalculator({
     formulas: [
         { label: 'Bazett', formula: 'QT / √RR' },
         { label: 'Fridericia', formula: 'QT / ∛RR' },
-        { label: 'Hodges', formula: 'QT + 1.75(HR-60)' },
-        { label: 'Framingham', formula: 'QT + 154(1-RR)' }
+        { label: 'Framingham', formula: 'QT + 154 × (1 − RR)' },
+        { label: 'Hodges', formula: 'QT + 1.75 × (HR − 60)' },
+        { label: 'Rautaharju', formula: 'QT × (120 + HR) / 180' }
     ],
     calculate: qtcCalculation,
     customResultRenderer: results => {

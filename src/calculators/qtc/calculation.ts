@@ -39,6 +39,10 @@ export function qtcCalculation(
             qtc = qt + 154 * (1 - rr);
             label = 'QTc (Framingham)';
             break;
+        case 'rautaharju':
+            qtc = (qt * (120 + hr)) / 180;
+            label = 'QTc (Rautaharju)';
+            break;
         default:
             qtc = qt / Math.sqrt(rr); // Default to Bazett
             label = 'QTc (Bazett)';

@@ -4,11 +4,20 @@ describe('QTc Calculator (SaMD Protocol Verification)', () => {
     // Phase 1: Formula Verification
     // QT 400ms, HR 60bpm -> RR 1.0s. All formulas should yield 400ms.
     test('TC-001: Baseline Formula Verification (HR 60)', () => {
-        const formulas = ['bazett', 'fridericia', 'hodges', 'framingham'];
+        // At HR 60 (RR 1.0s) all five formulas reduce to QTc = QT.
+        // Rautaharju: 400 × (120 + 60) / 180 = 400 × 1 = 400.
+        const formulas = ['bazett', 'fridericia', 'hodges', 'framingham', 'rautaharju'];
         formulas.forEach(f => {
             const res = qtcCalculation({ qt: 400, hr: 60, gender: 'male', formula: f });
             expect(res[0].value).toBe(400);
         });
+    });
+
+    test('TC-001b: Rautaharju formula at tachycardia (HR 120)', () => {
+        // QTc = 300 × (120 + 120) / 180 = 300 × 240/180 = 400
+        const res = qtcCalculation({ qt: 300, hr: 120, formula: 'rautaharju' });
+        expect(res[0].value).toBe(400);
+        expect(res[0].label).toBe('QTc (Rautaharju)');
     });
 
     test('TC-002: Formula Comparison at Tachycardia (HR 120)', () => {
