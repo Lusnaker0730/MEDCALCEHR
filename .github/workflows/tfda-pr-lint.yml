@@ -1,20 +1,31 @@
 name: TFDA PR Lint
 
-# Enforces TFDA / IEC 62304 change-control fields in the PR description.
-# Fails the check if the author has not filled out the required sections of
-# .github/pull_request_template.md, blocking merge when this workflow is set
-# as a required status check in branch protection.
+# Two paths:
+# - Human-authored PRs: enforce full TFDA / IEC 62304 / ISO 14971 change-control
+#   fields per .github/pull_request_template.md.
+# - Dependabot PRs (SOUP per IEC 62304 §8.1): auto-classify, post a generated
+#   change-control record as a PR comment, auto-pass patch/minor bumps; major
+#   bumps or bumps to safety-critical packages require a `human-reviewed` label
+#   before the check turns green.
+#
+# In both cases the underlying CI workflow (ci.yml) still gates merge — this
+# workflow only handles the regulatory change-control documentation.
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
+  issues: write
 
 jobs:
-  lint:
+  human-pr:
+    # Use pull_request.user.login (PR author) instead of github.actor, so that
+    # human-triggered events on Dependabot PRs (e.g. adding `human-reviewed`)
+    # still route to the dependabot-soup job.
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Verify PR description meets TFDA change-control requirements
@@ -103,3 +114,157 @@ jobs:
             } else {
               core.info('TFDA PR Lint 全部欄位通過');
             }
+
+  dependabot-soup:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-classify SOUP and post change-control record
+        uses: actions/github-script@v7
+        env:
+          DEP_NAMES: ${{ steps.meta.outputs.dependency-names }}
+          UPDATE_TYPE: ${{ steps.meta.outputs.update-type }}
+          ECOSYSTEM: ${{ steps.meta.outputs.package-ecosystem }}
+          DEP_TYPE: ${{ steps.meta.outputs.dependency-type }}
+        with:
+          script: |
+            const MARKER = '<!-- tfda-soup-record:v1 -->';
+            const depNames = process.env.DEP_NAMES || '';
+            const updateType = process.env.UPDATE_TYPE || '';
+            const ecosystem = process.env.ECOSYSTEM || '';
+            const depType = process.env.DEP_TYPE || '';
+
+            // Safety-critical packages: any bump here forces human review,
+            // regardless of semver level. Extend conservatively — adding a
+            // package here permanently gates its updates behind a reviewer.
+            const SAFETY_CRITICAL = [
+              'fhirclient',
+              '@sentry/browser',
+              '@sentry/tracing'
+            ];
+
+            const isMajor = updateType === 'version-update:semver-major';
+            const depList = depNames.split(',').map(n => n.trim()).filter(Boolean);
+            const touchesCritical = depList.some(d => SAFETY_CRITICAL.includes(d));
+            const requiresHumanReview = isMajor || touchesCritical;
+
+            const labels = (context.payload.pull_request.labels || []).map(l => l.name);
+            const humanApproved = labels.includes('human-reviewed');
+
+            const summary = requiresHumanReview
+              ? (isMajor
+                  ? '**Major bump** — 可能含 breaking change'
+                  : '**Safety-critical 套件** — 影響核心元件')
+              : 'Patch/minor SOUP — 自動核可路徑';
+
+            const riskAssessment = isMajor
+              ? '新增風險：Major 版本可能含 breaking change（API/行為/相容性）。控制措施：reviewer 必須檢視套件 changelog、確認 V&V 測試覆蓋率，approve 後加 `human-reviewed` 標籤。'
+              : touchesCritical
+                ? '新增風險：Safety-critical 套件變更。控制措施：reviewer 必須檢視變更對 FHIR/監控行為的影響，approve 後加 `human-reviewed` 標籤。'
+                : '新增風險：Patch/minor 版本理論上向後相容；殘餘風險為 transitive deps 變動。控制措施：CI workflow（單元測試 + tsc + lint + build）必須全綠。';
+
+            const statusLine = requiresHumanReview
+              ? (humanApproved
+                  ? '> ✅ 已加 `human-reviewed` 標籤 — 人工核可通過'
+                  : '> ⚠️ **此 PR 需 reviewer 加 `human-reviewed` 標籤後才能 merge**')
+              : '> ✅ 自動核可 — CI 通過即可 merge';
+
+            const body = [
+              MARKER,
+              '## 🤖 自動產生的 SOUP 變更管控記錄 (IEC 62304 §8.1)',
+              '',
+              `**套件**: \`${depNames || '(unknown)'}\``,
+              `**版本變更類型**: \`${updateType || '(unknown)'}\``,
+              `**生態系**: \`${ecosystem || '(unknown)'}\``,
+              `**依賴類型**: \`${depType || '(unknown)'}\``,
+              `**分類**: ${summary}`,
+              '',
+              '---',
+              '',
+              '### Intended Use 影響評估',
+              '**否** — SOUP 套件更新，不直接修改預期用途或臨床判讀邏輯。',
+              '',
+              '### IEC 62304 / TFDA 分級',
+              '繼承專案現行分級（IEC 62304 Class C 套用最嚴格至所有 SOUP；TFDA 第二級）。',
+              '',
+              '### V&V 測試證據',
+              '`ci.yml` workflow 必須通過：單元測試 + tsc 型別檢查 + ESLint + production build。',
+              '',
+              '### 風險評估',
+              riskAssessment,
+              '',
+              '### Change Control 紀錄',
+              `- PR: #${context.issue.number}`,
+              `- Author: @dependabot[bot]`,
+              `- Auto-classified: \`${requiresHumanReview ? 'requires-human-review' : 'auto-approved'}\``,
+              `- Last updated: ${new Date().toISOString()}`,
+              '',
+              statusLine
+            ].join('\n');
+
+            // Idempotent comment: find existing by MARKER and update, else create
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                per_page: 100
+              });
+              const existing = comments.find(c => c.body && c.body.startsWith(MARKER));
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body: body
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: body
+                });
+              }
+            } catch (e) {
+              core.warning(`Failed to post change-control comment: ${e.message}`);
+            }
+
+            // Apply auto-labels (idempotent)
+            const wantLabels = ['soup-update'];
+            if (isMajor) wantLabels.push('soup-major');
+            if (touchesCritical) wantLabels.push('soup-safety-critical');
+            const newLabels = wantLabels.filter(l => !labels.includes(l));
+            if (newLabels.length > 0) {
+              try {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: newLabels
+                });
+              } catch (e) {
+                core.warning(`Failed to add labels: ${e.message}`);
+              }
+            }
+
+            // Pass/fail
+            if (!requiresHumanReview) {
+              core.info('Patch/minor SOUP — 自動核可（CI 全綠即可 merge）');
+              return;
+            }
+            if (humanApproved) {
+              core.info('高風險 SOUP 已人工審查通過');
+              return;
+            }
+            core.setFailed(
+              isMajor
+                ? 'Major 版本升級需 reviewer 加 `human-reviewed` 標籤'
+                : 'Safety-critical 套件變更需 reviewer 加 `human-reviewed` 標籤'
+            );

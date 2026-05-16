@@ -96,6 +96,15 @@ Issue 模板對應 IEC 62304 SDLC artifacts:
 
 Regulatory 文件由 `.github/workflows/regulatory-docs.yml` 從 Issues 自動生成（tag push 或 manual trigger）。
 
+### Dependabot SOUP 路徑（IEC 62304 §8.1）
+
+依賴套件更新由 Dependabot 自動處理，視為 SOUP (Software of Unknown Provenance) 變更:
+- **Patch/minor 升級** → `tfda-pr-lint` 自動產生 change-control comment、套用 `soup-update` 標籤、auto-pass。Merge 條件僅需 CI 全綠。
+- **Major 升級**或 **safety-critical 套件**（`fhirclient`、`@sentry/browser`、`@sentry/tracing`）→ lint 會 fail，需 reviewer 檢視 changelog + 補 V&V 測試後加 `human-reviewed` 標籤才能 merge。
+- 自動 comment 內含完整 SOUP 變更管控記錄（套件名、版本類型、風險評估、Change Control 紀錄），保留於 PR 供稽核。
+
+擴充 safety-critical 清單請編輯 `.github/workflows/tfda-pr-lint.yml` 的 `SAFETY_CRITICAL` 陣列，並於本 commit 附風險評估。
+
 ## Security Rules (CRITICAL)
 
 - **Never use `innerHTML` with unsanitized data** — use `textContent`, `escapeHTML()`, or `sanitizeHTML()`
