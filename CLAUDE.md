@@ -66,6 +66,36 @@ src/
 - Must match directory name under `src/calculators/`
 - Must be registered in `calculatorModules` array in `src/calculators/index.ts`
 
+## Change Control (TFDA / IEC 62304) — MANDATORY
+
+**所有變更必須走 PR，禁止直接 push 到 `main`。** 此專案為 SaMD，受 TFDA 醫療器材軟體變更管控規範。
+
+每個 PR 必須:
+1. 依 `.github/pull_request_template.md` 完整填寫（不可刪除欄位、不可全部留空）
+2. 通過 `.github/workflows/tfda-pr-lint.yml` 自動檢查 — 缺欄位會 block merge
+3. 必填欄位:
+   - Intended Use 影響評估（是/否 + 說明）
+   - 受影響的 Calculator IDs（無則填「N/A — 原因」）
+   - V&V 測試證據（新增/修改的測試檔；計算器邏輯變動必須附測試）
+   - IEC 62304 安全性等級（Class A/B/C）
+   - TFDA 醫療器材分級（第一/二/三級）
+   - 風險影響 + 風險控制（依 ISO 14971）
+4. 若引入新風險，必須開 `[風險] 風險分析` issue（`.github/ISSUE_TEMPLATE/risk_analysis.yml`）並於 PR 關聯
+
+**禁止行為:**
+- `git push --force` 到 main
+- 使用 `--no-verify` 跳過 hook
+- 直接 commit 到 main（即使 fast-forward）
+- 修改 `.github/workflows/tfda-pr-lint.yml` 來放寬規則而不附完整變更理由
+
+Issue 模板對應 IEC 62304 SDLC artifacts:
+- `software_requirement.yml` → 需求規格
+- `design_specification.yml` → 設計說明
+- `risk_analysis.yml` → 風險分析（ISO 14971）
+- `verification_record.yml` → 驗證紀錄
+
+Regulatory 文件由 `.github/workflows/regulatory-docs.yml` 從 Issues 自動生成（tag push 或 manual trigger）。
+
 ## Security Rules (CRITICAL)
 
 - **Never use `innerHTML` with unsanitized data** — use `textContent`, `escapeHTML()`, or `sanitizeHTML()`

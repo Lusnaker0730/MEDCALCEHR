@@ -1,0 +1,105 @@
+name: TFDA PR Lint
+
+# Enforces TFDA / IEC 62304 change-control fields in the PR description.
+# Fails the check if the author has not filled out the required sections of
+# .github/pull_request_template.md, blocking merge when this workflow is set
+# as a required status check in branch protection.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR description meets TFDA change-control requirements
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const errors = [];
+
+            // Extract free-text section by bold heading. Captures everything up to
+            // the next bold heading (**...**) or the next "## " section, then
+            // strips HTML comments and trims.
+            function extractSection(heading) {
+              const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const re = new RegExp(
+                `\\*\\*${escaped}[：:]\\*\\*([\\s\\S]*?)(?=\\n\\s*\\*\\*|\\n##\\s|$)`,
+                'i'
+              );
+              const m = body.match(re);
+              if (!m) return '';
+              return m[1].replace(/<!--[\s\S]*?-->/g, '').trim();
+            }
+
+            // Check if any of the listed checkbox labels are marked [x] / [X].
+            function anyChecked(labels) {
+              return labels.some(label => {
+                const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`-\\s*\\[[xX]\\]\\s*${escaped}`);
+                return re.test(body);
+              });
+            }
+
+            // 1. Intended Use — exactly one of 「是」/「否」 must be checked
+            if (!anyChecked(['**是**', '**否**'])) {
+              errors.push('Intended Use 影響評估：必須勾選「是」或「否」');
+            }
+
+            // 2. Intended Use explanation must not be empty
+            const intendedDesc = extractSection('說明');
+            if (!intendedDesc) {
+              errors.push('Intended Use 影響評估「說明」不可為空');
+            }
+
+            // 3. Calculator IDs — must have at least one non-empty line
+            const calcSection = extractSection('受影響的 Calculator IDs');
+            const calcLines = calcSection.split('\n')
+              .map(l => l.replace(/^[-*\s]+/, '').trim())
+              .filter(l => l.length > 0);
+            if (calcLines.length === 0) {
+              errors.push('「受影響的 Calculator IDs」不可為空 — 列出 ID 或填「N/A — 原因」');
+            }
+
+            // 4. V&V evidence must not be empty
+            const vvEvidence = extractSection('新增/修改的測試（V&V 證據）');
+            if (!vvEvidence) {
+              errors.push('「新增/修改的測試（V&V 證據）」不可為空');
+            }
+
+            // 5. IEC 62304 — exactly one class must be checked
+            if (!anyChecked(['Class A', 'Class B', 'Class C'])) {
+              errors.push('IEC 62304 安全性等級：必須勾選 Class A / B / C 其中一級');
+            }
+
+            // 6. TFDA classification — exactly one must be checked
+            if (!anyChecked(['第一級', '第二級', '第三級'])) {
+              errors.push('TFDA 醫療器材分級：必須勾選第一/二/三級');
+            }
+
+            // 7. Risk impact must not be empty
+            const riskImpact = extractSection('風險影響');
+            if (!riskImpact) {
+              errors.push('「風險影響」不可為空（無風險請寫「無新增風險 — 原因」）');
+            }
+
+            // 8. Risk control must not be empty
+            const riskCtrl = extractSection('風險控制');
+            if (!riskCtrl) {
+              errors.push('「風險控制」不可為空（若上題為「無新增風險」可填 N/A）');
+            }
+
+            if (errors.length > 0) {
+              const heading = '## TFDA PR Lint 失敗\n\n下列 change-control 欄位未通過檢查：\n';
+              const list = errors.map((e, i) => `${i + 1}. ${e}`).join('\n');
+              const tail = '\n\n請依 `.github/pull_request_template.md` 填寫，並重新推送以觸發檢查。';
+              core.setFailed(heading + list + tail);
+            } else {
+              core.info('TFDA PR Lint 全部欄位通過');
+            }
