@@ -23,7 +23,7 @@ export const MEDICATION_FREQUENCY_MAP: ReadonlyArray<{
     { nhiCode: 'QID', nhiDisplay: '每日四次', hl7Code: 'QID', hl7Display: 'QID' },
     { nhiCode: 'QOD', nhiDisplay: '隔日使用一次', hl7Code: 'QOD', hl7Display: 'QOD' },
     { nhiCode: 'QW', nhiDisplay: '每週一次', hl7Code: 'WK', hl7Display: 'weekly' },
-    { nhiCode: 'HS', nhiDisplay: '睡前一次', hl7Code: 'BED', hl7Display: 'at bedtime' },
+    { nhiCode: 'HS', nhiDisplay: '睡前一次', hl7Code: 'BED', hl7Display: 'at bedtime' }
 ] as const;
 
 /**
@@ -44,13 +44,48 @@ export const MEDICATION_ROUTE_TO_SNOMED: ReadonlyArray<{
     { twCode: 'RECT', twDisplay: '肛門用', snomedCode: '37161004', snomedDisplay: 'Rectal use' },
     { twCode: 'VAG', twDisplay: '陰道用', snomedCode: '16857009', snomedDisplay: 'Vaginal use' },
     { twCode: 'SC', twDisplay: '皮下注射', snomedCode: '34206005', snomedDisplay: 'SC use' },
-    { twCode: 'IM', twDisplay: '肌肉注射', snomedCode: '78421000', snomedDisplay: 'Intramuscular use' },
-    { twCode: 'IA', twDisplay: '動脈注射', snomedCode: '58100008', snomedDisplay: 'Intra-arterial use' },
-    { twCode: 'ID', twDisplay: '皮內注射', snomedCode: '372464004', snomedDisplay: 'Intradermal use' },
-    { twCode: 'IVA', twDisplay: '靜脈添加', snomedCode: '47625008', snomedDisplay: 'Intravenous use' },
-    { twCode: 'IVD', twDisplay: '靜脈點滴滴入', snomedCode: '47625008', snomedDisplay: 'Intravenous use' },
-    { twCode: 'IVP', twDisplay: '靜脈注入', snomedCode: '47625008', snomedDisplay: 'Intravenous use' },
-    { twCode: 'IVI', twDisplay: '玻璃体內注射', snomedCode: '418401004', snomedDisplay: 'Intravitreal route' },
+    {
+        twCode: 'IM',
+        twDisplay: '肌肉注射',
+        snomedCode: '78421000',
+        snomedDisplay: 'Intramuscular use'
+    },
+    {
+        twCode: 'IA',
+        twDisplay: '動脈注射',
+        snomedCode: '58100008',
+        snomedDisplay: 'Intra-arterial use'
+    },
+    {
+        twCode: 'ID',
+        twDisplay: '皮內注射',
+        snomedCode: '372464004',
+        snomedDisplay: 'Intradermal use'
+    },
+    {
+        twCode: 'IVA',
+        twDisplay: '靜脈添加',
+        snomedCode: '47625008',
+        snomedDisplay: 'Intravenous use'
+    },
+    {
+        twCode: 'IVD',
+        twDisplay: '靜脈點滴滴入',
+        snomedCode: '47625008',
+        snomedDisplay: 'Intravenous use'
+    },
+    {
+        twCode: 'IVP',
+        twDisplay: '靜脈注入',
+        snomedCode: '47625008',
+        snomedDisplay: 'Intravenous use'
+    },
+    {
+        twCode: 'IVI',
+        twDisplay: '玻璃体內注射',
+        snomedCode: '418401004',
+        snomedDisplay: 'Intravitreal route'
+    },
     { twCode: 'NA', twDisplay: '鼻用', snomedCode: '46713006', snomedDisplay: 'Nasal use' },
     { twCode: 'AD', twDisplay: '右耳', snomedCode: '10547007', snomedDisplay: 'Auricular use' },
     { twCode: 'AS', twDisplay: '左耳', snomedCode: '10547007', snomedDisplay: 'Auricular use' },
@@ -58,23 +93,47 @@ export const MEDICATION_ROUTE_TO_SNOMED: ReadonlyArray<{
     { twCode: 'OD', twDisplay: '右眼', snomedCode: '54485002', snomedDisplay: 'Ophthalmic use' },
     { twCode: 'OS', twDisplay: '左眼', snomedCode: '54485002', snomedDisplay: 'Ophthalmic use' },
     { twCode: 'OU', twDisplay: '每眼', snomedCode: '54485002', snomedDisplay: 'Ophthalmic use' },
-    { twCode: 'TOPI', twDisplay: '局部塗擦', snomedCode: '6064005', snomedDisplay: 'Topical route' },
+    {
+        twCode: 'TOPI',
+        twDisplay: '局部塗擦',
+        snomedCode: '6064005',
+        snomedDisplay: 'Topical route'
+    },
     { twCode: 'EXT', twDisplay: '外用', snomedCode: '6064005', snomedDisplay: 'Topical route' },
-    { twCode: 'SKIN', twDisplay: '皮膚用', snomedCode: '448598008', snomedDisplay: 'Cutaneous route' },
-    { twCode: 'HD', twDisplay: '皮下灌注', snomedCode: '1611000175109', snomedDisplay: 'Sublesional route' },
-    { twCode: 'SCI', twDisplay: '結膜下注射', snomedCode: '416174007', snomedDisplay: 'Suborbital use' },
+    {
+        twCode: 'SKIN',
+        twDisplay: '皮膚用',
+        snomedCode: '448598008',
+        snomedDisplay: 'Cutaneous route'
+    },
+    {
+        twCode: 'HD',
+        twDisplay: '皮下灌注',
+        snomedCode: '1611000175109',
+        snomedDisplay: 'Sublesional route'
+    },
+    {
+        twCode: 'SCI',
+        twDisplay: '結膜下注射',
+        snomedCode: '416174007',
+        snomedDisplay: 'Suborbital use'
+    }
 ] as const;
 
 /**
  * Look up HL7 timing code for an NHI frequency code
  */
-export function getNHIFrequencyMapping(nhiCode: string): typeof MEDICATION_FREQUENCY_MAP[number] | undefined {
+export function getNHIFrequencyMapping(
+    nhiCode: string
+): (typeof MEDICATION_FREQUENCY_MAP)[number] | undefined {
     return MEDICATION_FREQUENCY_MAP.find(m => m.nhiCode === nhiCode);
 }
 
 /**
  * Look up SNOMED route code for a TW medication route code
  */
-export function getTWRouteToSNOMED(twRouteCode: string): typeof MEDICATION_ROUTE_TO_SNOMED[number] | undefined {
+export function getTWRouteToSNOMED(
+    twRouteCode: string
+): (typeof MEDICATION_ROUTE_TO_SNOMED)[number] | undefined {
     return MEDICATION_ROUTE_TO_SNOMED.find(m => m.twCode === twRouteCode);
 }

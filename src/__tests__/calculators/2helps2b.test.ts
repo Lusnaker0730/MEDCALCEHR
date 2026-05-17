@@ -71,7 +71,7 @@ describe('2HELPS2B Calculator', () => {
             'lpd-bipd-lrda': 'true',
             'plus-features': 'true',
             'prior-seizure': 'true',
-            'birds': 'true'
+            birds: 'true'
         };
         // 1+1+1+1+1+2 = 7
         const result = calculateScoringResult(helps2bConfig, inputs);

@@ -220,9 +220,12 @@ export class UIBuilder {
 
         const requiredMark = required ? '<span class="required">*</span>' : '';
         // Only show static unit if unitToggle is not present (toggle button will handle unit display)
-        const unitHTML = unit && !unitToggle ? `<span class="ui-input-unit">${safeUnit}</span>` : '';
+        const unitHTML =
+            unit && !unitToggle ? `<span class="ui-input-unit">${safeUnit}</span>` : '';
         const helpId = helpText ? `${safeId}-help` : '';
-        const helpHTML = helpText ? `<div class="help-text" id="${helpId}">${safeHelpText}</div>` : '';
+        const helpHTML = helpText
+            ? `<div class="help-text" id="${helpId}">${safeHelpText}</div>`
+            : '';
 
         let attrs = `id="${safeId}" type="${type}" placeholder="${safePlaceholder}"`;
         if (min !== undefined) attrs += ` min="${min}"`;
@@ -374,9 +377,7 @@ export class UIBuilder {
         const safeDesc = description ? this.escapeHtml(description) : '';
 
         const checkedAttr = checked ? 'checked' : '';
-        const descHTML = safeDesc
-            ? `<div class="checkbox-description">${safeDesc}</div>`
-            : '';
+        const descHTML = safeDesc ? `<div class="checkbox-description">${safeDesc}</div>` : '';
 
         return `
             <div class="ui-checkbox-option">
@@ -409,7 +410,9 @@ export class UIBuilder {
 
         const requiredMark = required ? '<span class="required">*</span>' : '';
         const helpId = safeHelpText ? `${safeId}-help` : '';
-        const helpHTML = safeHelpText ? `<div class="help-text" id="${helpId}">${safeHelpText}</div>` : '';
+        const helpHTML = safeHelpText
+            ? `<div class="help-text" id="${helpId}">${safeHelpText}</div>`
+            : '';
 
         const optionsHTML = options
             .map(opt => {
@@ -648,11 +651,15 @@ export class UIBuilder {
                 success: { icon: '&#x2713;', srText: 'Normal: ' },
                 warning: { icon: '&#x26A0;', srText: 'Warning: ' },
                 danger: { icon: '&#x2717;', srText: 'Critical: ' },
-                info: { icon: '&#x2139;', srText: 'Info: ' },
+                info: { icon: '&#x2139;', srText: 'Info: ' }
             };
             const indicator = stateIndicators[alertClass] || { icon: '', srText: '' };
-            const iconHTML = indicator.icon ? `<span class="state-icon" aria-hidden="true">${indicator.icon}</span>` : '';
-            const srHTML = indicator.srText ? `<span class="sr-only">${indicator.srText}</span>` : '';
+            const iconHTML = indicator.icon
+                ? `<span class="state-icon" aria-hidden="true">${indicator.icon}</span>`
+                : '';
+            const srHTML = indicator.srText
+                ? `<span class="sr-only">${indicator.srText}</span>`
+                : '';
             html += `<div class="ui-result-interpretation ${alertClass}">${iconHTML}${srHTML}${safeInterpretation}</div>`;
         }
 
@@ -686,7 +693,7 @@ export class UIBuilder {
             info: 'Info',
             warning: 'Warning',
             danger: 'Critical',
-            success: 'Success',
+            success: 'Success'
         };
         const srPrefix = `<span class="sr-only">${stateLabels[type] || 'Info'}: </span>`;
 
@@ -835,7 +842,8 @@ export class UIBuilder {
                     .writeText(report)
                     .then(() => {
                         const originalText = btn.textContent;
-                        if (btn instanceof HTMLElement) btn.textContent = `✅ ${t('calculator.copied')}`;
+                        if (btn instanceof HTMLElement)
+                            btn.textContent = `✅ ${t('calculator.copied')}`;
                         setTimeout(() => {
                             if (btn instanceof HTMLElement) btn.textContent = originalText;
                         }, 2000);
@@ -972,7 +980,9 @@ export class UIBuilder {
     }): string {
         const safeIcon = icon ? this.escapeHtml(icon) : '';
         const safeTitle = this.escapeHtml(title);
-        const citationsHTML = citations.map(citation => `<p>${sanitizeHTML(citation)}</p>`).join('');
+        const citationsHTML = citations
+            .map(citation => `<p>${sanitizeHTML(citation)}</p>`)
+            .join('');
 
         return `
             <div class="info-section mt-20 text-sm text-muted">

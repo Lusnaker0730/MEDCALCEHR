@@ -69,7 +69,7 @@ export function logError(error: any, context: any = {}): any {
         errorName: errorLog.name,
         code: errorLog.code,
         ...context,
-        stack: error.stack,
+        stack: error.stack
     });
     captureException(error);
 

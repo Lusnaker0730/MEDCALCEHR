@@ -10,9 +10,27 @@ import { logger } from './logger.js';
 
 // Dangerous tags that should always be removed (mXSS prevention)
 const DANGEROUS_TAGS = [
-    'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed',
-    'applet', 'math', 'svg', 'template', 'noscript', 'noembed', 'listing',
-    'xmp', 'plaintext', 'comment', 'base', 'link', 'meta', 'title'
+    'script',
+    'style',
+    'iframe',
+    'frame',
+    'frameset',
+    'object',
+    'embed',
+    'applet',
+    'math',
+    'svg',
+    'template',
+    'noscript',
+    'noembed',
+    'listing',
+    'xmp',
+    'plaintext',
+    'comment',
+    'base',
+    'link',
+    'meta',
+    'title'
 ];
 
 // Dangerous attribute prefixes
@@ -151,21 +169,31 @@ export function sanitizeHTML(html: string): string {
             // Special handling for style attribute - remove javascript: and expression()
             if (attrName === 'style') {
                 const styleValue = attrValue.toLowerCase().replace(/\/\*[\s\S]*?\*\//g, '');
-                if (styleValue.includes('javascript:') ||
+                if (
+                    styleValue.includes('javascript:') ||
                     styleValue.includes('expression(') ||
                     styleValue.includes('behavior:') ||
                     styleValue.includes('-moz-binding') ||
-                    (styleValue.includes('url(') && hasDangerousScheme(styleValue))) {
+                    (styleValue.includes('url(') && hasDangerousScheme(styleValue))
+                ) {
                     element.removeAttribute('style');
                     return;
                 }
             }
 
             // Remove data: URLs from src and href (except for safe data URLs)
-            if ((attrName === 'src' || attrName === 'href' || attrName === 'action') &&
-                attrValue.toLowerCase().trim().startsWith('data:')) {
+            if (
+                (attrName === 'src' || attrName === 'href' || attrName === 'action') &&
+                attrValue.toLowerCase().trim().startsWith('data:')
+            ) {
                 const lower = attrValue.toLowerCase().trim();
-                const safeDataTypes = ['data:image/png', 'data:image/jpeg', 'data:image/jpg', 'data:image/gif', 'data:image/webp'];
+                const safeDataTypes = [
+                    'data:image/png',
+                    'data:image/jpeg',
+                    'data:image/jpg',
+                    'data:image/gif',
+                    'data:image/webp'
+                ];
                 if (!safeDataTypes.some(t => lower.startsWith(t))) {
                     element.removeAttribute(attr.name);
                 }
@@ -408,8 +436,8 @@ export function isRestrictedResource(resource: any): boolean {
     // M = Moderate (allowed)
     const restrictedCodes = ['R', 'V'];
 
-    return resource.meta.security.some((label: any) =>
-        label.code && restrictedCodes.includes(label.code)
+    return resource.meta.security.some(
+        (label: any) => label.code && restrictedCodes.includes(label.code)
     );
 }
 
@@ -449,9 +477,11 @@ function encodeForStorage(data: unknown): string {
         const key = getObfuscationKey();
         const xored = xorCipher(json, key);
         // Use base64 encoding (handle Unicode properly)
-        const encoded = btoa(encodeURIComponent(xored).replace(/%([0-9A-F]{2})/g,
-            (_, p1) => String.fromCharCode(parseInt(p1, 16))
-        ));
+        const encoded = btoa(
+            encodeURIComponent(xored).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+                String.fromCharCode(parseInt(p1, 16))
+            )
+        );
         return 'enc:' + encoded; // Prefix to identify encoded data
     } catch (error) {
         logger.error('Failed to encode data for storage', { error: String(error) });
@@ -475,9 +505,10 @@ function decodeFromStorage<T = unknown>(encoded: string): T | null {
         const key = getObfuscationKey();
         // Decode base64 (handle Unicode properly)
         const xored = decodeURIComponent(
-            atob(base64).split('').map(c =>
-                '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-            ).join('')
+            atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
         );
         const json = xorCipher(xored, key);
         return JSON.parse(json) as T;
@@ -565,11 +596,7 @@ async function decryptAESGCM(encoded: string): Promise<string> {
     const iv = bytes.slice(0, 12);
     const ciphertext = bytes.slice(12);
 
-    const decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        key,
-        ciphertext
-    );
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
 
     return new TextDecoder().decode(decrypted);
 }
@@ -702,7 +729,8 @@ export function extractMinimalPatientData(patient: any): {
 
     try {
         const name = patient.name?.[0];
-        const formattedName = name?.text ||
+        const formattedName =
+            name?.text ||
             `${name?.given?.join(' ') || ''} ${name?.family || ''}`.trim() ||
             'Unknown';
 

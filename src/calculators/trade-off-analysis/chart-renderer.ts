@@ -4,10 +4,27 @@
  * Based on: Urban P, Giustino G, et al. JAMA Cardiology, 2021
  */
 
-import { Chart, ScatterController, LineController, LineElement, PointElement, LogarithmicScale, Legend, Tooltip } from 'chart.js';
+import {
+    Chart,
+    ScatterController,
+    LineController,
+    LineElement,
+    PointElement,
+    LogarithmicScale,
+    Legend,
+    Tooltip
+} from 'chart.js';
 import { TRADE_OFF_SLOPES } from './risk-factors.js';
 
-Chart.register(ScatterController, LineController, LineElement, PointElement, LogarithmicScale, Legend, Tooltip);
+Chart.register(
+    ScatterController,
+    LineController,
+    LineElement,
+    PointElement,
+    LogarithmicScale,
+    Legend,
+    Tooltip
+);
 
 export interface TradeOffChartConfig {
     containerId: string;
@@ -26,8 +43,7 @@ export function createTradeOffChart(config: TradeOffChartConfig): any {
     if (!container) return null;
 
     // Clear previous chart
-    container.innerHTML =
-        '<canvas id="trade-off-chart-canvas"></canvas>';
+    container.innerHTML = '<canvas id="trade-off-chart-canvas"></canvas>';
     const canvas = document.getElementById('trade-off-chart-canvas') as HTMLCanvasElement;
     if (!canvas) return null;
 

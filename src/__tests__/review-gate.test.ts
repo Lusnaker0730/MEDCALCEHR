@@ -7,16 +7,39 @@ const mockReviewData = {
     version: '1.0.0',
     lastUpdated: '2026-02-24',
     calculators: {
-        'bmi-bsa': { status: 'approved', reviewDate: '2026-02-20', reviewer: 'Dr. Chen', reviewDocId: 'bmi-bsa', notes: '' },
-        'gcs': { status: 'pending', reviewDate: null, reviewer: null, reviewDocId: null, notes: '' },
-        'apache-ii': { status: 'conditional', reviewDate: '2026-02-18', reviewer: 'Dr. Lin', reviewDocId: null, notes: 'Needs validation' },
-        'meld-na': { status: 'rejected', reviewDate: '2026-02-15', reviewer: 'Dr. Wang', reviewDocId: null, notes: 'Formula error' },
-    },
+        'bmi-bsa': {
+            status: 'approved',
+            reviewDate: '2026-02-20',
+            reviewer: 'Dr. Chen',
+            reviewDocId: 'bmi-bsa',
+            notes: ''
+        },
+        gcs: { status: 'pending', reviewDate: null, reviewer: null, reviewDocId: null, notes: '' },
+        'apache-ii': {
+            status: 'conditional',
+            reviewDate: '2026-02-18',
+            reviewer: 'Dr. Lin',
+            reviewDocId: null,
+            notes: 'Needs validation'
+        },
+        'meld-na': {
+            status: 'rejected',
+            reviewDate: '2026-02-15',
+            reviewer: 'Dr. Wang',
+            reviewDocId: null,
+            notes: 'Formula error'
+        }
+    }
 };
 
 jest.mock('../calculator-review-status.json', () => mockReviewData);
 
-import { isCalculatorApproved, getReviewStatus, getReviewEntry, getApprovedCount } from '../review-gate';
+import {
+    isCalculatorApproved,
+    getReviewStatus,
+    getReviewEntry,
+    getApprovedCount
+} from '../review-gate';
 
 describe('review-gate', () => {
     beforeEach(() => {
@@ -84,7 +107,7 @@ describe('review-gate', () => {
                 reviewDate: '2026-02-20',
                 reviewer: 'Dr. Chen',
                 reviewDocId: 'bmi-bsa',
-                notes: '',
+                notes: ''
             });
         });
 

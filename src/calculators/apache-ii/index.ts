@@ -411,13 +411,37 @@ export const apacheIi = createUnifiedFormulaCalculator({
         // 3. Worst Value Auto-population (48h)
         if (fhirDataService.isReady()) {
             const worstValueFields = [
-                { id: 'apache-ii-temp', code: LOINC_CODES.TEMPERATURE, scoreFn: getPoints.temp, unit: 'C', type: 'temperature' },
+                {
+                    id: 'apache-ii-temp',
+                    code: LOINC_CODES.TEMPERATURE,
+                    scoreFn: getPoints.temp,
+                    unit: 'C',
+                    type: 'temperature'
+                },
                 { id: 'apache-ii-hr', code: LOINC_CODES.HEART_RATE, scoreFn: getPoints.hr },
                 { id: 'apache-ii-rr', code: LOINC_CODES.RESPIRATORY_RATE, scoreFn: getPoints.rr },
                 { id: 'apache-ii-ph', code: LOINC_CODES.PH, scoreFn: getPoints.ph },
-                { id: 'apache-ii-sodium', code: LOINC_CODES.SODIUM, scoreFn: getPoints.sodium, unit: 'mmol/L', type: 'sodium' },
-                { id: 'apache-ii-potassium', code: LOINC_CODES.POTASSIUM, scoreFn: getPoints.potassium, unit: 'mmol/L', type: 'potassium' },
-                { id: 'apache-ii-creatinine', code: LOINC_CODES.CREATININE, scoreFn: (v: number) => getPoints.creatinine(v, false), unit: 'mg/dL', type: 'creatinine' },
+                {
+                    id: 'apache-ii-sodium',
+                    code: LOINC_CODES.SODIUM,
+                    scoreFn: getPoints.sodium,
+                    unit: 'mmol/L',
+                    type: 'sodium'
+                },
+                {
+                    id: 'apache-ii-potassium',
+                    code: LOINC_CODES.POTASSIUM,
+                    scoreFn: getPoints.potassium,
+                    unit: 'mmol/L',
+                    type: 'potassium'
+                },
+                {
+                    id: 'apache-ii-creatinine',
+                    code: LOINC_CODES.CREATININE,
+                    scoreFn: (v: number) => getPoints.creatinine(v, false),
+                    unit: 'mg/dL',
+                    type: 'creatinine'
+                },
                 { id: 'apache-ii-hct', code: LOINC_CODES.HEMATOCRIT, scoreFn: getPoints.hct },
                 { id: 'apache-ii-wbc', code: LOINC_CODES.WBC, scoreFn: getPoints.wbc },
                 { id: 'apache-ii-gcs', code: LOINC_CODES.GCS, scoreFn: getPoints.gcs }
@@ -449,7 +473,12 @@ export const apacheIi = createUnifiedFormulaCalculator({
 
                             // FIX: Convert for scoring if unit type is known
                             if (field.unit && res.unit && field.type) {
-                                const converted = UnitConverter.convert(res.value, res.unit, field.unit, field.type);
+                                const converted = UnitConverter.convert(
+                                    res.value,
+                                    res.unit,
+                                    field.unit,
+                                    field.type
+                                );
                                 if (converted !== null) val = converted;
                             }
 
@@ -464,7 +493,11 @@ export const apacheIi = createUnifiedFormulaCalculator({
                     if (worstResult && worstResult.value !== null) {
                         // Populate with the found worst value
                         // Use UnitConverter to set value (handles unit conversion to input's current unit)
-                        UnitConverter.setInputValue(input, worstResult.originalValue || worstResult.value, worstResult.originalUnit || worstResult.unit || '');
+                        UnitConverter.setInputValue(
+                            input,
+                            worstResult.originalValue || worstResult.value,
+                            worstResult.originalUnit || worstResult.unit || ''
+                        );
 
                         // Staleness tracking (手动)
                         const tracker = fhirDataService.getStalenessTracker();
@@ -478,7 +511,10 @@ export const apacheIi = createUnifiedFormulaCalculator({
                         }
                     }
                 } catch (e) {
-                    logger.warn('Error auto-populating worst value', { detail: field.id, error: String(e) });
+                    logger.warn('Error auto-populating worst value', {
+                        detail: field.id,
+                        error: String(e)
+                    });
                 }
             };
 
@@ -489,28 +525,28 @@ export const apacheIi = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-        title: 'Approximated In-Hospital Mortality Rates',
-        icon: '📊',
-        content: uiBuilder.createTable({
-            headers: ['APACHE II Score', 'Nonoperative', 'Postoperative'],
-            rows: [
-                ['0-4', '4%', '1%'],
-                ['5-9', '8%', '3%'],
-                ['10-14', '15%', '7%'],
-                ['15-19', '25%', '12%'],
-                ['20-24', '40%', '30%'],
-                ['25-29', '55%', '35%'],
-                ['30-34', '73%', '73%'],
-                ['>34', '85%', '88%']
-            ]
-        })
-    })}
+            title: 'Approximated In-Hospital Mortality Rates',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['APACHE II Score', 'Nonoperative', 'Postoperative'],
+                rows: [
+                    ['0-4', '4%', '1%'],
+                    ['5-9', '8%', '3%'],
+                    ['10-14', '15%', '7%'],
+                    ['15-19', '25%', '12%'],
+                    ['20-24', '40%', '30%'],
+                    ['25-29', '55%', '35%'],
+                    ['30-34', '73%', '73%'],
+                    ['>34', '85%', '88%']
+                ]
+            })
+        })}
 
         ${uiBuilder.createSection({
-        title: 'Reference',
-        icon: '📚',
-        content:
-            '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
-    })}
+            title: 'Reference',
+            icon: '📚',
+            content:
+                '<p>Knaus, W. A., Draper, E. A., Wagner, D. P., & Zimmerman, J. E. (1985). APACHE II: a severity of disease classification system. <em>Critical care medicine</em>, 13(10), 818-829.</p>'
+        })}
     `
 });

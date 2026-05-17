@@ -72,8 +72,6 @@ describe('FHIR Codes Module', () => {
         });
     });
 
-
-
     // =========================================
     // getLoincCode Function Tests
     // =========================================
@@ -359,14 +357,24 @@ describe('FHIR Codes Module', () => {
             expect(FHIR_CODE_SYSTEMS.ICD10).toBe('http://hl7.org/fhir/sid/icd-10');
             expect(FHIR_CODE_SYSTEMS.ICD10_CM).toBe('http://hl7.org/fhir/sid/icd-10-cm');
             expect(FHIR_CODE_SYSTEMS.RXNORM).toBe('http://www.nlm.nih.gov/research/umls/rxnorm');
-            expect(FHIR_CODE_SYSTEMS.OBSERVATION_CATEGORY).toBe('http://terminology.hl7.org/CodeSystem/observation-category');
-            expect(FHIR_CODE_SYSTEMS.CONDITION_CLINICAL).toBe('http://terminology.hl7.org/CodeSystem/condition-clinical');
-            expect(FHIR_CODE_SYSTEMS.V2_IDENTIFIER_TYPE).toBe('http://terminology.hl7.org/CodeSystem/v2-0203');
+            expect(FHIR_CODE_SYSTEMS.OBSERVATION_CATEGORY).toBe(
+                'http://terminology.hl7.org/CodeSystem/observation-category'
+            );
+            expect(FHIR_CODE_SYSTEMS.CONDITION_CLINICAL).toBe(
+                'http://terminology.hl7.org/CodeSystem/condition-clinical'
+            );
+            expect(FHIR_CODE_SYSTEMS.V2_IDENTIFIER_TYPE).toBe(
+                'http://terminology.hl7.org/CodeSystem/v2-0203'
+            );
         });
 
         test('should contain Taiwan ICD-10 code system URLs', () => {
-            expect(FHIR_CODE_SYSTEMS.ICD10_CM_TW).toBe('https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-cm-2023-tw');
-            expect(FHIR_CODE_SYSTEMS.ICD10_PCS_TW).toBe('https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-pcs-2023-tw');
+            expect(FHIR_CODE_SYSTEMS.ICD10_CM_TW).toBe(
+                'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-cm-2023-tw'
+            );
+            expect(FHIR_CODE_SYSTEMS.ICD10_PCS_TW).toBe(
+                'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/icd-10-pcs-2023-tw'
+            );
         });
 
         test('all URLs should be valid HTTP(S) URIs', () => {
@@ -495,7 +503,10 @@ describe('FHIR Codes Module', () => {
         // All LOINC codes used in twcore/observation-profiles.ts LOINC_TO_TW_PROFILE_MAP
         const twCoreLoincCodes = [
             // Blood Pressure
-            '85354-9', '8480-6', '8462-4', '8478-0',
+            '85354-9',
+            '8480-6',
+            '8462-4',
+            '8478-0',
             // BMI
             '39156-5',
             // Body Height
@@ -505,21 +516,28 @@ describe('FHIR Codes Module', () => {
             // Body Temperature
             '8310-5',
             // Head Circumference
-            '9843-4', '8287-5',
+            '9843-4',
+            '8287-5',
             // Heart Rate
             '8867-4',
             // Oxygen Saturation / Pulse Oximetry
-            '59408-5', '2708-6',
+            '59408-5',
+            '2708-6',
             // Respiratory Rate
             '9279-1',
             // Vital Signs panel
             '85353-1',
             // Pediatric
-            '59576-9', '77606-2', '8289-1',
+            '59576-9',
+            '77606-2',
+            '8289-1',
             // Smoking Status
-            '72166-2', '11367-0',
+            '72166-2',
+            '11367-0',
             // Average Blood Pressure
-            '96607-7', '96608-5', '96609-3',
+            '96607-7',
+            '96608-5',
+            '96609-3'
         ];
 
         test('every LOINC code in TW Core profile map should exist in LOINC_CODES values', () => {

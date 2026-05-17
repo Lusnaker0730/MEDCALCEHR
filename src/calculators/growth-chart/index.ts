@@ -1,4 +1,8 @@
-import { taiwanData, type TaiwanPercentileDataPoint, type BmiThresholdPoint } from './taiwan-data.js';
+import {
+    taiwanData,
+    type TaiwanPercentileDataPoint,
+    type BmiThresholdPoint
+} from './taiwan-data.js';
 import {
     calculateZScore,
     estimatePercentile,
@@ -13,15 +17,23 @@ import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import type { CalculatorModule } from '../../types/index.js';
 import { logger } from '../../logger.js';
-import { Chart, LineController, LineElement, PointElement, LinearScale, Legend, Tooltip, Filler } from 'chart.js';
+import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    Legend,
+    Tooltip,
+    Filler
+} from 'chart.js';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Legend, Tooltip, Filler);
 
 export const growthChart: CalculatorModule = {
     id: 'growth-chart',
     title: '兒童生長曲線圖',
-    description:
-        '依據衛生福利部國民健康署台灣兒童生長標準，繪製身高、體重、BMI 生長曲線。',
+    description: '依據衛生福利部國民健康署台灣兒童生長標準，繪製身高、體重、BMI 生長曲線。',
     generateHTML: function () {
         return `
             <div class="calculator-header">
@@ -170,8 +182,7 @@ export const growthChart: CalculatorModule = {
 
             if (dataCount === 0) {
                 statusEl.innerHTML = '<span class="status-warning">⚠️ 無資料</span>';
-                summaryEl.innerHTML =
-                    '<p class="no-data">此病人無此項測量紀錄。</p>';
+                summaryEl.innerHTML = '<p class="no-data">此病人無此項測量紀錄。</p>';
                 return;
             }
 
@@ -224,7 +235,8 @@ export const growthChart: CalculatorModule = {
 
             if (dataCount === 0) {
                 statusEl.innerHTML = '<span class="status-warning">⚠️ 無資料</span>';
-                summaryEl.innerHTML = '<p class="no-data">此病人無 BMI 資料（需同時有身高和體重測量）。</p>';
+                summaryEl.innerHTML =
+                    '<p class="no-data">此病人無 BMI 資料（需同時有身高和體重測量）。</p>';
                 return;
             }
 
@@ -233,7 +245,9 @@ export const growthChart: CalculatorModule = {
             if (latestValue !== null && latestAge !== null && bmiThresholds.length > 0) {
                 // Find closest threshold data point
                 const closest = bmiThresholds.reduce((prev, curr) =>
-                    Math.abs(curr.Agemos - latestAge) < Math.abs(prev.Agemos - latestAge) ? curr : prev
+                    Math.abs(curr.Agemos - latestAge) < Math.abs(prev.Agemos - latestAge)
+                        ? curr
+                        : prev
                 );
 
                 let category = '';
@@ -413,7 +427,10 @@ export const growthChart: CalculatorModule = {
             }
 
             // Taiwan percentile color scheme
-            const percentileConfig: Record<string, { color: string; alpha: number; width: number; dash: number[] }> = {
+            const percentileConfig: Record<
+                string,
+                { color: string; alpha: number; width: number; dash: number[] }
+            > = {
                 P3: { color: '#dc2626', alpha: 0.7, width: 1.5, dash: [5, 5] },
                 P15: { color: '#ea580c', alpha: 0.8, width: 1, dash: [] },
                 P25: { color: '#ca8a04', alpha: 0.8, width: 1, dash: [] },
@@ -530,7 +547,10 @@ export const growthChart: CalculatorModule = {
                                     let label = `${context.dataset.label}: ${value} ${unit}`;
 
                                     // Add Z-score for patient data
-                                    if (context.dataset.label.includes('Patient') || context.dataset.label.includes('病人')) {
+                                    if (
+                                        context.dataset.label.includes('Patient') ||
+                                        context.dataset.label.includes('病人')
+                                    ) {
                                         const zscore = calculateZScore(
                                             context.parsed.x,
                                             context.parsed.y,
@@ -773,19 +793,14 @@ export const growthChart: CalculatorModule = {
                 filteredHeight.length > 0 ? filteredHeight[filteredHeight.length - 1] : null;
             const latestWeight =
                 filteredWeight.length > 0 ? filteredWeight[filteredWeight.length - 1] : null;
-            const latestBMI =
-                bmiData.length > 0 ? bmiData[bmiData.length - 1] : null;
+            const latestBMI = bmiData.length > 0 ? bmiData[bmiData.length - 1] : null;
 
             // Get Taiwan reference data by gender
-            const heightRefData = gender === 'female'
-                ? taiwanData.height.female
-                : taiwanData.height.male;
-            const weightRefData = gender === 'female'
-                ? taiwanData.weight.female
-                : taiwanData.weight.male;
-            const bmiThresholds = gender === 'female'
-                ? taiwanData.bmi.female
-                : taiwanData.bmi.male;
+            const heightRefData =
+                gender === 'female' ? taiwanData.height.female : taiwanData.height.male;
+            const weightRefData =
+                gender === 'female' ? taiwanData.weight.female : taiwanData.weight.male;
+            const bmiThresholds = gender === 'female' ? taiwanData.bmi.female : taiwanData.bmi.male;
 
             // Create Height Chart
             if (heightCanvas) {
@@ -863,20 +878,28 @@ export const growthChart: CalculatorModule = {
 
         if (addBtn) {
             addBtn.addEventListener('click', () => {
-                const heightInput = container.querySelector('#manual-height') as HTMLInputElement | null;
-                const weightInput = container.querySelector('#manual-weight') as HTMLInputElement | null;
+                const heightInput = container.querySelector(
+                    '#manual-height'
+                ) as HTMLInputElement | null;
+                const weightInput = container.querySelector(
+                    '#manual-weight'
+                ) as HTMLInputElement | null;
 
                 const heightVal = heightInput ? parseFloat(heightInput.value) : NaN;
                 const weightVal = weightInput ? parseFloat(weightInput.value) : NaN;
 
                 if (isNaN(heightVal) && isNaN(weightVal)) {
-                    if (msgEl) msgEl.innerHTML = '<span class="status-warning">請至少輸入身高或體重其中一項。</span>';
+                    if (msgEl)
+                        msgEl.innerHTML =
+                            '<span class="status-warning">請至少輸入身高或體重其中一項。</span>';
                     return;
                 }
 
                 const ageMonths = getCurrentAgeMonths();
                 if (ageMonths === null || ageMonths < 0) {
-                    if (msgEl) msgEl.innerHTML = '<span class="status-warning">無法取得病人出生日期，無法計算月齡。</span>';
+                    if (msgEl)
+                        msgEl.innerHTML =
+                            '<span class="status-warning">無法取得病人出生日期，無法計算月齡。</span>';
                     return;
                 }
 
@@ -887,7 +910,9 @@ export const growthChart: CalculatorModule = {
                 // Upsert: overwrite if a point on the same day already exists
                 const DAY_IN_MONTHS = 1 / 30.4375;
                 function upsert(arr: GrowthDataPoint[], point: GrowthDataPoint) {
-                    const idx = arr.findIndex(d => Math.abs(d.ageMonths - point.ageMonths) < DAY_IN_MONTHS);
+                    const idx = arr.findIndex(
+                        d => Math.abs(d.ageMonths - point.ageMonths) < DAY_IN_MONTHS
+                    );
                     if (idx !== -1) {
                         arr[idx] = point;
                     } else {

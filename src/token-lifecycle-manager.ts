@@ -34,7 +34,7 @@ const AUTH_FAILURE_GRACE_SECONDS = 60; // Give user 60s to read current content
 // ---------------------------------------------------------------------------
 
 interface TokenState {
-    expiresAt: number | null;   // Unix-ms timestamp when access_token expires
+    expiresAt: number | null; // Unix-ms timestamp when access_token expires
     hasRefreshToken: boolean;
     isExpired: boolean;
 }
@@ -110,7 +110,7 @@ class TokenLifecycleManager {
             expiresAt: this.tokenState.expiresAt
                 ? new Date(this.tokenState.expiresAt).toISOString()
                 : null,
-            hasRefreshToken: this.tokenState.hasRefreshToken,
+            hasRefreshToken: this.tokenState.hasRefreshToken
         });
     }
 
@@ -207,7 +207,11 @@ class TokenLifecycleManager {
         }
 
         if (this.channel) {
-            try { this.channel.close(); } catch { /* ignore */ }
+            try {
+                this.channel.close();
+            } catch {
+                /* ignore */
+            }
             this.channel = null;
         }
 
@@ -227,7 +231,7 @@ class TokenLifecycleManager {
         const state: TokenState = {
             expiresAt: null,
             hasRefreshToken: false,
-            isExpired: false,
+            isExpired: false
         };
 
         if (!client?.state) return state;
@@ -242,10 +246,7 @@ class TokenLifecycleManager {
             state.expiresAt = Date.now() + s.tokenResponse.expires_in * 1000;
         }
 
-        state.hasRefreshToken = !!(
-            s.tokenResponse?.refresh_token ??
-            s.refresh_token
-        );
+        state.hasRefreshToken = !!(s.tokenResponse?.refresh_token ?? s.refresh_token);
 
         state.isExpired = state.expiresAt != null && Date.now() >= state.expiresAt;
 

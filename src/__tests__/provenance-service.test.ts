@@ -289,7 +289,9 @@ describe('ProvenanceService', () => {
             );
 
             expect(provenance.activity?.coding[0].code).toBe('DERIVE');
-            expect(provenance.entity?.filter(e => e.role === 'source').length).toBeGreaterThanOrEqual(2);
+            expect(
+                provenance.entity?.filter(e => e.role === 'source').length
+            ).toBeGreaterThanOrEqual(2);
 
             const records = provenanceService.getProvenanceRecords();
             expect(records.length).toBe(1);
@@ -369,11 +371,7 @@ describe('ProvenanceService', () => {
     describe('Local Storage', () => {
         it('should store records locally when enabled', async () => {
             provenanceService.setPractitioner('prac-123', 'Dr. Smith');
-            await provenanceService.recordDataCreation(
-                'Observation/123',
-                'Test',
-                'internal'
-            );
+            await provenanceService.recordDataCreation('Observation/123', 'Test', 'internal');
 
             // Records are now stored encrypted; verify via public API
             const count = await provenanceService.getPendingRecordCount();
@@ -391,11 +389,7 @@ describe('ProvenanceService', () => {
 
             // Add 5 records
             for (let i = 0; i < 5; i++) {
-                await smallService.recordDataCreation(
-                    `Observation/${i}`,
-                    `Test ${i}`,
-                    'internal'
-                );
+                await smallService.recordDataCreation(`Observation/${i}`, `Test ${i}`, 'internal');
             }
 
             // Records are pruned to max via encrypted storage
@@ -535,29 +529,38 @@ describe('ProvenanceService', () => {
             { source: 'calculated', expectedDisplay: '計算衍生' }
         ];
 
-        test.each(dataSources)('should handle $source data source', ({ source, expectedDisplay }) => {
-            const provenance = provenanceService.createProvenance({
-                targets: [{ reference: 'Observation/123' }],
-                activity: 'CREATE',
-                agents: [],
-                dataSource: source
-            });
+        test.each(dataSources)(
+            'should handle $source data source',
+            ({ source, expectedDisplay }) => {
+                const provenance = provenanceService.createProvenance({
+                    targets: [{ reference: 'Observation/123' }],
+                    activity: 'CREATE',
+                    agents: [],
+                    dataSource: source
+                });
 
-            const sourceEntity = provenance.entity?.find(
-                e => e.what.identifier?.value === source
-            );
-            expect(sourceEntity).toBeDefined();
-            expect(sourceEntity?.what.display).toBe(expectedDisplay);
-        });
+                const sourceEntity = provenance.entity?.find(
+                    e => e.what.identifier?.value === source
+                );
+                expect(sourceEntity).toBeDefined();
+                expect(sourceEntity?.what.display).toBe(expectedDisplay);
+            }
+        );
     });
 
     describe('Agent Roles', () => {
         const roles: ProvenanceAgentRole[] = [
-            'author', 'performer', 'verifier', 'attester',
-            'informant', 'custodian', 'assembler', 'composer'
+            'author',
+            'performer',
+            'verifier',
+            'attester',
+            'informant',
+            'custodian',
+            'assembler',
+            'composer'
         ];
 
-        test.each(roles)('should handle %s agent role', (role) => {
+        test.each(roles)('should handle %s agent role', role => {
             const provenance = provenanceService.createProvenance({
                 targets: [{ reference: 'Observation/123' }],
                 activity: 'CREATE',

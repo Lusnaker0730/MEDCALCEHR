@@ -255,13 +255,10 @@ const config: FormulaCalculatorConfig = {
 
         try {
             // Platelets (LOINC 26515-7)
-            const plateletResult = await fhirDataService.getObservation(
-                LOINC_CODES.PLATELETS,
-                {
-                    trackStaleness: true,
-                    stalenessLabel: 'Platelets'
-                }
-            );
+            const plateletResult = await fhirDataService.getObservation(LOINC_CODES.PLATELETS, {
+                trackStaleness: true,
+                stalenessLabel: 'Platelets'
+            });
             if (plateletResult.value !== null && plateletInput) {
                 plateletInput.value = plateletResult.value.toFixed(0);
                 plateletInput.dispatchEvent(new Event('input'));

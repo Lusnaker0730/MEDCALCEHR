@@ -7,7 +7,7 @@ export enum LogLevel {
     INFO = 1,
     WARN = 2,
     ERROR = 3,
-    FATAL = 4,
+    FATAL = 4
 }
 
 export interface LogEntry {
@@ -22,24 +22,51 @@ export interface LogEntry {
 
 // Patterns that indicate PHI content
 const PHI_PATTERNS: RegExp[] = [
-    /\b\d{3}-\d{2}-\d{4}\b/g,                  // SSN
-    /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g,            // Date of birth (YYYY-MM-DD)
-    /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g,            // Date of birth (MM/DD/YYYY)
-    /\b[A-Z]\d{9}\b/g,                          // National ID (Taiwan)
-    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g,          // Phone numbers
-    /\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g,            // Email addresses
+    /\b\d{3}-\d{2}-\d{4}\b/g, // SSN
+    /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g, // Date of birth (YYYY-MM-DD)
+    /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g, // Date of birth (MM/DD/YYYY)
+    /\b[A-Z]\d{9}\b/g, // National ID (Taiwan)
+    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, // Phone numbers
+    /\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g // Email addresses
 ];
 
 const PHI_KEYS = [
-    'name', 'patientname', 'fullname', 'firstname', 'lastname', 'familyname', 'givenname',
-    'dob', 'dateofbirth', 'birthdate', 'birthday',
-    'address', 'streetaddress', 'city', 'zipcode', 'postalcode',
-    'phone', 'phonenumber', 'telephone', 'mobile', 'fax',
-    'email', 'emailaddress',
-    'ssn', 'socialsecuritynumber', 'nationalid', 'passport',
-    'mrn', 'medicalrecordnumber', 'patientid',
-    'password', 'pin', 'creditcard', 'bankaccount',
-    'identifier', 'id_number',
+    'name',
+    'patientname',
+    'fullname',
+    'firstname',
+    'lastname',
+    'familyname',
+    'givenname',
+    'dob',
+    'dateofbirth',
+    'birthdate',
+    'birthday',
+    'address',
+    'streetaddress',
+    'city',
+    'zipcode',
+    'postalcode',
+    'phone',
+    'phonenumber',
+    'telephone',
+    'mobile',
+    'fax',
+    'email',
+    'emailaddress',
+    'ssn',
+    'socialsecuritynumber',
+    'nationalid',
+    'passport',
+    'mrn',
+    'medicalrecordnumber',
+    'patientid',
+    'password',
+    'pin',
+    'creditcard',
+    'bankaccount',
+    'identifier',
+    'id_number'
 ];
 
 function stripPHI(value: string): string {
@@ -61,7 +88,8 @@ function sanitizeContext(obj: Record<string, unknown>): Record<string, unknown> 
         } else if (Array.isArray(value)) {
             sanitized[key] = value.map(item => {
                 if (typeof item === 'string') return stripPHI(item);
-                if (typeof item === 'object' && item !== null) return sanitizeContext(item as Record<string, unknown>);
+                if (typeof item === 'object' && item !== null)
+                    return sanitizeContext(item as Record<string, unknown>);
                 return item;
             });
         } else if (typeof value === 'object' && value !== null) {
@@ -78,7 +106,7 @@ const LEVEL_NAMES: Record<LogLevel, string> = {
     [LogLevel.INFO]: 'INFO',
     [LogLevel.WARN]: 'WARN',
     [LogLevel.ERROR]: 'ERROR',
-    [LogLevel.FATAL]: 'FATAL',
+    [LogLevel.FATAL]: 'FATAL'
 };
 
 class Logger {
@@ -106,14 +134,19 @@ class Logger {
         }
     }
 
-    private createEntry(level: LogLevel, message: string, context?: Record<string, unknown>): LogEntry {
+    private createEntry(
+        level: LogLevel,
+        message: string,
+        context?: Record<string, unknown>
+    ): LogEntry {
         const entry: LogEntry = {
             timestamp: new Date().toISOString(),
             level: LEVEL_NAMES[level],
             message: stripPHI(message),
-            url: typeof window !== 'undefined' && window.location
-                ? window.location.origin + window.location.pathname
-                : undefined,
+            url:
+                typeof window !== 'undefined' && window.location
+                    ? window.location.origin + window.location.pathname
+                    : undefined
         };
 
         if (this.sessionId) {
@@ -163,7 +196,7 @@ class Logger {
                         category: 'logger',
                         message: entry.message,
                         level: level >= LogLevel.ERROR ? 'error' : 'warning',
-                        data: entry.context,
+                        data: entry.context
                     });
                 }
             } catch {
@@ -174,7 +207,11 @@ class Logger {
         // Dispatch to registered transports
         for (const transport of this.transports) {
             if (level >= transport.minLevel) {
-                try { transport.send(entry); } catch { /* silent */ }
+                try {
+                    transport.send(entry);
+                } catch {
+                    /* silent */
+                }
             }
         }
     }

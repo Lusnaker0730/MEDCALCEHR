@@ -95,11 +95,7 @@ export function calculateZScore(
     }
 
     // Method 1: LMS if available (for future compatibility)
-    if (
-        refPoint.L !== undefined &&
-        refPoint.M !== undefined &&
-        refPoint.S !== undefined
-    ) {
+    if (refPoint.L !== undefined && refPoint.M !== undefined && refPoint.S !== undefined) {
         const L = refPoint.L;
         const M = refPoint.M;
         const S = refPoint.S;

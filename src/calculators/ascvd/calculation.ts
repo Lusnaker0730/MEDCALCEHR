@@ -259,13 +259,23 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
     // 2a. Cross-Field Validations
     if (values['ascvd-dbp'] !== undefined && values['ascvd-sbp'] !== undefined) {
         if (values['ascvd-dbp'] >= values['ascvd-sbp']) {
-            throw new ValidationError('Diastolic blood pressure must be less than systolic blood pressure.', 'LOGIC_ERROR');
+            throw new ValidationError(
+                'Diastolic blood pressure must be less than systolic blood pressure.',
+                'LOGIC_ERROR'
+            );
         }
     }
 
-    if (values['ascvd-tc'] !== undefined && values['ascvd-hdl'] !== undefined && values['ascvd-ldl'] !== undefined) {
+    if (
+        values['ascvd-tc'] !== undefined &&
+        values['ascvd-hdl'] !== undefined &&
+        values['ascvd-ldl'] !== undefined
+    ) {
         if (values['ascvd-hdl'] + values['ascvd-ldl'] >= values['ascvd-tc']) {
-            throw new ValidationError('HDL + LDL must be less than Total Cholesterol (TC also includes VLDL and other lipoproteins).', 'LOGIC_ERROR');
+            throw new ValidationError(
+                'HDL + LDL must be less than Total Cholesterol (TC also includes VLDL and other lipoproteins).',
+                'LOGIC_ERROR'
+            );
         }
     }
 
@@ -318,7 +328,8 @@ export const ascvdCalculationPure = (values: Record<string, any>): AscvdResult =
     }
 
     if (patient.ldl !== undefined && patient.ldl >= 190) {
-        interpretation = 'High Risk. Primary Severe Hypercholesterolemia (LDL ≥ 190 mg/dL). Initiate high-intensity statin regardless of 10-year risk score.';
+        interpretation =
+            'High Risk. Primary Severe Hypercholesterolemia (LDL ≥ 190 mg/dL). Initiate high-intensity statin regardless of 10-year risk score.';
         alertClass = 'danger';
     }
 
@@ -373,17 +384,17 @@ export interface TherapyOptions {
     highIntensityStatin?: boolean;
     moderateIntensityStatin?: boolean;
     smokingCessation?: boolean;
-    bpControl?: boolean;         // treat to SBP <130 mmHg
+    bpControl?: boolean; // treat to SBP <130 mmHg
     aspirin?: boolean;
 }
 
 export interface TherapyImpactResult {
     treatedRisk: number;
-    arr: number;           // Absolute Risk Reduction (%)
-    rrr: number;           // Relative Risk Reduction (%)
-    nnt: number | null;    // Number Needed to Treat (10 yr)
+    arr: number; // Absolute Risk Reduction (%)
+    rrr: number; // Relative Risk Reduction (%)
+    nnt: number | null; // Number Needed to Treat (10 yr)
     interventions: string[];
-    skipped: string[];     // Therapies skipped (already at target)
+    skipped: string[]; // Therapies skipped (already at target)
 }
 
 /**
@@ -448,7 +459,7 @@ export function calculateTherapyImpact(
     }
 
     if (options.aspirin) {
-        rrMultiplier *= 0.90;
+        rrMultiplier *= 0.9;
         interventions.push('Low-dose aspirin (RR 0.90)');
     }
 
@@ -461,7 +472,7 @@ export function calculateTherapyImpact(
     }
 
     const arr = Math.max(0, baselineRisk - treatedRisk);
-    const rrr = baselineRisk > 0 ? ((baselineRisk - treatedRisk) / baselineRisk * 100) : 0;
+    const rrr = baselineRisk > 0 ? ((baselineRisk - treatedRisk) / baselineRisk) * 100 : 0;
     const nnt = arr > 0 ? Math.round(100 / arr) : null;
 
     return { treatedRisk, arr, rrr, nnt, interventions, skipped };
@@ -477,8 +488,8 @@ export function calculateTherapyImpact(
  * Values match the ACC ASCVD Risk Estimator Plus (Cerner reference implementation).
  */
 export const LIFETIME_RISK_TABLE = {
-    male:   { allOptimal: 5,  notOptimal: 36, elevated: 46, major1: 50, major2: 69 },
-    female: { allOptimal: 8,  notOptimal: 27, elevated: 39, major1: 39, major2: 50 }
+    male: { allOptimal: 5, notOptimal: 36, elevated: 46, major1: 50, major2: 69 },
+    female: { allOptimal: 8, notOptimal: 27, elevated: 39, major1: 39, major2: 50 }
 };
 
 /**
@@ -715,4 +726,3 @@ export function getCACGuidance(tenYearRisk: number): CACGuidance {
         alertClass: 'info'
     };
 }
-

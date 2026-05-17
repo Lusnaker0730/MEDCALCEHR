@@ -31,9 +31,8 @@ export function getActiveAdapter(): EHRAdapter {
 }
 
 export function initializeAdapter(config?: EHRAdapterConfig): EHRAdapter {
-    const vendor: EHRVendor = config?.vendor
-        || (window.MEDCALC_CONFIG?.ehr?.vendor as EHRVendor)
-        || 'generic';
+    const vendor: EHRVendor =
+        config?.vendor || (window.MEDCALC_CONFIG?.ehr?.vendor as EHRVendor) || 'generic';
 
     activeAdapter = createAdapter(vendor);
     logger.info('EHR adapter initialized', { vendor: activeAdapter.vendor });

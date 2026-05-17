@@ -239,7 +239,12 @@ describe('AuditEventService', () => {
 
         it('should log patient access event', async () => {
             auditService.setPractitioner('prac-123', 'Dr. Smith');
-            await auditService.logPatientAccess('patient-456', 'John Doe', 'Observation', 'obs-789');
+            await auditService.logPatientAccess(
+                'patient-456',
+                'John Doe',
+                'Observation',
+                'obs-789'
+            );
 
             const events = auditService.getAuditEvents();
             expect(events.length).toBe(1);
@@ -434,7 +439,7 @@ describe('AuditEventService', () => {
     describe('Action Codes', () => {
         const actions: AuditEventAction[] = ['C', 'R', 'U', 'D', 'E'];
 
-        test.each(actions)('should handle action %s', (action) => {
+        test.each(actions)('should handle action %s', action => {
             const event = auditService.createAuditEvent({
                 eventType: 'rest',
                 action,

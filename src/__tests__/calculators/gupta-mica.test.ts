@@ -69,7 +69,7 @@ describe('Gupta MICA Calculator', () => {
         const result = calculateGuptaMica({
             'mica-age': '60',
             'mica-status': '0',
-            'mica-asa': '-1.92',  // ASA 3
+            'mica-asa': '-1.92', // ASA 3
             'mica-creat-unknown': true,
             'mica-procedure': '1.13' // Other abdominal
         });
@@ -93,8 +93,8 @@ describe('Gupta MICA Calculator', () => {
             'mica-age': '60',
             'mica-status': '0',
             'mica-asa': '-1.92',
-            'mica-creat': '2.5',                   // Would normally give +0.61
-            'mica-creat-unknown': true,            // But user marked Unknown
+            'mica-creat': '2.5', // Would normally give +0.61
+            'mica-creat-unknown': true, // But user marked Unknown
             'mica-procedure': '1.13'
         });
 

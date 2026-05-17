@@ -16,7 +16,7 @@ jest.mock('../logger', () => ({
         info: mockLoggerInfo,
         warn: mockLoggerWarn,
         error: mockLoggerError,
-        fatal: mockLoggerFatal,
+        fatal: mockLoggerFatal
     }
 }));
 import { uiBuilder, UIBuilder } from '../ui-builder.js';
@@ -312,9 +312,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('routes number type to createInput', () => {
             const html = uiBuilder.createForm({
-                fields: [
-                    { type: 'number', id: 'age-input', label: 'Age', min: 0, max: 150 }
-                ]
+                fields: [{ type: 'number', id: 'age-input', label: 'Age', min: 0, max: 150 }]
             });
 
             expect(html).toContain('age-input');
@@ -323,9 +321,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('routes input type to createInput', () => {
             const html = uiBuilder.createForm({
-                fields: [
-                    { type: 'input', id: 'generic-input', label: 'Generic' }
-                ]
+                fields: [{ type: 'input', id: 'generic-input', label: 'Generic' }]
             });
 
             expect(html).toContain('generic-input');
@@ -444,9 +440,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('unknown type returns empty string for that field', () => {
             const html = uiBuilder.createForm({
-                fields: [
-                    { type: 'unknown' as any, id: 'x', label: 'X' }
-                ]
+                fields: [{ type: 'unknown' as any, id: 'x', label: 'X' }]
             });
 
             expect(html).toContain('<form');
@@ -510,9 +504,7 @@ describe('UI Builder Extended Tests', () => {
     describe('createFormulaSection', () => {
         test('renders formula items with label and formula text', () => {
             const html = uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'BMI', formula: 'weight / height^2' }
-                ]
+                items: [{ label: 'BMI', formula: 'weight / height^2' }]
             });
 
             expect(html).toContain('ui-formula-section');
@@ -523,9 +515,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('uses title property as fallback for label', () => {
             const html = uiBuilder.createFormulaSection({
-                items: [
-                    { title: 'CrCl Formula', formula: '(140 - age) * weight / (72 * Cr)' }
-                ]
+                items: [{ title: 'CrCl Formula', formula: '(140 - age) * weight / (72 * Cr)' }]
             });
 
             expect(html).toContain('CrCl Formula');
@@ -533,9 +523,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('uses content property as fallback for formula', () => {
             const html = uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Test', content: 'Some content text' }
-                ]
+                items: [{ label: 'Test', content: 'Some content text' }]
             });
 
             expect(html).toContain('Some content text');
@@ -543,9 +531,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('defaults label to "Formula" when neither label nor title provided', () => {
             const html = uiBuilder.createFormulaSection({
-                items: [
-                    { formula: 'x = y + z' }
-                ]
+                items: [{ formula: 'x = y + z' }]
             });
 
             expect(html).toContain('<strong>Formula:</strong>');
@@ -583,9 +569,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('does not render notes element when notes not provided', () => {
             const html = uiBuilder.createFormulaSection({
-                items: [
-                    { label: 'Simple', formula: 'a + b' }
-                ]
+                items: [{ label: 'Simple', formula: 'a + b' }]
             });
 
             expect(html).not.toContain('ui-formula-notes');
@@ -774,7 +758,9 @@ describe('UI Builder Extended Tests', () => {
             });
 
             test('copy button calls navigator.clipboard.writeText with report', async () => {
-                const writeTextMock = jest.fn<(text: string) => Promise<void>>().mockResolvedValue(undefined);
+                const writeTextMock = jest
+                    .fn<(text: string) => Promise<void>>()
+                    .mockResolvedValue(undefined);
                 Object.defineProperty(navigator, 'clipboard', {
                     value: { writeText: writeTextMock },
                     writable: true,
@@ -809,7 +795,9 @@ describe('UI Builder Extended Tests', () => {
             });
 
             test('copy button shows "Copied!" text after successful copy', async () => {
-                const writeTextMock = jest.fn<(text: string) => Promise<void>>().mockResolvedValue(undefined);
+                const writeTextMock = jest
+                    .fn<(text: string) => Promise<void>>()
+                    .mockResolvedValue(undefined);
                 Object.defineProperty(navigator, 'clipboard', {
                     value: { writeText: writeTextMock },
                     writable: true,
@@ -830,7 +818,9 @@ describe('UI Builder Extended Tests', () => {
             });
 
             test('copy button handles clipboard failure gracefully', async () => {
-                const writeTextMock = jest.fn<(text: string) => Promise<void>>().mockRejectedValue(new Error('Permission denied'));
+                const writeTextMock = jest
+                    .fn<(text: string) => Promise<void>>()
+                    .mockRejectedValue(new Error('Permission denied'));
                 Object.defineProperty(navigator, 'clipboard', {
                     value: { writeText: writeTextMock },
                     writable: true,
@@ -873,7 +863,9 @@ describe('UI Builder Extended Tests', () => {
                 uiBuilder.initializeComponents(container);
 
                 const slider = container.querySelector('#test-slider') as HTMLInputElement;
-                const valueDisplay = container.querySelector('#test-slider-value') as HTMLSpanElement;
+                const valueDisplay = container.querySelector(
+                    '#test-slider-value'
+                ) as HTMLSpanElement;
 
                 expect(valueDisplay.textContent).toBe('50dB');
 
@@ -898,7 +890,9 @@ describe('UI Builder Extended Tests', () => {
                 uiBuilder.initializeComponents(container);
 
                 const slider = container.querySelector('#pct-slider') as HTMLInputElement;
-                const valueDisplay = container.querySelector('#pct-slider-value') as HTMLSpanElement;
+                const valueDisplay = container.querySelector(
+                    '#pct-slider-value'
+                ) as HTMLSpanElement;
 
                 slider.value = '85';
                 slider.dispatchEvent(new Event('input'));
@@ -990,9 +984,7 @@ describe('UI Builder Extended Tests', () => {
                 container.innerHTML = uiBuilder.createCheckboxGroup({
                     name: 'pre-cb',
                     label: 'Preselected',
-                    options: [
-                        { value: 'pre', label: 'Pre-checked', checked: true }
-                    ]
+                    options: [{ value: 'pre', label: 'Pre-checked', checked: true }]
                 });
 
                 uiBuilder.initializeComponents(container);
@@ -1294,9 +1286,7 @@ describe('UI Builder Extended Tests', () => {
         test('renders group title', () => {
             const html = uiBuilder.createRiskFactorGroup({
                 title: 'Patient Factors',
-                items: [
-                    { id: 'pf-1', label: 'Factor 1' }
-                ]
+                items: [{ id: 'pf-1', label: 'Factor 1' }]
             });
 
             expect(html).toContain('Patient Factors');
@@ -1307,9 +1297,7 @@ describe('UI Builder Extended Tests', () => {
             const html = uiBuilder.createRiskFactorGroup({
                 title: 'Bleeding Risks',
                 icon: 'ICON',
-                items: [
-                    { id: 'br-1', label: 'Risk 1' }
-                ]
+                items: [{ id: 'br-1', label: 'Risk 1' }]
             });
 
             expect(html).toContain('ICON');
@@ -1319,9 +1307,7 @@ describe('UI Builder Extended Tests', () => {
         test('renders group without icon', () => {
             const html = uiBuilder.createRiskFactorGroup({
                 title: 'No Icon Group',
-                items: [
-                    { id: 'ni-1', label: 'Item 1' }
-                ]
+                items: [{ id: 'ni-1', label: 'Item 1' }]
             });
 
             // Title should be present without leading icon space
@@ -1409,7 +1395,10 @@ describe('UI Builder Extended Tests', () => {
         test('adds sticky-col class to first column cells', () => {
             const html = uiBuilder.createTable({
                 headers: ['Name', 'Value'],
-                rows: [['A', '1'], ['B', '2']],
+                rows: [
+                    ['A', '1'],
+                    ['B', '2']
+                ],
                 stickyFirstColumn: true
             });
 

@@ -251,8 +251,8 @@ export async function loadCalculator(calculatorId: string): Promise<CalculatorMo
         // Return the calculator object (prefer default, then search for generateHTML, then fallback)
         if (module.default) return module.default;
 
-        const calculator = Object.values(module).find((exportItem: any) =>
-            exportItem && typeof exportItem.generateHTML === 'function'
+        const calculator = Object.values(module).find(
+            (exportItem: any) => exportItem && typeof exportItem.generateHTML === 'function'
         );
 
         return (calculator as CalculatorModule) || (Object.values(module)[0] as CalculatorModule);

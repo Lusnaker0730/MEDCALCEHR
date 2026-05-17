@@ -28,7 +28,7 @@ export const TW_OBSERVATION_PROFILES = {
     pediatricHeadCircumference: TW_CORE_PROFILES.ObservationPediatricHeadCircumference,
     smokingStatus: TW_CORE_PROFILES.ObservationSmokingStatus,
     screeningAssessment: TW_CORE_PROFILES.ObservationScreeningAssessment,
-    simple: TW_CORE_PROFILES.ObservationSimple,
+    simple: TW_CORE_PROFILES.ObservationSimple
 } as const;
 
 /**
@@ -39,25 +39,25 @@ const LOINC_TO_TW_PROFILE_MAP: Record<string, string> = {
     // Blood Pressure (panel and components)
     '85354-9': TW_OBSERVATION_PROFILES.bloodPressure,
     '55284-4': TW_OBSERVATION_PROFILES.bloodPressure,
-    '8480-6': TW_OBSERVATION_PROFILES.bloodPressure,   // Systolic (component)
-    '8462-4': TW_OBSERVATION_PROFILES.bloodPressure,   // Diastolic (component)
-    '8478-0': TW_OBSERVATION_PROFILES.bloodPressure,   // Mean BP (component)
+    '8480-6': TW_OBSERVATION_PROFILES.bloodPressure, // Systolic (component)
+    '8462-4': TW_OBSERVATION_PROFILES.bloodPressure, // Diastolic (component)
+    '8478-0': TW_OBSERVATION_PROFILES.bloodPressure, // Mean BP (component)
 
     // BMI
     '39156-5': TW_OBSERVATION_PROFILES.bmi,
 
     // Body Height
     '8302-2': TW_OBSERVATION_PROFILES.bodyHeight,
-    '8306-3': TW_OBSERVATION_PROFILES.bodyHeight,      // Body height lying
-    '8308-9': TW_OBSERVATION_PROFILES.bodyHeight,      // Body height standing
+    '8306-3': TW_OBSERVATION_PROFILES.bodyHeight, // Body height lying
+    '8308-9': TW_OBSERVATION_PROFILES.bodyHeight, // Body height standing
 
     // Body Weight
     '29463-7': TW_OBSERVATION_PROFILES.bodyWeight,
-    '3141-9': TW_OBSERVATION_PROFILES.bodyWeight,      // Body weight measured
+    '3141-9': TW_OBSERVATION_PROFILES.bodyWeight, // Body weight measured
 
     // Body Temperature
     '8310-5': TW_OBSERVATION_PROFILES.bodyTemperature,
-    '8331-1': TW_OBSERVATION_PROFILES.bodyTemperature,  // Oral temperature
+    '8331-1': TW_OBSERVATION_PROFILES.bodyTemperature, // Oral temperature
 
     // Head Circumference
     '9843-4': TW_OBSERVATION_PROFILES.headCircumference,
@@ -68,7 +68,7 @@ const LOINC_TO_TW_PROFILE_MAP: Record<string, string> = {
 
     // Oxygen Saturation / Pulse Oximetry
     '59408-5': TW_OBSERVATION_PROFILES.pulseOximetry,
-    '2708-6': TW_OBSERVATION_PROFILES.pulseOximetry,    // Arterial O2 Sat
+    '2708-6': TW_OBSERVATION_PROFILES.pulseOximetry, // Arterial O2 Sat
 
     // Respiratory Rate
     '9279-1': TW_OBSERVATION_PROFILES.respiratoryRate,
@@ -87,12 +87,12 @@ const LOINC_TO_TW_PROFILE_MAP: Record<string, string> = {
 
     // Smoking Status
     '72166-2': TW_OBSERVATION_PROFILES.smokingStatus,
-    '11367-0': TW_OBSERVATION_PROFILES.smokingStatus,  // Tobacco use and exposure
+    '11367-0': TW_OBSERVATION_PROFILES.smokingStatus, // Tobacco use and exposure
 
     // Average Blood Pressure
     '96607-7': TW_OBSERVATION_PROFILES.averageBloodPressure, // Average BP panel
     '96608-5': TW_OBSERVATION_PROFILES.averageBloodPressure, // Average systolic
-    '96609-3': TW_OBSERVATION_PROFILES.averageBloodPressure, // Average diastolic
+    '96609-3': TW_OBSERVATION_PROFILES.averageBloodPressure // Average diastolic
 };
 
 /**
@@ -101,29 +101,43 @@ const LOINC_TO_TW_PROFILE_MAP: Record<string, string> = {
  */
 const VITAL_SIGN_LOINC_CODES = new Set([
     // Blood Pressure
-    '85354-9', '55284-4', '8480-6', '8462-4', '8478-0',
+    '85354-9',
+    '55284-4',
+    '8480-6',
+    '8462-4',
+    '8478-0',
     // BMI
     '39156-5',
     // Body Height
-    '8302-2', '8306-3', '8308-9',
+    '8302-2',
+    '8306-3',
+    '8308-9',
     // Body Weight
-    '29463-7', '3141-9',
+    '29463-7',
+    '3141-9',
     // Body Temperature
-    '8310-5', '8331-1',
+    '8310-5',
+    '8331-1',
     // Head Circumference
-    '9843-4', '8287-5',
+    '9843-4',
+    '8287-5',
     // Heart Rate
     '8867-4',
     // Oxygen Saturation / Pulse Oximetry
-    '59408-5', '2708-6',
+    '59408-5',
+    '2708-6',
     // Respiratory Rate
     '9279-1',
     // Vital Signs panel
     '85353-1',
     // Pediatric
-    '59576-9', '77606-2', '8289-1',
+    '59576-9',
+    '77606-2',
+    '8289-1',
     // Average Blood Pressure
-    '96607-7', '96608-5', '96609-3',
+    '96607-7',
+    '96608-5',
+    '96609-3'
 ]);
 
 /**
@@ -131,22 +145,63 @@ const VITAL_SIGN_LOINC_CODES = new Set([
  */
 const LABORATORY_LOINC_CODES = new Set([
     // Chemistry
-    '2951-2', '2823-3', '2075-0', '1963-8', '2028-9', '3094-0', '2160-0',
-    '2345-7', '17861-6', '2601-3', '2777-1', '1751-7',
+    '2951-2',
+    '2823-3',
+    '2075-0',
+    '1963-8',
+    '2028-9',
+    '3094-0',
+    '2160-0',
+    '2345-7',
+    '17861-6',
+    '2601-3',
+    '2777-1',
+    '1751-7',
     // Liver
-    '1975-2', '1968-7', '1920-8', '1742-6', '6768-6', '2324-2', '2885-2',
+    '1975-2',
+    '1968-7',
+    '1920-8',
+    '1742-6',
+    '6768-6',
+    '2324-2',
+    '2885-2',
     // Lipids
-    '2093-3', '2085-9', '2089-1', '2571-8',
+    '2093-3',
+    '2085-9',
+    '2089-1',
+    '2571-8',
     // Hematology
-    '718-7', '4544-3', '6690-2', '777-3', '26515-7',
+    '718-7',
+    '4544-3',
+    '6690-2',
+    '777-3',
+    '26515-7',
     // Coagulation
-    '5902-2', '14979-9', '6301-6', '34714-6', '3255-7', '48065-7',
+    '5902-2',
+    '14979-9',
+    '6301-6',
+    '34714-6',
+    '3255-7',
+    '48065-7',
     // ABG
-    '2744-1', '2019-8', '2703-7', '1960-4', '1925-7', '2524-7',
+    '2744-1',
+    '2019-8',
+    '2703-7',
+    '1960-4',
+    '1925-7',
+    '2524-7',
     // Cardiac markers
-    '10839-9', '6598-7', '30239-8', '30934-4', '33762-6',
+    '10839-9',
+    '6598-7',
+    '30239-8',
+    '30934-4',
+    '33762-6',
     // Other
-    '4548-4', '3016-3', '1988-5', '33914-3', '33959-8',
+    '4548-4',
+    '3016-3',
+    '1988-5',
+    '33914-3',
+    '33959-8'
 ]);
 
 /**

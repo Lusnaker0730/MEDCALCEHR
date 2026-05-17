@@ -16,11 +16,11 @@ import { logger } from './logger.js';
  * http://terminology.hl7.org/CodeSystem/v3-Confidentiality
  */
 export type ConfidentialityCode =
-    | 'U'  // Unrestricted - 無限制
-    | 'L'  // Low - 低度保密
-    | 'M'  // Moderate - 中度保密
-    | 'N'  // Normal - 一般保密
-    | 'R'  // Restricted - 限制級
+    | 'U' // Unrestricted - 無限制
+    | 'L' // Low - 低度保密
+    | 'M' // Moderate - 中度保密
+    | 'N' // Normal - 一般保密
+    | 'R' // Restricted - 限制級
     | 'V'; // Very Restricted - 極機密
 
 /**
@@ -28,27 +28,27 @@ export type ConfidentialityCode =
  * Based on 台灣個資法 and 醫療機構電子病歷製作及管理辦法
  */
 export type SensitivityCategory =
-    | 'HIV'           // HIV/AIDS 相關
-    | 'PSY'           // 精神疾病
-    | 'ETH'           // 藥物/酒精濫用
-    | 'SDV'           // 性侵害/家暴
-    | 'SEX'           // 性健康
-    | 'GENETIC'       // 基因檢測
-    | 'REPRODUCTIVE'  // 生殖健康
-    | 'MINOR'         // 未成年人相關
-    | 'CELEBRITY'     // 特殊身分 (公眾人物)
-    | 'RESEARCH'      // 研究用途
-    | 'GENERAL';      // 一般資料
+    | 'HIV' // HIV/AIDS 相關
+    | 'PSY' // 精神疾病
+    | 'ETH' // 藥物/酒精濫用
+    | 'SDV' // 性侵害/家暴
+    | 'SEX' // 性健康
+    | 'GENETIC' // 基因檢測
+    | 'REPRODUCTIVE' // 生殖健康
+    | 'MINOR' // 未成年人相關
+    | 'CELEBRITY' // 特殊身分 (公眾人物)
+    | 'RESEARCH' // 研究用途
+    | 'GENERAL'; // 一般資料
 
 /**
  * Access control decision
  */
 export type AccessDecision =
-    | 'ALLOW'           // 允許存取
-    | 'DENY'            // 拒絕存取
-    | 'MASK'            // 允許但需遮蔽
-    | 'WARN'            // 允許但需警示
-    | 'REQUIRE_AUTH';   // 需要額外授權
+    | 'ALLOW' // 允許存取
+    | 'DENY' // 拒絕存取
+    | 'MASK' // 允許但需遮蔽
+    | 'WARN' // 允許但需警示
+    | 'REQUIRE_AUTH'; // 需要額外授權
 
 /**
  * Security label structure from FHIR meta.security
@@ -191,14 +191,25 @@ const CONFIDENTIALITY_DISPLAY: Record<ConfidentialityCode, { en: string; zh: str
 /**
  * Sensitivity category display names and descriptions
  */
-const SENSITIVITY_DISPLAY: Record<SensitivityCategory, { en: string; zh: string; description: string }> = {
+const SENSITIVITY_DISPLAY: Record<
+    SensitivityCategory,
+    { en: string; zh: string; description: string }
+> = {
     HIV: { en: 'HIV/AIDS', zh: '愛滋病相關', description: '包含 HIV 感染狀態或治療資訊' },
     PSY: { en: 'Psychiatric', zh: '精神疾病', description: '精神科診斷或治療紀錄' },
     ETH: { en: 'Substance Abuse', zh: '物質濫用', description: '藥物或酒精濫用相關紀錄' },
-    SDV: { en: 'Sexual/Domestic Violence', zh: '性侵害/家暴', description: '性侵害或家庭暴力相關紀錄' },
+    SDV: {
+        en: 'Sexual/Domestic Violence',
+        zh: '性侵害/家暴',
+        description: '性侵害或家庭暴力相關紀錄'
+    },
     SEX: { en: 'Sexual Health', zh: '性健康', description: '性傳染病或性健康相關紀錄' },
     GENETIC: { en: 'Genetic', zh: '基因檢測', description: '基因檢測或遺傳疾病資訊' },
-    REPRODUCTIVE: { en: 'Reproductive Health', zh: '生殖健康', description: '生殖健康或懷孕相關紀錄' },
+    REPRODUCTIVE: {
+        en: 'Reproductive Health',
+        zh: '生殖健康',
+        description: '生殖健康或懷孕相關紀錄'
+    },
     MINOR: { en: 'Minor', zh: '未成年人', description: '未成年人敏感醫療紀錄' },
     CELEBRITY: { en: 'Celebrity/VIP', zh: '特殊身分', description: '公眾人物或 VIP 病患' },
     RESEARCH: { en: 'Research', zh: '研究用途', description: '研究用途限定資料' },
@@ -210,39 +221,84 @@ const SENSITIVITY_DISPLAY: Record<SensitivityCategory, { en: string; zh: string;
  */
 const SENSITIVE_CONDITION_CODES: Record<SensitivityCategory, string[]> = {
     HIV: [
-        '86406008',   // HIV infection (SNOMED)
-        '62479008',   // AIDS (SNOMED)
-        'B20',        // HIV disease (ICD-10)
-        'B21', 'B22', 'B23', 'B24' // HIV-related conditions (ICD-10)
+        '86406008', // HIV infection (SNOMED)
+        '62479008', // AIDS (SNOMED)
+        'B20', // HIV disease (ICD-10)
+        'B21',
+        'B22',
+        'B23',
+        'B24' // HIV-related conditions (ICD-10)
     ],
     PSY: [
-        'F20', 'F21', 'F22', 'F23', 'F24', 'F25', // Schizophrenia (ICD-10)
-        'F30', 'F31', 'F32', 'F33', // Mood disorders (ICD-10)
-        'F40', 'F41', // Anxiety disorders (ICD-10)
-        '191736004', '35489007', '13746004' // SNOMED psychiatric codes
+        'F20',
+        'F21',
+        'F22',
+        'F23',
+        'F24',
+        'F25', // Schizophrenia (ICD-10)
+        'F30',
+        'F31',
+        'F32',
+        'F33', // Mood disorders (ICD-10)
+        'F40',
+        'F41', // Anxiety disorders (ICD-10)
+        '191736004',
+        '35489007',
+        '13746004' // SNOMED psychiatric codes
     ],
     ETH: [
-        'F10', 'F11', 'F12', 'F13', 'F14', 'F15', 'F16', 'F17', 'F18', 'F19', // Substance use (ICD-10)
-        '7200002',    // Alcoholism (SNOMED)
-        '66214007'    // Substance abuse (SNOMED)
+        'F10',
+        'F11',
+        'F12',
+        'F13',
+        'F14',
+        'F15',
+        'F16',
+        'F17',
+        'F18',
+        'F19', // Substance use (ICD-10)
+        '7200002', // Alcoholism (SNOMED)
+        '66214007' // Substance abuse (SNOMED)
     ],
     SDV: [
-        'T74', 'T76', // Adult/child maltreatment (ICD-10)
-        'Y07',        // Perpetrator of assault (ICD-10)
-        '95930005'    // Domestic violence (SNOMED)
+        'T74',
+        'T76', // Adult/child maltreatment (ICD-10)
+        'Y07', // Perpetrator of assault (ICD-10)
+        '95930005' // Domestic violence (SNOMED)
     ],
     SEX: [
-        'A50', 'A51', 'A52', 'A53', 'A54', 'A55', 'A56', // STIs (ICD-10)
-        '8098009'     // STI (SNOMED)
+        'A50',
+        'A51',
+        'A52',
+        'A53',
+        'A54',
+        'A55',
+        'A56', // STIs (ICD-10)
+        '8098009' // STI (SNOMED)
     ],
     GENETIC: [
-        'Z13.7',      // Genetic screening (ICD-10)
-        '405824009'   // Genetic testing (SNOMED)
+        'Z13.7', // Genetic screening (ICD-10)
+        '405824009' // Genetic testing (SNOMED)
     ],
     REPRODUCTIVE: [
-        'O00', 'O01', 'O02', 'O03', 'O04', 'O05', 'O06', 'O07', 'O08', // Pregnancy complications (ICD-10)
-        'Z30', 'Z31', 'Z32', 'Z33', 'Z34', 'Z35', 'Z36', 'Z37', // Reproductive encounters (ICD-10)
-        '77386006'    // Pregnancy (SNOMED)
+        'O00',
+        'O01',
+        'O02',
+        'O03',
+        'O04',
+        'O05',
+        'O06',
+        'O07',
+        'O08', // Pregnancy complications (ICD-10)
+        'Z30',
+        'Z31',
+        'Z32',
+        'Z33',
+        'Z34',
+        'Z35',
+        'Z36',
+        'Z37', // Reproductive encounters (ICD-10)
+        '77386006' // Pregnancy (SNOMED)
     ],
     MINOR: [], // Determined by patient age
     CELEBRITY: [], // Determined by patient flag
@@ -363,18 +419,14 @@ export class SecurityLabelsService {
         const labels = this.extractSecurityLabels(resource);
 
         // Find confidentiality label
-        const confLabel = labels.find(
-            label => label.system === CODE_SYSTEMS.CONFIDENTIALITY
-        );
+        const confLabel = labels.find(label => label.system === CODE_SYSTEMS.CONFIDENTIALITY);
 
         if (confLabel && this.isValidConfidentiality(confLabel.code)) {
             return confLabel.code as ConfidentialityCode;
         }
 
         // Check for any other security labels that imply confidentiality
-        const hasRestrictedLabel = labels.some(
-            label => label.code === 'R' || label.code === 'V'
-        );
+        const hasRestrictedLabel = labels.some(label => label.code === 'R' || label.code === 'V');
 
         if (hasRestrictedLabel) {
             return 'R';
@@ -435,16 +487,16 @@ export class SecurityLabelsService {
      */
     private mapLabelToCategory(label: SecurityLabel): SensitivityCategory | null {
         const codeMap: Record<string, SensitivityCategory> = {
-            'HIV': 'HIV',
-            'PSY': 'PSY',
-            'ETH': 'ETH',
-            'SDV': 'SDV',
-            'SEX': 'SEX',
-            'GENETIC': 'GENETIC',
-            'SOC': 'SDV', // Social services
-            'MENCAT': 'PSY', // Mental health category
-            'STD': 'SEX', // Sexually transmitted disease
-            'SUD': 'ETH' // Substance use disorder
+            HIV: 'HIV',
+            PSY: 'PSY',
+            ETH: 'ETH',
+            SDV: 'SDV',
+            SEX: 'SEX',
+            GENETIC: 'GENETIC',
+            SOC: 'SDV', // Social services
+            MENCAT: 'PSY', // Mental health category
+            STD: 'SEX', // Sexually transmitted disease
+            SUD: 'ETH' // Substance use disorder
         };
 
         return codeMap[label.code] || null;
@@ -515,9 +567,7 @@ export class SecurityLabelsService {
     private isVIPPatient(patient: SecuredResource): boolean {
         // Check for VIP tag in meta.tag
         if (patient.meta?.tag) {
-            return patient.meta.tag.some(
-                tag => tag.code === 'VIP' || tag.code === 'CELEBRITY'
-            );
+            return patient.meta.tag.some(tag => tag.code === 'VIP' || tag.code === 'CELEBRITY');
         }
 
         // Check extension for VIP indicator
@@ -527,8 +577,10 @@ export class SecurityLabelsService {
         ];
         if (patient.extension) {
             return patient.extension.some(
-                (ext: any) => VIP_EXTENSION_URLS.some(url => ext.url?.includes(url)) &&
-                    (ext.valueBoolean === true || ext.valueCodeableConcept?.coding?.some((c: any) => c.code === 'VIP'))
+                (ext: any) =>
+                    VIP_EXTENSION_URLS.some(url => ext.url?.includes(url)) &&
+                    (ext.valueBoolean === true ||
+                        ext.valueCodeableConcept?.coding?.some((c: any) => c.code === 'VIP'))
             );
         }
 
@@ -750,13 +802,17 @@ export class SecurityLabelsService {
 
         // Send to audit service
         if (assessment.confidentiality === 'R' || assessment.confidentiality === 'V') {
-            auditEventService.logSecurityAlert(
-                'SENSITIVE_DATA_ACCESS',
-                `Access to ${assessment.confidentiality} data: ${resource.resourceType}/${resource.id}`,
-                assessment.confidentiality === 'V' ? 'high' : 'medium'
-            ).catch(err => {
-                logger.warn('Failed to log security labels audit event', { error: String(err) });
-            });
+            auditEventService
+                .logSecurityAlert(
+                    'SENSITIVE_DATA_ACCESS',
+                    `Access to ${assessment.confidentiality} data: ${resource.resourceType}/${resource.id}`,
+                    assessment.confidentiality === 'V' ? 'high' : 'medium'
+                )
+                .catch(err => {
+                    logger.warn('Failed to log security labels audit event', {
+                        error: String(err)
+                    });
+                });
         }
 
         this.log('Access logged:', logEntry);
@@ -769,10 +825,7 @@ export class SecurityLabelsService {
     /**
      * Mask sensitive data in a resource
      */
-    maskResource<T extends SecuredResource>(
-        resource: T,
-        assessment?: SecurityAssessment
-    ): T {
+    maskResource<T extends SecuredResource>(resource: T, assessment?: SecurityAssessment): T {
         if (!this.config.enableMasking) {
             return resource;
         }
@@ -780,7 +833,10 @@ export class SecurityLabelsService {
         // Get assessment if not provided
         const securityAssessment = assessment || this.assessSecurity(resource);
 
-        if (securityAssessment.decision === 'ALLOW' || securityAssessment.maskedFields.length === 0) {
+        if (
+            securityAssessment.decision === 'ALLOW' ||
+            securityAssessment.maskedFields.length === 0
+        ) {
             return resource;
         }
 
@@ -837,9 +893,7 @@ export class SecurityLabelsService {
         const options = DEFAULT_MASKING[confidentiality];
 
         if (Array.isArray(value)) {
-            current[fieldName] = value.map((item: any) =>
-                this.maskValue(item, options)
-            );
+            current[fieldName] = value.map((item: any) => this.maskValue(item, options));
         } else {
             current[fieldName] = this.maskValue(value, options);
         }
@@ -901,8 +955,10 @@ export class SecurityLabelsService {
                 if (str.length <= visible) {
                     return this.config.maskCharacter.repeat(str.length);
                 }
-                return str.substring(0, visible) +
-                    this.config.maskCharacter.repeat(str.length - visible);
+                return (
+                    str.substring(0, visible) +
+                    this.config.maskCharacter.repeat(str.length - visible)
+                );
 
             case 'redact':
                 return opts.maskText || '[已遮蔽]';
@@ -994,7 +1050,9 @@ export class SecurityLabelsService {
                             ${CONFIDENTIALITY_DISPLAY[assessment.confidentiality].zh}
                         </span>
                     </div>
-                    ${assessment.sensitivities.length > 0 ? `
+                    ${
+                        assessment.sensitivities.length > 0
+                            ? `
                     <div class="sensitivity-info">
                         <span class="label">敏感類別：</span>
                         <ul>
@@ -1004,7 +1062,9 @@ export class SecurityLabelsService {
                                 .join('')}
                         </ul>
                     </div>
-                    ` : ''}
+                    `
+                            : ''
+                    }
                     <p class="legal-notice">
                         存取此資料將被記錄。未經授權揭露敏感資訊可能違反《個人資料保護法》及相關醫療法規。
                     </p>
@@ -1047,7 +1107,7 @@ export class SecurityLabelsService {
             return true;
         }
 
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             const dialog = this.createWarningDialog(
                 assessment,
                 () => resolve(true),
@@ -1060,10 +1120,7 @@ export class SecurityLabelsService {
     /**
      * Handle break-the-glass request
      */
-    async requestBreakTheGlass(
-        resource: SecuredResource,
-        reason: string
-    ): Promise<boolean> {
+    async requestBreakTheGlass(resource: SecuredResource, reason: string): Promise<boolean> {
         if (!this.config.enableBreakTheGlass || !this.currentUser) {
             return false;
         }
@@ -1081,7 +1138,11 @@ export class SecurityLabelsService {
         }
 
         // Default: deny when no callback is registered (secure by default)
-        this.log('Break-the-glass DENIED (no callback registered):', resource.resourceType, resource.id);
+        this.log(
+            'Break-the-glass DENIED (no callback registered):',
+            resource.resourceType,
+            resource.id
+        );
         return false;
     }
 

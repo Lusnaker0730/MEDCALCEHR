@@ -6,18 +6,50 @@ const mockLoggerError = jest.fn<any>();
 const mockLoggerDebug = jest.fn<any>();
 const mockInitSentry = jest.fn<any>();
 
-jest.mock('../logger.js', () => ({ logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug } }));
+jest.mock('../logger.js', () => ({
+    logger: {
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        debug: mockLoggerDebug
+    }
+}));
 jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 
 import { FuzzySearch } from '../fuzzy-search.js';
 import { CalculatorMetadata } from '../calculators/index.js';
 
 const sampleCalculators: CalculatorMetadata[] = [
-    { id: 'bmi-bsa', title: 'BMI / BSA Calculator', description: 'Calculate body mass index and body surface area', category: 'general' },
-    { id: 'apache-ii', title: 'APACHE II Score', description: 'Acute physiology assessment for ICU patients', category: 'critical-care' },
-    { id: 'cha2ds2-vasc', title: 'CHA2DS2-VASc Score', description: 'Stroke risk in atrial fibrillation', category: 'cardiology' },
-    { id: 'gfr', title: 'eGFR Calculator', description: 'Estimated glomerular filtration rate', category: 'nephrology' },
-    { id: 'meld', title: 'MELD Score', description: 'Model for end-stage liver disease severity', category: 'hepatology' },
+    {
+        id: 'bmi-bsa',
+        title: 'BMI / BSA Calculator',
+        description: 'Calculate body mass index and body surface area',
+        category: 'general'
+    },
+    {
+        id: 'apache-ii',
+        title: 'APACHE II Score',
+        description: 'Acute physiology assessment for ICU patients',
+        category: 'critical-care'
+    },
+    {
+        id: 'cha2ds2-vasc',
+        title: 'CHA2DS2-VASc Score',
+        description: 'Stroke risk in atrial fibrillation',
+        category: 'cardiology'
+    },
+    {
+        id: 'gfr',
+        title: 'eGFR Calculator',
+        description: 'Estimated glomerular filtration rate',
+        category: 'nephrology'
+    },
+    {
+        id: 'meld',
+        title: 'MELD Score',
+        description: 'Model for end-stage liver disease severity',
+        category: 'hepatology'
+    }
 ] as CalculatorMetadata[];
 
 describe('FuzzySearch', () => {
@@ -81,7 +113,12 @@ describe('FuzzySearch', () => {
 
     it('updateCollection updates the searchable collection', () => {
         const newCalcs: CalculatorMetadata[] = [
-            { id: 'new-calc', title: 'Brand New Calculator', description: 'A new one', category: 'general' },
+            {
+                id: 'new-calc',
+                title: 'Brand New Calculator',
+                description: 'A new one',
+                category: 'general'
+            }
         ] as CalculatorMetadata[];
 
         fuzzySearch.updateCollection(newCalcs);

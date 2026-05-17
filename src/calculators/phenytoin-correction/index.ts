@@ -79,21 +79,21 @@ export const phenytoinCorrection = createUnifiedFormulaCalculator({
 
         return `
             ${uiBuilder.createResultItem({
-            label: res.label,
-            value: res.value,
-            unit: res.unit,
-            interpretation: res.interpretation,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: res.label,
+                value: res.value,
+                unit: res.unit,
+                interpretation: res.interpretation,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Measured Total',
-            value: payload.measuredTotal.toFixed(1),
-            unit: 'mcg/mL'
-        })}
+                label: 'Measured Total',
+                value: payload.measuredTotal.toFixed(1),
+                unit: 'mcg/mL'
+            })}
             ${uiBuilder.createAlert({
-            type: alertClass as 'success' | 'warning' | 'danger' | 'info',
-            message: alertMsg
-        })}
+                type: alertClass as 'success' | 'warning' | 'danger' | 'info',
+                message: alertMsg
+            })}
         `;
     }
 });

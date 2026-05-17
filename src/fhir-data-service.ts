@@ -34,7 +34,7 @@ import {
     TW_CORE_PROFILES,
     TW_IDENTIFIER_SYSTEMS,
     TW_IDENTIFIER_TYPE_CODES,
-    getTWCoreObservationProfile,
+    getTWCoreObservationProfile
 } from './twcore/index.js';
 
 // ============================================================================
@@ -89,7 +89,9 @@ export interface Patient {
         url: string;
         valueAge?: { value: number; unit: string; system?: string; code?: string };
         valueString?: string;
-        valueCodeableConcept?: { coding?: Array<{ system?: string; code?: string; display?: string }> };
+        valueCodeableConcept?: {
+            coding?: Array<{ system?: string; code?: string; display?: string }>;
+        };
         [key: string]: any;
     }>;
 }
@@ -299,7 +301,9 @@ export class FHIRDataService {
                 if (response.entry && response.entry.length > 0) {
                     const resource = response.entry[0].resource;
                     if (isRestrictedResource(resource)) {
-                        logger.warn('Access to restricted Observation blocked', { detail: textName });
+                        logger.warn('Access to restricted Observation blocked', {
+                            detail: textName
+                        });
                         observation = null;
                     } else {
                         observation = resource;
@@ -317,13 +321,11 @@ export class FHIRDataService {
                 await fhirCache.cacheObservation(this.patientId, code, observation);
 
                 // Log FHIR resource access to audit trail (IHE BALP)
-                auditEventService.logResourceRead(
-                    'Observation',
-                    observation.id || code,
-                    `code=${code}`
-                ).catch(err => {
-                    logger.warn('Failed to log resource read audit', { error: String(err) });
-                });
+                auditEventService
+                    .logResourceRead('Observation', observation.id || code, `code=${code}`)
+                    .catch(err => {
+                        logger.warn('Failed to log resource read audit', { error: String(err) });
+                    });
             }
 
             return this.processObservation(observation, code, options);
@@ -523,10 +525,7 @@ export class FHIRDataService {
      * @param code LOINC code
      * @param hours Time window in hours
      */
-    async getObservationsInWindow(
-        code: string,
-        hours: number
-    ): Promise<ObservationResult[]> {
+    async getObservationsInWindow(code: string, hours: number): Promise<ObservationResult[]> {
         if (!this.client) {
             return [];
         }
@@ -1069,7 +1068,8 @@ export class FHIRDataService {
         }
 
         // Find the official name first, or use the first name entry
-        const officialName = this.patient.name.find(n => n.use === 'official') || this.patient.name[0];
+        const officialName =
+            this.patient.name.find(n => n.use === 'official') || this.patient.name[0];
 
         // TWCORE IG: Use 'text' field if available (Chinese full name)
         if (officialName.text) {
@@ -1172,21 +1172,50 @@ export class FHIRDataService {
 
             switch (id.system) {
                 case TW_IDENTIFIER_SYSTEMS.NATIONAL_ID:
-                    result.push({ type: 'NATIONAL_ID', system: id.system, value: id.value, label: '國民身分證' });
+                    result.push({
+                        type: 'NATIONAL_ID',
+                        system: id.system,
+                        value: id.value,
+                        label: '國民身分證'
+                    });
                     break;
                 case TW_IDENTIFIER_SYSTEMS.PASSPORT:
-                    result.push({ type: 'PASSPORT', system: id.system, value: id.value, label: '護照' });
+                    result.push({
+                        type: 'PASSPORT',
+                        system: id.system,
+                        value: id.value,
+                        label: '護照'
+                    });
                     break;
                 case TW_IDENTIFIER_SYSTEMS.RESIDENT_CERTIFICATE:
-                    result.push({ type: 'RESIDENT_CERTIFICATE', system: id.system, value: id.value, label: '居留證' });
+                    result.push({
+                        type: 'RESIDENT_CERTIFICATE',
+                        system: id.system,
+                        value: id.value,
+                        label: '居留證'
+                    });
                     break;
                 case TW_IDENTIFIER_SYSTEMS.MEDICAL_RECORD:
-                    result.push({ type: 'MEDICAL_RECORD', system: id.system, value: id.value, label: '病歷號' });
+                    result.push({
+                        type: 'MEDICAL_RECORD',
+                        system: id.system,
+                        value: id.value,
+                        label: '病歷號'
+                    });
                     break;
                 default:
                     // Check type.coding for MR code (common hospital pattern)
-                    if (id.type?.coding?.some(c => c.code === TW_IDENTIFIER_TYPE_CODES.MEDICAL_RECORD.code)) {
-                        result.push({ type: 'MEDICAL_RECORD', system: id.system, value: id.value, label: '病歷號' });
+                    if (
+                        id.type?.coding?.some(
+                            c => c.code === TW_IDENTIFIER_TYPE_CODES.MEDICAL_RECORD.code
+                        )
+                    ) {
+                        result.push({
+                            type: 'MEDICAL_RECORD',
+                            system: id.system,
+                            value: id.value,
+                            label: '病歷號'
+                        });
                     }
                     break;
             }
@@ -1203,7 +1232,9 @@ export class FHIRDataService {
         // 1. Check for person-age extension
         if (this.patient?.extension) {
             const ageExt = this.patient.extension.find(
-                ext => ext.url === 'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/person-age' ||
+                ext =>
+                    ext.url ===
+                        'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/person-age' ||
                     ext.url === 'http://hl7.org/fhir/StructureDefinition/patient-age'
             );
             if (ageExt?.valueAge?.value !== undefined) {

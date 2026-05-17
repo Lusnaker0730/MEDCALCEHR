@@ -4,9 +4,7 @@ import { uiBuilder } from '../../ui-builder.js';
 import { fhirDataService } from '../../fhir-data-service.js';
 import { logger } from '../../logger.js';
 
-const riskMap = [
-    3.4, 3.4, 4.9, 5.5, 6.9, 9.3, 12, 14.6, 17.4, 20.8, 23.3, 27.7, 31, 31.5, 39.3
-];
+const riskMap = [3.4, 3.4, 4.9, 5.5, 6.9, 9.3, 12, 14.6, 17.4, 20.8, 23.3, 27.7, 31, 31.5, 39.3];
 
 export const actionIcuConfig: ScoringCalculatorConfig = {
     id: 'action-icu',
@@ -103,34 +101,34 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
         <div class="ui-section formula-section">
             <div class="ui-section-title">📐 Scoring Formula</div>
             ${uiBuilder.createTable({
-        headers: ['Variable', '0 points', '1 point', '2 points', '3 points', '5 points'],
-        rows: [
-            ['Age, years', '<70', '≥70', '—', '—', '—'],
-            ['Serum creatinine, mg/dL', '<1.1', '≥1.1', '—', '—', '—'],
-            ['Heart rate, bpm', '<85', '85-99', '—', '≥100', '—'],
-            ['Systolic BP, mmHg', '≥145', '125-145', '—', '<125', '—'],
-            ['Troponin ratio (×ULN)', '<12', '—', '≥12', '—', '—'],
-            ['Heart failure signs/symptoms', 'No', '—', '—', '—', 'Yes'],
-            ['ST depression on EKG', 'No', 'Yes', '—', '—', '—'],
-            ['Prior revascularization', 'Yes', 'No', '—', '—', '—'],
-            ['Chronic lung disease', 'No', '—', 'Yes', '—', '—']
-        ],
-        className: 'text-center-cells' // Assuming we need to center cells, or rely on default styling. uiBuilder tables usually left align first col, others auto.
-        // The original had specific text-center classes. uiBuilder might not support per-cell classes easily in standard mode without 'className' applied to table or 'createTable' enhancements.
-        // But let's stick to standard uiBuilder table.
-    })}
+                headers: ['Variable', '0 points', '1 point', '2 points', '3 points', '5 points'],
+                rows: [
+                    ['Age, years', '<70', '≥70', '—', '—', '—'],
+                    ['Serum creatinine, mg/dL', '<1.1', '≥1.1', '—', '—', '—'],
+                    ['Heart rate, bpm', '<85', '85-99', '—', '≥100', '—'],
+                    ['Systolic BP, mmHg', '≥145', '125-145', '—', '<125', '—'],
+                    ['Troponin ratio (×ULN)', '<12', '—', '≥12', '—', '—'],
+                    ['Heart failure signs/symptoms', 'No', '—', '—', '—', 'Yes'],
+                    ['ST depression on EKG', 'No', 'Yes', '—', '—', '—'],
+                    ['Prior revascularization', 'Yes', 'No', '—', '—', '—'],
+                    ['Chronic lung disease', 'No', '—', 'Yes', '—', '—']
+                ],
+                className: 'text-center-cells' // Assuming we need to center cells, or rely on default styling. uiBuilder tables usually left align first col, others auto.
+                // The original had specific text-center classes. uiBuilder might not support per-cell classes easily in standard mode without 'className' applied to table or 'createTable' enhancements.
+                // But let's stick to standard uiBuilder table.
+            })}
             
             <div class="ui-section-title mt-20">📊 Risk of Complications Requiring ICU Care</div>
             ${uiBuilder.createTable({
-        headers: ['Score', 'Risk %', 'Score', 'Risk %', 'Score', 'Risk %'],
-        rows: [
-            ['≤1', '3.4%', '6', '12%', '11', '27.7%'],
-            ['2', '4.9%', '7', '14.6%', '12', '31%'],
-            ['3', '5.5%', '8', '17.4%', '13', '31.5%'],
-            ['4', '6.9%', '9', '20.8%', '14', '39.3%'],
-            ['5', '9.3%', '10', '23.3%', '>14', '>39.3%']
-        ]
-    })}
+                headers: ['Score', 'Risk %', 'Score', 'Risk %', 'Score', 'Risk %'],
+                rows: [
+                    ['≤1', '3.4%', '6', '12%', '11', '27.7%'],
+                    ['2', '4.9%', '7', '14.6%', '12', '31%'],
+                    ['3', '5.5%', '8', '17.4%', '13', '31.5%'],
+                    ['4', '6.9%', '9', '20.8%', '14', '39.3%'],
+                    ['5', '9.3%', '10', '23.3%', '>14', '>39.3%']
+                ]
+            })}
             
             <p class="footnote-item mt-15">
                 *Cardiac arrest, shock, high-grade atrioventricular block, respiratory failure, stroke, or death during index admission.
@@ -152,23 +150,23 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskLevel,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskLevel,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'ICU Risk',
-            value: riskPercent.toFixed(1),
-            unit: '%',
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'ICU Risk',
+                value: riskPercent.toFixed(1),
+                unit: '%',
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message:
-                '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
-        })}
+                type: alertType,
+                message:
+                    '<strong>Interpretation:</strong> Risk of complications requiring ICU care (cardiac arrest, shock, high-grade AV block, respiratory failure, stroke, death).'
+            })}
         `;
     },
     customInitialize: (
@@ -250,7 +248,9 @@ export const actionIcuConfig: ScoringCalculatorConfig = {
 
                     calculate();
                 })
-                .catch((e: unknown) => logger.error('Error fetching observations for ACTION ICU', { error: String(e) }));
+                .catch((e: unknown) =>
+                    logger.error('Error fetching observations for ACTION ICU', { error: String(e) })
+                );
         }
 
         calculate();

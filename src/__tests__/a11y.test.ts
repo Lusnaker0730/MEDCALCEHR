@@ -30,7 +30,7 @@ describe('UIBuilder Accessibility', () => {
             required: true,
             helpText: 'Enter weight in kg',
             min: 0,
-            max: 500,
+            max: 500
         });
         const container = renderInDocument(html);
         const results = await axe(container);
@@ -44,8 +44,8 @@ describe('UIBuilder Accessibility', () => {
             required: true,
             options: [
                 { value: 'male', label: 'Male' },
-                { value: 'female', label: 'Female' },
-            ],
+                { value: 'female', label: 'Female' }
+            ]
         });
         const container = renderInDocument(html);
         const results = await axe(container);
@@ -62,8 +62,8 @@ describe('UIBuilder Accessibility', () => {
             label: 'Symptoms',
             options: [
                 { value: 'fever', label: 'Fever' },
-                { value: 'cough', label: 'Cough' },
-            ],
+                { value: 'cough', label: 'Cough' }
+            ]
         });
         const container = renderInDocument(html);
         const results = await axe(container);
@@ -81,8 +81,8 @@ describe('UIBuilder Accessibility', () => {
             helpText: 'Choose a unit',
             options: [
                 { value: 'kg', label: 'Kilograms' },
-                { value: 'lbs', label: 'Pounds' },
-            ],
+                { value: 'lbs', label: 'Pounds' }
+            ]
         });
         const container = renderInDocument(html);
         const results = await axe(container);
@@ -92,7 +92,7 @@ describe('UIBuilder Accessibility', () => {
     test('createAlert generates accessible HTML with role="alert"', async () => {
         const html = ui.createAlert({
             type: 'danger',
-            message: 'Critical value detected',
+            message: 'Critical value detected'
         });
         const container = renderInDocument(html);
         const results = await axe(container);
@@ -106,7 +106,7 @@ describe('UIBuilder Accessibility', () => {
     test('createResultBox generates accessible HTML with aria-live', async () => {
         const html = ui.createResultBox({
             id: 'test-result',
-            title: 'Results',
+            title: 'Results'
         });
         const container = renderInDocument(html);
         const results = await axe(container);
@@ -122,7 +122,7 @@ describe('UIBuilder Accessibility', () => {
             label: 'Score',
             value: 5,
             interpretation: 'Low risk',
-            alertClass: 'success',
+            alertClass: 'success'
         });
         const container = document.createElement('div');
         container.innerHTML = html;

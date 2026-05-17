@@ -43,12 +43,7 @@ export class CacheManager {
     /**
      * Store item in cache with expiry
      */
-    async set(
-        cacheName: string,
-        key: string,
-        data: any,
-        expiryMs: number
-    ): Promise<boolean> {
+    async set(cacheName: string, key: string, data: any, expiryMs: number): Promise<boolean> {
         // Memory cache (PHI data uses secureLocalStore directly, not this method)
         const expiryTime = Date.now() + expiryMs;
         this.memoryCache.set(key, {
@@ -311,7 +306,10 @@ export class FHIRCacheManager extends CacheManager {
         observationData: any
     ): Promise<void> {
         const key = `medcalc-phi-observation-${patientId}-${observationCode}`;
-        await secureLocalStore(key, { data: observationData, expiry: Date.now() + CACHE_EXPIRY.fhir });
+        await secureLocalStore(key, {
+            data: observationData,
+            expiry: Date.now() + CACHE_EXPIRY.fhir
+        });
     }
 
     /**

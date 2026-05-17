@@ -62,8 +62,8 @@ export const TW_CORE_PROFILES = {
     Location: `${TW_CORE_BASE}/Location-twcore`,
     Specimen: `${TW_CORE_BASE}/Specimen-twcore`,
     ImagingStudy: `${TW_CORE_BASE}/ImagingStudy-twcore`,
-    Media: `${TW_CORE_BASE}/Media-twcore`,
+    Media: `${TW_CORE_BASE}/Media-twcore`
 } as const;
 
 export type TWCoreProfileKey = keyof typeof TW_CORE_PROFILES;
-export type TWCoreProfileUrl = typeof TW_CORE_PROFILES[TWCoreProfileKey];
+export type TWCoreProfileUrl = (typeof TW_CORE_PROFILES)[TWCoreProfileKey];

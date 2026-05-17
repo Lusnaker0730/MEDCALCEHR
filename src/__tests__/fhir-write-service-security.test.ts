@@ -7,32 +7,32 @@ jest.mock('../logger', () => ({
         info: jest.fn(),
         warn: jest.fn(),
         error: jest.fn(),
-        debug: jest.fn(),
-    },
+        debug: jest.fn()
+    }
 }));
 
 jest.mock('../fhir-auth-interceptor', () => ({
-    isAuthError: jest.fn(() => false),
+    isAuthError: jest.fn(() => false)
 }));
 
 jest.mock('../token-lifecycle-manager', () => ({
     tokenLifecycleManager: {
-        handleAuthFailure: jest.fn(),
-    },
+        handleAuthFailure: jest.fn()
+    }
 }));
 
 jest.mock('../provenance-service', () => ({
     provenanceService: {
-        recordCalculation: jest.fn<() => Promise<any>>().mockResolvedValue({ id: 'prov-1' }),
-    },
+        recordCalculation: jest.fn<() => Promise<any>>().mockResolvedValue({ id: 'prov-1' })
+    }
 }));
 
 // We do NOT mock security-labels-service — we use the real implementation
 // to verify end-to-end label application
 jest.mock('../audit-event-service', () => ({
     auditEventService: {
-        logSecurityAlert: jest.fn<() => Promise<void>>().mockResolvedValue(undefined),
-    },
+        logSecurityAlert: jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    }
 }));
 
 import { fhirWriteService } from '../fhir-write-service';
@@ -47,7 +47,7 @@ describe('FHIRWriteService — Security Labels Integration', () => {
         (window as any).MEDCALC_CONFIG = { enableWriteBack: true };
         fhirWriteService.setClient({
             patient: { id: 'patient-1' },
-            create: mockCreate.mockResolvedValue({ id: 'obs-1' }),
+            create: mockCreate.mockResolvedValue({ id: 'obs-1' })
         });
     });
 
@@ -59,7 +59,7 @@ describe('FHIRWriteService — Security Labels Integration', () => {
                 calculatorId: 'ckd-epi',
                 calculatorTitle: 'CKD-EPI',
                 patientId: 'patient-1',
-                results: [],
+                results: []
             },
             { label: 'eGFR', value: 60, unit: 'mL/min/1.73m2', loincCode: '48642-3' }
         );
@@ -83,7 +83,7 @@ describe('FHIRWriteService — Security Labels Integration', () => {
                 calculatorId: 'bmi',
                 calculatorTitle: 'BMI Calculator',
                 patientId: 'patient-1',
-                results: [],
+                results: []
             },
             { label: 'BMI', value: 24.5, unit: 'kg/m2' }
         );
@@ -99,9 +99,7 @@ describe('FHIRWriteService — Security Labels Integration', () => {
             calculatorId: 'ascvd',
             calculatorTitle: 'ASCVD Risk',
             patientId: 'patient-1',
-            results: [
-                { label: '10-Year Risk', value: 12.5, unit: '%', loincCode: '79423-0' },
-            ],
+            results: [{ label: '10-Year Risk', value: 12.5, unit: '%', loincCode: '79423-0' }]
         });
 
         expect(result.success).toBe(true);
@@ -121,7 +119,7 @@ describe('FHIRWriteService — Security Labels Integration', () => {
                 calculatorId: 'test',
                 calculatorTitle: 'Test',
                 patientId: 'patient-1',
-                results: [],
+                results: []
             },
             { label: 'Score', value: 5, unit: 'score' }
         );
@@ -132,7 +130,7 @@ describe('FHIRWriteService — Security Labels Integration', () => {
                 calculatorId: 'test2',
                 calculatorTitle: 'Test2',
                 patientId: 'patient-1',
-                results: [],
+                results: []
             },
             { label: 'Score2', value: 10, unit: 'score' }
         );

@@ -31,11 +31,18 @@ initWebVitals();
 const _logConfig = window.MEDCALC_CONFIG?.logging;
 if (_logConfig?.remoteEndpoint) {
     const levelMap: Record<string, LogLevel> = {
-        DEBUG: LogLevel.DEBUG, INFO: LogLevel.INFO,
-        WARN: LogLevel.WARN, ERROR: LogLevel.ERROR,
+        DEBUG: LogLevel.DEBUG,
+        INFO: LogLevel.INFO,
+        WARN: LogLevel.WARN,
+        ERROR: LogLevel.ERROR
     };
-    const minLevel = levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
-    const transport = new BeaconTransport(_logConfig.remoteEndpoint, minLevel, _logConfig.bufferSize);
+    const minLevel =
+        levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
+    const transport = new BeaconTransport(
+        _logConfig.remoteEndpoint,
+        minLevel,
+        _logConfig.bufferSize
+    );
     logger.addTransport(transport);
     window.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') transport.flush();
@@ -47,7 +54,11 @@ if (window.MEDCALC_CONFIG) {
     (function deepFreeze(obj: any) {
         Object.freeze(obj);
         Object.getOwnPropertyNames(obj).forEach(prop => {
-            if (obj[prop] !== null && typeof obj[prop] === 'object' && !Object.isFrozen(obj[prop])) {
+            if (
+                obj[prop] !== null &&
+                typeof obj[prop] === 'object' &&
+                !Object.isFrozen(obj[prop])
+            ) {
                 deepFreeze(obj[prop]);
             }
         });
@@ -184,7 +195,10 @@ function renderCalculatorList(calculators: CalculatorMetadata[], container: HTML
         if (calc.category) {
             const categoryBadge = document.createElement('span');
             categoryBadge.className = 'category-badge';
-            categoryBadge.textContent = t(`category.${calc.category}`) || categories[calc.category as CategoryKey] || calc.category;
+            categoryBadge.textContent =
+                t(`category.${calc.category}`) ||
+                categories[calc.category as CategoryKey] ||
+                calc.category;
             categoryBadge.setAttribute('data-category', calc.category);
             contentDiv.appendChild(categoryBadge);
         }
@@ -250,7 +264,9 @@ function renderCategoryChips(
     container.appendChild(allChip);
 
     (Object.keys(categories) as CategoryKey[]).forEach(key => {
-        const count = calculatorModules.filter(c => c.category === key && isCalculatorApproved(c.id)).length;
+        const count = calculatorModules.filter(
+            c => c.category === key && isCalculatorApproved(c.id)
+        ).length;
         const chip = document.createElement('button');
         chip.className = `category-chip${currentCategory === key ? ' active' : ''}`;
 
@@ -397,7 +413,7 @@ window.onload = () => {
         // Render category chips (sync with dropdown)
         const categoryChipsEl = document.getElementById('category-chips');
         if (categoryChipsEl) {
-            renderCategoryChips(categoryChipsEl, currentCategory, (cat) => {
+            renderCategoryChips(categoryChipsEl, currentCategory, cat => {
                 currentCategory = cat;
                 if (categorySelect) categorySelect.value = cat;
                 updateDisplay();
@@ -407,7 +423,10 @@ window.onload = () => {
         // History mode: render history entries directly
         if (currentFilterType === 'history') {
             await renderHistoryList(calculatorListDiv);
-            updateStats(calculatorModules.filter(c => isCalculatorApproved(c.id)).length, await calculationHistory.getEntryCount());
+            updateStats(
+                calculatorModules.filter(c => isCalculatorApproved(c.id)).length,
+                await calculationHistory.getEntryCount()
+            );
             return;
         }
 
@@ -425,7 +444,10 @@ window.onload = () => {
         renderCalculatorList(sorted, calculatorListDiv);
 
         // Update stats
-        updateStats(calculatorModules.filter(c => isCalculatorApproved(c.id)).length, sorted.length);
+        updateStats(
+            calculatorModules.filter(c => isCalculatorApproved(c.id)).length,
+            sorted.length
+        );
     }
 
     /**
@@ -507,8 +529,7 @@ window.onload = () => {
                         name = user.practitioner.display;
                     }
 
-                    if (practitionerNameEl)
-                        practitionerNameEl.textContent = name || 'Practitioner';
+                    if (practitionerNameEl) practitionerNameEl.textContent = name || 'Practitioner';
                     if (practitionerInfoEl) {
                         practitionerInfoEl.classList.remove('hidden');
                         practitionerInfoEl.style.display = 'flex';
@@ -583,7 +604,11 @@ window.onload = () => {
     favoritesManager.addListener(() => {
         updateFilterButtons();
         // If currently showing favorites/recent, update list
-        if (currentFilterType === 'favorites' || currentFilterType === 'recent' || currentFilterType === 'history') {
+        if (
+            currentFilterType === 'favorites' ||
+            currentFilterType === 'recent' ||
+            currentFilterType === 'history'
+        ) {
             updateDisplay();
         }
     });

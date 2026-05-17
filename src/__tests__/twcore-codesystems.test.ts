@@ -8,13 +8,13 @@ import {
     TW_CODE_SYSTEMS,
     TW_VALUE_SETS,
     TW_OBSERVATION_CATEGORIES,
-    TW_MEDICATION_ROUTES,
+    TW_MEDICATION_ROUTES
 } from '../twcore/codesystems.js';
 import {
     MEDICATION_FREQUENCY_MAP,
     MEDICATION_ROUTE_TO_SNOMED,
     getNHIFrequencyMapping,
-    getTWRouteToSNOMED,
+    getTWRouteToSNOMED
 } from '../twcore/concept-maps.js';
 
 describe('TW Core CodeSystems', () => {
@@ -34,7 +34,9 @@ describe('TW Core CodeSystems', () => {
         });
 
         test('should include frequency code system', () => {
-            expect(TW_CODE_SYSTEMS.MEDICATION_FREQUENCY_NHI).toContain('medication-frequency-nhi-tw');
+            expect(TW_CODE_SYSTEMS.MEDICATION_FREQUENCY_NHI).toContain(
+                'medication-frequency-nhi-tw'
+            );
         });
 
         test('should include medication path code system', () => {
@@ -94,7 +96,9 @@ describe('TW Core CodeSystems', () => {
         });
 
         test('should include smoking status ValueSets', () => {
-            expect(TW_VALUE_SETS.SMOKING_STATUS_COMPREHENSIVE).toContain('smoking-status-comprehensive-code');
+            expect(TW_VALUE_SETS.SMOKING_STATUS_COMPREHENSIVE).toContain(
+                'smoking-status-comprehensive-code'
+            );
             expect(TW_VALUE_SETS.SMOKING_STATUS_TYPE).toContain('smoking-status-type-code');
         });
     });
@@ -113,7 +117,9 @@ describe('TW Core CodeSystems', () => {
         });
 
         test('should include care experience preference', () => {
-            expect(TW_OBSERVATION_CATEGORIES.CARE_EXPERIENCE_PREFERENCE.code).toBe('care-experience-preference');
+            expect(TW_OBSERVATION_CATEGORIES.CARE_EXPERIENCE_PREFERENCE.code).toBe(
+                'care-experience-preference'
+            );
         });
 
         test('all categories should have code, display, and definition', () => {

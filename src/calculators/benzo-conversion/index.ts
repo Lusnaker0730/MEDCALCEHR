@@ -117,8 +117,8 @@ export const benzoConversion = createConversionCalculator({
 
     additionalInfo: `
         ${uiBuilder.createAlert({
-        type: 'info',
-        message: `
+            type: 'info',
+            message: `
                 <h4>Clinical Considerations</h4>
                 <ul>
                     <li><strong>Half-life varies widely:</strong> Short (triazolam), Intermediate (lorazepam, oxazepam), Long (diazepam, clonazepam)</li>
@@ -127,202 +127,202 @@ export const benzoConversion = createConversionCalculator({
                     <li><strong>Tapering:</strong> Consider switching to longer-acting agent (diazepam) for gradual taper</li>
                 </ul>
             `
-    })}
+        })}
 
         ${uiBuilder.createSection({
-        title: 'Formula',
-        icon: '📐',
-        content: `
+            title: 'Formula',
+            icon: '📐',
+            content: `
                 <h4 class="mb-10">Duration of Action</h4>
                 ${uiBuilder.createTable({
-            headers: ['Benzodiazepine', 'Duration of action'],
-            rows: [
-                ['ALPRAZolam (Xanax)', 'Short'],
-                ['ChlordiazePOXIDE (Librium)', 'Long'],
-                ['DiazePAM (Valium)', 'Long'],
-                ['ClonazePAM (KlonoPIN)', 'Long'],
-                ['LORazepam (Ativan)', 'Intermediate'],
-                ['Oxazepam (Serax)', 'Short'],
-                ['Temazepam (Restoril)', 'Intermediate'],
-                ['Triazolam (Halcion)', 'Short']
-            ]
-        })}
+                    headers: ['Benzodiazepine', 'Duration of action'],
+                    rows: [
+                        ['ALPRAZolam (Xanax)', 'Short'],
+                        ['ChlordiazePOXIDE (Librium)', 'Long'],
+                        ['DiazePAM (Valium)', 'Long'],
+                        ['ClonazePAM (KlonoPIN)', 'Long'],
+                        ['LORazepam (Ativan)', 'Intermediate'],
+                        ['Oxazepam (Serax)', 'Short'],
+                        ['Temazepam (Restoril)', 'Intermediate'],
+                        ['Triazolam (Halcion)', 'Short']
+                    ]
+                })}
 
                 <h4 class="mt-20 mb-10">Conversion Factors</h4>
                 <p class="text-sm text-muted mb-10">Highlighted cell is used for example below</p>
                 ${uiBuilder.createTable({
-            headers: [
-                '',
-                'From Xanax',
-                'From Librium',
-                'From Valium',
-                'From Klonopin',
-                'From Ativan',
-                'From Serax',
-                'From Restoril',
-                'From Halcion'
-            ],
-            rows: [
-                [
-                    '<strong>To Xanax</strong>',
-                    '1',
-                    '÷ 25',
-                    '÷ 10',
-                    '÷ 2',
-                    '÷ 2',
-                    '÷ 20',
-                    '÷ 20',
-                    '× 2'
-                ],
-                ['Range', 'n/a', '15-50', '5-20', '0.5-4', '1-4', '5-40', '5-40', '1-4'],
-                [
-                    '<strong>To Librium</strong>',
-                    '× 25',
-                    '1',
-                    '× 3',
-                    '× 20',
-                    '× 10',
-                    '÷ 0.5',
-                    '÷ 0.5',
-                    '× 75'
-                ],
-                [
-                    'Range',
-                    '15-50',
-                    'n/a',
-                    '1.25-5',
-                    '6.25-50',
-                    '6.25-25',
-                    '0.2-1.6',
-                    '0.2-1.6',
-                    '25-100'
-                ],
-                [
-                    '<strong>To Valium</strong>',
-                    '× 10',
-                    '÷ 3',
-                    '1',
-                    '× 10',
-                    '× 6',
-                    '÷ 2',
-                    '÷ 2',
-                    '× 20'
-                ],
-                [
-                    'Range',
-                    '5-20',
-                    '1.25-5',
-                    'n/a',
-                    '2.5-20',
-                    '2.5-10',
-                    '0.5-4',
-                    '0.5-4',
-                    '10-40'
-                ],
-                [
-                    '<strong>To Klonopin</strong>',
-                    '× 2',
-                    '÷ 20',
-                    '÷ 10',
-                    '× 2',
-                    '÷ 2',
-                    '÷ 20',
-                    '÷ 20',
-                    '× 4'
-                ],
-                [
-                    'Range',
-                    '0.5-4',
-                    '6.25-50',
-                    '2.5-20',
-                    'n/a',
-                    '0.5-4',
-                    '2.5-40',
-                    '2.5-40',
-                    '1-8'
-                ],
-                [
-                    '<strong>To Ativan</strong>',
-                    '× 2',
-                    '÷ 10',
-                    '÷ 6',
-                    '× 2',
-                    '1',
-                    '÷ 10',
-                    '÷ 10',
-                    '× 4'
-                ],
-                [
-                    'Range',
-                    '1-4',
-                    '6.25-25',
-                    '2.5-10',
-                    '0.5-4',
-                    'n/a',
-                    '2.5-20',
-                    '2.5-20',
-                    '2-8'
-                ],
-                [
-                    '<strong>To Serax</strong>',
-                    '× 20',
-                    '× 0.5',
-                    '× 2',
-                    '× 20',
-                    '× 10',
-                    '1',
-                    '× 1',
-                    '× 40'
-                ],
-                [
-                    'Range',
-                    '5-40',
-                    '0.2-1.6',
-                    '0.5-4',
-                    '2.5-40',
-                    '2.5-20',
-                    'n/a',
-                    '0.25-4',
-                    '10-80'
-                ],
-                [
-                    '<strong>To Restoril</strong>',
-                    '× 20',
-                    '× 0.5',
-                    '× 2',
-                    '× 20',
-                    '× 10',
-                    '× 1',
-                    '1',
-                    '× 40'
-                ],
-                [
-                    'Range',
-                    '5-40',
-                    '0.2-1.6',
-                    '0.5-4',
-                    '2.5-40',
-                    '2.5-20',
-                    '0.25-4',
-                    'n/a',
-                    '10-80'
-                ],
-                [
-                    '<strong>To Halcion</strong>',
-                    '÷ 2',
-                    '÷ 75',
-                    '÷ 20',
-                    '÷ 4',
-                    '÷ 4',
-                    '÷ 40',
-                    '÷ 40',
-                    '1'
-                ],
-                ['Range', '1-4', '25-100', '10-40', '1-8', '2-8', '10-80', '10-80', 'n/a']
-            ],
-            stickyFirstColumn: true
-        })}
+                    headers: [
+                        '',
+                        'From Xanax',
+                        'From Librium',
+                        'From Valium',
+                        'From Klonopin',
+                        'From Ativan',
+                        'From Serax',
+                        'From Restoril',
+                        'From Halcion'
+                    ],
+                    rows: [
+                        [
+                            '<strong>To Xanax</strong>',
+                            '1',
+                            '÷ 25',
+                            '÷ 10',
+                            '÷ 2',
+                            '÷ 2',
+                            '÷ 20',
+                            '÷ 20',
+                            '× 2'
+                        ],
+                        ['Range', 'n/a', '15-50', '5-20', '0.5-4', '1-4', '5-40', '5-40', '1-4'],
+                        [
+                            '<strong>To Librium</strong>',
+                            '× 25',
+                            '1',
+                            '× 3',
+                            '× 20',
+                            '× 10',
+                            '÷ 0.5',
+                            '÷ 0.5',
+                            '× 75'
+                        ],
+                        [
+                            'Range',
+                            '15-50',
+                            'n/a',
+                            '1.25-5',
+                            '6.25-50',
+                            '6.25-25',
+                            '0.2-1.6',
+                            '0.2-1.6',
+                            '25-100'
+                        ],
+                        [
+                            '<strong>To Valium</strong>',
+                            '× 10',
+                            '÷ 3',
+                            '1',
+                            '× 10',
+                            '× 6',
+                            '÷ 2',
+                            '÷ 2',
+                            '× 20'
+                        ],
+                        [
+                            'Range',
+                            '5-20',
+                            '1.25-5',
+                            'n/a',
+                            '2.5-20',
+                            '2.5-10',
+                            '0.5-4',
+                            '0.5-4',
+                            '10-40'
+                        ],
+                        [
+                            '<strong>To Klonopin</strong>',
+                            '× 2',
+                            '÷ 20',
+                            '÷ 10',
+                            '× 2',
+                            '÷ 2',
+                            '÷ 20',
+                            '÷ 20',
+                            '× 4'
+                        ],
+                        [
+                            'Range',
+                            '0.5-4',
+                            '6.25-50',
+                            '2.5-20',
+                            'n/a',
+                            '0.5-4',
+                            '2.5-40',
+                            '2.5-40',
+                            '1-8'
+                        ],
+                        [
+                            '<strong>To Ativan</strong>',
+                            '× 2',
+                            '÷ 10',
+                            '÷ 6',
+                            '× 2',
+                            '1',
+                            '÷ 10',
+                            '÷ 10',
+                            '× 4'
+                        ],
+                        [
+                            'Range',
+                            '1-4',
+                            '6.25-25',
+                            '2.5-10',
+                            '0.5-4',
+                            'n/a',
+                            '2.5-20',
+                            '2.5-20',
+                            '2-8'
+                        ],
+                        [
+                            '<strong>To Serax</strong>',
+                            '× 20',
+                            '× 0.5',
+                            '× 2',
+                            '× 20',
+                            '× 10',
+                            '1',
+                            '× 1',
+                            '× 40'
+                        ],
+                        [
+                            'Range',
+                            '5-40',
+                            '0.2-1.6',
+                            '0.5-4',
+                            '2.5-40',
+                            '2.5-20',
+                            'n/a',
+                            '0.25-4',
+                            '10-80'
+                        ],
+                        [
+                            '<strong>To Restoril</strong>',
+                            '× 20',
+                            '× 0.5',
+                            '× 2',
+                            '× 20',
+                            '× 10',
+                            '× 1',
+                            '1',
+                            '× 40'
+                        ],
+                        [
+                            'Range',
+                            '5-40',
+                            '0.2-1.6',
+                            '0.5-4',
+                            '2.5-40',
+                            '2.5-20',
+                            '0.25-4',
+                            'n/a',
+                            '10-80'
+                        ],
+                        [
+                            '<strong>To Halcion</strong>',
+                            '÷ 2',
+                            '÷ 75',
+                            '÷ 20',
+                            '÷ 4',
+                            '÷ 4',
+                            '÷ 40',
+                            '÷ 40',
+                            '1'
+                        ],
+                        ['Range', '1-4', '25-100', '10-40', '1-8', '2-8', '10-80', '10-80', 'n/a']
+                    ],
+                    stickyFirstColumn: true
+                })}
     `
-    })}
+        })}
 `
 });

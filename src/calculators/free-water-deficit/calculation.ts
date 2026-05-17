@@ -15,7 +15,8 @@ export const calculateFreeWaterDeficit: SimpleCalculateFn = values => {
         tbwFactor = 0.6; // Both male and female children are 0.6
     } else if (ageRange === 'elderly') {
         tbwFactor = sex === 'female' ? 0.45 : 0.5;
-    } else { // adult
+    } else {
+        // adult
         tbwFactor = sex === 'female' ? 0.5 : 0.6;
     }
 

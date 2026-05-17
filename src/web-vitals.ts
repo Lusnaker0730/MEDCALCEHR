@@ -9,7 +9,7 @@ function reportMetric(metric: Metric): void {
         value: metric.value,
         rating: metric.rating,
         delta: metric.delta,
-        navigationType: metric.navigationType,
+        navigationType: metric.navigationType
     });
 
     // Report to Sentry performance if available
@@ -23,8 +23,8 @@ function reportMetric(metric: Metric): void {
                 data: {
                     name: metric.name,
                     value: metric.value,
-                    rating: metric.rating,
-                },
+                    rating: metric.rating
+                }
             });
         }
     } catch {

@@ -40,23 +40,23 @@ export type PreventTime = '10yr' | '30yr';
 export type PreventOutcome = 'totalCvd' | 'ascvd' | 'heartFailure' | 'chd' | 'stroke';
 
 export interface PreventPatient {
-    age: number;                 // years, 30-79
+    age: number; // years, 30-79
     sex: PreventSex;
-    sbp: number;                 // mmHg, 90-180
-    totalCholesterol: number;    // mg/dL
-    hdl: number;                 // mg/dL
-    bmi: number;                 // kg/m^2, 18.5-39.9
-    egfr: number;                // mL/min/1.73m^2, 15-140
+    sbp: number; // mmHg, 90-180
+    totalCholesterol: number; // mg/dL
+    hdl: number; // mg/dL
+    bmi: number; // kg/m^2, 18.5-39.9
+    egfr: number; // mL/min/1.73m^2, 15-140
     diabetes: boolean;
     smoking: boolean;
     onAntihypertensive: boolean;
     onStatin: boolean;
-    hba1c?: number;              // %, 4.5-15 (optional)
-    uacr?: number;               // mg/g, 0.1-25000 (optional)
+    hba1c?: number; // %, 4.5-15 (optional)
+    uacr?: number; // mg/g, 0.1-25000 (optional)
 }
 
 export interface PreventRisks {
-    totalCvd: number;            // probability (0-1)
+    totalCvd: number; // probability (0-1)
     ascvd: number;
     heartFailure: number;
     chd: number;
@@ -336,11 +336,7 @@ export function calculatePrevent(p: PreventPatient): {
 // PREVENT uses this race-free reparameterization.
 // ==========================================
 
-export function calculateEgfr(
-    creatinineMgDl: number,
-    age: number,
-    sex: PreventSex
-): number {
+export function calculateEgfr(creatinineMgDl: number, age: number, sex: PreventSex): number {
     if (creatinineMgDl <= 0 || age <= 0) return NaN;
     const isFemale = sex === 'female';
     const k = isFemale ? 0.7 : 0.9;
@@ -373,7 +369,11 @@ function pct(x: number, dp = 1): string {
     return (x * 100).toFixed(dp);
 }
 
-function riskCategory(ascvdRisk: number): { label: string; severity: AlertSeverity; advice: string } {
+function riskCategory(ascvdRisk: number): {
+    label: string;
+    severity: AlertSeverity;
+    advice: string;
+} {
     if (ascvdRisk < 0.05) {
         return {
             label: 'Low',
@@ -388,7 +388,7 @@ function riskCategory(ascvdRisk: number): { label: string; severity: AlertSeveri
             advice: 'Discuss risk-enhancing factors and consider CAC to refine decision.'
         };
     }
-    if (ascvdRisk < 0.20) {
+    if (ascvdRisk < 0.2) {
         return {
             label: 'Intermediate',
             severity: 'warning',
@@ -402,14 +402,10 @@ function riskCategory(ascvdRisk: number): { label: string; severity: AlertSeveri
     };
 }
 
-export function preventCalculationFromValues(
-    values: Record<string, any>
-): PreventCalculatorResult {
+export function preventCalculationFromValues(values: Record<string, any>): PreventCalculatorResult {
     const num = (k: string): number | undefined => {
         const v = values[k];
-        return v === undefined || v === null || v === '' || Number.isNaN(v)
-            ? undefined
-            : Number(v);
+        return v === undefined || v === null || v === '' || Number.isNaN(v) ? undefined : Number(v);
     };
 
     const sex = (values['prevent-sex'] || 'female') as PreventSex;

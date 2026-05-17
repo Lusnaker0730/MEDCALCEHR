@@ -1,7 +1,7 @@
 ﻿import { FormulaResultItem } from '../../types/calculator-formula.js';
 
 // Sodium correction factors
-const KATZ_FACTOR = 1.6;    // Katz (1973): 0.016 per mg/dL = 1.6 per 100 mg/dL
+const KATZ_FACTOR = 1.6; // Katz (1973): 0.016 per mg/dL = 1.6 per 100 mg/dL
 const HILLIER_FACTOR = 2.4; // Hillier (1999): 0.024 per mg/dL = 2.4 per 100 mg/dL
 
 export const calculateSodiumCorrection = (
@@ -30,7 +30,9 @@ export const calculateSodiumCorrection = (
     const katzCorrected = na + KATZ_FACTOR * ((glc - 100) / 100);
     const hillierCorrected = na + HILLIER_FACTOR * ((glc - 100) / 100);
 
-    const getInterpretation = (val: number): { interpretation: string; alertClass: 'success' | 'warning' | 'danger' } => {
+    const getInterpretation = (
+        val: number
+    ): { interpretation: string; alertClass: 'success' | 'warning' | 'danger' } => {
         if (val < 136) return { interpretation: 'Hyponatremia', alertClass: 'warning' };
         if (val > 145) return { interpretation: 'Hypernatremia', alertClass: 'danger' };
         return { interpretation: 'Normal', alertClass: 'success' };

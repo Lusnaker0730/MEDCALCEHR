@@ -6,25 +6,52 @@ import * as Sentry from '@sentry/browser';
 
 // PHI fields to strip from Sentry events
 const PHI_KEYS = [
-    'name', 'patientname', 'fullname', 'firstname', 'lastname', 'familyname', 'givenname',
-    'dob', 'dateofbirth', 'birthdate', 'birthday',
-    'address', 'streetaddress', 'city', 'zipcode', 'postalcode',
-    'phone', 'phonenumber', 'telephone', 'mobile', 'fax',
-    'email', 'emailaddress',
-    'ssn', 'socialsecuritynumber', 'nationalid', 'passport',
-    'mrn', 'medicalrecordnumber', 'patientid',
-    'password', 'pin', 'creditcard', 'bankaccount',
-    'identifier', 'id_number',
+    'name',
+    'patientname',
+    'fullname',
+    'firstname',
+    'lastname',
+    'familyname',
+    'givenname',
+    'dob',
+    'dateofbirth',
+    'birthdate',
+    'birthday',
+    'address',
+    'streetaddress',
+    'city',
+    'zipcode',
+    'postalcode',
+    'phone',
+    'phonenumber',
+    'telephone',
+    'mobile',
+    'fax',
+    'email',
+    'emailaddress',
+    'ssn',
+    'socialsecuritynumber',
+    'nationalid',
+    'passport',
+    'mrn',
+    'medicalrecordnumber',
+    'patientid',
+    'password',
+    'pin',
+    'creditcard',
+    'bankaccount',
+    'identifier',
+    'id_number'
 ];
 
 // PT-08: PHI patterns aligned with logger.ts (was missing phone, email, Taiwan National ID)
 const PHI_PATTERNS: RegExp[] = [
-    /\b\d{3}-\d{2}-\d{4}\b/g,                  // SSN
-    /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g,            // DOB YYYY-MM-DD
-    /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g,            // DOB MM/DD/YYYY
-    /\b0\d{1,2}[-\s]?\d{6,8}\b/g,              // Phone (TW landline/mobile)
-    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,  // Email
-    /\b[A-Z][12]\d{8}\b/g,                     // Taiwan National ID
+    /\b\d{3}-\d{2}-\d{4}\b/g, // SSN
+    /\b\d{4}[-/]\d{2}[-/]\d{2}\b/g, // DOB YYYY-MM-DD
+    /\b\d{2}[-/]\d{2}[-/]\d{4}\b/g, // DOB MM/DD/YYYY
+    /\b0\d{1,2}[-\s]?\d{6,8}\b/g, // Phone (TW landline/mobile)
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, // Email
+    /\b[A-Z][12]\d{8}\b/g // Taiwan National ID
 ];
 
 function stripPHIFromString(value: string): string {
@@ -46,7 +73,8 @@ function stripPHIFromObject(obj: Record<string, unknown>): Record<string, unknow
         } else if (Array.isArray(value)) {
             sanitized[key] = value.map(item => {
                 if (typeof item === 'string') return stripPHIFromString(item);
-                if (typeof item === 'object' && item !== null) return stripPHIFromObject(item as Record<string, unknown>);
+                if (typeof item === 'object' && item !== null)
+                    return stripPHIFromObject(item as Record<string, unknown>);
                 return item;
             });
         } else if (typeof value === 'object' && value !== null) {
@@ -71,11 +99,7 @@ export function initSentry(): void {
         environment: config.environment || 'production',
         sampleRate: config.sampleRate ?? 1.0,
 
-        denyUrls: [
-            /extensions\//i,
-            /^chrome:\/\//i,
-            /^moz-extension:\/\//i,
-        ],
+        denyUrls: [/extensions\//i, /^chrome:\/\//i, /^moz-extension:\/\//i],
 
         beforeSend(event) {
             // Strip PHI from event data
@@ -108,7 +132,9 @@ export function initSentry(): void {
                 try {
                     const url = new URL(event.request.url);
                     event.request.url = url.origin + url.pathname;
-                } catch { /* keep as-is if not a valid URL */ }
+                } catch {
+                    /* keep as-is if not a valid URL */
+                }
             }
             return event;
         },
@@ -118,7 +144,7 @@ export function initSentry(): void {
                 breadcrumb.message = stripPHIFromString(breadcrumb.message);
             }
             return breadcrumb;
-        },
+        }
     });
 
     // Expose Sentry for logger breadcrumb integration
@@ -132,7 +158,10 @@ export function captureException(error: unknown, context?: Record<string, unknow
     Sentry.captureException(error, safeContext ? { extra: safeContext } : undefined);
 }
 
-export function captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
+export function captureMessage(
+    message: string,
+    level: 'info' | 'warning' | 'error' = 'info'
+): void {
     if (!initialized) return;
     Sentry.captureMessage(stripPHIFromString(message), level);
 }

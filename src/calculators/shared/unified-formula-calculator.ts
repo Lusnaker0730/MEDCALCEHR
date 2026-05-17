@@ -157,9 +157,10 @@ function getValidationRuleForInput(input: NumberInputConfig): ValidationRule {
     const minOverridden = input.min !== undefined && input.min !== defaultRule.min;
     const maxOverridden = input.max !== undefined && input.max !== defaultRule.max;
     const unit = input.unit || input.unitConfig?.default || input.unitToggle?.default || '';
-    const message = (minOverridden || maxOverridden)
-        ? `${input.label} must be between ${resolvedMin}-${resolvedMax}${unit ? ' ' + unit : ''}`
-        : defaultRule.message;
+    const message =
+        minOverridden || maxOverridden
+            ? `${input.label} must be between ${resolvedMin}-${resolvedMax}${unit ? ' ' + unit : ''}`
+            : defaultRule.message;
 
     return {
         min: resolvedMin,
@@ -472,9 +473,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
             // 提示訊息
             const infoAlertHTML = config.infoAlert
-                ? (config.infoAlert.includes('ui-alert')
+                ? config.infoAlert.includes('ui-alert')
                     ? config.infoAlert
-                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert }))
+                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
                 : '';
 
             // 參考文獻區塊
@@ -571,7 +572,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                 inputEl.classList.remove('validation-error', 'validation-warning');
 
                 // 找到訊息容器：使用 .ui-input-group（避免在 .ui-input-wrapper 內與單位標籤重疊）
-                const inputGroup = inputEl.closest('.ui-input-group') || inputEl.closest('.ui-input-wrapper') || inputEl.parentElement;
+                const inputGroup =
+                    inputEl.closest('.ui-input-group') ||
+                    inputEl.closest('.ui-input-wrapper') ||
+                    inputEl.parentElement;
                 let messageEl = inputGroup?.querySelector('.validation-message') as HTMLElement;
 
                 if (status === 'valid') {
@@ -841,15 +845,11 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
             ): void => {
                 if (auditTimer) clearTimeout(auditTimer);
                 auditTimer = setTimeout(() => {
-                    auditEventService.logCalculation(
-                        config.id,
-                        config.title,
-                        inputs,
-                        result,
-                        success
-                    ).catch(err => {
-                        logger.warn('Failed to log calculation audit', { error: String(err) });
-                    });
+                    auditEventService
+                        .logCalculation(config.id, config.title, inputs, result, success)
+                        .catch(err => {
+                            logger.warn('Failed to log calculation audit', { error: String(err) });
+                        });
                 }, 2000);
             };
 
@@ -873,7 +873,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                     if (results && results.length > 0 && resultContent) {
                         if (config.customResultRenderer) {
-                            resultContent.innerHTML = sanitizeHTML(config.customResultRenderer(results));
+                            resultContent.innerHTML = sanitizeHTML(
+                                config.customResultRenderer(results)
+                            );
                         } else {
                             resultContent.innerHTML = results
                                 .map(r =>
@@ -903,9 +905,15 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                         displayError(errorContainer, e as Error);
                     }
                     // Audit: log failed calculation (immediate)
-                    auditEventService.logCalculation(
-                        config.id, config.title, values, { error: String(e) }, false
-                    ).catch(() => {});
+                    auditEventService
+                        .logCalculation(
+                            config.id,
+                            config.title,
+                            values,
+                            { error: String(e) },
+                            false
+                        )
+                        .catch(() => {});
                 }
             };
 
@@ -986,12 +994,15 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     if (result.interpretation) resultRecord.interpretation = result.interpretation;
                     debouncedAuditLog(values, resultRecord, true);
                 } catch (e) {
-                    logger.error('Error calculating', { calculatorId: config.id, error: String(e) });
+                    logger.error('Error calculating', {
+                        calculatorId: config.id,
+                        error: String(e)
+                    });
                     hideResultBox();
                     // Audit: log failed calculation (immediate)
-                    auditEventService.logCalculation(
-                        config.id, config.title, {}, { error: String(e) }, false
-                    ).catch(() => {});
+                    auditEventService
+                        .logCalculation(config.id, config.title, {}, { error: String(e) }, false)
+                        .catch(() => {});
                 }
             };
 
@@ -1098,7 +1109,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                                 }
                             }
                         } catch (e) {
-                            logger.warn('Error auto-populating field', { detail: autoConfig.fieldId, error: String(e) });
+                            logger.warn('Error auto-populating field', {
+                                detail: autoConfig.fieldId,
+                                error: String(e)
+                            });
                         }
                     }
                 }
@@ -1115,7 +1129,10 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                     const allCodes: string[] = [];
 
                     for (const field of radioInputsWithSnomed) {
-                        const codes = field.snomedCode!.split(',').map(c => c.trim()).filter(Boolean);
+                        const codes = field
+                            .snomedCode!.split(',')
+                            .map(c => c.trim())
+                            .filter(Boolean);
                         for (const code of codes) {
                             if (!codeToFields.has(code)) {
                                 codeToFields.set(code, []);
@@ -1141,7 +1158,9 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
 
                                     // Select the first non-default option (typically "yes")
                                     const defaultValue = field.options.find(o => o.checked)?.value;
-                                    const yesOption = field.options.find(o => o.value !== defaultValue);
+                                    const yesOption = field.options.find(
+                                        o => o.value !== defaultValue
+                                    );
                                     if (yesOption) {
                                         const radio = container.querySelector(
                                             `input[name="${name}"][value="${yesOption.value}"]`
@@ -1152,26 +1171,45 @@ export function createUnifiedFormulaCalculator(config: FormulaCalculatorConfig):
                             }
                         }
                     } catch (e) {
-                        logger.warn('Error auto-populating conditions', { calculatorId: config.id, error: String(e) });
+                        logger.warn('Error auto-populating conditions', {
+                            calculatorId: config.id,
+                            error: String(e)
+                        });
                     }
                 }
 
                 // FHIR auto-fill validation logging: check populated values against rules
                 numberInputs.forEach(inputConfig => {
-                    const inputEl = container.querySelector(`[id="${inputConfig.id}"]`) as HTMLInputElement;
+                    const inputEl = container.querySelector(
+                        `[id="${inputConfig.id}"]`
+                    ) as HTMLInputElement;
                     if (!inputEl || inputEl.value === '') return;
                     const val = parseFloat(inputEl.value);
                     if (isNaN(val)) return;
                     const rule = getValidationRuleForInput(inputConfig);
-                    if ((rule.min !== undefined && val < rule.min) || (rule.max !== undefined && val > rule.max)) {
+                    if (
+                        (rule.min !== undefined && val < rule.min) ||
+                        (rule.max !== undefined && val > rule.max)
+                    ) {
                         logger.warn('FHIR auto-fill value out of range', {
-                            calculatorId: config.id, field: inputConfig.id,
-                            value: val, min: rule.min, max: rule.max, source: 'fhir-autofill'
+                            calculatorId: config.id,
+                            field: inputConfig.id,
+                            value: val,
+                            min: rule.min,
+                            max: rule.max,
+                            source: 'fhir-autofill'
                         });
-                    } else if ((rule.warnMin !== undefined && val < rule.warnMin) || (rule.warnMax !== undefined && val > rule.warnMax)) {
+                    } else if (
+                        (rule.warnMin !== undefined && val < rule.warnMin) ||
+                        (rule.warnMax !== undefined && val > rule.warnMax)
+                    ) {
                         logger.info('FHIR auto-fill value in warning range', {
-                            calculatorId: config.id, field: inputConfig.id,
-                            value: val, warnMin: rule.warnMin, warnMax: rule.warnMax, source: 'fhir-autofill'
+                            calculatorId: config.id,
+                            field: inputConfig.id,
+                            value: val,
+                            warnMin: rule.warnMin,
+                            warnMax: rule.warnMax,
+                            source: 'fhir-autofill'
                         });
                     }
                 });

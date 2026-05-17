@@ -155,7 +155,8 @@ export const gad7Config: ScoringCalculatorConfig = {
         if (score >= 8) {
             clinicalNoteHtml = uiBuilder.createAlert({
                 type: 'info',
-                message: 'Some studies that applied GAD-7 to Panic Disorder, Social Phobia, and PTSD would use a cutoff of 8, such that this would be Moderate Anxiety. See Next Steps section for more information.'
+                message:
+                    'Some studies that applied GAD-7 to Panic Disorder, Social Phobia, and PTSD would use a cutoff of 8, such that this would be Moderate Anxiety. See Next Steps section for more information.'
             });
         }
 
@@ -164,14 +165,21 @@ export const gad7Config: ScoringCalculatorConfig = {
         // Wait, the ScoringCalculator simply sums the numeric values. It doesn't pass the raw selected option label.
         // I will extract it from the DOM.
 
-        let functionalNote = 'Functionally, the patient does not report limitations due to their symptoms.';
+        let functionalNote =
+            'Functionally, the patient does not report limitations due to their symptoms.';
         if (typeof document !== 'undefined') {
-            const q8Radio = document.querySelector('input[name="gad7-q7"]:checked') as HTMLInputElement;
+            const q8Radio = document.querySelector(
+                'input[name="gad7-q7"]:checked'
+            ) as HTMLInputElement;
             if (q8Radio) {
                 const labelElement = q8Radio.nextElementSibling as HTMLLabelElement;
                 if (labelElement) {
                     const labelText = labelElement.textContent?.trim() || '';
-                    if (labelText === 'Somewhat difficult' || labelText === 'Very difficult' || labelText === 'Extremely difficult') {
+                    if (
+                        labelText === 'Somewhat difficult' ||
+                        labelText === 'Very difficult' ||
+                        labelText === 'Extremely difficult'
+                    ) {
                         functionalNote = `Functionally, the patient reports symptoms make things: <strong>${labelText.toLowerCase()}</strong>.`;
                     }
                 }
@@ -185,24 +193,24 @@ export const gad7Config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: severity,
-            alertClass: alertClass
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: severity,
+                alertClass: alertClass
+            })}
             
             ${clinicalNoteHtml}
             ${functionalNoteHtml}
 
             ${uiBuilder.createAlert({
-            type: alertClass.replace('ui-alert-', '') as
-                | 'success'
-                | 'info'
-                | 'warning'
-                | 'danger',
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass.replace('ui-alert-', '') as
+                    | 'success'
+                    | 'info'
+                    | 'warning'
+                    | 'danger',
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
         `;
     }
 };

@@ -49,7 +49,8 @@ export function fib4Calculation(
             ageInterpretation = 'Advanced fibrosis likely';
             ageAlertClass = 'danger';
         }
-    } else { // age >= 65
+    } else {
+        // age >= 65
         if (score < 2.0) {
             ageInterpretation = 'Advanced fibrosis excluded';
             ageAlertClass = 'success';

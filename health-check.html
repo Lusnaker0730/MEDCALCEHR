@@ -20,38 +20,43 @@
 
     <body>
         <main>
-        <div class="container">
-            <h1>🏥 CGMH EHRCALC - System Health Check</h1>
+            <div class="container">
+                <h1>🏥 CGMH EHRCALC - System Health Check</h1>
 
-            <div id="checks">
-                <div class="check-item pending">
-                    <div class="icon">⏳</div>
-                    <div class="check-content">
-                        <div class="check-title">Checking...</div>
+                <div id="checks">
+                    <div class="check-item pending">
+                        <div class="icon">⏳</div>
+                        <div class="check-content">
+                            <div class="check-title">Checking...</div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="info-box">
+                    <h3>📋 Quick Links</h3>
+                    <ul class="link-list">
+                        <li>🏠 <a href="index.html">App Home</a></li>
+                        <li>🚀 <a href="launch.html">SMART Launch Page</a></li>
+                        <li>🧪 <a href="test-calculators.html">Calculator Test Tool</a></li>
+                        <li>
+                            🧮 <a href="calculator.html?name=bmi-bsa">Test Calculator (BMI/BSA)</a>
+                        </li>
+                        <li>
+                            🔗
+                            <a
+                                href="https://launch.smarthealthit.org/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                >SMART Health IT Launcher</a
+                            >
+                        </li>
+                    </ul>
+                </div>
+
+                <button id="rerun-checks-btn">🔄 Re-run Checks</button>
             </div>
 
-            <div class="info-box">
-                <h3>📋 Quick Links</h3>
-                <ul class="link-list">
-                    <li>🏠 <a href="index.html">App Home</a></li>
-                    <li>🚀 <a href="launch.html">SMART Launch Page</a></li>
-                    <li>🧪 <a href="test-calculators.html">Calculator Test Tool</a></li>
-                    <li>🧮 <a href="calculator.html?name=bmi-bsa">Test Calculator (BMI/BSA)</a></li>
-                    <li>
-                        🔗
-                        <a href="https://launch.smarthealthit.org/" target="_blank" rel="noopener noreferrer"
-                            >SMART Health IT Launcher</a
-                        >
-                    </li>
-                </ul>
-            </div>
-
-            <button id="rerun-checks-btn">🔄 Re-run Checks</button>
-        </div>
-
-        <script src="js/health-check.js"></script>
+            <script src="js/health-check.js"></script>
         </main>
     </body>
 </html>

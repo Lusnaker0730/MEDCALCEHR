@@ -16,11 +16,7 @@ import {
 } from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
-import {
-    preventCalculationFromValues,
-    calculateEgfr,
-    type PreventPatient
-} from './calculation.js';
+import { preventCalculationFromValues, calculateEgfr, type PreventPatient } from './calculation.js';
 
 let lastPatient: PreventPatient | null = null;
 
@@ -213,7 +209,8 @@ export const prevent = createUnifiedFormulaCalculator({
                         { value: 'no', label: 'No', checked: true },
                         { value: 'yes', label: 'Yes (≥1 cigarette in last 30 days)' }
                     ],
-                    helpText: 'PREVENT defines current smoking as any cigarette use within the last 30 days.'
+                    helpText:
+                        'PREVENT defines current smoking as any cigarette use within the last 30 days.'
                 }
             ]
         },
@@ -314,7 +311,11 @@ export const prevent = createUnifiedFormulaCalculator({
                 rows: [
                     ['<5%', 'Low', 'Lifestyle modifications'],
                     ['5–7.4%', 'Borderline', 'Discuss risk-enhancers; consider CAC scoring'],
-                    ['7.5–19.9%', 'Intermediate', 'Moderate-intensity statin after shared decision-making'],
+                    [
+                        '7.5–19.9%',
+                        'Intermediate',
+                        'Moderate-intensity statin after shared decision-making'
+                    ],
                     ['≥20%', 'High', 'High-intensity statin']
                 ]
             })
@@ -324,7 +325,7 @@ export const prevent = createUnifiedFormulaCalculator({
             title: 'References',
             icon: '📚',
             citations: [
-                'Khan SS, Matsushita K, Sang Y, et al. Development and Validation of the American Heart Association\'s PREVENT Equations. <em>Circulation</em>. 2024;149(6):430-449. doi:10.1161/CIRCULATIONAHA.123.067626',
+                "Khan SS, Matsushita K, Sang Y, et al. Development and Validation of the American Heart Association's PREVENT Equations. <em>Circulation</em>. 2024;149(6):430-449. doi:10.1161/CIRCULATIONAHA.123.067626",
                 'Ndumele CE, Rangaswami J, Chow SL, et al. Cardiovascular-Kidney-Metabolic Health: A Presidential Advisory From the American Heart Association. <em>Circulation</em>. 2023;148:1606-1635.',
                 'Inker LA, Eneanya ND, Coresh J, et al. New Creatinine- and Cystatin C-Based Equations to Estimate GFR without Race. <em>N Engl J Med</em>. 2021;385:1737-1749.',
                 'AHA PREVENT Online Calculator. https://professional.heart.org/en/guidelines-and-statements/prevent-calculator'
@@ -336,7 +337,9 @@ export const prevent = createUnifiedFormulaCalculator({
         // If only creatinine is filled, mirror an estimated eGFR into the read-only display
         // so the user sees what we'll use in the calculation. The actual derivation happens
         // server-side in `preventCalculationFromValues`.
-        const creatinineInput = container.querySelector('#prevent-creatinine') as HTMLInputElement | null;
+        const creatinineInput = container.querySelector(
+            '#prevent-creatinine'
+        ) as HTMLInputElement | null;
         const egfrInput = container.querySelector('#prevent-egfr') as HTMLInputElement | null;
         const ageInput = container.querySelector('#prevent-age') as HTMLInputElement | null;
 
@@ -346,10 +349,11 @@ export const prevent = createUnifiedFormulaCalculator({
             if (egfrInput.dataset.derivedFromCr !== '1' && egfrInput.value !== '') return;
             const cr = parseFloat(creatinineInput.value);
             const age = parseFloat(ageInput.value);
-            const sex = (container.querySelector('input[name="prevent-sex"]:checked') as HTMLInputElement | null)?.value as
-                | 'male'
-                | 'female'
-                | undefined;
+            const sex = (
+                container.querySelector(
+                    'input[name="prevent-sex"]:checked'
+                ) as HTMLInputElement | null
+            )?.value as 'male' | 'female' | undefined;
             if (!Number.isFinite(cr) || !Number.isFinite(age) || !sex) return;
             const v = calculateEgfr(cr, age, sex);
             if (Number.isFinite(v)) {

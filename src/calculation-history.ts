@@ -15,9 +15,7 @@ export class CalculationHistory {
     private practitionerId: string | null = null;
 
     private get storageKey(): string {
-        return this.practitionerId
-            ? `${BASE_KEY}-${this.practitionerId}`
-            : BASE_KEY;
+        return this.practitionerId ? `${BASE_KEY}-${this.practitionerId}` : BASE_KEY;
     }
 
     setPractitionerId(id: string | null): void {
@@ -41,7 +39,7 @@ export class CalculationHistory {
                 localStorage.removeItem('calculation-history');
             }
 
-            const unscopedEntries = await secureLocalRetrieve<HistoryEntry[]>(BASE_KEY) || [];
+            const unscopedEntries = (await secureLocalRetrieve<HistoryEntry[]>(BASE_KEY)) || [];
             const legacyEntries: HistoryEntry[] = legacyData ? JSON.parse(legacyData) : [];
             const allUnscopedEntries = [...unscopedEntries, ...legacyEntries];
 
@@ -55,7 +53,9 @@ export class CalculationHistory {
 
             await this.save(merged);
             localStorage.removeItem(BASE_KEY);
-            logger.info('Migrated unscoped calculation history entries', { count: allUnscopedEntries.length });
+            logger.info('Migrated unscoped calculation history entries', {
+                count: allUnscopedEntries.length
+            });
         } catch {
             logger.warn('Failed to migrate unscoped calculation history');
         }
@@ -75,7 +75,7 @@ export class CalculationHistory {
 
     async getEntries(limit?: number): Promise<HistoryEntry[]> {
         try {
-            const all = await secureLocalRetrieve<HistoryEntry[]>(this.storageKey) || [];
+            const all = (await secureLocalRetrieve<HistoryEntry[]>(this.storageKey)) || [];
             return limit ? all.slice(0, limit) : all;
         } catch {
             logger.error('Failed to load calculation history');

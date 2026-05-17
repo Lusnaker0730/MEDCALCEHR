@@ -24,14 +24,14 @@ jest.mock('../logger', () => ({
         info: mockLoggerInfo,
         warn: mockLoggerWarn,
         error: mockLoggerError,
-        fatal: mockLoggerFatal,
+        fatal: mockLoggerFatal
     }
 }));
 
 jest.mock('../sentry', () => ({
     captureException: mockCaptureException,
     captureMessage: mockCaptureMessage,
-    initSentry: mockInitSentry,
+    initSentry: mockInitSentry
 }));
 
 import {
@@ -46,7 +46,6 @@ import {
 } from '../errorHandler.js';
 
 describe('Error Handler Module', () => {
-
     // =========================================
     // CalculatorError Class Tests
     // =========================================
@@ -418,9 +417,7 @@ describe('Error Handler Module', () => {
             const addEventSpy = jest.spyOn(window, 'addEventListener');
             setupGlobalErrorHandler();
 
-            const errorCalls = addEventSpy.mock.calls.filter(
-                call => call[0] === 'error'
-            );
+            const errorCalls = addEventSpy.mock.calls.filter(call => call[0] === 'error');
             expect(errorCalls.length).toBeGreaterThanOrEqual(1);
         });
 
@@ -437,13 +434,14 @@ describe('Error Handler Module', () => {
         test('error event handler should call logError with context', () => {
             // Capture the handler by spying on addEventListener
             let errorHandler: ((event: any) => void) | null = null;
-            const addEventSpy = jest.spyOn(window, 'addEventListener').mockImplementation(
-                ((event: string, handler: any) => {
-                    if (event === 'error') {
-                        errorHandler = handler;
-                    }
-                }) as any
-            );
+            const addEventSpy = jest.spyOn(window, 'addEventListener').mockImplementation(((
+                event: string,
+                handler: any
+            ) => {
+                if (event === 'error') {
+                    errorHandler = handler;
+                }
+            }) as any);
 
             setupGlobalErrorHandler();
             expect(errorHandler).not.toBeNull();
@@ -463,13 +461,14 @@ describe('Error Handler Module', () => {
 
         test('unhandledrejection handler should call logError with context', () => {
             let rejectionHandler: ((event: any) => void) | null = null;
-            jest.spyOn(window, 'addEventListener').mockImplementation(
-                ((event: string, handler: any) => {
-                    if (event === 'unhandledrejection') {
-                        rejectionHandler = handler;
-                    }
-                }) as any
-            );
+            jest.spyOn(window, 'addEventListener').mockImplementation(((
+                event: string,
+                handler: any
+            ) => {
+                if (event === 'unhandledrejection') {
+                    rejectionHandler = handler;
+                }
+            }) as any);
 
             setupGlobalErrorHandler();
             expect(rejectionHandler).not.toBeNull();

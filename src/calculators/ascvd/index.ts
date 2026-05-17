@@ -12,7 +12,10 @@
  * - Uses uiBuilder for all UI elements
  */
 
-import { createUnifiedFormulaCalculator, type CrossFieldValidationError } from '../shared/unified-formula-calculator.js';
+import {
+    createUnifiedFormulaCalculator,
+    type CrossFieldValidationError
+} from '../shared/unified-formula-calculator.js';
 import { LOINC_CODES, SNOMED_CODES } from '../../fhir-codes.js';
 import { uiBuilder } from '../../ui-builder.js';
 import {
@@ -59,13 +62,13 @@ export const ascvd = createUnifiedFormulaCalculator({
     infoAlert: `
         <strong>2013 ACC/AHA Pooled Cohort Equations</strong>
         ${uiBuilder.createList({
-        items: [
-            'Valid for ages 20-79 years',
-            'Estimates 10-year risk of first hard ASCVD event',
-            'Hard ASCVD = nonfatal MI, CHD death, or fatal/nonfatal stroke'
-        ],
-        type: 'ul'
-    })}
+            items: [
+                'Valid for ages 20-79 years',
+                'Estimates 10-year risk of first hard ASCVD event',
+                'Hard ASCVD = nonfatal MI, CHD death, or fatal/nonfatal stroke'
+            ],
+            type: 'ul'
+        })}
     `,
 
     // Auto-populate from FHIR
@@ -249,7 +252,11 @@ export const ascvd = createUnifiedFormulaCalculator({
         }
 
         // HDL + LDL must be < Total Cholesterol
-        if (values['ascvd-tc'] !== undefined && values['ascvd-hdl'] !== undefined && values['ascvd-ldl'] !== undefined) {
+        if (
+            values['ascvd-tc'] !== undefined &&
+            values['ascvd-hdl'] !== undefined &&
+            values['ascvd-ldl'] !== undefined
+        ) {
             if (values['ascvd-hdl'] + values['ascvd-ldl'] >= values['ascvd-tc']) {
                 errors.push({
                     fieldId: 'ascvd-ldl',
@@ -285,30 +292,30 @@ export const ascvd = createUnifiedFormulaCalculator({
     // ==========================================
     reference: `
         ${uiBuilder.createSection({
-        title: 'Risk Stratification',
-        icon: '📊',
-        content: uiBuilder.createTable({
-            headers: ['10-Year Risk', 'Category', 'Recommendation'],
-            rows: [
-                ['<5%', 'Low', 'Lifestyle modifications'],
-                ['5-7.4%', 'Borderline', 'Consider moderate-intensity statin'],
-                ['7.5-19.9%', 'Intermediate', 'Moderate-intensity statin'],
-                ['≥20%', 'High', 'High-intensity statin']
-            ]
-        })
-    })}
+            title: 'Risk Stratification',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['10-Year Risk', 'Category', 'Recommendation'],
+                rows: [
+                    ['<5%', 'Low', 'Lifestyle modifications'],
+                    ['5-7.4%', 'Borderline', 'Consider moderate-intensity statin'],
+                    ['7.5-19.9%', 'Intermediate', 'Moderate-intensity statin'],
+                    ['≥20%', 'High', 'High-intensity statin']
+                ]
+            })
+        })}
 
         ${uiBuilder.createReference({
-        title: 'References',
-        icon: '📚',
-        citations: [
-            'Goff DC Jr, Lloyd-Jones DM, Bennett G, et al. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. <em>Circulation</em>. 2014;129:S49-S73.',
-            'Lloyd-Jones DM, Leip EP, Larson MG, et al. Prediction of lifetime risk for cardiovascular disease by risk factor burden at 50 years of age. <em>Circulation</em>. 2006 Feb 14;113(6):791-8.',
-            'Grundy SM, Stone NJ, Bailey AL, et al. 2018 AHA/ACC/AACVPR/AAPA/ABC/ACPM/ADA/AGS/APhA/ASPC/NLA/PCNA Guideline on the Management of Blood Cholesterol. <em>Circulation</em>. 2019;139(25):e1082-e1143.',
-            'Karmali KN, Goff DC Jr, Ning H, Lloyd-Jones DM. A systematic examination of the 2013 ACC/AHA pooled cohort risk assessment tool for atherosclerotic cardiovascular disease. <em>Circulation</em>. 2015;132(16):1571-8.',
-            'US Preventive Services Task Force. Aspirin Use to Prevent Cardiovascular Disease: Preventive Medication. <em>JAMA</em>. 2022;327(16):1577-1584.'
-        ]
-    })}
+            title: 'References',
+            icon: '📚',
+            citations: [
+                'Goff DC Jr, Lloyd-Jones DM, Bennett G, et al. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. <em>Circulation</em>. 2014;129:S49-S73.',
+                'Lloyd-Jones DM, Leip EP, Larson MG, et al. Prediction of lifetime risk for cardiovascular disease by risk factor burden at 50 years of age. <em>Circulation</em>. 2006 Feb 14;113(6):791-8.',
+                'Grundy SM, Stone NJ, Bailey AL, et al. 2018 AHA/ACC/AACVPR/AAPA/ABC/ACPM/ADA/AGS/APhA/ASPC/NLA/PCNA Guideline on the Management of Blood Cholesterol. <em>Circulation</em>. 2019;139(25):e1082-e1143.',
+                'Karmali KN, Goff DC Jr, Ning H, Lloyd-Jones DM. A systematic examination of the 2013 ACC/AHA pooled cohort risk assessment tool for atherosclerotic cardiovascular disease. <em>Circulation</em>. 2015;132(16):1571-8.',
+                'US Preventive Services Task Force. Aspirin Use to Prevent Cardiovascular Disease: Preventive Medication. <em>JAMA</em>. 2022;327(16):1577-1584.'
+            ]
+        })}
     `,
 
     // ==========================================
@@ -328,58 +335,78 @@ export const ascvd = createUnifiedFormulaCalculator({
 
             <!-- Therapy Impact -->
             ${uiBuilder.createSection({
-        title: '🎯 Therapy Impact Analysis',
-        content: `
+                title: '🎯 Therapy Impact Analysis',
+                content: `
                     ${uiBuilder.createAlert({
-            type: 'info',
-            message: `Baseline Risk: <strong><span id="therapy-baseline-risk">--</span>%</strong>
+                        type: 'info',
+                        message: `Baseline Risk: <strong><span id="therapy-baseline-risk">--</span>%</strong>
                           &nbsp;&nbsp;→&nbsp;&nbsp;
                           Treated Risk: <strong><span id="therapy-treated-risk">--</span>%</strong>`
-        })}
+                    })}
 
                     <div id="statin-wrap">
                     ${uiBuilder.createRadioGroup({
-            name: 'statin-intensity',
-            label: 'Cholesterol Management',
-            options: [
-                { id: 'statin-none', value: 'none', label: 'None', checked: true },
-                { id: 'statin-high', value: 'high', label: 'High-Intensity Statin (atorvastatin 40-80mg, rosuvastatin 20-40mg) — RR 0.75' },
-                { id: 'statin-moderate', value: 'moderate', label: 'Moderate-Intensity Statin (atorvastatin 10-20mg, rosuvastatin 5-10mg) — RR 0.82' }
-            ]
-        })}
+                        name: 'statin-intensity',
+                        label: 'Cholesterol Management',
+                        options: [
+                            { id: 'statin-none', value: 'none', label: 'None', checked: true },
+                            {
+                                id: 'statin-high',
+                                value: 'high',
+                                label: 'High-Intensity Statin (atorvastatin 40-80mg, rosuvastatin 20-40mg) — RR 0.75'
+                            },
+                            {
+                                id: 'statin-moderate',
+                                value: 'moderate',
+                                label: 'Moderate-Intensity Statin (atorvastatin 10-20mg, rosuvastatin 5-10mg) — RR 0.82'
+                            }
+                        ]
+                    })}
                     </div>
                     <div id="statin-na" class="text-muted small ui-hidden">Not indicated for low risk (&lt;5%)</div>
 
                     <div id="bp-control-wrap">
                     ${uiBuilder.createCheckboxGroup({
-            name: 'bp-control',
-            label: 'Blood Pressure Control',
-            options: [
-                { id: 'therapy-bp', value: 'therapy-bp', label: 'Target SBP <130 mmHg (antihypertensive therapy)' }
-            ]
-        })}
+                        name: 'bp-control',
+                        label: 'Blood Pressure Control',
+                        options: [
+                            {
+                                id: 'therapy-bp',
+                                value: 'therapy-bp',
+                                label: 'Target SBP <130 mmHg (antihypertensive therapy)'
+                            }
+                        ]
+                    })}
                     </div>
                     <div id="bp-control-na" class="text-muted small ui-hidden">Not applicable (SBP already ≤130 mmHg)</div>
 
                     <div id="smoking-cessation-wrap">
                         ${uiBuilder.createCheckboxGroup({
-            name: 'smoking',
-            label: 'Smoking Cessation',
-            options: [
-                { id: 'therapy-smoking', value: 'therapy-smoking', label: 'Smoking cessation' }
-            ]
-        })}
+                            name: 'smoking',
+                            label: 'Smoking Cessation',
+                            options: [
+                                {
+                                    id: 'therapy-smoking',
+                                    value: 'therapy-smoking',
+                                    label: 'Smoking cessation'
+                                }
+                            ]
+                        })}
                     </div>
                     <div id="smoking-cessation-na" class="text-muted small ui-hidden">Not applicable (patient is not a current smoker)</div>
 
                     <div id="aspirin-therapy-wrap">
                         ${uiBuilder.createCheckboxGroup({
-            name: 'aspirin-therapy',
-            label: 'Aspirin',
-            options: [
-                { id: 'therapy-aspirin', value: 'therapy-aspirin', label: 'Low-dose aspirin (81 mg/day) — RR 0.90' }
-            ]
-        })}
+                            name: 'aspirin-therapy',
+                            label: 'Aspirin',
+                            options: [
+                                {
+                                    id: 'therapy-aspirin',
+                                    value: 'therapy-aspirin',
+                                    label: 'Low-dose aspirin (81 mg/day) — RR 0.90'
+                                }
+                            ]
+                        })}
                     </div>
                     <div id="aspirin-therapy-na" class="text-muted small ui-hidden">Not applicable (see Aspirin Recommendation above)</div>
 
@@ -389,7 +416,7 @@ export const ascvd = createUnifiedFormulaCalculator({
 
                     <div id="therapy-results" class="therapy-results ui-hidden"></div>
                 `
-    })}
+            })}
         </div>
     `,
 
@@ -462,7 +489,10 @@ export const ascvd = createUnifiedFormulaCalculator({
                         title: cac.title,
                         content:
                             uiBuilder.createAlert({ type: cac.alertClass, message: cac.guidance }) +
-                            uiBuilder.createList({ items: interpretationItems, className: 'cac-interpretation' })
+                            uiBuilder.createList({
+                                items: interpretationItems,
+                                className: 'cac-interpretation'
+                            })
                     });
                 } else {
                     cacEl.innerHTML = '';
@@ -470,7 +500,9 @@ export const ascvd = createUnifiedFormulaCalculator({
             }
 
             // 4. Therapy baseline display
-            const baselineDisplay = container.querySelector('#therapy-baseline-risk') as HTMLElement;
+            const baselineDisplay = container.querySelector(
+                '#therapy-baseline-risk'
+            ) as HTMLElement;
             if (baselineDisplay) baselineDisplay.textContent = risk.toFixed(1);
 
             // Update smoking cessation availability based on smoker status
@@ -519,7 +551,9 @@ export const ascvd = createUnifiedFormulaCalculator({
                 if (resultBox.classList.contains('show') && currentPatientData) {
                     showSecondaryPanels();
                 } else {
-                    const panels = container.querySelector('#ascvd-secondary-panels') as HTMLElement;
+                    const panels = container.querySelector(
+                        '#ascvd-secondary-panels'
+                    ) as HTMLElement;
                     if (panels) panels.classList.add('ui-hidden');
                 }
             });
@@ -531,7 +565,9 @@ export const ascvd = createUnifiedFormulaCalculator({
         if (calcBtn) {
             calcBtn.addEventListener('click', () => {
                 const resultsEl = container.querySelector('#therapy-results') as HTMLElement;
-                const treatedDisplay = container.querySelector('#therapy-treated-risk') as HTMLElement;
+                const treatedDisplay = container.querySelector(
+                    '#therapy-treated-risk'
+                ) as HTMLElement;
                 if (!resultsEl || !currentPatientData) return;
 
                 if (currentBaselineRisk <= 0) {
@@ -547,19 +583,33 @@ export const ascvd = createUnifiedFormulaCalculator({
                 const getChecked = (id: string) =>
                     (container.querySelector(`#${id}`) as HTMLInputElement)?.checked ?? false;
 
-                const statinValue = (container.querySelector('input[name="statin-intensity"]:checked') as HTMLInputElement)?.value ?? 'none';
+                const statinValue =
+                    (
+                        container.querySelector(
+                            'input[name="statin-intensity"]:checked'
+                        ) as HTMLInputElement
+                    )?.value ?? 'none';
 
                 const options: TherapyOptions = {
                     highIntensityStatin: statinValue === 'high',
                     moderateIntensityStatin: statinValue === 'moderate',
-                    smokingCessation: getChecked('therapy-smoking') && currentPatientData.smokerStatus === 'current',
+                    smokingCessation:
+                        getChecked('therapy-smoking') &&
+                        currentPatientData.smokerStatus === 'current',
                     bpControl: getChecked('therapy-bp'),
-                    aspirin: getChecked('therapy-aspirin') &&
-                        getAspirinRecommendation(currentPatientData, currentBaselineRisk).recommendation === 'consider'
+                    aspirin:
+                        getChecked('therapy-aspirin') &&
+                        getAspirinRecommendation(currentPatientData, currentBaselineRisk)
+                            .recommendation === 'consider'
                 };
 
-                if (!options.highIntensityStatin && !options.moderateIntensityStatin &&
-                    !options.smokingCessation && !options.bpControl && !options.aspirin) {
+                if (
+                    !options.highIntensityStatin &&
+                    !options.moderateIntensityStatin &&
+                    !options.smokingCessation &&
+                    !options.bpControl &&
+                    !options.aspirin
+                ) {
                     resultsEl.innerHTML = uiBuilder.createAlert({
                         type: 'warning',
                         message: 'Please select at least one therapy option.'
@@ -568,7 +618,11 @@ export const ascvd = createUnifiedFormulaCalculator({
                     return;
                 }
 
-                const impact = calculateTherapyImpact(currentBaselineRisk, options, currentPatientData);
+                const impact = calculateTherapyImpact(
+                    currentBaselineRisk,
+                    options,
+                    currentPatientData
+                );
 
                 if (treatedDisplay) treatedDisplay.textContent = impact.treatedRisk.toFixed(1);
 
@@ -576,39 +630,43 @@ export const ascvd = createUnifiedFormulaCalculator({
                 const tableRows = impact.interventions.map(i => {
                     const rrMatch = i.match(/RR (\d\.\d+)/);
                     const pceMatch = i.match(/PCE recalc/);
-                    const method = pceMatch ? 'PCE recalc' : (rrMatch ? `RR ${rrMatch[1]}` : '—');
+                    const method = pceMatch ? 'PCE recalc' : rrMatch ? `RR ${rrMatch[1]}` : '—';
                     const name = i.replace(/\s*\(.*?\)/g, '').trim();
                     return [name, method];
                 });
 
                 // Build skipped section
-                const skippedHTML = impact.skipped.length > 0
-                    ? uiBuilder.createAlert({
-                        type: 'info',
-                        message: '<strong>Skipped (already at target):</strong><br>' + impact.skipped.join('<br>')
-                    })
-                    : '';
+                const skippedHTML =
+                    impact.skipped.length > 0
+                        ? uiBuilder.createAlert({
+                              type: 'info',
+                              message:
+                                  '<strong>Skipped (already at target):</strong><br>' +
+                                  impact.skipped.join('<br>')
+                          })
+                        : '';
 
                 resultsEl.innerHTML = `
                     ${uiBuilder.createResultItem({
-                    label: 'Treated 10-Year Risk',
-                    value: impact.treatedRisk.toFixed(1),
-                    unit: '%',
-                    interpretation: `Absolute Risk Reduction: ${impact.arr.toFixed(1)}% | Relative Risk Reduction: ${impact.rrr.toFixed(0)}%`,
-                    alertClass: 'success'
-                })}
+                        label: 'Treated 10-Year Risk',
+                        value: impact.treatedRisk.toFixed(1),
+                        unit: '%',
+                        interpretation: `Absolute Risk Reduction: ${impact.arr.toFixed(1)}% | Relative Risk Reduction: ${impact.rrr.toFixed(0)}%`,
+                        alertClass: 'success'
+                    })}
                     ${uiBuilder.createResultItem({
-                    label: 'Number Needed to Treat (10 yr)',
-                    value: impact.nnt !== null ? String(impact.nnt) : 'N/A',
-                    interpretation: impact.nnt !== null
-                        ? `Treat ${impact.nnt} patients for 10 years to prevent 1 ASCVD event`
-                        : 'No risk reduction with selected interventions',
-                    alertClass: 'info'
-                })}
+                        label: 'Number Needed to Treat (10 yr)',
+                        value: impact.nnt !== null ? String(impact.nnt) : 'N/A',
+                        interpretation:
+                            impact.nnt !== null
+                                ? `Treat ${impact.nnt} patients for 10 years to prevent 1 ASCVD event`
+                                : 'No risk reduction with selected interventions',
+                        alertClass: 'info'
+                    })}
                     ${uiBuilder.createTable({
-                    headers: ['Intervention', 'Method'],
-                    rows: tableRows
-                })}
+                        headers: ['Intervention', 'Method'],
+                        rows: tableRows
+                    })}
                     ${skippedHTML}
                 `;
 

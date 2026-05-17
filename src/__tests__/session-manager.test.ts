@@ -24,7 +24,7 @@ jest.mock('../logger', () => ({
         info: mockLoggerInfo,
         warn: mockLoggerWarn,
         error: mockLoggerError,
-        fatal: mockLoggerFatal,
+        fatal: mockLoggerFatal
     }
 }));
 
@@ -88,7 +88,11 @@ describe('SessionManager', () => {
 
         // Reset window.location to a writable mock
         Object.defineProperty(window, 'location', {
-            value: { href: 'http://localhost/index.html', hostname: 'localhost', origin: 'http://localhost' },
+            value: {
+                href: 'http://localhost/index.html',
+                hostname: 'localhost',
+                origin: 'http://localhost'
+            },
             writable: true,
             configurable: true
         });
@@ -419,7 +423,9 @@ describe('SessionManager', () => {
 
             // Check that each activity event was registered with { passive: true }
             const activityCalls = addSpy.mock.calls.filter(call =>
-                ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].includes(call[0] as string)
+                ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].includes(
+                    call[0] as string
+                )
             );
 
             activityCalls.forEach(call => {

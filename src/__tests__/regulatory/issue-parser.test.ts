@@ -3,7 +3,13 @@
  * Tests the parseIssueBody function and type-specific parsers.
  */
 
-import { parseIssueBody, parseRequirement, parseDesign, parseRisk, parseVerification } from '../../../scripts/regulatory/issue-parser';
+import {
+    parseIssueBody,
+    parseRequirement,
+    parseDesign,
+    parseRisk,
+    parseVerification
+} from '../../../scripts/regulatory/issue-parser';
 import { RegulatoryIssue } from '../../../scripts/regulatory/types';
 
 function makeIssue(body: string, overrides: Partial<RegulatoryIssue> = {}): RegulatoryIssue {

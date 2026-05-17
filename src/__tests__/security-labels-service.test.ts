@@ -57,7 +57,11 @@ describe('SecurityLabelsService', () => {
                 id: 'test-123',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R', display: 'Restricted' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R',
+                            display: 'Restricted'
+                        }
                     ]
                 }
             };
@@ -84,7 +88,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Observation',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'V' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'V'
+                        }
                     ]
                 }
             };
@@ -104,9 +111,7 @@ describe('SecurityLabelsService', () => {
             const resource: SecuredResource = {
                 resourceType: 'Observation',
                 meta: {
-                    security: [
-                        { system: 'other-system', code: 'R' }
-                    ]
+                    security: [{ system: 'other-system', code: 'R' }]
                 }
             };
 
@@ -161,7 +166,11 @@ describe('SecurityLabelsService', () => {
 
         it('should detect minor patient', () => {
             const today = new Date();
-            const minorBirthDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
+            const minorBirthDate = new Date(
+                today.getFullYear() - 10,
+                today.getMonth(),
+                today.getDate()
+            );
 
             const resource: SecuredResource = {
                 resourceType: 'Patient',
@@ -176,9 +185,7 @@ describe('SecurityLabelsService', () => {
             const resource: SecuredResource = {
                 resourceType: 'Patient',
                 meta: {
-                    tag: [
-                        { system: 'http://example.com/tags', code: 'VIP' }
-                    ]
+                    tag: [{ system: 'http://example.com/tags', code: 'VIP' }]
                 }
             };
 
@@ -193,7 +200,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Observation',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'N' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'N'
+                        }
                     ]
                 }
             };
@@ -208,7 +218,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Observation',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        }
                     ]
                 }
             };
@@ -222,7 +235,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Observation',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'V' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'V'
+                        }
                     ]
                 }
             };
@@ -236,7 +252,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Condition',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' },
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        },
                         { system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode', code: 'HIV' }
                     ]
                 }
@@ -252,7 +271,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Patient',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'V' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'V'
+                        }
                     ]
                 }
             };
@@ -278,7 +300,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Condition',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' },
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        },
                         { system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode', code: 'HIV' }
                     ]
                 }
@@ -301,7 +326,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Condition',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' },
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        },
                         { system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode', code: 'HIV' }
                     ]
                 }
@@ -325,12 +353,13 @@ describe('SecurityLabelsService', () => {
                 id: 'patient-123',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        }
                     ]
                 },
-                name: [
-                    { text: 'John Doe', family: 'Doe', given: ['John'] }
-                ]
+                name: [{ text: 'John Doe', family: 'Doe', given: ['John'] }]
             };
 
             const masked = service.maskResource(resource);
@@ -343,7 +372,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Patient',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        }
                     ]
                 },
                 name: [{ text: 'Test' }]
@@ -359,7 +391,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Patient',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'N' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'N'
+                        }
                     ]
                 },
                 name: [{ text: 'John Doe' }]
@@ -383,7 +418,10 @@ describe('SecurityLabelsService', () => {
         });
 
         it('should redact string', () => {
-            const masked = service.maskString('Hello World', { style: 'redact', maskText: '[REDACTED]' });
+            const masked = service.maskString('Hello World', {
+                style: 'redact',
+                maskText: '[REDACTED]'
+            });
             expect(masked).toBe('[REDACTED]');
         });
     });
@@ -414,7 +452,10 @@ describe('SecurityLabelsService', () => {
                 resourceType: 'Observation',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'N' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'N'
+                        }
                     ]
                 }
             };
@@ -442,15 +483,36 @@ describe('SecurityLabelsService', () => {
             const resources: SecuredResource[] = [
                 {
                     resourceType: 'Observation',
-                    meta: { security: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'N' }] }
+                    meta: {
+                        security: [
+                            {
+                                system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                                code: 'N'
+                            }
+                        ]
+                    }
                 },
                 {
                     resourceType: 'Observation',
-                    meta: { security: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'V' }] }
+                    meta: {
+                        security: [
+                            {
+                                system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                                code: 'V'
+                            }
+                        ]
+                    }
                 },
                 {
                     resourceType: 'Observation',
-                    meta: { security: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' }] }
+                    meta: {
+                        security: [
+                            {
+                                system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                                code: 'R'
+                            }
+                        ]
+                    }
                 }
             ];
 
@@ -494,7 +556,10 @@ describe('SecurityLabelsService', () => {
                 id: 'cond-123',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        }
                     ]
                 }
             };
@@ -511,7 +576,10 @@ describe('SecurityLabelsService', () => {
                 id: 'cond-123',
                 meta: {
                     security: [
-                        { system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality', code: 'R' }
+                        {
+                            system: 'http://terminology.hl7.org/CodeSystem/v3-Confidentiality',
+                            code: 'R'
+                        }
                     ]
                 }
             };
@@ -525,7 +593,7 @@ describe('SecurityLabelsService', () => {
     describe('Confidentiality Codes', () => {
         const codes: ConfidentialityCode[] = ['U', 'L', 'M', 'N', 'R', 'V'];
 
-        test.each(codes)('should handle confidentiality code %s', (code) => {
+        test.each(codes)('should handle confidentiality code %s', code => {
             const resource: SecuredResource = {
                 resourceType: 'Observation',
                 meta: {
@@ -541,12 +609,12 @@ describe('SecurityLabelsService', () => {
 
     describe('Sensitivity Categories', () => {
         const categories: Array<{ code: string; expected: SensitivityCategory }> = [
-            { code: '86406008', expected: 'HIV' },      // HIV SNOMED
-            { code: 'B20', expected: 'HIV' },           // HIV ICD-10
-            { code: 'F20', expected: 'PSY' },           // Schizophrenia
-            { code: 'F10', expected: 'ETH' },           // Alcohol use
-            { code: 'T74', expected: 'SDV' },           // Maltreatment
-            { code: 'A50', expected: 'SEX' }            // Syphilis
+            { code: '86406008', expected: 'HIV' }, // HIV SNOMED
+            { code: 'B20', expected: 'HIV' }, // HIV ICD-10
+            { code: 'F20', expected: 'PSY' }, // Schizophrenia
+            { code: 'F10', expected: 'ETH' }, // Alcohol use
+            { code: 'T74', expected: 'SDV' }, // Maltreatment
+            { code: 'A50', expected: 'SEX' } // Syphilis
         ];
 
         test.each(categories)('should detect $expected from code $code', ({ code, expected }) => {

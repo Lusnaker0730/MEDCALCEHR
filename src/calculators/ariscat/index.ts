@@ -241,7 +241,9 @@ export const ariscatConfig: ScoringCalculatorConfig = {
                         setRadioValue('ariscat-spo2', value);
                     }
                 })
-                .catch((e: unknown) => logger.error('FHIR data fetch failed', { error: String(e) }));
+                .catch((e: unknown) =>
+                    logger.error('FHIR data fetch failed', { error: String(e) })
+                );
 
             // Hemoglobin
             fhirDataService
@@ -258,7 +260,9 @@ export const ariscatConfig: ScoringCalculatorConfig = {
                         }
                     }
                 })
-                .catch((e: unknown) => logger.error('FHIR data fetch failed', { error: String(e) }));
+                .catch((e: unknown) =>
+                    logger.error('FHIR data fetch failed', { error: String(e) })
+                );
         }
 
         calculate();

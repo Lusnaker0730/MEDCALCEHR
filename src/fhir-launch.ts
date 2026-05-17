@@ -29,11 +29,11 @@ if (ehrConfig?.vendor) {
 const adapter = getActiveAdapter();
 const authParams = adapter
     ? adapter.getAuthorizationParams({
-        vendor: ehrConfig?.vendor || 'generic',
-        clientId,
-        scope: config.scope,
-        redirectUri: config.redirectUri
-    })
+          vendor: ehrConfig?.vendor || 'generic',
+          clientId,
+          scope: config.scope,
+          redirectUri: config.redirectUri
+      })
     : null;
 
 // H-11: Use validated clientId from config (no hardcoded fallback)
@@ -45,15 +45,16 @@ if (!resolvedClientId) {
 // PT-11/H-12: Validate redirect URI against strict allowlist only (no same-origin prefix fallback)
 const rawRedirectUri = authParams?.redirectUri || config.redirectUri || './index.html';
 const ALLOWED_REDIRECTS = ['./index.html', '/index.html', 'index.html'];
-const redirectUri = ALLOWED_REDIRECTS.includes(rawRedirectUri)
-    ? rawRedirectUri
-    : './index.html';
+const redirectUri = ALLOWED_REDIRECTS.includes(rawRedirectUri) ? rawRedirectUri : './index.html';
 
 // M-06: Use online_access instead of offline_access
 const authorizeOptions: Record<string, string> = {
     client_id: resolvedClientId,
-    scope: authParams?.scope || config.scope || 'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access',
-    redirect_uri: redirectUri,
+    scope:
+        authParams?.scope ||
+        config.scope ||
+        'openid fhirUser launch profile user/Patient.rs user/Observation.rs user/Condition.rs user/MedicationRequest.rs online_access',
+    redirect_uri: redirectUri
 };
 
 // Confidential symmetric: pass client_secret for token exchange

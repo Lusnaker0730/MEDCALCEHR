@@ -6,7 +6,14 @@ const mockLoggerError = jest.fn<any>();
 const mockLoggerDebug = jest.fn<any>();
 const mockInitSentry = jest.fn<any>();
 
-jest.mock('../logger.js', () => ({ logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug } }));
+jest.mock('../logger.js', () => ({
+    logger: {
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        debug: mockLoggerDebug
+    }
+}));
 jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 
 import { CalculationHistory } from '../calculation-history.js';
@@ -44,8 +51,16 @@ describe('CalculationHistory', () => {
     });
 
     it('prepends new entries (newest first)', async () => {
-        await history.addEntry({ calculatorId: 'first', calculatorTitle: 'First', resultSummary: 'R1' });
-        await history.addEntry({ calculatorId: 'second', calculatorTitle: 'Second', resultSummary: 'R2' });
+        await history.addEntry({
+            calculatorId: 'first',
+            calculatorTitle: 'First',
+            resultSummary: 'R1'
+        });
+        await history.addEntry({
+            calculatorId: 'second',
+            calculatorTitle: 'Second',
+            resultSummary: 'R2'
+        });
 
         const entries = await history.getEntries();
         expect(entries).toHaveLength(2);
@@ -55,7 +70,11 @@ describe('CalculationHistory', () => {
 
     it('getEntries respects limit', async () => {
         for (let i = 0; i < 10; i++) {
-            await history.addEntry({ calculatorId: `calc-${i}`, calculatorTitle: `Calc ${i}`, resultSummary: `R${i}` });
+            await history.addEntry({
+                calculatorId: `calc-${i}`,
+                calculatorTitle: `Calc ${i}`,
+                resultSummary: `R${i}`
+            });
         }
 
         const limited = await history.getEntries(3);
@@ -64,7 +83,11 @@ describe('CalculationHistory', () => {
     });
 
     it('clearHistory removes all entries', async () => {
-        await history.addEntry({ calculatorId: 'test', calculatorTitle: 'Test', resultSummary: 'R' });
+        await history.addEntry({
+            calculatorId: 'test',
+            calculatorTitle: 'Test',
+            resultSummary: 'R'
+        });
         expect(await history.getEntryCount()).toBe(1);
 
         history.clearHistory();
@@ -80,7 +103,11 @@ describe('CalculationHistory', () => {
     });
 
     it('setPractitionerId migrates unscoped entries to scoped key', async () => {
-        await history.addEntry({ calculatorId: 'global', calculatorTitle: 'Global', resultSummary: 'R' });
+        await history.addEntry({
+            calculatorId: 'global',
+            calculatorTitle: 'Global',
+            resultSummary: 'R'
+        });
         expect(await history.getEntryCount()).toBe(1);
 
         // Setting practitioner ID migrates unscoped entries into scoped key
@@ -90,13 +117,21 @@ describe('CalculationHistory', () => {
         expect(await history.getEntryCount()).toBe(1); // Migrated from unscoped key
         expect((await history.getEntries())[0].calculatorId).toBe('global');
 
-        await history.addEntry({ calculatorId: 'scoped', calculatorTitle: 'Scoped', resultSummary: 'R' });
+        await history.addEntry({
+            calculatorId: 'scoped',
+            calculatorTitle: 'Scoped',
+            resultSummary: 'R'
+        });
         expect(await history.getEntryCount()).toBe(2);
     });
 
     it('setPractitionerId scopes storage by practitioner', async () => {
         history.setPractitionerId('practitioner-456');
-        await history.addEntry({ calculatorId: 'scoped', calculatorTitle: 'Scoped', resultSummary: 'R' });
+        await history.addEntry({
+            calculatorId: 'scoped',
+            calculatorTitle: 'Scoped',
+            resultSummary: 'R'
+        });
         expect(await history.getEntryCount()).toBe(1);
 
         // Switch to different practitioner — should see empty
@@ -111,7 +146,11 @@ describe('CalculationHistory', () => {
 
     it('enforces maximum 100 entries', async () => {
         for (let i = 0; i < 105; i++) {
-            await history.addEntry({ calculatorId: `calc-${i}`, calculatorTitle: `Calc ${i}`, resultSummary: `R${i}` });
+            await history.addEntry({
+                calculatorId: `calc-${i}`,
+                calculatorTitle: `Calc ${i}`,
+                resultSummary: `R${i}`
+            });
         }
 
         const entries = await history.getEntries();

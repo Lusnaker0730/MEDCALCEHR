@@ -24,8 +24,8 @@ export const calculateGenevaScore: SimpleCalculateFn = values => {
     // Heart Rate
     const hr =
         values['geneva-hr'] !== '' &&
-            values['geneva-hr'] !== undefined &&
-            values['geneva-hr'] !== null
+        values['geneva-hr'] !== undefined &&
+        values['geneva-hr'] !== null
             ? Number(values['geneva-hr'])
             : null;
 
@@ -40,15 +40,13 @@ export const calculateGenevaScore: SimpleCalculateFn = values => {
     let riskLevel = 'Low Risk';
     let alertClass: 'success' | 'warning' | 'danger' = 'success';
     let prevalence = '7-9%';
-    let recommendation =
-        'PE unlikely. Consider D-dimer testing.';
+    let recommendation = 'PE unlikely. Consider D-dimer testing.';
 
     if (score <= 3) {
         riskLevel = 'Low Risk';
         alertClass = 'success';
         prevalence = '7-9%';
-        recommendation =
-            'PE unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
+        recommendation = 'PE unlikely. Consider D-dimer testing. If negative, PE can be excluded.';
     } else if (score <= 10) {
         riskLevel = 'Intermediate Risk';
         alertClass = 'warning';

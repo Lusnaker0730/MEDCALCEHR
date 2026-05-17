@@ -36,9 +36,15 @@ export function serumAnionGapCalculation(
     const albuminInput = values['sag-albumin'];
 
     if (
-        naInput === undefined || naInput === null || naInput === '' ||
-        clInput === undefined || clInput === null || clInput === '' ||
-        hco3Input === undefined || hco3Input === null || hco3Input === ''
+        naInput === undefined ||
+        naInput === null ||
+        naInput === '' ||
+        clInput === undefined ||
+        clInput === null ||
+        clInput === '' ||
+        hco3Input === undefined ||
+        hco3Input === null ||
+        hco3Input === ''
     ) {
         return [];
     }
@@ -88,8 +94,8 @@ export function serumAnionGapCalculation(
                 anionGap > NORMAL_AG
                     ? 'High anion gap suggests metabolic acidosis (MUDPILES: Methanol, Uremia, DKA, Propylene glycol, Isoniazid, Lactic acidosis, Ethylene glycol, Salicylates).'
                     : anionGap < 6
-                        ? 'Low anion gap is uncommon. Consider lab error, hypoalbuminemia, or paraproteinemia.'
-                        : 'Anion gap is within normal range (6–12 mEq/L).'
+                      ? 'Low anion gap is uncommon. Consider lab error, hypoalbuminemia, or paraproteinemia.'
+                      : 'Anion gap is within normal range (6–12 mEq/L).'
         }
     });
 

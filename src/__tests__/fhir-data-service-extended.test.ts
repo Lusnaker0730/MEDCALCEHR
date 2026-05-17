@@ -50,7 +50,7 @@ const mockSetContainer = jest.fn<any>();
 const mockStalenessTracker = {
     checkStaleness: mockCheckStaleness,
     trackObservation: mockTrackObservation,
-    setContainer: mockSetContainer,
+    setContainer: mockSetContainer
 };
 const mockCreateStalenessTracker = jest.fn<any>().mockReturnValue(mockStalenessTracker);
 
@@ -82,7 +82,7 @@ const MOCK_LOINC_CODES: Record<string, string> = {
     BP_PANEL: '85354-9,55284-4',
     WEIGHT: '29463-7',
     HEIGHT: '8302-2',
-    CREATININE: '2160-0',
+    CREATININE: '2160-0'
 };
 
 // ---------------------------------------------------------------------------
@@ -95,8 +95,8 @@ jest.mock('../logger', () => ({
         info: mockLoggerInfo,
         warn: mockLoggerWarn,
         error: mockLoggerError,
-        fatal: mockLoggerFatal,
-    },
+        fatal: mockLoggerFatal
+    }
 }));
 
 jest.mock('../utils', () => ({
@@ -105,7 +105,7 @@ jest.mock('../utils', () => ({
     getPatientConditions: mockGetPatientConditions,
     getMedicationRequests: mockGetMedicationRequests,
     calculateAge: mockCalculateAge,
-    isRestrictedResource: mockIsRestrictedResource,
+    isRestrictedResource: mockIsRestrictedResource
 }));
 
 jest.mock('../fhir-codes', () => ({
@@ -113,33 +113,33 @@ jest.mock('../fhir-codes', () => ({
     SNOMED_CODES: {},
     getLoincName: mockGetLoincName,
     getMeasurementType: mockGetMeasurementType,
-    isValidLoincCode: mockIsValidLoincCode,
+    isValidLoincCode: mockIsValidLoincCode
 }));
 
 jest.mock('../lab-name-mapping', () => ({
-    getTextNameByLoinc: mockGetTextNameByLoinc,
+    getTextNameByLoinc: mockGetTextNameByLoinc
 }));
 
 jest.mock('../cache-manager', () => ({
     fhirCache: {
         getCachedObservation: mockGetCachedObservation,
         cacheObservation: mockCacheObservation,
-        clearPatientCache: mockClearPatientCache,
-    },
+        clearPatientCache: mockClearPatientCache
+    }
 }));
 
 const mockDataStalenessTrackerCtor = jest.fn<any>();
 
 jest.mock('../data-staleness', () => ({
     createStalenessTracker: mockCreateStalenessTracker,
-    DataStalenessTracker: mockDataStalenessTrackerCtor,
+    DataStalenessTracker: mockDataStalenessTrackerCtor
 }));
 
 jest.mock('../unit-converter', () => ({
     UnitConverter: {
         convert: mockUnitConvert,
-        setInputValue: mockSetInputValue,
-    },
+        setInputValue: mockSetInputValue
+    }
 }));
 
 jest.mock('../fhir-feedback', () => ({
@@ -147,14 +147,14 @@ jest.mock('../fhir-feedback', () => ({
         createLoadingBanner: mockCreateLoadingBanner,
         removeLoadingBanner: mockRemoveLoadingBanner,
         createDataSummary: mockCreateDataSummary,
-        setupDynamicTracking: mockSetupDynamicTracking,
-    },
+        setupDynamicTracking: mockSetupDynamicTracking
+    }
 }));
 
 jest.mock('../audit-event-service', () => ({
     auditEventService: {
-        logResourceRead: mockLogResourceRead,
-    },
+        logResourceRead: mockLogResourceRead
+    }
 }));
 
 jest.mock('../provenance-service', () => ({
@@ -162,9 +162,9 @@ jest.mock('../provenance-service', () => ({
         recordCalculation: mockRecordCalculation,
         recordDerivation: mockRecordDerivation,
         getProvenanceForTarget: mockGetProvenanceForTarget,
-        generateLineageReport: mockGenerateLineageReport,
+        generateLineageReport: mockGenerateLineageReport
     },
-    CalculationResult: {},
+    CalculationResult: {}
 }));
 
 // ---------------------------------------------------------------------------
@@ -177,9 +177,9 @@ function createMockClient(requestFn?: jest.Mock<any>) {
         patient: {
             id: 'test-patient',
             read: jest.fn<any>(),
-            request: req,
+            request: req
         },
-        request: req,
+        request: req
     };
 }
 
@@ -188,19 +188,19 @@ function makeBPPanelObservation(systolic: number, diastolic: number, dateStr?: s
         resourceType: 'Observation',
         id: 'bp-obs-1',
         code: {
-            coding: [{ system: 'http://loinc.org', code: '85354-9' }],
+            coding: [{ system: 'http://loinc.org', code: '85354-9' }]
         },
         effectiveDateTime: dateStr || '2025-01-15T10:00:00Z',
         component: [
             {
                 code: { coding: [{ system: 'http://loinc.org', code: '8480-6' }] },
-                valueQuantity: { value: systolic, unit: 'mmHg' },
+                valueQuantity: { value: systolic, unit: 'mmHg' }
             },
             {
                 code: { coding: [{ system: 'http://loinc.org', code: '8462-4' }] },
-                valueQuantity: { value: diastolic, unit: 'mmHg' },
-            },
-        ],
+                valueQuantity: { value: diastolic, unit: 'mmHg' }
+            }
+        ]
     };
 }
 
@@ -210,7 +210,7 @@ function makeObservation(value: number, unit: string, code: string, dateStr?: st
         id: `obs-${code}`,
         code: { coding: [{ system: 'http://loinc.org', code }] },
         valueQuantity: { value, unit },
-        effectiveDateTime: dateStr || '2025-01-15T10:00:00Z',
+        effectiveDateTime: dateStr || '2025-01-15T10:00:00Z'
     };
 }
 
@@ -279,7 +279,7 @@ function setDefaultMockBehaviors() {
         records: [],
         sources: [],
         agents: [],
-        activities: [],
+        activities: []
     });
 }
 
@@ -426,7 +426,7 @@ describe('FHIRDataService -- extended coverage', () => {
                 resourceType: 'Observation',
                 id: 'obs-1',
                 issued: '2025-02-20T12:00:00Z',
-                valueQuantity: { value: 5.0, unit: 'mg/dL' },
+                valueQuantity: { value: 5.0, unit: 'mg/dL' }
             };
             mockGetMostRecentObservation.mockResolvedValue(obs);
             mockGetObservationValue.mockReturnValue(null);
@@ -496,7 +496,7 @@ describe('FHIRDataService -- extended coverage', () => {
 
             const result = await svc.getObservation('2160-0', {
                 targetUnit: 'umol/L',
-                unitType: 'creatinine',
+                unitType: 'creatinine'
             });
             expect(mockUnitConvert).toHaveBeenCalledWith(1.2, 'mg/dL', 'umol/L', 'creatinine');
             expect(result.value).toBe(106.1);
@@ -593,7 +593,7 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getObservation -- text query', () => {
         test('uses text query when useTextQuery option is true', async () => {
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: makeObservation(120, 'mg/dL', '2345-7') }],
+                entry: [{ resource: makeObservation(120, 'mg/dL', '2345-7') }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
             mockGetObservationValue.mockReturnValue(null);
@@ -603,16 +603,14 @@ describe('FHIRDataService -- extended coverage', () => {
             svc.initialize(client, { id: 'p1' }, document.createElement('div'));
 
             const result = await svc.getObservation('2345-7', { useTextQuery: true });
-            expect(mockReq).toHaveBeenCalledWith(
-                expect.stringContaining('code:text=Glucose')
-            );
+            expect(mockReq).toHaveBeenCalledWith(expect.stringContaining('code:text=Glucose'));
             expect(result.value).toBe(120);
         });
 
         test('uses text query when code is not a valid LOINC code', async () => {
             mockIsValidLoincCode.mockReturnValue(false);
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: makeObservation(100, 'mg/dL', 'custom-code') }],
+                entry: [{ resource: makeObservation(100, 'mg/dL', 'custom-code') }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
             mockGetObservationValue.mockReturnValue(null);
@@ -622,9 +620,7 @@ describe('FHIRDataService -- extended coverage', () => {
             svc.initialize(client, { id: 'p1' }, document.createElement('div'));
 
             await svc.getObservation('custom-code');
-            expect(mockReq).toHaveBeenCalledWith(
-                expect.stringContaining('code:text=custom-code')
-            );
+            expect(mockReq).toHaveBeenCalledWith(expect.stringContaining('code:text=custom-code'));
         });
 
         test('blocks restricted resources in text query path', async () => {
@@ -632,7 +628,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockIsValidLoincCode.mockReturnValue(true);
             const obs = makeObservation(120, 'mg/dL', '2345-7');
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: obs }],
+                entry: [{ resource: obs }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
 
@@ -716,10 +712,16 @@ describe('FHIRDataService -- extended coverage', () => {
             const bp = await svc.getBloodPressure({ trackStaleness: true });
             expect(bp.isStale).toBe(true);
             expect(mockTrackObservation).toHaveBeenCalledWith(
-                '#map-sbp', bpObs, '8480-6', 'Systolic BP'
+                '#map-sbp',
+                bpObs,
+                '8480-6',
+                'Systolic BP'
             );
             expect(mockTrackObservation).toHaveBeenCalledWith(
-                '#map-dbp', bpObs, '8462-4', 'Diastolic BP'
+                '#map-dbp',
+                bpObs,
+                '8462-4',
+                'Diastolic BP'
             );
         });
 
@@ -738,7 +740,7 @@ describe('FHIRDataService -- extended coverage', () => {
         test('returns nulls when BP panel has no components', async () => {
             mockGetMostRecentObservation.mockResolvedValue({
                 resourceType: 'Observation',
-                code: { coding: [{ code: '85354-9' }] },
+                code: { coding: [{ code: '85354-9' }] }
             });
 
             const svc = new FHIRDataService();
@@ -835,7 +837,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetObservationValue.mockReturnValue(70);
 
             await svc.autoPopulateInput('#weight', '29463-7', {
-                transform: (v: number) => v * 2.20462,
+                transform: (v: number) => v * 2.20462
             });
 
             const inputEl = container.querySelector('#weight') as HTMLInputElement;
@@ -872,9 +874,7 @@ describe('FHIRDataService -- extended coverage', () => {
 
             await svc.autoPopulateInput('#weight', '29463-7');
 
-            expect(mockTrackObservation).toHaveBeenCalledWith(
-                '#weight', obs, '29463-7', 'weight'
-            );
+            expect(mockTrackObservation).toHaveBeenCalledWith('#weight', obs, '29463-7', 'weight');
         });
 
         test('uses custom label for staleness tracking', async () => {
@@ -885,7 +885,10 @@ describe('FHIRDataService -- extended coverage', () => {
             await svc.autoPopulateInput('#weight', '29463-7', { label: 'Body Weight' });
 
             expect(mockTrackObservation).toHaveBeenCalledWith(
-                '#weight', obs, '29463-7', 'Body Weight'
+                '#weight',
+                obs,
+                '29463-7',
+                'Body Weight'
             );
         });
 
@@ -958,7 +961,7 @@ describe('FHIRDataService -- extended coverage', () => {
 
             const fields = [
                 { code: '8480-6', inputId: '#systolic', label: 'Systolic BP', decimals: 0 },
-                { code: '8462-4', inputId: '#diastolic', label: 'Diastolic BP', decimals: 0 },
+                { code: '8462-4', inputId: '#diastolic', label: 'Diastolic BP', decimals: 0 }
             ];
 
             const results = await svc.autoPopulateFields(fields);
@@ -985,7 +988,7 @@ describe('FHIRDataService -- extended coverage', () => {
 
             await svc.autoPopulateFields([
                 { code: '8480-6', inputId: '#systolic', label: 'Systolic BP' },
-                { code: '8462-4', inputId: '#diastolic', label: 'Diastolic BP' },
+                { code: '8462-4', inputId: '#diastolic', label: 'Diastolic BP' }
             ]);
 
             expect(systolicSpy).toHaveBeenCalledTimes(1);
@@ -996,7 +999,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetMostRecentObservation.mockResolvedValue(null);
 
             await svc.autoPopulateFields([
-                { code: '29463-7', inputId: '#weight', label: 'Weight' },
+                { code: '29463-7', inputId: '#weight', label: 'Weight' }
             ]);
 
             expect(mockCreateLoadingBanner).toHaveBeenCalledWith(container);
@@ -1007,7 +1010,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetMostRecentObservation.mockRejectedValue(new Error('Network error'));
 
             await svc.autoPopulateFields([
-                { code: '29463-7', inputId: '#weight', label: 'Weight' },
+                { code: '29463-7', inputId: '#weight', label: 'Weight' }
             ]);
 
             expect(mockRemoveLoadingBanner).toHaveBeenCalledWith(container);
@@ -1026,13 +1029,13 @@ describe('FHIRDataService -- extended coverage', () => {
 
             await svc.autoPopulateFields([
                 { code: '29463-7', inputId: '#weight', label: 'Weight' },
-                { code: '8302-2', inputId: '#age', label: 'Height' },
+                { code: '8302-2', inputId: '#age', label: 'Height' }
             ]);
 
             expect(mockCreateDataSummary).toHaveBeenCalledWith(container, {
                 loaded: ['Weight'],
                 missing: [{ id: 'age', label: 'Height' }],
-                failed: [],
+                failed: []
             });
         });
 
@@ -1040,11 +1043,11 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetMostRecentObservation.mockResolvedValue(null);
 
             await svc.autoPopulateFields([
-                { code: '29463-7', inputId: '#weight', label: 'Weight' },
+                { code: '29463-7', inputId: '#weight', label: 'Weight' }
             ]);
 
             expect(mockSetupDynamicTracking).toHaveBeenCalledWith(container, [
-                { id: 'weight', label: 'Weight' },
+                { id: 'weight', label: 'Weight' }
             ]);
         });
 
@@ -1054,7 +1057,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetObservationValue.mockReturnValue(70);
 
             await svc.autoPopulateFields([
-                { code: '29463-7', inputId: '#weight', label: 'Weight' },
+                { code: '29463-7', inputId: '#weight', label: 'Weight' }
             ]);
 
             expect(mockSetupDynamicTracking).not.toHaveBeenCalled();
@@ -1066,7 +1069,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetObservationValue.mockReturnValue(70);
 
             const results = await svc.autoPopulateFields([
-                { code: '29463-7', inputId: '#weight', label: 'Weight', decimals: 1 },
+                { code: '29463-7', inputId: '#weight', label: 'Weight', decimals: 1 }
             ]);
 
             const weightInput = container.querySelector('#weight') as HTMLInputElement;
@@ -1085,7 +1088,7 @@ describe('FHIRDataService -- extended coverage', () => {
 
             const results = await svc.autoPopulateFields([
                 { code: '8480-6', inputId: '#systolic', label: 'Systolic BP' },
-                { code: '29463-7', inputId: '#weight', label: 'Weight' },
+                { code: '29463-7', inputId: '#weight', label: 'Weight' }
             ]);
 
             const weightInput = container.querySelector('#weight') as HTMLInputElement;
@@ -1098,14 +1101,20 @@ describe('FHIRDataService -- extended coverage', () => {
 
             await svc.autoPopulateFields([
                 { code: '8480-6', inputId: '#systolic', label: 'Systolic BP' },
-                { code: '8462-4', inputId: '#diastolic', label: 'Diastolic BP' },
+                { code: '8462-4', inputId: '#diastolic', label: 'Diastolic BP' }
             ]);
 
             expect(mockTrackObservation).toHaveBeenCalledWith(
-                '#systolic', bpObs, '8480-6', 'Systolic BP'
+                '#systolic',
+                bpObs,
+                '8480-6',
+                'Systolic BP'
             );
             expect(mockTrackObservation).toHaveBeenCalledWith(
-                '#diastolic', bpObs, '8462-4', 'Diastolic BP'
+                '#diastolic',
+                bpObs,
+                '8462-4',
+                'Diastolic BP'
             );
         });
 
@@ -1113,13 +1122,13 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetMostRecentObservation.mockResolvedValue(null);
 
             await svc.autoPopulateFields([
-                { code: '29463-7', inputId: '#weight', label: 'Weight' },
+                { code: '29463-7', inputId: '#weight', label: 'Weight' }
             ]);
 
             expect(mockCreateDataSummary).toHaveBeenCalledWith(
                 container,
                 expect.objectContaining({
-                    missing: [{ id: 'weight', label: 'Weight' }],
+                    missing: [{ id: 'weight', label: 'Weight' }]
                 })
             );
         });
@@ -1141,9 +1150,7 @@ describe('FHIRDataService -- extended coverage', () => {
             mockGetObservationValue.mockReturnValue(70);
 
             await svc.autoPopulateFromRequirements({
-                observations: [
-                    { code: '29463-7', inputId: '#weight', label: 'Weight' },
-                ],
+                observations: [{ code: '29463-7', inputId: '#weight', label: 'Weight' }]
             });
 
             const input = container.querySelector('#weight') as HTMLInputElement;
@@ -1208,8 +1215,8 @@ describe('FHIRDataService -- extended coverage', () => {
             const mockReq = jest.fn<any>().mockResolvedValue({
                 entry: [
                     { resource: makeObservation(65, 'kg', '29463-7', '2024-01-01T00:00:00Z') },
-                    { resource: makeObservation(70, 'kg', '29463-7', '2025-01-01T00:00:00Z') },
-                ],
+                    { resource: makeObservation(70, 'kg', '29463-7', '2025-01-01T00:00:00Z') }
+                ]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
 
@@ -1219,14 +1226,12 @@ describe('FHIRDataService -- extended coverage', () => {
             const results = await svc.getAllObservations('29463-7');
             expect(results.length).toBe(2);
             expect(results[0].valueQuantity.value).toBe(65);
-            expect(mockReq).toHaveBeenCalledWith(
-                expect.stringContaining('_sort=date')
-            );
+            expect(mockReq).toHaveBeenCalledWith(expect.stringContaining('_sort=date'));
         });
 
         test('sorts descending when specified', async () => {
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: makeObservation(70, 'kg', '29463-7') }],
+                entry: [{ resource: makeObservation(70, 'kg', '29463-7') }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
 
@@ -1234,9 +1239,7 @@ describe('FHIRDataService -- extended coverage', () => {
             svc.initialize(client, { id: 'p1' }, document.createElement('div'));
 
             await svc.getAllObservations('29463-7', { sortOrder: 'desc' });
-            expect(mockReq).toHaveBeenCalledWith(
-                expect.stringContaining('_sort=-date')
-            );
+            expect(mockReq).toHaveBeenCalledWith(expect.stringContaining('_sort=-date'));
         });
 
         test('returns empty array when no entries', async () => {
@@ -1312,7 +1315,7 @@ describe('FHIRDataService -- extended coverage', () => {
             const obs = makeObservation(120, 'mg/dL', '2345-7', recentDate.toISOString());
 
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: obs }],
+                entry: [{ resource: obs }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
             mockGetObservationValue.mockReturnValue(null);
@@ -1330,9 +1333,11 @@ describe('FHIRDataService -- extended coverage', () => {
             const oldDate = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{
-                    resource: makeObservation(120, 'mg/dL', '2345-7', oldDate.toISOString()),
-                }],
+                entry: [
+                    {
+                        resource: makeObservation(120, 'mg/dL', '2345-7', oldDate.toISOString())
+                    }
+                ]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
 
@@ -1374,10 +1379,10 @@ describe('FHIRDataService -- extended coverage', () => {
         test('skips entries without date', async () => {
             const obsNoDate = {
                 resourceType: 'Observation',
-                valueQuantity: { value: 100, unit: 'mg/dL' },
+                valueQuantity: { value: 100, unit: 'mg/dL' }
             };
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: obsNoDate }],
+                entry: [{ resource: obsNoDate }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
 
@@ -1403,7 +1408,7 @@ describe('FHIRDataService -- extended coverage', () => {
             const obs2 = makeObservation(100, 'mg/dL', '2345-7', date2.toISOString());
 
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: obs1 }, { resource: obs2 }],
+                entry: [{ resource: obs1 }, { resource: obs2 }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
             mockGetObservationValue.mockReturnValue(null);
@@ -1424,7 +1429,7 @@ describe('FHIRDataService -- extended coverage', () => {
             const obs2 = makeObservation(100, 'mg/dL', '2345-7', date2.toISOString());
 
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: obs1 }, { resource: obs2 }],
+                entry: [{ resource: obs1 }, { resource: obs2 }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
             mockGetObservationValue.mockReturnValue(null);
@@ -1456,12 +1461,12 @@ describe('FHIRDataService -- extended coverage', () => {
             const obsNoValue: any = {
                 resourceType: 'Observation',
                 id: 'obs-no-val',
-                effectiveDateTime: date1.toISOString(),
+                effectiveDateTime: date1.toISOString()
             };
             const obsWithValue = makeObservation(100, 'mg/dL', '2345-7', date2.toISOString());
 
             const mockReq = jest.fn<any>().mockResolvedValue({
-                entry: [{ resource: obsNoValue }, { resource: obsWithValue }],
+                entry: [{ resource: obsNoValue }, { resource: obsWithValue }]
             });
             const client = createMockClient(mockReq as jest.Mock<any>);
             mockGetObservationValue.mockReturnValue(null);
@@ -1481,7 +1486,7 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getConditions / hasCondition', () => {
         test('getConditions returns conditions from FHIR', async () => {
             const conditions = [
-                { resourceType: 'Condition', id: 'c1', code: { coding: [{ code: '44054006' }] } },
+                { resourceType: 'Condition', id: 'c1', code: { coding: [{ code: '44054006' }] } }
             ];
             mockGetPatientConditions.mockResolvedValue(conditions);
 
@@ -1622,7 +1627,11 @@ describe('FHIRDataService -- extended coverage', () => {
             mockCalculateAge.mockReturnValue(35);
 
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', birthDate: '1990-01-01' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', birthDate: '1990-01-01' },
+                document.createElement('div')
+            );
 
             const age = svc.getPatientAge();
             expect(age).toBe(35);
@@ -1649,25 +1658,41 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getPatientGender', () => {
         test('returns male for male gender', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', gender: 'male' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', gender: 'male' },
+                document.createElement('div')
+            );
             expect(svc.getPatientGender()).toBe('male');
         });
 
         test('returns female for female gender', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', gender: 'female' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', gender: 'female' },
+                document.createElement('div')
+            );
             expect(svc.getPatientGender()).toBe('female');
         });
 
         test('returns female for Female (case-insensitive)', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', gender: 'Female' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', gender: 'Female' },
+                document.createElement('div')
+            );
             expect(svc.getPatientGender()).toBe('female');
         });
 
         test('returns male for unknown gender strings', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', gender: 'other' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', gender: 'other' },
+                document.createElement('div')
+            );
             expect(svc.getPatientGender()).toBe('male');
         });
 
@@ -1691,25 +1716,37 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getPatientName -- edge cases', () => {
         test('returns null for empty name array', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', name: [] }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', name: [] },
+                document.createElement('div')
+            );
             expect(svc.getPatientName()).toBeNull();
         });
 
         test('returns null when name parts produce no display', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), {
-                id: 'p1',
-                name: [{ use: 'official' as const }],
-            }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                {
+                    id: 'p1',
+                    name: [{ use: 'official' as const }]
+                },
+                document.createElement('div')
+            );
             expect(svc.getPatientName()).toBeNull();
         });
 
         test('uses first name entry when no official name exists', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), {
-                id: 'p1',
-                name: [{ family: 'Doe', given: ['Jane'] }],
-            }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                {
+                    id: 'p1',
+                    name: [{ family: 'Doe', given: ['Jane'] }]
+                },
+                document.createElement('div')
+            );
 
             const name = svc.getPatientName();
             expect(name?.display).toBe('Jane Doe');
@@ -1738,7 +1775,7 @@ describe('FHIRDataService -- extended coverage', () => {
                     calculatorName: 'BMI Calculator',
                     inputs: { weight: 70, height: 170 },
                     outputs: { bmi: 24.2 },
-                    patientId: 'p1',
+                    patientId: 'p1'
                 })
             );
         });
@@ -1792,7 +1829,7 @@ describe('FHIRDataService -- extended coverage', () => {
 
             expect(mockRecordCalculation).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    patientId: 'test-patient',
+                    patientId: 'test-patient'
                 })
             );
         });
@@ -1817,7 +1854,7 @@ describe('FHIRDataService -- extended coverage', () => {
                 records: [],
                 sources: [],
                 agents: [],
-                activities: [],
+                activities: []
             };
             mockGenerateLineageReport.mockReturnValue(mockReport);
 
@@ -1836,7 +1873,11 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getPatientBirthDate', () => {
         test('returns Date object for valid birthDate', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', birthDate: '1985-06-15' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', birthDate: '1985-06-15' },
+                document.createElement('div')
+            );
 
             const date = svc.getPatientBirthDate();
             expect(date).toBeInstanceOf(Date);
@@ -1853,7 +1894,11 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getPatientBirthDateString', () => {
         test('returns birthDate string', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), { id: 'p1', birthDate: '1985-06-15' }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                { id: 'p1', birthDate: '1985-06-15' },
+                document.createElement('div')
+            );
             expect(svc.getPatientBirthDateString()).toBe('1985-06-15');
         });
 
@@ -1869,19 +1914,23 @@ describe('FHIRDataService -- extended coverage', () => {
             mockCalculateAge.mockReturnValue(40);
 
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), {
-                id: 'p1',
-                name: [{ text: 'John Doe' }],
-                birthDate: '1985-06-15',
-                gender: 'male',
-            }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                {
+                    id: 'p1',
+                    name: [{ text: 'John Doe' }],
+                    birthDate: '1985-06-15',
+                    gender: 'male'
+                },
+                document.createElement('div')
+            );
 
             const demo = svc.getPatientDemographics();
             expect(demo).toEqual({
                 name: 'John Doe',
                 age: 40,
                 gender: 'male',
-                birthDate: '1985-06-15',
+                birthDate: '1985-06-15'
             });
         });
 
@@ -1904,10 +1953,14 @@ describe('FHIRDataService -- extended coverage', () => {
     describe('getPatientDisplayName', () => {
         test('returns display name string', () => {
             const svc = new FHIRDataService();
-            svc.initialize(createMockClient(), {
-                id: 'p1',
-                name: [{ family: 'Smith', given: ['Alice'] }],
-            }, document.createElement('div'));
+            svc.initialize(
+                createMockClient(),
+                {
+                    id: 'p1',
+                    name: [{ family: 'Smith', given: ['Alice'] }]
+                },
+                document.createElement('div')
+            );
 
             expect(svc.getPatientDisplayName()).toBe('Alice Smith');
         });

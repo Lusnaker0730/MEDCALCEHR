@@ -46,7 +46,13 @@ describe('Growth Chart Calculator', () => {
                     L: 1,
                     M: 75,
                     S: 0.04,
-                    P3: 70, P15: 72, P25: 73, P50: 75, P75: 77, P85: 78, P97: 80
+                    P3: 70,
+                    P15: 72,
+                    P25: 73,
+                    P50: 75,
+                    P75: 77,
+                    P85: 78,
+                    P97: 80
                 }
             ] as any[];
             const result = calculateZScore(12, 75, refData);
@@ -57,7 +63,13 @@ describe('Growth Chart Calculator', () => {
             const refData = [
                 {
                     Agemos: 12,
-                    P3: 70, P15: 72, P25: 73, P50: 75, P75: 77, P85: 78, P97: 80
+                    P3: 70,
+                    P15: 72,
+                    P25: 73,
+                    P50: 75,
+                    P75: 77,
+                    P85: 78,
+                    P97: 80
                 }
             ] as any[];
             const result = calculateZScore(12, 75, refData);
@@ -68,8 +80,16 @@ describe('Growth Chart Calculator', () => {
             const refData = [
                 {
                     Agemos: 12,
-                    L: 1, M: 75, S: 0.04,
-                    P3: 70, P15: 72, P25: 73, P50: 75, P75: 77, P85: 78, P97: 80
+                    L: 1,
+                    M: 75,
+                    S: 0.04,
+                    P3: 70,
+                    P15: 72,
+                    P25: 73,
+                    P50: 75,
+                    P75: 77,
+                    P85: 78,
+                    P97: 80
                 }
             ] as any[];
             expect(calculateZScore(12, 0, refData)).toBeNull();
@@ -83,7 +103,13 @@ describe('Growth Chart Calculator', () => {
                     L: 0.001, // Very close to 0
                     M: 75,
                     S: 0.04,
-                    P3: 70, P15: 72, P25: 73, P50: 75, P75: 77, P85: 78, P97: 80
+                    P3: 70,
+                    P15: 72,
+                    P25: 73,
+                    P50: 75,
+                    P75: 77,
+                    P85: 78,
+                    P97: 80
                 }
             ] as any[];
             const result = calculateZScore(12, 75, refData);
@@ -95,8 +121,16 @@ describe('Growth Chart Calculator', () => {
             const refData = [
                 {
                     Agemos: 12,
-                    L: 1, M: 75, S: 0.04,
-                    P3: 70, P15: 72, P25: 73, P50: 75, P75: 77, P85: 78, P97: 80
+                    L: 1,
+                    M: 75,
+                    S: 0.04,
+                    P3: 70,
+                    P15: 72,
+                    P25: 73,
+                    P50: 75,
+                    P75: 77,
+                    P85: 78,
+                    P97: 80
                 }
             ] as any[];
             const result = calculateZScore(12, 80, refData);
@@ -107,8 +141,16 @@ describe('Growth Chart Calculator', () => {
             const refData = [
                 {
                     Agemos: 12,
-                    L: 1, M: 75, S: 0.04,
-                    P3: 70, P15: 72, P25: 73, P50: 75, P75: 77, P85: 78, P97: 80
+                    L: 1,
+                    M: 75,
+                    S: 0.04,
+                    P3: 70,
+                    P15: 72,
+                    P25: 73,
+                    P50: 75,
+                    P75: 77,
+                    P85: 78,
+                    P97: 80
                 }
             ] as any[];
             const result = calculateZScore(12, 70, refData);
@@ -201,12 +243,12 @@ describe('Growth Chart Calculator', () => {
         });
 
         test('Taiwan percentile boundary values', () => {
-            expect(estimatePercentile(-1.881)).toBe('<3');   // Exactly at P3 z-score
-            expect(estimatePercentile(-1.036)).toBe('3');    // Exactly at P15 z-score
-            expect(estimatePercentile(-0.674)).toBe('15');   // Exactly at P25 z-score
-            expect(estimatePercentile(0.674)).toBe('50');    // Exactly at P75 z-score
-            expect(estimatePercentile(1.036)).toBe('75');    // Exactly at P85 z-score
-            expect(estimatePercentile(1.881)).toBe('85');    // Exactly at P97 z-score
+            expect(estimatePercentile(-1.881)).toBe('<3'); // Exactly at P3 z-score
+            expect(estimatePercentile(-1.036)).toBe('3'); // Exactly at P15 z-score
+            expect(estimatePercentile(-0.674)).toBe('15'); // Exactly at P25 z-score
+            expect(estimatePercentile(0.674)).toBe('50'); // Exactly at P75 z-score
+            expect(estimatePercentile(1.036)).toBe('75'); // Exactly at P85 z-score
+            expect(estimatePercentile(1.881)).toBe('85'); // Exactly at P97 z-score
         });
     });
 
@@ -416,7 +458,16 @@ describe('Growth Chart Calculator', () => {
 
         test('Should calculate Z-score with Taiwan female height data', () => {
             const taiwanHeightFemale = [
-                { Agemos: 12, P3: 69.2, P15: 71.3, P25: 72.3, P50: 74.0, P75: 75.8, P85: 76.7, P97: 78.9 }
+                {
+                    Agemos: 12,
+                    P3: 69.2,
+                    P15: 71.3,
+                    P25: 72.3,
+                    P50: 74.0,
+                    P75: 75.8,
+                    P85: 76.7,
+                    P97: 78.9
+                }
             ] as any[];
 
             const result = calculateZScore(12, 74.0, taiwanHeightFemale);
@@ -425,8 +476,26 @@ describe('Growth Chart Calculator', () => {
 
         test('Should handle older age ranges (school age)', () => {
             const taiwanHeightMale = [
-                { Agemos: 120, P3: 126.0, P15: 130.5, P25: 132.5, P50: 136.5, P75: 140.5, P85: 142.8, P97: 148.3 },
-                { Agemos: 132, P3: 130.5, P15: 135.6, P25: 137.8, P50: 142.0, P75: 146.7, P85: 149.4, P97: 156.1 }
+                {
+                    Agemos: 120,
+                    P3: 126.0,
+                    P15: 130.5,
+                    P25: 132.5,
+                    P50: 136.5,
+                    P75: 140.5,
+                    P85: 142.8,
+                    P97: 148.3
+                },
+                {
+                    Agemos: 132,
+                    P3: 130.5,
+                    P15: 135.6,
+                    P25: 137.8,
+                    P50: 142.0,
+                    P75: 146.7,
+                    P85: 149.4,
+                    P97: 156.1
+                }
             ] as any[];
 
             // 10-year-old boy at P50 height

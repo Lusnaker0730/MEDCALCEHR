@@ -1,126 +1,175 @@
 <!doctype html>
 <html lang="zh-Hant-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <!-- Security Headers -->
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io https://*.ingest.sentry.io; upgrade-insecure-requests;"
+        />
+        <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+        <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+        <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
 
-    <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io; script-src 'self'; style-src 'self'; img-src 'self' data: https:; connect-src 'self' https://launch.smarthealthit.org https://*.smarthealthit.org https://*.cerner.com https://*.sentry.io https://*.ingest.sentry.io; upgrade-insecure-requests;" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+        <title>CGMH EHRCALC</title>
+        <meta
+            name="description"
+            content="92 Clinical Calculators for Healthcare Professionals integrated with FHIR EHR systems"
+        />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚕️</text></svg>"
+        />
+        <link rel="preconnect" href="https://o0.ingest.sentry.io" />
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel="stylesheet" href="css/themes/tech-theme.css" />
+        <script src="js/auth-redirect.js"></script>
+    </head>
 
-    <title>CGMH EHRCALC</title>
-    <meta name="description"
-        content="92 Clinical Calculators for Healthcare Professionals integrated with FHIR EHR systems" />
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚕️</text></svg>" />
-    <link rel="preconnect" href="https://o0.ingest.sentry.io" />
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/themes/tech-theme.css" />
-    <script src="js/auth-redirect.js"></script>
-</head>
+    <body>
+        <a href="#main-content" class="skip-link" data-i18n="app.skipToContent"
+            >Skip to main content</a
+        >
+        <div class="container">
+            <header role="banner">
+                <div class="sticky-header">
+                    <div class="header-top">
+                        <h1 data-i18n="app.title">CGMH EHRCALC on FHIR</h1>
+                        <div class="header-actions">
+                            <button
+                                id="language-toggle"
+                                class="lang-toggle-btn"
+                                title="Switch Language"
+                            >
+                                <span class="lang-label">EN</span>
+                            </button>
+                            <button
+                                id="logout-btn"
+                                class="logout-btn"
+                                data-i18n="app.logout"
+                                title="Logout"
+                            >
+                                Logout
+                            </button>
+                            <button
+                                id="theme-toggle"
+                                class="theme-toggle-btn"
+                                data-i18n-title="app.toggleTheme"
+                                title="Toggle Theme"
+                            >
+                                <span class="theme-icon">🌙</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="patient-info" data-i18n="app.loadingPatient">
+                        Loading patient data...
+                    </div>
+                    <hr />
+                    <div class="calculators-header">
+                        <div class="header-title-row">
+                            <div id="practitioner-info" class="practitioner-info hidden">
+                                <span class="practitioner-label" data-i18n="practitioner.label"
+                                    >Practitioner:</span
+                                >
+                                <span id="practitioner-name" data-i18n="practitioner.loading"
+                                    >Loading...</span
+                                >
+                            </div>
+                        </div>
 
-<body>
-    <a href="#main-content" class="skip-link" data-i18n="app.skipToContent">Skip to main content</a>
-    <div class="container">
-        <header role="banner">
-            <div class="sticky-header">
-                <div class="header-top">
-                    <h1 data-i18n="app.title">CGMH EHRCALC on FHIR</h1>
-                    <div class="header-actions">
-                        <button id="language-toggle" class="lang-toggle-btn" title="Switch Language">
-                            <span class="lang-label">EN</span>
-                        </button>
-                        <button id="logout-btn" class="logout-btn" data-i18n="app.logout" title="Logout">Logout</button>
-                        <button id="theme-toggle" class="theme-toggle-btn" data-i18n-title="app.toggleTheme" title="Toggle Theme">
-                            <span class="theme-icon">🌙</span>
-                        </button>
+                        <!-- Filter Buttons -->
+                        <nav aria-label="Calculator filters">
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-filter="all">
+                                    <span data-i18n="filter.all">All</span>
+                                </button>
+                                <button class="filter-btn" data-filter="favorites">
+                                    <span
+                                        >⭐
+                                        <span data-i18n="filter.favorites">Favorites</span></span
+                                    >
+                                </button>
+                                <button class="filter-btn" data-filter="recent">
+                                    <span>🕒 <span data-i18n="filter.recent">Recent</span></span>
+                                </button>
+                                <button class="filter-btn" data-filter="history">
+                                    <span>📋 <span data-i18n="filter.history">History</span></span>
+                                </button>
+                            </div>
+                        </nav>
+
+                        <!-- Search and Filter Controls -->
+                        <div class="controls-row">
+                            <div class="search-container">
+                                <input
+                                    type="search"
+                                    id="search-bar"
+                                    placeholder="Search for a calculator..."
+                                    data-i18n-placeholder="search.placeholder"
+                                    data-i18n-aria="search.ariaLabel"
+                                    aria-label="Search calculators"
+                                />
+                            </div>
+
+                            <div class="category-container">
+                                <label for="category-select" data-i18n="category.label"
+                                    >Category:</label
+                                >
+                                <select id="category-select">
+                                    <!-- Options will be dynamically added -->
+                                </select>
+                            </div>
+
+                            <div class="sort-container">
+                                <label for="sort-select" data-i18n="sort.label">Sort:</label>
+                                <select id="sort-select">
+                                    <option value="a-z" data-i18n="sort.az">A → Z</option>
+                                    <option value="z-a" data-i18n="sort.za">Z → A</option>
+                                    <option value="recently-added" data-i18n="sort.dateAdded">
+                                        Date Added
+                                    </option>
+                                    <option value="most-used" data-i18n="sort.mostUsed">
+                                        Most Used
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Category Chips (desktop only) -->
+                        <div
+                            id="category-chips"
+                            class="category-chips"
+                            aria-label="Filter by category"
+                        ></div>
+
+                        <!-- Statistics -->
+                        <div id="calculator-stats" class="calculator-stats" aria-live="polite">
+                            Showing 92 / 92 results
+                        </div>
                     </div>
                 </div>
-                <div id="patient-info" data-i18n="app.loadingPatient">Loading patient data...</div>
-                <hr />
-                <div class="calculators-header">
-                    <div class="header-title-row">
-                        <div id="practitioner-info" class="practitioner-info hidden">
-                            <span class="practitioner-label" data-i18n="practitioner.label">Practitioner:</span>
-                            <span id="practitioner-name" data-i18n="practitioner.loading">Loading...</span>
-                        </div>
-                    </div>
-
-                    <!-- Filter Buttons -->
-                    <nav aria-label="Calculator filters">
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-filter="all">
-                                <span data-i18n="filter.all">All</span>
-                            </button>
-                            <button class="filter-btn" data-filter="favorites">
-                                <span>⭐ <span data-i18n="filter.favorites">Favorites</span></span>
-                            </button>
-                            <button class="filter-btn" data-filter="recent">
-                                <span>🕒 <span data-i18n="filter.recent">Recent</span></span>
-                            </button>
-                            <button class="filter-btn" data-filter="history">
-                                <span>📋 <span data-i18n="filter.history">History</span></span>
-                            </button>
-                        </div>
-                    </nav>
-
-                    <!-- Search and Filter Controls -->
-                    <div class="controls-row">
-                        <div class="search-container">
-                            <input type="search" id="search-bar" placeholder="Search for a calculator..."
-                                data-i18n-placeholder="search.placeholder"
-                                data-i18n-aria="search.ariaLabel"
-                                aria-label="Search calculators" />
-                        </div>
-
-                        <div class="category-container">
-                            <label for="category-select" data-i18n="category.label">Category:</label>
-                            <select id="category-select">
-                                <!-- Options will be dynamically added -->
-                            </select>
-                        </div>
-
-                        <div class="sort-container">
-                            <label for="sort-select" data-i18n="sort.label">Sort:</label>
-                            <select id="sort-select">
-                                <option value="a-z" data-i18n="sort.az">A → Z</option>
-                                <option value="z-a" data-i18n="sort.za">Z → A</option>
-                                <option value="recently-added" data-i18n="sort.dateAdded">Date Added</option>
-                                <option value="most-used" data-i18n="sort.mostUsed">Most Used</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Category Chips (desktop only) -->
-                    <div id="category-chips" class="category-chips" aria-label="Filter by category"></div>
-
-                    <!-- Statistics -->
-                    <div id="calculator-stats" class="calculator-stats" aria-live="polite">
-                        Showing 92 / 92 results
+            </header>
+            <main id="main-content">
+                <div class="content-area">
+                    <!-- Recently Used Strip -->
+                    <div
+                        id="recent-strip"
+                        class="recent-strip"
+                        aria-label="Recently used calculators"
+                    ></div>
+                    <div id="calculator-list" class="calculator-list">
+                        <!-- Calculator links will be dynamically inserted here -->
                     </div>
                 </div>
-            </div>
-        </header>
-        <main id="main-content">
-            <div class="content-area">
-                <!-- Recently Used Strip -->
-                <div id="recent-strip" class="recent-strip" aria-label="Recently used calculators"></div>
-                <div id="calculator-list" class="calculator-list">
-                    <!-- Calculator links will be dynamically inserted here -->
-                </div>
-            </div>
-        </main>
-    </div>
+            </main>
+        </div>
 
-    <script src="js/app-config.js"></script>
-    <script type="module" src="src/theme-toggle.ts"></script>
-    <script type="module" src="src/language-toggle.ts"></script>
-    <script type="module" src="src/main.ts"></script>
-</body>
-
+        <script src="js/app-config.js"></script>
+        <script type="module" src="src/theme-toggle.ts"></script>
+        <script type="module" src="src/language-toggle.ts"></script>
+        <script type="module" src="src/main.ts"></script>
+    </body>
 </html>

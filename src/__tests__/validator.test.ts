@@ -217,51 +217,456 @@ const ALL_RULES: Array<{
     message: string;
     warningMessage?: string;
 }> = [
-    { name: 'age',              min: 0,     max: 150,   warnMin: 1,    warnMax: 120,  required: true,  message: 'Age must be between 0-150 years',                    warningMessage: 'Age is unusual; double-check.' },
-    { name: 'temperature',      min: 20,    max: 45,    warnMin: 35,   warnMax: 40,   required: true,  message: 'Temperature must be between 20-45\u00B0C',           warningMessage: 'Temperature is extreme; double-check.' },
-    { name: 'systolicBP',       min: 50,    max: 250,   warnMin: 70,   warnMax: 200,  required: true,  message: 'Systolic BP must be between 50-250 mmHg',            warningMessage: 'Systolic BP is extreme; double-check.' },
-    { name: 'diastolicBP',      min: 30,    max: 150,   warnMin: 40,   warnMax: 110,  required: true,  message: 'Diastolic BP must be between 30-150 mmHg',           warningMessage: 'Diastolic BP is extreme; double-check.' },
-    { name: 'heartRate',        min: 20,    max: 250,   warnMin: 40,   warnMax: 150,  required: true,  message: 'Heart rate must be between 20-250 bpm',              warningMessage: 'Heart rate is extreme; double-check.' },
-    { name: 'pH',               min: 6.5,   max: 8.0,   warnMin: 7.25, warnMax: 7.55, required: true,  message: 'Too low/high; please change to proceed.',            warningMessage: 'Extreme value; double-check.' },
-    { name: 'weight',           min: 0.5,   max: 500,   warnMin: 30,   warnMax: 200,  required: true,  message: 'Weight must be between 0.5-500 kg',                  warningMessage: 'Weight is unusual; double-check.' },
-    { name: 'height',           min: 30,    max: 250,   warnMin: 100,  warnMax: 220,  required: true,  message: 'Height must be between 30-250 cm',                   warningMessage: 'Height is unusual; double-check.' },
-    { name: 'gcs',              min: 3,     max: 15,    warnMin: undefined, warnMax: undefined, required: true, message: 'GCS score must be between 3-15',             warningMessage: undefined },
-    { name: 'glucose',          min: 10,    max: 2000,  warnMin: 50,   warnMax: 400,  required: true,  message: 'Glucose must be between 10-2000 mg/dL',              warningMessage: 'Glucose is extreme; double-check.' },
-    { name: 'bun',              min: 1,     max: 200,   warnMin: 5,    warnMax: 80,   required: true,  message: 'BUN must be between 1-200 mg/dL',                    warningMessage: 'BUN is extreme; double-check.' },
-    { name: 'urineSodium',      min: 1,     max: 1000,  warnMin: 10,   warnMax: 200,  required: true,  message: 'Urine sodium must be between 1-1000 mEq/L',          warningMessage: 'Urine sodium is unusual; double-check.' },
-    { name: 'urinePotassium',   min: 1,     max: 500,   warnMin: 15,   warnMax: 150,  required: true,  message: 'Urine potassium must be between 1-500 mEq/L',        warningMessage: 'Urine potassium is unusual; double-check.' },
-    { name: 'urineCreatinine',  min: 1,     max: 2000,  warnMin: 20,   warnMax: 400,  required: true,  message: 'Urine creatinine must be between 1-2000 mg/dL',      warningMessage: 'Urine creatinine is unusual; double-check.' },
-    { name: 'creatinine',       min: 0.1,   max: 20,    warnMin: 0.4,  warnMax: 10,   required: true,  message: 'Creatinine must be between 0.1-20 mg/dL',            warningMessage: 'Creatinine is extreme; double-check.' },
-    { name: 'egfr',             min: 1,     max: 200,   warnMin: 15,   warnMax: 120,  required: true,  message: 'eGFR must be between 1-200 mL/min/1.73m\u00B2',      warningMessage: 'eGFR is unusual; double-check.' },
-    { name: 'sodium',           min: 100,   max: 200,   warnMin: 120,  warnMax: 160,  required: true,  message: 'Too low/high; please change to proceed.',             warningMessage: 'Very low/high; double-check.' },
-    { name: 'potassium',        min: 1.5,   max: 10,    warnMin: 2.5,  warnMax: 6.5,  required: true,  message: 'Potassium must be between 1.5-10 mEq/L',             warningMessage: 'Potassium is extreme; double-check.' },
-    { name: 'bilirubin',        min: 0.1,   max: 80,    warnMin: 0.2,  warnMax: 30,   required: true,  message: 'Bilirubin must be between 0.1-80 mg/dL',             warningMessage: 'Bilirubin is extreme; double-check.' },
-    { name: 'calcium',          min: 2.0,   max: 20.0,  warnMin: 7.0,  warnMax: 12.0, required: true,  message: 'Calcium must be between 2.0-20.0 mg/dL',             warningMessage: 'Calcium is extreme; double-check.' },
-    { name: 'inr',              min: 0.5,   max: 20,    warnMin: 0.8,  warnMax: 6,    required: true,  message: 'INR must be between 0.5-20',                          warningMessage: 'INR is extreme; double-check.' },
-    { name: 'albumin',          min: 0.5,   max: 8.0,   warnMin: 2.0,  warnMax: 5.5,  required: true,  message: 'Albumin must be between 0.5-8.0 g/dL',               warningMessage: 'Albumin is unusual; double-check.' },
-    { name: 'liverEnzyme',      min: 1,     max: 5000,  warnMin: 5,    warnMax: 500,  required: true,  message: 'Enzyme level must be between 1-5000 U/L',             warningMessage: 'Enzyme level is extreme; double-check.' },
-    { name: 'platelets',        min: 1,     max: 2000,  warnMin: 50,   warnMax: 500,  required: true,  message: 'Platelets must be between 1-2000 \u00D710\u2079/L',   warningMessage: 'Platelet count is extreme; double-check.' },
-    { name: 'map',              min: 20,    max: 300,   warnMin: 50,   warnMax: 150,  required: true,  message: 'Too low/high; please change to proceed.',              warningMessage: 'Very low/high; double-check.' },
-    { name: 'respiratoryRate',  min: 0,     max: 100,   warnMin: 8,    warnMax: 40,   required: true,  message: 'Respiratory rate must be between 0-100 breaths/min',   warningMessage: 'Respiratory rate is extreme; double-check.' },
-    { name: 'hematocrit',       min: 5,     max: 80,    warnMin: 20,   warnMax: 55,   required: true,  message: 'Hematocrit must be between 5-80%',                    warningMessage: 'Hematocrit is extreme; double-check.' },
-    { name: 'wbc',              min: 0,     max: 500,   warnMin: 2,    warnMax: 30,   required: true,  message: 'WBC must be between 0-500 \u00D710\u2079/L',          warningMessage: 'WBC count is extreme; double-check.' },
-    { name: 'qtInterval',       min: 200,   max: 800,   warnMin: 350,  warnMax: 500,  required: true,  message: 'QT interval must be between 200-800 ms',              warningMessage: 'QT interval is unusual; double-check.' },
-    { name: 'paO2',             min: 10,    max: 800,   warnMin: 40,   warnMax: 500,  required: true,  message: 'PaO\u2082 must be between 10-800 mmHg',               warningMessage: 'PaO\u2082 is extreme; double-check.' },
-    { name: 'paCO2',            min: 5,     max: 200,   warnMin: 25,   warnMax: 80,   required: true,  message: 'PaCO\u2082 must be between 5-200 mmHg',               warningMessage: 'PaCO\u2082 is extreme; double-check.' },
-    { name: 'fiO2',             min: 0.21,  max: 1.0,   warnMin: undefined, warnMax: undefined, required: true, message: 'FiO\u2082 must be between 0.21-1.0',         warningMessage: undefined },
-    { name: 'phenytoin',        min: 0,     max: 100,   warnMin: 5,    warnMax: 30,   required: true,  message: 'Phenytoin level must be between 0-100 mcg/mL',        warningMessage: 'Phenytoin level is unusual; double-check.' },
-    { name: 'bicarbonate',      min: 2,     max: 60,    warnMin: 15,   warnMax: 35,   required: true,  message: 'HCO\u2083\u207B must be between 2-60 mEq/L',          warningMessage: 'Bicarbonate is extreme; double-check.' },
-    { name: 'chloride',         min: 50,    max: 150,   warnMin: 90,   warnMax: 115,  required: true,  message: 'Chloride must be between 50-150 mEq/L',               warningMessage: 'Chloride is extreme; double-check.' },
-    { name: 'insulin',          min: 0.1,   max: 500,   warnMin: 2,    warnMax: 100,  required: true,  message: 'Insulin must be between 0.1-500 \u00B5U/mL',          warningMessage: 'Insulin level is unusual; double-check.' },
-    { name: 'ethanol',          min: 0,     max: 1000,  warnMin: undefined, warnMax: 400, required: false, message: 'Ethanol concentration must be between 0-1000 mg/dL', warningMessage: 'Ethanol level is very high; double-check.' },
-    { name: 'totalCholesterol', min: 50,    max: 1000,  warnMin: 100,  warnMax: 350,  required: true,  message: 'Total cholesterol must be between 50-1000 mg/dL',      warningMessage: 'Cholesterol is unusual; double-check.' },
-    { name: 'hdl',              min: 10,    max: 200,   warnMin: 25,   warnMax: 100,  required: true,  message: 'HDL must be between 10-200 mg/dL',                     warningMessage: 'HDL is unusual; double-check.' },
-    { name: 'triglycerides',    min: 10,    max: 3000,  warnMin: 30,   warnMax: 500,  required: true,  message: 'Triglycerides must be between 10-3000 mg/dL',           warningMessage: 'Triglycerides are unusual; double-check.' },
-    { name: 'osmolality',       min: 0,     max: 2000,  warnMin: 250,  warnMax: 350,  required: true,  message: 'Osmolality must be between 0-2000 mOsm/kg',            warningMessage: 'Osmolality is unusual; double-check.' },
-    { name: 'hours',            min: 0,     max: 168,   warnMin: undefined, warnMax: 72, required: true, message: 'Time must be between 0-168 hours',                   warningMessage: 'Time duration is very long; double-check.' },
-    { name: 'volume',           min: 0,     max: 5000,  warnMin: undefined, warnMax: 2000, required: true, message: 'Volume must be between 0-5000 mL',                 warningMessage: 'Volume is very large; double-check.' },
-    { name: 'abv',              min: 0,     max: 100,   warnMin: undefined, warnMax: 60,  required: true, message: 'ABV must be between 0-100%',                         warningMessage: 'ABV is very high; double-check.' },
-    { name: 'hemoglobin',       min: 1,     max: 25,    warnMin: 6,    warnMax: 18,   required: true,  message: 'Hemoglobin must be between 1-25 g/dL',                 warningMessage: 'Hemoglobin is extreme; double-check.' },
+    {
+        name: 'age',
+        min: 0,
+        max: 150,
+        warnMin: 1,
+        warnMax: 120,
+        required: true,
+        message: 'Age must be between 0-150 years',
+        warningMessage: 'Age is unusual; double-check.'
+    },
+    {
+        name: 'temperature',
+        min: 20,
+        max: 45,
+        warnMin: 35,
+        warnMax: 40,
+        required: true,
+        message: 'Temperature must be between 20-45\u00B0C',
+        warningMessage: 'Temperature is extreme; double-check.'
+    },
+    {
+        name: 'systolicBP',
+        min: 50,
+        max: 250,
+        warnMin: 70,
+        warnMax: 200,
+        required: true,
+        message: 'Systolic BP must be between 50-250 mmHg',
+        warningMessage: 'Systolic BP is extreme; double-check.'
+    },
+    {
+        name: 'diastolicBP',
+        min: 30,
+        max: 150,
+        warnMin: 40,
+        warnMax: 110,
+        required: true,
+        message: 'Diastolic BP must be between 30-150 mmHg',
+        warningMessage: 'Diastolic BP is extreme; double-check.'
+    },
+    {
+        name: 'heartRate',
+        min: 20,
+        max: 250,
+        warnMin: 40,
+        warnMax: 150,
+        required: true,
+        message: 'Heart rate must be between 20-250 bpm',
+        warningMessage: 'Heart rate is extreme; double-check.'
+    },
+    {
+        name: 'pH',
+        min: 6.5,
+        max: 8.0,
+        warnMin: 7.25,
+        warnMax: 7.55,
+        required: true,
+        message: 'Too low/high; please change to proceed.',
+        warningMessage: 'Extreme value; double-check.'
+    },
+    {
+        name: 'weight',
+        min: 0.5,
+        max: 500,
+        warnMin: 30,
+        warnMax: 200,
+        required: true,
+        message: 'Weight must be between 0.5-500 kg',
+        warningMessage: 'Weight is unusual; double-check.'
+    },
+    {
+        name: 'height',
+        min: 30,
+        max: 250,
+        warnMin: 100,
+        warnMax: 220,
+        required: true,
+        message: 'Height must be between 30-250 cm',
+        warningMessage: 'Height is unusual; double-check.'
+    },
+    {
+        name: 'gcs',
+        min: 3,
+        max: 15,
+        warnMin: undefined,
+        warnMax: undefined,
+        required: true,
+        message: 'GCS score must be between 3-15',
+        warningMessage: undefined
+    },
+    {
+        name: 'glucose',
+        min: 10,
+        max: 2000,
+        warnMin: 50,
+        warnMax: 400,
+        required: true,
+        message: 'Glucose must be between 10-2000 mg/dL',
+        warningMessage: 'Glucose is extreme; double-check.'
+    },
+    {
+        name: 'bun',
+        min: 1,
+        max: 200,
+        warnMin: 5,
+        warnMax: 80,
+        required: true,
+        message: 'BUN must be between 1-200 mg/dL',
+        warningMessage: 'BUN is extreme; double-check.'
+    },
+    {
+        name: 'urineSodium',
+        min: 1,
+        max: 1000,
+        warnMin: 10,
+        warnMax: 200,
+        required: true,
+        message: 'Urine sodium must be between 1-1000 mEq/L',
+        warningMessage: 'Urine sodium is unusual; double-check.'
+    },
+    {
+        name: 'urinePotassium',
+        min: 1,
+        max: 500,
+        warnMin: 15,
+        warnMax: 150,
+        required: true,
+        message: 'Urine potassium must be between 1-500 mEq/L',
+        warningMessage: 'Urine potassium is unusual; double-check.'
+    },
+    {
+        name: 'urineCreatinine',
+        min: 1,
+        max: 2000,
+        warnMin: 20,
+        warnMax: 400,
+        required: true,
+        message: 'Urine creatinine must be between 1-2000 mg/dL',
+        warningMessage: 'Urine creatinine is unusual; double-check.'
+    },
+    {
+        name: 'creatinine',
+        min: 0.1,
+        max: 20,
+        warnMin: 0.4,
+        warnMax: 10,
+        required: true,
+        message: 'Creatinine must be between 0.1-20 mg/dL',
+        warningMessage: 'Creatinine is extreme; double-check.'
+    },
+    {
+        name: 'egfr',
+        min: 1,
+        max: 200,
+        warnMin: 15,
+        warnMax: 120,
+        required: true,
+        message: 'eGFR must be between 1-200 mL/min/1.73m\u00B2',
+        warningMessage: 'eGFR is unusual; double-check.'
+    },
+    {
+        name: 'sodium',
+        min: 100,
+        max: 200,
+        warnMin: 120,
+        warnMax: 160,
+        required: true,
+        message: 'Too low/high; please change to proceed.',
+        warningMessage: 'Very low/high; double-check.'
+    },
+    {
+        name: 'potassium',
+        min: 1.5,
+        max: 10,
+        warnMin: 2.5,
+        warnMax: 6.5,
+        required: true,
+        message: 'Potassium must be between 1.5-10 mEq/L',
+        warningMessage: 'Potassium is extreme; double-check.'
+    },
+    {
+        name: 'bilirubin',
+        min: 0.1,
+        max: 80,
+        warnMin: 0.2,
+        warnMax: 30,
+        required: true,
+        message: 'Bilirubin must be between 0.1-80 mg/dL',
+        warningMessage: 'Bilirubin is extreme; double-check.'
+    },
+    {
+        name: 'calcium',
+        min: 2.0,
+        max: 20.0,
+        warnMin: 7.0,
+        warnMax: 12.0,
+        required: true,
+        message: 'Calcium must be between 2.0-20.0 mg/dL',
+        warningMessage: 'Calcium is extreme; double-check.'
+    },
+    {
+        name: 'inr',
+        min: 0.5,
+        max: 20,
+        warnMin: 0.8,
+        warnMax: 6,
+        required: true,
+        message: 'INR must be between 0.5-20',
+        warningMessage: 'INR is extreme; double-check.'
+    },
+    {
+        name: 'albumin',
+        min: 0.5,
+        max: 8.0,
+        warnMin: 2.0,
+        warnMax: 5.5,
+        required: true,
+        message: 'Albumin must be between 0.5-8.0 g/dL',
+        warningMessage: 'Albumin is unusual; double-check.'
+    },
+    {
+        name: 'liverEnzyme',
+        min: 1,
+        max: 5000,
+        warnMin: 5,
+        warnMax: 500,
+        required: true,
+        message: 'Enzyme level must be between 1-5000 U/L',
+        warningMessage: 'Enzyme level is extreme; double-check.'
+    },
+    {
+        name: 'platelets',
+        min: 1,
+        max: 2000,
+        warnMin: 50,
+        warnMax: 500,
+        required: true,
+        message: 'Platelets must be between 1-2000 \u00D710\u2079/L',
+        warningMessage: 'Platelet count is extreme; double-check.'
+    },
+    {
+        name: 'map',
+        min: 20,
+        max: 300,
+        warnMin: 50,
+        warnMax: 150,
+        required: true,
+        message: 'Too low/high; please change to proceed.',
+        warningMessage: 'Very low/high; double-check.'
+    },
+    {
+        name: 'respiratoryRate',
+        min: 0,
+        max: 100,
+        warnMin: 8,
+        warnMax: 40,
+        required: true,
+        message: 'Respiratory rate must be between 0-100 breaths/min',
+        warningMessage: 'Respiratory rate is extreme; double-check.'
+    },
+    {
+        name: 'hematocrit',
+        min: 5,
+        max: 80,
+        warnMin: 20,
+        warnMax: 55,
+        required: true,
+        message: 'Hematocrit must be between 5-80%',
+        warningMessage: 'Hematocrit is extreme; double-check.'
+    },
+    {
+        name: 'wbc',
+        min: 0,
+        max: 500,
+        warnMin: 2,
+        warnMax: 30,
+        required: true,
+        message: 'WBC must be between 0-500 \u00D710\u2079/L',
+        warningMessage: 'WBC count is extreme; double-check.'
+    },
+    {
+        name: 'qtInterval',
+        min: 200,
+        max: 800,
+        warnMin: 350,
+        warnMax: 500,
+        required: true,
+        message: 'QT interval must be between 200-800 ms',
+        warningMessage: 'QT interval is unusual; double-check.'
+    },
+    {
+        name: 'paO2',
+        min: 10,
+        max: 800,
+        warnMin: 40,
+        warnMax: 500,
+        required: true,
+        message: 'PaO\u2082 must be between 10-800 mmHg',
+        warningMessage: 'PaO\u2082 is extreme; double-check.'
+    },
+    {
+        name: 'paCO2',
+        min: 5,
+        max: 200,
+        warnMin: 25,
+        warnMax: 80,
+        required: true,
+        message: 'PaCO\u2082 must be between 5-200 mmHg',
+        warningMessage: 'PaCO\u2082 is extreme; double-check.'
+    },
+    {
+        name: 'fiO2',
+        min: 0.21,
+        max: 1.0,
+        warnMin: undefined,
+        warnMax: undefined,
+        required: true,
+        message: 'FiO\u2082 must be between 0.21-1.0',
+        warningMessage: undefined
+    },
+    {
+        name: 'phenytoin',
+        min: 0,
+        max: 100,
+        warnMin: 5,
+        warnMax: 30,
+        required: true,
+        message: 'Phenytoin level must be between 0-100 mcg/mL',
+        warningMessage: 'Phenytoin level is unusual; double-check.'
+    },
+    {
+        name: 'bicarbonate',
+        min: 2,
+        max: 60,
+        warnMin: 15,
+        warnMax: 35,
+        required: true,
+        message: 'HCO\u2083\u207B must be between 2-60 mEq/L',
+        warningMessage: 'Bicarbonate is extreme; double-check.'
+    },
+    {
+        name: 'chloride',
+        min: 50,
+        max: 150,
+        warnMin: 90,
+        warnMax: 115,
+        required: true,
+        message: 'Chloride must be between 50-150 mEq/L',
+        warningMessage: 'Chloride is extreme; double-check.'
+    },
+    {
+        name: 'insulin',
+        min: 0.1,
+        max: 500,
+        warnMin: 2,
+        warnMax: 100,
+        required: true,
+        message: 'Insulin must be between 0.1-500 \u00B5U/mL',
+        warningMessage: 'Insulin level is unusual; double-check.'
+    },
+    {
+        name: 'ethanol',
+        min: 0,
+        max: 1000,
+        warnMin: undefined,
+        warnMax: 400,
+        required: false,
+        message: 'Ethanol concentration must be between 0-1000 mg/dL',
+        warningMessage: 'Ethanol level is very high; double-check.'
+    },
+    {
+        name: 'totalCholesterol',
+        min: 50,
+        max: 1000,
+        warnMin: 100,
+        warnMax: 350,
+        required: true,
+        message: 'Total cholesterol must be between 50-1000 mg/dL',
+        warningMessage: 'Cholesterol is unusual; double-check.'
+    },
+    {
+        name: 'hdl',
+        min: 10,
+        max: 200,
+        warnMin: 25,
+        warnMax: 100,
+        required: true,
+        message: 'HDL must be between 10-200 mg/dL',
+        warningMessage: 'HDL is unusual; double-check.'
+    },
+    {
+        name: 'triglycerides',
+        min: 10,
+        max: 3000,
+        warnMin: 30,
+        warnMax: 500,
+        required: true,
+        message: 'Triglycerides must be between 10-3000 mg/dL',
+        warningMessage: 'Triglycerides are unusual; double-check.'
+    },
+    {
+        name: 'osmolality',
+        min: 0,
+        max: 2000,
+        warnMin: 250,
+        warnMax: 350,
+        required: true,
+        message: 'Osmolality must be between 0-2000 mOsm/kg',
+        warningMessage: 'Osmolality is unusual; double-check.'
+    },
+    {
+        name: 'hours',
+        min: 0,
+        max: 168,
+        warnMin: undefined,
+        warnMax: 72,
+        required: true,
+        message: 'Time must be between 0-168 hours',
+        warningMessage: 'Time duration is very long; double-check.'
+    },
+    {
+        name: 'volume',
+        min: 0,
+        max: 5000,
+        warnMin: undefined,
+        warnMax: 2000,
+        required: true,
+        message: 'Volume must be between 0-5000 mL',
+        warningMessage: 'Volume is very large; double-check.'
+    },
+    {
+        name: 'abv',
+        min: 0,
+        max: 100,
+        warnMin: undefined,
+        warnMax: 60,
+        required: true,
+        message: 'ABV must be between 0-100%',
+        warningMessage: 'ABV is very high; double-check.'
+    },
+    {
+        name: 'hemoglobin',
+        min: 1,
+        max: 25,
+        warnMin: 6,
+        warnMax: 18,
+        required: true,
+        message: 'Hemoglobin must be between 1-25 g/dL',
+        warningMessage: 'Hemoglobin is extreme; double-check.'
+    }
 ];
 
 // ---------------------------------------------------------------------------
@@ -288,7 +693,7 @@ describe('ValidationRules - structural checks', () => {
         }
     });
 
-    test.each(ruleNames)('rule "%s" should have min and max defined', (name) => {
+    test.each(ruleNames)('rule "%s" should have min and max defined', name => {
         const rule = ValidationRules[name];
         expect(rule.min).toBeDefined();
         expect(typeof rule.min).toBe('number');
@@ -297,7 +702,7 @@ describe('ValidationRules - structural checks', () => {
         expect(rule.min!).toBeLessThan(rule.max!);
     });
 
-    test.each(ruleNames)('rule "%s" should have a non-empty message string', (name) => {
+    test.each(ruleNames)('rule "%s" should have a non-empty message string', name => {
         const rule = ValidationRules[name];
         expect(rule.message).toBeDefined();
         expect(typeof rule.message).toBe('string');
@@ -306,7 +711,7 @@ describe('ValidationRules - structural checks', () => {
 
     test.each(ruleNames)(
         'rule "%s" warnMin < warnMax when both exist, and both lie within [min, max]',
-        (name) => {
+        name => {
             const rule = ValidationRules[name];
             if (rule.warnMin !== undefined && rule.warnMax !== undefined) {
                 expect(rule.warnMin).toBeLessThanOrEqual(rule.warnMax);
@@ -318,7 +723,7 @@ describe('ValidationRules - structural checks', () => {
 
     test.each(ruleNames)(
         'rule "%s" should have warningMessage when any warn boundary exists',
-        (name) => {
+        name => {
             const rule = ValidationRules[name];
             if (rule.warnMin !== undefined || rule.warnMax !== undefined) {
                 expect(rule.warningMessage).toBeDefined();
@@ -337,7 +742,9 @@ describe('ValidationRules - three-zone boundary tests (describe.each)', () => {
     const fullZoneRules = ALL_RULES.filter(r => r.warnMin !== undefined && r.warnMax !== undefined);
 
     // Rules that have only warnMax (no low-warning zone)
-    const warnMaxOnlyRules = ALL_RULES.filter(r => r.warnMin === undefined && r.warnMax !== undefined);
+    const warnMaxOnlyRules = ALL_RULES.filter(
+        r => r.warnMin === undefined && r.warnMax !== undefined
+    );
 
     // Rules that have no warning zone at all
     const noWarnRules = ALL_RULES.filter(r => r.warnMin === undefined && r.warnMax === undefined);
@@ -581,37 +988,25 @@ describe('ValidationRules - three-zone boundary tests (describe.each)', () => {
 // ===========================================================================
 describe('validateCalculatorInput - edge cases', () => {
     test('null value for required field => error with fieldStatus "error"', () => {
-        const res = validateCalculatorInput(
-            { age: null },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: null }, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
 
     test('undefined value for required field => error', () => {
-        const res = validateCalculatorInput(
-            { age: undefined },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: undefined }, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
 
     test('NaN value for required field => error', () => {
-        const res = validateCalculatorInput(
-            { age: NaN },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: NaN }, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
 
     test('empty string for required field => error', () => {
-        const res = validateCalculatorInput(
-            { age: '' },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: '' }, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
@@ -635,28 +1030,19 @@ describe('validateCalculatorInput - edge cases', () => {
     });
 
     test('NaN for non-required field => valid (skipped)', () => {
-        const res = validateCalculatorInput(
-            { ethanol: NaN },
-            { ethanol: ValidationRules.ethanol }
-        );
+        const res = validateCalculatorInput({ ethanol: NaN }, { ethanol: ValidationRules.ethanol });
         expect(res.isValid).toBe(true);
         expect(res.fieldStatus.ethanol).toBe('valid');
     });
 
     test('empty string for non-required field => valid (skipped)', () => {
-        const res = validateCalculatorInput(
-            { ethanol: '' },
-            { ethanol: ValidationRules.ethanol }
-        );
+        const res = validateCalculatorInput({ ethanol: '' }, { ethanol: ValidationRules.ethanol });
         expect(res.isValid).toBe(true);
         expect(res.fieldStatus.ethanol).toBe('valid');
     });
 
     test('string numeric value is coerced via Number()', () => {
-        const res = validateCalculatorInput(
-            { age: '30' },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: '30' }, { age: ValidationRules.age });
         expect(res.isValid).toBe(true);
         expect(res.fieldStatus.age).toBe('valid');
     });
@@ -672,19 +1058,13 @@ describe('validateCalculatorInput - edge cases', () => {
     });
 
     test('field not present in input but present in schema (required) => error', () => {
-        const res = validateCalculatorInput(
-            {},
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({}, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
 
     test('field not present in input but present in schema (non-required) => valid', () => {
-        const res = validateCalculatorInput(
-            {},
-            { ethanol: ValidationRules.ethanol }
-        );
+        const res = validateCalculatorInput({}, { ethanol: ValidationRules.ethanol });
         expect(res.isValid).toBe(true);
         expect(res.fieldStatus.ethanol).toBe('valid');
     });
@@ -721,19 +1101,13 @@ describe('validateCalculatorInput - edge cases', () => {
     });
 
     test('Infinity is treated as above max => error', () => {
-        const res = validateCalculatorInput(
-            { age: Infinity },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: Infinity }, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
 
     test('-Infinity is treated as below min => error', () => {
-        const res = validateCalculatorInput(
-            { age: -Infinity },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: -Infinity }, { age: ValidationRules.age });
         expect(res.isValid).toBe(false);
         expect(res.fieldStatus.age).toBe('error');
     });
@@ -768,10 +1142,7 @@ describe('ValidationResult structure', () => {
     });
 
     test('hasWarnings is true when warnings array has entries', () => {
-        const res = validateCalculatorInput(
-            { age: 0.5 },
-            { age: ValidationRules.age }
-        );
+        const res = validateCalculatorInput({ age: 0.5 }, { age: ValidationRules.age });
         // 0.5 is >= min(0) but < warnMin(1) => warning
         expect(res.hasWarnings).toBe(true);
         expect(res.warnings.length).toBeGreaterThan(0);
@@ -789,10 +1160,7 @@ describe('ValidationResult structure', () => {
             weight: ValidationRules.weight,
             height: ValidationRules.height
         };
-        const res = validateCalculatorInput(
-            { age: 30, weight: 70, height: 170 },
-            schema
-        );
+        const res = validateCalculatorInput({ age: 30, weight: 70, height: 170 }, schema);
         expect(Object.keys(res.fieldStatus).sort()).toEqual(['age', 'height', 'weight']);
     });
 });
@@ -834,7 +1202,7 @@ describe('validateCalculatorInput - multiple fields', () => {
         const res = validateCalculatorInput(
             { age: -5, weight: 15 },
             {
-                age: ValidationRules.age,   // -5 < 0 => error
+                age: ValidationRules.age, // -5 < 0 => error
                 weight: ValidationRules.weight // 15 >= 0.5 but < 30 => warning
             }
         );
@@ -861,7 +1229,7 @@ describe('validateCalculatorInput - multiple fields', () => {
         const res = validateCalculatorInput(
             { age: 0.5, weight: 15 },
             {
-                age: ValidationRules.age,     // 0.5 < warnMin(1) => warning
+                age: ValidationRules.age, // 0.5 < warnMin(1) => warning
                 weight: ValidationRules.weight // 15 < warnMin(30) => warning
             }
         );
@@ -885,10 +1253,7 @@ describe('validateCalculatorInput - custom validators', () => {
     });
 
     test('custom validator returning false with no message uses default', () => {
-        const res = validateCalculatorInput(
-            { x: 5 },
-            { x: { custom: () => false } }
-        );
+        const res = validateCalculatorInput({ x: 5 }, { x: { custom: () => false } });
         expect(res.isValid).toBe(false);
         expect(res.errors[0]).toBe('x validation failed');
     });
@@ -928,10 +1293,7 @@ describe('validateCalculatorInput - custom validators', () => {
                 }
             }
         };
-        const res = validateCalculatorInput(
-            { systolic: 120, diastolic: 130 },
-            schema
-        );
+        const res = validateCalculatorInput({ systolic: 120, diastolic: 130 }, schema);
         expect(res.isValid).toBe(false);
         expect(res.errors).toContain('Diastolic must be less than systolic');
     });
@@ -1093,26 +1455,17 @@ describe('validateOrThrow', () => {
 // ===========================================================================
 describe('validateCalculatorInput - default messages', () => {
     test('required field with no custom message uses "<key> is required"', () => {
-        const res = validateCalculatorInput(
-            { myField: null },
-            { myField: { required: true } }
-        );
+        const res = validateCalculatorInput({ myField: null }, { myField: { required: true } });
         expect(res.errors[0]).toBe('myField is required');
     });
 
     test('min violation with no custom message uses "must be at least <min>"', () => {
-        const res = validateCalculatorInput(
-            { myField: -1 },
-            { myField: { min: 0 } }
-        );
+        const res = validateCalculatorInput({ myField: -1 }, { myField: { min: 0 } });
         expect(res.errors[0]).toBe('myField must be at least 0');
     });
 
     test('max violation with no custom message uses "must be at most <max>"', () => {
-        const res = validateCalculatorInput(
-            { myField: 200 },
-            { myField: { max: 100 } }
-        );
+        const res = validateCalculatorInput({ myField: 200 }, { myField: { max: 100 } });
         expect(res.errors[0]).toBe('myField must be at most 100');
     });
 
@@ -1133,10 +1486,7 @@ describe('validateCalculatorInput - default messages', () => {
     });
 
     test('pattern failure with no custom message uses "format is incorrect"', () => {
-        const res = validateCalculatorInput(
-            { myField: 'abc' },
-            { myField: { pattern: /^\d+$/ } }
-        );
+        const res = validateCalculatorInput({ myField: 'abc' }, { myField: { pattern: /^\d+$/ } });
         expect(res.errors[0]).toBe('myField format is incorrect');
     });
 });
@@ -1205,7 +1555,7 @@ describe('ValidationRules.gcs - no warning zone', () => {
 
     test.each([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])(
         'GCS %i is valid with no warning',
-        (value) => {
+        value => {
             const res = validateSingleField('gcs', value, rule);
             expect(res.isValid).toBe(true);
             expect(res.hasWarnings).toBe(false);
@@ -1250,7 +1600,7 @@ describe('ValidationRules.fiO2 - fractional range, no warning zone', () => {
     });
 
     test('0.20 is below min => error', () => {
-        const res = validateSingleField('fiO2', 0.20, rule);
+        const res = validateSingleField('fiO2', 0.2, rule);
         expect(res.isValid).toBe(false);
     });
 
@@ -1327,20 +1677,23 @@ describe('fieldStatus correctness - test.each across zones', () => {
 
     test.each([
         // [value, expectedStatus, description]
-        [-1,    'error',   'below min'],
-        [0,     'warning', 'exactly at min, below warnMin'],
-        [0.5,   'warning', 'between min and warnMin'],
-        [1,     'valid',   'exactly at warnMin'],
-        [30,    'valid',   'mid-range green zone'],
-        [120,   'valid',   'exactly at warnMax'],
-        [121,   'warning', 'just above warnMax'],
-        [135,   'warning', 'between warnMax and max'],
-        [150,   'warning', 'exactly at max, above warnMax'],
-        [151,   'error',   'above max'],
-    ] as [number, string, string][])('age=%s => fieldStatus="%s" (%s)', (value, expectedStatus, _desc) => {
-        const res = validateSingleField('age', value, rule);
-        expect(res.fieldStatus.age).toBe(expectedStatus);
-    });
+        [-1, 'error', 'below min'],
+        [0, 'warning', 'exactly at min, below warnMin'],
+        [0.5, 'warning', 'between min and warnMin'],
+        [1, 'valid', 'exactly at warnMin'],
+        [30, 'valid', 'mid-range green zone'],
+        [120, 'valid', 'exactly at warnMax'],
+        [121, 'warning', 'just above warnMax'],
+        [135, 'warning', 'between warnMax and max'],
+        [150, 'warning', 'exactly at max, above warnMax'],
+        [151, 'error', 'above max']
+    ] as [number, string, string][])(
+        'age=%s => fieldStatus="%s" (%s)',
+        (value, expectedStatus, _desc) => {
+            const res = validateSingleField('age', value, rule);
+            expect(res.fieldStatus.age).toBe(expectedStatus);
+        }
+    );
 });
 
 // ===========================================================================

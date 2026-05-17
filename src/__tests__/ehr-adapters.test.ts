@@ -6,7 +6,14 @@ const mockLoggerError = jest.fn<any>();
 const mockLoggerDebug = jest.fn<any>();
 const mockInitSentry = jest.fn<any>();
 
-jest.mock('../logger.js', () => ({ logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug } }));
+jest.mock('../logger.js', () => ({
+    logger: {
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        debug: mockLoggerDebug
+    }
+}));
 jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 
 import { GenericEHRAdapter } from '../ehr-adapters/generic-adapter.js';
@@ -42,10 +49,7 @@ describe('GenericEHRAdapter', () => {
 
     it('processObservationResponse extracts entries from bundle', () => {
         const response = {
-            entry: [
-                { resource: { id: '1', value: 10 } },
-                { resource: { id: '2', value: 20 } }
-            ]
+            entry: [{ resource: { id: '1', value: 10 } }, { resource: { id: '2', value: 20 } }]
         };
         const result = adapter.processObservationResponse(response);
         expect(result.entries).toHaveLength(2);

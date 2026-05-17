@@ -67,9 +67,16 @@ export const cpisConfig: ScoringCalculatorConfig = {
             title: 'Culture of tracheal aspirate specimen',
             subtitle: 'Semi-quantitative, 0, 1, 2, or 3+',
             options: [
-                { value: '0', label: 'Pathogenic bacteria cultured ≤1 or no growth (0)', checked: true },
+                {
+                    value: '0',
+                    label: 'Pathogenic bacteria cultured ≤1 or no growth (0)',
+                    checked: true
+                },
                 { value: '1', label: 'Pathogenic bacteria cultured >1+ (+1)' },
-                { value: '2', label: 'Pathogenic bacteria cultured >1+ plus same pathogenic bacteria on gram stain >1+ (+2)' }
+                {
+                    value: '2',
+                    label: 'Pathogenic bacteria cultured >1+ plus same pathogenic bacteria on gram stain >1+ (+2)'
+                }
             ]
         }
     ],
@@ -102,20 +109,20 @@ export const cpisConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'CPIS Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: interpretation,
-            alertClass: `ui-alert-${alertType}`
-        })}
+                label: 'CPIS Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: interpretation,
+                alertClass: `ui-alert-${alertType}`
+            })}
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: `<strong>Interpretation:</strong> ${detail}`
-        })}
+                type: alertType,
+                message: `<strong>Interpretation:</strong> ${detail}`
+            })}
             ${uiBuilder.createSection({
-            title: 'Management Considerations',
-            content: management
-        })}
+                title: 'Management Considerations',
+                content: management
+            })}
         `;
     },
     customInitialize: (

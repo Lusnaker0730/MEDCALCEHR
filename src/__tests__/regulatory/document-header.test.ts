@@ -2,7 +2,14 @@
  * Document Header Generator Tests
  */
 
-import { generateDocumentHeader, generateApprovalTable, generateRevisionHistory, getRiskCategory, getRiskColor, getToday } from '../../../scripts/regulatory/document-header';
+import {
+    generateDocumentHeader,
+    generateApprovalTable,
+    generateRevisionHistory,
+    getRiskCategory,
+    getRiskColor,
+    getToday
+} from '../../../scripts/regulatory/document-header';
 import { DocumentMeta } from '../../../scripts/regulatory/types';
 
 describe('generateDocumentHeader', () => {
@@ -28,8 +35,12 @@ describe('generateDocumentHeader', () => {
 
     it('should contain auto-generation notice', () => {
         const meta: DocumentMeta = {
-            product: 'Test', version: '1.0', documentId: 'X',
-            standard: 'Y', title: 'Z', generatedDate: '2026-01-01'
+            product: 'Test',
+            version: '1.0',
+            documentId: 'X',
+            standard: 'Y',
+            title: 'Z',
+            generatedDate: '2026-01-01'
         };
         const header = generateDocumentHeader(meta);
         expect(header).toContain('自動產出');

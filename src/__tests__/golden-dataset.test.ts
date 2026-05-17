@@ -75,7 +75,10 @@ import { calculateEuroScoreII } from '../calculators/euroscore-ii/calculation.js
 import { calculateABG } from '../calculators/abg-analyzer/calculation.js';
 import { calculatePediatricBP } from '../calculators/pediatric-bp/calculation.js';
 import { preciseHbrCalculation } from '../calculators/precise-hbr/calculation.js';
-import { calculateBleedingRisk, calculateIschemicRisk } from '../calculators/trade-off-analysis/risk-factors.js';
+import {
+    calculateBleedingRisk,
+    calculateIschemicRisk
+} from '../calculators/trade-off-analysis/risk-factors.js';
 
 // ==========================================
 // Scoring Calculator Config Imports (Pattern B)
@@ -114,9 +117,34 @@ const gcsConfig: any = {
     inputType: 'radio',
     id: 'gcs',
     sections: [
-        { id: 'eye', title: 'Eye Opening', options: [{ value: '4' }, { value: '3' }, { value: '2' }, { value: '1' }] },
-        { id: 'verbal', title: 'Verbal', options: [{ value: '5' }, { value: '4' }, { value: '3' }, { value: '2' }, { value: '1' }] },
-        { id: 'motor', title: 'Motor', options: [{ value: '6' }, { value: '5' }, { value: '4' }, { value: '3' }, { value: '2' }, { value: '1' }] }
+        {
+            id: 'eye',
+            title: 'Eye Opening',
+            options: [{ value: '4' }, { value: '3' }, { value: '2' }, { value: '1' }]
+        },
+        {
+            id: 'verbal',
+            title: 'Verbal',
+            options: [
+                { value: '5' },
+                { value: '4' },
+                { value: '3' },
+                { value: '2' },
+                { value: '1' }
+            ]
+        },
+        {
+            id: 'motor',
+            title: 'Motor',
+            options: [
+                { value: '6' },
+                { value: '5' },
+                { value: '4' },
+                { value: '3' },
+                { value: '2' },
+                { value: '1' }
+            ]
+        }
     ],
     riskLevels: [
         { minScore: 13, maxScore: 15, label: 'Mild Brain Injury', severity: 'success' },
@@ -129,19 +157,71 @@ const nihssConfig: any = {
     inputType: 'radio',
     id: 'nihss',
     sections: [
-        { id: 'nihss-1a', title: '1a', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }] },
+        {
+            id: 'nihss-1a',
+            title: '1a',
+            options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }]
+        },
         { id: 'nihss-1b', title: '1b', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
         { id: 'nihss-1c', title: '1c', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
         { id: 'nihss-2', title: '2', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
-        { id: 'nihss-3', title: '3', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }] },
+        {
+            id: 'nihss-3',
+            title: '3',
+            options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }]
+        },
         { id: 'nihss-4', title: '4', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
-        { id: 'nihss-5a', title: '5a', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }, { value: '4' }] },
-        { id: 'nihss-5b', title: '5b', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }, { value: '4' }] },
-        { id: 'nihss-6a', title: '6a', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }, { value: '4' }] },
-        { id: 'nihss-6b', title: '6b', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }, { value: '4' }] },
+        {
+            id: 'nihss-5a',
+            title: '5a',
+            options: [
+                { value: '0' },
+                { value: '1' },
+                { value: '2' },
+                { value: '3' },
+                { value: '4' }
+            ]
+        },
+        {
+            id: 'nihss-5b',
+            title: '5b',
+            options: [
+                { value: '0' },
+                { value: '1' },
+                { value: '2' },
+                { value: '3' },
+                { value: '4' }
+            ]
+        },
+        {
+            id: 'nihss-6a',
+            title: '6a',
+            options: [
+                { value: '0' },
+                { value: '1' },
+                { value: '2' },
+                { value: '3' },
+                { value: '4' }
+            ]
+        },
+        {
+            id: 'nihss-6b',
+            title: '6b',
+            options: [
+                { value: '0' },
+                { value: '1' },
+                { value: '2' },
+                { value: '3' },
+                { value: '4' }
+            ]
+        },
         { id: 'nihss-7', title: '7', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
         { id: 'nihss-8', title: '8', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
-        { id: 'nihss-9', title: '9', options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }] },
+        {
+            id: 'nihss-9',
+            title: '9',
+            options: [{ value: '0' }, { value: '1' }, { value: '2' }, { value: '3' }]
+        },
         { id: 'nihss-10', title: '10', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
         { id: 'nihss-11', title: '11', options: [{ value: '0' }, { value: '1' }, { value: '2' }] }
     ],
@@ -157,15 +237,21 @@ const nihssConfig: any = {
 const percConfig: any = {
     inputType: 'checkbox',
     id: 'perc',
-    sections: [{
-        title: 'PERC Criteria',
-        options: [
-            { id: 'age50', value: 1 }, { id: 'hr100', value: 1 }, { id: 'o2sat', value: 1 },
-            { id: 'hemoptysis', value: 1 }, { id: 'exogenous-estrogen', value: 1 },
-            { id: 'prior-dvt-pe', value: 1 }, { id: 'unilateral-swelling', value: 1 },
-            { id: 'trauma-surgery', value: 1 }
-        ]
-    }],
+    sections: [
+        {
+            title: 'PERC Criteria',
+            options: [
+                { id: 'age50', value: 1 },
+                { id: 'hr100', value: 1 },
+                { id: 'o2sat', value: 1 },
+                { id: 'hemoptysis', value: 1 },
+                { id: 'exogenous-estrogen', value: 1 },
+                { id: 'prior-dvt-pe', value: 1 },
+                { id: 'unilateral-swelling', value: 1 },
+                { id: 'trauma-surgery', value: 1 }
+            ]
+        }
+    ],
     riskLevels: [
         { minScore: 0, maxScore: 0, label: 'PERC Negative', severity: 'success' },
         { minScore: 1, maxScore: 8, label: 'PERC Positive', severity: 'danger' }
@@ -240,8 +326,10 @@ const ransonConfig: any = {
             id: 'admission',
             title: 'Admission Criteria',
             options: [
-                { id: 'ranson-age', value: 1 }, { id: 'ranson-wbc', value: 1 },
-                { id: 'ranson-glucose', value: 1 }, { id: 'ranson-ast', value: 1 },
+                { id: 'ranson-age', value: 1 },
+                { id: 'ranson-wbc', value: 1 },
+                { id: 'ranson-glucose', value: 1 },
+                { id: 'ranson-ast', value: 1 },
                 { id: 'ranson-ldh', value: 1 }
             ]
         },
@@ -249,9 +337,12 @@ const ransonConfig: any = {
             id: '48hr',
             title: '48-hour Criteria',
             options: [
-                { id: 'ranson-calcium', value: 1 }, { id: 'ranson-hct', value: 1 },
-                { id: 'ranson-paO2', value: 1 }, { id: 'ranson-bun', value: 1 },
-                { id: 'ranson-base', value: 1 }, { id: 'ranson-fluid', value: 1 }
+                { id: 'ranson-calcium', value: 1 },
+                { id: 'ranson-hct', value: 1 },
+                { id: 'ranson-paO2', value: 1 },
+                { id: 'ranson-bun', value: 1 },
+                { id: 'ranson-base', value: 1 },
+                { id: 'ranson-fluid', value: 1 }
             ]
         }
     ],
@@ -267,16 +358,56 @@ const regiscarConfig: any = {
     inputType: 'radio',
     id: 'regiscar',
     sections: [
-        { id: 'regiscar-fever', title: 'Fever ≥38.5°C', options: [{ value: '-1' }, { value: '0' }] },
-        { id: 'regiscar-lymph-nodes', title: 'Enlarged lymph nodes', options: [{ value: '-1' }, { value: '0' }, { value: '1' }] },
-        { id: 'regiscar-lymphocytes', title: 'Atypical lymphocytes', options: [{ value: '-1' }, { value: '0' }, { value: '1' }] },
-        { id: 'regiscar-eosinophilia', title: 'Eosinophilia', options: [{ value: '-1' }, { value: '0' }, { value: '1' }, { value: '2' }] },
-        { id: 'regiscar-rash', title: 'Skin rash >50%', options: [{ value: '-1' }, { value: '0' }, { value: '1' }] },
-        { id: 'regiscar-skin-features', title: '≥2 skin features', options: [{ value: '-1' }, { value: '0' }, { value: '1' }] },
-        { id: 'regiscar-biopsy', title: 'Skin biopsy suggesting DRESS', options: [{ value: '-1' }, { value: '0' }, { value: '1' }] },
-        { id: 'regiscar-organ', title: 'Organ involvement', options: [{ value: '0' }, { value: '1' }, { value: '2' }] },
-        { id: 'regiscar-resolution', title: 'Resolution ≥15 days', options: [{ value: '-1' }, { value: '0' }] },
-        { id: 'regiscar-alternative', title: 'Alternative diagnoses excluded', options: [{ value: '0' }, { value: '1' }] }
+        {
+            id: 'regiscar-fever',
+            title: 'Fever ≥38.5°C',
+            options: [{ value: '-1' }, { value: '0' }]
+        },
+        {
+            id: 'regiscar-lymph-nodes',
+            title: 'Enlarged lymph nodes',
+            options: [{ value: '-1' }, { value: '0' }, { value: '1' }]
+        },
+        {
+            id: 'regiscar-lymphocytes',
+            title: 'Atypical lymphocytes',
+            options: [{ value: '-1' }, { value: '0' }, { value: '1' }]
+        },
+        {
+            id: 'regiscar-eosinophilia',
+            title: 'Eosinophilia',
+            options: [{ value: '-1' }, { value: '0' }, { value: '1' }, { value: '2' }]
+        },
+        {
+            id: 'regiscar-rash',
+            title: 'Skin rash >50%',
+            options: [{ value: '-1' }, { value: '0' }, { value: '1' }]
+        },
+        {
+            id: 'regiscar-skin-features',
+            title: '≥2 skin features',
+            options: [{ value: '-1' }, { value: '0' }, { value: '1' }]
+        },
+        {
+            id: 'regiscar-biopsy',
+            title: 'Skin biopsy suggesting DRESS',
+            options: [{ value: '-1' }, { value: '0' }, { value: '1' }]
+        },
+        {
+            id: 'regiscar-organ',
+            title: 'Organ involvement',
+            options: [{ value: '0' }, { value: '1' }, { value: '2' }]
+        },
+        {
+            id: 'regiscar-resolution',
+            title: 'Resolution ≥15 days',
+            options: [{ value: '-1' }, { value: '0' }]
+        },
+        {
+            id: 'regiscar-alternative',
+            title: 'Alternative diagnoses excluded',
+            options: [{ value: '0' }, { value: '1' }]
+        }
     ],
     riskLevels: [
         { minScore: -10, maxScore: 1, label: 'No Case', severity: 'success' },
@@ -293,46 +424,46 @@ const regiscarConfig: any = {
 const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> = {
     'bmi-bsa': bmiBsaCalculation,
     'ckd-epi': calculateCkdEpi,
-    'crcl': crclCalculation,
+    crcl: crclCalculation,
     'meld-na': meldNaCalculation,
     'child-pugh': childPughCalculation,
-    'charlson': calculateCharlson,
-    'qsofa': qsofaCalculation,
-    'ascvd': (values: Record<string, any>) => {
+    charlson: calculateCharlson,
+    qsofa: qsofaCalculation,
+    ascvd: (values: Record<string, any>) => {
         const result = ascvdCalculationPure(values);
         return result?.results ?? null;
     },
     'geneva-score': calculateGenevaScore,
-    'sirs': sirsCalculation,
+    sirs: sirsCalculation,
     'calcium-correction': calciumCorrectionCalculation,
     'sodium-correction': calculateSodiumCorrection,
     'phenytoin-correction': phenytoinCorrectionCalculation,
-    'map': calculateMAP,
-    'ibw': calculateIBW,
-    'qtc': qtcCalculation,
-    'fena': calculateFENa,
-    'feurea': calculateFEUrea,
+    map: calculateMAP,
+    ibw: calculateIBW,
+    qtc: qtcCalculation,
+    fena: calculateFENa,
+    feurea: calculateFEUrea,
     'fib-4': fib4Calculation,
     'serum-anion-gap': serumAnionGapCalculation,
     'serum-osmolality': serumOsmolalityCalculation,
     'homa-ir': calculateHOMAIR,
-    'ldl': calculateLDL,
+    ldl: calculateLDL,
     'free-water-deficit': calculateFreeWaterDeficit,
-    'ttkg': ttkgCalculation,
+    ttkg: ttkgCalculation,
     'mdrd-gfr': calculateMDRD,
     'nafld-fibrosis-score': calculateNafldFibrosisScore,
     'tpa-dosing': calculateTpaDosing,
     'tpa-dosing-stroke': calculateTpaDosingStroke,
-    'abl': calculateABL,
+    abl: calculateABL,
     '4peps': calculateFourPeps,
     '6mwd': calculate6MWD,
-    'bwps': calculateBwps,
-    'ett': calculateETT,
+    bwps: calculateBwps,
+    ett: calculateETT,
     'gupta-mica': calculateGuptaMica,
     'gwtg-hf': calculateGwtgHf,
     'intraop-fluid': calculateIntraopFluid,
     'isth-dic': calculateIsthDic,
-    'maggic': calculateMaggic,
+    maggic: calculateMaggic,
     'maintenance-fluids': calculateMaintenanceFluids,
     'trade-off-analysis': (values: Record<string, any>) => {
         const factorIds = Object.keys(values).filter(k => values[k] === 1 || values[k] === true);
@@ -342,7 +473,7 @@ const simpleCalculatorMap: Record<string, (values: Record<string, any>) => any> 
             { label: 'Bleeding Risk', value: bleeding },
             { label: 'Ischemic Risk', value: ischemic }
         ];
-    },
+    }
 };
 
 const complexCalculatorMap: Record<string, (...args: any[]) => any> = {
@@ -350,22 +481,22 @@ const complexCalculatorMap: Record<string, (...args: any[]) => any> = {
     'euroscore-ii': calculateEuroScoreII,
     'abg-analyzer': calculateABG,
     'pediatric-bp': calculatePediatricBP,
-    'precise-hbr': preciseHbrCalculation,
+    'precise-hbr': preciseHbrCalculation
 };
 
 const scoringConfigMap: Record<string, any> = {
     // Exported configs
-    'sofa': sofaConfig,
+    sofa: sofaConfig,
     'curb-65': curb65Config,
     'wells-pe': wellsPEConfig,
     'wells-dvt': wellsDVTConfig,
     'has-bled': hasBledConfig,
     'timi-nstemi': timiNstemiConfig,
     'heart-score': heartScoreConfig,
-    'mews': mewsConfig,
-    'apgar': apgarConfig,
+    mews: mewsConfig,
+    apgar: apgarConfig,
     'gad-7': gad7Config,
-    'ariscat': ariscatConfig,
+    ariscat: ariscatConfig,
     'stop-bang': stopBangConfig,
     '4c-mortality-covid': fourCMortalityCovidConfig,
     '4as-delirium': fourAsDeliriumConfig,
@@ -373,20 +504,20 @@ const scoringConfigMap: Record<string, any> = {
     'action-icu': actionIcuConfig,
     'af-risk': afRiskConfig,
     'ciwa-ar': ciwaArConfig,
-    'cpis': cpisConfig,
-    'dasi': dasiConfig,
-    'hscore': hscoreConfig,
-    'kawasaki': kawasakiConfig,
+    cpis: cpisConfig,
+    dasi: dasiConfig,
+    hscore: hscoreConfig,
+    kawasaki: kawasakiConfig,
     // Inline configs (not exported from calculator modules)
-    'gcs': gcsConfig,
-    'nihss': nihssConfig,
-    'perc': percConfig,
+    gcs: gcsConfig,
+    nihss: nihssConfig,
+    perc: percConfig,
     'padua-vte': paduaVteConfig,
     'phq-9': phq9Config,
-    'centor': centorConfig,
-    'rcri': rcriConfig,
-    'ranson': ransonConfig,
-    'regiscar': regiscarConfig,
+    centor: centorConfig,
+    rcri: rcriConfig,
+    ranson: ransonConfig,
+    regiscar: regiscarConfig
 };
 
 // ==========================================
@@ -413,7 +544,7 @@ describe('Golden Dataset Clinical Validation', () => {
                 runSimpleGoldenTests(dataset, fn);
             } else {
                 describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
-                    test.skip(`Calculator "${calculatorId}" not mapped in simpleCalculatorMap`, () => { });
+                    test.skip(`Calculator "${calculatorId}" not mapped in simpleCalculatorMap`, () => {});
                 });
             }
         } else if (calculatorType === 'scoring') {
@@ -422,7 +553,7 @@ describe('Golden Dataset Clinical Validation', () => {
                 runScoringGoldenTests(dataset, config, calculateScoringResult);
             } else {
                 describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
-                    test.skip(`Calculator "${calculatorId}" not mapped in scoringConfigMap`, () => { });
+                    test.skip(`Calculator "${calculatorId}" not mapped in scoringConfigMap`, () => {});
                 });
             }
         } else if (calculatorType === 'complex') {
@@ -431,7 +562,7 @@ describe('Golden Dataset Clinical Validation', () => {
                 runComplexGoldenTests(dataset, fn);
             } else {
                 describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
-                    test.skip(`Calculator "${calculatorId}" not mapped in complexCalculatorMap`, () => { });
+                    test.skip(`Calculator "${calculatorId}" not mapped in complexCalculatorMap`, () => {});
                 });
             }
         }

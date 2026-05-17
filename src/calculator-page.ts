@@ -27,11 +27,18 @@ initWebVitals();
 const _logConfig = window.MEDCALC_CONFIG?.logging;
 if (_logConfig?.remoteEndpoint) {
     const levelMap: Record<string, LogLevel> = {
-        DEBUG: LogLevel.DEBUG, INFO: LogLevel.INFO,
-        WARN: LogLevel.WARN, ERROR: LogLevel.ERROR,
+        DEBUG: LogLevel.DEBUG,
+        INFO: LogLevel.INFO,
+        WARN: LogLevel.WARN,
+        ERROR: LogLevel.ERROR
     };
-    const minLevel = levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
-    const transport = new BeaconTransport(_logConfig.remoteEndpoint, minLevel, _logConfig.bufferSize);
+    const minLevel =
+        levelMap[(_logConfig.remoteMinLevel ?? 'ERROR').toUpperCase()] ?? LogLevel.ERROR;
+    const transport = new BeaconTransport(
+        _logConfig.remoteEndpoint,
+        minLevel,
+        _logConfig.bufferSize
+    );
     logger.addTransport(transport);
     window.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') transport.flush();
@@ -43,7 +50,11 @@ if (window.MEDCALC_CONFIG && !Object.isFrozen(window.MEDCALC_CONFIG)) {
     (function deepFreeze(obj: any) {
         Object.freeze(obj);
         Object.getOwnPropertyNames(obj).forEach(prop => {
-            if (obj[prop] !== null && typeof obj[prop] === 'object' && !Object.isFrozen(obj[prop])) {
+            if (
+                obj[prop] !== null &&
+                typeof obj[prop] === 'object' &&
+                !Object.isFrozen(obj[prop])
+            ) {
                 deepFreeze(obj[prop]);
             }
         });
@@ -188,9 +199,11 @@ window.onload = () => {
                     try {
                         calculator.initialize(client, patient, card);
                     } catch (initError) {
-                        logger.error('Error during calculator initialization', { error: String(initError), calculatorId });
-                        card.innerHTML =
-                            `<div class="error-box">${t('calculator.initError')}</div>`;
+                        logger.error('Error during calculator initialization', {
+                            error: String(initError),
+                            calculatorId
+                        });
+                        card.innerHTML = `<div class="error-box">${t('calculator.initError')}</div>`;
                     }
                 }
             };
@@ -200,33 +213,41 @@ window.onload = () => {
                 .then((client: FHIRClient) => {
                     tokenLifecycleManager.initialize(client);
                     // Set practitioner ID for calculation history & favorites
-                    client.user.read().then(user => {
-                        if (user?.id) {
-                            calculationHistory.setPractitionerId(user.id);
-                            favoritesManager.setPractitionerId(user.id);
-                        }
-                    }).catch(() => {
-                        logger.warn('Could not read practitioner on calculator page');
-                    });
+                    client.user
+                        .read()
+                        .then(user => {
+                            if (user?.id) {
+                                calculationHistory.setPractitionerId(user.id);
+                                favoritesManager.setPractitionerId(user.id);
+                            }
+                        })
+                        .catch(() => {
+                            logger.warn('Could not read practitioner on calculator page');
+                        });
 
                     displayPatientInfo(client, patientInfoDiv).then((patient: Patient | null) => {
                         // Log patient access to audit trail (IHE BALP)
                         if (patient?.id) {
-                            const patientName = patient.name?.[0]?.text ||
+                            const patientName =
+                                patient.name?.[0]?.text ||
                                 `${patient.name?.[0]?.given?.join(' ') || ''} ${patient.name?.[0]?.family || ''}`.trim();
 
                             // Set audit and provenance context
                             auditEventService.setPatientContext(patient.id, patientName);
                             provenanceService.setPatientContext(patient.id, patientName);
 
-                            auditEventService.logPatientAccess(
-                                patient.id,
-                                patientName,
-                                'Calculator',
-                                calculatorId
-                            ).catch(err => {
-                                logger.warn('Failed to log patient access audit', { error: String(err) });
-                            });
+                            auditEventService
+                                .logPatientAccess(
+                                    patient.id,
+                                    patientName,
+                                    'Calculator',
+                                    calculatorId
+                                )
+                                .catch(err => {
+                                    logger.warn('Failed to log patient access audit', {
+                                        error: String(err)
+                                    });
+                                });
                         }
 
                         initializeCalculator(client, patient);
@@ -239,12 +260,11 @@ window.onload = () => {
                     initializeCalculator(null, null);
                 });
         } catch (error) {
-            logger.error('Failed to load calculator module', { calculatorId, error: String(error) });
-            displayError(
-                card,
-                error as Error,
-                t('calculator.unavailable')
-            );
+            logger.error('Failed to load calculator module', {
+                calculatorId,
+                error: String(error)
+            });
+            displayError(card, error as Error, t('calculator.unavailable'));
         }
     };
 

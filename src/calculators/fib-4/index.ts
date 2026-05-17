@@ -77,24 +77,25 @@ export const fib4 = createUnifiedFormulaCalculator({
         const alertClass = res.ageAlertClass || 'info';
         const ishakStage = res.ishakStage || '';
 
-        const footnote = '*Use with caution in patients <35 or >65 years old, as the score has been shown to be less reliable in these patients.';
+        const footnote =
+            '*Use with caution in patients <35 or >65 years old, as the score has been shown to be less reliable in these patients.';
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'FIB-4 Score',
-            value: score,
-            unit: 'points'
-        })}
+                label: 'FIB-4 Score',
+                value: score,
+                unit: 'points'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Age-Specific Interpretation',
-            value: interp,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'Age-Specific Interpretation',
+                value: interp,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Approximate Fibrosis Stage*',
-            value: `Stage ${ishakStage}`,
-            interpretation: 'Based on Ishak fibrosis staging'
-        })}
+                label: 'Approximate Fibrosis Stage*',
+                value: `Stage ${ishakStage}`,
+                interpretation: 'Based on Ishak fibrosis staging'
+            })}
             <div class="result-footnote mt-3 text-muted" style="font-size: 0.85em;">
                 ${footnote}
             </div>

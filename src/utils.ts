@@ -138,16 +138,17 @@ export async function displayPatientInfo(client: any, patientInfoDiv: HTMLElemen
 
     if (!client?.patient?.id) {
         if (!cachedMinimal) {
-            patientInfoDiv.innerHTML =
-                `<p>${t('patient.noData')}</p>`;
+            patientInfoDiv.innerHTML = `<p>${t('patient.noData')}</p>`;
         }
         // Return a reconstructed minimal patient object for compatibility
-        return cachedMinimal ? {
-            id: cachedMinimal.id,
-            name: [{ text: cachedMinimal.name }],
-            birthDate: cachedMinimal.birthDate,
-            gender: cachedMinimal.gender
-        } : null;
+        return cachedMinimal
+            ? {
+                  id: cachedMinimal.id,
+                  name: [{ text: cachedMinimal.name }],
+                  birthDate: cachedMinimal.birthDate,
+                  gender: cachedMinimal.gender
+              }
+            : null;
     }
 
     return client.patient.read().then(
@@ -320,14 +321,16 @@ export async function getMedicationRequests(client: any, rxnormCodes: string[]):
         const response = await client.request(`MedicationRequest?${query}`);
         return response.entry
             ? response.entry
-                .map((e: any) => e.resource)
-                .filter((r: any) => {
-                    if (isRestrictedResource(r)) {
-                        logger.warn('Access to restricted MedicationRequest blocked', { detail: r.id });
-                        return false;
-                    }
-                    return true;
-                })
+                  .map((e: any) => e.resource)
+                  .filter((r: any) => {
+                      if (isRestrictedResource(r)) {
+                          logger.warn('Access to restricted MedicationRequest blocked', {
+                              detail: r.id
+                          });
+                          return false;
+                      }
+                      return true;
+                  })
             : [];
     } catch (error) {
         logger.error('Error fetching medication requests', { error: String(error) });

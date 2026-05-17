@@ -15,7 +15,15 @@ export function calculatePregnancyDates(
     egaWeeks: number,
     egaDays: number,
     now: Date = new Date()
-): { lmp: Date; edc: Date; edd: Date; gaWeeks: number; gaDays: number; diffDays: number; remainingDays: number } | null {
+): {
+    lmp: Date;
+    edc: Date;
+    edd: Date;
+    gaWeeks: number;
+    gaDays: number;
+    diffDays: number;
+    remainingDays: number;
+} | null {
     if (!inputDateStr && method !== 'ega_today') return null;
 
     let baseDateLocal: Date | null = null;
@@ -63,8 +71,16 @@ export function calculatePregnancyDates(
     const eddLocal = calculateOffsetDate(lmpDateLocal, eddOffset);
 
     // Use UTC for difference calculation to avoid DST shifts
-    const lmpUtc = Date.UTC(lmpDateLocal.getFullYear(), lmpDateLocal.getMonth(), lmpDateLocal.getDate());
-    const todayUtc = Date.UTC(todayLocal.getFullYear(), todayLocal.getMonth(), todayLocal.getDate());
+    const lmpUtc = Date.UTC(
+        lmpDateLocal.getFullYear(),
+        lmpDateLocal.getMonth(),
+        lmpDateLocal.getDate()
+    );
+    const todayUtc = Date.UTC(
+        todayLocal.getFullYear(),
+        todayLocal.getMonth(),
+        todayLocal.getDate()
+    );
 
     const diffTime = todayUtc - lmpUtc;
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
@@ -88,7 +104,8 @@ export function calculatePregnancyDates(
 export const dueDate: CalculatorModule = {
     id: 'due-date',
     title: 'Pregnancy Due Dates Calculator',
-    description: 'Calculates pregnancy dates from last period, gestational age, or date of conception.',
+    description:
+        'Calculates pregnancy dates from last period, gestational age, or date of conception.',
 
     generateHTML: function () {
         return `
@@ -98,86 +115,90 @@ export const dueDate: CalculatorModule = {
             </div>
 
             ${uiBuilder.createSection({
-            title: 'Inputs',
-            content: `
+                title: 'Inputs',
+                content: `
                     <div id="cycle-length-container">
                         ${uiBuilder.createInput({
-                id: 'cycle-length',
-                label: 'Cycle length',
-                type: 'number',
-                defaultValue: 28,
-                min: 20,
-                max: 60,
-                unit: 'days'
-            })}
+                            id: 'cycle-length',
+                            label: 'Cycle length',
+                            type: 'number',
+                            defaultValue: 28,
+                            min: 20,
+                            max: 60,
+                            unit: 'days'
+                        })}
                     </div>
                     <div id="calc-method-container">
                         ${uiBuilder.createSelect({
-                id: 'calc-method',
-                label: 'Dates to enter',
-                options: [
-                    { value: 'lmp', label: 'Last menstrual period', selected: true },
-                    { value: 'ega_today', label: 'Estimated gestational age (EGA) as of today' },
-                    { value: 'ega_date', label: 'EGA as of another date' },
-                    { value: 'concept', label: 'Estimated date of conception' },
-                    { value: 'edd', label: 'Estimated due date' }
-                ],
-                helpText: '"Last menstrual period" should be first day of LMP;'
-            })}
+                            id: 'calc-method',
+                            label: 'Dates to enter',
+                            options: [
+                                { value: 'lmp', label: 'Last menstrual period', selected: true },
+                                {
+                                    value: 'ega_today',
+                                    label: 'Estimated gestational age (EGA) as of today'
+                                },
+                                { value: 'ega_date', label: 'EGA as of another date' },
+                                { value: 'concept', label: 'Estimated date of conception' },
+                                { value: 'edd', label: 'Estimated due date' }
+                            ],
+                            helpText: '"Last menstrual period" should be first day of LMP;'
+                        })}
                     </div>
                     
                     <div id="method-inputs-container">
                         <div id="input-date-container">
                             ${uiBuilder.createInput({
-                id: 'input-date',
-                label: 'Last Menstrual Period Date',
-                type: 'date'
-            })}
+                                id: 'input-date',
+                                label: 'Last Menstrual Period Date',
+                                type: 'date'
+                            })}
                         </div>
                         <div id="input-ega-container" style="display: none;">
                             ${uiBuilder.createInput({
-                id: 'ega-weeks',
-                label: 'EGA Weeks',
-                type: 'number',
-                min: 0,
-                max: 44,
-                defaultValue: 0
-            })}
+                                id: 'ega-weeks',
+                                label: 'EGA Weeks',
+                                type: 'number',
+                                min: 0,
+                                max: 44,
+                                defaultValue: 0
+                            })}
                             ${uiBuilder.createInput({
-                id: 'ega-days',
-                label: 'EGA Days',
-                type: 'number',
-                min: 0,
-                max: 6,
-                defaultValue: 0
-            })}
+                                id: 'ega-days',
+                                label: 'EGA Days',
+                                type: 'number',
+                                min: 0,
+                                max: 6,
+                                defaultValue: 0
+                            })}
                         </div>
                     </div>
                 `
-        })}
+            })}
 
             ${uiBuilder.createResultBox({ id: 'due-date-result', title: 'Pregnancy Dating' })}
 
             ${uiBuilder.createFormulaSection({
-            items: [
-                {
-                    title: 'Estimated gestational age (EGA)',
-                    formula: 'Time since 1st day of last menstrual period (LMP)'
-                },
-                {
-                    title: 'Estimated date of conception (EDC)',
-                    formula: 'Two weeks* since 1st day of LMP'
-                },
-                {
-                    title: 'Estimated due date (EDD)',
-                    formula: "1st day of LMP + 40 weeks* (Naegele's Rule)"
-                },
-                {
-                    title: '*Note',
-                    formula: 'Assumes 28 day cycle. If cycle is longer than 28 days, this calculator adds the number of days more than 28 to obtain EDD. Example: if cycle length is 35 days, add 7 days (= 35 – 28) to 40 weeks.'
-                }
-            ]
-        })}
+                items: [
+                    {
+                        title: 'Estimated gestational age (EGA)',
+                        formula: 'Time since 1st day of last menstrual period (LMP)'
+                    },
+                    {
+                        title: 'Estimated date of conception (EDC)',
+                        formula: 'Two weeks* since 1st day of LMP'
+                    },
+                    {
+                        title: 'Estimated due date (EDD)',
+                        formula: "1st day of LMP + 40 weeks* (Naegele's Rule)"
+                    },
+                    {
+                        title: '*Note',
+                        formula:
+                            'Assumes 28 day cycle. If cycle is longer than 28 days, this calculator adds the number of days more than 28 to obtain EDD. Example: if cycle length is 35 days, add 7 days (= 35 – 28) to 40 weeks.'
+                    }
+                ]
+            })}
         `;
     },
 
@@ -246,7 +267,13 @@ export const dueDate: CalculatorModule = {
 
             if (!resultBox || !resultContent) return;
 
-            const result = calculatePregnancyDates(method, cycleLength, inputDateStr, egaWeeks, egaDays);
+            const result = calculatePregnancyDates(
+                method,
+                cycleLength,
+                inputDateStr,
+                egaWeeks,
+                egaDays
+            );
 
             if (!result) {
                 resultBox.classList.remove('show');
@@ -282,33 +309,28 @@ export const dueDate: CalculatorModule = {
 
             resultContent.innerHTML = `
                 ${uiBuilder.createResultItem({
-                label: 'Estimated Due Date (EDD)',
-                value: eddStr,
-                alertClass: 'ui-alert-success'
-            })
-                }
+                    label: 'Estimated Due Date (EDD)',
+                    value: eddStr,
+                    alertClass: 'ui-alert-success'
+                })}
                 ${uiBuilder.createResultItem({
                     label: 'Gestational Age (EGA)',
                     value: `${gaWeeks} weeks, ${gaDays} days`,
                     alertClass: `ui-alert-${alertType}`
-                })
-                }
+                })}
                 ${uiBuilder.createResultItem({
                     label: 'Estimated Date of Conception (EDC)',
                     value: edcStr
-                })
-                }
+                })}
                 ${uiBuilder.createResultItem({
                     label: 'Calculated LMP Date',
                     value: lmpStr
-                })
-                }
+                })}
                 ${uiBuilder.createResultItem({
                     label: 'Days Remaining to EDD',
                     value: Math.max(0, remainingDays).toString(),
                     unit: 'days'
-                })
-                }
+                })}
                 ${uiBuilder.createAlert({ type: alertType, message: statusMessage })}
 `;
 
@@ -324,4 +346,3 @@ export const dueDate: CalculatorModule = {
         setTimeout(calculate, 0);
     }
 };
-

@@ -344,17 +344,17 @@ export const preciseHbr = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-        title: 'Risk Stratification',
-        icon: '📊',
-        content: uiBuilder.createTable({
-            headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
-            rows: [
-                ['≤ 22', 'Non-HBR (Low Risk)', '< 4%'],
-                ['23 - 26', 'HBR (High Risk)', '~ 4%'],
-                ['≥ 27', 'Very HBR (Very High Risk)', '≥ 6%']
-            ]
-        })
-    })}
+            title: 'Risk Stratification',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['Score', 'Risk Category', '1-Yr Bleeding Risk'],
+                rows: [
+                    ['≤ 22', 'Non-HBR (Low Risk)', '< 4%'],
+                    ['23 - 26', 'HBR (High Risk)', '~ 4%'],
+                    ['≥ 27', 'Very HBR (Very High Risk)', '≥ 6%']
+                ]
+            })
+        })}
     `,
 
     customInitialize: async (client, patient, container) => {

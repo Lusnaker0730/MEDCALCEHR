@@ -66,19 +66,19 @@ export const sodiumCorrectionConfig: FormulaCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: katzRes.label,
-            value: katzRes.value.toString(),
-            unit: katzRes.unit,
-            interpretation: katzRes.interpretation,
-            alertClass: `ui-alert-${katzRes.alertClass}`
-        })}
+                label: katzRes.label,
+                value: katzRes.value.toString(),
+                unit: katzRes.unit,
+                interpretation: katzRes.interpretation,
+                alertClass: `ui-alert-${katzRes.alertClass}`
+            })}
             ${uiBuilder.createResultItem({
-            label: hillierRes.label,
-            value: hillierRes.value.toString(),
-            unit: hillierRes.unit,
-            interpretation: hillierRes.interpretation,
-            alertClass: `ui-alert-${hillierRes.alertClass}`
-        })}
+                label: hillierRes.label,
+                value: hillierRes.value.toString(),
+                unit: hillierRes.unit,
+                interpretation: hillierRes.interpretation,
+                alertClass: `ui-alert-${hillierRes.alertClass}`
+            })}
         `;
     }
 };

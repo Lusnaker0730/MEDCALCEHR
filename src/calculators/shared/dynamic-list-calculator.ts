@@ -111,9 +111,9 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
                 : '';
 
             const infoHTML = config.infoAlert
-                ? (config.infoAlert.includes('ui-alert')
+                ? config.infoAlert.includes('ui-alert')
                     ? config.infoAlert
-                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert }))
+                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
                 : '';
 
             return `
@@ -193,7 +193,9 @@ export function createDynamicListCalculator(config: DynamicListCalculatorConfig)
 
                     if (config.customResultRenderer) {
                         if (resultContent) {
-                            resultContent.innerHTML = sanitizeHTML(config.customResultRenderer(total, items));
+                            resultContent.innerHTML = sanitizeHTML(
+                                config.customResultRenderer(total, items)
+                            );
                         }
                     } else {
                         // 預設結果渲染

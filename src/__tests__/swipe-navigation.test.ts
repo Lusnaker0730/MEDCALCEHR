@@ -8,17 +8,24 @@ const mockInitSentry = jest.fn<any>();
 const mockLoadCalculator = jest.fn<any>();
 const mockGetCalculatorMetadata = jest.fn<any>();
 
-jest.mock('../logger.js', () => ({ logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug } }));
+jest.mock('../logger.js', () => ({
+    logger: {
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        debug: mockLoggerDebug
+    }
+}));
 jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 jest.mock('../calculators/index.js', () => ({
     calculatorModules: [
         { id: 'calc-a', title: 'Calc A' },
         { id: 'calc-b', title: 'Calc B' },
-        { id: 'calc-c', title: 'Calc C' },
+        { id: 'calc-c', title: 'Calc C' }
     ],
     categories: {},
     loadCalculator: mockLoadCalculator,
-    getCalculatorMetadata: mockGetCalculatorMetadata,
+    getCalculatorMetadata: mockGetCalculatorMetadata
 }));
 
 import { initSwipeNavigation } from '../swipe-navigation.js';
@@ -58,7 +65,7 @@ describe('SwipeNavigation', () => {
             removeListener: jest.fn(),
             addEventListener: jest.fn(),
             removeEventListener: jest.fn(),
-            dispatchEvent: jest.fn(),
+            dispatchEvent: jest.fn()
         }));
         Object.defineProperty(window, 'matchMedia', { writable: true, value: mockMatchMedia });
 

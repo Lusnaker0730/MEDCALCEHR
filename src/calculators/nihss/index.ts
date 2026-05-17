@@ -169,9 +169,18 @@ const config: ScoringCalculatorConfig = {
             subtitle: 'Describe the scene; name the items; read the sentences',
             options: [
                 { value: '0', label: 'Normal; no aphasia', checked: true },
-                { value: '1', label: 'Mild-moderate aphasia: some obvious changes, without significant limitation' },
-                { value: '2', label: 'Severe aphasia: fragmentary expression, inference needed, cannot identify materials' },
-                { value: '3', label: 'Mute/global aphasia: no usable speech/auditory comprehension' },
+                {
+                    value: '1',
+                    label: 'Mild-moderate aphasia: some obvious changes, without significant limitation'
+                },
+                {
+                    value: '2',
+                    label: 'Severe aphasia: fragmentary expression, inference needed, cannot identify materials'
+                },
+                {
+                    value: '3',
+                    label: 'Mute/global aphasia: no usable speech/auditory comprehension'
+                },
                 { value: '3', label: 'Coma/unresponsive' }
             ]
         },
@@ -182,7 +191,10 @@ const config: ScoringCalculatorConfig = {
             options: [
                 { value: '0', label: 'Normal', checked: true },
                 { value: '1', label: 'Mild-moderate dysarthria: slurring but can be understood' },
-                { value: '2', label: 'Severe dysarthria: unintelligible slurring or out of proportion to dysphasia' },
+                {
+                    value: '2',
+                    label: 'Severe dysarthria: unintelligible slurring or out of proportion to dysphasia'
+                },
                 { value: '2', label: 'Mute/anarthric' },
                 { value: '0', label: 'Intubated/unable to test' }
             ]
@@ -194,7 +206,10 @@ const config: ScoringCalculatorConfig = {
                 { value: '0', label: 'No abnormality', checked: true },
                 { value: '1', label: 'Visual/tactile/auditory/spatial/personal inattention' },
                 { value: '1', label: 'Extinction to bilateral simultaneous stimulation' },
-                { value: '2', label: 'Profound hemi-inattention (ex: does not recognize own hand)' },
+                {
+                    value: '2',
+                    label: 'Profound hemi-inattention (ex: does not recognize own hand)'
+                },
                 { value: '2', label: 'Extinction to >1 modality' }
             ]
         }
@@ -270,17 +285,17 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 42 points',
-            interpretation: severity,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 42 points',
+                interpretation: severity,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             
             ${uiBuilder.createAlert({
-            type: alertClass,
-            message: interpretation
-        })}
+                type: alertClass,
+                message: interpretation
+            })}
         `;
     }
 };

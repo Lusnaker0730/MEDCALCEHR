@@ -47,7 +47,9 @@ jest.mock('../security-labels-service', () => ({
 
 describe('Unified Formula Calculator — Audit Integration', () => {
     let container: HTMLElement;
-    const mockLogCalculation = auditEventService.logCalculation as jest.MockedFunction<typeof auditEventService.logCalculation>;
+    const mockLogCalculation = auditEventService.logCalculation as jest.MockedFunction<
+        typeof auditEventService.logCalculation
+    >;
 
     beforeEach(() => {
         jest.useFakeTimers();
@@ -75,11 +77,20 @@ describe('Unified Formula Calculator — Audit Integration', () => {
             title: 'Test Calculator',
             description: 'A test calculator',
             inputs: [
-                { type: 'number' as const, id: 'val', label: 'Value', required: true, min: 0, max: 1000 }
+                {
+                    type: 'number' as const,
+                    id: 'val',
+                    label: 'Value',
+                    required: true,
+                    min: 0,
+                    max: 1000
+                }
             ],
-            calculate: options?.calculate ?? ((values: Record<string, any>) => {
-                return [{ label: 'Result', value: String(values.val * 2) }];
-            })
+            calculate:
+                options?.calculate ??
+                ((values: Record<string, any>) => {
+                    return [{ label: 'Result', value: String(values.val * 2) }];
+                })
         });
 
         container.innerHTML = calc.generateHTML();
@@ -90,9 +101,7 @@ describe('Unified Formula Calculator — Audit Integration', () => {
     /**
      * Helper: create a complex calculator.
      */
-    function setupComplexCalculator(options?: {
-        complexCalculate?: (...args: any[]) => any;
-    }) {
+    function setupComplexCalculator(options?: { complexCalculate?: (...args: any[]) => any }) {
         const calc = createUnifiedFormulaCalculator({
             id: 'test-complex',
             title: 'Test Complex Calculator',
@@ -102,15 +111,24 @@ describe('Unified Formula Calculator — Audit Integration', () => {
                 {
                     title: 'Input',
                     fields: [
-                        { type: 'number' as const, id: 'score', label: 'Score', required: true, min: 0, max: 100 }
+                        {
+                            type: 'number' as const,
+                            id: 'score',
+                            label: 'Score',
+                            required: true,
+                            min: 0,
+                            max: 100
+                        }
                     ]
                 }
             ],
-            complexCalculate: options?.complexCalculate ?? ((getValue: any) => {
-                const s = getValue('score');
-                if (s === null) return null;
-                return { score: s, interpretation: s > 50 ? 'High' : 'Low', severity: 'info' };
-            })
+            complexCalculate:
+                options?.complexCalculate ??
+                ((getValue: any) => {
+                    const s = getValue('score');
+                    if (s === null) return null;
+                    return { score: s, interpretation: s > 50 ? 'High' : 'Low', severity: 'info' };
+                })
         });
 
         container.innerHTML = calc.generateHTML();
@@ -184,7 +202,9 @@ describe('Unified Formula Calculator — Audit Integration', () => {
     // ======================================================================
     it('should call logCalculation immediately (no debounce) on calculation failure', () => {
         setupSimpleCalculator({
-            calculate: () => { throw new Error('Calculation failed'); }
+            calculate: () => {
+                throw new Error('Calculation failed');
+            }
         });
 
         setInputValue('val', '42');
@@ -246,7 +266,9 @@ describe('Unified Formula Calculator — Audit Integration', () => {
     // ======================================================================
     it('should call logCalculation immediately on complex calculation failure', () => {
         setupComplexCalculator({
-            complexCalculate: () => { throw new Error('Complex calc error'); }
+            complexCalculate: () => {
+                throw new Error('Complex calc error');
+            }
         });
 
         setInputValue('score', '50');

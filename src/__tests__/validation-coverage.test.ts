@@ -57,7 +57,7 @@ function checkNumberInputValidation(source: string): {
             // Pattern: { ...id: 'xxx'... } with type: 'number' nearby
             new RegExp(`\\{[^{}]*id:\\s*'${escapedId}'[^{}]*\\}`, 'gs'),
             // Pattern: field might span multiple properties
-            new RegExp(`id:\\s*'${escapedId}'[^}]*\\}`, 'gs'),
+            new RegExp(`id:\\s*'${escapedId}'[^}]*\\}`, 'gs')
         ];
 
         let isNumberInput = false;
@@ -82,7 +82,8 @@ function checkNumberInputValidation(source: string): {
         if (!isNumberInput) {
             // Look for the field in numberInputs context
             const numberInputsPattern = new RegExp(
-                `numberInputs:\\s*\\[[^\\]]*id:\\s*'${escapedId}'`, 's'
+                `numberInputs:\\s*\\[[^\\]]*id:\\s*'${escapedId}'`,
+                's'
             );
             if (numberInputsPattern.test(source)) {
                 isNumberInput = true;
@@ -95,7 +96,8 @@ function checkNumberInputValidation(source: string): {
         // Also detect fields in sections -> fields arrays that have number-like properties
         if (!isNumberInput) {
             const sectionFieldPattern = new RegExp(
-                `fields:\\s*\\[[^\\]]*id:\\s*'${escapedId}'[^}]*(?:validationType|unitConfig|unitToggle|step|placeholder)`, 's'
+                `fields:\\s*\\[[^\\]]*id:\\s*'${escapedId}'[^}]*(?:validationType|unitConfig|unitToggle|step|placeholder)`,
+                's'
             );
             if (sectionFieldPattern.test(source)) {
                 isNumberInput = true;
@@ -156,7 +158,7 @@ describe('Validation Coverage', () => {
             return source !== null && detectFactoryType(source) === 'scoring';
         });
 
-        test.each(scoringCalcs.map(id => [id]))('%s uses radio/checkbox inputs', (calcId) => {
+        test.each(scoringCalcs.map(id => [id]))('%s uses radio/checkbox inputs', calcId => {
             const source = readCalcSource(calcId as string)!;
             // Scoring calculators should NOT have type: 'number' inputs
             // (they use radio, checkbox, or yesno which are inherently constrained)
@@ -176,18 +178,21 @@ describe('Validation Coverage', () => {
             return source !== null && detectFactoryType(source) === 'formula';
         });
 
-        test.each(formulaCalcs.map(id => [id]))('%s has validation rules on all number inputs', (calcId) => {
-            const source = readCalcSource(calcId as string)!;
-            const fields = checkNumberInputValidation(source);
+        test.each(formulaCalcs.map(id => [id]))(
+            '%s has validation rules on all number inputs',
+            calcId => {
+                const source = readCalcSource(calcId as string)!;
+                const fields = checkNumberInputValidation(source);
 
-            if (fields.length === 0) {
-                // No number inputs detected — this is okay (might be all radio/select)
-                return;
+                if (fields.length === 0) {
+                    // No number inputs detected — this is okay (might be all radio/select)
+                    return;
+                }
+
+                const unvalidated = fields.filter(f => !f.hasValidation);
+                expect(unvalidated.map(f => f.fieldId)).toEqual([]);
             }
-
-            const unvalidated = fields.filter(f => !f.hasValidation);
-            expect(unvalidated.map(f => f.fieldId)).toEqual([]);
-        });
+        );
     });
 
     describe('dynamic-list calculators use selection-based inputs', () => {
@@ -196,15 +201,14 @@ describe('Validation Coverage', () => {
             return source !== null && detectFactoryType(source) === 'dynamic-list';
         });
 
-        test.each(dynamicListCalcs.length > 0 ? dynamicListCalcs.map(id => [id]) : [['placeholder']])(
-            '%s uses selection-based inputs',
-            (calcId) => {
-                if (calcId === 'placeholder') return; // Skip if no dynamic list calculators
-                const source = readCalcSource(calcId as string)!;
-                // Dynamic list calculators are inherently constrained
-                expect(source).toContain('createDynamicListCalculator');
-            }
-        );
+        test.each(
+            dynamicListCalcs.length > 0 ? dynamicListCalcs.map(id => [id]) : [['placeholder']]
+        )('%s uses selection-based inputs', calcId => {
+            if (calcId === 'placeholder') return; // Skip if no dynamic list calculators
+            const source = readCalcSource(calcId as string)!;
+            // Dynamic list calculators are inherently constrained
+            expect(source).toContain('createDynamicListCalculator');
+        });
     });
 
     test('calculator count matches expected range', () => {

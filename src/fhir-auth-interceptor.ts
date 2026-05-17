@@ -16,7 +16,7 @@ const AUTH_MESSAGE_PATTERNS = [
     /token expired/i,
     /unauthorized/i,
     /invalid.*token/i,
-    /login required/i,
+    /login required/i
 ];
 
 /**
@@ -28,9 +28,7 @@ export function isAuthError(error: unknown): boolean {
 
     // --- numeric status code --------------------------------------------------
     const status =
-        (error as any)?.statusCode ??
-        (error as any)?.status ??
-        (error as any)?.response?.status;
+        (error as any)?.statusCode ?? (error as any)?.status ?? (error as any)?.response?.status;
 
     if (typeof status === 'number' && AUTH_STATUS_CODES.has(status)) {
         return true;
@@ -47,10 +45,7 @@ export function isAuthError(error: unknown): boolean {
     }
 
     // --- FHIR OperationOutcome inside error -----------------------------------
-    const outcome =
-        (error as any)?.outcome ??
-        (error as any)?.body ??
-        (error as any)?.data;
+    const outcome = (error as any)?.outcome ?? (error as any)?.body ?? (error as any)?.data;
 
     if (outcome?.resourceType === 'OperationOutcome') {
         const issues: any[] = outcome.issue ?? [];
@@ -78,7 +73,7 @@ export function isAuthError(error: unknown): boolean {
  */
 export async function withAuthInterception<T>(
     operation: () => Promise<T>,
-    _context?: string,
+    _context?: string
 ): Promise<T> {
     try {
         return await operation();

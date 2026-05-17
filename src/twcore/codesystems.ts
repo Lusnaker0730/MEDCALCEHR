@@ -37,7 +37,7 @@ export const TW_CODE_SYSTEMS = {
     CATEGORY_CODE_TW: `${TW_CORE_CS_BASE}/category-code-tw`,
 
     // Provenance
-    PROVENANCE_PARTICIPANT_TYPE: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type',
+    PROVENANCE_PARTICIPANT_TYPE: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type'
 } as const;
 
 /**
@@ -78,7 +78,7 @@ export const TW_VALUE_SETS = {
     CONDITION_CODE: `${TW_CORE_VS_BASE}/condition-code-tw`,
 
     // Category
-    CATEGORY_CODE: `${TW_CORE_VS_BASE}/category-code-tw`,
+    CATEGORY_CODE: `${TW_CORE_VS_BASE}/category-code-tw`
 } as const;
 
 /**
@@ -89,33 +89,33 @@ export const TW_OBSERVATION_CATEGORIES = {
     SDOH: {
         code: 'sdoh',
         display: 'SDOH',
-        definition: 'Social Determinants of Health',
+        definition: 'Social Determinants of Health'
     },
     FUNCTIONAL_STATUS: {
         code: 'functional-status',
         display: 'Functional Status',
-        definition: 'Functional Status',
+        definition: 'Functional Status'
     },
     DISABILITY_STATUS: {
         code: 'disability-status',
         display: 'Disability Status',
-        definition: 'Disability Status',
+        definition: 'Disability Status'
     },
     COGNITIVE_STATUS: {
         code: 'cognitive-status',
         display: 'Cognitive Status',
-        definition: 'Cognitive Status',
+        definition: 'Cognitive Status'
     },
     TREATMENT_INTERVENTION_PREFERENCE: {
         code: 'treatment-intervention-preference',
         display: 'Treatment Intervention Preference',
-        definition: 'Treatment Intervention Preference',
+        definition: 'Treatment Intervention Preference'
     },
     CARE_EXPERIENCE_PREFERENCE: {
         code: 'care-experience-preference',
         display: 'Care Experience Preference',
-        definition: 'Care Experience Preference',
-    },
+        definition: 'Care Experience Preference'
+    }
 } as const;
 
 /**
@@ -164,5 +164,5 @@ export const TW_MEDICATION_ROUTES: ReadonlyArray<{ code: string; display: string
     { code: 'IRR', display: '灌洗' },
     { code: 'WD', display: '溼敷' },
     { code: 'OTH', display: '其他' },
-    { code: 'XX', display: '未指定' },
+    { code: 'XX', display: '未指定' }
 ] as const;

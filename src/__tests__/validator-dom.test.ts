@@ -40,7 +40,12 @@ describe('setupLiveValidation', () => {
         input.type = 'number';
         container.appendChild(input);
 
-        const rule: ValidationRule = { required: true, min: 0, max: 150, message: 'Age must be between 0-150 years' };
+        const rule: ValidationRule = {
+            required: true,
+            min: 0,
+            max: 150,
+            message: 'Age must be between 0-150 years'
+        };
         setupLiveValidation(input, rule);
 
         // Set an out-of-range value and blur
@@ -65,7 +70,12 @@ describe('setupLiveValidation', () => {
         input.type = 'number';
         container.appendChild(input);
 
-        const rule: ValidationRule = { required: true, min: 0, max: 150, message: 'Age out of range' };
+        const rule: ValidationRule = {
+            required: true,
+            min: 0,
+            max: 150,
+            message: 'Age out of range'
+        };
         setupLiveValidation(input, rule);
 
         // First trigger an error
@@ -326,7 +336,9 @@ describe('setupFormValidation', () => {
         weightInput.value = '0';
         weightInput.dispatchEvent(new Event('blur'));
         expect(weightInput.classList.contains('invalid')).toBe(true);
-        expect((weightInput.nextElementSibling as HTMLElement).textContent).toBe('Weight out of range');
+        expect((weightInput.nextElementSibling as HTMLElement).textContent).toBe(
+            'Weight out of range'
+        );
     });
 
     // -----------------------------------------------------------------------

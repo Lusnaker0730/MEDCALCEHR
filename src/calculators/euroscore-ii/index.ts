@@ -283,25 +283,25 @@ export const euroscoreII = createUnifiedFormulaCalculator({
 
     reference: `
         ${uiBuilder.createSection({
-        title: 'Risk Stratification',
-        icon: '📊',
-        content: uiBuilder.createTable({
-            headers: ['Mortality', 'Risk Category'],
-            rows: [
-                ['<2%', 'Low Risk'],
-                ['2-5%', 'Moderate Risk'],
-                ['5-10%', 'High Risk'],
-                ['>10%', 'Very High Risk']
-            ]
-        })
-    })}
+            title: 'Risk Stratification',
+            icon: '📊',
+            content: uiBuilder.createTable({
+                headers: ['Mortality', 'Risk Category'],
+                rows: [
+                    ['<2%', 'Low Risk'],
+                    ['2-5%', 'Moderate Risk'],
+                    ['5-10%', 'High Risk'],
+                    ['>10%', 'Very High Risk']
+                ]
+            })
+        })}
 
         ${uiBuilder.createSection({
-        title: 'Reference',
-        icon: '📚',
-        content:
-            '<p>Nashef SA, et al. EuroSCORE II. <em>Eur J Cardiothorac Surg</em>. 2012;41(4):734-744.</p>'
-    })}
+            title: 'Reference',
+            icon: '📚',
+            content:
+                '<p>Nashef SA, et al. EuroSCORE II. <em>Eur J Cardiothorac Surg</em>. 2012;41(4):734-744.</p>'
+        })}
     `,
 
     customInitialize: async (client, patient, container, calculate) => {

@@ -132,7 +132,12 @@ class SessionManager {
         localStorage.removeItem('patientDisplayData');
 
         // PT-06: Clear all PHI-related localStorage items (including audit events)
-        const phiPrefixes = ['medcalc-phi-', 'medcalc-history-', 'medcalc-provenance-', 'medcalc_audit'];
+        const phiPrefixes = [
+            'medcalc-phi-',
+            'medcalc-history-',
+            'medcalc-provenance-',
+            'medcalc_audit'
+        ];
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -153,7 +158,11 @@ class SessionManager {
 
         // Notify subscribers (e.g. TokenLifecycleManager)
         if (this.onLogoutCallback) {
-            try { this.onLogoutCallback(); } catch { /* best-effort */ }
+            try {
+                this.onLogoutCallback();
+            } catch {
+                /* best-effort */
+            }
         }
 
         // Redirect to SMART launch page

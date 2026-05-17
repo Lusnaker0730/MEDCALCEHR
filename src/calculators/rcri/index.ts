@@ -29,13 +29,15 @@ const config: ScoringCalculatorConfig = {
         {
             id: 'rcri-ihd',
             label: 'History of ischemic heart disease',
-            subtitle: 'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves',
+            subtitle:
+                'History of myocardial infarction (MI); history of positive exercise test; current chest pain considered due to myocardial ischemia; use of nitrate therapy or ECG with pathological Q waves',
             points: 1
         },
         {
             id: 'rcri-hf',
             label: 'History of congestive heart failure',
-            subtitle: 'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution',
+            subtitle:
+                'Pulmonary edema, bilateral rales, or S3 gallop; paroxysmal nocturnal dyspnea; chest x-ray (CXR) showing pulmonary vascular redistribution',
             points: 1
         },
         {
@@ -45,7 +47,11 @@ const config: ScoringCalculatorConfig = {
             points: 1
         },
         { id: 'rcri-insulin', label: 'Pre-operative treatment with insulin', points: 1 },
-        { id: 'rcri-creatinine', label: 'Pre-operative creatinine >2 mg/dL / 176.8 µmol/L', points: 1 }
+        {
+            id: 'rcri-creatinine',
+            label: 'Pre-operative creatinine >2 mg/dL / 176.8 µmol/L',
+            points: 1
+        }
     ],
     riskLevels: [
         {
@@ -145,17 +151,17 @@ const config: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 6 points',
-            interpretation: data.risk,
-            alertClass: alertClass
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 6 points',
+                interpretation: data.risk,
+                alertClass: alertClass
+            })}
             
             ${uiBuilder.createAlert({
-            type: data.level,
-            message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
-        })}
+                type: data.level,
+                message: `Major Cardiac Complications Rate: <strong>${data.rate}</strong>`
+            })}
         `;
     },
 

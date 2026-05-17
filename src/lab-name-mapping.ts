@@ -44,8 +44,14 @@ export const LAB_NAME_MAPPING: Record<string, LabNameDefinition> = {
 
     // Pediatric Measurements
     PEDIATRIC_BMI_FOR_AGE: { primary: 'Pediatric BMI for Age', aliases: ['BMI Percentile'] },
-    PEDIATRIC_WEIGHT_FOR_HEIGHT: { primary: 'Pediatric Weight for Height', aliases: ['Wt/Ht Percentile'] },
-    PEDIATRIC_HEAD_CIRCUMFERENCE: { primary: 'Pediatric Head Circumference', aliases: ['HC Percentile'] },
+    PEDIATRIC_WEIGHT_FOR_HEIGHT: {
+        primary: 'Pediatric Weight for Height',
+        aliases: ['Wt/Ht Percentile']
+    },
+    PEDIATRIC_HEAD_CIRCUMFERENCE: {
+        primary: 'Pediatric Head Circumference',
+        aliases: ['HC Percentile']
+    },
 
     // Laboratory - Hematology
     HEMOGLOBIN: { primary: 'Hemoglobin', aliases: ['Hgb', 'Hb'] },

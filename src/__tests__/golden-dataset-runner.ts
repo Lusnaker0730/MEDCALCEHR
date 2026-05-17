@@ -90,9 +90,7 @@ export function compareValues(
         const pass = actual === expected;
         return {
             pass,
-            message: pass
-                ? `Matched: "${actual}"`
-                : `Expected "${expected}", got "${actual}"`
+            message: pass ? `Matched: "${actual}"` : `Expected "${expected}", got "${actual}"`
         };
     }
 
@@ -105,16 +103,14 @@ export function compareValues(
         const pass = String(actual) === String(expected);
         return {
             pass,
-            message: pass
-                ? `Matched: "${actual}"`
-                : `Expected "${expected}", got "${actual}"`
+            message: pass ? `Matched: "${actual}"` : `Expected "${expected}", got "${actual}"`
         };
     }
 
     // Determine effective tolerance
     let effectiveTolerance = tolerance ?? 0;
     if (tolerancePercent !== undefined && expectedNum !== 0) {
-        const percentTol = Math.abs((expectedNum as number) * tolerancePercent / 100);
+        const percentTol = Math.abs(((expectedNum as number) * tolerancePercent) / 100);
         effectiveTolerance = Math.max(effectiveTolerance, percentTol);
     }
 
@@ -149,7 +145,9 @@ export function runSimpleGoldenTests(
     describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
         dataset.cases.forEach(testCase => {
             test(`${testCase.id}: ${testCase.description}`, () => {
-                const results = calculateFn(testCase.inputs as Record<string, number | string | boolean>);
+                const results = calculateFn(
+                    testCase.inputs as Record<string, number | string | boolean>
+                );
                 expect(results).not.toBeNull();
                 expect(results!.length).toBeGreaterThanOrEqual(testCase.expected.length);
 
@@ -167,9 +165,7 @@ export function runSimpleGoldenTests(
                     expect(comparison.pass).toBe(true);
                     if (!comparison.pass) {
                         // eslint-disable-next-line no-console
-                        console.error(
-                            `  [${testCase.id}] ${exp.label}: ${comparison.message}`
-                        );
+                        console.error(`  [${testCase.id}] ${exp.label}: ${comparison.message}`);
                     }
                 });
             });
@@ -184,12 +180,18 @@ export function runSimpleGoldenTests(
 export function runScoringGoldenTests(
     dataset: GoldenDataset,
     config: any,
-    calculateScoringResult: (config: any, inputs: Record<string, string | boolean | string[]>) => any
+    calculateScoringResult: (
+        config: any,
+        inputs: Record<string, string | boolean | string[]>
+    ) => any
 ): void {
     describe(`[Golden Dataset] ${dataset.calculatorName}`, () => {
         dataset.cases.forEach(testCase => {
             test(`${testCase.id}: ${testCase.description}`, () => {
-                const result = calculateScoringResult(config, testCase.inputs as Record<string, string | boolean | string[]>);
+                const result = calculateScoringResult(
+                    config,
+                    testCase.inputs as Record<string, string | boolean | string[]>
+                );
 
                 testCase.expected.forEach(exp => {
                     if (exp.label === 'Total Score' || exp.label === 'Score') {

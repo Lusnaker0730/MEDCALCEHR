@@ -42,7 +42,7 @@ function createMockCache(): Cache {
             return store.delete(url);
         }),
         keys: jest.fn(async () => {
-            return Array.from(store.keys()).map(url => ({ url } as unknown as Request));
+            return Array.from(store.keys()).map(url => ({ url }) as unknown as Request);
         }),
         add: jest.fn(async () => undefined),
         addAll: jest.fn(async () => undefined),
@@ -512,9 +512,11 @@ describe('Cache Manager Module', () => {
             await manager.cleanExpired(CACHE_NAMES.fhir);
 
             // expired-entry should have been deleted
-            expect(cache.delete).toHaveBeenCalledWith(expect.objectContaining({
-                url: expect.stringContaining('expired-entry')
-            }));
+            expect(cache.delete).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    url: expect.stringContaining('expired-entry')
+                })
+            );
         });
 
         test('cleanExpired should keep non-expired entries', async () => {
@@ -564,7 +566,9 @@ describe('Cache Manager Module', () => {
         test('set should handle Cache API errors gracefully', async () => {
             const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
             // Make caches.open throw an error
-            (mockCacheStorage.open as jest.Mock<any>).mockRejectedValueOnce(new Error('Cache API failure'));
+            (mockCacheStorage.open as jest.Mock<any>).mockRejectedValueOnce(
+                new Error('Cache API failure')
+            );
 
             const result = await manager.set('bad-cache', 'key', 'value', 1000);
             // set should still return true because memoryCache write succeeds
@@ -575,7 +579,9 @@ describe('Cache Manager Module', () => {
         test('get should handle Cache API errors gracefully and return null', async () => {
             const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
             manager.memoryCache.clear();
-            (mockCacheStorage.open as jest.Mock<any>).mockRejectedValueOnce(new Error('Cache API failure'));
+            (mockCacheStorage.open as jest.Mock<any>).mockRejectedValueOnce(
+                new Error('Cache API failure')
+            );
 
             const result = await manager.get('bad-cache', 'no-key');
             expect(result).toBeNull();
@@ -584,7 +590,9 @@ describe('Cache Manager Module', () => {
 
         test('remove should handle Cache API errors gracefully', async () => {
             const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-            (mockCacheStorage.open as jest.Mock<any>).mockRejectedValueOnce(new Error('Cache API failure'));
+            (mockCacheStorage.open as jest.Mock<any>).mockRejectedValueOnce(
+                new Error('Cache API failure')
+            );
 
             await expect(manager.remove('bad-cache', 'key')).resolves.toBeUndefined();
             consoleSpy.mockRestore();
@@ -722,7 +730,12 @@ describe('Cache Manager Module', () => {
             const now = Date.now();
             jest.setSystemTime(now);
 
-            await manager.set(CACHE_NAMES.calculators, 'calc-1', 'module-code', CACHE_EXPIRY.calculators);
+            await manager.set(
+                CACHE_NAMES.calculators,
+                'calc-1',
+                'module-code',
+                CACHE_EXPIRY.calculators
+            );
 
             // Just before
             jest.setSystemTime(now + CACHE_EXPIRY.calculators - 1);
@@ -910,9 +923,15 @@ describe('Cache Manager Module', () => {
             await fhirManager.cacheObservation('P050', '718-7', { value: 14.0 });
             await fhirManager.cacheObservation('P050', '2951-2', { value: 140 });
 
-            expect(await fhirManager.getCachedObservation('P050', '2160-0')).toEqual({ value: 1.2 });
-            expect(await fhirManager.getCachedObservation('P050', '718-7')).toEqual({ value: 14.0 });
-            expect(await fhirManager.getCachedObservation('P050', '2951-2')).toEqual({ value: 140 });
+            expect(await fhirManager.getCachedObservation('P050', '2160-0')).toEqual({
+                value: 1.2
+            });
+            expect(await fhirManager.getCachedObservation('P050', '718-7')).toEqual({
+                value: 14.0
+            });
+            expect(await fhirManager.getCachedObservation('P050', '2951-2')).toEqual({
+                value: 140
+            });
         });
 
         test('observations for different patients should be independent', async () => {
@@ -959,7 +978,9 @@ describe('Cache Manager Module', () => {
             expect(localStorage.getItem('medcalc-phi-patient-P100')).toBeNull();
             expect(localStorage.getItem('medcalc-phi-observation-P100-2160-0')).toBeNull();
             // P200 should be untouched
-            expect(localStorage.getItem('medcalc-phi-patient-P200')).toBe('encrypted-other-patient');
+            expect(localStorage.getItem('medcalc-phi-patient-P200')).toBe(
+                'encrypted-other-patient'
+            );
         });
 
         test('clearPatientCache should not throw when Cache API is unavailable', async () => {

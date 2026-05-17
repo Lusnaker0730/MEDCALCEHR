@@ -260,7 +260,9 @@ describe('Unified Formula Calculator Factory', () => {
             initSpy = jest.spyOn(fhirDataService, 'initialize').mockImplementation(() => {});
             readySpy = jest.spyOn(fhirDataService, 'isReady').mockReturnValue(true);
             condSpy = jest.spyOn(fhirDataService, 'getConditions').mockResolvedValue([]);
-            autoPopSpy = jest.spyOn(fhirDataService, 'autoPopulateFields').mockResolvedValue(undefined as any);
+            autoPopSpy = jest
+                .spyOn(fhirDataService, 'autoPopulateFields')
+                .mockResolvedValue(undefined as any);
             ageSpy = jest.spyOn(fhirDataService, 'getPatientAge').mockReturnValue(null);
             genderSpy = jest.spyOn(fhirDataService, 'getPatientGender').mockReturnValue(null);
         });
@@ -277,48 +279,56 @@ describe('Unified Formula Calculator Factory', () => {
         test('should auto-select "yes" when patient has matching condition', async () => {
             condSpy.mockResolvedValue([makeCondition(SNOMED_DIABETES_T2)]);
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: SNOMED_DIABETES_T2,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: SNOMED_DIABETES_T2,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
             await flushAsync();
 
-            const yesRadio = container.querySelector('input[name="dm"][value="yes"]') as HTMLInputElement;
+            const yesRadio = container.querySelector(
+                'input[name="dm"][value="yes"]'
+            ) as HTMLInputElement;
             expect(yesRadio.checked).toBe(true);
         });
 
         test('should keep default when patient has no matching condition', async () => {
             condSpy.mockResolvedValue([]);
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: SNOMED_DIABETES_T2,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: SNOMED_DIABETES_T2,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
             await flushAsync();
 
-            const noRadio = container.querySelector('input[name="dm"][value="no"]') as HTMLInputElement;
+            const noRadio = container.querySelector(
+                'input[name="dm"][value="no"]'
+            ) as HTMLInputElement;
             expect(noRadio.checked).toBe(true);
         });
 
@@ -326,24 +336,28 @@ describe('Unified Formula Calculator Factory', () => {
             // Patient has Type 1 DM only
             condSpy.mockResolvedValue([makeCondition(SNOMED_DIABETES_T1)]);
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: `${SNOMED_DIABETES_T2},${SNOMED_DIABETES_T1}`,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: `${SNOMED_DIABETES_T2},${SNOMED_DIABETES_T1}`,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
             await flushAsync();
 
-            const yesRadio = container.querySelector('input[name="dm"][value="yes"]') as HTMLInputElement;
+            const yesRadio = container.querySelector(
+                'input[name="dm"][value="yes"]'
+            ) as HTMLInputElement;
             expect(yesRadio.checked).toBe(true);
         });
 
@@ -353,28 +367,30 @@ describe('Unified Formula Calculator Factory', () => {
                 makeCondition(SNOMED_SMOKING)
             ]);
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: SNOMED_DIABETES_T2,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                },
-                {
-                    type: 'radio' as const,
-                    name: 'smoker',
-                    label: 'Smoker?',
-                    snomedCode: SNOMED_SMOKING,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: SNOMED_DIABETES_T2,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    },
+                    {
+                        type: 'radio' as const,
+                        name: 'smoker',
+                        label: 'Smoker?',
+                        snomedCode: SNOMED_SMOKING,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
@@ -387,24 +403,30 @@ describe('Unified Formula Calculator Factory', () => {
             );
 
             // Both fields auto-selected
-            const dmYes = container.querySelector('input[name="dm"][value="yes"]') as HTMLInputElement;
-            const smokerYes = container.querySelector('input[name="smoker"][value="yes"]') as HTMLInputElement;
+            const dmYes = container.querySelector(
+                'input[name="dm"][value="yes"]'
+            ) as HTMLInputElement;
+            const smokerYes = container.querySelector(
+                'input[name="smoker"][value="yes"]'
+            ) as HTMLInputElement;
             expect(dmYes.checked).toBe(true);
             expect(smokerYes.checked).toBe(true);
         });
 
         test('should not call getConditions when no radio fields have snomedCode', async () => {
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'option',
-                    label: 'Some option',
-                    options: [
-                        { value: 'a', label: 'A', checked: true },
-                        { value: 'b', label: 'B' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'option',
+                        label: 'Some option',
+                        options: [
+                            { value: 'a', label: 'A', checked: true },
+                            { value: 'b', label: 'B' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
@@ -416,18 +438,20 @@ describe('Unified Formula Calculator Factory', () => {
         test('should not call getConditions when FHIR is not ready', async () => {
             readySpy.mockReturnValue(false);
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: SNOMED_DIABETES_T2,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: SNOMED_DIABETES_T2,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
@@ -439,25 +463,29 @@ describe('Unified Formula Calculator Factory', () => {
         test('should handle getConditions error gracefully', async () => {
             condSpy.mockRejectedValue(new Error('FHIR server unavailable'));
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: SNOMED_DIABETES_T2,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: SNOMED_DIABETES_T2,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
             await flushAsync();
 
             // Should not throw, default remains
-            const noRadio = container.querySelector('input[name="dm"][value="no"]') as HTMLInputElement;
+            const noRadio = container.querySelector(
+                'input[name="dm"][value="no"]'
+            ) as HTMLInputElement;
             expect(noRadio.checked).toBe(true);
         });
 
@@ -468,57 +496,67 @@ describe('Unified Formula Calculator Factory', () => {
                 makeCondition(SNOMED_DIABETES_T2)
             ]);
 
-            const calc = createUnifiedFormulaCalculator(buildConfig([
-                {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: `${SNOMED_DIABETES_T2},${SNOMED_DIABETES_T1}`,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
-                }
-            ]));
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: `${SNOMED_DIABETES_T2},${SNOMED_DIABETES_T1}`,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
             await flushAsync();
 
-            const yesRadio = container.querySelector('input[name="dm"][value="yes"]') as HTMLInputElement;
+            const yesRadio = container.querySelector(
+                'input[name="dm"][value="yes"]'
+            ) as HTMLInputElement;
             expect(yesRadio.checked).toBe(true);
         });
 
         test('should handle condition with multiple codings', async () => {
             // Condition resource has both SNOMED and ICD-10 codings
-            condSpy.mockResolvedValue([{
-                resourceType: 'Condition',
-                code: {
-                    coding: [
-                        { system: 'http://hl7.org/fhir/sid/icd-10-cm', code: 'E11.9' },
-                        { system: 'http://snomed.info/sct', code: SNOMED_DIABETES_T2 }
-                    ]
-                }
-            }]);
-
-            const calc = createUnifiedFormulaCalculator(buildConfig([
+            condSpy.mockResolvedValue([
                 {
-                    type: 'radio' as const,
-                    name: 'dm',
-                    label: 'Diabetes?',
-                    snomedCode: SNOMED_DIABETES_T2,
-                    options: [
-                        { value: 'no', label: 'No', checked: true },
-                        { value: 'yes', label: 'Yes' }
-                    ]
+                    resourceType: 'Condition',
+                    code: {
+                        coding: [
+                            { system: 'http://hl7.org/fhir/sid/icd-10-cm', code: 'E11.9' },
+                            { system: 'http://snomed.info/sct', code: SNOMED_DIABETES_T2 }
+                        ]
+                    }
                 }
-            ]));
+            ]);
+
+            const calc = createUnifiedFormulaCalculator(
+                buildConfig([
+                    {
+                        type: 'radio' as const,
+                        name: 'dm',
+                        label: 'Diabetes?',
+                        snomedCode: SNOMED_DIABETES_T2,
+                        options: [
+                            { value: 'no', label: 'No', checked: true },
+                            { value: 'yes', label: 'Yes' }
+                        ]
+                    }
+                ])
+            );
 
             container.innerHTML = calc.generateHTML();
             calc.initialize(null, null, container);
             await flushAsync();
 
-            const yesRadio = container.querySelector('input[name="dm"][value="yes"]') as HTMLInputElement;
+            const yesRadio = container.querySelector(
+                'input[name="dm"][value="yes"]'
+            ) as HTMLInputElement;
             expect(yesRadio.checked).toBe(true);
         });
     });

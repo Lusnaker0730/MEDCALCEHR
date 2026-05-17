@@ -61,12 +61,12 @@ export const ettConfig: FormulaCalculatorConfig = {
         <div class="info-section">
             <h4>📋 Clinical Pearls</h4>
             ${uiBuilder.createList({
-        items: [
-            'Confirm ETT placement with capnography and chest X-ray',
-            'Tube tip should be 3-5 cm above the carina',
-            'Use lung-protective ventilation (6-8 mL/kg IBW) for ARDS patients'
-        ]
-    })}
+                items: [
+                    'Confirm ETT placement with capnography and chest X-ray',
+                    'Tube tip should be 3-5 cm above the carina',
+                    'Use lung-protective ventilation (6-8 mL/kg IBW) for ARDS patients'
+                ]
+            })}
         </div>
     `,
     autoPopulateGender: 'ett-gender',

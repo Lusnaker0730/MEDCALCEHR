@@ -24,7 +24,7 @@ export const FHIR_CODE_SYSTEMS = {
     /** HL7 Condition Clinical Status */
     CONDITION_CLINICAL: 'http://terminology.hl7.org/CodeSystem/condition-clinical',
     /** HL7 v2 Identifier Type */
-    V2_IDENTIFIER_TYPE: 'http://terminology.hl7.org/CodeSystem/v2-0203',
+    V2_IDENTIFIER_TYPE: 'http://terminology.hl7.org/CodeSystem/v2-0203'
 } as const;
 
 /**
@@ -43,7 +43,7 @@ export const LOINC_CODES: Record<string, string> = {
     HEART_RATE: '8867-4', //ok Heart rate
     RESPIRATORY_RATE: '9279-1', //ok Respiratory rate
     /** Body temperature — comma = FHIR OR search (8310-5 core | 8331-1 oral) */
-    TEMPERATURE: '8310-5', //ok Body temperature 
+    TEMPERATURE: '8310-5', //ok Body temperature
     OXYGEN_SATURATION: '59408-5', //ok Oxygen saturation (Pulse Ox)
     OXYGEN_SATURATION_ARTERIAL: '2708-6', //ok Oxygen saturation (Arterial)
     O2_FLOW_RATE: '3151-8', // Inhaled oxygen flow rate
@@ -109,7 +109,7 @@ export const LOINC_CODES: Record<string, string> = {
     SERUM_OSMOLALITY: '2692-2', // Serum osmolality
     URINE_OSMOLALITY: '2695-5', // Urine osmolality
     /** Urine sodium — comma = FHIR OR search (2828-2 24h | 2955-3 random) */
-    URINE_SODIUM: '2955-3', // Urine sodium 
+    URINE_SODIUM: '2955-3', // Urine sodium
     URINE_CREATININE: '2161-8', // Urine creatinine
     URINE_UREA_NITROGEN: '3095-7', // Urine Urea Nitrogen
 
@@ -177,7 +177,7 @@ export const LOINC_CODES: Record<string, string> = {
     // GCS Components
     GCS_EYE: '9267-6', // Glasgow coma score eye opening
     GCS_VERBAL: '9270-0', // Glasgow coma score verbal
-    GCS_MOTOR: '9268-4', //ok Glasgow coma score motor
+    GCS_MOTOR: '9268-4' //ok Glasgow coma score motor
 };
 
 /**
@@ -235,18 +235,18 @@ export const SNOMED_CODES: Record<string, string> = {
     ANEMIA: '271737000',
     BLEEDING_DISORDER: '64779008',
     THROMBOCYTOPENIA: '415116008',
-    ANTICOAGULATION_THERAPY: '182764009',//20260223修正此代碼by Lu
+    ANTICOAGULATION_THERAPY: '182764009', //20260223修正此代碼by Lu
 
     // Neurological
     DEMENTIA: '52448006',
     EPILEPSY: '84757009',
     PARKINSONS_DISEASE: '49049000',
     MULTIPLE_SCLEROSIS: '24700007',
-    PARALYSIS: '44695005',//20260223修正此代碼by Lu
+    PARALYSIS: '44695005', //20260223修正此代碼by Lu
 
     // Malignancies
     MALIGNANCY: '363346000',
-    METASTATIC_CANCER: '128462008',//20260223修正此代碼by Lu
+    METASTATIC_CANCER: '128462008', //20260223修正此代碼by Lu
     LEUKEMIA: '93143009',
     LYMPHOMA: '118600007',
 
@@ -275,8 +275,8 @@ export const SNOMED_CODES: Record<string, string> = {
     TRANSPLANT: '77465005',
 
     // Risk Factors
-    FAMILY_HISTORY_CAD: '430091005',//20260223修正此代碼by Lu
-    PREVIOUS_MI: '1755008',//20260223修正此代碼by Lu
+    FAMILY_HISTORY_CAD: '430091005', //20260223修正此代碼by Lu
+    PREVIOUS_MI: '1755008', //20260223修正此代碼by Lu
     ISCHEMIC_HEART_DISEASE: '414545008',
     FRACTURE: '125605004',
     HEMOPTYSIS: '66857006',
@@ -285,7 +285,7 @@ export const SNOMED_CODES: Record<string, string> = {
     HEMIPLEGIA: '50582007',
     AIDS: '62479008',
     SEIZURE: '91175000',
-    HISTORY_OF_VTE: '275546001'//20260223修正此代碼by Lu
+    HISTORY_OF_VTE: '275546001' //20260223修正此代碼by Lu
 };
 
 /**
@@ -399,63 +399,63 @@ export const ICD10_CODES: Record<string, string> = {
  */
 export const SNOMED_TO_ICD10_MAP: Record<string, string> = {
     // Cardiovascular
-    '38341003': 'I10',       // Hypertension
-    '53741008': 'I25.10',    // CAD
-    '22298006': 'I21.9',     // MI
-    '84114007': 'I50.9',     // Heart failure
-    '42343007': 'I50.0',     // CHF
-    '49436004': 'I48.91',    // AFib
-    '230690007': 'I63.9',    // Stroke
-    '266257000': 'G45.9',    // TIA
-    '399957001': 'I73.9',    // PAD
-    '89138009': 'R57.0',     // Cardiogenic shock
-    '394659003': 'I24.9',    // ACS
-    '128053003': 'I82.40',   // DVT
-    '410429000': 'I46.9',    // Cardiac arrest
-    '414545008': 'I25.9',    // Ischemic heart disease
+    '38341003': 'I10', // Hypertension
+    '53741008': 'I25.10', // CAD
+    '22298006': 'I21.9', // MI
+    '84114007': 'I50.9', // Heart failure
+    '42343007': 'I50.0', // CHF
+    '49436004': 'I48.91', // AFib
+    '230690007': 'I63.9', // Stroke
+    '266257000': 'G45.9', // TIA
+    '399957001': 'I73.9', // PAD
+    '89138009': 'R57.0', // Cardiogenic shock
+    '394659003': 'I24.9', // ACS
+    '128053003': 'I82.40', // DVT
+    '410429000': 'I46.9', // Cardiac arrest
+    '414545008': 'I25.9', // Ischemic heart disease
 
     // Respiratory
-    '13645005': 'J44.9',     // COPD
-    '195967001': 'J45.909',  // Asthma
-    '233604007': 'J18.9',    // Pneumonia
-    '59282003': 'I26.99',    // PE
-    '409622000': 'J96.90',   // Respiratory failure
+    '13645005': 'J44.9', // COPD
+    '195967001': 'J45.909', // Asthma
+    '233604007': 'J18.9', // Pneumonia
+    '59282003': 'I26.99', // PE
+    '409622000': 'J96.90', // Respiratory failure
 
     // Metabolic
-    '73211009': 'E11.9',     // DM
-    '46635009': 'E10.9',     // Type 1 DM
-    '44054006': 'E11.9',     // Type 2 DM
-    '55822004': 'E78.5',     // Hyperlipidemia
-    '414915002': 'E66.9',    // Obesity
+    '73211009': 'E11.9', // DM
+    '46635009': 'E10.9', // Type 1 DM
+    '44054006': 'E11.9', // Type 2 DM
+    '55822004': 'E78.5', // Hyperlipidemia
+    '414915002': 'E66.9', // Obesity
 
     // Renal
-    '709044004': 'N18.9',    // CKD
-    '14669001': 'N17.9',     // AKI
-    '46177005': 'N18.6',     // ESRD
+    '709044004': 'N18.9', // CKD
+    '14669001': 'N17.9', // AKI
+    '46177005': 'N18.6', // ESRD
 
     // Liver
-    '19943007': 'K74.60',    // Cirrhosis
-    '59927004': 'K72.90',    // Liver failure
+    '19943007': 'K74.60', // Cirrhosis
+    '59927004': 'K72.90', // Liver failure
 
     // Hematological
-    '271737000': 'D64.9',    // Anemia
-    '64779008': 'D68.9',     // Bleeding disorder
-    '415116008': 'D69.6',    // Thrombocytopenia
+    '271737000': 'D64.9', // Anemia
+    '64779008': 'D68.9', // Bleeding disorder
+    '415116008': 'D69.6', // Thrombocytopenia
 
     // Neurological
-    '52448006': 'F03.90',    // Dementia
-    '84757009': 'G40.909',   // Epilepsy
-    '49049000': 'G20',       // Parkinson's
-    '50582007': 'G81.90',    // Hemiplegia
+    '52448006': 'F03.90', // Dementia
+    '84757009': 'G40.909', // Epilepsy
+    '49049000': 'G20', // Parkinson's
+    '50582007': 'G81.90', // Hemiplegia
 
     // Malignancies
-    '363346000': 'C80.1',    // Malignancy
-    '128462008': 'C79.9',     // Metastatic cancer
+    '363346000': 'C80.1', // Malignancy
+    '128462008': 'C79.9', // Metastatic cancer
 
     // Infections
-    '91302008': 'A41.9',     // Sepsis
-    '86406008': 'B20',       // HIV
-    '840539006': 'U07.1'     // COVID-19
+    '91302008': 'A41.9', // Sepsis
+    '86406008': 'B20', // HIV
+    '840539006': 'U07.1' // COVID-19
 };
 
 /**

@@ -22,8 +22,8 @@ jest.mock('../session-manager', () => ({
         onLogout: mockOnLogout,
         logout: mockLogout,
         start: jest.fn<any>(),
-        stop: jest.fn<any>(),
-    },
+        stop: jest.fn<any>()
+    }
 }));
 
 jest.mock('../logger', () => ({
@@ -32,16 +32,16 @@ jest.mock('../logger', () => ({
         info: jest.fn<any>(),
         warn: jest.fn<any>(),
         error: jest.fn<any>(),
-        fatal: jest.fn<any>(),
-    },
+        fatal: jest.fn<any>()
+    }
 }));
 
 jest.mock('../audit-event-service', () => ({
-    auditEventService: { logLogout: jest.fn<any>().mockResolvedValue(undefined) },
+    auditEventService: { logLogout: jest.fn<any>().mockResolvedValue(undefined) }
 }));
 
 jest.mock('../security', () => ({
-    clearEncryptionKeyCache: jest.fn<any>(),
+    clearEncryptionKeyCache: jest.fn<any>()
 }));
 
 // ---------------------------------------------------------------------------
@@ -53,11 +53,11 @@ function createMockClient(overrides: Record<string, any> = {}) {
         state: {
             expiresAt: Date.now() + 600_000, // 10 minutes from now
             tokenResponse: {
-                refresh_token: 'mock-refresh-token',
+                refresh_token: 'mock-refresh-token'
             },
-            ...overrides,
+            ...overrides
         },
-        refresh: jest.fn<any>(),
+        refresh: jest.fn<any>()
     };
 }
 
@@ -89,9 +89,13 @@ describe('TokenLifecycleManager', () => {
         document.getElementById('token-warning-overlay')?.remove();
 
         Object.defineProperty(window, 'location', {
-            value: { href: 'http://localhost/index.html', hostname: 'localhost', origin: 'http://localhost' },
+            value: {
+                href: 'http://localhost/index.html',
+                hostname: 'localhost',
+                origin: 'http://localhost'
+            },
             writable: true,
-            configurable: true,
+            configurable: true
         });
 
         const mod = await importModule();
@@ -120,7 +124,7 @@ describe('TokenLifecycleManager', () => {
         test('should compute expiresAt from expires_in when expiresAt is absent', () => {
             const client = createMockClient({
                 expiresAt: undefined,
-                tokenResponse: { expires_in: 600, refresh_token: 'rt' },
+                tokenResponse: { expires_in: 600, refresh_token: 'rt' }
             });
             tokenLifecycleManager.initialize(client);
 
@@ -132,7 +136,7 @@ describe('TokenLifecycleManager', () => {
         test('should return null remaining when no token info available', () => {
             const client = createMockClient({
                 expiresAt: undefined,
-                tokenResponse: {},
+                tokenResponse: {}
             });
             tokenLifecycleManager.initialize(client);
 
@@ -177,7 +181,7 @@ describe('TokenLifecycleManager', () => {
         test('should not call setEffectiveTimeout when expiresAt is unknown', () => {
             const client = createMockClient({
                 expiresAt: undefined,
-                tokenResponse: {},
+                tokenResponse: {}
             });
             tokenLifecycleManager.initialize(client);
 
@@ -193,7 +197,7 @@ describe('TokenLifecycleManager', () => {
             // Token expires in 90 seconds (< default 120s warning threshold)
             const client = createMockClient({
                 expiresAt: Date.now() + 90_000,
-                tokenResponse: {}, // no refresh token
+                tokenResponse: {} // no refresh token
             });
             tokenLifecycleManager.initialize(client);
 
@@ -215,7 +219,7 @@ describe('TokenLifecycleManager', () => {
         test('should show auth failure overlay when token expires and no refresh token', () => {
             const client = createMockClient({
                 expiresAt: Date.now() + 15_000, // 15 seconds
-                tokenResponse: {}, // no refresh token
+                tokenResponse: {} // no refresh token
             });
             tokenLifecycleManager.initialize(client);
 
@@ -232,7 +236,7 @@ describe('TokenLifecycleManager', () => {
             jest.resetModules();
 
             (window as any).MEDCALC_CONFIG = {
-                session: { tokenWarningSeconds: 60 },
+                session: { tokenWarningSeconds: 60 }
             };
 
             const mod = await importModule();
@@ -241,7 +245,7 @@ describe('TokenLifecycleManager', () => {
             // Token expires in 120 seconds — after 30s remaining=90s > 60s threshold
             const client = createMockClient({
                 expiresAt: Date.now() + 120_000,
-                tokenResponse: {},
+                tokenResponse: {}
             });
             manager.initialize(client);
 
@@ -266,8 +270,8 @@ describe('TokenLifecycleManager', () => {
             client.refresh.mockResolvedValue({
                 state: {
                     expiresAt: newExpiry,
-                    tokenResponse: { refresh_token: 'new-rt' },
-                },
+                    tokenResponse: { refresh_token: 'new-rt' }
+                }
             });
 
             tokenLifecycleManager.initialize(client);
@@ -281,7 +285,7 @@ describe('TokenLifecycleManager', () => {
 
         test('should return false when no refresh token', async () => {
             const client = createMockClient({
-                tokenResponse: {}, // no refresh token
+                tokenResponse: {} // no refresh token
             });
             tokenLifecycleManager.initialize(client);
 
@@ -340,7 +344,7 @@ describe('TokenLifecycleManager', () => {
             // Simulate tab coming back to foreground
             Object.defineProperty(document, 'visibilityState', {
                 value: 'visible',
-                configurable: true,
+                configurable: true
             });
             document.dispatchEvent(new Event('visibilitychange'));
 
@@ -358,7 +362,7 @@ describe('TokenLifecycleManager', () => {
             jest.resetModules();
 
             (window as any).MEDCALC_CONFIG = {
-                session: { disableTokenLifecycle: true },
+                session: { disableTokenLifecycle: true }
             };
 
             const mod = await importModule();
@@ -385,7 +389,7 @@ describe('TokenLifecycleManager', () => {
         test('should work with no token info (inactivity-only)', () => {
             const client = createMockClient({
                 expiresAt: undefined,
-                tokenResponse: {},
+                tokenResponse: {}
             });
 
             tokenLifecycleManager.initialize(client);
@@ -426,7 +430,7 @@ describe('TokenLifecycleManager', () => {
         test('should remove token warning overlay on destroy', () => {
             const client = createMockClient({
                 expiresAt: Date.now() + 90_000,
-                tokenResponse: {},
+                tokenResponse: {}
             });
             tokenLifecycleManager.initialize(client);
 

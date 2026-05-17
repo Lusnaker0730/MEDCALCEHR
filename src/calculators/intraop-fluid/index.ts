@@ -78,22 +78,22 @@ export const intraopFluidConfig: FormulaCalculatorConfig = {
     footerHTML: `
         <p class="text-sm text-muted mt-15">*Estimated fluid loss from surgical trauma:</p>
         ${uiBuilder.createTable({
-        headers: ['Severity', 'Example', 'Fluid Loss'],
-        rows: [
-            [
-                'Minimal',
-                'e.g. hernia repair, laparoscopy',
-                '2-4 mL/kg/hr (calculator uses 3 mL/kg/hr)'
+            headers: ['Severity', 'Example', 'Fluid Loss'],
+            rows: [
+                [
+                    'Minimal',
+                    'e.g. hernia repair, laparoscopy',
+                    '2-4 mL/kg/hr (calculator uses 3 mL/kg/hr)'
+                ],
+                [
+                    'Moderate',
+                    'e.g. open cholecystectomy, open appendectomy',
+                    '4-6 mL/kg/hr (calculator uses 5 mL/kg/hr)'
+                ],
+                ['Severe', 'e.g. bowel resection', '6-8 mL/kg/hr (calculator uses 7 mL/kg/hr)']
             ],
-            [
-                'Moderate',
-                'e.g. open cholecystectomy, open appendectomy',
-                '4-6 mL/kg/hr (calculator uses 5 mL/kg/hr)'
-            ],
-            ['Severe', 'e.g. bowel resection', '6-8 mL/kg/hr (calculator uses 7 mL/kg/hr)']
-        ],
-        stickyFirstColumn: true
-    })}
+            stickyFirstColumn: true
+        })}
     `,
     calculate: calculateIntraopFluid
 };

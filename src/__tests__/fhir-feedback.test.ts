@@ -778,7 +778,9 @@ describe('FHIRFeedback', () => {
                     inputId: 'weight',
                     label: 'Weight',
                     promise: Promise.resolve(70),
-                    setValue: (i, d) => { i.value = String(d); }
+                    setValue: (i, d) => {
+                        i.value = String(d);
+                    }
                 },
                 {
                     inputId: 'age',
@@ -832,7 +834,9 @@ describe('FHIRFeedback', () => {
                     inputId: 'test-field',
                     label: 'Test',
                     promise: Promise.resolve('value'),
-                    setValue: (i, d) => { i.value = String(d); }
+                    setValue: (i, d) => {
+                        i.value = String(d);
+                    }
                 }
             ];
 
@@ -892,9 +896,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Simulate user filling in the field
             input.value = '30';
@@ -940,9 +942,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: '#age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: '#age-input', label: 'Age' }]);
 
             // The input handler should still be registered for 'age-input' (without #)
             input.value = '30';
@@ -959,14 +959,10 @@ describe('FHIRFeedback', () => {
             container.appendChild(input2);
 
             // Setup initial tracking
-            feedback.setupDynamicTracking(container, [
-                { id: 'field1', label: 'Field 1' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'field1', label: 'Field 1' }]);
 
             // Setup new tracking - should clear previous
-            feedback.setupDynamicTracking(container, [
-                { id: 'field2', label: 'Field 2' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'field2', label: 'Field 2' }]);
 
             // field1 handlers should be cleaned up
             // field2 should be tracked
@@ -975,9 +971,7 @@ describe('FHIRFeedback', () => {
         });
 
         test('should skip fields not found in container', () => {
-            feedback.setupDynamicTracking(container, [
-                { id: 'nonexistent', label: 'Not Found' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'nonexistent', label: 'Not Found' }]);
 
             // Should not throw
         });
@@ -1001,9 +995,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Simulate user entering a value
             input.value = '30';
@@ -1031,9 +1023,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Fill in the value
             input.value = '30';
@@ -1070,9 +1060,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // First fill in the value
             input.value = '30';
@@ -1102,9 +1090,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Input event with empty value (field is already in missing list)
             input.value = '';
@@ -1190,9 +1176,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Manually remove the li from the DOM so that when removeFieldFromMissingList
             // calls updateSummaryBannerState, children.length is 0
@@ -1220,7 +1204,9 @@ describe('FHIRFeedback', () => {
 
             // Auto-hide after 3 seconds
             jest.advanceTimersByTime(3000);
-            const summaryAfterAutoHide = document.querySelector('#fhir-data-summary') as HTMLElement;
+            const summaryAfterAutoHide = document.querySelector(
+                '#fhir-data-summary'
+            ) as HTMLElement;
             expect(summaryAfterAutoHide?.style.opacity).toBe('0');
 
             // Fully removed after another 300ms
@@ -1241,9 +1227,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Remove li to trigger success path
             const li = document.querySelector('li[data-field-id="age-input"]');
@@ -1281,9 +1265,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'age-input', label: 'Age' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'age-input', label: 'Age' }]);
 
             // Fill value to remove from missing
             input.value = '30';
@@ -1318,14 +1300,10 @@ describe('FHIRFeedback', () => {
             const removeSpy = jest.spyOn(input, 'removeEventListener');
 
             // First setup
-            feedback.setupDynamicTracking(container, [
-                { id: 'test-field', label: 'Test Field' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'test-field', label: 'Test Field' }]);
 
             // Second setup (should cleanup first)
-            feedback.setupDynamicTracking(container, [
-                { id: 'test-field', label: 'Test Field' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'test-field', label: 'Test Field' }]);
 
             // removeEventListener should have been called for 'input' and 'change'
             expect(removeSpy).toHaveBeenCalledWith('input', expect.any(Function));
@@ -1432,9 +1410,7 @@ describe('FHIRFeedback', () => {
                 failed: []
             });
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'test-input', label: 'Test' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'test-input', label: 'Test' }]);
 
             // Show warning (dismissOnInput=true)
             feedback.showWarning(input, 'Test');
@@ -1470,9 +1446,7 @@ describe('FHIRFeedback', () => {
             input.id = 'field1';
             container.appendChild(input);
 
-            feedback.setupDynamicTracking(container, [
-                { id: 'field1', label: 'Field 1' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'field1', label: 'Field 1' }]);
 
             // Fill value - triggers updateSummaryOnInput -> removeFieldFromMissingList
             input.value = 'test';
@@ -1487,9 +1461,7 @@ describe('FHIRFeedback', () => {
             container.appendChild(input);
 
             // Setup tracking with a different field
-            feedback.setupDynamicTracking(container, [
-                { id: 'unknown-field', label: 'Unknown' }
-            ]);
+            feedback.setupDynamicTracking(container, [{ id: 'unknown-field', label: 'Unknown' }]);
 
             // Fill and empty the field
             input.value = 'test';
@@ -1557,7 +1529,9 @@ describe('FHIRFeedback', () => {
                     inputId: 'weight',
                     label: 'Weight',
                     promise: Promise.resolve(70),
-                    setValue: (i, d) => { i.value = String(d); }
+                    setValue: (i, d) => {
+                        i.value = String(d);
+                    }
                 },
                 {
                     inputId: 'height',

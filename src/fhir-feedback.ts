@@ -175,7 +175,9 @@ export class FHIRFeedback {
         message: string | null = null
     ): void {
         const safeLabel = escapeHTML(label);
-        const tooltip = message ? escapeHTML(message) : `⚠️ ${t('fhir.notFoundInEHR', { label: safeLabel })}`;
+        const tooltip = message
+            ? escapeHTML(message)
+            : `⚠️ ${t('fhir.notFoundInEHR', { label: safeLabel })}`;
         this.showIndicator(inputElement, 'warning', tooltip, { dismissOnInput: true });
     }
 
@@ -390,7 +392,10 @@ export class FHIRFeedback {
                         });
                     }
                 } catch (error: any) {
-                    logger.error('Error loading FHIR field', { detail: field.label, error: String(error) });
+                    logger.error('Error loading FHIR field', {
+                        detail: field.label,
+                        error: String(error)
+                    });
                     this.showError(input, field.label, error);
                     results.failed.push(field.label);
                 }

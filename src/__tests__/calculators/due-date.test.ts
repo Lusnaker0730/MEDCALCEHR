@@ -62,7 +62,14 @@ describe('Due Date Calculator Logic', () => {
     });
 
     test('Invalid Date String', () => {
-        const result = calculatePregnancyDates('lmp', 28, 'invalid-date', 0, 0, new Date(FIXED_NOW));
+        const result = calculatePregnancyDates(
+            'lmp',
+            28,
+            'invalid-date',
+            0,
+            0,
+            new Date(FIXED_NOW)
+        );
         expect(result).toBeNull();
     });
 });

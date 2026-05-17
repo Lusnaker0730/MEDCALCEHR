@@ -8,33 +8,33 @@ export {
     TW_CODE_SYSTEMS,
     TW_VALUE_SETS,
     TW_OBSERVATION_CATEGORIES,
-    TW_MEDICATION_ROUTES,
+    TW_MEDICATION_ROUTES
 } from './codesystems.js';
 
 export {
     MEDICATION_FREQUENCY_MAP,
     MEDICATION_ROUTE_TO_SNOMED,
     getNHIFrequencyMapping,
-    getTWRouteToSNOMED,
+    getTWRouteToSNOMED
 } from './concept-maps.js';
 
 export {
     TW_IDENTIFIER_SYSTEMS,
     TW_IDENTIFIER_TYPE_CODES,
     isTWCoreIdentifierSystem,
-    getIdentifierTypeLabel,
+    getIdentifierTypeLabel
 } from './identifier-systems.js';
 
 export {
     TW_OBSERVATION_PROFILES,
     getTWCoreObservationProfile,
     isVitalSignCode,
-    getTWCoreObservationCategory,
+    getTWCoreObservationCategory
 } from './observation-profiles.js';
 
 export {
     checkPatientConformance,
     checkObservationConformance,
-    annotateTWCoreProfile,
+    annotateTWCoreProfile
 } from './validation.js';
 export type { ConformanceResult, ConformanceIssue } from './validation.js';

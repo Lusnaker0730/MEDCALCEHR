@@ -35,16 +35,16 @@ const XSS_PAYLOADS = [
     '<input onfocus=alert("XSS") autofocus>',
     '<marquee onstart=alert("XSS")>',
     '<video><source onerror=alert("XSS")>',
-    '<details open ontoggle=alert("XSS")>',
+    '<details open ontoggle=alert("XSS")>'
 ];
 
 const SQL_INJECTION_PAYLOADS = [
     "' OR '1'='1",
-    "1; DROP TABLE patients;--",
+    '1; DROP TABLE patients;--',
     "' UNION SELECT * FROM users--",
     "admin'--",
     "1' AND '1'='1",
-    "'; EXEC xp_cmdshell('dir');--",
+    "'; EXEC xp_cmdshell('dir');--"
 ];
 
 const PATH_TRAVERSAL_PAYLOADS = [
@@ -52,7 +52,7 @@ const PATH_TRAVERSAL_PAYLOADS = [
     '..\\..\\..\\windows\\system32\\config\\sam',
     '....//....//....//etc/passwd',
     '%2e%2e%2f%2e%2e%2f%2e%2e%2fetc/passwd',
-    '..%252f..%252f..%252fetc/passwd',
+    '..%252f..%252f..%252fetc/passwd'
 ];
 
 const COMMAND_INJECTION_PAYLOADS = [
@@ -61,7 +61,7 @@ const COMMAND_INJECTION_PAYLOADS = [
     '`whoami`',
     '$(cat /etc/passwd)',
     '& dir',
-    '\n/bin/sh -c "cat /etc/passwd"',
+    '\n/bin/sh -c "cat /etc/passwd"'
 ];
 
 const MALICIOUS_URLS = [
@@ -70,13 +70,13 @@ const MALICIOUS_URLS = [
     'vbscript:msgbox("XSS")',
     'file:///etc/passwd',
     'java\0script:alert("XSS")',
-    'javascript\n:alert("XSS")',
+    'javascript\n:alert("XSS")'
 ];
 
 const OVERSIZED_INPUTS = [
     'A'.repeat(10000),
     'A'.repeat(100000),
-    '🔥'.repeat(10000), // Unicode stress test
+    '🔥'.repeat(10000) // Unicode stress test
 ];
 
 const SPECIAL_CHARACTERS = [
@@ -84,7 +84,7 @@ const SPECIAL_CHARACTERS = [
     '\r\n\r\n', // CRLF injection
     '%00', // URL-encoded null
     '\u0000', // Unicode null
-    '\uFFFE\uFFFF', // Unicode BOM
+    '\uFFFE\uFFFF' // Unicode BOM
 ];
 
 // ============================================================================
@@ -92,11 +92,9 @@ const SPECIAL_CHARACTERS = [
 // ============================================================================
 
 describe('Penetration Test: OWASP Top 10', () => {
-
     describe('A03:2021 - Injection', () => {
-
         describe('XSS Prevention', () => {
-            test.each(XSS_PAYLOADS)('escapeHTML should neutralize XSS payload: %s', (payload) => {
+            test.each(XSS_PAYLOADS)('escapeHTML should neutralize XSS payload: %s', payload => {
                 const escaped = escapeHTML(payload);
 
                 // escapeHTML converts dangerous characters to HTML entities
@@ -114,14 +112,17 @@ describe('Penetration Test: OWASP Top 10', () => {
                 }
             });
 
-            test.each(XSS_PAYLOADS)('sanitizeHTML should remove dangerous elements: %s', (payload) => {
-                const sanitized = sanitizeHTML(payload);
+            test.each(XSS_PAYLOADS)(
+                'sanitizeHTML should remove dangerous elements: %s',
+                payload => {
+                    const sanitized = sanitizeHTML(payload);
 
-                // Should not contain script tags or event handlers
-                expect(sanitized.toLowerCase()).not.toMatch(/<script/i);
-                expect(sanitized).not.toMatch(/on\w+\s*=/i);
-                expect(sanitized).not.toMatch(/javascript:/i);
-            });
+                    // Should not contain script tags or event handlers
+                    expect(sanitized.toLowerCase()).not.toMatch(/<script/i);
+                    expect(sanitized).not.toMatch(/on\w+\s*=/i);
+                    expect(sanitized).not.toMatch(/javascript:/i);
+                }
+            );
 
             test('uiBuilder.createAlert should handle XSS in message when escapeMessage=true', () => {
                 const maliciousMessage = '<script>alert("XSS")</script>';
@@ -137,26 +138,31 @@ describe('Penetration Test: OWASP Top 10', () => {
         });
 
         describe('SQL Injection (via input validation)', () => {
-            test.each(SQL_INJECTION_PAYLOADS)('should detect SQL injection pattern: %s', (payload) => {
-                // SQL injection is less relevant for client-side, but validate inputs anyway
-                const result = validateInput(payload, { pattern: /^[a-zA-Z0-9\s]+$/ });
-                expect(result.isValid).toBe(false);
-            });
+            test.each(SQL_INJECTION_PAYLOADS)(
+                'should detect SQL injection pattern: %s',
+                payload => {
+                    // SQL injection is less relevant for client-side, but validate inputs anyway
+                    const result = validateInput(payload, { pattern: /^[a-zA-Z0-9\s]+$/ });
+                    expect(result.isValid).toBe(false);
+                }
+            );
         });
 
         describe('Command Injection Prevention', () => {
-            test.each(COMMAND_INJECTION_PAYLOADS)('should escape command injection in input: %s', (payload) => {
-                const escaped = escapeHTML(payload);
-                // Should not allow command execution characters unescaped
-                if (payload.includes('<') || payload.includes('>')) {
-                    expect(escaped).not.toBe(payload);
+            test.each(COMMAND_INJECTION_PAYLOADS)(
+                'should escape command injection in input: %s',
+                payload => {
+                    const escaped = escapeHTML(payload);
+                    // Should not allow command execution characters unescaped
+                    if (payload.includes('<') || payload.includes('>')) {
+                        expect(escaped).not.toBe(payload);
+                    }
                 }
-            });
+            );
         });
     });
 
     describe('A07:2021 - Cross-Site Scripting (XSS)', () => {
-
         test('DOM-based XSS: URL validation should block javascript: URLs', () => {
             MALICIOUS_URLS.forEach(url => {
                 expect(isValidURL(url)).toBe(false);
@@ -180,7 +186,7 @@ describe('Penetration Test: OWASP Top 10', () => {
             const testCases = [
                 '<script/src=//evil.com>',
                 '<script>/**/alert(1)</script>',
-                '<SCRIPT>alert(1)</SCRIPT>',
+                '<SCRIPT>alert(1)</SCRIPT>'
             ];
 
             testCases.forEach(input => {
@@ -198,7 +204,6 @@ describe('Penetration Test: OWASP Top 10', () => {
     });
 
     describe('A05:2021 - Security Misconfiguration', () => {
-
         test('URL validation allows only safe protocols', () => {
             const safeURLs = [
                 'https://example.com',
@@ -233,9 +238,8 @@ describe('Penetration Test: OWASP Top 10', () => {
 // ============================================================================
 
 describe('Penetration Test: Input Validation', () => {
-
     describe('Length Limits', () => {
-        test.each(OVERSIZED_INPUTS)('should reject oversized input', (input) => {
+        test.each(OVERSIZED_INPUTS)('should reject oversized input', input => {
             const result = validateInput(input, { maxLength: 1000 });
             expect(result.isValid).toBe(false);
             expect(result.error).toContain('exceeds maximum length');
@@ -243,7 +247,7 @@ describe('Penetration Test: Input Validation', () => {
     });
 
     describe('Special Characters', () => {
-        test.each(SPECIAL_CHARACTERS)('should handle special characters safely', (input) => {
+        test.each(SPECIAL_CHARACTERS)('should handle special characters safely', input => {
             const escaped = escapeHTML(input);
             // Should not throw and should return a string
             expect(typeof escaped).toBe('string');
@@ -262,7 +266,7 @@ describe('Penetration Test: Input Validation', () => {
             const variations = [
                 '\u0041', // A
                 '\u0391', // Greek Alpha (looks like A)
-                '\uFF21', // Fullwidth A
+                '\uFF21' // Fullwidth A
             ];
 
             variations.forEach(char => {
@@ -291,10 +295,10 @@ describe('Penetration Test: Input Validation', () => {
             '1_000_000',
             '1.2.3',
             '--1',
-            '++1',
+            '++1'
         ];
 
-        test.each(numericPayloads)('parseFloat should handle: %s', (input) => {
+        test.each(numericPayloads)('parseFloat should handle: %s', input => {
             const result = parseFloat(input);
             // Should return a number (including NaN)
             expect(typeof result).toBe('number');
@@ -314,7 +318,6 @@ describe('Penetration Test: Input Validation', () => {
 // ============================================================================
 
 describe('Penetration Test: Client-Side Security', () => {
-
     describe('DOM Manipulation Safety', () => {
         test('createSafeElement should prevent attribute injection', () => {
             // escapeHTML should escape quotes to prevent attribute breakout
@@ -329,8 +332,14 @@ describe('Penetration Test: Client-Side Security', () => {
     describe('Event Handler Safety', () => {
         test('sanitizeHTML should remove all event handlers', () => {
             const eventHandlers = [
-                'onclick', 'onerror', 'onload', 'onmouseover',
-                'onfocus', 'onblur', 'onsubmit', 'onchange'
+                'onclick',
+                'onerror',
+                'onload',
+                'onmouseover',
+                'onfocus',
+                'onblur',
+                'onsubmit',
+                'onchange'
             ];
 
             eventHandlers.forEach(handler => {
@@ -358,7 +367,6 @@ describe('Penetration Test: Client-Side Security', () => {
 // ============================================================================
 
 describe('Penetration Test: Information Disclosure', () => {
-
     describe('Error Message Safety', () => {
         test('error messages should not expose stack traces to users', () => {
             // This would check errorHandler behavior
@@ -383,16 +391,15 @@ describe('Penetration Test: Information Disclosure', () => {
 // ============================================================================
 
 describe('Penetration Test: FHIR API Security', () => {
-
     describe('Resource ID Validation', () => {
         const maliciousResourceIds = [
             '../Patient/123',
             'Patient/123; DROP TABLE',
             'Patient/<script>alert(1)</script>',
-            'Patient/../../admin',
+            'Patient/../../admin'
         ];
 
-        test.each(maliciousResourceIds)('should sanitize resource ID: %s', (id) => {
+        test.each(maliciousResourceIds)('should sanitize resource ID: %s', id => {
             const escaped = escapeHTML(id);
             expect(escaped).not.toContain('<script>');
         });
@@ -409,10 +416,10 @@ describe('Penetration Test: FHIR API Security', () => {
         const maliciousQueries = [
             'code=123&_count=999999999',
             'code=123&callback=alert(1)',
-            'code=123</script><script>alert(1)',
+            'code=123</script><script>alert(1)'
         ];
 
-        test.each(maliciousQueries)('should escape query parameters: %s', (query) => {
+        test.each(maliciousQueries)('should escape query parameters: %s', query => {
             const escaped = escapeHTML(query);
             expect(escaped).not.toContain('<script>');
         });

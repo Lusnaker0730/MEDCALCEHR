@@ -62,7 +62,8 @@ export function phenytoinCorrectionCalculation(
     if (corrected < 10) {
         interpretation = 'Subtherapeutic';
         alertClass = 'info';
-        alertMsg = 'Corrected level is below therapeutic range (10–20 mcg/mL). Consider dose adjustment.';
+        alertMsg =
+            'Corrected level is below therapeutic range (10–20 mcg/mL). Consider dose adjustment.';
     } else if (corrected > 20) {
         interpretation = 'Potentially Toxic';
         alertClass = 'danger';

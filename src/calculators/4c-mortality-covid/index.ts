@@ -147,18 +147,18 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total 4C Score',
-            value: score.toString(),
-            unit: 'points',
-            interpretation: riskGroup,
-            alertClass: alertClass
-        })}
+                label: 'Total 4C Score',
+                value: score.toString(),
+                unit: 'points',
+                interpretation: riskGroup,
+                alertClass: alertClass
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Estimated In-Hospital Mortality',
-            value: mortality,
-            unit: '',
-            alertClass: alertClass
-        })}
+                label: 'Estimated In-Hospital Mortality',
+                value: mortality,
+                unit: '',
+                alertClass: alertClass
+            })}
         `;
     },
     formulaSection: {
@@ -209,7 +209,12 @@ export const fourCMortalityCovidConfig: ScoringCalculatorConfig = {
                 severity: 'warning'
             },
             { score: '9-14', category: 'High', interpretation: '31.4-34.9%', severity: 'danger' },
-            { score: '≥15', category: 'Very High', interpretation: '61.5-66.2%', severity: 'danger' }
+            {
+                score: '≥15',
+                category: 'Very High',
+                interpretation: '61.5-66.2%',
+                severity: 'danger'
+            }
         ]
     },
     customInitialize: (

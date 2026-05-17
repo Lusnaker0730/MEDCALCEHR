@@ -9,7 +9,7 @@ import {
     TW_IDENTIFIER_SYSTEMS,
     TW_IDENTIFIER_TYPE_CODES,
     isTWCoreIdentifierSystem,
-    getIdentifierTypeLabel,
+    getIdentifierTypeLabel
 } from '../twcore/identifier-systems.js';
 import { TW_CORE_PROFILES } from '../twcore/profiles.js';
 
@@ -27,7 +27,7 @@ describe('TW Core Validation', () => {
             const resource: Record<string, any> = {
                 resourceType: 'Patient',
                 id: 'p1',
-                meta: { versionId: '1' },
+                meta: { versionId: '1' }
             };
             const result = annotateTWCoreProfile(resource, TW_CORE_PROFILES.Patient);
 
@@ -39,7 +39,7 @@ describe('TW Core Validation', () => {
             const resource = {
                 resourceType: 'Patient',
                 id: 'p1',
-                meta: { profile: [TW_CORE_PROFILES.Patient] },
+                meta: { profile: [TW_CORE_PROFILES.Patient] }
             };
             const result = annotateTWCoreProfile(resource, TW_CORE_PROFILES.Patient);
 
@@ -50,7 +50,7 @@ describe('TW Core Validation', () => {
             const resource = {
                 resourceType: 'Observation',
                 id: 'obs1',
-                meta: { profile: ['http://example.com/profile/custom'] },
+                meta: { profile: ['http://example.com/profile/custom'] }
             };
             const result = annotateTWCoreProfile(resource, TW_CORE_PROFILES.ObservationVitalSigns);
 
@@ -72,7 +72,7 @@ describe('TW Core Validation', () => {
             const resource = {
                 resourceType: 'Observation',
                 id: 'obs1',
-                meta: { profile: original },
+                meta: { profile: original }
             };
             annotateTWCoreProfile(resource, TW_CORE_PROFILES.ObservationVitalSigns);
 
@@ -96,7 +96,9 @@ describe('TW Core Identifier Systems', () => {
         });
 
         test('should have correct Resident Certificate URL', () => {
-            expect(TW_IDENTIFIER_SYSTEMS.RESIDENT_CERTIFICATE).toBe('http://www.immigration.gov.tw');
+            expect(TW_IDENTIFIER_SYSTEMS.RESIDENT_CERTIFICATE).toBe(
+                'http://www.immigration.gov.tw'
+            );
         });
 
         test('should have correct Medical Record OID', () => {

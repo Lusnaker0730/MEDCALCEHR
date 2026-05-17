@@ -14,7 +14,7 @@ export const TW_IDENTIFIER_SYSTEMS = {
     /** Resident Certificate (居留證) - National Immigration Agency */
     RESIDENT_CERTIFICATE: 'http://www.immigration.gov.tw',
     /** Medical Record Number (病歷號) - Hospital-specific */
-    MEDICAL_RECORD: 'urn:oid:2.16.886.101.20003',
+    MEDICAL_RECORD: 'urn:oid:2.16.886.101.20003'
 } as const;
 
 /**
@@ -27,26 +27,26 @@ export const TW_IDENTIFIER_TYPE_CODES = {
     NATIONAL_ID: {
         system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
         code: 'NNTW',
-        display: 'National ID of Taiwan',
+        display: 'National ID of Taiwan'
     },
     /** Medical Record Number */
     MEDICAL_RECORD: {
         system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
         code: 'MR',
-        display: 'Medical Record Number',
+        display: 'Medical Record Number'
     },
     /** Passport Number */
     PASSPORT: {
         system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
         code: 'PPN',
-        display: 'Passport Number',
+        display: 'Passport Number'
     },
     /** Resident Certificate Number */
     RESIDENT_CERTIFICATE: {
         system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
         code: 'PRC',
-        display: 'Permanent Resident Card Number',
-    },
+        display: 'Permanent Resident Card Number'
+    }
 } as const;
 
 /**

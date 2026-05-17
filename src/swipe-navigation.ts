@@ -23,33 +23,45 @@ export function initSwipeNavigation(currentCalcId: string): void {
     let touchStartY = 0;
     let touchStartTime = 0;
 
-    document.addEventListener('touchstart', (e: TouchEvent) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-    }, { passive: true });
+    document.addEventListener(
+        'touchstart',
+        (e: TouchEvent) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        },
+        { passive: true }
+    );
 
-    document.addEventListener('touchend', (e: TouchEvent) => {
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        const deltaTime = Date.now() - touchStartTime;
+    document.addEventListener(
+        'touchend',
+        (e: TouchEvent) => {
+            const deltaX = e.changedTouches[0].clientX - touchStartX;
+            const deltaY = e.changedTouches[0].clientY - touchStartY;
+            const deltaTime = Date.now() - touchStartTime;
 
-        if (deltaTime > MAX_TIME) return;
-        if (Math.abs(deltaX) < MIN_DISTANCE) return;
-        if (Math.abs(deltaY) / Math.abs(deltaX) > MAX_VERTICAL_RATIO) return;
+            if (deltaTime > MAX_TIME) return;
+            if (Math.abs(deltaX) < MIN_DISTANCE) return;
+            if (Math.abs(deltaY) / Math.abs(deltaX) > MAX_VERTICAL_RATIO) return;
 
-        // Don't navigate if user was interacting with an input
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
-            return;
-        }
+            // Don't navigate if user was interacting with an input
+            const target = e.target as HTMLElement;
+            if (
+                target.tagName === 'INPUT' ||
+                target.tagName === 'SELECT' ||
+                target.tagName === 'TEXTAREA'
+            ) {
+                return;
+            }
 
-        if (deltaX > 0 && prevId) {
-            window.location.href = `calculator.html?name=${prevId}`;
-        } else if (deltaX < 0 && nextId) {
-            window.location.href = `calculator.html?name=${nextId}`;
-        }
-    }, { passive: true });
+            if (deltaX > 0 && prevId) {
+                window.location.href = `calculator.html?name=${prevId}`;
+            } else if (deltaX < 0 && nextId) {
+                window.location.href = `calculator.html?name=${nextId}`;
+            }
+        },
+        { passive: true }
+    );
 
     showSwipeIndicators(prevId, nextId);
 }

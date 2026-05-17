@@ -69,7 +69,7 @@ class FHIRWriteService {
             return {
                 success: false,
                 observationIds: [],
-                error: 'Write-back is disabled',
+                error: 'Write-back is disabled'
             };
         }
 
@@ -77,21 +77,29 @@ class FHIRWriteService {
             return {
                 success: false,
                 observationIds: [],
-                error: 'FHIR client not available',
+                error: 'FHIR client not available'
             };
         }
 
         // PT-01/H-04/H-05: Require patient context and validate match
         if (!this.client?.patient?.id) {
             logger.error('Write-back rejected: no patient context in SMART session');
-            return { success: false, observationIds: [], error: 'Patient context required for write operations' };
+            return {
+                success: false,
+                observationIds: [],
+                error: 'Patient context required for write operations'
+            };
         }
         if (request.patientId !== this.client.patient.id) {
             logger.error('Write-back rejected: patientId mismatch', {
                 requestPatient: request.patientId,
                 contextPatient: this.client.patient.id
             });
-            return { success: false, observationIds: [], error: 'Patient ID mismatch with SMART context' };
+            return {
+                success: false,
+                observationIds: [],
+                error: 'Patient ID mismatch with SMART context'
+            };
         }
 
         const observationIds: string[] = [];
@@ -116,17 +124,15 @@ class FHIRWriteService {
                         calculatorId: request.calculatorId,
                         calculatorName: request.calculatorTitle,
                         inputs: {},
-                        outputs: Object.fromEntries(
-                            request.results.map(r => [r.label, r.value])
-                        ),
+                        outputs: Object.fromEntries(request.results.map(r => [r.label, r.value])),
                         timestamp: new Date(),
-                        patientId: request.patientId,
+                        patientId: request.patientId
                     });
 
                     provenanceId = provenance?.id;
                 } catch (provError) {
                     logger.warn('Failed to create Provenance resource', {
-                        error: String(provError),
+                        error: String(provError)
                     });
                 }
             }
@@ -135,13 +141,13 @@ class FHIRWriteService {
                 calculatorId: request.calculatorId,
                 observationCount: observationIds.length,
                 provenanceId,
-                securityLabelsApplied: true,
+                securityLabelsApplied: true
             });
 
             return {
                 success: true,
                 observationIds,
-                provenanceId,
+                provenanceId
             };
         } catch (error) {
             if (isAuthError(error)) {
@@ -149,13 +155,13 @@ class FHIRWriteService {
             }
             logger.error('Write-back failed', {
                 calculatorId: request.calculatorId,
-                error: String(error),
+                error: String(error)
             });
 
             return {
                 success: false,
                 observationIds,
-                error: 'Write operation failed. Please try again.',
+                error: 'Write operation failed. Please try again.'
             };
         }
     }
@@ -180,17 +186,17 @@ class FHIRWriteService {
                         {
                             system: 'http://terminology.hl7.org/CodeSystem/observation-category',
                             code: 'survey',
-                            display: 'Survey',
-                        },
+                            display: 'Survey'
+                        }
                     ],
-                    text: 'Clinical Calculator Result',
-                },
+                    text: 'Clinical Calculator Result'
+                }
             ],
             code: {
-                text: `${safeTitle} - ${safeLabel}`,
+                text: `${safeTitle} - ${safeLabel}`
             },
             subject: {
-                reference: `Patient/${request.patientId}`,
+                reference: `Patient/${request.patientId}`
             },
             effectiveDateTime: now,
             issued: now,
@@ -198,13 +204,13 @@ class FHIRWriteService {
                 value: result.value,
                 unit: result.unit || 'score',
                 system: 'http://unitsofmeasure.org',
-                code: result.unit || '{score}',
+                code: result.unit || '{score}'
             },
             note: [
                 {
-                    text: `Calculated by MEDCALCEHR - ${safeTitle} (${safeCalcId})`,
-                },
-            ],
+                    text: `Calculated by MEDCALCEHR - ${safeTitle} (${safeCalcId})`
+                }
+            ]
         };
 
         // Add LOINC coding if available
@@ -213,8 +219,8 @@ class FHIRWriteService {
                 {
                     system: 'http://loinc.org',
                     code: result.loincCode,
-                    display: safeLabel,
-                },
+                    display: safeLabel
+                }
             ];
         }
 

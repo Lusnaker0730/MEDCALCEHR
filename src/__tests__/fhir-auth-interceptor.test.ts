@@ -13,8 +13,8 @@ const mockHandleAuthFailure = jest.fn<any>();
 
 jest.mock('../token-lifecycle-manager', () => ({
     tokenLifecycleManager: {
-        handleAuthFailure: mockHandleAuthFailure,
-    },
+        handleAuthFailure: mockHandleAuthFailure
+    }
 }));
 
 jest.mock('../logger', () => ({
@@ -23,8 +23,8 @@ jest.mock('../logger', () => ({
         info: jest.fn<any>(),
         warn: jest.fn<any>(),
         error: jest.fn<any>(),
-        fatal: jest.fn<any>(),
-    },
+        fatal: jest.fn<any>()
+    }
 }));
 
 jest.mock('../session-manager', () => ({
@@ -34,8 +34,8 @@ jest.mock('../session-manager', () => ({
         onLogout: jest.fn<any>(),
         logout: jest.fn<any>(),
         start: jest.fn<any>(),
-        stop: jest.fn<any>(),
-    },
+        stop: jest.fn<any>()
+    }
 }));
 
 // ---------------------------------------------------------------------------
@@ -101,39 +101,53 @@ describe('isAuthError', () => {
     });
 
     test('should detect OperationOutcome with login issue code', () => {
-        expect(isAuthError({
-            outcome: {
-                resourceType: 'OperationOutcome',
-                issue: [{ severity: 'error', code: 'login' }],
-            },
-        })).toBe(true);
+        expect(
+            isAuthError({
+                outcome: {
+                    resourceType: 'OperationOutcome',
+                    issue: [{ severity: 'error', code: 'login' }]
+                }
+            })
+        ).toBe(true);
     });
 
     test('should detect OperationOutcome with expired issue code', () => {
-        expect(isAuthError({
-            outcome: {
-                resourceType: 'OperationOutcome',
-                issue: [{ severity: 'error', code: 'expired' }],
-            },
-        })).toBe(true);
+        expect(
+            isAuthError({
+                outcome: {
+                    resourceType: 'OperationOutcome',
+                    issue: [{ severity: 'error', code: 'expired' }]
+                }
+            })
+        ).toBe(true);
     });
 
     test('should detect OperationOutcome with auth-related diagnostics', () => {
-        expect(isAuthError({
-            body: {
-                resourceType: 'OperationOutcome',
-                issue: [{ severity: 'error', code: 'security', diagnostics: 'Token expired for this session' }],
-            },
-        })).toBe(true);
+        expect(
+            isAuthError({
+                body: {
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'security',
+                            diagnostics: 'Token expired for this session'
+                        }
+                    ]
+                }
+            })
+        ).toBe(true);
     });
 
     test('should not detect OperationOutcome with unrelated issues', () => {
-        expect(isAuthError({
-            outcome: {
-                resourceType: 'OperationOutcome',
-                issue: [{ severity: 'error', code: 'not-found' }],
-            },
-        })).toBe(false);
+        expect(
+            isAuthError({
+                outcome: {
+                    resourceType: 'OperationOutcome',
+                    issue: [{ severity: 'error', code: 'not-found' }]
+                }
+            })
+        ).toBe(false);
     });
 
     test('should handle empty / malformed objects gracefully', () => {
@@ -157,9 +171,7 @@ describe('withAuthInterception', () => {
     test('should call handleAuthFailure and re-throw on auth error', async () => {
         const authErr = { status: 401, message: 'Unauthorized' };
 
-        await expect(
-            withAuthInterception(() => Promise.reject(authErr))
-        ).rejects.toEqual(authErr);
+        await expect(withAuthInterception(() => Promise.reject(authErr))).rejects.toEqual(authErr);
 
         expect(mockHandleAuthFailure).toHaveBeenCalledWith(401);
     });
@@ -167,9 +179,9 @@ describe('withAuthInterception', () => {
     test('should re-throw non-auth errors without calling handleAuthFailure', async () => {
         const err = new Error('Network Error');
 
-        await expect(
-            withAuthInterception(() => Promise.reject(err))
-        ).rejects.toThrow('Network Error');
+        await expect(withAuthInterception(() => Promise.reject(err))).rejects.toThrow(
+            'Network Error'
+        );
 
         expect(mockHandleAuthFailure).not.toHaveBeenCalled();
     });
@@ -177,9 +189,7 @@ describe('withAuthInterception', () => {
     test('should extract status from statusCode property', async () => {
         const authErr = { statusCode: 403, message: 'Forbidden' };
 
-        await expect(
-            withAuthInterception(() => Promise.reject(authErr))
-        ).rejects.toEqual(authErr);
+        await expect(withAuthInterception(() => Promise.reject(authErr))).rejects.toEqual(authErr);
 
         expect(mockHandleAuthFailure).toHaveBeenCalledWith(403);
     });
@@ -187,9 +197,7 @@ describe('withAuthInterception', () => {
     test('should pass undefined status when none is available', async () => {
         const authErr = { message: 'Session expired' };
 
-        await expect(
-            withAuthInterception(() => Promise.reject(authErr))
-        ).rejects.toEqual(authErr);
+        await expect(withAuthInterception(() => Promise.reject(authErr))).rejects.toEqual(authErr);
 
         expect(mockHandleAuthFailure).toHaveBeenCalledWith(undefined);
     });

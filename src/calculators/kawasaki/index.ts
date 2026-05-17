@@ -63,7 +63,8 @@ export const kawasakiConfig: ScoringCalculatorConfig = {
         {
             id: 'kawasaki-oral',
             title: 'Changes in lips and oral cavity',
-            subtitle: 'Erythema, lips cracking, strawberry tongue, diffuse injection of oral/pharyngeal mucosae',
+            subtitle:
+                'Erythema, lips cracking, strawberry tongue, diffuse injection of oral/pharyngeal mucosae',
             options: [
                 { value: '0', label: 'No', checked: true },
                 { value: '1', label: 'Yes' }
@@ -100,11 +101,25 @@ export const kawasakiConfig: ScoringCalculatorConfig = {
         scoringCriteria: [
             { criteria: 'Fever persisting at least 5 days', points: 'Required' },
             { criteria: 'At least 4 of the following 5 principal features:', isHeader: true },
-            { criteria: '1. Changes in extremities (Acute: erythema/edema; Subacute: periungual peeling wk 2-3)', points: '+1' },
+            {
+                criteria:
+                    '1. Changes in extremities (Acute: erythema/edema; Subacute: periungual peeling wk 2-3)',
+                points: '+1'
+            },
             { criteria: '2. Polymorphous exanthem', points: '+1' },
-            { criteria: '3. Bilateral bulbar conjunctival injection without exudate', points: '+1' },
-            { criteria: '4. Changes in lips and oral cavity: erythema, cracking, strawberry tongue, pharyngeal injection', points: '+1' },
-            { criteria: '5. Cervical lymphadenopathy (>1.5-cm diameter), usually unilateral', points: '+1' },
+            {
+                criteria: '3. Bilateral bulbar conjunctival injection without exudate',
+                points: '+1'
+            },
+            {
+                criteria:
+                    '4. Changes in lips and oral cavity: erythema, cracking, strawberry tongue, pharyngeal injection',
+                points: '+1'
+            },
+            {
+                criteria: '5. Cervical lymphadenopathy (>1.5-cm diameter), usually unilateral',
+                points: '+1'
+            },
             { criteria: 'Exclusion of other diseases with similar findings', points: 'Required' }
         ],
         interpretationTitle: 'Diagnosis is made if any of the following is true',
@@ -178,21 +193,25 @@ export const kawasakiConfig: ScoringCalculatorConfig = {
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Fever Present',
-            value: hasFever ? 'Yes' : 'No'
-        })}
+                label: 'Fever Present',
+                value: hasFever ? 'Yes' : 'No'
+            })}
             ${uiBuilder.createResultItem({
-            label: 'Principal Features Present',
-            value: `${featureCount} / 5`
-        })}
-            ${hasCoronary ? uiBuilder.createResultItem({
-            label: 'Coronary Artery Disease Confirmed',
-            value: 'Yes'
-        }) : ''}
+                label: 'Principal Features Present',
+                value: `${featureCount} / 5`
+            })}
+            ${
+                hasCoronary
+                    ? uiBuilder.createResultItem({
+                          label: 'Coronary Artery Disease Confirmed',
+                          value: 'Yes'
+                      })
+                    : ''
+            }
             ${uiBuilder.createAlert({
-            type: alertType,
-            message: interpretation
-        })}
+                type: alertType,
+                message: interpretation
+            })}
         `;
     }
 };

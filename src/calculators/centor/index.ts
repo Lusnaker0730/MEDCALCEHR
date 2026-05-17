@@ -86,7 +86,8 @@ export const centorConfig: ScoringCalculatorConfig = {
             maxScore: 999,
             label: '51-53% probability',
             severity: 'danger',
-            recommendation: 'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
+            recommendation:
+                'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
         }
     ],
     customResultRenderer: (score: number): string => {
@@ -112,23 +113,24 @@ export const centorConfig: ScoringCalculatorConfig = {
             alertClass = 'warning';
         } else {
             probability = '51-53%';
-            recommendation = 'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.';
+            recommendation =
+                'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.';
             alertClass = 'danger';
         }
 
         return `
             ${uiBuilder.createResultItem({
-            label: 'Total Score',
-            value: score.toString(),
-            unit: '/ 5 points',
-            interpretation: `Probability of Strep: ${probability}`,
-            alertClass: `ui-alert-${alertClass}`
-        })}
+                label: 'Total Score',
+                value: score.toString(),
+                unit: '/ 5 points',
+                interpretation: `Probability of Strep: ${probability}`,
+                alertClass: `ui-alert-${alertClass}`
+            })}
             
             ${uiBuilder.createAlert({
-            type: alertClass,
-            message: `<strong>Recommendation:</strong> ${recommendation}`
-        })}
+                type: alertClass,
+                message: `<strong>Recommendation:</strong> ${recommendation}`
+            })}
         `;
     }
 };
@@ -150,25 +152,25 @@ export const centor = {
             content: `
                 <p class="calculation-note mb-15">Addition of the selected points:</p>
                 ${uiBuilder.createTable({
-                headers: ['Criteria', 'Option', 'Points'],
-                rows: [
-                    ['<strong>Age</strong>', '3-14 years', '+1'],
-                    ['', '15-44 years', '0'],
-                    ['', '≥45 years', '-1'],
-                    ['<strong>Exudate or swelling on tonsils</strong>', 'No', '0'],
-                    ['', 'Yes', '+1'],
-                    [
-                        '<strong>Tender/swollen anterior cervical lymph nodes</strong>',
-                        'No',
-                        '0'
-                    ],
-                    ['', 'Yes', '+1'],
-                    ['<strong>Temp >38°C (100.4°F)</strong>', 'No', '0'],
-                    ['', 'Yes', '+1'],
-                    ['<strong>Cough</strong>', 'Cough present', '0'],
-                    ['', 'Cough absent', '+1']
-                ]
-            })}
+                    headers: ['Criteria', 'Option', 'Points'],
+                    rows: [
+                        ['<strong>Age</strong>', '3-14 years', '+1'],
+                        ['', '15-44 years', '0'],
+                        ['', '≥45 years', '-1'],
+                        ['<strong>Exudate or swelling on tonsils</strong>', 'No', '0'],
+                        ['', 'Yes', '+1'],
+                        [
+                            '<strong>Tender/swollen anterior cervical lymph nodes</strong>',
+                            'No',
+                            '0'
+                        ],
+                        ['', 'Yes', '+1'],
+                        ['<strong>Temp >38°C (100.4°F)</strong>', 'No', '0'],
+                        ['', 'Yes', '+1'],
+                        ['<strong>Cough</strong>', 'Cough present', '0'],
+                        ['', 'Cough absent', '+1']
+                    ]
+                })}
             `
         });
 
@@ -179,20 +181,20 @@ export const centor = {
             content: `
                 <p class="mb-10"><strong>Interpretation:</strong></p>
                 ${uiBuilder.createTable({
-                headers: ['Centor Score', 'Probability of strep pharyngitis', 'Recommendation'],
-                rows: [
-                    ['0', '1-2.5%', 'No further testing or antibiotics.'],
-                    ['1', '5-10%', 'No further testing or antibiotics.'],
-                    ['2', '11-17%', 'Optional rapid strep testing and/or culture.'],
-                    ['3', '28-35%', 'Consider rapid strep testing and/or culture.'],
-                    [
-                        '≥4',
-                        '51-53%',
-                        'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
-                    ]
-                ],
-                stickyFirstColumn: true
-            })}
+                    headers: ['Centor Score', 'Probability of strep pharyngitis', 'Recommendation'],
+                    rows: [
+                        ['0', '1-2.5%', 'No further testing or antibiotics.'],
+                        ['1', '5-10%', 'No further testing or antibiotics.'],
+                        ['2', '11-17%', 'Optional rapid strep testing and/or culture.'],
+                        ['3', '28-35%', 'Consider rapid strep testing and/or culture.'],
+                        [
+                            '≥4',
+                            '51-53%',
+                            'Consider rapid strep testing and/or culture. Empiric antibiotics may be appropriate depending on the specific scenario.'
+                        ]
+                    ],
+                    stickyFirstColumn: true
+                })}
             `
         });
 

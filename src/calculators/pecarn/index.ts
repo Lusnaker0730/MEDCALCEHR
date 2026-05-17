@@ -65,68 +65,68 @@ export const pecarn: CalculatorModule = {
             </div>
             
             ${uiBuilder.createSection({
-            title: 'Patient Age',
-            icon: '👶',
-            content: uiBuilder.createRadioGroup({
-                name: 'pecarn-age',
-                options: [
-                    { value: 'under2', label: '< 2 years', checked: true },
-                    { value: 'over2', label: '≥ 2 years' }
-                ]
-            })
-        })}
+                title: 'Patient Age',
+                icon: '👶',
+                content: uiBuilder.createRadioGroup({
+                    name: 'pecarn-age',
+                    options: [
+                        { value: 'under2', label: '< 2 years', checked: true },
+                        { value: 'over2', label: '≥ 2 years' }
+                    ]
+                })
+            })}
 
             <div id="pecarn-group-under2">
                 ${uiBuilder.createSection({
-            title: 'Criteria for Children < 2 Years',
-            icon: '📋',
-            content: uiBuilder.createCheckboxGroup({
-                name: 'pecarn-criteria-under2',
-                options: criteriaUnder2
-            })
-        })}
+                    title: 'Criteria for Children < 2 Years',
+                    icon: '📋',
+                    content: uiBuilder.createCheckboxGroup({
+                        name: 'pecarn-criteria-under2',
+                        options: criteriaUnder2
+                    })
+                })}
             </div>
 
             <div id="pecarn-group-over2" class="ui-hidden">
                 ${uiBuilder.createSection({
-            title: 'Criteria for Children ≥ 2 Years',
-            icon: '📋',
-            content: uiBuilder.createCheckboxGroup({
-                name: 'pecarn-criteria-over2',
-                options: criteriaOver2
-            })
-        })}
+                    title: 'Criteria for Children ≥ 2 Years',
+                    icon: '📋',
+                    content: uiBuilder.createCheckboxGroup({
+                        name: 'pecarn-criteria-over2',
+                        options: criteriaOver2
+                    })
+                })}
             </div>
 
             <div id="pecarn-error-container"></div>
             ${uiBuilder.createResultBox({ id: 'pecarn-result', title: 'PECARN Assessment' })}
 
             ${uiBuilder.createAlert({
-            type: 'info',
-            message: `
+                type: 'info',
+                message: `
                     <h4>📊 Risk Interpretation</h4>
                     ${uiBuilder.createTable({
-                headers: ['Recommendation', '<2 yrs ciTBI risk', '\u22652 yrs ciTBI risk'],
-                rows: [
-                    [
-                        '<span class="ui-alert-danger">CT Recommended</span>',
-                        '4.4% (GCS<15 or skull fracture)',
-                        '4.3% (GCS<15 or basilar fracture)'
-                    ],
-                    [
-                        '<span class="ui-alert-warning">Observation vs. CT</span>',
-                        '0.9% (other risk factors present)',
-                        '0.8% (LOC/vomiting/headache/mechanism)'
-                    ],
-                    [
-                        '<span class="ui-alert-success">CT Not Recommended</span>',
-                        '<0.02% (no risk factors)',
-                        '<0.05% (no risk factors)'
-                    ]
-                ]
-            })}
+                        headers: ['Recommendation', '<2 yrs ciTBI risk', '\u22652 yrs ciTBI risk'],
+                        rows: [
+                            [
+                                '<span class="ui-alert-danger">CT Recommended</span>',
+                                '4.4% (GCS<15 or skull fracture)',
+                                '4.3% (GCS<15 or basilar fracture)'
+                            ],
+                            [
+                                '<span class="ui-alert-warning">Observation vs. CT</span>',
+                                '0.9% (other risk factors present)',
+                                '0.8% (LOC/vomiting/headache/mechanism)'
+                            ],
+                            [
+                                '<span class="ui-alert-success">CT Not Recommended</span>',
+                                '<0.02% (no risk factors)',
+                                '<0.05% (no risk factors)'
+                            ]
+                        ]
+                    })}
                 `
-        })}
+            })}
         `;
     },
     initialize: function (client, patient, container) {

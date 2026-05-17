@@ -186,7 +186,7 @@ describe('UnitConverter', () => {
             [1, 'lbs', 'g', 453.592],
             [453.592, 'g', 'lbs', 1],
             [1, 'kg', 'lbs', 2.20462],
-            [1, 'lbs', 'kg', 0.453592],
+            [1, 'lbs', 'kg', 0.453592]
         ])('convert(%f, %s, %s, weight) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'weight');
             expect(result).toBeCloseTo(expected, 1);
@@ -207,7 +207,7 @@ describe('UnitConverter', () => {
             [12, 'in', 'ft', 1],
             [1, 'ft', 'cm', 30.48],
             [1, 'ft', 'm', 0.3048],
-            [1, 'in', 'm', 0.0254],
+            [1, 'in', 'm', 0.0254]
         ])('convert(%f, %s, %s, height) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'height');
             expect(result).toBeCloseTo(expected, 2);
@@ -230,7 +230,7 @@ describe('UnitConverter', () => {
             [373.15, 'K', 'F', 212],
             [-273.15, 'C', 'K', 0],
             [0, 'K', 'C', -273.15],
-            [0, 'K', 'F', -459.67],
+            [0, 'K', 'F', -459.67]
         ])('convert(%f, %s, %s, temperature) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'temperature');
             expect(result).toBeCloseTo(expected, 1);
@@ -260,7 +260,7 @@ describe('UnitConverter', () => {
             [120, 'mmHg', 'kPa', 15.9986],
             [1, 'mmHg', 'mm[Hg]', 1],
             [1, 'mm[Hg]', 'mmHg', 1],
-            [1, 'mm[Hg]', 'kPa', 0.133322],
+            [1, 'mm[Hg]', 'kPa', 0.133322]
         ])('convert(%f, %s, %s, pressure) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'pressure');
             expect(result).toBeCloseTo(expected, 2);
@@ -282,7 +282,7 @@ describe('UnitConverter', () => {
             [8, 'fl oz', 'cup', 1],
             [1, 'L', 'cup', 4.22675],
             [1, 'mL', 'fl oz', 0.033814],
-            [1, 'mL', 'cup', 0.00422675],
+            [1, 'mL', 'cup', 0.00422675]
         ])('convert(%f, %s, %s, volume) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'volume');
             expect(result).toBeCloseTo(expected, 2);
@@ -292,7 +292,7 @@ describe('UnitConverter', () => {
     describe('Calcium Conversions', () => {
         test.each([
             [10, 'mg/dL', 'mmol/L', 2.495],
-            [2.5, 'mmol/L', 'mg/dL', 10.02],
+            [2.5, 'mmol/L', 'mg/dL', 10.02]
         ])('convert(%f, %s, %s, calcium) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'calcium');
             expect(result).toBeCloseTo(expected, 1);
@@ -311,7 +311,7 @@ describe('UnitConverter', () => {
             [4.0, 'g/dL', 'g/L', 40],
             [40, 'g/L', 'g/dL', 4.0],
             [3.5, 'g/dL', 'g/L', 35],
-            [35, 'g/L', 'g/dL', 3.5],
+            [35, 'g/L', 'g/dL', 3.5]
         ])('convert(%f, %s, %s, albumin) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'albumin');
             expect(result).toBeCloseTo(expected, 1);
@@ -323,7 +323,7 @@ describe('UnitConverter', () => {
             [1.0, 'mg/dL', 'µmol/L', 17.1],
             [1.0, 'mg/dL', 'umol/L', 17.1],
             [17.1, 'µmol/L', 'mg/dL', 1.0],
-            [17.1, 'umol/L', 'mg/dL', 1.0],
+            [17.1, 'umol/L', 'mg/dL', 1.0]
         ])('convert(%f, %s, %s, bilirubin) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'bilirubin');
             expect(result).toBeCloseTo(expected, 0);
@@ -335,7 +335,7 @@ describe('UnitConverter', () => {
             [14, 'g/dL', 'g/L', 140],
             [140, 'g/L', 'g/dL', 14],
             [14, 'g/dL', 'mmol/L', 8.6884],
-            [8.69, 'mmol/L', 'g/dL', 14.0],
+            [8.69, 'mmol/L', 'g/dL', 14.0]
         ])('convert(%f, %s, %s, hemoglobin) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'hemoglobin');
             expect(result).toBeCloseTo(expected, 0);
@@ -347,7 +347,7 @@ describe('UnitConverter', () => {
             [20, 'mg/dL', 'mmol/L', 7.14],
             [7.14, 'mmol/L', 'mg/dL', 20],
             [10, 'mg/dL', 'mmol/L', 3.57],
-            [3.57, 'mmol/L', 'mg/dL', 10],
+            [3.57, 'mmol/L', 'mg/dL', 10]
         ])('convert(%f, %s, %s, bun) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'bun');
             expect(result).toBeCloseTo(expected, 0);
@@ -359,7 +359,7 @@ describe('UnitConverter', () => {
             [140, 'mEq/L', 'mmol/L', 140],
             [140, 'mmol/L', 'mEq/L', 140],
             [4.5, 'mEq/L', 'mmol/L', 4.5],
-            [4.5, 'mmol/L', 'mEq/L', 4.5],
+            [4.5, 'mmol/L', 'mEq/L', 4.5]
         ])('convert(%f, %s, %s, electrolyte) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'electrolyte');
             expect(result).toBeCloseTo(expected, 2);
@@ -370,7 +370,7 @@ describe('UnitConverter', () => {
         test.each([
             [140, 'mEq/L', 'mmol/L', 140],
             [140, 'mmol/L', 'mEq/L', 140],
-            [135, 'mEq/L', 'mmol/L', 135],
+            [135, 'mEq/L', 'mmol/L', 135]
         ])('convert(%f, %s, %s, sodium) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'sodium');
             expect(result).toBeCloseTo(expected, 2);
@@ -381,7 +381,7 @@ describe('UnitConverter', () => {
         test.each([
             [200, 'mg/dL', 'mmol/L', 5.172],
             [5.17, 'mmol/L', 'mg/dL', 199.92],
-            [100, 'mg/dL', 'mmol/L', 2.586],
+            [100, 'mg/dL', 'mmol/L', 2.586]
         ])('convert(%f, %s, %s, cholesterol) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'cholesterol');
             expect(result).toBeCloseTo(expected, 1);
@@ -391,7 +391,7 @@ describe('UnitConverter', () => {
     describe('Total Cholesterol Conversions', () => {
         test.each([
             [200, 'mg/dL', 'mmol/L', 5.172],
-            [5.17, 'mmol/L', 'mg/dL', 199.92],
+            [5.17, 'mmol/L', 'mg/dL', 199.92]
         ])('convert(%f, %s, %s, totalCholesterol) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'totalCholesterol');
             expect(result).toBeCloseTo(expected, 1);
@@ -401,7 +401,7 @@ describe('UnitConverter', () => {
     describe('HDL Conversions', () => {
         test.each([
             [60, 'mg/dL', 'mmol/L', 1.5516],
-            [1.55, 'mmol/L', 'mg/dL', 59.94],
+            [1.55, 'mmol/L', 'mg/dL', 59.94]
         ])('convert(%f, %s, %s, hdl) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'hdl');
             expect(result).toBeCloseTo(expected, 1);
@@ -411,7 +411,7 @@ describe('UnitConverter', () => {
     describe('LDL Conversions', () => {
         test.each([
             [130, 'mg/dL', 'mmol/L', 3.3618],
-            [3.36, 'mmol/L', 'mg/dL', 129.93],
+            [3.36, 'mmol/L', 'mg/dL', 129.93]
         ])('convert(%f, %s, %s, ldl) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'ldl');
             expect(result).toBeCloseTo(expected, 1);
@@ -422,7 +422,7 @@ describe('UnitConverter', () => {
         test.each([
             [150, 'mg/dL', 'mmol/L', 1.6935],
             [1.69, 'mmol/L', 'mg/dL', 149.68],
-            [200, 'mg/dL', 'mmol/L', 2.258],
+            [200, 'mg/dL', 'mmol/L', 2.258]
         ])('convert(%f, %s, %s, triglycerides) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'triglycerides');
             expect(result).toBeCloseTo(expected, 1);
@@ -436,7 +436,7 @@ describe('UnitConverter', () => {
             [1.0, 'mg/dL', 'umol/L', 88.4],
             [88.4, 'umol/L', 'mg/dL', 1.0],
             [2.0, 'mg/dL', 'µmol/L', 176.8],
-            [0.5, 'mg/dL', 'umol/L', 44.2],
+            [0.5, 'mg/dL', 'umol/L', 44.2]
         ])('convert(%f, %s, %s, creatinine) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'creatinine');
             expect(result).toBeCloseTo(expected, 0);
@@ -450,7 +450,7 @@ describe('UnitConverter', () => {
             [250, '×10⁹/L', '10*3/uL', 250],
             [250, '×10³/µL', '×10⁹/L', 250],
             [250, 'K/µL', '×10⁹/L', 250],
-            [250, '10*3/uL', '×10⁹/L', 250],
+            [250, '10*3/uL', '×10⁹/L', 250]
         ])('convert(%f, %s, %s, platelet) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'platelet');
             expect(result).toBeCloseTo(expected, 2);
@@ -464,7 +464,7 @@ describe('UnitConverter', () => {
             [7.5, '×10⁹/L', '10*3/uL', 7.5],
             [7.5, '×10³/µL', '×10⁹/L', 7.5],
             [7.5, 'K/µL', '×10⁹/L', 7.5],
-            [7.5, '10*3/uL', '×10⁹/L', 7.5],
+            [7.5, '10*3/uL', '×10⁹/L', 7.5]
         ])('convert(%f, %s, %s, wbc) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'wbc');
             expect(result).toBeCloseTo(expected, 2);
@@ -477,7 +477,7 @@ describe('UnitConverter', () => {
             [1, 'µg/mL', 'mg/L', 1],
             [1, 'mg/L', 'ng/mL', 1000],
             [1000, 'ng/mL', 'mg/L', 1],
-            [0.5, 'mg/L', 'ng/mL', 500],
+            [0.5, 'mg/L', 'ng/mL', 500]
         ])('convert(%f, %s, %s, ddimer) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'ddimer');
             expect(result).toBeCloseTo(expected, 2);
@@ -489,7 +489,7 @@ describe('UnitConverter', () => {
             [3.0, 'g/L', 'mg/dL', 300],
             [300, 'mg/dL', 'g/L', 3.0],
             [2.5, 'g/L', 'mg/dL', 250],
-            [250, 'mg/dL', 'g/L', 2.5],
+            [250, 'mg/dL', 'g/L', 2.5]
         ])('convert(%f, %s, %s, fibrinogen) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'fibrinogen');
             expect(result).toBeCloseTo(expected, 1);
@@ -503,7 +503,7 @@ describe('UnitConverter', () => {
             [10, 'µU/mL', 'mU/L', 10],
             [10, 'mU/L', 'µU/mL', 10],
             [10, 'mU/L', 'pmol/L', 69.45],
-            [69.45, 'pmol/L', 'mU/L', 10],
+            [69.45, 'pmol/L', 'mU/L', 10]
         ])('convert(%f, %s, %s, insulin) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'insulin');
             expect(result).toBeCloseTo(expected, 0);
@@ -517,7 +517,7 @@ describe('UnitConverter', () => {
             [10, 'mcg/mL', 'mg/L', 10],
             [10, 'mg/L', 'mcg/mL', 10],
             [10, 'mg/L', 'µmol/L', 39.64],
-            [39.64, 'µmol/L', 'mg/L', 9.99],
+            [39.64, 'µmol/L', 'mg/L', 9.99]
         ])('convert(%f, %s, %s, phenytoin) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'phenytoin');
             expect(result).toBeCloseTo(expected, 0);
@@ -529,7 +529,7 @@ describe('UnitConverter', () => {
             [1, 'g/L', 'mg/dL', 100],
             [1, 'g/L', 'g/dL', 0.1],
             [1, 'g/dL', 'mg/dL', 1000],
-            [1, 'g/dL', 'g/L', 10],
+            [1, 'g/dL', 'g/L', 10]
         ])('convert(%f, %s, %s, concentration) => %f', (value, from, to, expected) => {
             const result = UnitConverter.convert(value, from, to, 'concentration');
             expect(result).toBeCloseTo(expected, 2);
@@ -597,7 +597,7 @@ describe('UnitConverter', () => {
             ['albumin', 'g/L', 0],
             ['bilirubin', 'mg/dL', 1],
             ['bilirubin', 'µmol/L', 0],
-            ['bilirubin', 'umol/L', 0],
+            ['bilirubin', 'umol/L', 0]
         ])('getDecimalPlaces(%s, %s) => %d', (type, unit, expected) => {
             expect(UnitConverter.getDecimalPlaces(type, unit)).toBe(expected);
         });
@@ -709,7 +709,7 @@ describe('UnitConverter', () => {
             ['fibrinogen', 'g/L', 'mg/dL', 3.0],
             ['pressure', 'mmHg', 'kPa', 120],
             ['volume', 'mL', 'L', 500],
-            ['volume', 'cup', 'fl oz', 2],
+            ['volume', 'cup', 'fl oz', 2]
         ])('%s: %s -> %s -> %s should round-trip (value=%f)', (type, unitA, unitB, value) => {
             const forward = UnitConverter.convert(value, unitA, unitB, type);
             expect(forward).not.toBeNull();
@@ -871,7 +871,12 @@ describe('UnitConverter', () => {
         });
 
         test('should cycle through units on click', () => {
-            const toggle = UnitConverter.createUnitToggle(input, 'temperature', ['C', 'F', 'K'], 'C');
+            const toggle = UnitConverter.createUnitToggle(
+                input,
+                'temperature',
+                ['C', 'F', 'K'],
+                'C'
+            );
             document.body.appendChild(toggle);
 
             expect(toggle.textContent).toBe('C');
@@ -902,7 +907,12 @@ describe('UnitConverter', () => {
         });
 
         test('should set dataset attributes on the toggle button', () => {
-            const toggle = UnitConverter.createUnitToggle(input, 'glucose', ['mg/dL', 'mmol/L'], 'mg/dL');
+            const toggle = UnitConverter.createUnitToggle(
+                input,
+                'glucose',
+                ['mg/dL', 'mmol/L'],
+                'mg/dL'
+            );
             expect(toggle.dataset.currentUnit).toBe('mg/dL');
             expect(toggle.dataset.type).toBe('glucose');
             expect(JSON.parse(toggle.dataset.units!)).toEqual(['mg/dL', 'mmol/L']);
@@ -928,7 +938,9 @@ describe('UnitConverter', () => {
             document.body.appendChild(toggle);
 
             let eventFired = false;
-            input.addEventListener('input', () => { eventFired = true; });
+            input.addEventListener('input', () => {
+                eventFired = true;
+            });
 
             toggle.click();
             expect(eventFired).toBe(true);
@@ -936,7 +948,12 @@ describe('UnitConverter', () => {
 
         test('should apply correct decimal places after conversion', () => {
             input.value = '100';
-            const toggle = UnitConverter.createUnitToggle(input, 'glucose', ['mg/dL', 'mmol/L'], 'mg/dL');
+            const toggle = UnitConverter.createUnitToggle(
+                input,
+                'glucose',
+                ['mg/dL', 'mmol/L'],
+                'mg/dL'
+            );
             document.body.appendChild(toggle);
 
             toggle.click(); // mg/dL -> mmol/L, decimals for mmol/L glucose is 1
@@ -985,7 +1002,9 @@ describe('UnitConverter', () => {
 
         test('should dispatch input event', () => {
             let eventFired = false;
-            input.addEventListener('input', () => { eventFired = true; });
+            input.addEventListener('input', () => {
+                eventFired = true;
+            });
             UnitConverter.setInputValue(input, 100, 'kg');
             expect(eventFired).toBe(true);
         });

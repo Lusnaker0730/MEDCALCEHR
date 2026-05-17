@@ -9,14 +9,29 @@ const localStorageMock = (() => {
     let store: Record<string, string> = {};
     return {
         getItem: jest.fn((key: string) => store[key] ?? null),
-        setItem: jest.fn((key: string, value: string) => { store[key] = value; }),
-        removeItem: jest.fn((key: string) => { delete store[key]; }),
-        clear: jest.fn(() => { store = {}; }),
+        setItem: jest.fn((key: string, value: string) => {
+            store[key] = value;
+        }),
+        removeItem: jest.fn((key: string) => {
+            delete store[key];
+        }),
+        clear: jest.fn(() => {
+            store = {};
+        })
     };
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-import { t, setLocale, getLocale, initI18n, hydrateI18n, onLocaleChange, offLocaleChange, getAvailableLocales } from '../i18n/index.js';
+import {
+    t,
+    setLocale,
+    getLocale,
+    initI18n,
+    hydrateI18n,
+    onLocaleChange,
+    offLocaleChange,
+    getAvailableLocales
+} from '../i18n/index.js';
 
 describe('i18n Module', () => {
     beforeEach(() => {
@@ -164,7 +179,8 @@ describe('i18n Module', () => {
 
         it('should hydrate placeholder attributes', () => {
             setLocale('en');
-            document.body.innerHTML = '<input data-i18n-placeholder="search.placeholder" placeholder="old" />';
+            document.body.innerHTML =
+                '<input data-i18n-placeholder="search.placeholder" placeholder="old" />';
             hydrateI18n();
             const input = document.querySelector('input') as HTMLInputElement;
             expect(input.placeholder).toBe('Search for a calculator...');
@@ -172,7 +188,8 @@ describe('i18n Module', () => {
 
         it('should hydrate title attributes', () => {
             setLocale('zh-TW');
-            document.body.innerHTML = '<button data-i18n-title="app.toggleTheme" title="old"></button>';
+            document.body.innerHTML =
+                '<button data-i18n-title="app.toggleTheme" title="old"></button>';
             hydrateI18n();
             const btn = document.querySelector('button') as HTMLButtonElement;
             expect(btn.title).toBe('切換主題');
@@ -180,7 +197,8 @@ describe('i18n Module', () => {
 
         it('should hydrate aria-label attributes', () => {
             setLocale('zh-TW');
-            document.body.innerHTML = '<input data-i18n-aria="search.ariaLabel" aria-label="old" />';
+            document.body.innerHTML =
+                '<input data-i18n-aria="search.ariaLabel" aria-label="old" />';
             hydrateI18n();
             const input = document.querySelector('input') as HTMLInputElement;
             expect(input.getAttribute('aria-label')).toBe('搜尋計算器');

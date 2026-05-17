@@ -52,7 +52,7 @@ const LanguageManager: ILanguageManager = {
 
     getCurrentLocale(): Locale {
         return getLocale();
-    },
+    }
 };
 
 // Auto-initialize on DOMContentLoaded

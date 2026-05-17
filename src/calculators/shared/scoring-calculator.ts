@@ -376,9 +376,9 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
 
             // 生成提示框
             const infoAlertHTML = config.infoAlert
-                ? (config.infoAlert.includes('ui-alert')
+                ? config.infoAlert.includes('ui-alert')
                     ? config.infoAlert
-                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert }))
+                    : uiBuilder.createAlert({ type: 'info', message: config.infoAlert })
                 : '';
 
             // 生成解釋說明
@@ -532,10 +532,7 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                     if (resultContent) {
                         if (config.customResultRenderer) {
                             resultContent.innerHTML = sanitizeHTML(
-                                config.customResultRenderer(
-                                    totalScore,
-                                    sectionScores
-                                )
+                                config.customResultRenderer(totalScore, sectionScores)
                             );
                         } else if (config.riskLevels && config.riskLevels.length > 0) {
                             // 找到對應的風險等級
@@ -686,7 +683,10 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                         }
                                     }
                                 } catch (e) {
-                                    logger.warn('Error fetching observation for section', { detail: sectionId, error: String(e) });
+                                    logger.warn('Error fetching observation for section', {
+                                        detail: sectionId,
+                                        error: String(e)
+                                    });
                                 }
                             }
 
@@ -714,7 +714,10 @@ export function createScoringCalculator(config: ScoringCalculatorConfig): Calcul
                                         }
                                     }
                                 } catch (e) {
-                                    logger.warn('Error fetching observation criteria for section', { detail: sectionId, error: String(e) });
+                                    logger.warn('Error fetching observation criteria for section', {
+                                        detail: sectionId,
+                                        error: String(e)
+                                    });
                                 }
                             }
                         }

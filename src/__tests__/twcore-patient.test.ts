@@ -13,7 +13,12 @@ const mockInitSentry = jest.fn<any>();
 
 // Mock dependencies
 jest.mock('../logger.js', () => ({
-    logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug },
+    logger: {
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        debug: mockLoggerDebug
+    }
 }));
 jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 
@@ -34,7 +39,10 @@ describe('TW Core Patient', () => {
 
     describe('getPatientIdentifiers()', () => {
         test('should extract National ID from TW Core patient', () => {
-            const mockClient = { patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patientExample, container);
 
@@ -48,7 +56,10 @@ describe('TW Core Patient', () => {
         });
 
         test('should extract Medical Record Number', () => {
-            const mockClient = { patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patientExample, container);
 
@@ -60,7 +71,10 @@ describe('TW Core Patient', () => {
         });
 
         test('should return empty array when patient has no identifiers', () => {
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, { id: 'p1', gender: 'male' }, container);
 
@@ -71,15 +85,25 @@ describe('TW Core Patient', () => {
         test('should detect MR type from type.coding when system is unknown', () => {
             const patient = {
                 id: 'p1',
-                identifier: [{
-                    type: {
-                        coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: 'MR' }],
-                    },
-                    system: 'http://hospital.example.com/mrn',
-                    value: 'MRN001',
-                }],
+                identifier: [
+                    {
+                        type: {
+                            coding: [
+                                {
+                                    system: 'http://terminology.hl7.org/CodeSystem/v2-0203',
+                                    code: 'MR'
+                                }
+                            ]
+                        },
+                        system: 'http://hospital.example.com/mrn',
+                        value: 'MRN001'
+                    }
+                ]
             };
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patient, container);
 
@@ -93,10 +117,13 @@ describe('TW Core Patient', () => {
                 id: 'p1',
                 identifier: [
                     { system: 'http://www.boca.gov.tw', value: 'P12345678' },
-                    { system: 'http://www.immigration.gov.tw', value: 'RC12345678' },
-                ],
+                    { system: 'http://www.immigration.gov.tw', value: 'RC12345678' }
+                ]
             };
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patient, container);
 
@@ -109,7 +136,10 @@ describe('TW Core Patient', () => {
 
     describe('getPatientAgeTWCore()', () => {
         test('should prefer person-age extension value', () => {
-            const mockClient = { patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patientExample, container);
 
@@ -119,7 +149,10 @@ describe('TW Core Patient', () => {
 
         test('should fallback to calculateAge when no extension', () => {
             const patient = { id: 'p1', birthDate: '2000-01-01' };
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patient, container);
 
@@ -130,7 +163,10 @@ describe('TW Core Patient', () => {
 
         test('should return null when no extension and no birthDate', () => {
             const patient = { id: 'p1' };
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patient, container);
 
@@ -141,7 +177,10 @@ describe('TW Core Patient', () => {
 
     describe('isTWCorePatient()', () => {
         test('should return true for patient with TW Core profile', () => {
-            const mockClient = { patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'pat-example', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patientExample, container);
 
@@ -150,7 +189,10 @@ describe('TW Core Patient', () => {
 
         test('should return false for patient without TW Core profile', () => {
             const patient = { id: 'p1', gender: 'male' };
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patient, container);
 
@@ -159,7 +201,10 @@ describe('TW Core Patient', () => {
 
         test('should return false for patient with empty meta', () => {
             const patient = { id: 'p1', meta: {} };
-            const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+            const mockClient = {
+                patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+                request: jest.fn()
+            };
             const container = document.createElement('div');
             service.initialize(mockClient, patient, container);
 
@@ -178,14 +223,16 @@ describe('TW Core Patient', () => {
             const patient = { id: 'p1', gender: 'male', birthDate: '1990-01-01' };
             const result = checkPatientConformance(patient);
             expect(result.isConformant).toBe(false);
-            expect(result.issues.some(i => i.path === 'Patient.identifier' && i.severity === 'error')).toBe(true);
+            expect(
+                result.issues.some(i => i.path === 'Patient.identifier' && i.severity === 'error')
+            ).toBe(true);
         });
 
         test('should warn when gender is missing', () => {
             const patient = {
                 id: 'p1',
                 identifier: [{ system: 'http://www.moi.gov.tw', value: 'A123456789' }],
-                birthDate: '1990-01-01',
+                birthDate: '1990-01-01'
             };
             const result = checkPatientConformance(patient);
             expect(result.isConformant).toBe(true); // gender is warning, not error
@@ -196,7 +243,7 @@ describe('TW Core Patient', () => {
             const patient = {
                 id: 'p1',
                 identifier: [{ system: 'http://www.moi.gov.tw', value: 'A123456789' }],
-                gender: 'male',
+                gender: 'male'
             };
             const result = checkPatientConformance(patient);
             expect(result.isConformant).toBe(true);

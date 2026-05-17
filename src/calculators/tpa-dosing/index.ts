@@ -36,7 +36,6 @@ export const calculateTpaDosing = (values: Record<string, any>): any[] | null =>
             alertClass: 'success',
             interpretation: alertMsg
         });
-
     } else if (indication === 'stemi') {
         // STEMI (Accelerated Infusion)
         let bolus = 15;
@@ -65,7 +64,10 @@ export const calculateTpaDosing = (values: Record<string, any>): any[] | null =>
             label: 'Total Dose',
             value: total.toFixed(1),
             unit: 'mg',
-            interpretation: weight <= 67 ? 'Weight ≤ 67 kg: Weight-adjusted dose.' : 'Weight > 67 kg: Standard accelerated dose.',
+            interpretation:
+                weight <= 67
+                    ? 'Weight ≤ 67 kg: Weight-adjusted dose.'
+                    : 'Weight > 67 kg: Standard accelerated dose.',
             alertClass: 'success'
         });
 
@@ -99,12 +101,11 @@ export const tpaDosingConfig: FormulaCalculatorConfig = {
     title: 'tPA Dosing for PE and MI',
     description:
         'Calculates tissue plasminogen activator (tPA/Alteplase) dosing for Acute Massive Pulmonary Embolism (PE) and acute Myocardial Infarction (STEMI).',
-    infoAlert:
-        uiBuilder.createAlert({
-            type: 'warning',
-            message:
-                '<strong>⚠️ Important:</strong> Verify all inclusion and exclusion criteria before alteplase administration. <br>For <strong>Acute Ischemic Stroke</strong>, please use the dedicated Stroke tPA calculator.'
-        }),
+    infoAlert: uiBuilder.createAlert({
+        type: 'warning',
+        message:
+            '<strong>⚠️ Important:</strong> Verify all inclusion and exclusion criteria before alteplase administration. <br>For <strong>Acute Ischemic Stroke</strong>, please use the dedicated Stroke tPA calculator.'
+    }),
     sections: [
         {
             title: 'Patient Data',
@@ -115,7 +116,11 @@ export const tpaDosingConfig: FormulaCalculatorConfig = {
                     id: 'tpa-indication',
                     label: 'Indication',
                     options: [
-                        { value: 'pe', label: 'Acute Massive Pulmonary Embolism (PE)', checked: true },
+                        {
+                            value: 'pe',
+                            label: 'Acute Massive Pulmonary Embolism (PE)',
+                            checked: true
+                        },
                         { value: 'stemi', label: 'STEMI (Accelerated Infusion)' }
                     ]
                 },
@@ -140,13 +145,14 @@ export const tpaDosingConfig: FormulaCalculatorConfig = {
         },
         {
             label: 'STEMI (Accelerated Infusion)',
-            formula: 'For weight > 67 kg: 15 mg bolus, then 50 mg over 30 min, then 35 mg over 60 min (Total: 100 mg).<br>For weight ≤ 67 kg: 15 mg bolus, then 0.75 mg/kg over 30 min (max 50 mg), then 0.50 mg/kg over 60 min (max 35 mg).'
+            formula:
+                'For weight > 67 kg: 15 mg bolus, then 50 mg over 30 min, then 35 mg over 60 min (Total: 100 mg).<br>For weight ≤ 67 kg: 15 mg bolus, then 0.75 mg/kg over 30 min (max 50 mg), then 0.50 mg/kg over 60 min (max 35 mg).'
         }
     ],
     reference: uiBuilder.createReference({
         citations: [
             'Activase (alteplase) prescribing information. Genentech, Inc.',
-            'O\'Gara PT, et al. 2013 ACCF/AHA guideline for the management of ST-elevation myocardial infarction. <em>Circulation</em>. 2013;127(4):e362-e425.'
+            "O'Gara PT, et al. 2013 ACCF/AHA guideline for the management of ST-elevation myocardial infarction. <em>Circulation</em>. 2013;127(4):e362-e425."
         ]
     }),
     calculate: calculateTpaDosing,
@@ -165,13 +171,17 @@ export const tpaDosingConfig: FormulaCalculatorConfig = {
 
         const items = results.filter(r => r.label !== 'Indication');
 
-        html += items.map(res => uiBuilder.createResultItem({
-            label: res.label,
-            value: res.value?.toString() || '',
-            unit: res.unit,
-            interpretation: res.interpretation,
-            alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
-        })).join('');
+        html += items
+            .map(res =>
+                uiBuilder.createResultItem({
+                    label: res.label,
+                    value: res.value?.toString() || '',
+                    unit: res.unit,
+                    interpretation: res.interpretation,
+                    alertClass: res.alertClass ? `ui-alert-${res.alertClass}` : ''
+                })
+            )
+            .join('');
 
         return html;
     }

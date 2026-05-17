@@ -69,7 +69,7 @@ export class BeaconTransport implements LogTransport {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: payload,
-                    keepalive: true,
+                    keepalive: true
                 }).catch(() => {
                     // Silent: remote endpoint unavailable
                 });

@@ -45,9 +45,9 @@ describe('PREVENT — base model, female reference patient', () => {
 
     test('matches Khan 2024 reference 30-year risks', () => {
         const risks = calculatePreventOnce(basePatient, 'base', '30yr');
-        expect(risks.totalCvd).toBeCloseTo(0.530, 2);
+        expect(risks.totalCvd).toBeCloseTo(0.53, 2);
         expect(risks.ascvd).toBeCloseTo(0.354, 2);
-        expect(risks.heartFailure).toBeCloseTo(0.390, 2);
+        expect(risks.heartFailure).toBeCloseTo(0.39, 2);
         expect(risks.chd).toBeCloseTo(0.198, 2);
         expect(risks.stroke).toBeCloseTo(0.221, 2);
     });
@@ -96,7 +96,7 @@ describe('PREVENT — calculatePrevent auto-selects model', () => {
         const out = calculatePrevent(basePatient);
         expect(out.model).toBe('base');
         expect(out.tenYear.totalCvd).toBeCloseTo(0.147, 2);
-        expect(out.thirtyYear.totalCvd).toBeCloseTo(0.530, 2);
+        expect(out.thirtyYear.totalCvd).toBeCloseTo(0.53, 2);
     });
 
     test('selects hba1c model when hba1c provided', () => {
@@ -123,7 +123,7 @@ describe('PREVENT — male reference patient (sex symmetry)', () => {
         };
         const out = calculatePrevent(p);
         expect(out.tenYear.totalCvd).toBeGreaterThan(0);
-        expect(out.tenYear.totalCvd).toBeLessThan(0.10);
+        expect(out.tenYear.totalCvd).toBeLessThan(0.1);
         expect(out.thirtyYear.totalCvd).toBeGreaterThan(out.tenYear.totalCvd);
     });
 
@@ -142,8 +142,8 @@ describe('PREVENT — male reference patient (sex symmetry)', () => {
             bmi: 32
         };
         const out = calculatePrevent(p);
-        expect(out.tenYear.totalCvd).toBeGreaterThan(0.30);
-        expect(out.tenYear.ascvd).toBeGreaterThan(0.20);
+        expect(out.tenYear.totalCvd).toBeGreaterThan(0.3);
+        expect(out.tenYear.ascvd).toBeGreaterThan(0.2);
     });
 });
 
@@ -159,9 +159,9 @@ describe('PREVENT — input validation', () => {
         expect(() => calculatePrevent({ ...basePatient, sbp: 220 })).toThrow(ValidationError);
     });
     test('rejects HDL >= TC', () => {
-        expect(() =>
-            calculatePrevent({ ...basePatient, totalCholesterol: 200, hdl: 200 })
-        ).toThrow(ValidationError);
+        expect(() => calculatePrevent({ ...basePatient, totalCholesterol: 200, hdl: 200 })).toThrow(
+            ValidationError
+        );
     });
     test('rejects BMI out of 18.5-39.9', () => {
         expect(() => calculatePrevent({ ...basePatient, bmi: 15 })).toThrow(ValidationError);

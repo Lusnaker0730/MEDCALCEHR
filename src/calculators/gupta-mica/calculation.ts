@@ -1,14 +1,15 @@
 import type { SimpleCalculateFn, FormulaResultItem } from '../../types/calculator-formula.js';
 
 // Creatinine coefficients per Gupta et al. (2011)
-const CREAT_COEF_NORMAL = 0;        // Creatinine < 1.5 mg/dL
-const CREAT_COEF_ELEVATED = 0.61;   // Creatinine ≥ 1.5 mg/dL
-const CREAT_COEF_UNKNOWN = -0.10;   // No preoperative creatinine available
+const CREAT_COEF_NORMAL = 0; // Creatinine < 1.5 mg/dL
+const CREAT_COEF_ELEVATED = 0.61; // Creatinine ≥ 1.5 mg/dL
+const CREAT_COEF_UNKNOWN = -0.1; // No preoperative creatinine available
 
 export const calculateGuptaMica: SimpleCalculateFn = values => {
     const age = values['mica-age'] ? parseFloat(values['mica-age'] as string) : null;
     const creat = values['mica-creat'] ? parseFloat(values['mica-creat'] as string) : null;
-    const creatUnknown = values['mica-creat-unknown'] === true || values['mica-creat-unknown'] === 'true';
+    const creatUnknown =
+        values['mica-creat-unknown'] === true || values['mica-creat-unknown'] === 'true';
     const functionalStatus = parseFloat((values['mica-status'] as string) || '0');
     const asaClass = parseFloat((values['mica-asa'] as string) || '-5.17');
     const procedure = parseFloat((values['mica-procedure'] as string) || '0');

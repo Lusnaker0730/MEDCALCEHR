@@ -32,7 +32,7 @@ function createEntry(level: string = 'ERROR', message: string = 'test'): LogEntr
         timestamp: new Date().toISOString(),
         level,
         message,
-        url: 'http://localhost/test',
+        url: 'http://localhost/test'
     };
 }
 
@@ -45,7 +45,7 @@ describe('BeaconTransport', () => {
         Object.defineProperty(navigator, 'sendBeacon', {
             value: jest.fn(() => true),
             writable: true,
-            configurable: true,
+            configurable: true
         });
     });
 
@@ -113,11 +113,14 @@ describe('BeaconTransport', () => {
         transport = new BeaconTransport('/api/logs', LogLevel.ERROR, 1);
         transport.send(createEntry());
 
-        expect(mockFetch).toHaveBeenCalledWith('/api/logs', expect.objectContaining({
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            keepalive: true,
-        }));
+        expect(mockFetch).toHaveBeenCalledWith(
+            '/api/logs',
+            expect.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                keepalive: true
+            })
+        );
 
         delete (global as any).fetch;
     });
@@ -167,7 +170,7 @@ describe('Logger transport integration', () => {
             minLevel: LogLevel.WARN,
             send: jest.fn(),
             flush: jest.fn(),
-            destroy: jest.fn(),
+            destroy: jest.fn()
         };
     });
 
@@ -189,7 +192,7 @@ describe('Logger transport integration', () => {
             expect.objectContaining({
                 level: 'WARN',
                 message: 'warning message',
-                context: expect.objectContaining({ key: 'value' }),
+                context: expect.objectContaining({ key: 'value' })
             })
         );
     });
@@ -224,9 +227,11 @@ describe('Logger transport integration', () => {
         const failingTransport: LogTransport = {
             name: 'failing',
             minLevel: LogLevel.INFO,
-            send: jest.fn(() => { throw new Error('transport failed'); }),
+            send: jest.fn(() => {
+                throw new Error('transport failed');
+            }),
             flush: jest.fn(),
-            destroy: jest.fn(),
+            destroy: jest.fn()
         };
         logger.addTransport(failingTransport);
 

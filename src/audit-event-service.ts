@@ -259,53 +259,57 @@ const CODE_SYSTEMS = {
 /**
  * Event type mappings to FHIR codes
  */
-const EVENT_TYPE_CODES: Record<AuditEventType, { system: string; code: string; display: string }> = {
-    rest: {
-        system: CODE_SYSTEMS.AUDIT_EVENT_TYPE,
-        code: 'rest',
-        display: 'RESTful Operation'
-    },
-    login: {
-        system: CODE_SYSTEMS.DCM,
-        code: '110122',
-        display: 'Login'
-    },
-    logout: {
-        system: CODE_SYSTEMS.DCM,
-        code: '110123',
-        display: 'Logout'
-    },
-    'patient-record-access': {
-        system: CODE_SYSTEMS.DCM,
-        code: '110110',
-        display: 'Patient Record'
-    },
-    'data-export': {
-        system: CODE_SYSTEMS.DCM,
-        code: '110106',
-        display: 'Export'
-    },
-    calculation: {
-        system: CODE_SYSTEMS.IHE_BALP,
-        code: 'CALCULATE',
-        display: 'Medical Calculation'
-    },
-    'consent-decision': {
-        system: CODE_SYSTEMS.DCM,
-        code: '110142',
-        display: 'Consent Directive'
-    },
-    'security-alert': {
-        system: CODE_SYSTEMS.DCM,
-        code: '110113',
-        display: 'Security Alert'
-    }
-};
+const EVENT_TYPE_CODES: Record<AuditEventType, { system: string; code: string; display: string }> =
+    {
+        rest: {
+            system: CODE_SYSTEMS.AUDIT_EVENT_TYPE,
+            code: 'rest',
+            display: 'RESTful Operation'
+        },
+        login: {
+            system: CODE_SYSTEMS.DCM,
+            code: '110122',
+            display: 'Login'
+        },
+        logout: {
+            system: CODE_SYSTEMS.DCM,
+            code: '110123',
+            display: 'Logout'
+        },
+        'patient-record-access': {
+            system: CODE_SYSTEMS.DCM,
+            code: '110110',
+            display: 'Patient Record'
+        },
+        'data-export': {
+            system: CODE_SYSTEMS.DCM,
+            code: '110106',
+            display: 'Export'
+        },
+        calculation: {
+            system: CODE_SYSTEMS.IHE_BALP,
+            code: 'CALCULATE',
+            display: 'Medical Calculation'
+        },
+        'consent-decision': {
+            system: CODE_SYSTEMS.DCM,
+            code: '110142',
+            display: 'Consent Directive'
+        },
+        'security-alert': {
+            system: CODE_SYSTEMS.DCM,
+            code: '110113',
+            display: 'Security Alert'
+        }
+    };
 
 /**
  * Agent type mappings to FHIR codes
  */
-const AGENT_TYPE_CODES: Record<AuditAgent['type'], { system: string; code: string; display: string }> = {
+const AGENT_TYPE_CODES: Record<
+    AuditAgent['type'],
+    { system: string; code: string; display: string }
+> = {
     practitioner: {
         system: CODE_SYSTEMS.PARTICIPANT_TYPE,
         code: 'PROV',
@@ -331,7 +335,10 @@ const AGENT_TYPE_CODES: Record<AuditAgent['type'], { system: string; code: strin
 /**
  * Entity type mappings to FHIR codes
  */
-const ENTITY_TYPE_CODES: Record<AuditEntity['type'], { system: string; code: string; display: string }> = {
+const ENTITY_TYPE_CODES: Record<
+    AuditEntity['type'],
+    { system: string; code: string; display: string }
+> = {
     patient: {
         system: CODE_SYSTEMS.ENTITY_TYPE,
         code: '1',
@@ -352,7 +359,10 @@ const ENTITY_TYPE_CODES: Record<AuditEntity['type'], { system: string; code: str
 /**
  * Entity role mappings to FHIR codes
  */
-const ENTITY_ROLE_CODES: Record<AuditEntity['type'], { system: string; code: string; display: string }> = {
+const ENTITY_ROLE_CODES: Record<
+    AuditEntity['type'],
+    { system: string; code: string; display: string }
+> = {
     patient: {
         system: CODE_SYSTEMS.ENTITY_ROLE,
         code: '1',
@@ -482,7 +492,9 @@ export class AuditEventService {
         const auditEvent: FHIRAuditEvent = {
             resourceType: 'AuditEvent',
             meta: {
-                profile: ['https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.PatientRead'],
+                profile: [
+                    'https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.PatientRead'
+                ],
                 lastUpdated: now.toISOString()
             },
             type: eventTypeCode,
@@ -556,13 +568,19 @@ export class AuditEventService {
                     coding: [agentTypeCode]
                 },
                 who: {
-                    reference: agent.type === 'practitioner' ? `Practitioner/${agent.id}` :
-                               agent.type === 'patient' ? `Patient/${agent.id}` :
-                               undefined,
-                    identifier: agent.type === 'application' ? {
-                        system: 'urn:ietf:rfc:3986',
-                        value: agent.id
-                    } : undefined,
+                    reference:
+                        agent.type === 'practitioner'
+                            ? `Practitioner/${agent.id}`
+                            : agent.type === 'patient'
+                              ? `Patient/${agent.id}`
+                              : undefined,
+                    identifier:
+                        agent.type === 'application'
+                            ? {
+                                  system: 'urn:ietf:rfc:3986',
+                                  value: agent.id
+                              }
+                            : undefined,
                     display: agent.name
                 },
                 name: agent.name,
@@ -623,15 +641,19 @@ export class AuditEventService {
                     // Auto-detect sensitivities from the resource reference
                     const minimalResource = {
                         resourceType: entity.what.split('/')[0] || 'Resource',
-                        id: entity.what.split('/')[1],
+                        id: entity.what.split('/')[1]
                     };
-                    const sensitivities = securityLabelsService.detectSensitivities(minimalResource as any);
+                    const sensitivities = securityLabelsService.detectSensitivities(
+                        minimalResource as any
+                    );
                     const confidentiality = sensitivities.some(s => s !== 'GENERAL') ? 'R' : 'N';
-                    entityEntry.securityLabel = [{
-                        system: CODE_SYSTEMS.SECURITY_LABELS,
-                        code: confidentiality,
-                        display: confidentiality === 'R' ? 'Restricted' : 'Normal'
-                    }];
+                    entityEntry.securityLabel = [
+                        {
+                            system: CODE_SYSTEMS.SECURITY_LABELS,
+                            code: confidentiality,
+                            display: confidentiality === 'R' ? 'Restricted' : 'Normal'
+                        }
+                    ];
                 }
 
                 // Add query if this is a query entity
@@ -774,11 +796,7 @@ export class AuditEventService {
     /**
      * Record a FHIR resource read event
      */
-    async logResourceRead(
-        resourceType: string,
-        resourceId: string,
-        query?: string
-    ): Promise<void> {
+    async logResourceRead(resourceType: string, resourceId: string, query?: string): Promise<void> {
         const entities: AuditEntity[] = [
             {
                 type: 'resource',
@@ -986,7 +1004,9 @@ export class AuditEventService {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to send audit event: ${response.status} ${response.statusText}`);
+            throw new Error(
+                `Failed to send audit event: ${response.status} ${response.statusText}`
+            );
         }
 
         this.log('Audit event sent to server successfully');
@@ -1113,12 +1133,29 @@ export class AuditEventService {
             return data;
         }
         const sensitiveFields = [
-            'ssn', 'socialsecuritynumber', 'password', 'pin',
-            'creditcard', 'bankaccount', 'identifier',
-            'name', 'patientname', 'fullname', 'firstname', 'lastname',
-            'birthdate', 'dob', 'dateofbirth',
-            'address', 'phone', 'email', 'telecom',
-            'mrn', 'nationalid', 'passport', 'photo'
+            'ssn',
+            'socialsecuritynumber',
+            'password',
+            'pin',
+            'creditcard',
+            'bankaccount',
+            'identifier',
+            'name',
+            'patientname',
+            'fullname',
+            'firstname',
+            'lastname',
+            'birthdate',
+            'dob',
+            'dateofbirth',
+            'address',
+            'phone',
+            'email',
+            'telecom',
+            'mrn',
+            'nationalid',
+            'passport',
+            'photo'
         ];
 
         const sanitized: Record<string, any> = {};

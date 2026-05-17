@@ -16,49 +16,49 @@ import { securityLabelsService } from './security-labels-service.js';
  * Based on HL7 v3 DataOperation codes
  */
 export type ProvenanceActivity =
-    | 'CREATE'      // Resource was created
-    | 'UPDATE'      // Resource was updated
-    | 'DELETE'      // Resource was deleted
-    | 'EXECUTE'     // Computation or derivation
-    | 'VERIFY'      // Resource was verified
-    | 'TRANSFORM'   // Resource was transformed
-    | 'COMPOSE'     // Resource was composed from others
+    | 'CREATE' // Resource was created
+    | 'UPDATE' // Resource was updated
+    | 'DELETE' // Resource was deleted
+    | 'EXECUTE' // Computation or derivation
+    | 'VERIFY' // Resource was verified
+    | 'TRANSFORM' // Resource was transformed
+    | 'COMPOSE' // Resource was composed from others
     | 'DERIVATION'; // Resource was derived from source
 
 /**
  * Agent role types for Provenance
  */
 export type ProvenanceAgentRole =
-    | 'author'      // The primary actor who created the content
-    | 'performer'   // The person who performed the activity
-    | 'verifier'    // The person who verified the content
-    | 'attester'    // The person who attests to the accuracy
-    | 'informant'   // Provided source information
-    | 'custodian'   // Maintains the resource
-    | 'assembler'   // Assembled the content
-    | 'composer';   // Composed the content
+    | 'author' // The primary actor who created the content
+    | 'performer' // The person who performed the activity
+    | 'verifier' // The person who verified the content
+    | 'attester' // The person who attests to the accuracy
+    | 'informant' // Provided source information
+    | 'custodian' // Maintains the resource
+    | 'assembler' // Assembled the content
+    | 'composer'; // Composed the content
 
 /**
  * Entity role types for Provenance
  */
 export type ProvenanceEntityRole =
-    | 'derivation'  // Derived from source
-    | 'revision'    // Revision of source
-    | 'quotation'   // Quoted from source
-    | 'source'      // Primary source
-    | 'removal';    // Content was removed
+    | 'derivation' // Derived from source
+    | 'revision' // Revision of source
+    | 'quotation' // Quoted from source
+    | 'source' // Primary source
+    | 'removal'; // Content was removed
 
 /**
  * Data source types for tracking origin
  */
 export type DataSourceType =
-    | 'internal'           // Created within this system
-    | 'patient-upload'     // Uploaded by patient
-    | 'cross-hospital'     // Cross-hospital exchange
-    | 'external-system'    // External system integration
-    | 'manual-entry'       // Manual data entry
-    | 'device'             // Device generated
-    | 'calculated';        // Calculated/derived
+    | 'internal' // Created within this system
+    | 'patient-upload' // Uploaded by patient
+    | 'cross-hospital' // Cross-hospital exchange
+    | 'external-system' // External system integration
+    | 'manual-entry' // Manual data entry
+    | 'device' // Device generated
+    | 'calculated'; // Calculated/derived
 
 /**
  * Agent information for Provenance
@@ -330,7 +330,8 @@ const CODE_SYSTEMS = {
     PROVENANCE_ENTITY_ROLE: 'http://hl7.org/fhir/provenance-entity-role',
     SIGNATURE_TYPE: 'urn:iso-astm:E1762-95:2013',
     TW_CORE: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-activity-type',
-    TW_PROVENANCE_PARTICIPANT: 'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-participant-type-tw',
+    TW_PROVENANCE_PARTICIPANT:
+        'https://twcore.mohw.gov.tw/ig/twcore/CodeSystem/provenance-participant-type-tw',
     ACT_REASON: 'http://terminology.hl7.org/CodeSystem/v3-ActReason',
     DATA_SOURCE: 'https://medcalc-ehr.example.com/CodeSystem/data-source-type'
 };
@@ -338,12 +339,16 @@ const CODE_SYSTEMS = {
 /**
  * TW Core Provenance Profile URL
  */
-const TW_CORE_PROVENANCE_PROFILE = 'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Provenance-twcore';
+const TW_CORE_PROVENANCE_PROFILE =
+    'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Provenance-twcore';
 
 /**
  * Activity type mappings
  */
-const ACTIVITY_CODES: Record<ProvenanceActivity, { system: string; code: string; display: string }> = {
+const ACTIVITY_CODES: Record<
+    ProvenanceActivity,
+    { system: string; code: string; display: string }
+> = {
     CREATE: {
         system: CODE_SYSTEMS.PROVENANCE_ACTIVITY,
         code: 'CREATE',
@@ -389,7 +394,10 @@ const ACTIVITY_CODES: Record<ProvenanceActivity, { system: string; code: string;
 /**
  * Agent type mappings
  */
-const AGENT_TYPE_CODES: Record<ProvenanceAgent['type'], { system: string; code: string; display: string }> = {
+const AGENT_TYPE_CODES: Record<
+    ProvenanceAgent['type'],
+    { system: string; code: string; display: string }
+> = {
     practitioner: {
         system: CODE_SYSTEMS.PROVENANCE_AGENT_TYPE,
         code: 'author',
@@ -420,7 +428,10 @@ const AGENT_TYPE_CODES: Record<ProvenanceAgent['type'], { system: string; code: 
 /**
  * Agent role mappings
  */
-const AGENT_ROLE_CODES: Record<ProvenanceAgentRole, { system: string; code: string; display: string }> = {
+const AGENT_ROLE_CODES: Record<
+    ProvenanceAgentRole,
+    { system: string; code: string; display: string }
+> = {
     author: {
         system: CODE_SYSTEMS.PROVENANCE_AGENT_TYPE,
         code: 'author',
@@ -477,11 +488,14 @@ const ENTITY_ROLE_CODES: Record<ProvenanceEntityRole, string> = {
 /**
  * Signature type mappings
  */
-const SIGNATURE_TYPE_CODES: Record<ProvenanceSignature['type'], { system: string; code: string; display: string }> = {
+const SIGNATURE_TYPE_CODES: Record<
+    ProvenanceSignature['type'],
+    { system: string; code: string; display: string }
+> = {
     authorship: {
         system: CODE_SYSTEMS.SIGNATURE_TYPE,
         code: '1.2.840.10065.1.12.1.1',
-        display: 'Author\'s Signature'
+        display: "Author's Signature"
     },
     witness: {
         system: CODE_SYSTEMS.SIGNATURE_TYPE,
@@ -509,13 +523,13 @@ const SIGNATURE_TYPE_CODES: Record<ProvenanceSignature['type'], { system: string
  * Data source type display names
  */
 const DATA_SOURCE_DISPLAY: Record<DataSourceType, string> = {
-    'internal': '本院產生',
+    internal: '本院產生',
     'patient-upload': '病患上傳',
     'cross-hospital': '跨院交換',
     'external-system': '外部系統',
     'manual-entry': '人工輸入',
-    'device': '設備產生',
-    'calculated': '計算衍生'
+    device: '設備產生',
+    calculated: '計算衍生'
 };
 
 // ============================================================================
@@ -579,10 +593,12 @@ export class ProvenanceService {
             id,
             name,
             role: 'author',
-            onBehalfOf: organizationRef ? {
-                reference: organizationRef,
-                display: this.config.organizationName
-            } : undefined
+            onBehalfOf: organizationRef
+                ? {
+                      reference: organizationRef,
+                      display: this.config.organizationName
+                  }
+                : undefined
         };
         this.log('Practitioner context set:', this.currentPractitioner);
     }
@@ -673,11 +689,13 @@ export class ProvenanceService {
             const agentRoleCode = AGENT_ROLE_CODES[agent.role];
 
             // Dual-coding: HL7 standard + TW Core participant type
-            const typeCoding: Array<{ system: string; code: string; display?: string }> = [agentTypeCode];
+            const typeCoding: Array<{ system: string; code: string; display?: string }> = [
+                agentTypeCode
+            ];
             typeCoding.push({
                 system: CODE_SYSTEMS.TW_PROVENANCE_PARTICIPANT,
                 code: agentTypeCode.code,
-                display: agentTypeCode.display,
+                display: agentTypeCode.display
             });
 
             const fhirAgent: FHIRProvenance['agent'][0] = {
@@ -711,7 +729,7 @@ export class ProvenanceService {
                     {
                         system: CODE_SYSTEMS.TW_PROVENANCE_PARTICIPANT,
                         code: AGENT_TYPE_CODES.device.code,
-                        display: AGENT_TYPE_CODES.device.display,
+                        display: AGENT_TYPE_CODES.device.display
                     }
                 ]
             },
@@ -792,10 +810,7 @@ export class ProvenanceService {
         }
 
         // Apply default 'N' (Normal) security label — Provenance is metadata, not clinical data
-        const labeled = securityLabelsService.addSecurityLabel(
-            provenance as any,
-            'N'
-        );
+        const labeled = securityLabelsService.addSecurityLabel(provenance as any, 'N');
         return labeled as unknown as FHIRProvenance;
     }
 
@@ -1185,7 +1200,9 @@ export class ProvenanceService {
      */
     private async getPendingRecords(): Promise<FHIRProvenance[]> {
         try {
-            return await secureLocalRetrieve<FHIRProvenance[]>(STORAGE_KEYS.PENDING_RECORDS) || [];
+            return (
+                (await secureLocalRetrieve<FHIRProvenance[]>(STORAGE_KEYS.PENDING_RECORDS)) || []
+            );
         } catch {
             return [];
         }
@@ -1253,9 +1270,7 @@ export class ProvenanceService {
      * Get provenance records for a specific target
      */
     getProvenanceForTarget(targetRef: string): FHIRProvenance[] {
-        return this.recordQueue.filter(p =>
-            p.target.some(t => t.reference === targetRef)
-        );
+        return this.recordQueue.filter(p => p.target.some(t => t.reference === targetRef));
     }
 
     // ========================================================================
@@ -1277,12 +1292,29 @@ export class ProvenanceService {
             return data;
         }
         const sensitiveFields = [
-            'ssn', 'socialsecuritynumber', 'password', 'pin',
-            'creditcard', 'bankaccount', 'identifier',
-            'name', 'patientname', 'fullname', 'firstname', 'lastname',
-            'birthdate', 'dob', 'dateofbirth',
-            'address', 'phone', 'email', 'telecom',
-            'mrn', 'nationalid', 'passport', 'photo'
+            'ssn',
+            'socialsecuritynumber',
+            'password',
+            'pin',
+            'creditcard',
+            'bankaccount',
+            'identifier',
+            'name',
+            'patientname',
+            'fullname',
+            'firstname',
+            'lastname',
+            'birthdate',
+            'dob',
+            'dateofbirth',
+            'address',
+            'phone',
+            'email',
+            'telecom',
+            'mrn',
+            'nationalid',
+            'passport',
+            'photo'
         ];
 
         const sanitized: Record<string, any> = {};
@@ -1432,7 +1464,9 @@ export const provenanceService = new ProvenanceService({
 /**
  * Create a new ProvenanceService instance with custom configuration
  */
-export function createProvenanceService(config: Partial<ProvenanceServiceConfig>): ProvenanceService {
+export function createProvenanceService(
+    config: Partial<ProvenanceServiceConfig>
+): ProvenanceService {
     return new ProvenanceService(config);
 }
 

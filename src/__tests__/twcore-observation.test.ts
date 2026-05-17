@@ -43,39 +43,48 @@ const mockGetActiveAdapter = jest.fn<any>().mockReturnValue(null);
 
 // Mock dependencies
 jest.mock('../logger.js', () => ({
-    logger: { info: mockLoggerInfo, warn: mockLoggerWarn, error: mockLoggerError, debug: mockLoggerDebug },
+    logger: {
+        info: mockLoggerInfo,
+        warn: mockLoggerWarn,
+        error: mockLoggerError,
+        debug: mockLoggerDebug
+    }
 }));
 jest.mock('../sentry.js', () => ({ initSentry: mockInitSentry }));
 jest.mock('../cache-manager.js', () => ({
-    fhirCache: { getCachedObservation: mockGetCachedObservation, cacheObservation: mockCacheObservation, clearPatientCache: mockClearPatientCache },
+    fhirCache: {
+        getCachedObservation: mockGetCachedObservation,
+        cacheObservation: mockCacheObservation,
+        clearPatientCache: mockClearPatientCache
+    }
 }));
 jest.mock('../data-staleness.js', () => ({
     createStalenessTracker: () => ({
         setContainer: mockSetContainer,
         checkStaleness: mockCheckStaleness,
-        trackObservation: mockTrackObservation,
+        trackObservation: mockTrackObservation
     }),
-    DataStalenessTracker: mockDataStalenessTracker,
+    DataStalenessTracker: mockDataStalenessTracker
 }));
 jest.mock('../audit-event-service.js', () => ({
-    auditEventService: { logResourceRead: mockLogResourceRead },
+    auditEventService: { logResourceRead: mockLogResourceRead }
 }));
 jest.mock('../provenance-service.js', () => ({
     provenanceService: {
         recordCalculation: mockRecordCalculation,
         recordDerivation: mockRecordDerivation,
         getProvenanceForTarget: mockGetProvenanceForTarget,
-        generateLineageReport: mockGenerateLineageReport,
+        generateLineageReport: mockGenerateLineageReport
     },
-    CalculationResult: {},
+    CalculationResult: {}
 }));
 jest.mock('../fhir-feedback.js', () => ({
     fhirFeedback: {
         createLoadingBanner: mockCreateLoadingBanner,
         removeLoadingBanner: mockRemoveLoadingBanner,
         createDataSummary: mockCreateDataSummary,
-        setupDynamicTracking: mockSetupDynamicTracking,
-    },
+        setupDynamicTracking: mockSetupDynamicTracking
+    }
 }));
 jest.mock('../utils.js', () => ({
     getMostRecentObservation: mockGetMostRecentObservation,
@@ -83,23 +92,23 @@ jest.mock('../utils.js', () => ({
     getPatientConditions: mockGetPatientConditions,
     getMedicationRequests: mockGetMedicationRequests,
     calculateAge: mockCalculateAge,
-    isRestrictedResource: mockIsRestrictedResource,
+    isRestrictedResource: mockIsRestrictedResource
 }));
 jest.mock('../fhir-codes.js', () => ({
     LOINC_CODES: { BP_PANEL: '85354-9,55284-4', SYSTOLIC_BP: '8480-6', DIASTOLIC_BP: '8462-4' },
     SNOMED_CODES: {},
     getLoincName: mockGetLoincName,
     getMeasurementType: mockGetMeasurementType,
-    isValidLoincCode: mockIsValidLoincCode,
+    isValidLoincCode: mockIsValidLoincCode
 }));
 jest.mock('../lab-name-mapping.js', () => ({
-    getTextNameByLoinc: mockGetTextNameByLoinc,
+    getTextNameByLoinc: mockGetTextNameByLoinc
 }));
 jest.mock('../unit-converter.js', () => ({
-    UnitConverter: { convert: mockUnitConvert, setInputValue: mockSetInputValue },
+    UnitConverter: { convert: mockUnitConvert, setInputValue: mockSetInputValue }
 }));
 jest.mock('../ehr-adapters/index.js', () => ({
-    getActiveAdapter: mockGetActiveAdapter,
+    getActiveAdapter: mockGetActiveAdapter
 }));
 
 import { FHIRDataService } from '../fhir-data-service.js';
@@ -116,7 +125,10 @@ describe('TW Core Observation', () => {
 
     beforeEach(() => {
         service = new FHIRDataService();
-        const mockClient = { patient: { id: 'p1', read: jest.fn(), request: jest.fn() }, request: jest.fn() };
+        const mockClient = {
+            patient: { id: 'p1', read: jest.fn(), request: jest.fn() },
+            request: jest.fn()
+        };
         const container = document.createElement('div');
         service.initialize(mockClient, { id: 'p1' }, container);
     });
@@ -146,19 +158,20 @@ describe('TW Core Observation', () => {
             const obs = {
                 status: 'final',
                 code: { coding: [{ system: 'http://loinc.org', code: '8867-4' }] },
-                valueQuantity: { value: 72, unit: 'bpm' },
+                valueQuantity: { value: 72, unit: 'bpm' }
             };
             const result = callProcessObservation(obs, '8867-4');
             expect(result.twcoreProfile).toBe(TW_OBSERVATION_PROFILES.heartRate);
         });
 
         test('server-side profile takes priority over local lookup', () => {
-            const customProfile = 'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-vitalSigns-twcore';
+            const customProfile =
+                'https://twcore.mohw.gov.tw/ig/twcore/StructureDefinition/Observation-vitalSigns-twcore';
             const obs = {
                 meta: { profile: [customProfile] },
                 status: 'final',
                 code: { coding: [{ system: 'http://loinc.org', code: '8867-4' }] },
-                valueQuantity: { value: 72, unit: 'bpm' },
+                valueQuantity: { value: 72, unit: 'bpm' }
             };
             const result = callProcessObservation(obs, '8867-4');
             // Server profile should be used (vitalSigns instead of heartRate)
@@ -169,7 +182,7 @@ describe('TW Core Observation', () => {
             const obs = {
                 status: 'final',
                 code: { coding: [{ system: 'http://loinc.org', code: '99999-9' }] },
-                valueQuantity: { value: 5, unit: 'mg' },
+                valueQuantity: { value: 5, unit: 'mg' }
             };
             const result = callProcessObservation(obs, '99999-9');
             expect(result.twcoreProfile).toBeUndefined();
@@ -186,9 +199,15 @@ describe('TW Core Observation', () => {
                 status: 'final',
                 code: { coding: [{ system: 'http://loinc.org', code: '96607-7' }] },
                 component: [
-                    { code: { coding: [{ system: 'http://loinc.org', code: '96608-5' }] }, valueQuantity: { value: 120, unit: 'mmHg' } },
-                    { code: { coding: [{ system: 'http://loinc.org', code: '96609-3' }] }, valueQuantity: { value: 80, unit: 'mmHg' } },
-                ],
+                    {
+                        code: { coding: [{ system: 'http://loinc.org', code: '96608-5' }] },
+                        valueQuantity: { value: 120, unit: 'mmHg' }
+                    },
+                    {
+                        code: { coding: [{ system: 'http://loinc.org', code: '96609-3' }] },
+                        valueQuantity: { value: 80, unit: 'mmHg' }
+                    }
+                ]
             };
             const result = callProcessObservation(obs, '96607-7');
             expect(result.twcoreProfile).toBe(TW_OBSERVATION_PROFILES.averageBloodPressure);
@@ -209,7 +228,7 @@ describe('TW Core Observation', () => {
         test('should fail when status is missing', () => {
             const obs = {
                 code: { coding: [{ system: 'http://loinc.org', code: '2160-0' }] },
-                subject: { reference: 'Patient/p1' },
+                subject: { reference: 'Patient/p1' }
             };
             const result = checkObservationConformance(obs);
             expect(result.isConformant).toBe(false);
@@ -220,7 +239,7 @@ describe('TW Core Observation', () => {
             const obs = {
                 status: 'final',
                 code: {},
-                subject: { reference: 'Patient/p1' },
+                subject: { reference: 'Patient/p1' }
             };
             const result = checkObservationConformance(obs);
             expect(result.isConformant).toBe(false);
@@ -230,7 +249,7 @@ describe('TW Core Observation', () => {
         test('should fail when subject is missing', () => {
             const obs = {
                 status: 'final',
-                code: { coding: [{ system: 'http://loinc.org', code: '2160-0' }] },
+                code: { coding: [{ system: 'http://loinc.org', code: '2160-0' }] }
             };
             const result = checkObservationConformance(obs);
             expect(result.isConformant).toBe(false);
@@ -242,7 +261,7 @@ describe('TW Core Observation', () => {
                 status: 'final',
                 category: [{ coding: [{ code: 'laboratory' }] }],
                 code: { coding: [{ system: 'http://loinc.org', code: '2160-0' }] },
-                subject: { reference: 'Patient/p1' },
+                subject: { reference: 'Patient/p1' }
             };
             const result = checkObservationConformance(obs);
             expect(result.isConformant).toBe(true); // warning, not error

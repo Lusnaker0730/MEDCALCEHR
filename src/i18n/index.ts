@@ -18,8 +18,8 @@ const STORAGE_KEY = 'MEDCALC_LOCALE';
 const DEFAULT_LOCALE: Locale = 'zh-TW';
 
 const dictionaries: Record<Locale, TranslationDictionary> = {
-    'en': en as TranslationDictionary,
-    'zh-TW': zhTW as TranslationDictionary,
+    en: en as TranslationDictionary,
+    'zh-TW': zhTW as TranslationDictionary
 };
 
 let currentLocale: Locale = DEFAULT_LOCALE;
@@ -38,7 +38,8 @@ function resolve(dict: TranslationDictionary, key: string): string | undefined {
 
     for (const part of parts) {
         if (typeof current !== 'object' || current === null) return undefined;
-        if (part === '__proto__' || part === 'constructor' || part === 'prototype') return undefined;
+        if (part === '__proto__' || part === 'constructor' || part === 'prototype')
+            return undefined;
         if (!Object.prototype.hasOwnProperty.call(current, part)) return undefined;
         current = (current as TranslationDictionary)[part];
     }

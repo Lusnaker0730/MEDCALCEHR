@@ -1,7 +1,4 @@
-import {
-    createScoringCalculator,
-    ScoringCalculatorConfig
-} from '../shared/scoring-calculator.js';
+import { createScoringCalculator, ScoringCalculatorConfig } from '../shared/scoring-calculator.js';
 
 export const fourTsHitConfig: ScoringCalculatorConfig = {
     inputType: 'radio',
@@ -34,13 +31,11 @@ export const fourTsHitConfig: ScoringCalculatorConfig = {
             title: 'Timing of platelet count fall',
             options: [
                 {
-                    label:
-                        'Clear onset between days 5 and 10 OR platelet fall ≤1 day (prior heparin exposure within 30 days) (+2)',
+                    label: 'Clear onset between days 5 and 10 OR platelet fall ≤1 day (prior heparin exposure within 30 days) (+2)',
                     value: '2'
                 },
                 {
-                    label:
-                        'Consistent with days 5–10 fall, but not clear (e.g. missing platelet counts) OR onset after day 10 OR fall ≤1 day (prior heparin exposure 30–100 days ago) (+1)',
+                    label: 'Consistent with days 5–10 fall, but not clear (e.g. missing platelet counts) OR onset after day 10 OR fall ≤1 day (prior heparin exposure 30–100 days ago) (+1)',
                     value: '1'
                 },
                 {
@@ -55,13 +50,11 @@ export const fourTsHitConfig: ScoringCalculatorConfig = {
             title: 'Thrombosis or other sequelae',
             options: [
                 {
-                    label:
-                        'New thrombosis (confirmed) OR skin necrosis at heparin injection sites OR acute systemic reaction after intravenous heparin bolus (+2)',
+                    label: 'New thrombosis (confirmed) OR skin necrosis at heparin injection sites OR acute systemic reaction after intravenous heparin bolus (+2)',
                     value: '2'
                 },
                 {
-                    label:
-                        'Progressive or recurrent thrombosis or nonnecrotizing (erythematous) skin lesions or suspected thrombosis (not proven) (+1)',
+                    label: 'Progressive or recurrent thrombosis or nonnecrotizing (erythematous) skin lesions or suspected thrombosis (not proven) (+1)',
                     value: '1'
                 },
                 {
@@ -128,7 +121,11 @@ export const fourTsHitConfig: ScoringCalculatorConfig = {
             { criteria: 'Fall <30% OR nadir <10', points: '0 pts' },
             { criteria: 'Timing of platelet count fall', isHeader: true },
             { criteria: 'Clear onset Days 5-10 OR fall ≤1 day (recent heparin)', points: '2 pts' },
-            { criteria: 'Consistent with Days 5-10 fall (not clear) OR >Day 10 fall OR ≤1 day (prior exposure)', points: '1 pt' },
+            {
+                criteria:
+                    'Consistent with Days 5-10 fall (not clear) OR >Day 10 fall OR ≤1 day (prior exposure)',
+                points: '1 pt'
+            },
             { criteria: 'Fall <4 days without recent exposure', points: '0 pts' },
             { criteria: 'Thrombosis or other sequelae', isHeader: true },
             { criteria: 'New thrombosis, skin necrosis, or systemic reaction', points: '2 pts' },

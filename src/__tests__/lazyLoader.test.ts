@@ -45,7 +45,10 @@ class MockIntersectionObserver {
 
     // Helper: simulate entries intersecting
     triggerEntries(entries: Partial<IntersectionObserverEntry>[]) {
-        this.callback(entries as IntersectionObserverEntry[], this as unknown as IntersectionObserver);
+        this.callback(
+            entries as IntersectionObserverEntry[],
+            this as unknown as IntersectionObserver
+        );
     }
 }
 
@@ -77,7 +80,10 @@ describe('Lazy Loader Module', () => {
         // Install mock IntersectionObserver
         mockObserverInstance = null;
         (window as any).IntersectionObserver = class extends MockIntersectionObserver {
-            constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+            constructor(
+                callback: IntersectionObserverCallback,
+                options?: IntersectionObserverInit
+            ) {
                 super(callback, options);
                 mockObserverInstance = this;
             }
@@ -340,9 +346,7 @@ describe('Lazy Loader Module', () => {
                 const loader = new ImageLazyLoader();
 
                 // Simulate intersection
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 // The loading class should be added
                 expect(img.classList.contains('loading')).toBe(true);
@@ -362,9 +366,7 @@ describe('Lazy Loader Module', () => {
                 const { ImageLazyLoader } = await importLazyLoader();
                 const loader = new ImageLazyLoader();
 
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 expect(mockObserverInstance!.unobservedElements).toContain(img);
             });
@@ -377,9 +379,7 @@ describe('Lazy Loader Module', () => {
                 const { ImageLazyLoader } = await importLazyLoader();
                 const loader = new ImageLazyLoader();
 
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: false, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: false, target: img }]);
 
                 // Should not have loading class
                 expect(img.classList.contains('loading')).toBe(false);
@@ -396,9 +396,7 @@ describe('Lazy Loader Module', () => {
                 const { ImageLazyLoader } = await importLazyLoader();
                 const loader = new ImageLazyLoader();
 
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 // Should still add loading class because src is set
                 expect(img.classList.contains('loading')).toBe(true);
@@ -412,9 +410,7 @@ describe('Lazy Loader Module', () => {
                 const { ImageLazyLoader } = await importLazyLoader();
                 const loader = new ImageLazyLoader();
 
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 // Should NOT add loading class since there is nothing to load
                 expect(img.classList.contains('loading')).toBe(false);
@@ -439,7 +435,9 @@ describe('Lazy Loader Module', () => {
                     onload: (() => void) | null = null;
                     onerror: (() => void) | null = null;
                     private _src = '';
-                    get src() { return this._src; }
+                    get src() {
+                        return this._src;
+                    }
                     set src(val: string) {
                         this._src = val;
                         // Trigger onload asynchronously to simulate successful load
@@ -457,9 +455,7 @@ describe('Lazy Loader Module', () => {
                 const loader = new ImageLazyLoader();
 
                 // Trigger intersection
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 expect(img.classList.contains('loading')).toBe(true);
 
@@ -478,7 +474,9 @@ describe('Lazy Loader Module', () => {
                     onload: (() => void) | null = null;
                     onerror: (() => void) | null = null;
                     private _src = '';
-                    get src() { return this._src; }
+                    get src() {
+                        return this._src;
+                    }
                     set src(val: string) {
                         this._src = val;
                         if (this.onload) {
@@ -503,9 +501,7 @@ describe('Lazy Loader Module', () => {
                     eventDetail = e.detail;
                 }) as EventListener);
 
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 // Fire onload
                 tempImgOnload!();
@@ -521,7 +517,9 @@ describe('Lazy Loader Module', () => {
                     onload: (() => void) | null = null;
                     onerror: (() => void) | null = null;
                     private _src = '';
-                    get src() { return this._src; }
+                    get src() {
+                        return this._src;
+                    }
                     set src(val: string) {
                         this._src = val;
                         if (this.onerror) {
@@ -537,9 +535,7 @@ describe('Lazy Loader Module', () => {
                 const { ImageLazyLoader } = await importLazyLoader();
                 const loader = new ImageLazyLoader();
 
-                mockObserverInstance!.triggerEntries([
-                    { isIntersecting: true, target: img }
-                ]);
+                mockObserverInstance!.triggerEntries([{ isIntersecting: true, target: img }]);
 
                 expect(tempImgOnerror).not.toBeNull();
                 tempImgOnerror!();
@@ -676,9 +672,7 @@ describe('Lazy Loader Module', () => {
         test('should set crossOrigin for font resources', async () => {
             const { preloadResources } = await importLazyLoader();
 
-            preloadResources([
-                { url: '/fonts/roboto.woff2', type: 'font' }
-            ]);
+            preloadResources([{ url: '/fonts/roboto.woff2', type: 'font' }]);
 
             const link = document.head.querySelector('link[rel="preload"]') as HTMLLinkElement;
             expect(link).not.toBeNull();
@@ -689,9 +683,7 @@ describe('Lazy Loader Module', () => {
         test('should NOT set crossOrigin for non-font resources', async () => {
             const { preloadResources } = await importLazyLoader();
 
-            preloadResources([
-                { url: '/images/hero.jpg', type: 'image' }
-            ]);
+            preloadResources([{ url: '/images/hero.jpg', type: 'image' }]);
 
             const link = document.head.querySelector('link[rel="preload"]') as HTMLLinkElement;
             expect(link.crossOrigin).toBe('');
@@ -774,7 +766,9 @@ describe('Lazy Loader Module', () => {
             const { loadOnIdle } = await importLazyLoader();
 
             const fakeModule = { name: 'test-module' };
-            const importFn = jest.fn<() => Promise<typeof fakeModule>>().mockResolvedValue(fakeModule);
+            const importFn = jest
+                .fn<() => Promise<typeof fakeModule>>()
+                .mockResolvedValue(fakeModule);
 
             const result = await loadOnIdle(importFn);
             expect(result).toEqual(fakeModule);
@@ -790,9 +784,9 @@ describe('Lazy Loader Module', () => {
 
             const { loadOnIdle } = await importLazyLoader();
 
-            const importFn = jest.fn<() => Promise<unknown>>().mockRejectedValue(
-                new Error('Network failed')
-            );
+            const importFn = jest
+                .fn<() => Promise<unknown>>()
+                .mockRejectedValue(new Error('Network failed'));
 
             await expect(loadOnIdle(importFn)).rejects.toThrow('Network failed');
         });
@@ -804,7 +798,9 @@ describe('Lazy Loader Module', () => {
             const { loadOnIdle } = await importLazyLoader();
 
             const fakeModule = { loaded: true };
-            const importFn = jest.fn<() => Promise<typeof fakeModule>>().mockResolvedValue(fakeModule);
+            const importFn = jest
+                .fn<() => Promise<typeof fakeModule>>()
+                .mockResolvedValue(fakeModule);
 
             const promise = loadOnIdle(importFn);
 
@@ -871,9 +867,7 @@ describe('Lazy Loader Module', () => {
             const mod = await importLazyLoader();
 
             // Verify that DOMContentLoaded listener was registered
-            const dclCalls = addEventSpy.mock.calls.filter(
-                call => call[0] === 'DOMContentLoaded'
-            );
+            const dclCalls = addEventSpy.mock.calls.filter(call => call[0] === 'DOMContentLoaded');
             expect(dclCalls.length).toBeGreaterThanOrEqual(1);
 
             // Restore readyState

@@ -36,17 +36,21 @@ export function checkPatientConformance(patient: any): ConformanceResult {
         issues.push({
             severity: 'error',
             path: 'Patient',
-            message: 'Patient resource is null or undefined',
+            message: 'Patient resource is null or undefined'
         });
         return { isConformant: false, issues };
     }
 
     // TW Core: Patient.identifier min=1
-    if (!patient.identifier || !Array.isArray(patient.identifier) || patient.identifier.length === 0) {
+    if (
+        !patient.identifier ||
+        !Array.isArray(patient.identifier) ||
+        patient.identifier.length === 0
+    ) {
         issues.push({
             severity: 'error',
             path: 'Patient.identifier',
-            message: 'TW Core requires at least one identifier (identifier min=1)',
+            message: 'TW Core requires at least one identifier (identifier min=1)'
         });
     }
 
@@ -55,7 +59,7 @@ export function checkPatientConformance(patient: any): ConformanceResult {
         issues.push({
             severity: 'warning',
             path: 'Patient.gender',
-            message: 'Patient.gender is recommended',
+            message: 'Patient.gender is recommended'
         });
     }
 
@@ -64,13 +68,13 @@ export function checkPatientConformance(patient: any): ConformanceResult {
         issues.push({
             severity: 'warning',
             path: 'Patient.birthDate',
-            message: 'Patient.birthDate is recommended by TW Core',
+            message: 'Patient.birthDate is recommended by TW Core'
         });
     }
 
     return {
         isConformant: issues.filter(i => i.severity === 'error').length === 0,
-        issues,
+        issues
     };
 }
 
@@ -83,14 +87,17 @@ export function checkPatientConformance(patient: any): ConformanceResult {
  * - subject (required reference)
  * - category (lab observations require effective[x])
  */
-export function checkObservationConformance(observation: any, loincCode?: string): ConformanceResult {
+export function checkObservationConformance(
+    observation: any,
+    loincCode?: string
+): ConformanceResult {
     const issues: ConformanceIssue[] = [];
 
     if (!observation) {
         issues.push({
             severity: 'error',
             path: 'Observation',
-            message: 'Observation resource is null or undefined',
+            message: 'Observation resource is null or undefined'
         });
         return { isConformant: false, issues };
     }
@@ -100,16 +107,20 @@ export function checkObservationConformance(observation: any, loincCode?: string
         issues.push({
             severity: 'error',
             path: 'Observation.status',
-            message: 'Observation.status is required',
+            message: 'Observation.status is required'
         });
     }
 
     // code.coding is required
-    if (!observation.code?.coding || !Array.isArray(observation.code.coding) || observation.code.coding.length === 0) {
+    if (
+        !observation.code?.coding ||
+        !Array.isArray(observation.code.coding) ||
+        observation.code.coding.length === 0
+    ) {
         issues.push({
             severity: 'error',
             path: 'Observation.code.coding',
-            message: 'Observation.code.coding is required with at least one coding',
+            message: 'Observation.code.coding is required with at least one coding'
         });
     }
 
@@ -118,7 +129,7 @@ export function checkObservationConformance(observation: any, loincCode?: string
         issues.push({
             severity: 'error',
             path: 'Observation.subject',
-            message: 'Observation.subject is required',
+            message: 'Observation.subject is required'
         });
     }
 
@@ -127,18 +138,22 @@ export function checkObservationConformance(observation: any, loincCode?: string
         cat.coding?.some?.((c: any) => c.code === 'laboratory')
     );
     if (isLab) {
-        if (!observation.effectiveDateTime && !observation.effectivePeriod && !observation.effectiveInstant) {
+        if (
+            !observation.effectiveDateTime &&
+            !observation.effectivePeriod &&
+            !observation.effectiveInstant
+        ) {
             issues.push({
                 severity: 'warning',
                 path: 'Observation.effective[x]',
-                message: 'Laboratory observations should include effective[x]',
+                message: 'Laboratory observations should include effective[x]'
             });
         }
     }
 
     return {
         isConformant: issues.filter(i => i.severity === 'error').length === 0,
-        issues,
+        issues
     };
 }
 
@@ -162,7 +177,7 @@ export function annotateTWCoreProfile<T extends Record<string, any>>(
         ...resource,
         meta: {
             ...meta,
-            profile: profiles,
-        },
+            profile: profiles
+        }
     };
 }
