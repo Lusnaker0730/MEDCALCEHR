@@ -17,7 +17,7 @@
         "no-console": "off",
         "prefer-const": "error",
         "no-var": "error",
-        "eqeqeq": ["error", "always"],
+        "eqeqeq": ["error", "always", { "null": "ignore" }],
         "curly": "off",
         "brief-style": "off",
         "indent": "off",
