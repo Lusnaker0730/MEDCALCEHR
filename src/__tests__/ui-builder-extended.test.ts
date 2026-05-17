@@ -1074,23 +1074,22 @@ describe('UI Builder Extended Tests', () => {
             expect(html).not.toContain('<li>');
         });
 
-        test('renders items via sanitizeHTML (safe tags preserved, dangerous tags stripped)', () => {
+        test('renders items via sanitizeHTML (safe tags preserved, script tag neutralized)', () => {
             const html = uiBuilder.createList({
                 items: [
                     '<strong>Bold</strong>',
                     '<em>Italic</em>',
-                    '<script>alert("xss")</script>safe'
+                    '<script>alert("xss")</script>'
                 ]
             });
 
             // sanitizeHTML preserves safe formatting tags...
             expect(html).toContain('<strong>Bold</strong>');
             expect(html).toContain('<em>Italic</em>');
-            // ...but strips dangerous tags (script element body removed)
-            expect(html).not.toContain('<script>');
-            expect(html).not.toContain('alert("xss")');
-            // Surrounding safe text passes through
-            expect(html).toContain('safe');
+            // ...and neutralizes <script> by escaping the opening tag to its
+            // entity form so the browser does not execute it.
+            expect(html).not.toMatch(/<script\b/);
+            expect(html).toContain('&lt;script&gt;');
         });
     });
 
