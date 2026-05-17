@@ -328,12 +328,9 @@ describe('Error Handler Module', () => {
         });
 
         test('should show technical details on localhost', () => {
-            // jsdom defaults hostname to localhost
-            Object.defineProperty(window, 'location', {
-                value: { hostname: 'localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true
-            });
+            // jsdom default URL is http://localhost/, so hostname='localhost' already.
+            // (jest 30 / jsdom 26 makes window.location non-configurable; direct
+            // Object.defineProperty no longer works.)
 
             const error = new Error('Stack trace error');
             error.stack = 'Error: Stack trace error\n    at Object.<anonymous>';
@@ -380,12 +377,8 @@ describe('Error Handler Module', () => {
         });
 
         test('should display error.message when error has no stack (fallback in template)', () => {
-            // Test the template branch: error.stack || error.message
-            Object.defineProperty(window, 'location', {
-                value: { hostname: 'localhost', href: 'http://localhost/' },
-                writable: true,
-                configurable: true
-            });
+            // Test the template branch: error.stack || error.message.
+            // jsdom default URL is http://localhost/, hostname='localhost'.
 
             const error = { message: 'no stack available', name: 'CustomError' };
             displayError(container, error);

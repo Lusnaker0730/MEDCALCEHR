@@ -37,6 +37,13 @@ jest.mock('../audit-event-service', () => ({
     }
 }));
 
+// Mock the navigation helper so tests can observe redirect targets without
+// real navigation (jest 30 / jsdom 26 makes window.location non-configurable).
+const mockNavigateTo = jest.fn<any>();
+jest.mock('../nav-helper.js', () => ({
+    navigateTo: (url: string) => mockNavigateTo(url)
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -86,16 +93,10 @@ describe('SessionManager', () => {
         sessionStorage.clear();
         localStorage.clear();
 
-        // Reset window.location to a writable mock
-        Object.defineProperty(window, 'location', {
-            value: {
-                href: 'http://localhost/index.html',
-                hostname: 'localhost',
-                origin: 'http://localhost'
-            },
-            writable: true,
-            configurable: true
-        });
+        // jsdom test environment defaults to http://localhost/, so hostname,
+        // origin, and href already match the values previously asserted here.
+        // (Direct Object.defineProperty on window.location fails in
+        // jest 30 / jsdom 26 because location is non-configurable.)
 
         // Import fresh module with default config
         const mod = await importSessionManager();
@@ -314,7 +315,7 @@ describe('SessionManager', () => {
 
         test('should redirect to launch.html', async () => {
             await sessionManager.logout();
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
 
         test('should stop the session manager (clear timers and remove listeners)', async () => {
@@ -341,7 +342,7 @@ describe('SessionManager', () => {
 
             // Logout should still complete
             expect(sessionStorage.getItem('test')).toBeNull();
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
     });
 
@@ -548,7 +549,7 @@ describe('SessionManager', () => {
             await jest.advanceTimersByTimeAsync(0);
 
             expect(mockLogLogout).toHaveBeenCalled();
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
 
         test('pressing Escape should reset timers and hide overlay', () => {
@@ -723,7 +724,7 @@ describe('SessionManager', () => {
             await jest.advanceTimersByTimeAsync(0);
 
             expect(mockLogLogout).toHaveBeenCalled();
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
 
         test('should show warning before auto-logout', () => {
@@ -888,7 +889,7 @@ describe('SessionManager', () => {
         test('calling logout() without start() should still work', async () => {
             await sessionManager.logout();
             expect(mockLogLogout).toHaveBeenCalled();
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
 
         test('rapid activity events should be throttled correctly', () => {
@@ -982,7 +983,7 @@ describe('SessionManager', () => {
             await jest.advanceTimersByTimeAsync(0);
 
             expect(mockLogLogout).toHaveBeenCalled();
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
 
         test('start -> warning -> logout button -> complete logout', async () => {
@@ -999,7 +1000,7 @@ describe('SessionManager', () => {
 
             expect(mockLogLogout).toHaveBeenCalled();
             expect(sessionStorage.length).toBe(0);
-            expect(window.location.href).toBe('launch.html');
+            expect(mockNavigateTo).toHaveBeenCalledWith('launch.html');
         });
     });
 });

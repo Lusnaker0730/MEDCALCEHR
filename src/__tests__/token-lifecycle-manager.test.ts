@@ -88,15 +88,10 @@ describe('TokenLifecycleManager', () => {
         // Remove any leftover overlays
         document.getElementById('token-warning-overlay')?.remove();
 
-        Object.defineProperty(window, 'location', {
-            value: {
-                href: 'http://localhost/index.html',
-                hostname: 'localhost',
-                origin: 'http://localhost'
-            },
-            writable: true,
-            configurable: true
-        });
+        // jsdom test environment defaults to http://localhost/, so hostname,
+        // origin, and href already match the values previously asserted here.
+        // (Direct Object.defineProperty on window.location fails in
+        // jest 30 / jsdom 26 because location is non-configurable.)
 
         const mod = await importModule();
         tokenLifecycleManager = mod.tokenLifecycleManager;
