@@ -687,7 +687,9 @@ describe('Lazy Loader Module', () => {
             preloadResources([{ url: '/images/hero.jpg', type: 'image' }]);
 
             const link = document.head.querySelector('link[rel="preload"]') as HTMLLinkElement;
-            expect(link.crossOrigin).toBe('');
+            // jsdom 26 (jest 30) returns null for unset crossOrigin to align
+            // with the WHATWG HTML spec, whereas jsdom 20 returned ''.
+            expect(link.crossOrigin).toBeFalsy();
         });
 
         test('should handle an empty resources array', async () => {

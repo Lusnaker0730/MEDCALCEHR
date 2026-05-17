@@ -1,5 +1,6 @@
 import { calculatorModules } from './calculators/index.js';
 import { isCalculatorApproved } from './review-gate.js';
+import { navigateTo } from './nav-helper.js';
 
 const MIN_DISTANCE = 50;
 const MAX_VERTICAL_RATIO = 0.75;
@@ -55,9 +56,9 @@ export function initSwipeNavigation(currentCalcId: string): void {
             }
 
             if (deltaX > 0 && prevId) {
-                window.location.href = `calculator.html?name=${prevId}`;
+                navigateTo(`calculator.html?name=${prevId}`);
             } else if (deltaX < 0 && nextId) {
-                window.location.href = `calculator.html?name=${nextId}`;
+                navigateTo(`calculator.html?name=${nextId}`);
             }
         },
         { passive: true }

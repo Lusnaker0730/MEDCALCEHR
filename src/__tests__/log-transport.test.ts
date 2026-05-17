@@ -107,7 +107,11 @@ describe('BeaconTransport', () => {
 
     test('falls back to fetch when sendBeacon returns false', () => {
         (navigator.sendBeacon as jest.Mock).mockReturnValue(false);
-        const mockFetch = jest.fn(() => Promise.resolve(new Response(null, { status: 204 })));
+        // @types/jest 30 infers stricter mock signatures from the implementation.
+        // Use the explicit generic form so `toHaveBeenCalledWith(url, init)` typechecks.
+        const mockFetch = jest.fn<(...args: any[]) => Promise<Response>>(() =>
+            Promise.resolve(new Response(null, { status: 204 }))
+        );
         global.fetch = mockFetch as any;
 
         transport = new BeaconTransport('/api/logs', LogLevel.ERROR, 1);

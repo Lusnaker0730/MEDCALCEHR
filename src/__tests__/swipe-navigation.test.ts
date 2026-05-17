@@ -35,6 +35,14 @@ jest.mock('../review-gate.js', () => ({
     isCalculatorApproved: () => true
 }));
 
+// Mock the navigation helper so we can capture and assert the target URL
+// instead of hitting jsdom's "Not implemented: navigation" on real location
+// assignment (window.location is non-configurable in jest 30 / jsdom 26).
+const mockNavigateTo = jest.fn<any>();
+jest.mock('../nav-helper.js', () => ({
+    navigateTo: (url: string) => mockNavigateTo(url)
+}));
+
 import { initSwipeNavigation } from '../swipe-navigation.js';
 
 // Helper to create mock touch events
@@ -76,9 +84,12 @@ describe('SwipeNavigation', () => {
         }));
         Object.defineProperty(window, 'matchMedia', { writable: true, value: mockMatchMedia });
 
-        // Mock location
-        delete (window as any).location;
-        (window as any).location = { href: '' };
+        // Reset captured navigation target between tests
+        mockNavigateTo.mockClear();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('does nothing if prefers-reduced-motion is set', () => {
@@ -156,7 +167,7 @@ describe('SwipeNavigation', () => {
         const end = createTouchEvent('touchend', 200, 200); // deltaX = -100
         document.dispatchEvent(end);
 
-        expect(window.location.href).toBe('calculator.html?name=calc-c');
+        expect(mockNavigateTo).toHaveBeenCalledWith('calculator.html?name=calc-c');
     });
 
     it('navigates to prev on swipe right', () => {
@@ -168,12 +179,12 @@ describe('SwipeNavigation', () => {
         const end = createTouchEvent('touchend', 300, 200); // deltaX = +100
         document.dispatchEvent(end);
 
-        expect(window.location.href).toBe('calculator.html?name=calc-a');
+        expect(mockNavigateTo).toHaveBeenCalledWith('calculator.html?name=calc-a');
     });
 
     it('does not navigate for too-short swipes', () => {
         initSwipeNavigation('calc-b');
-        (window as any).location.href = '';
+        mockNavigateTo.mockClear();
 
         const start = createTouchEvent('touchstart', 200, 200);
         document.dispatchEvent(start);
@@ -181,12 +192,12 @@ describe('SwipeNavigation', () => {
         const end = createTouchEvent('touchend', 230, 200); // deltaX = 30 < 50
         document.dispatchEvent(end);
 
-        expect(window.location.href).toBe('');
+        expect(mockNavigateTo).not.toHaveBeenCalled();
     });
 
     it('does not navigate when target is INPUT', () => {
         initSwipeNavigation('calc-b');
-        (window as any).location.href = '';
+        mockNavigateTo.mockClear();
 
         const start = createTouchEvent('touchstart', 300, 200);
         document.dispatchEvent(start);
@@ -196,6 +207,6 @@ describe('SwipeNavigation', () => {
         Object.defineProperty(end, 'target', { value: input, writable: true });
         document.dispatchEvent(end);
 
-        expect(window.location.href).toBe('');
+        expect(mockNavigateTo).not.toHaveBeenCalled();
     });
 });

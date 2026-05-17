@@ -11,6 +11,7 @@ import { clearEncryptionKeyCache } from './security.js';
 import { clearFHIRCache } from './sw-register.js';
 import { t } from './i18n/index.js';
 import { formatCountdown } from './utils.js';
+import { navigateTo } from './nav-helper.js';
 
 // Window.MEDCALC_CONFIG type declared in src/types/global.d.ts
 
@@ -165,8 +166,9 @@ class SessionManager {
             }
         }
 
-        // Redirect to SMART launch page
-        window.location.href = 'launch.html';
+        // Redirect to SMART launch page (via nav-helper so tests can mock it
+        // under jest 30 / jsdom 26, where window.location is non-configurable).
+        navigateTo('launch.html');
     }
 
     // --- Private methods ---

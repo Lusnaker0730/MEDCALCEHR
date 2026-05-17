@@ -176,24 +176,45 @@ class Logger {
     private emit(level: LogLevel, message: string, context?: Record<string, unknown>): void {
         if (level < this.level) return;
 
+        // If we're in a torn-down jsdom (e.g. an async error handler firing
+        // after a jest test has completed), bail out before touching console.
+        // Probing window.location.origin throws under that state; we treat
+        // that as a signal that emitting now would either crash or trip
+        // jest 30's "Cannot log after tests are done" check.
+        try {
+            if (typeof window !== 'undefined' && window.location) {
+                // Force the location getter to run — throws if jsdom is mid-teardown
+                void window.location.origin;
+            }
+        } catch {
+            return;
+        }
+
         const entry = this.createEntry(level, message, context);
 
-        // Console output
+        // Console output. Wrap in try/catch so a late-firing log (e.g. an
+        // async error handler that lands after jest teardown) cannot crash
+        // the test runner. Jest 30 enforces "no logs after test" and would
+        // otherwise surface this as a test failure even when 3662/3662 pass.
         const json = JSON.stringify(entry);
-        switch (level) {
-            case LogLevel.DEBUG:
-                console.debug(json);
-                break;
-            case LogLevel.INFO:
-                console.log(json);
-                break;
-            case LogLevel.WARN:
-                console.warn(json);
-                break;
-            case LogLevel.ERROR:
-            case LogLevel.FATAL:
-                console.error(json);
-                break;
+        try {
+            switch (level) {
+                case LogLevel.DEBUG:
+                    console.debug(json);
+                    break;
+                case LogLevel.INFO:
+                    console.log(json);
+                    break;
+                case LogLevel.WARN:
+                    console.warn(json);
+                    break;
+                case LogLevel.ERROR:
+                case LogLevel.FATAL:
+                    console.error(json);
+                    break;
+            }
+        } catch {
+            /* swallow: console output during environment teardown */
         }
 
         // Sentry breadcrumb (lazy import to avoid circular deps)
