@@ -39,7 +39,8 @@ export default {
     collectCoverageFrom: [
         'src/**/*.ts',
         '!src/**/*.d.ts',
-        '!src/types/**/*.ts' // 排除類型定義檔案
+        '!src/types/**/*.ts', // 排除類型定義檔案
+        '!src/fhir-data-service.ts' // 47KB singleton — instrumenting it crashes the Jest worker on CI; covered by its own fhir-service.test.ts without coverage. See #57.
     ],
 
     // 覆蓋率閾值 (Phase 1.5: 42% → 50%+)
