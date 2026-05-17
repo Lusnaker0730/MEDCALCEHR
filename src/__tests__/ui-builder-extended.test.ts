@@ -1076,11 +1076,7 @@ describe('UI Builder Extended Tests', () => {
 
         test('renders items via sanitizeHTML (safe tags preserved, script tag neutralized)', () => {
             const html = uiBuilder.createList({
-                items: [
-                    '<strong>Bold</strong>',
-                    '<em>Italic</em>',
-                    '<script>alert("xss")</script>'
-                ]
+                items: ['<strong>Bold</strong>', '<em>Italic</em>', '<script>alert("xss")</script>']
             });
 
             // sanitizeHTML preserves safe formatting tags...

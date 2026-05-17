@@ -298,9 +298,7 @@ describe('Error Handler Module', () => {
 
             // User-facing messages are localized to zh-TW (default project locale).
             const content = container.querySelector('.error-content')?.textContent?.trim();
-            expect(content).toBe(
-                '無法從 EHR 系統取得病患資料。請檢查連線或手動輸入資料。'
-            );
+            expect(content).toBe('無法從 EHR 系統取得病患資料。請檢查連線或手動輸入資料。');
         });
 
         test('should use getUserFriendlyMessage for ValidationError', () => {
@@ -326,9 +324,7 @@ describe('Error Handler Module', () => {
 
             const content = container.querySelector('.error-content')?.textContent?.trim();
             // Generic fallback is also localized.
-            expect(content).toBe(
-                '計算器發生錯誤。請重新整理頁面後再試，或聯繫技術支援。'
-            );
+            expect(content).toBe('計算器發生錯誤。請重新整理頁面後再試，或聯繫技術支援。');
         });
 
         test('should show technical details on localhost', () => {
