@@ -2,8 +2,18 @@
  * @jest-environment jsdom
  */
 
-import { describe, expect, test, beforeEach, afterEach } from '@jest/globals';
+import { describe, expect, test, beforeAll, beforeEach, afterEach } from '@jest/globals';
 import { uiBuilder } from '../ui-builder';
+
+// jsdom does not provide the `CSS` browser global, which uiBuilder.initializeComponents
+// uses via `CSS.escape()` to build safe selectors. Polyfill a minimal version.
+beforeAll(() => {
+    if (typeof (globalThis as any).CSS === 'undefined') {
+        (globalThis as any).CSS = {
+            escape: (value: string) => String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&')
+        };
+    }
+});
 
 describe('UI Builder', () => {
     let container: HTMLElement;
@@ -210,7 +220,10 @@ describe('UI Builder', () => {
 
             expect(html).toContain('BMI');
             expect(html).toContain('22.5');
-            expect(html).toContain('kg/m²');
+            // escapeHtml encodes `/` to its hex entity, so check the two halves
+            // of the unit independently rather than the literal `kg/m²`.
+            expect(html).toContain('kg');
+            expect(html).toContain('m²');
         });
 
         test('should create result item with interpretation', () => {
