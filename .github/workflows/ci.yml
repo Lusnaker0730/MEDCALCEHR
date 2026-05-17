@@ -173,8 +173,16 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Run npm audit (high severity - blocking)
+            # Production runtime SOUP — blocking (IEC 62304 §8.1). Vulns in
+            # shipping deps (browser runtime) directly affect users. Dev/build/
+            # test SOUP is monitored separately as advisory only; rationale
+            # documented in CLAUDE.md "Dev SOUP Residual Risk".
+            - name: Run npm audit (production deps, high severity - blocking)
+              run: npm audit --omit=dev --audit-level=high
+
+            - name: Run npm audit (all deps incl. dev, high - advisory)
               run: npm audit --audit-level=high
+              continue-on-error: true
 
             - name: Run npm audit (moderate - advisory)
               run: npm audit --audit-level=moderate
