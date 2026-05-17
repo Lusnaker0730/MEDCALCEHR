@@ -55,6 +55,12 @@ export default {
     // 覆蓋率報告格式
     coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
 
+    // Worker resource limits — prevents OOM kills on CI runners (especially
+    // under coverage) by halving parallelism and recycling idle workers when
+    // they exceed 512MB. Closes #57.
+    maxWorkers: '50%',
+    workerIdleMemoryLimit: '512MB',
+
     // 指定不需要轉換的路徑
     transformIgnorePatterns: [
         'node_modules/(?!(fhirclient|chart.js)/)' // 如果這些庫發布為 ESM，可能需要轉換
