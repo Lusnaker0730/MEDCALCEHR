@@ -28,6 +28,13 @@ jest.mock('../calculators/index.js', () => ({
     getCalculatorMetadata: mockGetCalculatorMetadata
 }));
 
+// SwipeNavigation now filters the calculator list through isCalculatorApproved
+// (review gate). Tests need all three mock calculators to be treated as approved
+// so the swipe logic runs.
+jest.mock('../review-gate.js', () => ({
+    isCalculatorApproved: () => true
+}));
+
 import { initSwipeNavigation } from '../swipe-navigation.js';
 
 // Helper to create mock touch events
