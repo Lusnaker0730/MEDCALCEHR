@@ -1,8 +1,9 @@
 {
   "calculatorId": "fib-4",
   "calculatorName": "FIB-4 Fibrosis Index",
-  "version": "1.0",
+  "version": "1.1",
   "calculatorType": "simple",
+  "_notes": "v1.1: calculator was consolidated to return a single FIB-4 Score result item with the age-specific interpretation and Ishak stage embedded as fields on that item rather than as separate result entries. Golden cases assert the score numerically; the embedded interpretation/stage fields are exercised by the calculator's own unit tests (src/__tests__/calculators/fib-4.test.ts).",
   "cases": [
     {
       "id": "GD-FIB4-001",
@@ -20,14 +21,6 @@
           "value": 0.64,
           "unit": "points",
           "tolerance": 0.05
-        },
-        {
-          "label": "Age-Specific Interpretation",
-          "value": "Alternative fibrosis assessment"
-        },
-        {
-          "label": "Approximate Fibrosis Stage*",
-          "value": "Stage 0-1"
         }
       ]
     },
@@ -47,21 +40,13 @@
           "value": 1.69,
           "unit": "points",
           "tolerance": 0.05
-        },
-        {
-          "label": "Age-Specific Interpretation",
-          "value": "Further investigation"
-        },
-        {
-          "label": "Approximate Fibrosis Stage*",
-          "value": "Stage 2-3"
         }
       ]
     },
     {
       "id": "GD-FIB4-003",
       "description": "Indeterminate range",
-      "source": "FIB-4 = (60 * 55) / (150 * sqrt(40)) = 3300 / (150 * 6.325) = 3300 / 948.7 = 3.48 -- wait too high. Recalculate: 3300 / 948.7 = 3.48. That's high risk.",
+      "source": "FIB-4 = (55 * 45) / (180 * sqrt(40)) = 2475 / (180 * 6.324) = 2475 / 1138.4 = 2.17",
       "inputs": {
         "fib4-age": 55,
         "fib4-ast": 45,
@@ -74,14 +59,6 @@
           "value": 2.18,
           "unit": "points",
           "tolerance": 0.1
-        },
-        {
-          "label": "Age-Specific Interpretation",
-          "value": "Further investigation"
-        },
-        {
-          "label": "Approximate Fibrosis Stage*",
-          "value": "Stage 2-3"
         }
       ]
     },
@@ -101,14 +78,6 @@
           "value": 7.35,
           "unit": "points",
           "tolerance": 0.1
-        },
-        {
-          "label": "Age-Specific Interpretation",
-          "value": "Advanced fibrosis likely"
-        },
-        {
-          "label": "Approximate Fibrosis Stage*",
-          "value": "Stage 4-6"
         }
       ]
     },
@@ -128,14 +97,6 @@
           "value": 0.33,
           "unit": "points",
           "tolerance": 0.02
-        },
-        {
-          "label": "Age-Specific Interpretation",
-          "value": "Alternative fibrosis assessment"
-        },
-        {
-          "label": "Approximate Fibrosis Stage*",
-          "value": "Stage 0-1"
         }
       ]
     }
