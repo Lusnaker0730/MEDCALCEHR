@@ -1,19 +1,23 @@
 import { serumAnionGapCalculation } from '../../calculators/serum-anion-gap/calculation.js';
 
 describe('Serum Anion Gap Calculator', () => {
+    // Calculator now returns Anion Gap + Delta Gap + Delta Ratio (3 items)
+    // when no albumin provided. Helper to locate the AG item by label.
+    const findAnionGap = (result: ReturnType<typeof serumAnionGapCalculation>) =>
+        result.find(r => r.label === 'Anion Gap')!;
+
     test('Should calculate Normal Anion Gap (6-12)', () => {
-        // Na 140, Cl 100, HCO3 24 -> 140 - 124 = 16 (High) - wait, normal is 6-12
-        // Let's try Na 140, Cl 105, HCO3 25 -> 140 - 130 = 10 (Normal)
+        // Na 140, Cl 105, HCO3 25 -> 140 - 130 = 10 (Normal)
         const result = serumAnionGapCalculation({
             'sag-na': 140,
             'sag-cl': 105,
             'sag-hco3': 25
         });
 
-        expect(result).toHaveLength(1);
-        expect(result[0].value).toBe(10);
-        expect(result[0].interpretation).toBe('Normal Anion Gap');
-        expect(result[0].alertClass).toBe('success');
+        const ag = findAnionGap(result);
+        expect(ag.value).toBe(10);
+        expect(ag.interpretation).toBe('Normal');
+        expect(ag.alertClass).toBe('success');
     });
 
     test('Should calculate High Anion Gap (>12)', () => {
@@ -24,10 +28,10 @@ describe('Serum Anion Gap Calculator', () => {
             'sag-hco3': 20
         });
 
-        expect(result).toHaveLength(1);
-        expect(result[0].value).toBe(20);
-        expect(result[0].interpretation).toBe('High Anion Gap');
-        expect(result[0].alertClass).toBe('danger');
+        const ag = findAnionGap(result);
+        expect(ag.value).toBe(20);
+        expect(ag.interpretation).toBe('High Anion Gap');
+        expect(ag.alertClass).toBe('danger');
     });
 
     test('Should calculate Low Anion Gap (<6)', () => {
@@ -38,10 +42,10 @@ describe('Serum Anion Gap Calculator', () => {
             'sag-hco3': 26
         });
 
-        expect(result).toHaveLength(1);
-        expect(result[0].value).toBe(4);
-        expect(result[0].interpretation).toBe('Low Anion Gap');
-        expect(result[0].alertClass).toBe('warning');
+        const ag = findAnionGap(result);
+        expect(ag.value).toBe(4);
+        expect(ag.interpretation).toBe('Low Anion Gap');
+        expect(ag.alertClass).toBe('warning');
     });
 
     test('Should handle boundary cases', () => {
@@ -51,7 +55,7 @@ describe('Serum Anion Gap Calculator', () => {
             'sag-cl': 104,
             'sag-hco3': 24
         });
-        expect(result12[0].interpretation).toBe('Normal Anion Gap');
+        expect(findAnionGap(result12).interpretation).toBe('Normal');
 
         // Na 140, Cl 110, HCO3 24 -> 140 - 134 = 6 (Normal)
         const result6 = serumAnionGapCalculation({
@@ -59,7 +63,7 @@ describe('Serum Anion Gap Calculator', () => {
             'sag-cl': 110,
             'sag-hco3': 24
         });
-        expect(result6[0].interpretation).toBe('Normal Anion Gap');
+        expect(findAnionGap(result6).interpretation).toBe('Normal');
     });
 
     test('Should return empty for missing inputs', () => {
