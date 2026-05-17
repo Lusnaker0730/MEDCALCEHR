@@ -139,14 +139,23 @@ class Logger {
         message: string,
         context?: Record<string, unknown>
     ): LogEntry {
+        // Read window.location defensively. During jsdom teardown (or page
+        // unload in a real browser), the getter can throw if _document has
+        // been cleared, even though `window.location` is otherwise truthy.
+        let url: string | undefined;
+        try {
+            if (typeof window !== 'undefined' && window.location) {
+                url = window.location.origin + window.location.pathname;
+            }
+        } catch {
+            url = undefined;
+        }
+
         const entry: LogEntry = {
             timestamp: new Date().toISOString(),
             level: LEVEL_NAMES[level],
             message: stripPHI(message),
-            url:
-                typeof window !== 'undefined' && window.location
-                    ? window.location.origin + window.location.pathname
-                    : undefined
+            url
         };
 
         if (this.sessionId) {
