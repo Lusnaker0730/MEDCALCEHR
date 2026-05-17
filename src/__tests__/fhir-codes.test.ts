@@ -401,9 +401,9 @@ describe('FHIR Codes Module', () => {
             expect(LOINC_CODES.O2_FLOW_RATE).toBe('3151-8');
         });
 
-        test('should contain head circumference tape', () => {
-            expect(LOINC_CODES.HEAD_CIRCUMFERENCE_TAPE).toBe('8287-5');
-        });
+        // HEAD_CIRCUMFERENCE_TAPE (8287-5) was consolidated into the single
+        // HEAD_CIRCUMFERENCE entry (9843-4); the distinct tape variant is no
+        // longer maintained at the LOINC_CODES layer.
     });
 
     // =========================================
@@ -421,14 +421,13 @@ describe('FHIR Codes Module', () => {
     // Comma-Separated Codes + Alternate Entries Tests
     // =========================================
     describe('Comma-Separated Codes and Alternate Entries', () => {
-        test('comma-separated values should remain unchanged', () => {
+        test('codes should hold their expected values', () => {
+            // URINE_SODIUM was simplified from comma-separated '2828-2,2955-3'
+            // to the single random urine sodium code '2955-3'. The combined
+            // form and the separate URINE_SODIUM_RANDOM alias have been removed.
             expect(LOINC_CODES.BP_PANEL).toBe('85354-9');
             expect(LOINC_CODES.TEMPERATURE).toBe('8310-5');
-            expect(LOINC_CODES.URINE_SODIUM).toBe('2828-2,2955-3');
-        });
-
-        test('should have individual alternate entries', () => {
-            expect(LOINC_CODES.URINE_SODIUM_RANDOM).toBe('2955-3');
+            expect(LOINC_CODES.URINE_SODIUM).toBe('2955-3');
         });
     });
 
@@ -491,8 +490,11 @@ describe('FHIR Codes Module', () => {
             expect(getMeasurementType('96609-3')).toBe('pressure');
         });
 
-        test('should return circumference for head circumference tape code', () => {
-            expect(getMeasurementType('8287-5')).toBe('circumference');
+        // '8287-5' (head circumference tape) is no longer maintained in
+        // LOINC_CODES; getMeasurementType is only required to recognize the
+        // consolidated '9843-4' head-circumference code.
+        test('should return circumference for head circumference code', () => {
+            expect(getMeasurementType('9843-4')).toBe('circumference');
         });
     });
 
@@ -515,9 +517,8 @@ describe('FHIR Codes Module', () => {
             '29463-7',
             // Body Temperature
             '8310-5',
-            // Head Circumference
+            // Head Circumference (8287-5 tape variant consolidated into 9843-4)
             '9843-4',
-            '8287-5',
             // Heart Rate
             '8867-4',
             // Oxygen Saturation / Pulse Oximetry

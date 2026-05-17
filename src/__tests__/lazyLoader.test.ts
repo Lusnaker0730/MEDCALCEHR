@@ -85,6 +85,7 @@ describe('Lazy Loader Module', () => {
                 options?: IntersectionObserverInit
             ) {
                 super(callback, options);
+                // eslint-disable-next-line @typescript-eslint/no-this-alias -- mock pattern: capture constructed instance for later assertions
                 mockObserverInstance = this;
             }
         };

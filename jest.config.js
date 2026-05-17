@@ -39,7 +39,8 @@ export default {
     collectCoverageFrom: [
         'src/**/*.ts',
         '!src/**/*.d.ts',
-        '!src/types/**/*.ts' // 排除類型定義檔案
+        '!src/types/**/*.ts', // 排除類型定義檔案
+        '!src/fhir-data-service.ts' // 47KB singleton — instrumenting it crashes the Jest worker on CI; covered by its own fhir-service.test.ts without coverage. See #57.
     ],
 
     // 覆蓋率閾值 (Phase 1.5: 42% → 50%+)
@@ -54,6 +55,12 @@ export default {
 
     // 覆蓋率報告格式
     coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
+
+    // Worker resource limits — prevents OOM kills on CI runners (especially
+    // under coverage) by halving parallelism and recycling idle workers when
+    // they exceed 512MB. Closes #57.
+    maxWorkers: '50%',
+    workerIdleMemoryLimit: '512MB',
 
     // 指定不需要轉換的路徑
     transformIgnorePatterns: [

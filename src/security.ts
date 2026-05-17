@@ -44,6 +44,7 @@ const DANGEROUS_URL_SCHEMES = ['javascript:', 'data:', 'vbscript:', 'file:'];
  * @param str - String to sanitize
  * @returns Sanitized string without null bytes
  */
+// eslint-disable-next-line no-control-regex -- intentional: strip PHI/injection control bytes
 const NULL_BYTE_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
 
 function stripNullBytes(str: string): string {
@@ -97,6 +98,7 @@ export function escapeHTMLFast(str: string | null | undefined): string {
  * @returns True if dangerous scheme found
  */
 function hasDangerousScheme(value: string): boolean {
+    // eslint-disable-next-line no-control-regex -- intentional: normalize control chars before URL-scheme check
     const normalized = value.toLowerCase().replace(/[\s\x00-\x1F]/g, '');
     return DANGEROUS_URL_SCHEMES.some(scheme => normalized.includes(scheme));
 }

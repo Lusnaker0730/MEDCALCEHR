@@ -950,7 +950,7 @@ export class SecurityLabelsService {
             case 'full':
                 return this.config.maskCharacter.repeat(str.length);
 
-            case 'partial':
+            case 'partial': {
                 const visible = opts.visibleChars || 2;
                 if (str.length <= visible) {
                     return this.config.maskCharacter.repeat(str.length);
@@ -959,6 +959,7 @@ export class SecurityLabelsService {
                     str.substring(0, visible) +
                     this.config.maskCharacter.repeat(str.length - visible)
                 );
+            }
 
             case 'redact':
                 return opts.maskText || '[已遮蔽]';

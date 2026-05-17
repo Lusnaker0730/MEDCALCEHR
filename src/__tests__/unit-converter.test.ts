@@ -535,12 +535,13 @@ describe('UnitConverter', () => {
             expect(result).toBeCloseTo(expected, 2);
         });
 
-        test('mg/dL to mmol/L should return null (null factor)', () => {
-            // The concentration map has mg/dL -> mmol/L set to null
-            // value * null => NaN or 0, but the code checks for undefined, not null
-            // null is not undefined, so it will try value * null => 0
+        test('mg/dL to mmol/L should return null (unsupported conversion)', () => {
+            // The concentration map has mg/dL -> mmol/L set to null because
+            // the conversion requires a substance-specific molecular weight
+            // (creatinine, glucose, etc. differ). The converter now returns
+            // null explicitly rather than coercing null × value to 0.
             const result = UnitConverter.convert(100, 'mg/dL', 'mmol/L', 'concentration');
-            expect(result).toBe(0);
+            expect(result).toBeNull();
         });
     });
 
@@ -997,7 +998,8 @@ describe('UnitConverter', () => {
             const wrapper = UnitConverter.enhanceInput(input, 'weight', ['kg', 'lbs'], 'kg');
             document.body.appendChild(wrapper);
             UnitConverter.setInputValue(input, 70, 'kg');
-            expect(input.value).toBe('70');
+            // setInputValue formats via toFixed() so an integer becomes "70.0"
+            expect(parseFloat(input.value)).toBe(70);
         });
 
         test('should dispatch input event', () => {

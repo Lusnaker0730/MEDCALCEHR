@@ -9,7 +9,21 @@ import { calculateScoringResult } from '../../test-utils/scoring-test-utils.js';
 describe('GAD-7 Calculator', () => {
     test('Config Structure', () => {
         expect(gad7Config.id).toBe('gad-7');
-        expect(gad7Config.sections).toHaveLength(7); // 7 questions
+        // GAD-7 standard instrument: 7 scored anxiety items + 1 optional
+        // functional impairment item (Q8). Q8's option values are all 0 so
+        // it never contributes to the score; it is reported separately.
+        expect(gad7Config.sections).toHaveLength(8);
+
+        const scoredSections = gad7Config.sections!.filter(s =>
+            s.options.some(o => Number(o.value) > 0)
+        );
+        expect(scoredSections).toHaveLength(7);
+
+        const unscoredSections = gad7Config.sections!.filter(s =>
+            s.options.every(o => Number(o.value) === 0)
+        );
+        expect(unscoredSections).toHaveLength(1);
+        expect(unscoredSections[0].id).toBe('gad7-q7');
     });
 
     // Scenario 1: Minimal Anxiety (0-4)

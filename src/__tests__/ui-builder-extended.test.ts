@@ -2,7 +2,17 @@
  * @jest-environment jsdom
  */
 
-import { describe, test, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, test, expect, jest, beforeAll, beforeEach, afterEach } from '@jest/globals';
+
+// jsdom does not implement the `CSS` browser global; uiBuilder.initializeComponents
+// uses `CSS.escape()` to build safe selectors when wiring up controls.
+beforeAll(() => {
+    if (typeof (globalThis as any).CSS === 'undefined') {
+        (globalThis as any).CSS = {
+            escape: (value: string) => String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&')
+        };
+    }
+});
 
 const mockLoggerDebug = jest.fn<any>();
 const mockLoggerInfo = jest.fn<any>();
@@ -1064,14 +1074,18 @@ describe('UI Builder Extended Tests', () => {
             expect(html).not.toContain('<li>');
         });
 
-        test('renders items with HTML content escaped for safety', () => {
+        test('renders items via sanitizeHTML (safe tags preserved, script tag neutralized)', () => {
             const html = uiBuilder.createList({
-                items: ['<strong>Bold</strong>', '<em>Italic</em>']
+                items: ['<strong>Bold</strong>', '<em>Italic</em>', '<script>alert("xss")</script>']
             });
 
-            // Items are escaped to prevent XSS
-            expect(html).toContain('&lt;strong&gt;Bold&lt;/strong&gt;');
-            expect(html).toContain('&lt;em&gt;Italic&lt;/em&gt;');
+            // sanitizeHTML preserves safe formatting tags...
+            expect(html).toContain('<strong>Bold</strong>');
+            expect(html).toContain('<em>Italic</em>');
+            // ...and neutralizes <script> by escaping the opening tag to its
+            // entity form so the browser does not execute it.
+            expect(html).not.toMatch(/<script\b/);
+            expect(html).toContain('&lt;script&gt;');
         });
     });
 

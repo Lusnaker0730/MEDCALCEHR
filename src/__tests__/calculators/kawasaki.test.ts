@@ -15,7 +15,7 @@ describe('Kawasaki Disease Calculator', () => {
     test('Criteria Not Met (No Fever)', () => {
         const result = calculateScoringResult(kawasakiConfig, {
             'kawasaki-fever': '0',
-            'kawasaki-extrem': '1',
+            'kawasaki-extrem-acute': '1',
             'kawasaki-exanthem': '1',
             'kawasaki-conjunctival': '1',
             'kawasaki-oral': '1',
@@ -52,7 +52,7 @@ describe('Kawasaki Disease Calculator', () => {
         // Fever (1) + 3 features (3) = 4
         const result = calculateScoringResult(kawasakiConfig, {
             'kawasaki-fever': '1',
-            'kawasaki-extrem': '1',
+            'kawasaki-extrem-acute': '1',
             'kawasaki-exanthem': '1',
             'kawasaki-conjunctival': '1'
         });
@@ -65,7 +65,7 @@ describe('Kawasaki Disease Calculator', () => {
         // Fever (1) + 4 features (4) = 5
         const result = calculateScoringResult(kawasakiConfig, {
             'kawasaki-fever': '1',
-            'kawasaki-extrem': '1',
+            'kawasaki-extrem-acute': '1',
             'kawasaki-exanthem': '1',
             'kawasaki-conjunctival': '1',
             'kawasaki-oral': '1'
@@ -82,7 +82,7 @@ describe('Kawasaki Disease Calculator', () => {
         // score 5 (should be Kawasaki by score, but renderer denies it)
         const outputNoFever = renderer(5, {
             'kawasaki-fever': 0,
-            'kawasaki-extrem': 1,
+            'kawasaki-extrem-acute': 1,
             'kawasaki-exanthem': 1,
             'kawasaki-conjunctival': 1,
             'kawasaki-oral': 1,
@@ -93,7 +93,7 @@ describe('Kawasaki Disease Calculator', () => {
         // Fever present, 4 features
         const outputClassic = renderer(5, {
             'kawasaki-fever': 1,
-            'kawasaki-extrem': 1,
+            'kawasaki-extrem-acute': 1,
             'kawasaki-exanthem': 1,
             'kawasaki-conjunctival': 1,
             'kawasaki-oral': 1
@@ -103,7 +103,7 @@ describe('Kawasaki Disease Calculator', () => {
         // Fever present, 2 features
         const outputIncomplete = renderer(3, {
             'kawasaki-fever': 1,
-            'kawasaki-extrem': 1,
+            'kawasaki-extrem-acute': 1,
             'kawasaki-exanthem': 1
         });
         expect(outputIncomplete).toContain('Consider Incomplete Kawasaki Disease');
