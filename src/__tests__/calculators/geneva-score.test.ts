@@ -34,15 +34,13 @@ describe('Geneva Score Calculator', () => {
         expect(scoreItem!.interpretation).toBe('Low Risk');
     });
 
-    // Case 2: Intermediate Risk
-    // Age > 65 (1)
-    // HR 80 (1)
-    // Others 0
-    // Total 2
+    // Case 2: Intermediate Risk (standard Revised Geneva weighted score)
+    // Age > 65 (+1), HR 80 (75-94 → +3), others 0
+    // Total: 4 → Intermediate (4-10 range)
     test('Intermediate Risk Case', () => {
         const result = calculateGenevaScore({
             'geneva-age': '1',
-            'geneva-hr': '80', // 75-94 -> +1
+            'geneva-hr': '80',
             'geneva-prev-dvt': '0',
             'geneva-surgery': '0',
             'geneva-malignancy': '0',
@@ -54,24 +52,20 @@ describe('Geneva Score Calculator', () => {
         expect(result).not.toBeNull();
         const scoreItem = result!.find(r => r.label === 'Total Score');
         const score = parseInt(scoreItem!.value as string, 10);
-        expect(score).toBe(2);
+        expect(score).toBe(4);
         expect(scoreItem!.interpretation).toBe('Intermediate Risk');
     });
 
-    // Case 3: High Risk
-    // Age > 65 (1)
-    // Unilateral limb pain (1)
-    // Hemoptysis (1)
-    // Malignancy (1)
-    // HR 100 (+2)
-    // Total 6
+    // Case 3: High Risk (standard Revised Geneva weighted score)
+    // Age > 65 (+1), limb pain (+3), hemoptysis (+2), malignancy (+2), HR 100 (≥95 → +5)
+    // Total: 13 → High (≥11 range)
     test('High Risk Case', () => {
         const result = calculateGenevaScore({
             'geneva-age': '1',
-            'geneva-limb-pain': '1',
-            'geneva-hemoptysis': '1',
-            'geneva-malignancy': '1',
-            'geneva-hr': '100', // >=95 -> +2
+            'geneva-limb-pain': '3',
+            'geneva-hemoptysis': '2',
+            'geneva-malignancy': '2',
+            'geneva-hr': '100',
             'geneva-prev-dvt': '0',
             'geneva-surgery': '0',
             'geneva-palpation': '0'
@@ -80,7 +74,7 @@ describe('Geneva Score Calculator', () => {
         expect(result).not.toBeNull();
         const scoreItem = result!.find(r => r.label === 'Total Score');
         const score = parseInt(scoreItem!.value as string, 10);
-        expect(score).toBe(6);
+        expect(score).toBe(13);
         expect(scoreItem!.interpretation).toBe('High Risk');
     });
 
