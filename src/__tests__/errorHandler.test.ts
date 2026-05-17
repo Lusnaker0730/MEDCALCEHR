@@ -296,9 +296,10 @@ describe('Error Handler Module', () => {
             const error = new FHIRDataError('FHIR connection lost');
             displayError(container, error);
 
+            // User-facing messages are localized to zh-TW (default project locale).
             const content = container.querySelector('.error-content')?.textContent?.trim();
             expect(content).toBe(
-                'Unable to retrieve patient data from EHR system. Please check connection or enter data manually.'
+                '無法從 EHR 系統取得病患資料。請檢查連線或手動輸入資料。'
             );
         });
 
@@ -307,7 +308,8 @@ describe('Error Handler Module', () => {
             displayError(container, error);
 
             const content = container.querySelector('.error-content')?.textContent?.trim();
-            expect(content).toBe('Input validation failed: Age must be positive');
+            // Localized prefix + original error message (preserved as-is)
+            expect(content).toBe('輸入驗證失敗：Age must be positive');
         });
 
         test('should use getUserFriendlyMessage for generic CalculatorError', () => {
@@ -323,8 +325,9 @@ describe('Error Handler Module', () => {
             displayError(container, error);
 
             const content = container.querySelector('.error-content')?.textContent?.trim();
+            // Generic fallback is also localized.
             expect(content).toBe(
-                'Calculator encountered an error. Please refresh the page and try again or contact support.'
+                '計算器發生錯誤。請重新整理頁面後再試，或聯繫技術支援。'
             );
         });
 
