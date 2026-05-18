@@ -4,11 +4,11 @@
  */
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { setupAuthenticated } from '../helpers/auth-bypass';
+import { setupAuthenticatedContext } from '../helpers/auth-bypass';
 
 test.describe('Accessibility Audit', () => {
     test('index page has no WCAG 2.1 AA violations', async ({ page }) => {
-        await setupAuthenticated(page);
+        await setupAuthenticatedContext(page);
         await page.goto('/');
         await page.waitForSelector('#calculator-list');
 
@@ -20,7 +20,7 @@ test.describe('Accessibility Audit', () => {
     });
 
     test('calculator page has no WCAG 2.1 AA violations', async ({ page }) => {
-        await setupAuthenticated(page);
+        await setupAuthenticatedContext(page);
         await page.goto('/calculator.html?name=bmi-bsa');
         await page.waitForSelector('#calculator-container');
 
@@ -32,7 +32,7 @@ test.describe('Accessibility Audit', () => {
     });
 
     test('skip link is visible on focus', async ({ page }) => {
-        await setupAuthenticated(page);
+        await setupAuthenticatedContext(page);
         await page.goto('/');
 
         // Tab to focus the skip link
@@ -43,7 +43,7 @@ test.describe('Accessibility Audit', () => {
     });
 
     test('landmark structure is correct on index page', async ({ page }) => {
-        await setupAuthenticated(page);
+        await setupAuthenticatedContext(page);
         await page.goto('/');
 
         // Check header landmark
