@@ -257,7 +257,11 @@ export async function loadCalculator(calculatorId: string): Promise<CalculatorMo
 
         return (calculator as CalculatorModule) || (Object.values(module)[0] as CalculatorModule);
     } catch (error) {
-        throw new Error(`Unable to load calculator module: ${calculatorId}`);
+        // `Error(msg, { cause })` is ES2022 and tsconfig targets ES2020; use
+        // property assignment to attach the cause for `preserve-caught-error`.
+        const wrapped = new Error(`Unable to load calculator module: ${calculatorId}`);
+        (wrapped as Error & { cause?: unknown }).cause = error;
+        throw wrapped;
     }
 }
 

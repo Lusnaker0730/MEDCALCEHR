@@ -76,7 +76,11 @@ export async function loadCalculator(calculatorId: string): Promise<unknown> {
 
         return module;
     } catch (error) {
-        throw new Error(`Calculator "${calculatorId}" not found`);
+        // `Error(msg, { cause })` is ES2022 and tsconfig targets ES2020; use
+        // property assignment to attach the cause for `preserve-caught-error`.
+        const wrapped = new Error(`Calculator "${calculatorId}" not found`);
+        (wrapped as Error & { cause?: unknown }).cause = error;
+        throw wrapped;
     }
 }
 
