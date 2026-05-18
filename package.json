@@ -59,6 +59,7 @@
     "devDependencies": {
         "@axe-core/playwright": "^4.10.0",
         "@cyclonedx/cyclonedx-npm": "^1.19.0",
+        "@eslint/js": "^10.0.1",
         "@jest/globals": "^30.0.0",
         "@lhci/cli": "^0.15.1",
         "@octokit/rest": "^22.0.1",
@@ -69,7 +70,7 @@
         "@typescript-eslint/parser": "^8.50.1",
         "autoprefixer": "^10.5.0",
         "cssnano": "^7.0.0",
-        "eslint": "^8.56.0",
+        "eslint": "^10.0.0",
         "http-server": "^14.1.1",
         "husky": "^8.0.3",
         "jest": "^30.0.0",
