@@ -71,6 +71,7 @@ jobs:
         needs: [build-and-test]
 
         strategy:
+            fail-fast: false
             matrix:
                 browser: [chromium, firefox, webkit]
 

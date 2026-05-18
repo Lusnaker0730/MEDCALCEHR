@@ -32,8 +32,14 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: 'npx http-server -p 8000 -c-1',
+        // Use `vite preview` (serves `dist/`) rather than `http-server`.
+        // http-server's HTTP/1.1 keep-alive handling causes
+        // NS_ERROR_NET_EMPTY_RESPONSE on Firefox + Playwright on CI runners;
+        // vite preview is the Playwright-recommended dev server and is
+        // closer to what the production Nginx container serves.
+        command: 'npx vite preview --port 8000 --strictPort',
         port: 8000,
         reuseExistingServer: !process.env.CI,
+        timeout: 60000,
     },
 });
