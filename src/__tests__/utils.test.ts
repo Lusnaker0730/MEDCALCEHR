@@ -12,10 +12,10 @@ describe('Utility Functions', () => {
             // @ts-ignore
             global.Date = class extends Date {
                 constructor(date: any) {
-                    if (date) {
-                        return super(date) as any;
-                    }
-                    return mockToday as any;
+                    // Always call super() exactly once (derived-class
+                    // constructor contract); fall back to the mocked default
+                    // when no argument is supplied.
+                    super(date ?? mockToday);
                 }
                 static now() {
                     return mockToday.getTime();

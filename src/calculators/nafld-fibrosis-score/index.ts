@@ -130,13 +130,11 @@ const config: FormulaCalculatorConfig = {
         const items = results
             .map(r => {
                 if (r.label === 'Interpretation' && r.alertPayload) {
+                    // Render Interpretation as a separate alert block rather
+                    // than a redundant result-item row (calculation.ts emits
+                    // both Item 0 "NAFLD Score" with interpretation=stage and
+                    // Item 1 "Interpretation" with the full message).
                     alertHtml = uiBuilder.createAlert(r.alertPayload);
-                    return ''; // Don't show redundant item, or show it? original showed both result item (stage) AND alert.
-                    // Original: Result Item (Interpretation: stage), then Alert (Interpretation: message).
-                    // In calculation.ts:
-                    // Item 0: Label: NAFLD Score, Interp: stage.
-                    // Item 1: Label: Interpretation, Value: full message.
-                    // Let's filter out Interpretation item for display as item, and just use it for the Alert HTML block.
                     return '';
                 }
 

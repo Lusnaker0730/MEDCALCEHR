@@ -150,13 +150,9 @@ export default [
             // read. Project has accumulated 140+ pre-existing instances;
             // demoting to warning keeps the lint signal without blocking CI.
             'no-useless-assignment': 'warn',
-            // The following are new-in-ESLint-10 rules that flag pre-existing
-            // patterns in the codebase. Demoted to warnings to keep the
-            // migration PR's scope to "flat config only"; targeted source
-            // fixes can land separately.
-            'preserve-caught-error': 'warn',
-            'no-unreachable': 'warn',
-            'constructor-super': 'warn',
+            // Stricter ESLint 10 / 'recommended' rules — kept as errors now
+            // that the pre-existing violations in the codebase have been
+            // fixed (see commits referencing #57's follow-up).
             // null-checks via `== null` / `!= null` are an idiomatic
             // TS/JS pattern (covers both null and undefined in one op).
             eqeqeq: ['error', 'always', { null: 'ignore' }],
