@@ -57,7 +57,7 @@
         "web-vitals": "^5.2.0"
     },
     "devDependencies": {
-        "@axe-core/playwright": "^4.10.0",
+        "@axe-core/playwright": "^4.11.3",
         "@cyclonedx/cyclonedx-npm": "^1.19.0",
         "@eslint/js": "^10.0.1",
         "@jest/globals": "^30.0.0",
@@ -77,10 +77,10 @@
         "jest-axe": "^10.0.0",
         "jest-environment-jsdom": "^30.0.0",
         "lint-staged": "^15.2.0",
-        "postcss": "^8.5.0",
+        "postcss": "^8.5.14",
         "prettier": "^3.8.3",
         "rollup-plugin-visualizer": "^7.0.1",
-        "ts-jest": "^29.4.6",
+        "ts-jest": "^29.4.9",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
         "vite": "^6.2.0"
