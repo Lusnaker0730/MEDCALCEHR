@@ -58,7 +58,7 @@
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.10.0",
-        "@cyclonedx/cyclonedx-npm": "^1.19.0",
+        "@cyclonedx/cyclonedx-npm": "^4.2.1",
         "@eslint/js": "^10.0.1",
         "@jest/globals": "^30.0.0",
         "@lhci/cli": "^0.15.1",
