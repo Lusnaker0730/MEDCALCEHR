@@ -73,7 +73,7 @@ async function mockAppConfig(
             status: 200,
             contentType: 'text/javascript',
             body: `window.MEDCALC_CONFIG = {
-                fhir: { clientId: 'test-client', scope: 'launch/patient openid', redirectUri: 'http://localhost:8000/index.html' },
+                fhir: { clientId: 'test-client', scope: 'launch/patient openid', redirectUri: 'http://localhost:4173/index.html' },
                 session: { timeoutMinutes: ${timeoutMinutes}, warningMinutes: ${warningMinutes} }
             };`
         })
@@ -109,7 +109,7 @@ async function mockFhirEndpoints(page: Page, withObservations: boolean) {
                 status: 200,
                 contentType: 'application/fhir+json',
                 headers: {
-                    // CORS: tests run from http://localhost:8000 to a different
+                    // CORS: tests run from http://localhost:4173 to a different
                     // origin (https://mock-fhir.test.local). Without these
                     // headers fetch is blocked and fhirclient throws.
                     'Access-Control-Allow-Origin': '*',
