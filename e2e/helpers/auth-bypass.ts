@@ -107,8 +107,28 @@ async function mockFhirEndpoints(page: Page, withObservations: boolean) {
             route.fulfill({
                 status: 200,
                 contentType: 'application/fhir+json',
+                headers: {
+                    // CORS: tests run from http://localhost:8000 to a different
+                    // origin (https://mock-fhir.test.local). Without these
+                    // headers fetch is blocked and fhirclient throws.
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept'
+                },
                 body: JSON.stringify(body)
             });
+
+        // Handle CORS preflight
+        if (route.request().method() === 'OPTIONS') {
+            return route.fulfill({
+                status: 204,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept'
+                }
+            });
+        }
 
         // Patient/{id}
         if (pathname.startsWith('Patient/')) {
