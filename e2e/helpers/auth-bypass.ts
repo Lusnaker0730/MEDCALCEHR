@@ -33,7 +33,24 @@ interface AuthOptions {
 const MOCK_SERVER = 'https://mock-fhir.test.local/fhir';
 const STATE_KEY = 'mock-e2e-state';
 
+// Build an unsigned JWT (header.payload.signature) with only the fhirUser
+// claim. fhirclient's `client.user.read()` resolves the practitioner ID by
+// JWT-decoding tokenResponse.id_token's payload; the signature is never
+// verified, so 'alg:none' with an empty signature is sufficient for tests.
+function buildIdToken(fhirUser: string): string {
+    const b64url = (obj: object) =>
+        Buffer.from(JSON.stringify(obj))
+            .toString('base64')
+            .replace(/=+$/, '')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_');
+    const header = b64url({ alg: 'none', typ: 'JWT' });
+    const payload = b64url({ fhirUser, profile: fhirUser });
+    return `${header}.${payload}.`;
+}
+
 function smartStateScript(stateOverrides: Partial<Record<string, unknown>> = {}) {
+    const fhirUser = `Practitioner/${practitioner.id}`;
     const state = {
         serverUrl: MOCK_SERVER,
         clientId: 'test-client',
@@ -44,7 +61,10 @@ function smartStateScript(stateOverrides: Partial<Record<string, unknown>> = {})
             expires_in: 3600,
             scope: 'launch/patient openid fhirUser',
             patient: patient.id,
-            fhirUser: `Practitioner/${practitioner.id}`,
+            fhirUser,
+            // id_token is required for `client.user.read()` — fhirclient
+            // reads the practitioner ID from this JWT's fhirUser claim.
+            id_token: buildIdToken(fhirUser),
             ...((stateOverrides as Record<string, unknown>).tokenResponse as object)
         },
         ...stateOverrides
@@ -141,14 +161,50 @@ async function mockFhirEndpoints(page: Page, withObservations: boolean) {
             return respond(practitioner);
         }
 
-        // CapabilityStatement
+        // CapabilityStatement — must list every resource fhirDataService
+        // queries AND the search parameters it uses, otherwise fhirclient
+        // pre-flights and refuses with "Resource X is not supported" /
+        // "No search parameters supported for X".
         if (pathname === 'metadata') {
+            const commonSearchParams = [
+                { name: 'patient', type: 'reference' as const },
+                { name: 'subject', type: 'reference' as const },
+                { name: 'code', type: 'token' as const },
+                { name: 'category', type: 'token' as const },
+                { name: 'date', type: 'date' as const },
+                { name: 'status', type: 'token' as const },
+                { name: '_sort', type: 'string' as const },
+                { name: '_count', type: 'number' as const }
+            ];
+            const supportedResources = [
+                'Patient',
+                'Practitioner',
+                'Observation',
+                'Condition',
+                'MedicationRequest',
+                'MedicationStatement',
+                'AllergyIntolerance',
+                'Procedure',
+                'Encounter',
+                'DiagnosticReport',
+                'DocumentReference'
+            ];
             return respond({
                 resourceType: 'CapabilityStatement',
                 status: 'active',
                 kind: 'instance',
                 fhirVersion: '4.0.1',
-                format: ['json']
+                format: ['json'],
+                rest: [
+                    {
+                        mode: 'server',
+                        resource: supportedResources.map(type => ({
+                            type,
+                            interaction: [{ code: 'read' }, { code: 'search-type' }],
+                            searchParam: commonSearchParams
+                        }))
+                    }
+                ]
             });
         }
 

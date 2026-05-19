@@ -38,19 +38,30 @@ self.addEventListener('install', event => {
     console.log('[Service Worker] Installing...');
 
     event.waitUntil(
-        caches
-            .open(CACHE_NAMES.static)
-            .then(cache => {
-                console.log('[Service Worker] Caching static resources');
-                return cache.addAll(STATIC_RESOURCES);
-            })
-            .then(() => {
-                console.log('[Service Worker] Installed successfully');
-                return self.skipWaiting();
-            })
-            .catch(error => {
-                console.error('[Service Worker] Installation failed:', error);
-            })
+        (async () => {
+            try {
+                const cache = await caches.open(CACHE_NAMES.static);
+                // Cache resources individually with `allSettled` so a single
+                // 404 (e.g. stale path after a build refactor) does not abort
+                // the whole install. The SW MUST always reach `activate` so
+                // that runtime caching can kick in and offline pages work.
+                const results = await Promise.allSettled(
+                    STATIC_RESOURCES.map(url => cache.add(url))
+                );
+                const failed = results.filter(r => r.status === 'rejected');
+                if (failed.length > 0) {
+                    console.warn(
+                        `[Service Worker] ${failed.length}/${STATIC_RESOURCES.length} pre-cache resources failed`,
+                        failed.map(r => r.reason?.message || r.reason)
+                    );
+                }
+                console.log('[Service Worker] Installed');
+            } catch (error) {
+                console.error('[Service Worker] Installation error:', error);
+            } finally {
+                await self.skipWaiting();
+            }
+        })()
     );
 });
 
@@ -268,6 +279,20 @@ function isImageRequest(url) {
 self.addEventListener('message', event => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
+    }
+
+    // Logout path: clear cached PHI responses from the FHIR cache.
+    // Without this handler, `clearFHIRCache()` in sw-register.ts hangs for
+    // 10s on its message-channel timeout, which exceeds Playwright's
+    // `waitForURL` window and stalls the logout-redirect flow.
+    if (event.data && event.data.type === 'CLEAR_FHIR_CACHE') {
+        event.waitUntil(
+            caches
+                .delete(CACHE_NAMES.fhir)
+                .then(() => {
+                    event.ports[0].postMessage({ success: true });
+                })
+        );
     }
 
     if (event.data && event.data.type === 'CLEAR_CACHE') {

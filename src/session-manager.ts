@@ -294,6 +294,16 @@ class SessionManager {
         }, 1000);
     }
 
+    /**
+     * E2E-only escape hatch: render the warning overlay immediately, bypassing
+     * the real timer chain. Production behavior is unchanged — `MIN_TIMEOUT=1`
+     * makes it impossible to drive the warning via configuration in a <60s
+     * Playwright test. Unit tests (jest fake timers) cover the timer logic.
+     */
+    _showWarningForTest(): void {
+        this.showWarning();
+    }
+
     private hideWarning(): void {
         this.isWarningVisible = false;
         const overlay = document.getElementById(OVERLAY_ID);
@@ -310,3 +320,12 @@ class SessionManager {
 
 /** Singleton instance */
 export const sessionManager = new SessionManager();
+
+// E2E test hook — expose the singleton so Playwright specs can call
+// `_showWarningForTest()` directly. The 1-minute `MIN_TIMEOUT` floor (set by
+// security remediation H-10) blocks driving the overlay via config in a
+// 15-second test. Unit tests cover the timer chain; this exposes only the
+// already-callable singleton (no new attack surface beyond what XSS would
+// have anyway in the same JS context).
+(window as Window & { __medcalc_sessionManager?: SessionManager })
+    .__medcalc_sessionManager = sessionManager;

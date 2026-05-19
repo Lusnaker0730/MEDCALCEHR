@@ -3,6 +3,14 @@ import { setupAuthenticatedContext } from '../helpers/auth-bypass';
 import { waitForCalculatorList, getCalculatorStats } from '../helpers/page-helpers';
 
 test.describe('Homepage Search/Filter/Sort/Favorites', () => {
+    test.beforeEach(async ({ page }) => {
+        // Force English locale so stats text matches `Showing N / N results`,
+        // which `getCalculatorStats()`'s regex depends on. App defaults to
+        // zh-TW (`顯示 N / N 筆結果`) which fails the regex and returns null.
+        await page.addInitScript(() => {
+            localStorage.setItem('MEDCALC_LOCALE', 'en');
+        });
+    });
 
     test('search filters calculator list', async ({ page }) => {
         await setupAuthenticatedContext(page);

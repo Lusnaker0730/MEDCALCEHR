@@ -23,6 +23,12 @@ export default defineConfig({
         // page.route handler, so without this flag every FHIR call is blocked
         // at the browser before Playwright can intercept it.
         bypassCSP: true,
+        // Block service workers by default. The SW intercepts FHIR calls via
+        // its own `fetch()`, which `page.route` does not reliably proxy, so
+        // the mock-FHIR server stops working in any test that lets the SW
+        // register. The offline-mode spec opts back in with
+        // `test.use({ serviceWorkers: 'allow' })`.
+        serviceWorkers: 'block',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
