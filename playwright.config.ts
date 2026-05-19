@@ -11,7 +11,18 @@ export default defineConfig({
         : [['html', { open: 'on-failure' }]],
 
     use: {
-        baseURL: 'http://localhost:8000',
+        // Use vite preview's default port (4173) rather than the more common
+        // 8000 to avoid clashing with other local dev servers (e.g. python
+        // http.server, uvicorn). Playwright's `reuseExistingServer: true` in
+        // dev mode otherwise binds to whatever is already on the port and
+        // every test returns 404 / wrong-app responses.
+        baseURL: 'http://localhost:4173',
+        // Bypass CSP so our mock FHIR endpoint (https://mock-fhir.test.local)
+        // can be fetched by the bundled fhirclient even though it is not in
+        // production's `connect-src` allowlist. CSP fires before any
+        // page.route handler, so without this flag every FHIR call is blocked
+        // at the browser before Playwright can intercept it.
+        bypassCSP: true,
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
@@ -37,8 +48,8 @@ export default defineConfig({
         // NS_ERROR_NET_EMPTY_RESPONSE on Firefox + Playwright on CI runners;
         // vite preview is the Playwright-recommended dev server and is
         // closer to what the production Nginx container serves.
-        command: 'npx vite preview --port 8000 --strictPort',
-        port: 8000,
+        command: 'npx vite preview --port 4173 --strictPort',
+        port: 4173,
         reuseExistingServer: !process.env.CI,
         timeout: 60000,
     },
