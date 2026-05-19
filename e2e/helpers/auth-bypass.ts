@@ -26,7 +26,11 @@ interface AuthOptions {
 // Mock both keys in this order so `FHIR.oauth2.ready()` resolves naturally
 // using the bundled fhirclient module instead of relying on `window.FHIR`
 // (which is unreachable from bundled code under vite preview / production).
-const MOCK_SERVER = 'http://mock-fhir-server';
+//
+// Use a real-looking https URL (Playwright `page.route` will intercept it
+// before any DNS lookup) — fhirclient's URL parsing chokes on schemes that
+// look invalid.
+const MOCK_SERVER = 'https://mock-fhir.test.local/fhir';
 const STATE_KEY = 'mock-e2e-state';
 
 function smartStateScript(stateOverrides: Partial<Record<string, unknown>> = {}) {
@@ -88,9 +92,17 @@ async function mockAppConfig(
  *   *   /Condition|MedReq|...   → empty Bundle
  */
 async function mockFhirEndpoints(page: Page, withObservations: boolean) {
+    // Match the FHIR base path. `MOCK_SERVER` includes the `/fhir` prefix, so
+    // strip it from the pathname before matching resource types.
+    const basePath = new URL(MOCK_SERVER).pathname.replace(/^\//, '').replace(/\/$/, '');
     await page.route(`${MOCK_SERVER}/**`, async route => {
         const url = new URL(route.request().url());
-        const pathname = url.pathname.replace(/^\//, '');
+        let pathname = url.pathname.replace(/^\//, '');
+        if (basePath && pathname.startsWith(basePath + '/')) {
+            pathname = pathname.slice(basePath.length + 1);
+        } else if (pathname === basePath) {
+            pathname = '';
+        }
         const respond = (body: unknown) =>
             route.fulfill({
                 status: 200,
