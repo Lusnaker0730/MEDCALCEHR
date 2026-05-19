@@ -96,22 +96,6 @@ async function mockFhirEndpoints(page: Page, withObservations: boolean) {
     // strip it from the pathname before matching resource types.
     const basePath = new URL(MOCK_SERVER).pathname.replace(/^\//, '').replace(/\/$/, '');
 
-    // Catch-all listener (no .fulfill so it doesn't block other routes) so we
-    // see in CI logs exactly what fhirclient is attempting before the FHIR
-    // route below intercepts.
-    page.on('request', req => {
-        if (req.url().includes('mock-fhir')) {
-            console.log(`[e2e-fhir-mock] ${req.method()} ${req.url()}`);
-        }
-    });
-    page.on('requestfailed', req => {
-        if (req.url().includes('mock-fhir')) {
-            console.log(
-                `[e2e-fhir-mock-FAIL] ${req.method()} ${req.url()} :: ${req.failure()?.errorText}`
-            );
-        }
-    });
-
     await page.route(`${MOCK_SERVER}/**`, async route => {
         const url = new URL(route.request().url());
         let pathname = url.pathname.replace(/^\//, '');
@@ -120,7 +104,6 @@ async function mockFhirEndpoints(page: Page, withObservations: boolean) {
         } else if (pathname === basePath) {
             pathname = '';
         }
-        console.log(`[e2e-fhir-mock-route] ${route.request().method()} -> pathname="${pathname}"`);
         const respond = (body: unknown) =>
             route.fulfill({
                 status: 200,
