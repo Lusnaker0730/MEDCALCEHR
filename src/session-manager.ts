@@ -327,5 +327,5 @@ export const sessionManager = new SessionManager();
 // 15-second test. Unit tests cover the timer chain; this exposes only the
 // already-callable singleton (no new attack surface beyond what XSS would
 // have anyway in the same JS context).
-(window as Window & { __medcalc_sessionManager?: SessionManager })
-    .__medcalc_sessionManager = sessionManager;
+(window as Window & { __medcalc_sessionManager?: SessionManager }).__medcalc_sessionManager =
+    sessionManager;
