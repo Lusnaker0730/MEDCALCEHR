@@ -20,6 +20,7 @@ import { calculationHistory } from './calculation-history.js';
 import { initI18n, t, hydrateI18n, onLocaleChange } from './i18n/index.js';
 import { BeaconTransport } from './log-transport.js';
 import { isCalculatorApproved } from './review-gate.js';
+import { initializeServiceWorker } from './sw-register.js';
 
 // Initialize Sentry early
 initSentry();
@@ -612,6 +613,9 @@ window.onload = () => {
             updateDisplay();
         }
     });
+
+    // ========== Service Worker (offline support) ==========
+    initializeServiceWorker();
 
     // ========== Session Management ==========
     sessionManager.start();

@@ -23,6 +23,14 @@ test.describe('Offline Mode / Service Worker', () => {
     // Service Worker tests require 'allow' for serviceWorkers
     test.use({ serviceWorkers: 'allow' });
 
+    test.beforeEach(async ({ page }) => {
+        // Force English locale so heading text matches `CGMH EHRCALC on FHIR`.
+        // The app defaults to zh-TW which renders `長庚 EHRCALC on FHIR`.
+        await page.addInitScript(() => {
+            localStorage.setItem('MEDCALC_LOCALE', 'en');
+        });
+    });
+
     test('page loads and SW can register', async ({ page }) => {
         await setupAuthenticatedContext(page);
         await page.goto('/index.html');

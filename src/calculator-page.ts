@@ -16,6 +16,7 @@ import { initSentry } from './sentry.js';
 import { logger, LogLevel } from './logger.js';
 import { initWebVitals } from './web-vitals.js';
 import { BeaconTransport } from './log-transport.js';
+import { initializeServiceWorker } from './sw-register.js';
 
 // Initialize Sentry early
 initSentry();
@@ -267,6 +268,9 @@ window.onload = () => {
             displayError(card, error as Error, t('calculator.unavailable'));
         }
     };
+
+    // ========== Service Worker (offline support) ==========
+    initializeServiceWorker();
 
     // ========== Session Management ==========
     sessionManager.start();
