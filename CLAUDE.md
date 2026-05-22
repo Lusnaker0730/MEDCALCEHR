@@ -143,12 +143,12 @@ Regulatory 文件由 `.github/workflows/regulatory-docs.yml` 從 Issues 自動�
 - **Vite** builds to `dist/` with code splitting (vendor-fhir, vendor-chart, vendor-sentry, core, ui)
 - **`tsc`** compiles to `js/` (used for non-bundled serving)
 - **Docker**: multi-stage build, Nginx on port 8080, non-root user
-- **Service worker**: `service-worker.js` at root (not compiled from TS)
+- **Service worker**: `public/service-worker.js` (copied to `dist/service-worker.js` by Vite via `publicDir`; not compiled from TS)
 - **CSS**: hand-written in `css/` with PostCSS (autoprefixer + cssnano)
 
 ## Common Pitfalls
 
 - `window.MEDCALC_CONFIG` type is declared in `src/types/global.d.ts` — pre-existing TS error on access is expected
 - The `js/` directory contains stale compiled output — always check `src/` for truth
-- Service worker is plain JS, not TypeScript — edit `service-worker.js` directly
+- Service worker is plain JS, not TypeScript — edit `public/service-worker.js` directly (Vite's `publicDir` copies it to `dist/`)
 - `fhirclient` library brings no framework — all DOM manipulation is vanilla

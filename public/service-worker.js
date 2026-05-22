@@ -119,8 +119,12 @@ self.addEventListener('fetch', event => {
         // Calculator modules: Stale While Revalidate
         event.respondWith(staleWhileRevalidate(request, CACHE_NAMES.calculators));
     } else if (isFHIRRequest(url)) {
-        // FHIR requests: Network First with short cache
-        event.respondWith(networkFirst(request, CACHE_NAMES.fhir, 5000));
+        // PT-02: FHIR requests bypass SW cache entirely. PHI responses
+        // must not be stored in Cache Storage — that's persistent,
+        // shared across tabs in the same origin, and unencrypted.
+        // Application-level FHIRCacheManager provides encrypted caching
+        // via secureLocalStore (AES-GCM).
+        return;
     } else if (isImageRequest(url)) {
         // Images: Cache First with long expiry
         event.respondWith(cacheFirst(request, CACHE_NAMES.images));
@@ -373,11 +377,27 @@ self.addEventListener('push', event => {
 
 /**
  * Notification Click Event
+ *
+ * PT-13: Validate the target URL is same-origin before opening to
+ * prevent open-redirect attacks. Push payloads come from outside the
+ * client and cannot be trusted.
  */
 self.addEventListener('notificationclick', event => {
     event.notification.close();
 
-    event.waitUntil(clients.openWindow(event.notification.data.url || '/'));
+    let targetUrl = '/';
+    if (event.notification.data && event.notification.data.url) {
+        try {
+            const parsed = new URL(event.notification.data.url, self.location.origin);
+            if (parsed.origin === self.location.origin) {
+                targetUrl = parsed.href;
+            }
+        } catch {
+            // Invalid URL — fall through to default '/'.
+        }
+    }
+
+    event.waitUntil(clients.openWindow(targetUrl));
 });
 
 console.log('[Service Worker] Script loaded');
