@@ -12,7 +12,14 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [18.x, 20.x]
+                # Node 18 was EOL on 2025-04-30. Vite ≥7 / lint-staged ≥17 /
+                # cssnano ≥8 all require Node ≥20.19; keeping 18.x in the
+                # matrix blocks routine SOUP updates. Production deploys run
+                # on Node 20 (see main.yml) so the matrix is single-row to
+                # mirror prod. Node 22 attempted but ts-jest@29 + Node 22
+                # exits 1 after passing all tests — re-add after upgrading
+                # ts-jest (tracked separately).
+                node-version: [20.x]
 
         steps:
             - name: Checkout repository
