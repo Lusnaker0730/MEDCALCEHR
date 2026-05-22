@@ -91,7 +91,14 @@ function smartStateScript(stateOverrides: Partial<Record<string, unknown>> = {})
  * production behavior is preserved.
  */
 async function stripUpgradeInsecureCSP(page: Page) {
-    await page.route(/\.html(\?.*)?$/, async route => {
+    // Match navigation requests by resourceType rather than URL pattern so
+    // bare-path navigations like `page.goto('/')` (which vite serves as
+    // index.html under the hood) are also intercepted. A path-suffix regex
+    // misses these because `/` doesn't end in `.html`.
+    await page.route('**/*', async (route, request) => {
+        if (request.resourceType() !== 'document') {
+            return route.continue();
+        }
         try {
             const response = await route.fetch();
             const body = (await response.text()).replace(
