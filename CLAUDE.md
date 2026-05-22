@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-SMART on FHIR medical calculator web app — 92 clinical calculators across 14 specialties. TypeScript + vanilla DOM (no React/Angular). Served via Nginx in Docker.
+SMART on FHIR medical calculator web app — 85 clinical calculators across 14 specialties. TypeScript + vanilla DOM (no React/Angular). Served via Nginx in Docker.
 
 ## Quick Commands
 
@@ -21,14 +21,14 @@ npm run format         # Prettier
 
 ```
 src/
-├── calculators/          # 87 calculator dirs, each with index.ts (+ optional calculation.ts)
+├── calculators/          # 86 calculator dirs (85 registered + shared/), each with index.ts (+ optional calculation.ts)
 │   ├── shared/           # Factory functions: scoring, formula, conversion, dynamic-list
 │   └── index.ts          # Registry: calculatorModules[], loadCalculator(), calculatorExists()
 ├── types/                # Centralized type defs (calculator-base, -scoring, -formula, -specialized)
 ├── twcore/               # Taiwan FHIR Core IG profiles, codesystems, validation
 ├── ehr-adapters/         # EHR-specific adapters (Epic, Cerner, Meditech, Generic)
 ├── i18n/                 # Internationalization (en, zh-TW)
-├── __tests__/            # 118+ test files mirroring src/ structure
+├── __tests__/            # 120 test files mirroring src/ structure
 ├── ui-builder.ts         # Singleton HTML component factory (escapes by default)
 ├── fhir-data-service.ts  # Central FHIR data access & auto-population
 ├── security.ts           # escapeHTML(), sanitizeHTML(), AES-GCM encryption, PHI stripping

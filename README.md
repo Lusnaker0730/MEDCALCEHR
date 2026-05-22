@@ -1,25 +1,25 @@
 # 🏥 CGMH EHRCALC on FHIR
 
-A comprehensive SMART on FHIR application providing **86 clinical calculators** across **14 medical specialties** for healthcare professionals, inspired by MDCalc. This application integrates seamlessly with Electronic Health Records (EHR) to provide automated patient data population and clinical decision support, with built-in **SaMD (Software as a Medical Device)** compliance infrastructure.
+A comprehensive SMART on FHIR application providing **85 clinical calculators** across **14 medical specialties** for healthcare professionals, inspired by MDCalc. This application integrates seamlessly with Electronic Health Records (EHR) to provide automated patient data population and clinical decision support, with built-in **SaMD (Software as a Medical Device)** compliance infrastructure.
 
 ## ✨ Features
 
-### 🧮 **86 Clinical Calculators**
+### 🧮 **85 Clinical Calculators**
 
-- **Cardiovascular (21)**: ASCVD, Framingham (LDL), GRACE ACS, HEART, RCRI, Wells DVT/PE, etc.
+- **Cardiovascular (24)**: ASCVD, AHA PREVENT, HEART, GRACE ACS-style (ACTION-ICU, TIMI), RCRI, Wells DVT/PE, MAGGIC, GWTG-HF, etc.
+- **Respiratory (7)**: 6MWD, ABG Analyzer, ARISCAT, CPIS, CURB-65, ETT Depth, STOP-BANG
+- **Metabolic (7)**: BWPS, Corrected Calcium, Free Water Deficit, HOMA-IR, Serum Anion Gap, Serum Osmolality, Corrected Sodium
+- **General Medicine (7)**: ABL90 FLEX, BMI/BSA, Charlson, IBW, Intraop Fluid, MAP, RegiSCAR
 - **Renal (6)**: CKD-EPI, MDRD, Cockcroft-Gault, FENa, FEUrea, TTKG
-- **Critical Care (5)**: APACHE II, SOFA, qSOFA, SIRS, MEWS
-- **Drug Conversion (3)**: Benzodiazepine, Steroid, MME Calculators
-- **Pediatric (6)**: Growth Charts (CDC + Taiwan), APGAR, PECARN, Kawasaki, Pediatric BP
-- **Infection (4)**: CURB-65, Centor, CPIS, 4C Mortality COVID-19
-- **Neurology (6)**: GCS, NIHSS, 2HELPS2B, 4A's Delirium, tPA Dosing Stroke
-- **Respiratory (7)**: ABG Analyzer, ABL90 FLEX, ARISCAT, 6MWD, ETT, STOP-BANG
-- **Metabolic (6)**: Calcium/Sodium Correction, Serum Osmolality, Anion Gap, HOMA-IR, BWPS
+- **Pediatric (6)**: APGAR, Growth Chart (CDC + Taiwan), Kawasaki, Maintenance Fluids, PECARN, Pediatric BP
+- **Neurology (6)**: 2HELPS2B, 4A's Delirium, GCS, NIHSS, Corrected Phenytoin, tPA Dosing Stroke
+- **Critical Care (5)**: APACHE II, MEWS, qSOFA, SIRS, SOFA
+- **Gastroenterology (5)**: Child-Pugh, FIB-4, MELD-Na, NAFLD Fibrosis, Ranson
+- **Drug Conversion (3)**: Benzodiazepine, MME, Corticosteroid
 - **Hematology (3)**: 4Ts HIT, HScore HLH, ISTH DIC
-- **Gastroenterology (4)**: Child-Pugh, FIB-4, MELD-Na, NAFLD Fibrosis, Ranson
+- **Psychiatry (3)**: CIWA-Ar, GAD-7, PHQ-9
+- **Infection (2)**: 4C Mortality COVID-19, Centor
 - **Obstetrics (1)**: Due Date Calculator
-- **Psychiatry (3)**: PHQ-9, GAD-7, CIWA-Ar
-- **General Medicine (7)**: BMI/BSA, Charlson, IBW, MAP, RegSCAR, Intraop Fluid, ABL90
 
 ### 🔗 **SMART on FHIR Integration**
 
@@ -203,25 +203,26 @@ npx http-server -p 8000
 
 ## 🛠️ Technical Stack
 
-| 類別           | 技術                                          |
-| -------------- | --------------------------------------------- |
-| **語言**       | TypeScript 5.9, HTML5, CSS3                   |
-| **建置工具**   | Vite 6.2 (code splitting, lazy loading)       |
-| **FHIR 整合**  | fhirclient 2.6 (SMART on FHIR R4)            |
-| **圖表**       | Chart.js 4.4（生長曲線圖）                    |
-| **搜尋**       | Fuse.js 7.1（模糊搜尋）                       |
-| **錯誤追蹤**   | Sentry 9.5                                    |
-| **效能監控**   | web-vitals 4.2                                |
-| **架構**       | 模組化計算器系統 + Factory Pattern + Adapters |
-| **UI 系統**    | UIBuilder 元件庫 + BEM CSS Architecture       |
-| **驗證**       | 三級驗證系統（綠/黃/紅）+ 跨欄位驗證         |
-| **代碼標準**   | LOINC、SNOMED CT、RxNorm                      |
-| **i18n**       | English, 繁體中文 (zh-TW)                     |
-| **部署**       | Docker + Nginx (rate limiting, TLS)           |
-| **單元測試**   | Jest 29 + ts-jest + jest-axe (114 test files) |
-| **E2E 測試**   | Playwright 1.58 (7 test specs)                |
-| **程式碼品質** | ESLint + Prettier + Husky + lint-staged       |
-| **合規**       | TFDA/IEC 62304 SaMD 驗證                      |
+| 類別           | 技術                                                |
+| -------------- | --------------------------------------------------- |
+| **語言**       | TypeScript 5.9, HTML5, CSS3                         |
+| **建置工具**   | Vite 8 (code splitting, lazy loading)               |
+| **FHIR 整合**  | fhirclient 2.6 (SMART on FHIR R4)                   |
+| **圖表**       | Chart.js 4.4（生長曲線圖）                          |
+| **搜尋**       | Fuse.js 7.3（模糊搜尋）                             |
+| **錯誤追蹤**   | Sentry 10                                           |
+| **效能監控**   | web-vitals 5                                        |
+| **架構**       | 模組化計算器系統 + Factory Pattern + Adapters       |
+| **UI 系統**    | UIBuilder 元件庫 + BEM CSS Architecture             |
+| **驗證**       | 三級驗證系統（綠/黃/紅）+ 跨欄位驗證                |
+| **代碼標準**   | LOINC、SNOMED CT、RxNorm                            |
+| **i18n**       | English, 繁體中文 (zh-TW)                           |
+| **部署**       | Docker + Nginx (rate limiting, TLS)                 |
+| **單元測試**   | Jest 30 + ts-jest + jest-axe (120 test files)       |
+| **E2E 測試**   | Playwright 1.60 (chromium + firefox + webkit, 7 specs) |
+| **程式碼品質** | ESLint 10 + Prettier 3 + Husky 9 + lint-staged 17   |
+| **CI Node**    | Node 20.x (Node 18 dropped 2025-04-30 EOL)          |
+| **合規**       | TFDA/IEC 62304 SaMD 驗證                            |
 
 ### 🏗️ 系統架構
 
@@ -262,7 +263,7 @@ flowchart TB
             Generic["Generic"]
         end
 
-        subgraph Calculators["計算器模組 (86)"]
+        subgraph Calculators["計算器模組 (85)"]
             Scoring["計分型<br/>APACHE, SOFA..."]
             Formula["公式型<br/>GFR, BMI..."]
             Convert["轉換型<br/>MME, 類固醇..."]
@@ -357,7 +358,7 @@ MEDCALCEHR/
 │   │   ├── ascvd/                # ASCVD Risk Score
 │   │   ├── ckd-epi/              # CKD-EPI GFR
 │   │   ├── growth-chart/         # 生長曲線（CDC + Taiwan）
-│   │   └── ...                   # 其他 83 個計算器
+│   │   └── ...                   # 其他 82 個計算器
 │   │
 │   ├── ehr-adapters/             # EHR 系統適配器
 │   │   ├── base-adapter.ts       # 基礎適配器
@@ -378,7 +379,7 @@ MEDCALCEHR/
 │   │   ├── calculator-scoring.ts # 計分型計算器型別
 │   │   └── calculator-specialized.ts # 特化型別
 │   │
-│   ├── __tests__/                # 單元測試（114 files）
+│   ├── __tests__/                # 單元測試（120 files）
 │   └── test-utils/               # 測試工具
 │
 ├── js/                           # 編譯後的 JavaScript
@@ -419,12 +420,15 @@ MEDCALCEHR/
 ## 🏥 Clinical Calculators Included
 
 <details>
-<summary>View all 86 calculators (14 categories)</summary>
+<summary>View all 85 calculators (14 categories)</summary>
 
-### Cardiovascular (21)
+> Source of truth: `src/calculators/index.ts` `calculatorModules` array.
+
+### Cardiovascular (24)
 
 - 4-Level Pulmonary Embolism Clinical Probability Score (4PEPS)
 - ACTION-ICU Risk Score for Intensive Care in NSTEMI
+- AHA PREVENT Risk Calculator (10/30-Year CVD)
 - ASCVD Risk Score (10-Year)
 - Atrial Fibrillation (AF) Risk Score (CHADVAS&HASBLED)
 - Corrected QT Interval (QTc)
@@ -432,7 +436,6 @@ MEDCALCEHR/
 - EuroSCORE II for Cardiac Surgery Mortality
 - Friedewald Equation for LDL Cholesterol
 - Geneva Score (Revised) for Pulmonary Embolism
-- GRACE ACS Risk Score
 - Gupta Perioperative Cardiac Risk (MICA)
 - GWTG-HF Risk Score
 - HAS-BLED Score for Major Bleeding Risk
@@ -443,71 +446,22 @@ MEDCALCEHR/
 - PRECISE-HBR Score
 - Revised Cardiac Risk Index (RCRI)
 - Risk Trade-off Analysis (Bleeding vs. Ischemic)
-- SEX-SHOCK Risk Score for Cardiogenic Shock
 - TIMI Risk Score for UA/NSTEMI
 - tPA Dosing for PE and MI
 - Wells Criteria for DVT
 - Wells Criteria for PE
 
-### Renal (6)
-
-- CKD-EPI GFR (2021)
-- Cockcroft-Gault Creatinine Clearance
-- Fractional Excretion of Sodium (FENa)
-- Fractional Excretion of Urea (FEUrea)
-- MDRD GFR Equation
-- Transtubular Potassium Gradient (TTKG)
-
-### Critical Care (5)
-
-- APACHE II Score
-- Modified Early Warning Score (MEWS)
-- qSOFA Score for Sepsis
-- SIRS Criteria for Systemic Inflammatory Response
-- SOFA Score for Sepsis Organ Failure
-
-### Pediatric (6)
-
-- APGAR Score
-- Kawasaki Disease Diagnostic Criteria
-- Maintenance Fluids Calculator
-- PECARN Head Trauma Rule for Children
-- Pediatric Blood Pressure Percentile
-- Pediatric Growth Chart (CDC + Taiwan)
-
-### Drug Conversion (3)
-
-- Benzodiazepine Conversion Calculator
-- Corticosteroid Conversion Calculator
-- Morphine Milligram Equivalent (MME) Calculator
-
-### Infection (4)
-
-- 4C Mortality Score for COVID-19
-- Centor Score for Strep Pharyngitis
-- Clinical Pulmonary Infection Score (CPIS) for VAP
-- CURB-65 Score for Pneumonia Severity
-
-### Neurology (6)
-
-- 2HELPS2B Score for Seizure Risk
-- 4 A's Test for Delirium
-- Corrected Phenytoin for Hypoalbuminemia
-- Glasgow Coma Scale (GCS)
-- NIH Stroke Scale (NIHSS)
-- tPA Dosing for Acute Stroke
-
 ### Respiratory (7)
 
 - 6-Minute Walk Distance (6MWD) Calculator
 - ABG Analyzer
-- ABL90 FLEX Analyzer Calculator
 - ARISCAT Score for Postoperative Pulmonary Complications
+- Clinical Pulmonary Infection Score (CPIS) for VAP
 - CURB-65 Score for Pneumonia Severity
 - ETT Depth and Tidal Volume Calculator
 - STOP-BANG for Obstructive Sleep Apnea
 
-### Metabolic (6)
+### Metabolic (7)
 
 - BWPS for Thyrotoxicosis
 - Corrected Calcium for Hypoalbuminemia
@@ -516,30 +470,6 @@ MEDCALCEHR/
 - HOMA-IR for Insulin Resistance
 - Serum Anion Gap
 - Serum Osmolality
-
-### Hematology (3)
-
-- 4Ts Score for Heparin-Induced Thrombocytopenia (HIT)
-- HScore for Hemophagocytic Lymphohistiocytosis (HLH)
-- ISTH Criteria for DIC
-
-### Gastroenterology (5)
-
-- Child-Pugh Score for Cirrhosis Mortality
-- FIB-4 Score for Liver Fibrosis
-- MELD-Na Score for Liver Disease Severity
-- NAFLD Fibrosis Score
-- Ranson Criteria for Pancreatitis Mortality
-
-### Obstetrics (1)
-
-- Due Date Calculator
-
-### Psychiatry (3)
-
-- CIWA-Ar for Alcohol Withdrawal
-- GAD-7 for Anxiety
-- PHQ-9 for Depression
 
 ### General Medicine (7)
 
@@ -550,6 +480,76 @@ MEDCALCEHR/
 - Intraoperative Fluid Dosing Calculator
 - Mean Arterial Pressure (MAP)
 - RegiSCAR Score for DRESS
+
+### Renal (6)
+
+- CKD-EPI GFR (2021)
+- Cockcroft-Gault Creatinine Clearance
+- Fractional Excretion of Sodium (FENa)
+- Fractional Excretion of Urea (FEUrea)
+- MDRD GFR Equation
+- Transtubular Potassium Gradient (TTKG)
+
+### Pediatric (6)
+
+- APGAR Score
+- Kawasaki Disease Diagnostic Criteria
+- Maintenance Fluids Calculator
+- PECARN Head Trauma Rule for Children
+- Pediatric Blood Pressure Percentile
+- Pediatric Growth Chart (CDC + Taiwan)
+
+### Neurology (6)
+
+- 2HELPS2B Score for Seizure Risk
+- 4 A's Test for Delirium
+- Corrected Phenytoin for Hypoalbuminemia
+- Glasgow Coma Scale (GCS)
+- NIH Stroke Scale (NIHSS)
+- tPA Dosing for Acute Stroke
+
+### Critical Care (5)
+
+- APACHE II Score
+- Modified Early Warning Score (MEWS)
+- qSOFA Score for Sepsis
+- SIRS Criteria for Systemic Inflammatory Response
+- SOFA Score for Sepsis Organ Failure
+
+### Gastroenterology (5)
+
+- Child-Pugh Score for Cirrhosis Mortality
+- FIB-4 Score for Liver Fibrosis
+- MELD-Na Score for Liver Disease Severity
+- NAFLD Fibrosis Score
+- Ranson Criteria for Pancreatitis Mortality
+
+### Drug Conversion (3)
+
+- Benzodiazepine Conversion Calculator
+- Corticosteroid Conversion Calculator
+- Morphine Milligram Equivalent (MME) Calculator
+
+### Hematology (3)
+
+- 4Ts Score for Heparin-Induced Thrombocytopenia (HIT)
+- HScore for Hemophagocytic Lymphohistiocytosis (HLH)
+- ISTH Criteria for DIC
+
+### Psychiatry (3)
+
+- CIWA-Ar for Alcohol Withdrawal
+- GAD-7 for Anxiety
+- PHQ-9 for Depression
+
+### Infection (2)
+
+- 4C Mortality Score for COVID-19
+- Centor Score for Strep Pharyngitis
+
+### Obstetrics (1)
+
+- Due Date Calculator
 
 </details>
 
