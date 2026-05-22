@@ -75,11 +75,55 @@ function smartStateScript(stateOverrides: Partial<Record<string, unknown>> = {})
     `;
 }
 
+/**
+ * Strip the CSP `upgrade-insecure-requests` directive from served HTML.
+ *
+ * Production index.html ships with `upgrade-insecure-requests` in its CSP
+ * meta tag, which webkit honors even when Playwright sets `bypassCSP: true`
+ * (the directive is a security-positive transform, not a restriction).
+ * Webkit then upgrades every script/asset fetch from
+ * `http://localhost:4173/...` to `https://localhost:4173/...`, and the vite
+ * preview server — serving HTTP only — fails the TLS handshake. The result
+ * is a page that loads index.html but executes zero JS.
+ *
+ * Chromium/firefox don't auto-upgrade in the test context, so they're
+ * unaffected. Stripping the directive only affects the e2e environment;
+ * production behavior is preserved.
+ */
+async function stripUpgradeInsecureCSP(page: Page) {
+    // Match navigation requests by resourceType rather than URL pattern so
+    // bare-path navigations like `page.goto('/')` (which vite serves as
+    // index.html under the hood) are also intercepted. A path-suffix regex
+    // misses these because `/` doesn't end in `.html`.
+    await page.route('**/*', async (route, request) => {
+        if (request.resourceType() !== 'document') {
+            return route.continue();
+        }
+        try {
+            const response = await route.fetch();
+            const body = (await response.text()).replace(
+                /\s*upgrade-insecure-requests;?/gi,
+                ''
+            );
+            await route.fulfill({
+                response,
+                body,
+                headers: response.headers()
+            });
+        } catch {
+            // Fall back to the original response if interception fails.
+            await route.continue();
+        }
+    });
+}
+
 async function mockAppConfig(
     page: Page,
     timeoutMinutes: number,
     warningMinutes: number
 ) {
+    await stripUpgradeInsecureCSP(page);
+
     await page.route('**/cdn.jsdelivr.net/**', route =>
         route.fulfill({
             status: 200,

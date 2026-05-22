@@ -298,5 +298,10 @@
 
 .calculator-stats {
     font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
+    /* Original `--color-text-muted` (#a0aec0) was 2.25:1 on white; first
+       fix tried `--color-text-secondary` (#718096) but axe-core in webkit
+       measured 4.01:1 — still below WCAG 2.1 AA's 4.5:1 floor for
+       normal-size text. Pin to #4a5568 (~7.4:1) which clears the floor
+       across browsers while still reading visually muted. */
+    color: #4a5568;
 }
