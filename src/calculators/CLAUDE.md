@@ -13,7 +13,7 @@ calculators/
 │   └── calculation.ts    # Pure calculation functions
 ├── phq-9/                # Example: simple scoring calculator
 │   └── index.ts          # Config object + createScoringCalculator() call
-└── ... (87 total)
+└── ... (86 directories — 85 registered + shared/)
 ```
 
 ## Adding a New Calculator
