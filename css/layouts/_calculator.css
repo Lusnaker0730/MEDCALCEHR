@@ -298,5 +298,9 @@
 
 .calculator-stats {
     font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
+    /* `--color-text-muted` (#a0aec0) yields 2.25:1 contrast on white, well
+       below WCAG 2.1 AA's 4.5:1 floor for normal-size text. Use the slightly
+       darker secondary token (#718096 → 4.54:1) so the stats line still
+       reads as "muted" without failing the audit. */
+    color: var(--color-text-secondary);
 }
