@@ -59,7 +59,7 @@ jobs:
 
             - name: Upload coverage report artifact
               if: matrix.node-version == '20.x'
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: coverage-report
                   path: coverage/
@@ -67,7 +67,7 @@ jobs:
 
             - name: Upload build artifact
               if: matrix.node-version == '20.x'
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: dist
                   path: dist/
@@ -105,7 +105,7 @@ jobs:
               run: npx playwright test --project=${{ matrix.browser }}
 
             - name: Upload Playwright report
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               if: always()
               with:
                   name: playwright-report-${{ matrix.browser }}
@@ -113,7 +113,7 @@ jobs:
                   retention-days: 30
 
             - name: Upload test results (traces)
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               if: failure()
               with:
                   name: test-results-${{ matrix.browser }}
@@ -218,7 +218,7 @@ jobs:
               run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
 
             - name: Upload SBOM artifact
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: sbom
                   path: sbom.json
